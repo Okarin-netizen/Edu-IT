@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>B1 育成日誌＋成長予測</title>
+<style>
+/* ===== B1 育成日誌＋成長予測 : すべて .b1 の中に閉じたスタイル ===== */
+html,body{margin:0;padding:0;background:#f4f7f1;}
+.b1{
+  --bg:#f4f7f1; --card:#ffffff; --ink:#172317; --sub:#475547; --line:#bfcbb9;
+  --pri:#2e7d32; --pri-d:#1b5e20; --pri-l:#e3f1e4; --acc:#d84315; --acc-l:#fbe9e7;
+  --warn:#b71c1c; --warn-l:#fdecea; --info:#0d47a1; --info-l:#e3edfb; --yel:#fff6d6;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Meiryo","Noto Sans JP",system-ui,sans-serif;
+  font-size:18px; line-height:1.6; color:var(--ink); background:var(--bg);
+  min-height:100vh; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.2);
+}
+.b1 *{box-sizing:border-box;}
+.b1.noruby rt{display:none;}
+.b1 rt{font-size:.5em;color:var(--sub);letter-spacing:-.04em;}
+.b1 ruby{ruby-align:center;}
+.b1 .top rt{color:#d7ecd8;}
+.b1 h1,.b1 h2,.b1 h3{margin:.2em 0 .5em;line-height:1.4;}
+.b1 h2{font-size:1.3em;}
+.b1 h3{font-size:1.1em;}
+.b1 p{margin:.4em 0 .8em;}
+.b1 small,.b1 .small{font-size:.85em;color:var(--sub);}
+/* header + tabs */
+.b1 .top{position:sticky;top:0;z-index:20;background:#1b5e20;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.b1 .topbar{display:flex;align-items:center;gap:8px;padding:6px 12px;padding-top:max(6px,env(safe-area-inset-top));}
+.b1 .topbar .ttl{font-weight:700;font-size:1.05em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b1 .topbar .who{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.6);color:#fff;border-radius:999px;padding:4px 14px;min-height:44px;min-width:44px;font-size:.85em;font-family:inherit;font-weight:700;max-width:40vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.b1 .topbar .who .demo-b{display:inline-block;background:#ffd54f;color:#3e2b00;border-radius:999px;padding:0 8px;margin-left:6px;font-size:.85em;}
+/* K2: ふりがな・A−・A＋ */
+.b1 .pf{display:flex;gap:6px;flex:0 0 auto;}
+.b1 .pfb{min-width:44px;min-height:44px;padding:0 10px;border-radius:10px;border:2px solid rgba(255,255,255,.75);background:transparent;color:#fff;font-family:inherit;font-size:.8em;font-weight:700;cursor:pointer;white-space:nowrap;}
+.b1 .pfb[aria-pressed="true"]{background:#fff;color:#1b5e20;border-color:#fff;}
+.b1 .pfb[disabled]{opacity:.4;cursor:default;}
+/* K3: メニューの中では見出しをかくし、名前ボタンだけ細い行に */
+html.kz-embed .b1 .topbar .ttl,html.kz-embed .b1 .pf{display:none;}
+html.kz-embed .b1 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0;}
+/* K4: タブ(帯は濃い緑、選択中はページの地色) */
+.b1 .tabs{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;padding:4px 6px 0;}
+.b1 .tabs.c5{grid-template-columns:repeat(5,minmax(0,1fr));}
+.b1 .tabs.c4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.b1 .tabs.c3{grid-template-columns:repeat(3,minmax(0,1fr));}
+.b1 .tab{background:transparent;border:0;color:#e3f1e4;font-weight:700;padding:4px 4px 6px;min-height:52px;min-width:0;font-size:.88em;line-height:1.25;border-radius:12px 12px 0 0;font-family:inherit;white-space:nowrap;cursor:pointer;}
+.b1 .tab rt{color:#cfe6d0;}
+.b1 .tab.on{background:#f4f7f1;color:#1b5e20;}
+.b1 .tab.on rt{color:var(--sub);}
+.b1 .tab .ic{display:block;font-size:1.15em;line-height:1.2;}
+.b1 .demobar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:#fff3c4;border:2px solid #e6c84f;border-radius:12px;padding:8px 12px;margin:0 0 12px;}
+.b1 .demobar b{flex:1;min-width:12em;}
+.b1 .ptxt{display:none;}
+.b1 .autosave{font-size:.85em;color:var(--sub);margin:.4em 0 0;}
+.b1 .reflhead{display:grid;grid-template-columns:6em 6em 1fr;gap:10px;}
+@media (max-width:560px){ .b1 .reflhead{grid-template-columns:1fr 1fr;} .b1 .reflhead .fn{grid-column:1 / -1;} }
+.b1 .self .seg button{min-width:7.5em;}
+.b1 .sbar{position:sticky;bottom:0;z-index:5;background:#fff;margin:8px -16px -16px;padding:10px 16px 14px;border-top:1px solid #e3e8e0;border-radius:0 0 14px 14px;}
+.b1 main{max-width:1100px;margin:0 auto;padding:14px 14px 90px;}
+.b1 section.scr{display:none;}
+.b1 section.scr.on{display:block;}
+/* cards */
+.b1 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px;}
+.b1 .card.soft{background:var(--pri-l);border-color:#a5d6a7;}
+.b1 .card.note{background:var(--yel);border-color:#e6c84f;}
+.b1 .card.warn{background:var(--warn-l);border-color:#e57373;}
+.b1 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.b1 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media (max-width:820px){ .b1 .grid2{grid-template-columns:1fr;} .b1 .grid2.keep{grid-template-columns:1fr 1fr;} }
+@media (max-width:480px){ .b1 .grid2.keep{grid-template-columns:1fr;} }
+@media (max-width:560px){ .b1 .grid3{grid-template-columns:1fr 1fr;} }
+.b1 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.b1 .row.end{justify-content:flex-end;}
+.b1 .sp{flex:1;}
+/* buttons */
+.b1 button,.b1 .btn{font-family:inherit;font-size:1em;}
+.b1 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:52px;padding:8px 18px;border-radius:12px;border:2px solid var(--pri);background:#fff;color:var(--pri-d);font-weight:700;cursor:pointer;text-decoration:none;user-select:none;}
+.b1 .btn:active{transform:translateY(1px);filter:brightness(.95);}
+.b1 .btn.pri{background:var(--pri);color:#fff;}
+.b1 .btn.acc{background:var(--acc);border-color:var(--acc);color:#fff;}
+.b1 .btn.danger{border-color:var(--warn);color:var(--warn);}
+.b1 .btn.sm{min-height:44px;min-width:44px;padding:4px 12px;font-size:.9em;border-radius:10px;}
+.b1 .btn.big{min-height:64px;font-size:1.1em;padding:10px 24px;}
+.b1 .btn.wide{width:100%;}
+.b1 .btn[disabled]{opacity:.45;pointer-events:none;}
+/* forms */
+.b1 label.f,.b1 div.f{display:block;margin:0 0 12px;}
+.b1 label.f > span:not(.stepper){display:block;font-weight:700;margin-bottom:4px;}
+.b1 input[type=text],.b1 input[type=number],.b1 input[type=date],.b1 select,.b1 textarea{
+  font-family:inherit;font-size:1em;width:100%;min-height:52px;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
+.b1 input:focus,.b1 select:focus,.b1 textarea:focus{outline:3px solid #ffd54f;border-color:var(--pri);}
+.b1 textarea{min-height:110px;line-height:1.6;resize:vertical;}
+.b1 .unit{display:flex;align-items:center;gap:6px;}
+.b1 .unit input{flex:1;min-width:0;}
+.b1 .unit b{white-space:nowrap;font-weight:400;color:var(--sub);}
+.b1 .stepper{display:flex;gap:6px;align-items:center;}
+.b1 .stepper input{text-align:center;flex:1;min-width:0;}
+.b1 .stepper button{width:52px;min-height:52px;border-radius:10px;border:2px solid var(--line);background:#f7f7f7;font-size:1.3em;font-weight:700;color:var(--ink);flex:0 0 auto;}
+.b1 .chips{display:flex;flex-wrap:wrap;gap:8px;}
+.b1 .chip{display:inline-flex;align-items:center;gap:6px;min-height:50px;padding:6px 14px;border:2px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;user-select:none;font-size:.95em;}
+.b1 .chip input{width:22px;height:22px;margin:0;accent-color:var(--pri);}
+.b1 .chip.on,.b1 .chip:has(input:checked){border-color:var(--pri);background:var(--pri-l);font-weight:700;}
+.b1 .wx{display:flex;gap:8px;flex-wrap:wrap;}
+.b1 .wx button{min-width:86px;min-height:64px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:.9em;line-height:1.2;color:var(--ink);}
+.b1 .wx button .e{display:block;font-size:1.6em;}
+.b1 .wx button.on{border-color:var(--pri);background:var(--pri-l);font-weight:700;box-shadow:inset 0 0 0 2px var(--pri);}
+/* lists */
+.b1 .list{list-style:none;margin:0;padding:0;}
+.b1 .list li{display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px dashed var(--line);}
+.b1 .list li:last-child{border-bottom:0;}
+.b1 .tag{display:inline-block;font-size:.8em;padding:1px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap;}
+.b1 .tag.late{color:var(--warn);background:var(--warn-l);font-weight:700;}
+.b1 .tag.today{color:var(--acc);background:var(--acc-l);font-weight:700;}
+.b1 .tag.ok{color:var(--pri-d);background:var(--pri-l);}
+.b1 .tag.info{color:var(--info);background:var(--info-l);}
+.b1 .alert{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin:0 0 8px;border-left:6px solid;}
+.b1 .alert .ai{font-size:1.4em;line-height:1.2;}
+.b1 .alert.w{background:var(--warn-l);border-color:var(--warn);}
+.b1 .alert.c{background:var(--acc-l);border-color:var(--acc);}
+.b1 .alert.i{background:var(--info-l);border-color:var(--info);}
+.b1 .alert.g{background:var(--pri-l);border-color:var(--pri);}
+.b1 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;}
+.b1 .stat b{display:block;font-size:1.6em;color:var(--pri-d);line-height:1.3;}
+.b1 table.t{width:100%;border-collapse:collapse;font-size:.95em;}
+.b1 table.t th,.b1 table.t td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top;}
+.b1 table.t th{background:var(--pri-l);}
+.b1 .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+/* chart */
+.b1 .chartbox{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.b1 .chartbox canvas{display:block;width:100%;height:100%;touch-action:pan-y;}
+.b1 .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85em;margin:6px 2px;}
+.b1 .legend i{display:inline-block;width:26px;height:0;border-top:4px solid;vertical-align:middle;margin-right:4px;}
+.b1 .legend i.dash{border-top-style:dashed;}
+.b1 .legend i.box{height:12px;border:0;}
+.b1 .tip{position:absolute;pointer-events:none;background:rgba(23,35,23,.92);color:#fff;font-size:.8em;padding:6px 10px;border-radius:8px;white-space:nowrap;display:none;}
+/* photos */
+.b1 .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.b1 .thumb{position:relative;border-radius:10px;overflow:hidden;border:3px solid transparent;background:#e6ebe3;aspect-ratio:1/1;padding:0;cursor:pointer;}
+.b1 .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.b1 .thumb .cap{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);color:#fff;font-size:.8em;padding:2px 6px;text-align:left;}
+.b1 .thumb.sel{border-color:#ffb300;}
+.b1 .thumb .num{position:absolute;top:6px;left:6px;background:#ffb300;color:#000;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.b1 .thumb .x{position:absolute;top:4px;right:4px;width:44px;height:44px;border-radius:999px;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:1.1em;}
+.b1 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.b1 .cmp figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.b1 .cmp img{width:100%;display:block;max-height:60vh;object-fit:contain;background:#222;}
+.b1 .cmp figcaption{padding:8px 10px;font-size:.9em;}
+/* calendar */
+.b1 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.b1 .cal .h{text-align:center;font-size:.8em;color:var(--sub);font-weight:700;}
+.b1 .cal button{min-height:72px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:3px;text-align:left;font-size:.8em;line-height:1.25;color:var(--ink);overflow:hidden;display:flex;flex-direction:column;align-items:stretch;}
+.b1 .cal button .d{font-weight:700;}
+.b1 .cal button.out{opacity:.35;}
+.b1 .cal button.today{box-shadow:inset 0 0 0 3px var(--acc);}
+.b1 .cal button.sel{background:#fff3c4;}
+.b1 .cal button .k{display:block;background:var(--pri-l);border-radius:4px;padding:0 3px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9em;}
+.b1 .cal button .k.done{background:#eee;color:#777;text-decoration:line-through;}
+.b1 .cal button .k.st{background:#ffe0b2;}
+/* diag */
+.b1 .flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;}
+.b1 .flow button{min-height:72px;text-align:left;border:2px solid var(--line);border-radius:12px;background:#fff;padding:10px 14px;font-size:.95em;color:var(--ink);}
+.b1 .flow button .e{font-size:1.4em;margin-right:6px;}
+.b1 .crumb{font-size:.9em;color:var(--sub);margin-bottom:8px;}
+/* stars */
+.b1 .stars{display:flex;gap:4px;}
+.b1 .stars button{width:52px;height:52px;border:2px solid var(--line);border-radius:10px;background:#fff;font-size:1.4em;color:#bbb;}
+.b1 .stars button.on{color:#f9a825;border-color:#f9a825;background:#fffbe6;}
+/* misc */
+.b1 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#172317;color:#fff;padding:12px 22px;border-radius:999px;z-index:100;font-size:.95em;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center;}
+.b1 .toast.on{opacity:1;}
+.b1 .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:90;display:flex;align-items:center;justify-content:center;padding:16px;}
+.b1 .ov .box{background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:90vh;max-height:calc(100dvh - 32px);overflow:auto;-webkit-overflow-scrolling:touch;padding:20px;}
+.b1 .ov{padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));}
+.b1 .ov .box > .row.end:last-child{position:sticky;bottom:-20px;background:#fff;margin:0 -20px -20px;padding:10px 20px 16px;border-top:1px solid #e3e8e0;z-index:1;}
+.b1 .ov .box.wide{max-width:1000px;}
+.b1 .hint{background:var(--info-l);border-left:6px solid var(--info);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.95em;}
+.b1 .caution{background:var(--warn-l);border-left:6px solid var(--warn);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.95em;}
+.b1 .formula{font-family:"Courier New",monospace;background:#f0f3ee;border-radius:8px;padding:6px 10px;display:inline-block;}
+.b1 .empty{text-align:center;color:var(--sub);padding:24px 10px;}
+.b1 .empty .e{font-size:2.6em;display:block;}
+.b1 details{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:10px;}
+.b1 details summary{padding:12px 16px;font-weight:700;cursor:pointer;min-height:52px;display:flex;align-items:center;}
+.b1 details > div{padding:0 16px 14px;}
+.b1 input[type=range]{width:100%;height:44px;accent-color:var(--pri);}
+.b1 .seg{display:flex;flex-wrap:wrap;gap:6px;}
+.b1 .seg button{flex:1 1 auto;min-height:50px;border:2px solid var(--line);background:#fff;border-radius:10px;padding:4px 10px;font-size:.92em;color:var(--ink);}
+.b1 .seg button.on{border-color:var(--pri);background:var(--pri-l);font-weight:700;box-shadow:inset 0 0 0 2px var(--pri);}
+.b1 .num-big{font-size:1.5em;font-weight:700;color:var(--pri-d);}
+.b1 .hide{display:none !important;}
+.b1 details, .b1 h2, .b1 h3{scroll-margin-top:var(--hdr,140px);}
+.b1 .more{margin-top:10px;background:#f7faf5;}
+.b1 table.t td.nw, .b1 table.t .btn{white-space:nowrap;}
+.b1.big table.t{font-size:.85em;}
+.b1.big .tab{font-size:.82em;}
+.b1 .season{margin:0 0 12px;}
+@media print{
+  .b1 .top,.b1 .noprint,.b1 .toast,.b1 .demobar,.b1 .autosave{display:none !important;}
+  .b1 main{padding:0;}
+  .b1.print-refl section.scr{display:none !important;}
+  .b1.print-refl section#b1-refl{display:block !important;}
+  .b1 .card{break-inside:avoid;}
+  .b1 .card.long{break-inside:auto;}
+  .b1 .ptxt{display:inline !important;font-weight:700;}
+  .b1 .sbar{position:static;}
+  .b1 input::placeholder{color:transparent !important;}
+  .b1 .kz-ptext{font-size:1em;line-height:1.6;}
+}
+</style>
+</head>
+<body>
+<div id="b1-app" class="b1">
+  <header class="top">
+    <div class="topbar">
+      <div class="ttl">🌱 <ruby>育<rt>いく</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>日<rt>にっ</rt></ruby><ruby>誌<rt>し</rt></ruby>＋<ruby>成<rt>せい</rt></ruby><ruby>長<rt>ちょう</rt></ruby><ruby>予<rt>よ</rt></ruby><ruby>測<rt>そく</rt></ruby></div>
+      <div class="pf" role="group" aria-label="表示の設定">
+        <button type="button" class="pfb" id="b1-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
+        <button type="button" class="pfb" id="b1-pf-dec" aria-label="文字を小さくする" title="文字を小さく">A−</button>
+        <button type="button" class="pfb" id="b1-pf-inc" aria-label="文字を大きくする" title="文字を大きく">A＋</button>
+      </div>
+      <button type="button" class="who" data-act="who" id="b1-who">👤 ---</button>
+    </div>
+    <nav class="tabs" id="b1-tabs" role="tablist"></nav>
+  </header>
+  <main>
+    <div class="demobar hide" id="b1-demobar"><b>🧪 いまは「サンプル(練習用)」を見ています。自分の記録ではありません。</b><button type="button" class="btn sm pri" data-act="demoBack">自分の記録にもどる</button></div>
+    <section class="scr" id="b1-home"></section>
+    <section class="scr" id="b1-plan"></section>
+    <section class="scr" id="b1-entry"></section>
+    <section class="scr" id="b1-graph"></section>
+    <section class="scr" id="b1-photos"></section>
+    <section class="scr" id="b1-predict"></section>
+    <section class="scr" id="b1-diag"></section>
+    <section class="scr" id="b1-eval"></section>
+    <section class="scr" id="b1-refl"></section>
+    <section class="scr" id="b1-help"></section>
+  </main>
+  <div class="toast" id="b1-toast" role="status" aria-live="polite"></div>
+  <input type="file" id="b1-file" class="hide">
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<!--
+  kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzRuby だけ):
+    kzRuby(root, opts)   root(要素。省略時 document.body)の下の文字に <ruby>語<rt>よみ</rt></ruby> を付ける。
+                         ・長い語から先に当てる(「積算温度」は「積算」より先)
+                         ・ruby, rt, rp, textarea, input, select, option, script, style, svg, canvas, code,
+                           noscript, [contenteditable], class="kz-norb" の要素の中はとばす
+                         ・何度よんでも二重にならない(ruby の中はとばすため)。描画のたびによんでよい
+                         opts.skip : とばす要素を CSS セレクタで追加(例 '.b4-cal')
+                         戻り値: 付けた ruby の数
+    kzRuby.str(html)     HTML 文字列のタグの外の文字にだけ ruby を付けた文字列を返す
+                         (innerHTML に入れる前に使う場合。ruby/textarea/script/style/code の中はとばす)
+    kzRuby.plain(html)   ruby の読み(rt・rp)とタグを取りのぞいた文字だけを返す(テキスト書き出し・コピー用)。
+                         <br> は改行、&amp; などは元の文字にもどす
+    kzRuby.dict          辞書の配列 [語, よみ]。よみは文字列、または区切り配列
+                         例 ['分げつ', [['分','ぶん'],'げつ']](かなの部分にはよみを付けない)
+                         文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
+    kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
+
+  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
+-->
+<style data-kz-ruby>
+ruby.kzr{ruby-position:over;}
+</style>
+<script data-kz-ruby>
+(function(){
+  if (window.kzRuby) return;
+  var DICT = [["徒長","とちょう"],["摘芯","てきしん"],["摘心","てきしん"],["摘芽","てきが"],["芽かき","めかき"],["わき芽かき","わきめかき"],["わき芽","わきめ"],["誘引","ゆういん"],["支柱","しちゅう"],["支柱立て","しちゅうたて"],["出穂","しゅっすい"],["穂肥","ほごえ"],["分げつ",[["分","ぶん"],"げつ"]],["積算温度","せきさんおんど"],["有効積算温度","ゆうこうせきさんおんど"],["基準温度","きじゅんおんど"],["積算水温","せきさんすいおん"],["積算","せきさん"],["間引き","まびき"],["間引","まび"],["追肥","ついひ"],["元肥","もとごえ"],["土寄せ","つちよせ"],["土寄","つちよ"],["畝立て","うねたて"],["畝","うね"],["定植","ていしょく"],["植えつけ","うえつけ"],["植えかえ","うえかえ"],["収穫","しゅうかく"],["収穫量","しゅうかくりょう"],["播種","はしゅ"],["発芽","はつが"],["芽出し","めだし"],["逆算","ぎゃくさん"],["適期","てきき"],["適温","てきおん"],["適量","てきりょう"],["連作障害","れんさくしょうがい"],["連作","れんさく"],["休業日","きゅうぎょうび"],["区画","くかく"],["栽培","さいばい"],["栽培暦","さいばいごよみ"],["露地","ろじ"],["温室","おんしつ"],["遮光","しゃこう"],["換気","かんき"],["加温","かおん"],["保温","ほおん"],["暖房","だんぼう"],["苗","なえ"],["苗床","なえどこ"],["育苗","いくびょう"],["茎","くき"],["稲","いね"],["稲刈り","いねかり"],["田植え","たうえ"],["中干し","なかぼし"],["種もみ","たねもみ"],["種いも","たねいも"],["浸種","しんしゅ"],["湛水","たんすい"],["水田","すいでん"],["本葉","ほんば"],["子葉","しよう"],["生長点","せいちょうてん"],["光合成","こうごうせい"],["開花","かいか"],["結実","けつじつ"],["受粉","じゅふん"],["人工授粉","じんこうじゅふん"],["着果","ちゃっか"],["番花","ばんか"],["結球","けっきゅう"],["草丈","くさたけ"],["葉数","ようすう"],["株元","かぶもと"],["密植","みっしょく"],["移植","いしょく"],["肥料","ひりょう"],["肥料やけ",[["肥料","ひりょう"],"やけ"]],["化学肥料","かがくひりょう"],["有機物","ゆうきぶつ"],["窒素","ちっそ"],["堆肥","たいひ"],["石灰","せっかい"],["苦土石灰","くどせっかい"],["腐葉土","ふようど"],["液肥","えきひ"],["養分","ようぶん"],["根粒菌","こんりゅうきん"],["根腐れ","ねぐされ"],["根ぐされ",[["根","ね"],"ぐされ"]],["尻腐れ症","しりぐされしょう"],["尻腐れ","しりぐされ"],["青枯病","あおがれびょう"],["白点病","はくてんびょう"],["病害虫","びょうがいちゅう"],["害虫","がいちゅう"],["益虫","えきちゅう"],["天敵","てんてき"],["捕殺","ほさつ"],["防除","ぼうじょ"],["防虫","ぼうちゅう"],["農薬","のうやく"],["殺菌","さっきん"],["斑点","はんてん"],["細菌","さいきん"],["微生物","びせいぶつ"],["食害","しょくがい"],["幼虫","ようちゅう"],["雑草","ざっそう"],["除草","じょそう"],["乾燥","かんそう"],["蒸発","じょうはつ"],["排水","はいすい"],["日照不足","にっしょうぶそく"],["直射日光","ちょくしゃにっこう"],["日陰","ひかげ"],["半日陰","はんひかげ"],["高温障害","こうおんしょうがい"],["寒冷地","かんれいち"],["温暖地","おんだんち"],["暖地","だんち"],["中間地","ちゅうかんち"],["品種","ひんしゅ"],["品種改良","ひんしゅかいりょう"],["鉢","はち"],["二十日大根","はつかだいこん"],["湿度","しつど"],["濃度","のうど"],["促進","そくしん"],["飼育","しいく"],["飼育密度","しいくみつど"],["飼料","しりょう"],["配合飼料","はいごうしりょう"],["給餌","きゅうじ"],["自動給餌器","じどうきゅうじき"],["餌","えさ"],["衛生","えいせい"],["不衛生","ふえいせい"],["稚魚","ちぎょ"],["成魚","せいぎょ"],["産卵","さんらん"],["繁殖","はんしょく"],["水替え","みずかえ"],["水替","みずか"],["床材","ゆかざい"],["敷きわら","しきわら"],["溶存酸素","ようぞんさんそ"],["塩素","えんそ"],["中和剤","ちゅうわざい"],["調整剤","ちょうせいざい"],["水質","すいしつ"],["過密","かみつ"],["密度","みつど"],["家畜化","かちくか"],["家畜","かちく"],["畜産業","ちくさんぎょう"],["畜産","ちくさん"],["観賞魚","かんしょうぎょ"],["変温動物","へんおんどうぶつ"],["恒温動物","こうおんどうぶつ"],["外来生物","がいらいせいぶつ"],["外来種","がいらいしゅ"],["特定外来生物","とくていがいらいせいぶつ"],["条件付特定外来生物","じょうけんつきとくていがいらいせいぶつ"],["動物由来感染症","どうぶつゆらいかんせんしょう"],["感染症","かんせんしょう"],["動物福祉","どうぶつふくし"],["栽培漁業","さいばいぎょぎょう"],["養殖","ようしょく"],["養殖業","ようしょくぎょう"],["遠洋漁業","えんようぎょぎょう"],["沖合漁業","おきあいぎょぎょう"],["沿岸漁業","えんがんぎょぎょう"],["漁業","ぎょぎょう"],["水産","すいさん"],["赤潮","あかしお"],["生態系","せいたいけい"],["遺伝子","いでんし"],["放流","ほうりゅう"],["呼吸器","こきゅうき"],["羽毛","うもう"],["牧草","ぼくそう"],["体色","たいしょく"],["食欲","しょくよく"],["排水口","はいすいこう"],["治療","ちりょう"],["症状","しょうじょう"],["消毒","しょうどく"],["清掃","せいそう"],["掃除","そうじ"],["洗剤","せんざい"],["個体","こたい"],["殻","から"],["寄生虫","きせいちゅう"],["振り返り","ふりかえり"],["振り返る","ふりかえる"],["振り返","ふりかえ"],["育成","いくせい"],["育成日誌","いくせいにっし"],["日誌","にっし"],["環境","かんきょう"],["調節","ちょうせつ"],["診断","しんだん"],["端末","たんまつ"],["共用","きょうよう"],["削除","さくじょ"],["完了","かんりょう"],["選択","せんたく"],["挑戦","ちょうせん"],["再挑戦","さいちょうせん"],["途中","とちゅう"],["範囲","はんい"],["影響","えいきょう"],["配慮","はいりょ"],["比較","ひかく"],["交換","こうかん"],["匿名","とくめい"],["項目","こうもく"],["根拠","こんきょ"],["傾向","けいこう"],["一緒","いっしょ"],["一般的","いっぱんてき"],["極端","きょくたん"],["特徴","とくちょう"],["販売","はんばい"],["間隔","かんかく"],["新鮮","しんせん"],["変更","へんこう"],["被害","ひがい"],["交互","こうご"],["実施","じっし"],["制御","せいぎょ"],["終了","しゅうりょう"],["欄","らん"],["粘着","ねんちゃく"],["透明","とうめい"],["手袋","てぶくろ"],["刃物","はもの"],["距離","きょり"],["面倒","めんどう"],["紀伊半島","きいはんとう"],["最小二乗法","さいしょうにじょうほう"],["汚れ","よごれ"],["汚す","よごす"],["汚い","きたない"],["遅れ","おくれ"],["遅い","おそい"],["遅く","おそく"],["遅め","おそめ"],["押","お"],["抜","ぬ"],["伸","の"],["乾","かわ"],["替","か"],["込","こ"],["与","あた"],["離","はな"],["逃","に"],["倒","たお"],["茂","しげ"],["甘","あま"],["咲","さ"],["枯","か"],["埋","う"],["扱","あつか"],["汗","あせ"],["腐","くさ"],["促","うなが"],["溺","おぼ"],["穂","ほ"],["芯","しん"],["掘","ほ"],["刈","か"],["泥","どろ"],["菌","きん"],["芋","いも"],["狭","せま"],["渇","かわ"],["飢","う"],["幅","はば"],["軸","じく"],["粒","つぶ"],["濃","こ"],["湿","しめ"],["渡","わた"],["多湿","たしつ"],["高温多湿","こうおんたしつ"],["植木鉢","うえきばち"],["地下茎","ちかけい"],["水稲","すいとう"],["跳ね","はね"],["跳ぶ","とぶ"],["跳び","とび"],["捕まえ","つかまえ"]];
+  var KANA_RUN = /[ぁ-ゟ゠-ヿ]+|[^ぁ-ゟ゠-ヿ]+/g;
+  var IS_KANA = /^[ぁ-ゟ゠-ヿ]/;
+  var SKIP = 'ruby,rt,rp,textarea,input,select,option,script,style,svg,canvas,code,noscript,[contenteditable],.kz-norb';
+  var map = {}, re = null;
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function segs(w, r){
+    if (typeof r !== 'string') return r;
+    var runs = w.match(KANA_RUN) || [w];
+    if (runs.length === 1) return IS_KANA.test(w) ? [w] : [[w, r]];
+    var pat = '^';
+    for (var i = 0; i < runs.length; i++) pat += IS_KANA.test(runs[i]) ? escRe(runs[i]) : '(.+?)';
+    var m = new RegExp(pat + '$').exec(r);
+    if (!m) return [[w, r]];
+    var out = [], g = 1;
+    for (var j = 0; j < runs.length; j++) out.push(IS_KANA.test(runs[j]) ? runs[j] : [runs[j], m[g++]]);
+    return out;
+  }
+  function compile(){
+    map = {};
+    var words = [];
+    for (var i = 0; i < DICT.length; i++) { var w = DICT[i][0]; if (!map[w]) words.push(w); map[w] = segs(w, DICT[i][1]); }
+    words.sort(function(a, b){ return b.length - a.length; });
+    re = words.length ? new RegExp(words.map(escRe).join('|'), 'g') : null;
+  }
+  function escH(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function rubyHtml(word){
+    var p = map[word], h = '';
+    for (var i = 0; i < p.length; i++) h += (typeof p[i] === 'string') ? escH(p[i]) : '<ruby class="kzr">' + escH(p[i][0]) + '<rt>' + escH(p[i][1]) + '</rt></ruby>';
+    return h;
+  }
+  function rubyFrag(word){
+    var p = map[word], f = document.createDocumentFragment();
+    for (var i = 0; i < p.length; i++) {
+      if (typeof p[i] === 'string') { f.appendChild(document.createTextNode(p[i])); continue; }
+      var r = document.createElement('ruby'); r.className = 'kzr';
+      r.appendChild(document.createTextNode(p[i][0]));
+      var rt = document.createElement('rt'); rt.appendChild(document.createTextNode(p[i][1])); r.appendChild(rt);
+      f.appendChild(r);
+    }
+    return f;
+  }
+
+  function kzRuby(root, opts){
+    root = root || document.body;
+    if (!root || !re) return 0;
+    var skip = SKIP + (opts && opts.skip ? ',' + opts.skip : '');
+    if (root.nodeType === 1 && root.closest && root.closest(skip)) return 0;
+    var list = [], n, w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || v.length < 1) continue;
+      re.lastIndex = 0;
+      if (!re.test(v)) continue;
+      var par = n.parentNode;
+      if (!par || par.nodeType !== 1 || (par.closest && par.closest(skip))) continue;
+      list.push(n);
+    }
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], s = t.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        f.appendChild(rubyFrag(m[0])); count++;
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(f, t);
+    }
+    return count;
+  }
+
+  /* HTML 文字列版: タグの外の文字にだけ付ける */
+  kzRuby.str = function(html){
+    if (!re) return String(html);
+    var parts = String(html).split(/(<[^>]*>)/), depth = 0, out = '';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.charAt(0) === '<') {
+        var m = /^<(\/?)([a-zA-Z0-9]+)/.exec(p);
+        if (m && /^(ruby|textarea|script|style|code|svg|select|option)$/i.test(m[2])) depth += m[1] ? -1 : 1;
+        if (depth < 0) depth = 0;
+        out += p; continue;
+      }
+      if (depth > 0 || !p) { out += p; continue; }
+      re.lastIndex = 0;
+      out += p.replace(re, rubyHtml);
+    }
+    return out;
+  };
+  kzRuby.plain = function(html){
+    return String(html == null ? '' : html)
+      .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, '').replace(/<rp[^>]*>[\s\S]*?<\/rp>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#0*39;/g, "'").replace(/&#x0*27;/gi, "'").replace(/&amp;/g, '&');
+  };
+  kzRuby.add = function(list){
+    for (var i = 0; i < (list || []).length; i++) {
+      var found = false;
+      for (var j = 0; j < DICT.length; j++) if (DICT[j][0] === list[i][0]) { DICT[j] = list[i]; found = true; break; }
+      if (!found) DICT.push(list[i]);
+    }
+    compile();
+  };
+  kzRuby.dict = DICT;
+  compile();
+  window.kzRuby = kzRuby;
+})();
+</script>
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
+<script>
+(function(){
+'use strict';
+/* ==================================================================
+   B1 育成日誌＋成長予測
+   - 外部通信なし / file:// で動作
+   - 保存: localStorage "b1_store"(記録)と IndexedDB "b1_photos"(写真)
+   ================================================================== */
+var APP = document.getElementById('b1-app');
+var LS_KEY = 'b1_store';
+var $ = function(s, r){ return (r||APP).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r||APP).querySelectorAll(s)); };
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function rb(k, y){ return '<ruby>'+k+'<rt>'+y+'</rt></ruby>'; }
+function plain(h){ return window.kzRuby ? kzRuby.plain(h) : String(h==null?'':h).replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi,'').replace(/<[^>]*>/g,''); }
+function hhmm(d){ d=d||new Date(); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function num(v){ if(v===''||v==null) return null; var n = Number(String(v).replace(/[０-９．－]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}).replace('ー','-')); return isFinite(n)?n:null; }
+function round(v, d){ var p=Math.pow(10,d||0); return Math.round(v*p)/p; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+/* ---------- 日付 ---------- */
+function pad(n){ return (n<10?'0':'')+n; }
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function pdate(s){ var a=String(s).split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); }
+function addDays(s, n){ var d=pdate(s); d.setDate(d.getDate()+Math.round(n)); return ymd(d); }
+function diffDays(a, b){ return Math.round((pdate(b)-pdate(a))/864e5); }
+function today(){ return ymd(new Date()); }
+var WD = ['日','月','火','水','木','金','土'];
+function md(s){ var d=pdate(s); return (d.getMonth()+1)+'/'+d.getDate(); }
+function mdw(s){ var d=pdate(s); return (d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')'; }
+function validDate(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s||'') && !isNaN(pdate(s)); }
+
+/* ---------- 生物のプロファイル(目安の値) ---------- */
+var CROPS = [
+ {id:'tomato', cat:'plant', name:'ミニトマト', icon:'🍅', base:10, range:[18,30], K:150, startLabel:'種まき日',
+  m1:{label:'草丈',unit:'cm'}, m2:{label:'葉数',unit:'枚'}, waterDays:2,
+  stages:[{n:'発芽',gdd:70},{n:'開花(1番花)',gdd:650},{n:'収穫はじめ',gdd:1150}],
+  tasks:[[10,'間引き'],[55,'植えかえ(定植)'],[56,'支柱立て'],[60,'わき芽かき'],[70,'追肥'],[85,'追肥'],[100,'摘芯'],[110,'収穫(目安)']],
+  sow:[3,4], sowText:'種まきは3〜4月(苗の植えつけは5月ごろ)',
+  water:'土の表面が乾いたら、鉢の底から水が出るくらいたっぷり。実がついたら少しひかえめにすると甘くなる。',
+  note:'日当たりと風通しを好む。わき芽はこまめに取る。植えかえ(定植)は、1番花が咲きはじめたころ(種まき後55日ごろ)が目安。'},
+ {id:'radish', cat:'plant', name:'ラディッシュ(二十日大根)', icon:'🔴', base:5, range:[15,25], K:20, startLabel:'種まき日',
+  m1:{label:'草丈',unit:'cm'}, m2:{label:'葉数',unit:'枚'}, waterDays:1,
+  stages:[{n:'発芽',gdd:40},{n:'根が太り始める',gdd:220},{n:'収穫',gdd:420}],
+  tasks:[[7,'間引き(1回目)'],[14,'間引き(2回目)'],[15,'追肥'],[16,'土寄せ'],[30,'収穫(目安)']],
+  sow:[4,5,6,9,10], sowText:'種まきは4〜6月か9〜10月',
+  water:'乾燥に弱い。土の表面が乾いたら水やり。水切れすると根が割れやすい。',
+  note:'短期間で育つので、条件を変えて比べる実験にも向く。'},
+ {id:'soy', cat:'plant', name:'ダイズ(えだまめ)', icon:'🫛', base:10, range:[20,30], K:70, startLabel:'種まき日',
+  m1:{label:'草丈',unit:'cm'}, m2:{label:'葉数(本葉)',unit:'枚'}, waterDays:2,
+  stages:[{n:'発芽',gdd:80},{n:'開花',gdd:650},{n:'収穫(えだまめ)',gdd:1250}],
+  tasks:[[12,'間引き'],[25,'土寄せ'],[35,'摘芯'],[45,'水やりを多めに(開花期)'],[85,'収穫(目安)']],
+  sow:[5,6], sowText:'種まきは5〜6月',
+  water:'開花のころに水が不足すると実が入りにくい。開花期は特に乾かさない。',
+  note:'根粒菌のはたらきで窒素を取り入れるので、肥料(特に窒素)は少なめでよい。'},
+ {id:'rice', cat:'plant', name:'イネ(バケツ稲)', icon:'🌾', base:10, range:[20,32], K:100, startLabel:'種まき日',
+  m1:{label:'草丈',unit:'cm'}, m2:{label:'茎(分げつ)の数',unit:'本'}, waterDays:1,
+  stages:[{n:'発芽',gdd:100},{n:'出穂・開花',gdd:1300},{n:'収穫(稲刈り)',gdd:2100}],
+  tasks:[[25,'田植え(バケツへ)'],[40,'追肥'],[60,'中干し'],[75,'穂肥(追肥)'],[100,'スズメよけネット'],[130,'収穫(目安)']],
+  sow:[4,5], sowText:'種まきは4〜5月',
+  water:'田植えの後は常に水を張る(水深3〜5cm)。中干しの時期だけ水を抜いて土を乾かす。',
+  note:'水やり量の欄には「足した水の量」を記録しよう。'},
+ {id:'potato', cat:'plant', name:'ジャガイモ', icon:'🥔', base:5, range:[15,24], K:60, startLabel:'植えつけ日',
+  m1:{label:'草丈',unit:'cm'}, m2:{label:'茎(芽)の数',unit:'本'}, waterDays:4,
+  stages:[{n:'芽が出る',gdd:250},{n:'開花',gdd:800},{n:'収穫(葉が黄色に)',gdd:1500}],
+  tasks:[[30,'芽かき'],[32,'追肥'],[33,'土寄せ'],[50,'土寄せ(2回目)'],[100,'収穫(目安)']],
+  sow:[2,3,8,9], sowText:'植えつけは2〜3月か8〜9月',
+  water:'水のやりすぎはいもが腐る原因。土が乾いてから水やり。',
+  note:'いもに日光が当たると緑色になる(有毒なソラニンが増える)ので土寄せが大切。',
+  safety:'ジャガイモの芽とそのまわり、緑色になった部分には毒(ソラニン・チャコニン)が多い。芽とそのまわり・緑色の部分は厚く取りのぞく。小さい・未熟ないもは食べない。加熱しても毒は減りにくい。食べて苦い・えぐいときは食べるのをやめる。調理は必ず先生の指示で行う。'},
+ {id:'quail', cat:'animal', name:'ウズラ', icon:'🐦', base:0, range:[20,30], K:150, startLabel:'ふ化日',
+  m1:{label:'体重',unit:'g'}, m2:null, waterDays:1,
+  stages:[{n:'羽がそろう',days:21},{n:'産卵はじめ',days:45}],
+  rangeByDay:[[0,7,[33,37]],[8,14,[28,32]],[15,21,[24,28]],[22,99999,[20,30]]],
+  tasks:[[0,'保温(35〜37℃)の確認'],[7,'温度を少しずつ下げる'],[21,'飼育ケージへ移す'],[30,'えさを成鳥用へ'],[45,'産卵の確認']],
+  water:'水は毎日とりかえる。ひなは水入れで溺れないよう浅い容器にする。',
+  note:'ひなの時期は保温が最も大切。床材をこまめに交換して清潔に。',
+  warmText:'保温(ひなの時期)の目安: ふ化してから最初の1週間は35〜37℃。その後は1週間に3〜4℃ずつ下げ、3週間をすぎたら20〜30℃でよい。'},
+ {id:'medaka', cat:'aquatic', name:'メダカ', icon:'🐟', base:0, range:[18,28], K:35, startLabel:'卵をとった日',
+  m1:{label:'体長',unit:'mm'}, m2:null, waterDays:7,
+  stages:[{n:'ふ化(積算水温250℃・日)',gdd:250},{n:'産卵できる大きさ',days:75}],
+  sow:[5,6,7,8], sowText:'メダカが卵を産むのは5〜8月ごろ',
+  tasks:[[3,'卵の水をかえる'],[10,'ふ化の確認'],[11,'稚魚のえさ(粉末)'],[30,'水替え'],[45,'親と同じえさへ'],[60,'水替え']],
+  water:'水替えは1回に全体の1/3くらいまで。くみ置きして水温を合わせた水を使う。',
+  note:'メダカの卵は「水温×日数」の合計が約250℃・日でふ化するといわれる。'},
+ {id:'goldfish', cat:'aquatic', name:'キンギョ', icon:'🐠', base:0, range:[15,28], K:90, startLabel:'飼育開始日',
+  m1:{label:'体長',unit:'mm'}, m2:null, waterDays:7,
+  stages:[{n:'飼育1か月',days:30},{n:'飼育3か月',days:90}],
+  tasks:[[1,'水温・水質の確認'],[7,'水替え(1/3)'],[14,'水替え(1/3)'],[21,'ろ過装置の掃除'],[28,'水替え(1/3)']],
+  water:'えさの与えすぎは水をよごす。2〜3分で食べきる量にする。',
+  note:'飼えなくなっても川や池に放さない(生態系をこわすおそれ)。'}
+];
+function crop(id){ for(var i=0;i<CROPS.length;i++) if(CROPS[i].id===id) return CROPS[i]; return CROPS[0]; }
+/* 経過日数に合った適温(ウズラのひなは日齢で変わる) */
+function rangeAt(c, day){
+  if(c.rangeByDay && day!=null){ for(var i=0;i<c.rangeByDay.length;i++){ var r=c.rangeByDay[i]; if(day>=r[0] && day<=r[1]) return r[2]; } }
+  return c.range;
+}
+/* 適期(月)。sow が無い生物は季節を問わない */
+function inSeason(c, date){ if(!c.sow || !validDate(date)) return true; return c.sow.indexOf(pdate(date).getMonth()+1)>=0; }
+var CAT_NAME = {plant:'作物', animal:'動物', aquatic:'水産生物'};
+var FIELDS = {
+  plant:  {t:'気温', water:{label:'水やり', unit:'mL'}, feed:{label:'肥料', opts:['なし','追肥(固形)','液肥']}},
+  animal: {t:'室温', water:{label:'水の交換', unit:'回'}, feed:{label:'えさ', unit:'g'}},
+  aquatic:{t:'水温', water:{label:'水替え', unit:'%'}, feed:{label:'えさ', unit:'回'}, ph:true}
+};
+var METHODS = {
+  plant:['日よけ・遮光','かん水(水やり)の工夫','保温・加温(ビニール等)','マルチング','防虫ネット','支柱・誘引','追肥','土づくり(堆肥・石灰)','間引き・摘芯','風通しをよくする'],
+  animal:['保温(ヒーター)','換気','えさの量と回数','飼育する数(密度)','清掃・床材の交換','照明の時間','運動できる広さ'],
+  aquatic:['水温調節(ヒーター・日よけ)','エアレーション(空気)','水替え','えさの量','水草の利用','飼育する数(密度)','日光・照明']
+};
+var WEATHER = [['sun','☀️','晴れ'],['cloud','⛅','くもり'],['rain','☔','雨'],['snow','⛄','雪'],['in','🏠','室内']];
+function wxName(k){ for(var i=0;i<WEATHER.length;i++) if(WEATHER[i][0]===k) return WEATHER[i][1]+WEATHER[i][2]; return ''; }
+
+/* ---------- 保存(localStorage) ---------- */
+var S = loadStore();
+/* 自己評価の★(1〜5)を ◎○△ に変換: 5→◎、3〜4→○、1〜2→△ */
+function starToMark(v){ if(v==='◎'||v==='○'||v==='△') return v; var n=Number(v); if(!n) return ''; return n>=5?'◎':n>=3?'○':'△'; }
+function migrate(j){
+  j.settings = j.settings||{ruby:true};
+  if(!Array.isArray(j.order)) j.order = Object.keys(j.profiles||{});
+  Object.keys(j.profiles||{}).forEach(function(id){
+    var p=j.profiles[id]; if(!p) return;
+    ['plans','entries','diag'].forEach(function(k){ if(!Array.isArray(p[k])) p[k]=[]; });
+    p.evals=p.evals||{}; p.refl=p.refl||{}; p.notes=p.notes||{};
+    ['s1','s2','s3','s4'].forEach(function(k){ if(p.refl[k]!=null && p.refl[k]!=='') p.refl[k]=starToMark(p.refl[k]); });
+  });
+  return j;
+}
+function loadStore(){
+  try{ var j = JSON.parse(localStorage.getItem(LS_KEY)); if(j && j.profiles) return migrate(j); }catch(e){}
+  return {v:1, profiles:{}, order:[], current:null, settings:{ruby:true, fs:18}};
+}
+var storageOK = true;
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); storageOK = true; }
+  catch(e){ storageOK = false; toast('⚠ 保存できませんでした。「使い方」から書き出しをしてください'); }
+}
+function P(){ return S.current ? S.profiles[S.current] : null; }
+function newProfile(name){
+  var id = uid();
+  S.profiles[id] = {id:id, name:name, plans:[], entries:[], diag:[], evals:{}, refl:{}, notes:{}, activePlan:null, lastExport:null, created:today()};
+  S.order.push(id); S.current = id; save(); return S.profiles[id];
+}
+function plans(){ var p=P(); return p? p.plans : []; }
+function plan(id){ var ps=plans(); for(var i=0;i<ps.length;i++) if(ps[i].id===id) return ps[i]; return null; }
+function activePlan(){ var p=P(); if(!p) return null; var pl = plan(p.activePlan); if(!pl && p.plans.length){ pl=p.plans[p.plans.length-1]; p.activePlan=pl.id; } return pl; }
+function entriesOf(planId){ var p=P(); if(!p) return []; return p.entries.filter(function(e){return e.planId===planId;}).sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; }); }
+function meanT(e){ var a=num(e.tmax), b=num(e.tmin); if(a!=null&&b!=null) return (a+b)/2; if(a!=null) return a; if(b!=null) return b; return null; }
+
+/* ---------- 写真(IndexedDB、使えないときは小さくして localStorage) ---------- */
+var PhotoDB = {
+  db:null, mode:'idb', urls:{},
+  open:function(){
+    var self=this;
+    return new Promise(function(res){
+      if(!window.indexedDB){ self.mode='ls'; return res(); }
+      try{
+        var rq = indexedDB.open('b1_photos', 1);
+        rq.onupgradeneeded = function(){ rq.result.createObjectStore('photos', {keyPath:'id'}); };
+        rq.onsuccess = function(){ self.db = rq.result; res(); };
+        rq.onerror = function(){ self.mode='ls'; res(); };
+        rq.onblocked = function(){ self.mode='ls'; res(); };
+      }catch(e){ self.mode='ls'; res(); }
+    });
+  },
+  tx:function(m){ return this.db.transaction('photos', m).objectStore('photos'); },
+  put:function(rec){
+    var self=this;
+    if(self.mode==='ls'){
+      return blobToDataURL(rec.blob).then(function(u){
+        try{ localStorage.setItem('b1_photo_'+rec.id, JSON.stringify({id:rec.id, takenAt:rec.takenAt, data:u})); }
+        catch(e){ throw new Error('容量がいっぱいです'); }
+      });
+    }
+    return new Promise(function(res, rej){ var r=self.tx('readwrite').put(rec); r.onsuccess=function(){res();}; r.onerror=function(){rej(r.error);}; });
+  },
+  get:function(id){
+    var self=this;
+    if(self.mode==='ls'){
+      try{ var j=JSON.parse(localStorage.getItem('b1_photo_'+id)); return Promise.resolve(j?{id:j.id,takenAt:j.takenAt,blob:dataURLToBlob(j.data)}:null); }catch(e){ return Promise.resolve(null); }
+    }
+    return new Promise(function(res){ var r=self.tx('readonly').get(id); r.onsuccess=function(){res(r.result||null);}; r.onerror=function(){res(null);}; });
+  },
+  del:function(id){
+    var self=this;
+    if(self.urls[id]){ URL.revokeObjectURL(self.urls[id]); delete self.urls[id]; }
+    if(self.mode==='ls'){ try{ localStorage.removeItem('b1_photo_'+id); }catch(e){} return Promise.resolve(); }
+    return new Promise(function(res){ var r=self.tx('readwrite').delete(id); r.onsuccess=function(){res();}; r.onerror=function(){res();}; });
+  },
+  url:function(id){
+    var self=this;
+    if(self.urls[id]) return Promise.resolve(self.urls[id]);
+    return self.get(id).then(function(rec){ if(!rec||!rec.blob) return null; var u=URL.createObjectURL(rec.blob); self.urls[id]=u; return u; });
+  }
+};
+function blobToDataURL(b){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.onerror=rej; fr.readAsDataURL(b); }); }
+function dataURLToBlob(u){ var p=u.split(','), m=p[0].match(/:(.*?);/)[1], bin=atob(p[1]), a=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:m}); }
+function canvasToBlob(cv, q){ return new Promise(function(res){ if(cv.toBlob) cv.toBlob(function(b){res(b);}, 'image/jpeg', q); else res(dataURLToBlob(cv.toDataURL('image/jpeg', q))); }); }
+/* 写真を縮小(長辺1024px、約200KB以下) */
+function resizePhoto(file){
+  var maxSide = PhotoDB.mode==='ls' ? 640 : 1024;
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function(){
+      var w=img.naturalWidth, h=img.naturalHeight, s=Math.min(1, maxSide/Math.max(w,h));
+      var cv=document.createElement('canvas'); cv.width=Math.round(w*s); cv.height=Math.round(h*s);
+      var cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(img,0,0,cv.width,cv.height);
+      URL.revokeObjectURL(url);
+      var q = 0.75;
+      (function tryQ(){
+        canvasToBlob(cv, q).then(function(b){
+          if(b && b.size > 220*1024 && q > 0.4){ q -= 0.15; tryQ(); }
+          else res(b);
+        });
+      })();
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('画像を読みこめませんでした')); };
+    img.src = url;
+  });
+}
+
+/* ---------- 共通UI ---------- */
+var toastTimer=null;
+function toast(msg){ var t=$('#b1-toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('on');}, 2600); }
+function overlay(html, wide){
+  closeOverlay();
+  var o=document.createElement('div'); o.className='ov'; o.id='b1-ov';
+  o.innerHTML='<div class="box'+(wide?' wide':'')+'" role="dialog" aria-modal="true">'+html+'</div>';
+  o.addEventListener('click', function(ev){ if(ev.target===o && !o.dataset.lock) closeOverlay(); });
+  APP.appendChild(o); return o;
+}
+function closeOverlay(){ var o=document.getElementById('b1-ov'); if(o) o.remove(); }
+function download(name, data, mime){
+  var blob = data instanceof Blob ? data : new Blob([data], {type:mime||'text/plain;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.rel='noopener';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+function fileStamp(){ var d=new Date(); return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes()); }
+function safeName(s){ return String(s||'').replace(/[\\\/:*?"<>|\s]+/g,'_').slice(0,30); }
+function pickFile(accept, multiple, capture){
+  return new Promise(function(res){
+    /* 毎回新しい input を作る(同じファイルをもう一度えらんでも読みこめるように) */
+    var old=$('#b1-file'), f=document.createElement('input'); f.type='file'; f.id='b1-file'; f.className='hide'; old.parentNode.replaceChild(f, old);
+    f.accept=accept||''; f.multiple=!!multiple; if(capture) f.setAttribute('capture', capture); else f.removeAttribute('capture');
+    f.onchange=function(){ res(Array.prototype.slice.call(f.files||[])); };
+    f.click();
+  });
+}
+function readText(file){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.onerror=rej; fr.readAsText(file,'utf-8'); }); }
+
+/* ---------- タブ ---------- */
+var TABS = [
+  ['home','🏠','ホーム'],
+  ['plan','🗓️','計画'],
+  ['entry','✏️','記録'],
+  ['graph','📈','グラフ'],
+  ['photos','📷','写真'],
+  ['predict','🔮','予測'],
+  ['diag','🩺','診断'],
+  ['eval','📝','評価'],
+  ['refl','💭','振り返り'],
+  ['help','❓','使い方']
+];
+var cur = 'home';
+function renderTabs(){
+  $('#b1-tabs').innerHTML = TABS.map(function(t){ return '<button type="button" class="tab'+(cur===t[0]?' on':'')+'" role="tab" aria-selected="'+(cur===t[0])+'" data-act="tab" data-v="'+t[0]+'"><span class="ic">'+t[1]+'</span>'+t[2]+'</button>'; }).join('');
+  layoutTabs();
+}
+/* K4: タブが入りきらないときは 2〜3 段に折り返す(横スクロールでかくさない) */
+function layoutTabs(){
+  var nav=$('#b1-tabs'); if(!nav) return;
+  var cols=['','c5','c4','c3'];
+  for(var i=0;i<cols.length;i++){
+    nav.classList.remove('c5','c4','c3'); if(cols[i]) nav.classList.add(cols[i]);
+    var over=false; $$('.tab', nav).forEach(function(b){ if(b.scrollWidth > b.clientWidth+1) over=true; });
+    if(!over) break;
+  }
+  var hd=$('.top'); if(hd) APP.style.setProperty('--hdr', (hd.offsetHeight+10)+'px');
+}
+function go(name, opt){
+  flushSave();
+  cur = name; renderTabs();
+  $$('section.scr').forEach(function(s){ s.classList.toggle('on', s.id==='b1-'+name); });
+  var fn = R[name]; if(fn) fn(opt||{});
+  window.scrollTo(0,0);
+}
+/* ---------- ふりがな・文字の大きさ(K1: 教材集で共通の hub_ruby / hub_fs) ---------- */
+var PF = {ruby:true, fs:18};
+function legacyPrefs(){
+  var st=S.settings||{};
+  var fs = st.fs!=null ? kzPrefs.clampFs(st.fs) : (st.big ? 22 : 18);
+  return {ruby: st.ruby!==false, fs: fs};
+}
+function effPrefs(){
+  var p=kzPrefs.get(), lg=legacyPrefs();
+  return {ruby: p.ruby!==null ? p.ruby : lg.ruby, fs: p.fs!==null ? p.fs : lg.fs};
+}
+function applyPrefs(){
+  var e=effPrefs(), fsChanged = e.fs!==PF.fs;
+  PF=e;
+  APP.classList.toggle('noruby', !e.ruby);
+  APP.style.fontSize = e.fs+'px';
+  APP.classList.toggle('big', e.fs>=22);
+  S.settings = S.settings||{}; S.settings.ruby=e.ruby; S.settings.fs=e.fs; S.settings.big = e.fs>=22;
+  var rc=$('#b1-set-ruby'); if(rc) rc.checked=e.ruby;
+  var fv=$('#b1-set-fsv'); if(fv) fv.textContent=e.fs+'px';
+  var fd=$('[data-act="fsDec"]'); if(fd) fd.disabled = e.fs<=kzPrefs.FS_MIN;
+  var fi=$('[data-act="fsInc"]'); if(fi) fi.disabled = e.fs>=kzPrefs.FS_MAX;
+  updateWho();
+  layoutTabs();
+  if(fsChanged){ if(cur==='graph') drawGraph(); if(cur==='predict') renderPredictResult(); }
+}
+function updateWho(){
+  var p=P(), w=$('#b1-who');
+  w.innerHTML = '👤 '+esc(p?p.name:'名前を登録')+(p&&p.demo?'<span class="demo-b">練習中</span>':'');
+  w.setAttribute('aria-label', p ? '名前: '+p.name+'(タップで切りかえ)' : '名前を登録する');
+  $('#b1-demobar').classList.toggle('hide', !(p&&p.demo));
+}
+function applySettings(){ applyPrefs(); writeReflStat(); }
+/* ---------- K8 ふりがな・K5 印刷: 画面を描いたら自動で付ける ---------- */
+var RUBY_SKIP = '.toast,.kz-norb,.kz-ptext';
+function decorate(node){
+  if(!node) return;
+  if(node.nodeType===3) node=node.parentNode;
+  if(!node || node.nodeType!==1 || !APP.contains(node) || node.closest('.kz-ptext')) return;
+  try{ kzRuby(node, {skip:RUBY_SKIP}); }catch(e){}
+  /* flex のボタンの中でルビの語がばらばらにならないよう、中身を1つの span にまとめる */
+  var bs = node.matches && node.matches('.btn') ? [node] : [];
+  bs = bs.concat(Array.prototype.slice.call(node.querySelectorAll ? node.querySelectorAll('.btn') : []));
+  if(node.closest && node.closest('.btn')) bs.push(node.closest('.btn'));
+  bs.forEach(function(b){ if(b.childNodes.length>1 && b.querySelector('ruby')){ var sp=document.createElement('span'); while(b.firstChild) sp.appendChild(b.firstChild); b.appendChild(sp); } });
+  if(node.tagName==='TEXTAREA' || (node.getElementsByTagName && node.getElementsByTagName('textarea').length)) kzPrintText(node.tagName==='TEXTAREA'?node.parentNode:node);
+}
+var decoObs = new MutationObserver(function(recs){
+  recs.forEach(function(r){ for(var i=0;i<r.addedNodes.length;i++){ var n=r.addedNodes[i]; if(n.nodeType===1 && (n.tagName==='RUBY'||n.tagName==='RT'||(n.className&&/kz-ptext/.test(n.className)))) continue; decorate(n); } });
+});
+var R = {};
+
+/* 計画が必要な画面の共通ヘッダー */
+function planPicker(){
+  var ps=plans(), ap=activePlan();
+  if(!ps.length) return '';
+  if(ps.length===1) return '<div class="card soft row"><span style="font-size:1.5em">'+crop(ap.cropId).icon+'</span><b>'+esc(ap.name)+'</b><span class="small">('+esc(crop(ap.cropId).name)+'・'+mdw(ap.sowDate)+'から '+(diffDays(ap.sowDate,today()))+'日目)</span></div>';
+  return '<div class="card soft"><label class="f" style="margin:0"><span>育てている生物を選ぶ</span><select data-chg="activePlan">'+
+    ps.map(function(p){ return '<option value="'+p.id+'"'+(ap&&ap.id===p.id?' selected':'')+'>'+crop(p.cropId).icon+' '+esc(p.name)+'('+esc(crop(p.cropId).name)+')</option>'; }).join('')+'</select></label></div>';
+}
+function needPlan(){
+  return '<div class="card empty"><span class="e">🗓️</span><p>まだ育成計画がありません。<br>はじめに「計画」で、育てる生物と開始日を決めよう。</p><button class="btn pri big" data-act="tab" data-v="plan">育成計画をつくる</button>'+
+    '<p class="small" style="margin-top:14px">まずは操作を試したいときは</p><button class="btn" data-act="demo">サンプルデータを入れてみる</button></div>';
+}
+
+/* ================= ホーム ================= */
+function taskList(pl){
+  var t=today(), out=[];
+  (pl.tasks||[]).forEach(function(k){ if(!k.done && k.date<=addDays(t,3)) out.push(k); });
+  out.sort(function(a,b){ return a.date<b.date?-1:1; });
+  return out;
+}
+function alertsFor(pl){
+  var c=crop(pl.cropId), es=entriesOf(pl.id), t=today(), A=[];
+  var last = es.length? es[es.length-1] : null;
+  if(!es.length) A.push(['i','📒','まだ記録がありません。今日の様子を記録しよう。']);
+  else {
+    var gap = diffDays(last.date, t);
+    if(gap>=3) A.push(['c','📒','最後の記録から'+gap+'日たっています。記録をつづけよう。']);
+    var lo = num(last.tmin)!=null? num(last.tmin) : meanT(last);
+    var hi = num(last.tmax)!=null? num(last.tmax) : meanT(last);
+    var tl = FIELDS[c.cat].t, rg = rangeAt(c, diffDays(pl.sowDate, last.date)), chick = !!c.rangeByDay && rg!==c.range;
+    var rgs = (chick?'ひなの時期の適温 ':'適温 ')+rg[0]+'〜'+rg[1]+'℃';
+    if(lo!=null && c.cat==='plant' && lo < c.base) A.push(['w','🥶','低温注意: 最低'+tl+'が'+lo+'℃で、'+c.name+'が育つ下限('+c.base+'℃)より低いです。保温を考えよう。']);
+    else if(lo!=null && lo < rg[0]-2) A.push(['w','🥶','低温注意: '+tl+'が'+lo+'℃です('+rgs+')。'+(chick?'ひなは寒さに弱いので、保温を強めよう。':'')]);
+    if(hi!=null && hi > rg[1]+3) A.push(['w','🥵','高温注意: '+tl+'が'+hi+'℃です('+rgs+')。'+(c.cat==='plant'?'日よけ・換気を考えよう。':(chick?'保温を少し弱め、ひなが熱源から離れていないか見よう。':'換気・日よけを考えよう。'))]);
+    if(c.cat==='plant'){
+      var lw=null; for(var i=es.length-1;i>=0;i--){ if(num(es[i].water)>0){ lw=es[i]; break; } }
+      var g = lw? diffDays(lw.date, t) : null;
+      if(g==null || g > c.waterDays+1) A.push(['c','💧','水やり確認: '+(g==null?'水やりの記録がありません':'最後の水やりから'+g+'日')+'。土の乾き具合を見よう(目安: '+c.waterDays+'日に1回)。']);
+    }
+    if(c.cat==='aquatic'){
+      var ph=num(last.ph); if(ph!=null && (ph<6.5||ph>8.0)) A.push(['w','🧪','水質注意: pHが'+ph+'です(目安 6.5〜8.0)。水替えを考えよう。']);
+      var lw2=null; for(var j=es.length-1;j>=0;j--){ if(num(es[j].water)>0){ lw2=es[j]; break; } }
+      var g2 = lw2? diffDays(lw2.date,t) : diffDays(pl.sowDate,t);
+      if(g2>c.waterDays) A.push(['c','💧','水替えから'+g2+'日たっています。水のにごり・においを確認しよう。']);
+    }
+  }
+  (pl.tasks||[]).forEach(function(k){ if(!k.done && /追肥|穂肥/.test(k.type)){ var d=diffDays(t,k.date); if(d>=0 && d<=3) A.push(['i','🧴','追肥の時期が近づいています('+mdw(k.date)+' '+k.type+')。']); } });
+  if(c.safety){ var near=(pl.tasks||[]).some(function(k){ return /収穫/.test(k.type) && diffDays(t,k.date)<=14; }); if(near) A.push(['w','⚠️','収穫の時期です。'+c.safety]); }
+  return A;
+}
+R.home = function(){
+  var p=P(), el=$('#b1-home');
+  if(!p){ el.innerHTML=''; return askName(true); }
+  var ap=activePlan(), h='';
+  h+='<h2>こんにちは、'+esc(p.name)+' さん</h2>';
+  /* エクスポートの促し */
+  var le=p.lastExport, n=p.entries.length;
+  if(n>0 && (!le || diffDays(le, today())>=7)) h+='<div class="alert c noprint"><span class="ai">💾</span><div><b>データの書き出し(バックアップ)をしよう</b><br><span class="small">'+(le?'前回: '+mdw(le):'まだ一度も書き出していません')+'。タブレットの初期化や交換で記録が消えることがあります。</span><div class="row" style="margin-top:6px"><button class="btn sm pri" data-act="exportJSON">いま書き出す</button></div></div></div>';
+  if(!storageOK) h+='<div class="alert w"><span class="ai">⚠</span><div>この端末では保存できていません。書き出しを使ってください。</div></div>';
+  if(!ap){ el.innerHTML = h+needPlan(); return; }
+  h+=planPicker();
+  var c=crop(ap.cropId), es=entriesOf(ap.id), dn=diffDays(ap.sowDate, today());
+  var last = es.length? es[es.length-1]:null;
+  var lastV = null; for(var i=es.length-1;i>=0;i--){ if(num(es[i].m1)!=null){ lastV=es[i]; break; } }
+  h+='<div class="grid3" style="margin-bottom:14px">'+
+     '<div class="stat"><span class="small">'+esc(c.startLabel)+'から</span><b>'+(dn>=0?dn+'日目':'あと'+(-dn)+'日')+'</b></div>'+
+     '<div class="stat"><span class="small">記録した回数</span><b>'+es.length+'回</b></div>'+
+     '<div class="stat"><span class="small">最新の'+c.m1.label+'</span><b>'+(lastV? esc(lastV.m1)+c.m1.unit : '—')+'</b></div></div>';
+  h+='<div class="row" style="margin-bottom:14px"><button class="btn pri big" style="flex:1" data-act="tab" data-v="entry">✏️ 今日の記録をつける</button><button class="btn big" data-act="tab" data-v="graph">📈 グラフ</button><button class="btn big" data-act="tab" data-v="predict">🔮 予測</button></div>';
+  h+='<div class="grid2"><div>';
+  /* 今日のやること */
+  var tl = taskList(ap);
+  h+='<div class="card"><h3>✅ 今日のやること</h3>';
+  if(!tl.length) h+='<p class="small">近い予定の作業はありません。観察と記録をしよう。</p>';
+  else h+='<ul class="list">'+tl.map(function(k){ var d=diffDays(today(),k.date); var tg = d<0?'<span class="tag late">'+(-d)+'日おくれ</span>':d===0?'<span class="tag today">今日</span>':'<span class="tag info">'+d+'日後</span>';
+      return '<li><label class="chip" style="flex:1;border-radius:12px"><input type="checkbox" data-chg="taskDone" data-plan="'+ap.id+'" data-id="'+k.id+'"> <span>'+esc(k.type)+' <span class="small">'+md(k.date)+'</span></span></label>'+tg+'</li>'; }).join('')+'</ul>';
+  h+='</div>';
+  /* アラート */
+  var A = alertsFor(ap);
+  h+='<div class="card"><h3>🔔 お知らせ</h3>'+(A.length? A.map(function(a){ return '<div class="alert '+a[0]+'"><span class="ai">'+a[1]+'</span><div>'+a[2]+'</div></div>'; }).join('') : '<div class="alert g"><span class="ai">👍</span><div>いまのところ注意することはありません。</div></div>')+'</div>';
+  h+='</div><div>';
+  h+='<div class="card"><h3>📷 最近の写真</h3><div class="thumbs" id="b1-home-ph"></div></div>';
+  var rgH = rangeAt(c, dn);
+  h+='<div class="card"><h3>'+c.icon+' '+esc(c.name)+'の育て方メモ</h3><p>'+esc(c.water)+'</p><p class="small">'+esc(c.note)+'</p>'+
+     (c.warmText?'<p class="hint">🌡️ '+esc(c.warmText)+'</p>':'')+
+     (c.safety?'<p class="caution">⚠️ '+esc(c.safety)+'</p>':'')+
+     '<p class="small">適温のめやす: '+rgH[0]+'〜'+rgH[1]+'℃'+(c.rangeByDay&&rgH!==c.range?'(ふ化から'+dn+'日目のひな)':'')+'</p></div>';
+  h+='</div></div>';
+  el.innerHTML = h;
+  var ids=[]; es.slice().reverse().forEach(function(e){ (e.photoIds||[]).forEach(function(id){ if(ids.length<4) ids.push([id,e]); }); });
+  var box=$('#b1-home-ph');
+  if(!ids.length) box.outerHTML='<p class="small">まだ写真がありません。記録のときに写真をとろう。</p>';
+  else ids.forEach(function(x){ box.insertAdjacentHTML('beforeend', '<button class="thumb" data-act="viewPhoto" data-id="'+x[0]+'"><img alt="'+md(x[1].date)+'の写真" data-ph="'+x[0]+'"><span class="cap">'+md(x[1].date)+'</span></button>'); });
+  loadImgs(el);
+};
+function loadImgs(root){
+  $$('img[data-ph]', root).forEach(function(img){
+    PhotoDB.url(img.dataset.ph).then(function(u){ if(u) img.src=u; else img.alt='(写真が見つかりません)'; });
+  });
+}
+
+/* 名前の登録・切り替え */
+function askName(first){
+  var p=P();
+  var others = S.order.filter(function(id){ return S.profiles[id]; }).map(function(id){ var q=S.profiles[id]; return '<button type="button" class="btn wide'+(q.id===S.current?' pri':'')+'" style="margin-bottom:8px" data-act="switchProfile" data-id="'+q.id+'">'+(q.demo?'🧪 ':'👤 ')+esc(q.name)+(q.id===S.current?'(いま使用中)':'')+'</button>'; }).join('');
+  var o = overlay('<h2>'+(first?'🌱 はじめに名前を登録しよう':'👤 だれの記録?')+'</h2>'+
+    (first?'<p>この記録は、このタブレットの中に保存されます。<br>同じタブレットを班やクラスで使うときは、自分の名前(または班の名前)を選んでから使います。</p>':'')+
+    (others? '<h3>登録されている名前</h3>'+others+'<hr style="margin:14px 0;border:0;border-top:1px solid #ccc">':'')+
+    '<label class="f"><span>新しく登録する名前(班名でもよい)</span><input type="text" id="b1-newname" maxlength="20" enterkeyhint="done" autocomplete="off" placeholder="例: 2年1組 3班 / やまだ"></label>'+
+    '<div class="row end">'+(first&&!others?'':'<button type="button" class="btn" data-act="closeOv">とじる</button>')+'<button type="button" class="btn pri" data-act="addProfile">登録する</button></div>');
+  if(first && !others) o.dataset.lock='1';
+  var ni=$('#b1-newname');
+  ni.addEventListener('keydown', function(ev){ if(ev.key==='Enter' && !ev.isComposing && ev.keyCode!==229){ ev.preventDefault(); addProfile(); } });
+  if(first) setTimeout(function(){ try{ ni.focus(); }catch(e){} }, 60);
+}
+function addProfile(){
+  var n=($('#b1-newname').value||'').trim(); if(!n){ toast('名前を入れてください'); return; }
+  var dup=S.order.some(function(i){ return S.profiles[i]&&S.profiles[i].name===n; });
+  var doAdd=function(){ flushSave(); newProfile(n); closeOverlay(); applySettings(); draft=null; go(plans().length?'home':'plan'); toast('ようこそ、'+n+' さん'); };
+  if(dup){ kzConfirm('「'+n+'」はすでに登録されています。同じ名前でもう1つ登録しますか?', {ok:'登録する'}).then(function(ok){ if(ok) doAdd(); }); return; }
+  doAdd();
+}
+
+/* ================= 計画 ================= */
+var planEdit = null, calMonth = null, calSel = null;
+R.plan = function(opt){
+  var el=$('#b1-plan'), p=P(); if(!p){ el.innerHTML=''; return; }
+  if(opt.edit!==undefined) planEdit = opt.edit;
+  var h='<h2>🗓️ 育成計画</h2>';
+  if(planEdit!==null || !p.plans.length){ el.innerHTML = h+planForm(planEdit? plan(planEdit) : null); updateSeason(); return; }
+  h+=planPicker();
+  var ap=activePlan(), c=crop(ap.cropId);
+  h+='<div class="card"><div class="row"><h3 style="margin:0;flex:1">'+c.icon+' '+esc(ap.name)+'</h3><button class="btn sm" data-act="editPlan" data-id="'+ap.id+'">計画を直す</button><button class="btn sm pri" data-act="newPlan">＋ 別の生物を追加</button></div>'+
+     '<table class="t" style="margin-top:10px"><tr><th style="width:9em">育てる生物</th><td>'+esc(c.name)+'('+CAT_NAME[c.cat]+')</td></tr>'+
+     '<tr><th>'+esc(c.startLabel)+'</th><td>'+mdw(ap.sowDate)+'</td></tr>'+
+     '<tr><th>課題(解決したい問題)</th><td>'+esc(ap.issue||'—')+'</td></tr>'+
+     '<tr><th>場所</th><td>'+esc(ap.location||'—')+'</td></tr>'+
+     '<tr><th>育成環境の調節方法</th><td>'+((ap.methods||[]).length? ap.methods.map(function(m){return '<span class="tag ok" style="margin:2px">'+esc(m)+'</span>';}).join(' '):'—')+(ap.methodNote?'<p class="small" style="margin:6px 0 0">理由: '+esc(ap.methodNote)+'</p>':'')+'</td></tr>'+
+     '<tr><th>目標</th><td>'+esc(ap.goal||'—')+'</td></tr>'+
+     ((ap.revisions||[]).length?'<tr><th>計画を直した記録</th><td><ul style="margin:0;padding-left:1.2em">'+ap.revisions.map(function(r){ return '<li>'+mdw(r.date)+(r.what?' <span class="small">('+esc(r.what)+')</span>':'')+'<br>'+esc(r.why||'(理由は未記入)')+'</li>'; }).join('')+'</ul></td></tr>':'')+
+     '</table>'+(!inSeason(c, ap.sowDate)?'<p class="caution" style="margin-bottom:0">⚠️ '+esc(c.sowText)+'が適期です。この時期は気温が合わないかもしれません(室内・保温が必要)。</p>':'')+'</div>';
+  /* カレンダー */
+  if(!calMonth) calMonth = today().slice(0,7);
+  h+='<div class="card"><div class="row"><h3 style="margin:0;flex:1">作業カレンダー</h3><button class="btn sm" data-act="calMove" data-v="-1" aria-label="前の月">◀</button><b>'+calMonth.replace('-','年')+'月</b><button class="btn sm" data-act="calMove" data-v="1" aria-label="次の月">▶</button><button class="btn sm" data-act="calToday">今月</button></div>'+
+     '<div class="cal" style="margin-top:10px">'+calendarHTML(ap)+'</div>'+
+     '<p class="small">オレンジ色は予測された成長の節目(発芽・開花・収穫など)。日付をタップすると、その日の作業が見られます。</p>'+
+     '<div id="b1-calday">'+calDayHTML(ap)+'</div></div>';
+  /* 作業一覧 */
+  h+='<div class="card"><h3>作業の一覧</h3><ul class="list">'+(ap.tasks||[]).slice().sort(function(a,b){return a.date<b.date?-1:1;}).map(function(k){
+    var d=diffDays(today(),k.date);
+    return '<li><label class="chip" style="flex:1;border-radius:12px"><input type="checkbox" data-chg="taskDone" data-plan="'+ap.id+'" data-id="'+k.id+'"'+(k.done?' checked':'')+'> <span style="'+(k.done?'text-decoration:line-through;color:#777':'')+'">'+mdw(k.date)+' '+esc(k.type)+'</span></label>'+
+      (k.done?'<span class="tag ok">済み</span>':d<0?'<span class="tag late">おくれ</span>':d===0?'<span class="tag today">今日</span>':'')+
+      '<button type="button" class="btn sm danger" data-act="delTask" data-id="'+k.id+'" aria-label="作業「'+esc(k.type)+'」を削除">✕</button></li>'; }).join('')+'</ul>'+
+    '<h3 style="margin-top:14px">作業を追加</h3><div class="row"><input type="date" id="b1-tdate" value="'+(calSel||today())+'" style="width:auto;flex:1;min-width:160px"><input type="text" id="b1-tname" placeholder="例: 追肥 / 観察会" style="flex:2;min-width:180px" maxlength="30"><button class="btn pri" data-act="addTask">追加</button></div></div>';
+  h+='<div class="row"><span class="sp"></span><button class="btn danger" data-act="delPlan" data-id="'+ap.id+'">この計画を削除</button></div>';
+  el.innerHTML=h;
+};
+function planForm(pl){
+  var cid = pl? pl.cropId : 'tomato', c=crop(cid);
+  var opts = ['plant','animal','aquatic'].map(function(cat){ return '<optgroup label="'+CAT_NAME[cat]+'">'+CROPS.filter(function(x){return x.cat===cat;}).map(function(x){ return '<option value="'+x.id+'"'+(x.id===cid?' selected':'')+'>'+x.icon+' '+x.name+'</option>'; }).join('')+'</optgroup>'; }).join('');
+  var ms = (pl&&pl.methods)||[];
+  return '<div class="card">'+(pl?'<h3>計画を直す</h3>':'<h3>新しい育成計画</h3><p class="small">作物・動物・水産生物から選べます。作業の予定は、選んだ生物と開始日から自動でつくられます(あとで直せます)。</p>')+
+    '<div class="grid2"><div>'+
+    '<label class="f"><span>育てる生物</span><select id="b1-pcrop" data-chg="pcrop">'+opts+'</select></label>'+
+    '<label class="f"><span>呼び名(自分でつける名前)</span><input type="text" id="b1-pname" maxlength="20" value="'+esc(pl?pl.name:c.name+'(1)')+'"></label>'+
+    '<label class="f"><span id="b1-pstartl">'+esc(c.startLabel)+'</span><input type="date" id="b1-pdate" data-chg="pdate" value="'+(pl?pl.sowDate:today())+'"></label>'+
+    '<div id="b1-season" class="season"></div>'+
+    '<label class="f"><span>育てる場所</span><input type="text" id="b1-ploc" maxlength="30" value="'+esc(pl?pl.location:'')+'" placeholder="例: 学校の畑 / 理科室の窓ぎわ / プランター"></label>'+
+    '<label class="f"><span>どんな問題を解決したい?(課題)</span><textarea id="b1-pissue" placeholder="例: 去年は夏の暑さで実が少なかった。暑さに負けずにたくさん収穫するには?">'+esc(pl&&pl.issue||'')+'</textarea></label>'+
+    '</div><div>'+
+    '<div class="f"><span style="font-weight:700;display:block;margin-bottom:4px">育成環境の調節方法(いくつでも)</span><div class="chips" id="b1-pmethods">'+methodChips(c.cat, ms)+'</div></div>'+
+    '<label class="f" style="margin-top:10px"><span>その方法を選んだ理由</span><textarea id="b1-pmnote" placeholder="例: 夏は畑が暑くなりすぎるので、日よけで温度が上がりすぎないようにする。">'+esc(pl?pl.methodNote:'')+'</textarea></label>'+
+    '<label class="f"><span>目標(どんなふうに育てたいか)</span><input type="text" id="b1-pgoal" maxlength="60" value="'+esc(pl?pl.goal:'')+'" placeholder="例: 1株から30個収穫する"></label>'+
+    '</div></div>'+
+    (pl?'<label class="f"><span>計画を直した理由(記録に残ります)</span><textarea id="b1-prev" placeholder="例: 葉が黄色くなってきたので、追肥を調節方法に加えた。"></textarea></label>'+
+        '<label class="chip" style="margin-bottom:12px"><input type="checkbox" id="b1-pregen"> <span>作業の予定を、開始日に合わせて作り直す(自分で追加した作業は残ります)</span></label>':'')+
+    '<div class="row end">'+((pl||plans().length)?'<button type="button" class="btn" data-act="cancelPlan">やめる</button>':'')+'<button type="button" class="btn pri big" data-act="savePlan" data-id="'+(pl?pl.id:'')+'">この計画で決定</button></div></div>'+
+    (!pl&&!plans().length?'<div class="card note"><p style="margin:0">💡 まずは操作を試したいときは、<button class="btn sm" data-act="demo">サンプルデータを入れる</button></p></div>':'');
+}
+/* B1-10: 適期の表示と警告 */
+function updateSeason(){
+  var box=$('#b1-season'), sel=$('#b1-pcrop'), dt=$('#b1-pdate'); if(!box||!sel) return;
+  var c=crop(sel.value), d=dt?dt.value:'';
+  if(!c.sow){ box.innerHTML='<p class="small" style="margin:0">'+(c.cat==='plant'?'':'室内で温度を管理すれば、季節を問わずに育てられます(温度の管理が大切)。')+'</p>'; return; }
+  box.innerHTML = inSeason(c,d) ? '<p class="small" style="margin:0">🗓️ 適期のめやす: '+esc(c.sowText)+'</p>'
+    : '<p class="caution" style="margin:0">⚠️ 適期のめやすは「'+esc(c.sowText)+'」です。この時期は気温が合わないかもしれません(室内・保温が必要)。</p>';
+}
+function methodChips(cat, ms){ return METHODS[cat].map(function(m){ return '<label class="chip"><input type="checkbox" value="'+esc(m)+'"'+(ms.indexOf(m)>=0?' checked':'')+'> <span>'+esc(m)+'</span></label>'; }).join(''); }
+function makeTasks(c, sow){ return c.tasks.map(function(t){ return {id:uid(), date:addDays(sow,t[0]), type:t[1], done:false, auto:true}; }); }
+function calendarHTML(ap){
+  var y=+calMonth.slice(0,4), m=+calMonth.slice(5,7)-1, first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+  var tasks={}; (ap.tasks||[]).forEach(function(k){ (tasks[k.date]=tasks[k.date]||[]).push(k); });
+  var st={}; stagePred(ap).forEach(function(s){ if(s.date) (st[s.date]=st[s.date]||[]).push(s); });
+  var h=WD.map(function(w){return '<div class="h">'+w+'</div>';}).join(''), t=today();
+  for(var i=0;i<42;i++){
+    var d=new Date(start); d.setDate(start.getDate()+i); var s=ymd(d);
+    if(i>=35 && d.getMonth()!==m) break;
+    var ks=(tasks[s]||[]), ss=(st[s]||[]);
+    var items = ss.map(function(x){return '<span class="k st">★'+esc(x.n)+'</span>';}).concat(ks.map(function(k){return '<span class="k'+(k.done?' done':'')+'">'+esc(k.type)+'</span>';}));
+    h+='<button data-act="calDay" data-v="'+s+'" class="'+(d.getMonth()!==m?'out ':'')+(s===t?'today ':'')+(s===calSel?'sel':'')+'" aria-label="'+mdw(s)+' 予定'+items.length+'件"><span class="d">'+d.getDate()+'</span>'+items.slice(0,2).join('')+(items.length>2?'<span class="small">+'+(items.length-2)+'</span>':'')+'</button>';
+  }
+  return h;
+}
+function calDayHTML(ap){
+  if(!calSel) return '';
+  var ks=(ap.tasks||[]).filter(function(k){return k.date===calSel;});
+  var ss=stagePred(ap).filter(function(s){return s.date===calSel;});
+  var es=entriesOf(ap.id).filter(function(e){return e.date===calSel;});
+  return '<div class="card soft" style="margin-top:10px"><b>'+mdw(calSel)+'</b>（'+(diffDays(ap.sowDate,calSel))+'日目）'+
+    (ss.length?'<p>★ 予測: '+ss.map(function(s){return esc(s.n)+(s.done?'(達成)':'');}).join('、')+'</p>':'')+
+    (ks.length?'<ul class="list">'+ks.map(function(k){return '<li>'+(k.done?'✅':'⬜')+' '+esc(k.type)+'</li>';}).join('')+'</ul>':'<p class="small">作業の予定はありません。</p>')+
+    (es.length?'<p>📒 この日の記録あり <button class="btn sm" data-act="editEntry" data-id="'+es[0].id+'">見る</button></p>':'')+'</div>';
+}
+
+/* ================= 記録(日誌) ================= */
+var draft = null; // 入力中の記録
+R.entry = function(opt){
+  var el=$('#b1-entry'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>✏️ 記録</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), F=FIELDS[c.cat];
+  if(opt.id){ var e0=P().entries.filter(function(e){return e.id===opt.id;})[0]; if(e0){ draft=JSON.parse(JSON.stringify(e0)); ap=plan(e0.planId)||ap; if(P().activePlan!==ap.id){ P().activePlan=ap.id; save(); } c=crop(ap.cropId); F=FIELDS[c.cat]; } }
+  if(!draft || draft.planId!==ap.id) draft = blankEntry(ap, today());
+  var e=draft, isOld = P().entries.some(function(x){return x.id===e.id;});
+  var sameDay = isOld ? null : P().entries.filter(function(x){ return x.planId===ap.id && x.date===e.date; })[0];
+  var h='<h2>✏️ 日誌(観察記録)</h2>'+planPicker();
+  if(sameDay) h+='<div class="alert i"><span class="ai">📒</span><div style="flex:1">'+(e.date===today()?'今日':mdw(e.date))+'('+md(e.date)+')の記録はもうあります。直すときは「直す」を押そう。<div class="row" style="margin-top:6px"><button type="button" class="btn sm pri" data-act="editEntry" data-id="'+sameDay.id+'">直す</button></div></div></div>';
+  h+='<div class="card"><div class="grid2"><div>'+
+    '<label class="f"><span>日付</span><input type="date" id="b1-edate" data-chg="edate" value="'+e.date+'" max="'+today()+'"></label>'+
+    '<p class="small" style="margin-top:-6px">'+esc(c.startLabel)+'から <b id="b1-eday">'+diffDays(ap.sowDate,e.date)+'</b> 日目'+(isOld?'　<span class="tag info">'+md(e.date)+'の記録を直しています</span>':'　<span class="tag ok">新しい記録</span>')+'</p>'+
+    '<div class="f"><span style="font-weight:700;display:block;margin-bottom:4px">天気</span><div class="wx">'+WEATHER.map(function(w){ return '<button type="button" data-act="wx" data-v="'+w[0]+'" class="'+(e.weather===w[0]?'on':'')+'" aria-pressed="'+(e.weather===w[0])+'"><span class="e">'+w[1]+'</span>'+w[2]+'</button>'; }).join('')+'</div></div>'+
+    '<div class="grid2 keep" style="gap:10px">'+
+      stepField('tmax', '最高'+F.t, '℃', e.tmax, 1)+stepField('tmin', '最低'+F.t, '℃', e.tmin, 1)+
+    '</div>'+
+    (c.cat==='aquatic'?'<p class="small" style="margin-top:-6px">水温を1回だけ測ったときは「最高」だけ入れればOK。</p>':'')+
+    '</div><div>'+
+    '<div class="grid2 keep" style="gap:10px">'+
+      stepField('m1', c.m1.label, c.m1.unit, e.m1, c.m1.unit==='g'||c.m1.unit==='mm'?1:0.5)+
+      (c.m2? stepField('m2', c.m2.label, c.m2.unit, e.m2, 1) : '')+
+      stepField('water', F.water.label, F.water.unit, e.water, F.water.unit==='mL'?100:(F.water.unit==='%'?10:1))+
+      (F.feed.opts? '<label class="f"><span>'+F.feed.label+'</span><select data-fld="feed">'+F.feed.opts.map(function(o){return '<option'+(e.feed===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select></label>'
+                  : stepField('feed', F.feed.label, F.feed.unit, e.feed, 1))+
+      (F.ph? stepField('ph', 'pH', '', e.ph, 0.1) : '')+
+    '</div>'+
+    '<p class="small"><button type="button" class="btn sm" data-act="tab" data-v="help" data-anchor="kensa">📏 正しい測り方(検査ガイド)</button></p>'+
+    '</div></div>'+
+    '<label class="f"><span>気づいたこと・メモ(色、におい、虫、葉の様子など)</span><textarea data-fld="memo" placeholder="例: 下の葉が少し黄色くなっていた。花が2つ咲いた。">'+esc(e.memo)+'</textarea></label>'+
+    '<div class="f"><span style="font-weight:700;display:block;margin-bottom:6px">写真</span><div class="thumbs" id="b1-eph"></div>'+
+    '<div class="row" style="margin-top:8px"><button class="btn" data-act="addPhoto" data-cap="1">📷 カメラでとる</button><button class="btn" data-act="addPhoto">🖼️ 写真をえらぶ</button></div>'+
+    '<p class="small">カメラが使えなくても記録はできます。写真は自動で小さくして保存します。</p></div>'+
+    '<div class="row end sbar">'+(isOld?'<button type="button" class="btn danger" data-act="delEntry" data-id="'+e.id+'">この記録を削除</button><span class="sp"></span><button type="button" class="btn" data-act="newEntry">新しい記録へ</button>':'')+'<button type="button" class="btn pri big" data-act="saveEntry">💾 記録を保存</button></div></div>';
+  /* 過去の記録 */
+  var es=entriesOf(ap.id).slice().reverse();
+  h+='<div class="card"><h3>これまでの記録('+es.length+'件)</h3>'+(es.length? '<div class="scrollx"><table class="t"><tr><th>日付</th><th>天気</th><th>'+F.t+'<br><span class="small">(最高/最低)</span></th><th>'+c.m1.label+'</th>'+(c.m2?'<th>'+c.m2.label+'</th>':'')+'<th>'+F.water.label+'</th><th>メモ</th><th></th></tr>'+
+    es.map(function(x){ return '<tr><td>'+md(x.date)+'<br><span class="small">'+diffDays(ap.sowDate,x.date)+'日目</span></td><td>'+wxName(x.weather)+'</td><td>'+(x.tmax!=null&&x.tmax!==''?esc(x.tmax):'-')+' / '+(x.tmin!=null&&x.tmin!==''?esc(x.tmin):'-')+'</td><td>'+(x.m1!==''&&x.m1!=null?esc(x.m1):'-')+'</td>'+(c.m2?'<td>'+(x.m2!==''&&x.m2!=null?esc(x.m2):'-')+'</td>':'')+'<td>'+(x.water!==''&&x.water!=null?esc(x.water):'-')+'</td><td>'+esc((x.memo||'').slice(0,40))+((x.photoIds||[]).length?' 📷'+x.photoIds.length:'')+'</td><td class="nw"><button type="button" class="btn sm" data-act="editEntry" data-id="'+x.id+'">直す</button></td></tr>'; }).join('')+'</table></div>' : '<p class="small">まだ記録がありません。</p>')+'</div>';
+  el.innerHTML=h;
+  renderDraftPhotos();
+};
+function stepField(k, label, unit, v, step){
+  return '<label class="f"><span>'+esc(label)+(unit?'('+esc(unit)+')':'')+'</span><span class="stepper"><button type="button" data-act="step" data-k="'+k+'" data-v="-'+step+'" aria-label="'+esc(label)+'を減らす">−</button><input type="number" inputmode="decimal" step="any" data-fld="'+k+'" value="'+(v==null?'':esc(v))+'"><button type="button" data-act="step" data-k="'+k+'" data-v="'+step+'" aria-label="'+esc(label)+'を増やす">＋</button></span></label>';
+}
+/* B1-01: 記録タブは、いつも「新しい記録」から始める(すでにある記録は「直す」で開く) */
+function blankEntry(ap, date){
+  var c=crop(ap.cropId);
+  return {id:uid(), planId:ap.id, date:date, weather:c.cat==='plant'?'':'in', tmax:'', tmin:'', water:'', feed:FIELDS[c.cat].feed.opts?'なし':'', m1:'', m2:'', ph:'', memo:'', photoIds:[]};
+}
+function collectDraft(){
+  if(!draft) return;
+  $$('#b1-entry [data-fld]').forEach(function(i){ draft[i.dataset.fld] = i.value; });
+}
+function renderDraftPhotos(){
+  var box=$('#b1-eph'); if(!box||!draft) return;
+  box.innerHTML = (draft.photoIds||[]).map(function(id){ return '<div class="thumb"><img data-ph="'+id+'" alt="写真"><button class="x" data-act="rmPhoto" data-id="'+id+'" aria-label="写真をはずす">✕</button></div>'; }).join('');
+  loadImgs(box);
+}
+var pendingDelete = []; // 保存時に消す写真
+function saveEntry(){
+  collectDraft();
+  var e=draft, ap=plan(e.planId), c=crop(ap.cropId);
+  if(!validDate(e.date)){ toast('日付を入れてください'); return; }
+  var F=FIELDS[c.cat], numFeed=!F.feed.opts;
+  ['tmax','tmin','m1','m2','water','ph'].concat(numFeed?['feed']:[]).forEach(function(k){ var n=num(e[k]); e[k] = n==null? '' : n; });
+  var defWx = c.cat==='plant' ? '' : 'in';
+  var hasAny = e.m1!==''||e.m2!==''||e.tmax!==''||e.tmin!==''||e.water!==''||(numFeed&&e.feed!=='')||(!numFeed&&e.feed&&e.feed!=='なし')||e.ph!==''||e.memo||(e.photoIds||[]).length||(e.weather&&e.weather!==defWx);
+  if(!hasAny){ toast('何か1つは入力しよう(天気だけでは保存できません)'); return; }
+  /* B1-06: ありえない値は保存しない */
+  if(e.date>today()){ toast('未来の日付には記録できません。日付を確かめよう'); return; }
+  var neg=[]; if(e.m1!==''&&e.m1<0) neg.push(c.m1.label); if(c.m2&&e.m2!==''&&e.m2<0) neg.push(c.m2.label); if(e.water!==''&&e.water<0) neg.push(F.water.label); if(numFeed&&e.feed!==''&&e.feed<0) neg.push(F.feed.label);
+  if(neg.length){ toast('⚠ '+neg.join('・')+'にマイナスの値は入れられません'); return; }
+  var warn=[];
+  if(e.date<ap.sowDate) warn.push('日付が'+c.startLabel+'('+md(ap.sowDate)+')より前です');
+  if(e.tmax!==''&&e.tmin!==''&&e.tmax<e.tmin) warn.push('最高'+F.t+'が最低より低くなっています');
+  if((e.tmax!==''&&(e.tmax>50||e.tmax<-20))||(e.tmin!==''&&(e.tmin>50||e.tmin<-20))) warn.push('温度の値が大きすぎる(小さすぎる)ようです');
+  if(e.ph!==''&&(e.ph<0||e.ph>14)) warn.push('pHは0〜14の値です');
+  if(c.m2&&e.m2!==''&&Math.round(e.m2)!==e.m2) warn.push(c.m2.label+'は整数(1, 2, 3…)で数えよう');
+  if(e.m1!==''&&e.m1>c.K*2) warn.push(c.m1.label+'が'+e.m1+c.m1.unit+'です。目安(大きくても'+c.K+c.m1.unit+'くらい)よりとても大きいです。単位(cmとmm)を確かめよう');
+  var prev = entriesOf(ap.id).filter(function(x){ return x.date<e.date && num(x.m1)!=null && x.id!==e.id; }).pop();
+  if(prev && e.m1!=='' && c.cat==='plant' && e.m1 < num(prev.m1)*0.7) warn.push(c.m1.label+'が前回('+prev.m1+c.m1.unit+')よりかなり小さいです。単位(cmとmm)を確かめよう');
+  else if(prev && e.m1!=='' && num(prev.m1)>0 && e.m1 > num(prev.m1)*3 && e.m1-num(prev.m1) > 5) warn.push(c.m1.label+'が前回('+prev.m1+c.m1.unit+')の3倍より大きいです。単位(cmとmm)を確かめよう');
+  if(warn.length){ kzConfirm('確認してください:\n・'+warn.join('\n・')+'\n\nこのまま保存しますか?', {ok:'このまま保存', cancel:'もどって直す'}).then(function(ok){ if(ok) saveEntry2(e); }); return; }
+  saveEntry2(e);
+}
+function saveEntry2(e){
+  var p=P();
+  var same = p.entries.filter(function(x){ return x.planId===e.planId && x.date===e.date && x.id!==e.id; })[0];
+  if(same){ kzConfirm(mdw(e.date)+'の記録はすでにあります。\n上書きすると、前の記録の数値・天気・メモは消えて、いま入力した内容になります(写真は残ります)。上書きしますか?', {ok:'上書きする', danger:true}).then(function(ok){ if(ok) saveEntry3(e, same); }); return; }
+  saveEntry3(e, null);
+}
+function saveEntry3(e, same){
+  var p=P(), i=-1;
+  if(same){
+    (same.photoIds||[]).forEach(function(id){ if(e.photoIds.indexOf(id)<0) e.photoIds.push(id); });
+    p.entries = p.entries.filter(function(x){ return x.id!==same.id; });
+  }
+  p.entries.forEach(function(x,j){ if(x.id===e.id) i=j; });
+  if(i>=0) p.entries[i]=JSON.parse(JSON.stringify(e)); else p.entries.push(JSON.parse(JSON.stringify(e)));
+  save();
+  pendingDelete.forEach(function(id){ PhotoDB.del(id); }); pendingDelete=[];
+  toast('💾 '+md(e.date)+'の記録を保存しました');
+  draft=null; R.entry({});
+}
+
+/* ================= グラフ(Canvas 自作) ================= */
+function drawChart(cv, cfg){
+  var box=cv.parentNode, W=box.clientWidth, H=box.clientHeight, dpr=window.devicePixelRatio||1;
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  var g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  var fs = W<500?11:13;
+  var L=52, Rm=cfg.right?52:16, T=28, B=40, pw=W-L-Rm, ph=H-T-B;
+  var x0=cfg.xMin, x1=cfg.xMax; if(x1<=x0) x1=x0+1;
+  function nice(lo, hi, zero){
+    if(zero) lo=Math.min(0,lo);
+    if(hi<=lo) hi=lo+1;
+    var span=hi-lo, st=Math.pow(10, Math.floor(Math.log10(span/5))), m=span/5/st;
+    st *= m>5?10:m>2?5:m>1?2:1;
+    return {lo:Math.floor(lo/st)*st, hi:Math.ceil(hi/st)*st, st:st};
+  }
+  var yl=nice(cfg.left.min, cfg.left.max, cfg.left.zero), yr=cfg.right? nice(cfg.right.min, cfg.right.max, false):null;
+  function X(x){ return L+(x-x0)/(x1-x0)*pw; }
+  function YL(y){ return T+ph-(y-yl.lo)/(yl.hi-yl.lo)*ph; }
+  function YR(y){ return T+ph-(y-yr.lo)/(yr.hi-yr.lo)*ph; }
+  g.font=fs+'px sans-serif'; g.lineWidth=1;
+  /* 目盛り */
+  g.strokeStyle='#e3e8e0'; g.fillStyle='#475547'; g.textAlign='right'; g.textBaseline='middle';
+  for(var v=yl.lo; v<=yl.hi+1e-9; v+=yl.st){ var yy=YL(v); g.beginPath(); g.moveTo(L,yy); g.lineTo(L+pw,yy); g.stroke(); g.fillText(round(v,2), L-6, yy); }
+  if(yr){ g.textAlign='left'; for(var v2=yr.lo; v2<=yr.hi+1e-9; v2+=yr.st){ g.fillStyle='#bf360c'; g.fillText(round(v2,1), L+pw+6, YR(v2)); } }
+  var xs = Math.max(1, Math.ceil((x1-x0)/ (pw/70)));
+  var nx=[1,2,5,7,10,14,20,30,50,100]; for(var q=0;q<nx.length;q++){ if(nx[q]>=xs){ xs=nx[q]; break; } }
+  g.textAlign='center'; g.textBaseline='top'; g.fillStyle='#475547';
+  for(var xv=Math.ceil(x0/xs)*xs; xv<=x1; xv+=xs){ var xx=X(xv); g.strokeStyle='#eef2ec'; g.beginPath(); g.moveTo(xx,T); g.lineTo(xx,T+ph); g.stroke(); g.fillText(cfg.xFmt? cfg.xFmt(xv): xv, xx, T+ph+5); }
+  g.strokeStyle='#8a9886'; g.lineWidth=1.5; g.strokeRect(L,T,pw,ph);
+  /* 軸ラベル */
+  g.fillStyle='#172317'; g.font='bold '+fs+'px sans-serif'; g.textAlign='left'; g.textBaseline='top';
+  g.fillText(cfg.left.label, 4, 2);
+  if(yr){ g.textAlign='right'; g.fillStyle='#bf360c'; g.fillText(cfg.right.label, W-4, 2); }
+  g.textAlign='center'; g.fillStyle='#475547'; g.font=fs+'px sans-serif'; g.textBaseline='bottom'; g.fillText(cfg.xLabel||'', L+pw/2, H-1);
+  g.save(); g.beginPath(); g.rect(L,T,pw,ph); g.clip();
+  /* 今日 */
+  if(cfg.nowX!=null && cfg.nowX>=x0 && cfg.nowX<=x1){ g.strokeStyle='#d84315'; g.setLineDash([4,4]); g.lineWidth=2; g.beginPath(); g.moveTo(X(cfg.nowX),T); g.lineTo(X(cfg.nowX),T+ph); g.stroke(); g.setLineDash([]); g.fillStyle='#d84315'; g.textBaseline='top'; var nx0=X(cfg.nowX); g.textAlign = nx0>L+pw-40? 'right':'left'; g.fillText('今日', nx0+(nx0>L+pw-40?-3:3), T+2); }
+  (cfg.markers||[]).forEach(function(mk){ if(mk.x<x0||mk.x>x1) return; g.strokeStyle='#f57c00'; g.setLineDash([2,3]); g.lineWidth=1.5; g.beginPath(); g.moveTo(X(mk.x),T); g.lineTo(X(mk.x),T+ph); g.stroke(); g.setLineDash([]); g.fillStyle='#e65100'; g.textAlign='center'; g.textBaseline='top'; var lw=g.measureText('★'+mk.label).width/2+4; g.fillText('★'+mk.label, clamp(X(mk.x),L+lw,L+pw-lw), T+16+(mk.row||0)*16); });
+  var hits=[];
+  cfg.series.forEach(function(s){
+    var Y = s.axis==='right'? YR : YL;
+    if(s.type==='band'){ if(!s.pts.length) return; g.fillStyle=s.color; g.beginPath(); s.pts.forEach(function(p,i){ var px=X(p[0]), py=Y(p[2]); if(i) g.lineTo(px,py); else g.moveTo(px,py); }); for(var i=s.pts.length-1;i>=0;i--) g.lineTo(X(s.pts[i][0]), Y(s.pts[i][1])); g.closePath(); g.fill(); return; }
+    if(s.type==='range'){ s.pts.forEach(function(p){ var px=X(p[0]); g.strokeStyle=s.color; g.lineWidth=Math.max(4,Math.min(12,pw/(x1-x0)*0.6)); g.lineCap='round'; g.beginPath(); g.moveTo(px,Y(p[1])); g.lineTo(px,Y(p[2])); g.stroke(); g.lineCap='butt'; hits.push({x:px,y:Y((p[1]+p[2])/2),t:s.tip?s.tip(p):''}); }); return; }
+    g.strokeStyle=s.color; g.lineWidth=s.width||3; g.setLineDash(s.dash||[]);
+    if(s.type!=='points' && s.pts.length>1){ g.beginPath(); s.pts.forEach(function(p,i){ var px=X(p[0]), py=Y(p[1]); if(i) g.lineTo(px,py); else g.moveTo(px,py); }); g.stroke(); }
+    g.setLineDash([]);
+    if(s.mark){ s.pts.forEach(function(p){ var px=X(p[0]), py=Y(p[1]); g.fillStyle=s.color; g.strokeStyle='#fff'; g.lineWidth=2; g.beginPath();
+      if(s.mark==='sq') g.rect(px-6,py-6,12,12); else if(s.mark==='tri'){ g.moveTo(px,py-7); g.lineTo(px+7,py+6); g.lineTo(px-7,py+6); g.closePath(); } else g.arc(px,py,6,0,Math.PI*2);
+      g.fill(); g.stroke(); hits.push({x:px,y:py,t:s.tip?s.tip(p):''}); }); }
+  });
+  g.restore();
+  cv._hits=hits;
+}
+function attachTip(cv){
+  var tip=cv.parentNode.querySelector('.tip');
+  function show(ev){
+    var r=cv.getBoundingClientRect(), pt=ev.touches?ev.touches[0]:ev, x=pt.clientX-r.left, y=pt.clientY-r.top, best=null, bd=40;
+    (cv._hits||[]).forEach(function(h){ var d=Math.abs(h.x-x)+Math.abs(h.y-y)*0.3; if(d<bd && h.t){ bd=d; best=h; } });
+    if(!best){ tip.style.display='none'; return; }
+    tip.innerHTML=best.t; tip.style.display='block';
+    var tw=tip.offsetWidth; tip.style.left=clamp(best.x-tw/2, 4, r.width-tw-4)+'px'; tip.style.top=Math.max(4,best.y-48)+'px';
+  }
+  cv.addEventListener('pointerdown', show); cv.addEventListener('pointermove', function(ev){ if(ev.pointerType==='mouse'||ev.buttons) show(ev); });
+}
+var graphOpt = {metric:'m1', temp:true, compare:null};
+R.graph = function(){
+  var el=$('#b1-graph'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>📈 グラフ</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), F=FIELDS[c.cat], es=entriesOf(ap.id);
+  var metrics=[['m1',c.m1.label+'('+c.m1.unit+')']]; if(c.m2) metrics.push(['m2',c.m2.label+'('+c.m2.unit+')']); if(F.ph) metrics.push(['ph','pH']); metrics.push(['water',F.water.label+'('+F.water.unit+')']);
+  if(!metrics.some(function(m){return m[0]===graphOpt.metric;})) graphOpt.metric='m1';
+  var notes=P().notes[ap.id]||{};
+  var h='<h2>📈 グラフで読み取る</h2>'+planPicker();
+  h+='<div class="card"><div class="row" style="margin-bottom:8px"><span><b>左の目盛り:</b></span><div class="seg" style="flex:1">'+metrics.map(function(m){ return '<button data-act="gMetric" data-v="'+m[0]+'" class="'+(graphOpt.metric===m[0]?'on':'')+'">'+esc(m[1])+'</button>'; }).join('')+'</div></div>'+
+    '<div class="row"><label class="chip"><input type="checkbox" data-chg="gTemp"'+(graphOpt.temp?' checked':'')+'> <span>'+F.t+'を重ねる(右の目盛り)</span></label>'+
+    '<button class="btn sm" data-act="gCompare">📂 比べるデータ(CSV)を読みこむ</button>'+(graphOpt.compare?'<button class="btn sm danger" data-act="gCompareClr">比較を消す</button>':'')+'</div>'+
+    '<div class="chartbox" style="height:min(56vh,460px);margin-top:10px"><canvas id="b1-gcv" aria-label="成長のグラフ"></canvas><div class="tip"></div></div>'+
+    '<div class="legend" id="b1-glg"></div>'+
+    (es.length<2?'<p class="hint">記録が2回以上になると、変化が線で見えるようになります。</p>':'<p class="small">点をタップすると数値が見られます。</p>')+'</div>';
+  h+='<div class="card"><h3>🔍 グラフから気づいたこと</h3><p class="small">ヒント: 気温が高い(低い)時期に、成長の速さはどう変わった? 水やりや追肥のあとに変化はあった?</p><textarea data-note="graph" placeholder="例: 気温が25℃をこえた週から、草丈の伸びが大きくなった。">'+esc(notes.graph||'')+'</textarea>'+autoLabel()+'</div>';
+  el.innerHTML=h;
+  var cv=$('#b1-gcv'); attachTip(cv); drawGraph();
+};
+function drawGraph(){
+  var cv=$('#b1-gcv'); if(!cv) return;
+  var ap=activePlan(), c=crop(ap.cropId), F=FIELDS[c.cat], es=entriesOf(ap.id), k=graphOpt.metric;
+  var lab = k==='m1'? c.m1 : k==='m2'? c.m2 : k==='ph'? {label:'pH',unit:''} : F.water;
+  var pts=[]; es.forEach(function(e){ var v=num(e[k]); if(v!=null) pts.push([diffDays(ap.sowDate,e.date), v, e.date]); });
+  var tp=[]; if(graphOpt.temp) es.forEach(function(e){ var a=num(e.tmax), b=num(e.tmin); if(a==null&&b==null) return; if(a==null) a=b; if(b==null) b=a; tp.push([diffDays(ap.sowDate,e.date), Math.min(a,b), Math.max(a,b), e.date]); });
+  var ser=[], lg=[];
+  if(tp.length){ ser.push({type:'range', axis:'right', color:'rgba(230,81,0,.35)', pts:tp, tip:function(p){ return md(p[3])+' '+F.t+' '+p[1]+'〜'+p[2]+'℃'; }}); lg.push('<span><i class="box" style="background:rgba(230,81,0,.35);width:12px"></i>'+F.t+'(最低〜最高)</span>'); }
+  var cmpPts=[];
+  if(graphOpt.compare && k==='m1'){ graphOpt.compare.groups.forEach(function(gr, gi){ var col=['#6a1b9a','#00838f','#5d4037','#455a64'][gi%4]; ser.push({type:'line', color:col, dash:[8,5], width:2.5, mark:'tri', pts:gr.pts, tip:function(p){ return esc(gr.name)+' '+p[0]+'日目 '+p[1]+lab.unit; }}); cmpPts=cmpPts.concat(gr.pts); lg.push('<span><i class="dash" style="border-color:'+col+'"></i>▲ 比較: '+esc(gr.name)+'</span>'); }); }
+  ser.push({type:k==='water'?'points':'line', color:'#1b5e20', width:3, mark:'dot', pts:pts, tip:function(p){ return md(p[2])+'('+p[0]+'日目) '+lab.label+' '+p[1]+lab.unit; }});
+  lg.unshift('<span><i style="border-color:#1b5e20"></i>● '+esc(lab.label)+'</span>');
+  var all=pts.concat(cmpPts), xs=all.map(function(p){return p[0];}).concat(tp.map(function(p){return p[0];}));
+  var dn=diffDays(ap.sowDate,today());
+  var xMin=Math.min.apply(null,[0].concat(xs)), xMax=Math.max.apply(null,[Math.max(dn,7)].concat(xs));
+  var ys=all.map(function(p){return p[1];});
+  var cfg={xMin:xMin, xMax:xMax+1, xLabel:'経過日数('+c.startLabel+'から)', xFmt:function(v){ return v+'日'; }, nowX:dn,
+    left:{label:lab.label+(lab.unit?'('+lab.unit+')':''), min:ys.length?Math.min.apply(null,ys):0, max:ys.length?Math.max.apply(null,ys)*1.1:10, zero:k!=='ph'},
+    series:ser};
+  if(tp.length){ var tv=[]; tp.forEach(function(p){ tv.push(p[1],p[2]); }); cfg.right={label:F.t+'(℃)', min:Math.min.apply(null,tv)-2, max:Math.max.apply(null,tv)+2}; }
+  var t0=performance.now(); drawChart(cv, cfg); APP.dataset.gms = round(performance.now()-t0,1);
+  $('#b1-glg').innerHTML=lg.join('');
+}
+
+/* ================= 写真タイムライン ================= */
+var phSel=[];
+R.photos = function(){
+  var el=$('#b1-photos'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>📷 写真</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), es=entriesOf(ap.id).filter(function(e){ return (e.photoIds||[]).length; });
+  var h='<h2>📷 写真タイムライン</h2>'+planPicker();
+  h+='<div class="card"><p style="margin-top:0">写真を<b>2枚タップ</b>すると、ならべて比べられます。</p><div class="row"><span>選択中: <b>'+phSel.length+'</b>/2枚</span><span class="sp"></span><button class="btn pri" data-act="phCompare"'+(phSel.length===2?'':' disabled')+'>🔍 ならべて比べる</button><button class="btn" data-act="phClear"'+(phSel.length?'':' disabled')+'>選択をやめる</button></div></div>';
+  if(!es.length) h+='<div class="card empty"><span class="e">📷</span><p>まだ写真がありません。「記録」で写真をとると、ここに日付順にならびます。</p><button class="btn pri" data-act="tab" data-v="entry">記録をつける</button></div>';
+  else es.slice().reverse().forEach(function(e){
+    h+='<div class="card"><h3 style="margin:0 0 8px">'+mdw(e.date)+' <span class="small">'+diffDays(ap.sowDate,e.date)+'日目'+(num(e.m1)!=null?'・'+c.m1.label+' '+e.m1+c.m1.unit:'')+'</span></h3><div class="thumbs">'+
+      e.photoIds.map(function(id){ var i=phSel.indexOf(id); return '<button class="thumb'+(i>=0?' sel':'')+'" data-act="phPick" data-id="'+id+'" aria-pressed="'+(i>=0)+'"><img data-ph="'+id+'" alt="'+md(e.date)+'の写真">'+(i>=0?'<span class="num">'+(i+1)+'</span>':'')+'</button>'; }).join('')+'</div>'+(e.memo?'<p class="small" style="margin:6px 0 0">📝 '+esc(e.memo)+'</p>':'')+'</div>';
+  });
+  h+='<div class="card"><h3>💽 保存容量</h3><p id="b1-quota" class="small">しらべています…</p></div>';
+  el.innerHTML=h; loadImgs(el);
+  var q=$('#b1-quota');
+  var cnt=0; P().entries.forEach(function(e){ cnt+=(e.photoIds||[]).length; });
+  if(navigator.storage && navigator.storage.estimate){ navigator.storage.estimate().then(function(r){ q.innerHTML='写真 '+cnt+'枚 ／ 使用量 約'+round((r.usage||0)/1048576,1)+'MB'+(r.quota?'(使える量の'+round((r.usage||0)/r.quota*100,1)+'%)':'')+(PhotoDB.mode==='ls'?'<br>⚠ この端末では写真を小さめに保存しています。':''); }).catch(function(){ q.textContent='写真 '+cnt+'枚'; }); }
+  else q.textContent='写真 '+cnt+'枚';
+};
+function photoInfo(id){ var r=null; P().entries.forEach(function(e){ if((e.photoIds||[]).indexOf(id)>=0) r=e; }); return r; }
+
+/* ================= 予測 ================= */
+/* 積算温度(有効積算温度): GDD = Σ max(0, 平均気温 − 基準温度) */
+function dailyTemps(ap){
+  var es=entriesOf(ap.id), map={}, sum=0, n=0;
+  es.forEach(function(e){ var t=meanT(e); if(t!=null){ map[e.date]=t; sum+=t; n++; } });
+  var recent = es.filter(function(e){ return meanT(e)!=null; }).slice(-7);
+  var rmean = recent.length? recent.reduce(function(a,e){return a+meanT(e);},0)/recent.length : null;
+  return {map:map, mean:n?sum/n:null, recent:rmean, n:n};
+}
+function gddRun(ap, futureT, delta, rateMul){
+  var c=crop(ap.cropId), dt=dailyTemps(ap), t=today(), cum=0, out=[], cap=c.range[1]+2, rm=rateMul||1;
+  var fill = dt.mean!=null? dt.mean : futureT;
+  var lastRec = null, lastT=null;
+  for(var d=0; d<=400; d++){
+    var date=addDays(ap.sowDate,d), T, kind;
+    if(date<=t){ if(dt.map[date]!=null){ T=dt.map[date]; lastT=T; kind='rec'; } else { T = lastT!=null? lastT : fill; kind='fill'; } }
+    else { T = futureT + (delta||0); kind='fut'; }
+    /* B1-08: これから先の日は、日当たり・水・肥料などの条件(成長の速さ)も反映する */
+    cum += Math.max(0, Math.min(T, cap) - c.base) * (kind==='fut' ? rm : 1);
+    out.push({d:d, date:date, T:T, cum:cum, kind:kind});
+  }
+  return out;
+}
+function stagePred(ap, futureT, delta, rateMul){
+  var c=crop(ap.cropId), dt=dailyTemps(ap);
+  if(futureT==null) futureT = dt.recent!=null? dt.recent : (c.range[0]+c.range[1])/2;
+  var run=gddRun(ap, futureT, delta, rateMul), t=today();
+  return c.stages.map(function(s){
+    var r={n:s.n, gdd:s.gdd, days:s.days};
+    if(s.gdd){ for(var i=0;i<run.length;i++){ if(run[i].cum>=s.gdd){ r.d=run[i].d; r.date=run[i].date; break; } } }
+    else { var dd = s.days; if(rateMul && addDays(ap.sowDate,s.days)>t){ var past=Math.max(0,diffDays(ap.sowDate,t)); dd = past + (s.days-past)/rateMul; } r.d=Math.round(dd); r.date=addDays(ap.sowDate,r.d); }
+    r.done = r.date && r.date<=t;
+    return r;
+  });
+}
+/* ロジスティック曲線 h(t)=K/(1+exp(-r(t-t0))) を最小二乗で当てはめる */
+function fitLogistic(pts, Khint){
+  var n=pts.length; if(n<5) return null;
+  var ymax=Math.max.apply(null,pts.map(function(p){return p[1];})), tmax=Math.max.apply(null,pts.map(function(p){return p[0];})), tmin=Math.min.apply(null,pts.map(function(p){return p[0];}));
+  if(ymax<=0) return null;
+  function sse(K,r,t0){ var s=0; for(var i=0;i<n;i++){ var e=pts[i][1]-K/(1+Math.exp(-r*(pts[i][0]-t0))); s+=e*e; } return s; }
+  var Kmax=Math.max(ymax*3, (Khint||0)*1.5), best={s:Infinity};
+  for(var a=0;a<30;a++){ var K=ymax*1.01+(Kmax-ymax*1.01)*a/29;
+    for(var b=0;b<30;b++){ var r=0.01*Math.pow(60, b/29);
+      for(var c2=0;c2<40;c2++){ var t0=tmin-10+(tmax+120-tmin)*c2/39; var s=sse(K,r,t0); if(s<best.s) best={s:s,K:K,r:r,t0:t0}; } } }
+  /* 細かく調整(座標降下) */
+  var st={K:(Kmax-ymax)/29, r:best.r*0.15, t0:(tmax+130-tmin)/39};
+  for(var it=0; it<300; it++){
+    var improved=false;
+    ['K','r','t0'].forEach(function(k){ [1,-1].forEach(function(sg){ var tr={K:best.K,r:best.r,t0:best.t0}; tr[k]+=sg*st[k]; if(tr.K<ymax*0.98||tr.r<=0.001) return; var s=sse(tr.K,tr.r,tr.t0); if(s<best.s){ best={s:s,K:tr.K,r:tr.r,t0:tr.t0}; improved=true; } }); });
+    if(!improved){ st.K/=2; st.r/=2; st.t0/=2; if(st.r<1e-6) break; }
+  }
+  var sd=Math.sqrt(best.s/Math.max(1,n-3));
+  var mean=pts.reduce(function(a,p){return a+p[1];},0)/n, sst=pts.reduce(function(a,p){return a+(p[1]-mean)*(p[1]-mean);},0);
+  return {K:best.K, r:best.r, t0:best.t0, sd:sd, r2: sst>0? 1-best.s/sst : 0, n:n, tFirst:tmin, tLast:tmax, ymax:ymax, Kedge: best.K>Kmax*0.95, early: best.t0>tmax+5};
+}
+function logi(f,t){ return f.K/(1+Math.exp(-f.r*(t-f.t0))); }
+/* What-if の条件 */
+var WHATIF = {
+  plant:[
+    {k:'water', label:'水やり', opts:[['less','少なくする',{r:0.85,K:0.85,y:0.75,why:'水が足りないと、光合成や養分の吸収がにぶり、成長がおそくなる。しおれの原因にも。'}],['norm','ふつう',null],['more','多すぎる',{r:0.9,K:0.9,y:0.85,why:'水のやりすぎは土の中の空気が減り、根が弱る(根腐れ)。'}]]},
+    {k:'sun', label:'日当たり', opts:[['full','よく当たる',null],['half','半日陰(遮光)',{r:0.95,K:1.05,y:0.8,why:'光が少ないと、茎がひょろ長く伸びる(徒長)。草丈は高くなっても、実や根は少なくなりやすい。'}],['shade','日陰',{r:0.8,K:1.0,y:0.55,why:'光合成でつくる養分が大きく減る。徒長して倒れやすく、収穫量も大きく減る。'}]]},
+    {k:'fert', label:'肥料', opts:[['none','やらない',{r:0.85,K:0.85,y:0.75,why:'養分(窒素・リン酸・カリウム)が足りないと、葉が黄色くなり成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:1.05,K:1.05,y:0.8,why:'肥料が多すぎると、茎や葉ばかり茂って実がつきにくい(トマトでは「木ぼけ」、サツマイモなどでは「つるぼけ」という)。根をいためることも。'}]]}
+  ],
+  animal:[
+    {k:'feed', label:'えさ', opts:[['less','少なくする',{r:0.8,K:0.85,y:0.8,why:'えさが足りないと体重が増えにくく、病気にも弱くなる。'}],['norm','ふつう',null],['more','多すぎる',{r:1.05,K:1.05,y:0.9,why:'食べ残しが増えると不衛生になり、太りすぎで健康をそこねることも。'}]]},
+    {k:'dens', label:'飼育する数(密度)', opts:[['low','ゆったり',null],['norm','ふつう',null],['high','ぎゅうぎゅう(過密)',{r:0.85,K:0.9,y:0.8,why:'せまいとストレスでつつき合いが起き、病気も広がりやすい。'}]]}
+  ],
+  aquatic:[
+    {k:'feed', label:'えさ', opts:[['less','少なくする',{r:0.8,K:0.85,y:0.85,why:'えさが足りないと成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:0.9,K:0.95,y:0.8,why:'食べ残しが水をよごし、酸素不足や病気の原因になる(えさの量と水質はトレードオフ)。'}]]},
+    {k:'wc', label:'水替え', opts:[['none','しない',{r:0.8,K:0.85,y:0.7,why:'ふんや食べ残しで水質が悪化(アンモニアがたまる)し、元気がなくなる。'}],['norm','週1回(1/3)',null],['many','毎日全部かえる',{r:0.9,K:0.95,y:0.9,why:'水を一度に全部かえると、水温や水質が急に変わって生き物の負担になる。'}]]}
+  ]
+};
+var wi = {delta:0, sel:{}, futureT:null, planId:null};
+R.predict = function(){
+  var el=$('#b1-predict'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>🔮 予測</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), F=FIELDS[c.cat], dt=dailyTemps(ap);
+  if(wi.planId!==ap.id){ wi={delta:0, sel:{}, futureT:null, planId:ap.id}; }
+  if(wi.futureT==null) wi.futureT = round(dt.recent!=null? dt.recent : (c.range[0]+c.range[1])/2, 1);
+  var notes=P().notes[ap.id]||{};
+  var h='<h2>🔮 成長予測と「もしも〜なら?」</h2>'+planPicker();
+  h+='<div class="card note"><b>⚠ 予測は「仮説」です。</b> 記録した数値と、かんたんな計算のしくみ(モデル)から考えた「目安」です。実際とのちがいを確かめ、その理由を考えることが大切です。</div>';
+  /* What-if 操作 */
+  h+='<div class="card"><h3>🎛️ 条件を変えてみよう(これから先の条件)</h3>'+
+    '<label class="f"><span>これからの平均'+F.t+'(予想): <b id="b1-ft">'+wi.futureT+'</b>℃ <span class="small">'+(dt.recent!=null?'(最近7回の記録の平均 '+round(dt.recent,1)+'℃ からスタート)':'(記録がないので適温の中間からスタート)')+'</span></span><input type="range" min="0" max="35" step="0.5" value="'+wi.futureT+'" data-chg="wiFT" aria-label="これからの平均'+F.t+'"></label>'+
+    '<p class="small" style="margin-top:-6px">※ この予測は、これから先もずっと同じ'+F.t+'が続くとして計算します。<b>季節が変わると'+F.t+'も変わる</b>ので、何か月も先の予測は、季節に合わせてこの値を動かしてみよう。</p>'+
+    '<label class="f"><span>もしも'+F.t+'を変えたら: <b id="b1-wd">'+(wi.delta>0?'+':'')+wi.delta+'</b>℃ <span class="small">(加温・保温や日よけ・換気など)</span></span><input type="range" min="-5" max="5" step="1" value="'+wi.delta+'" data-chg="wiD" aria-label="もしも'+F.t+'を変えたら"></label>'+
+    WHATIF[c.cat].map(function(f){ var v=wi.sel[f.k]||'norm'; if(!f.opts.some(function(o){return o[0]===v;})) v=f.opts[0][0]==='norm'?'norm':(f.opts.some(function(o){return o[0]==='norm';})?'norm':f.opts[0][0]);
+      return '<div class="f"><span style="font-weight:700;display:block;margin-bottom:4px">'+f.label+'</span><div class="seg">'+f.opts.map(function(o){ return '<button data-act="wiSel" data-k="'+f.k+'" data-v="'+o[0]+'" class="'+(v===o[0]?'on':'')+'">'+o[1]+'</button>'; }).join('')+'</div></div>'; }).join('')+
+    '<div class="row end"><button type="button" class="btn sm" data-act="wiReset">条件をもとにもどす</button></div></div>';
+  h+='<div id="b1-pres"></div>';
+  h+='<div class="card"><h3>🧠 予測と実際のちがいを考えよう</h3><p class="small">予測した日と、実際に発芽・開花・収穫した日(または大きさ)はどれくらいちがった? そのちがいはなぜ生まれたと思う?</p><textarea data-note="predict" placeholder="例: 予測より5日早く開花した。7月は予想より気温が高かったからだと思う。">'+esc(notes.predict||'')+'</textarea>'+autoLabel()+'</div>';
+  var b0=c.base, ex=[[b0+12,'12'],[b0-2,'0'],[b0+10,'10']], acc=0;
+  h+='<details><summary>📐 計算のしくみ(どうやって予測しているの?)</summary><div>'+
+    '<p><b>① 積算温度</b><br>毎日の「平均'+F.t+' − 基準温度」を、<b>貯金箱にお金をためるように</b>毎日たしていきます。基準温度は「これより低いと育たない温度」で、'+esc(c.name)+'は '+b0+'℃ です。平均'+F.t+'が基準温度より低い日は「0」として数えます(マイナスにはしません)。たまった合計の単位は「℃・日(ど・にち)」です。この合計が生物ごとに決まった値に達すると、発芽・開花などが起こると考えます。</p>'+
+    '<div class="scrollx"><table class="t" style="max-width:560px"><tr><th>日</th><th>平均'+F.t+'</th><th>その日の分</th><th>合計(貯金)</th></tr>'+
+      ex.map(function(x,i){ acc+=Number(x[1]); return '<tr><td>'+(i+1)+'日目</td><td>'+x[0]+'℃</td><td>'+(x[1]==='0'?x[0]+' − '+b0+' はマイナスなので <b>0</b>':x[0]+' − '+b0+' = <b>'+x[1]+'</b>')+'</td><td>'+acc+' ℃・日</td></tr>'; }).join('')+'</table></div>'+
+    '<p class="small">記録がない日は、直前に記録した温度を使います。高すぎる温度(適温の上限+2℃より上)は、それ以上は成長を速めないものとして計算します。「もしも〜なら」で日当たり・水・肥料などを変えると、これから先の1日分のたまり方も変わります。</p>'+
+    '<p><b>② 成長曲線(S字の線)</b><br>生物の成長は「はじめはゆっくり → ぐんぐん伸びる → やがて止まる」というS字の形になることが多いです。記録した点にいちばん近くなるS字の線を計算で探して、これから先の大きさを予測します。記録が5回以上たまると予測できます。うすい帯は「このくらいずれるかもしれない」という目安です。</p>'+
+    '<svg viewBox="0 0 240 90" width="240" height="90" role="img" aria-label="S字の成長曲線の図" style="max-width:100%;display:block;margin:0 0 8px"><line x1="20" y1="80" x2="235" y2="80" stroke="#8a9886"/><line x1="20" y1="80" x2="20" y2="5" stroke="#8a9886"/><path d="M20 78 C 80 78, 90 70, 120 45 S 170 12, 230 10" fill="none" stroke="#0d47a1" stroke-width="3"/><text x="28" y="72" font-size="11" fill="#475547">ゆっくり</text><text x="122" y="56" font-size="11" fill="#475547">ぐんぐん</text><text x="180" y="26" font-size="11" fill="#475547">止まる</text></svg>'+
+    '<p><b>③ もしも〜なら</b><br>条件を変えたときの影響は、教科書などで知られている傾向をもとにした<b>かんたんなルール</b>です(例: 日陰 → 成長の速さ×0.8)。本当にそうなるかは、実際に育てて確かめよう。</p>'+
+    '<details class="more"><summary>🎓 くわしく知りたい人へ(高校で学ぶ式)</summary><div>'+
+      '<p><span class="formula">積算温度 = Σ max(0, 平均'+F.t+' − 基準温度)</span><br>Σ(シグマ)は「全部たす」という記号です。</p>'+
+      '<p><span class="formula">h(t) = K ÷ (1 + e<sup>−r(t − t₀)</sup>)</span><br>ロジスティック曲線という式です。K: 最終的な大きさ、r: 成長の速さ、t₀: いちばん伸びる日。e は約2.718 の数です。記録した値とのずれ(の2乗の合計)がいちばん小さくなるように K・r・t₀ を決めます(最小二乗法)。</p>'+
+      '<p>「当てはまりのよさ」は、決定係数 R² という数で判断しています(1に近いほどよく合っている)。◎は0.9より大きい、○は0.7より大きい、△はそれ以下です。</p></div></details>'+
+    '</div></details>';
+  el.innerHTML=h;
+  renderPredictResult();
+};
+function wiEffects(c, day){
+  var r=1, K=1, y=1, rs=1, why=[], rg=rangeAt(c, day);
+  WHATIF[c.cat].forEach(function(f){ var v=wi.sel[f.k]||'norm'; f.opts.forEach(function(o){ if(o[0]===v && o[2]){ r*=o[2].r; rs*=o[2].r; K*=o[2].K; y*=o[2].y; why.push('<b>'+f.label+'「'+o[1]+'」</b>: '+o[2].why); } }); });
+  var T=wi.futureT+wi.delta;
+  /* rs: 節目(①)に使う速さ。温度そのものの効果は積算温度に入っているので、温度以外の条件と高温・低温の害だけをかける */
+  if(wi.delta!==0){
+    if(T>rg[1]+2){ r*=0.85; rs*=0.85; y*=0.75; why.push('<b>'+FIELDS[c.cat].t+' '+T+'℃</b>: 適温('+rg[0]+'〜'+rg[1]+'℃)より高すぎる。高温で弱り(高温障害)、成長はかえって悪くなる。'); }
+    else if(T<rg[0]-2){ r*=0.8; rs*=0.8; y*=0.8; why.push('<b>'+FIELDS[c.cat].t+' '+T+'℃</b>: 適温より低い。成長がゆっくりになり、低すぎると止まってしまう。'); }
+    else { r*=1+0.04*wi.delta; why.push('<b>'+FIELDS[c.cat].t+'を'+(wi.delta>0?'+':'')+wi.delta+'℃</b>: 適温の範囲では、温度が高いほど成長が速い(積算温度が早くたまる)。'); }
+  } else if(T>rg[1]+2) why.push('⚠ 予想'+FIELDS[c.cat].t+' '+T+'℃は適温より高めです。');
+  return {r:r, rs:rs, K:K, y:y, why:why, changed: wi.delta!==0 || why.length>0};
+}
+function renderPredictResult(){
+  var box=$('#b1-pres'); if(!box) return;
+  var ap=activePlan(), c=crop(ap.cropId), F=FIELDS[c.cat], t=today(), dn=diffDays(ap.sowDate,t), dt=dailyTemps(ap);
+  var eff=wiEffects(c, dn);
+  var base=stagePred(ap, wi.futureT, 0, 1), alt=stagePred(ap, wi.futureT, wi.delta, eff.rs);
+  var run=gddRun(ap, wi.futureT, 0), nowCum = dn>=0 && run[dn]? run[dn].cum : 0;
+  var hasGdd = c.stages.some(function(s){return s.gdd;});
+  var h='<div class="card"><h3>🌡️ ① 成長の節目の予測'+(hasGdd?'(積算温度)':'(日数)')+'</h3>';
+  if(hasGdd) h+='<p>今日までの積算'+F.t+': <span class="num-big">'+Math.round(nowCum)+'</span> ℃・日 <span class="small">(毎日の「平均'+F.t+' − 基準温度 '+c.base+'℃」の合計。温度の記録 '+dt.n+'回'+(dn+1>dt.n&&dn>=0?'、記録のない日は直前の記録で計算':'')+')</span></p>';
+  h+='<div class="scrollx"><table class="t"><tr><th>節目</th>'+(hasGdd?'<th>必要な積算温度</th>':'')+'<th>予測(いまの条件)</th><th>もしも〜なら</th></tr>'+
+    base.map(function(s,i){ var a=alt[i], dd = (a.d!=null&&s.d!=null)? a.d-s.d : 0;
+      return '<tr><td><b>'+esc(s.n)+'</b></td>'+(hasGdd?'<td>'+(s.gdd?s.gdd+' ℃・日':'(日数で予測)')+'</td>':'')+
+        '<td>'+(s.date? (s.done?'✅ '+mdw(s.date)+'ごろ<br><span class="small">達成ずみ(計算上)</span>':mdw(s.date)+'<br><span class="small">'+s.d+'日目・あと'+diffDays(t,s.date)+'日</span>'):'400日以内には届かない')+'</td>'+
+        '<td>'+(s.done?'—': a.date? mdw(a.date)+(dd? '<br><b style="color:'+(dd<0?'#1b5e20':'#b71c1c')+'">'+(dd<0?'▲ '+(-dd)+'日早い':'▼ '+dd+'日おそい')+'</b>':'<br><span class="small">変わらない</span>') : '届かない')+'</td></tr>'; }).join('')+'</table></div>';
+  if(hasGdd && wi.delta===0) h+='<p class="small">💡 「もしも'+F.t+'を変えたら」を動かすと、節目の日がどう変わるか比べられます。</p>';
+  h+='<p class="small">①は、温度(積算温度)と、「もしも〜なら」で変えた日当たり・水・肥料などの条件(成長の速さ)から計算しています。</p>';
+  if(c.tasks.some(function(k){ return /収穫/.test(k[1]); })) h+='<p class="hint">📌 計画の作業予定にある「収穫(目安)」は、'+esc(c.startLabel)+'からの<b>日数で決めた目安</b>です。ここの予測は、<b>記録した'+F.t+'からの計算</b>です。2つの日付がずれることがあります。実際の育ち方を見て決めよう。</p>';
+  h+='</div>';
+  /* 成長曲線 */
+  var es=entriesOf(ap.id), pts=[]; es.forEach(function(e){ var v=num(e.m1); if(v!=null) pts.push([diffDays(ap.sowDate,e.date), v, e.date]); });
+  var fit=fitLogistic(pts, c.K);
+  h+='<div class="card"><h3>📈 ② '+esc(c.m1.label)+'の成長曲線の予測</h3>';
+  if(!fit){
+    h+='<div class="empty"><span class="e">📒</span><p><b>'+esc(c.m1.label)+'の記録を増やそう!</b><br>予測には5回以上の記録が必要です(いま '+pts.length+'回、あと'+(5-pts.length)+'回)。</p></div>';
+  } else {
+    h+='<div class="chartbox" style="height:min(50vh,420px)"><canvas id="b1-pcv" aria-label="成長曲線の予測グラフ"></canvas><div class="tip"></div></div><div class="legend"><span><i style="border-color:#1b5e20"></i>● 記録</span><span><i style="border-color:#0d47a1"></i>いまの条件での予測</span><span><i class="box" style="background:rgba(13,71,161,.15);width:14px"></i>不確かさの幅</span>'+(eff.changed?'<span><i class="dash" style="border-color:#d84315"></i>もしも〜なら</span>':'')+'</div>';
+    var hz=[14,30], rows='';
+    hz.forEach(function(d){ var tt=Math.max(dn, fit.tLast)+d; var b=logi(fit,tt), w=bandW(fit,tt), a=whatIfAt(fit, eff, tt);
+      rows+='<tr><td>'+d+'日後('+md(addDays(ap.sowDate,tt))+')</td><td>約 '+round(b,1)+c.m1.unit+'<br><span class="small">'+round(Math.max(0,b-w),1)+'〜'+round(b+w,1)+'</span></td><td>'+(eff.changed?'約 '+round(a,1)+c.m1.unit:'—')+'</td></tr>'; });
+    h+='<div class="scrollx" style="margin-top:10px"><table class="t"><tr><th>いつ</th><th>いまの条件</th><th>もしも〜なら</th></tr>'+rows+
+      '<tr><td>最終的な大きさ(K)</td><td>約 '+round(fit.K,1)+c.m1.unit+'</td><td>'+(eff.changed?'約 '+round(fit.K*eff.K,1)+c.m1.unit:'—')+'</td></tr></table></div>';
+    var msgs=[];
+    msgs.push('当てはまりのよさ: '+(fit.r2>0.9?'◎ 記録とよく合っている':fit.r2>0.7?'○ だいたい合っている':'△ ばらつきが大きい(予測は参考程度に)'));
+    if(fit.Kedge||fit.early) msgs.push('まだ成長の前半なので、最終的な大きさ(K)はとても不確かです。記録を続けると予測が安定します。');
+    if(fit.n<8) msgs.push('記録がまだ少ないので、予測の幅が大きめです。');
+    h+='<p class="hint">'+msgs.join('<br>')+'</p>';
+  }
+  h+='</div>';
+  /* What-if の根拠 */
+  h+='<div class="card"><h3>📋 ③ 「もしも〜なら」の結果と根拠</h3>';
+  if(!eff.changed) h+='<p class="small">上の「条件を変えてみよう」で条件を変えると、ここに結果とその理由が出ます。</p>';
+  else {
+    h+='<p>'+(c.cat==='plant'?'収穫量':'育ち具合')+'の目安: いまの条件を100とすると <span class="num-big">'+Math.round(eff.y*100)+'</span></p>';
+    h+='<ul>'+eff.why.map(function(w){return '<li>'+w+'</li>';}).join('')+'</ul>';
+    h+='<p class="small">※ 数値はかんたんなルール(モデル)による目安です。</p>';
+  }
+  h+='</div>';
+  box.innerHTML=h;
+  if(fit){
+    var cv=$('#b1-pcv'); attachTip(cv);
+    var tEnd=Math.max(fit.tLast+45, dn+30), harvest=base[base.length-1]; if(harvest && harvest.d && harvest.d>tEnd && harvest.d<fit.tLast+150) tEnd=harvest.d+5;
+    var curve=[], band=[], alt2=[];
+    for(var x=0; x<=tEnd; x+=Math.max(0.5,tEnd/200)){ var y=logi(fit,x), w=bandW(fit,x); curve.push([x,y]); band.push([x,Math.max(0,y-w),y+w]); if(eff.changed && x>=fit.tLast) alt2.push([x, whatIfAt(fit,eff,x)]); }
+    var ser=[{type:'band', color:'rgba(13,71,161,.15)', pts:band},{type:'line', color:'#0d47a1', width:2.5, pts:curve}];
+    if(eff.changed) ser.push({type:'line', color:'#d84315', width:3, dash:[10,6], pts:alt2});
+    ser.push({type:'points', color:'#1b5e20', mark:'dot', pts:pts, tip:function(p){ return md(p[2])+'('+p[0]+'日目) '+p[1]+c.m1.unit; }});
+    var mk=[]; base.forEach(function(s,i){ if(s.d!=null) mk.push({x:s.d, label:s.n.replace(/\(.*\)/,''), row:i%2}); });
+    var ymax=Math.max(fit.K*Math.max(1,eff.K)+bandW(fit,tEnd), fit.ymax)*1.05;
+    drawChart(cv, {xMin:0, xMax:tEnd, xLabel:'経過日数', xFmt:function(v){return v+'日';}, nowX:dn, markers:mk, left:{label:c.m1.label+'('+c.m1.unit+')', min:0, max:ymax, zero:true}, series:ser});
+  }
+}
+function bandW(f,t){ var ext=Math.max(0, t-f.tLast)/Math.max(10, f.tLast-f.tFirst); return 1.96*f.sd*(1+ext) + (f.Kedge||f.early? f.K*0.15*Math.min(1,ext):0); }
+/* 最後の記録の日から、変えた条件で成長の式(dh/dt = r h (1 − h/K))を進める */
+function whatIfAt(f, eff, t){
+  if(t<=f.tLast) return logi(f,t);
+  var h=logi(f,f.tLast), r=f.r*eff.r, K=f.K*eff.K, dtv=0.1;
+  for(var x=f.tLast; x<t; x+=dtv){ h += r*h*(1-h/K)*Math.min(dtv, t-x); }
+  return h;
+}
+
+/* ================= 病害虫・健康の診断 ================= */
+var DIAG = {
+  plant:{
+    where:[['leaf','🍃','葉のようす'],['stem','🌿','茎・株全体'],['fruit','🍅','実・根'],['bug','🐛','虫がいる']],
+    sym:{
+      leaf:[
+        ['下の葉から黄色くなる',[['肥料(特に窒素)不足','追肥をする。肥料のやりすぎにも注意。'],['水のやりすぎ(根腐れのはじまり)','土が乾いてから水やりする。鉢なら水はけを確認。']]],
+        ['葉に白い粉がついたよう',[['うどんこ病(カビの病気)','病気の葉を取りのぞいて処分する。風通しをよくし、混みあった枝や葉を整理する。']]],
+        ['葉に茶色・黒の斑点',[['斑点性の病気(カビ・細菌)','病気の葉を取りのぞく。雨の跳ね返りを防ぐ(マルチング)。株元に水やりする。']]],
+        ['葉に穴があいている',[['アオムシ・ヨトウムシなどの食害','葉の裏や株元、夜に探して取りのぞく(捕殺)。防虫ネットで予防する。']]],
+        ['葉が丸まる・縮れる',[['アブラムシ','手で取る、粘着テープ、水で洗い流す。テントウムシは天敵。'],['ウイルス病(アブラムシがうつす)','治らないので株を抜いて処分。アブラムシの予防が大切。']]]
+      ],
+      stem:[
+        ['土が乾いていて、しおれる',[['水不足','朝か夕方にたっぷり水やりする。マルチングで乾燥を防ぐ。']]],
+        ['土がしめっているのに、しおれる',[['根腐れ','水やりの回数を減らし、水はけをよくする。'],['青枯病など(細菌の病気)','急にしおれて回復しない場合は株を抜いて処分。同じ場所で同じ科の作物を続けて育てない(連作をさける)。']]],
+        ['ひょろひょろ細長く伸びる',[['徒長(日照不足・密植・肥料のやりすぎ)','日当たりのよい場所に移す。間引きして株の間を広げる。肥料をひかえる。']]],
+        ['葉ばかり茂って花・実がつかない',[['窒素肥料のやりすぎ(茎や葉ばかり茂る。トマトでは「木ぼけ」、サツマイモなどでは「つるぼけ」という)','追肥をひかえる。わき芽をこまめに取る。']]]
+      ],
+      fruit:[
+        ['トマトの実のおしりが黒くなる',[['尻腐れ症(カルシウム不足・水分のむら)','水やりのむらをなくす。土づくりで石灰を入れておく。']]],
+        ['実が割れる',[['急な水分の変化(雨のあとなど)','雨よけをする。水やりを一定にする。']]],
+        ['ジャガイモが緑色になった・芽が出た',[['日光が当たった(ソラニン・チャコニンという毒が増える)','土寄せをして、いもに光を当てない。芽とそのまわり、緑色の部分は厚く取りのぞく。小さい・未熟ないもは食べない。加熱しても毒は減りにくい。食べて苦い・えぐいときは食べるのをやめる。調理は先生の指示で。']]],
+        ['ラディッシュの根が割れる',[['水分の急な変化・とりおくれ','乾燥させない。収穫の時期をのがさない。']]]
+      ],
+      bug:[
+        ['小さな虫が葉の裏に群がる(緑・黒)',[['アブラムシ','手で取る、粘着テープ、水で洗い流す。光る物(シルバーマルチ)をきらう。']]],
+        ['葉の裏に白い小さな虫・飛ぶ',[['コナジラミ','黄色い粘着シートで捕まえる。防虫ネットで予防。']]],
+        ['葉の上に大きなイモムシ',[['アオムシ・ヨトウムシ・スズメガの幼虫','見つけしだい取りのぞく。防虫ネットで予防。']]],
+        ['てんとう虫がいる',[['ナナホシテントウなら益虫(アブラムシを食べる)','そのままにしておこう。ただし、ニジュウヤホシテントウ(テントウムシダマシ)は葉を食べる害虫。']]]
+      ]
+    }
+  },
+  animal:{
+    where:[['eat','🍽️','食べ方'],['move','🐾','動き・ようす'],['body','🪶','体・羽・ふん']],
+    sym:{
+      eat:[['えさを食べない・残す',[['体調不良・温度が合っていない','温度(ひなは特に保温)を確認する。様子がおかしければ先生に相談。'],['えさが古い・湿っている','新しいえさに交換する。']]],['水をあまり飲まない',[['水が汚れている・容器が合っていない','毎日水をかえ、容器を洗う。']]]],
+      move:[['ひなが一か所に集まって鳴く',[['寒い(保温不足)','ヒーターや電球で保温する。温度計で確認。']]],['ひなが熱源から離れ、口を開けて息をする',[['暑すぎる','保温を弱める。換気する。']]],['つつき合っている',[['過密・ストレス','飼育する数を減らす、広くする。かくれ場所をつくる。']]]],
+      body:[['羽がぼろぼろ・ぬけている',[['つつき合い・栄養不足','密度を下げる。えさの栄養を見直す。']]],['ふんがゆるい・色がおかしい',[['体調不良・えさの変化','えさをもとにもどし、清潔にする。続くときは先生に相談。']]]]
+    }
+  },
+  aquatic:{
+    where:[['move','🐟','泳ぎ方・ようす'],['body','🔍','体のようす'],['water','💧','水のようす']],
+    sym:{
+      move:[['水面で口をパクパクしている',[['酸素不足・水質の悪化','水替え(1/3ほど)をする。エアレーション(ぶくぶく)を入れる。えさを減らす。']]],['底でじっとしている・元気がない',[['水温が低い/水質が悪い','水温を確認する(冬は動きがにぶいのは自然)。水替えをする。']]],['えさを食べない',[['水温の急変・体調不良','水温を測る。様子を見て、えさの量を減らす。']]]],
+      body:[['体に白い点がついている',[['白点病(寄生虫による病気)','病気の魚を別の容器に分ける。薬を使う場合は先生と一緒に、説明書の量を守る。']]],['ひれがとける・ぼろぼろ',[['尾ぐされ病など(細菌)','水質を改善し、病気の魚を分ける。']]],['お腹がふくれる',[['えさのやりすぎ・病気','えさを減らす。']]]],
+      water:[['水が白くにごる・くさい',[['えさのやりすぎ・ろ過不足','食べ残しを取り、水替えをする。えさは2〜3分で食べきる量に。']]],['水が緑色になる',[['植物プランクトンが増えた(青水)','メダカには悪くないこともあるが、濃すぎると酸素不足に。日当たりと水替えで調整。']]],['pHが6.5より低い/8より高い',[['水質の変化','少しずつ水替えをする。一度に全部かえない。']]]]
+    }
+  }
+};
+var dg={where:null, sym:null};
+R.diag = function(){
+  var el=$('#b1-diag'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>🩺 診断</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), D=DIAG[c.cat];
+  if(dg.where && !D.sym[dg.where]) dg={where:null,sym:null};
+  var h='<h2>🩺 '+(c.cat==='plant'?'病害虫の診断':'健康チェック')+'</h2>'+planPicker();
+  h+='<div class="card"><div class="crumb"><button type="button" class="btn sm" data-act="dgReset">はじめから</button> '+(dg.where?' › '+esc(D.where.filter(function(w){return w[0]===dg.where;})[0][2]):'')+(dg.sym!=null?' › '+esc(D.sym[dg.where][dg.sym][0]):'')+'</div>';
+  if(!dg.where){
+    h+='<h3>1. どこが気になる?</h3><div class="flow">'+D.where.map(function(w){ return '<button data-act="dgWhere" data-v="'+w[0]+'"><span class="e">'+w[1]+'</span>'+w[2]+'</button>'; }).join('')+'</div>';
+  } else if(dg.sym==null){
+    h+='<h3>2. どんなようす?</h3><div class="flow">'+D.sym[dg.where].map(function(s,i){ return '<button data-act="dgSym" data-v="'+i+'">'+esc(s[0])+'</button>'; }).join('')+'</div>';
+  } else {
+    var s=D.sym[dg.where][dg.sym];
+    h+='<h3>3. 考えられる原因と対処</h3>'+s[1].map(function(x,i){ return '<div class="card soft"><b>候補'+(i+1)+': '+esc(x[0])+'</b><p style="margin:.3em 0 0">👉 '+esc(x[1])+'</p></div>'; }).join('');
+    var dnotes=P().notes[ap.id]||{};
+    h+='<label class="f"><span>自分の観察メモ(どこに、どのくらい?)</span><textarea id="b1-dgmemo" placeholder="例: 下から3枚目までの葉が黄色い。">'+esc(dnotes.dgDraft||'')+'</textarea></label>'+
+       '<div class="row end"><button type="button" class="btn" data-act="dgReset">別の症状を調べる</button><button type="button" class="btn pri" data-act="dgSave">📒 診断を記録する</button></div>';
+  }
+  h+='</div>';
+  h+='<div class="caution"><b>⚠ 安全と環境のために</b><ul style="margin:.3em 0 0;padding-left:1.2em">'+
+    '<li>農薬や薬品は、<b>必ず先生と一緒に</b>使います。ラベルに書かれた<b>使用量・使用方法・使用時期を守り</b>、手袋・マスクをつけ、使用後は手を洗います。</li>'+
+    '<li>まずは、薬を使わない方法(取りのぞく・ネット・風通し・天敵)を考えよう。</li>'+
+    '<li>育てた生き物や水草を、川・池・野原に<b>放したり捨てたりしない</b>。その地域にもともといる生き物(生態系)に悪い影響を与えるおそれがあります。</li>'+
+    '<li>病気の株や落ち葉は、畑に残さず決められた方法で処分します。</li></ul></div>';
+  var log=(P().diag||[]).filter(function(d){return d.planId===ap.id;}).slice().reverse();
+  h+='<div class="card"><h3>診断の記録('+log.length+'件)</h3>'+(log.length?'<ul class="list">'+log.map(function(d){ return '<li><div style="flex:1"><b>'+mdw(d.date)+'</b> '+esc(d.sym)+'<br><span class="small">候補: '+esc(d.cands)+(d.memo?'／メモ: '+esc(d.memo):'')+'</span></div><button type="button" class="btn sm danger" data-act="dgDel" data-id="'+d.id+'" aria-label="この診断の記録を削除">✕</button></li>'; }).join('')+'</ul>':'<p class="small">まだありません。</p>')+'</div>';
+  el.innerHTML=h;
+};
+
+/* ================= 評価シート ================= */
+R.eval = function(){
+  var el=$('#b1-eval'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  if(!ap){ el.innerHTML='<h2>📝 評価</h2>'+needPlan(); return; }
+  var c=crop(ap.cropId), ev=P().evals[ap.id]||{};
+  var h='<h2>📝 収穫(育成)後の評価シート</h2>'+planPicker();
+  if(c.safety) h+='<p class="caution">⚠️ '+esc(c.safety)+'</p>';
+  h+='<div class="card long"><p class="small" style="margin-top:0">育て終わったら(または途中でも)、結果をふりかえって評価し、次の改善につなげよう。</p><div class="grid2"><div>'+
+    '<label class="f"><span>'+(c.cat==='plant'?'収穫量(個数や重さ)':'育成の結果(数・大きさ・卵の数など)')+'</span><input type="text" data-ev="yield" maxlength="60" value="'+esc(ev.yield||'')+'" placeholder="'+(c.cat==='plant'?'例: 42個 / 520g':'例: 10匹ふ化、8匹が20mm以上に')+'"></label>'+
+    '<div class="f"><span style="font-weight:700;display:block">'+(c.cat==='plant'?'品質(味・形・大きさ)':'健康のようす')+'</span>'+stars('quality',ev.quality)+'</div>'+
+    '<div class="f"><span style="font-weight:700;display:block">目標の達成度 <span class="small">(目標: '+esc(ap.goal||'未設定')+')</span></span>'+stars('goal',ev.goal)+'</div>'+
+    '<label class="f"><span>かかった費用(円)</span><input type="number" inputmode="numeric" min="0" data-ev="cost" value="'+esc(ev.cost||'')+'" placeholder="例: 850"></label>'+
+    '<label class="f"><span>費用の内訳</span><input type="text" data-ev="costNote" maxlength="80" value="'+esc(ev.costNote||'')+'" placeholder="例: 種200円、肥料300円、支柱350円"></label>'+
+    '<label class="f"><span>環境への影響(肥料・水・農薬・ごみ など)</span><textarea data-ev="env" placeholder="例: 液肥を使いすぎると、流れ出て川をよごすかもしれない。ポットは洗って次も使う。">'+esc(ev.env||'')+'</textarea></label>'+
+    '</div><div>'+
+    '<label class="f"><span>うまくいったこと(その理由)</span><textarea data-ev="good">'+esc(ev.good||'')+'</textarea></label>'+
+    '<label class="f"><span>うまくいかなかったこと(その原因)</span><textarea data-ev="bad">'+esc(ev.bad||'')+'</textarea></label>'+
+    '<label class="f"><span>次に育てるときに変える「育成環境の調節方法」</span><textarea data-ev="next" placeholder="例: 7月は日よけで温度を下げる。水やりを朝1回に決める。">'+esc(ev.next||'')+'</textarea></label>'+
+    '<label class="f"><span>社会や生活への役立ち(この技術はどこで使われている?)</span><textarea data-ev="society" placeholder="例: 農家はハウスの温度を調節して、冬でも野菜を出荷している。">'+esc(ev.society||'')+'</textarea></label>'+
+    '</div></div>'+autoLabel()+'</div>';
+  h+='<div class="card"><h3>📊 記録のまとめ(自動)</h3>'+recordSummaryHTML(ap)+'</div>';
+  el.innerHTML=h;
+};
+/* 記録のまとめ(評価・振り返りで使う) */
+function recordSummary(ap){
+  var c=crop(ap.cropId), F=FIELDS[c.cat], es=entriesOf(ap.id), ms=es.filter(function(e){return num(e.m1)!=null;});
+  var ts=es.map(meanT).filter(function(v){return v!=null;});
+  var mx=es.map(function(e){return num(e.tmax);}).filter(function(v){return v!=null;});
+  var water=es.reduce(function(a,e){ return a+(num(e.water)||0); },0);
+  return [
+    ['記録した期間', es.length? mdw(es[0].date)+' 〜 '+mdw(es[es.length-1].date)+'('+es.length+'回)':'—'],
+    [c.m1.label+'の変化', ms.length? ms[0].m1+' → '+ms[ms.length-1].m1+c.m1.unit:'—'],
+    ['平均'+F.t, ts.length? round(ts.reduce(function(a,b){return a+b;},0)/ts.length,1)+'℃'+(mx.length?'(最高 '+Math.max.apply(null,mx)+'℃)':''):'—'],
+    [F.water.label+'の合計', round(water,1)+F.water.unit],
+    ['終わった作業', (ap.tasks||[]).filter(function(k){return k.done;}).length+' / '+(ap.tasks||[]).length],
+    ['診断の記録', (P().diag||[]).filter(function(d){return d.planId===ap.id;}).length+'件']
+  ];
+}
+function recordSummaryHTML(ap){ return '<table class="t">'+recordSummary(ap).map(function(r){ return '<tr><th style="width:12em">'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>'; }).join('')+'</table>'; }
+function starText(v){ v=Number(v)||0; return v? '★★★★★'.slice(0,v)+'☆☆☆☆☆'.slice(0,5-v)+'('+v+'/5)' : '(未記入)'; }
+function evalRows(ap){
+  var c=crop(ap.cropId), ev=P().evals[ap.id]||{};
+  return [
+    [c.cat==='plant'?'収穫量':'育成の結果', ev.yield], [c.cat==='plant'?'品質':'健康のようす', ev.quality?starText(ev.quality):''], ['目標の達成度', ev.goal?starText(ev.goal):''],
+    ['かかった費用', ev.cost!=null&&ev.cost!==''?ev.cost+'円'+(ev.costNote?'('+ev.costNote+')':''):''], ['うまくいったこと', ev.good], ['うまくいかなかったこと', ev.bad],
+    ['次に変える調節方法', ev.next], ['環境への影響', ev.env], ['社会や生活への役立ち', ev.society]
+  ];
+}
+function stars(k, v){ v=Number(v)||0; var h='<div class="stars noprint" role="group" aria-label="5段階">'; for(var i=1;i<=5;i++) h+='<button type="button" data-act="star" data-k="'+k+'" data-v="'+i+'" class="'+(i<=v?'on':'')+'" aria-label="'+i+'点" aria-pressed="'+(i<=v)+'">★</button>'; return h+'</div><span class="ptxt" data-ptxt="'+k+'">'+starText(v)+'</span>'; }
+
+/* ================= 振り返り ================= */
+var REFL_Q = [
+  ['q1','育てた生物と、自分が工夫した「育成環境の調節方法」は?','例: ミニトマトを育てた。夏は日よけをして、水やりを朝に決めた。'],
+  ['q2','記録(グラフ・写真)からわかったことは?','例: 気温が高い週ほど草丈がよく伸びた。'],
+  ['q3','予測と実際をくらべて、気づいたことは?','例: 開花は予測より3日早かった。予想より暑かったからだと考えた。'],
+  ['q4','うまくいかなかったことと、その原因は?','例: 下の葉が黄色くなった。追肥がおくれたのが原因だと思う。'],
+  ['q5','次に育てるとき、どう改善する?','例: 追肥の日をカレンダーに入れて忘れないようにする。'],
+  ['q6','生物育成の技術は、社会や生活でどのように役立っている? これからどう使いたい?','例: 農家はハウスで温度を調節して、一年中野菜を育てている。環境への影響も考えたい。']
+];
+var REFL_S = [['s1','毎日の観察・記録を続けられた'],['s2','記録やグラフから成長の変化を読み取れた'],['s3','記録をもとに改善の方法を考えられた'],['s4','安全や環境に気をつけて育てられた']];
+var MARKS = [['◎','よくできた'],['○','できた'],['△','もう少し']];
+function markText(v){ for(var i=0;i<MARKS.length;i++) if(MARKS[i][0]===v) return MARKS[i][0]+' '+MARKS[i][1]; return '(未記入)'; }
+/* 振り返りに使う計画(サンプルの計画より自分の計画を優先) */
+function reflPlan(){
+  var p=P(), ap=activePlan(); if(!p) return null;
+  if(ap && ap.demo && !p.demo){ var own=p.plans.filter(function(x){ return !x.demo; }); if(own.length) return own[own.length-1]; }
+  return ap;
+}
+function savedLabel(){
+  var r=(P()&&P().refl)||{};
+  if(r.savedTs){ var d=new Date(r.savedTs); if(!isNaN(d)) return '✓ 入力すると自動で保存されます(最後に保存 '+(ymd(d)===today()?'':md(ymd(d))+' ')+hhmm(d)+')'; }
+  if(r.savedAt) return '✓ 入力すると自動で保存されます(最後に保存 '+esc(r.savedAt)+')';
+  return '入力すると自動で保存されます';
+}
+function autoLabel(){ return '<p class="autosave" data-autosave>入力すると自動で保存されます</p>'; }
+R.refl = function(){
+  var el=$('#b1-refl'), p=P(); if(!p){ el.innerHTML=''; return; }
+  var r=p.refl||{}, ap=reflPlan();
+  var h='<h2>💭 振り返り</h2>';
+  h+='<div class="card soft"><div class="reflhead">'+
+    '<label class="f" style="margin:0"><span>組</span><input type="text" data-rh="cls" maxlength="10" value="'+esc(r.cls||'')+'" autocomplete="off"></label>'+
+    '<label class="f" style="margin:0"><span>番号</span><input type="text" inputmode="numeric" data-rh="no" maxlength="6" value="'+esc(r.no||'')+'" autocomplete="off"></label>'+
+    '<label class="f fn" style="margin:0"><span>名前</span><input type="text" data-rh="fullname" maxlength="30" value="'+esc(r.fullname||'')+'" autocomplete="off"></label>'+
+    '</div><p style="margin:10px 0 0"><b>育てた生物:</b> '+(ap? esc(ap.name)+'('+esc(crop(ap.cropId).name)+')' : '—')+' <span class="small">(登録名: '+esc(p.name)+')</span></p></div>';
+  h+='<div class="card self"><h3>自己評価</h3><p class="small noprint" style="margin-top:0">あてはまるものを選ぼう(◎ よくできた/○ できた/△ もう少し)</p>'+REFL_S.map(function(s){
+      var v=r[s[0]]||'';
+      return '<div class="row" style="margin-bottom:8px"><span style="flex:1;min-width:14em">'+s[1]+'</span><div class="seg noprint" role="group" aria-label="'+esc(s[1])+'" style="flex:0 1 auto">'+MARKS.map(function(m){ return '<button type="button" data-act="rself" data-k="'+s[0]+'" data-v="'+m[0]+'" class="'+(v===m[0]?'on':'')+'" aria-pressed="'+(v===m[0])+'">'+m[0]+' '+m[1]+'</button>'; }).join('')+'</div><span class="ptxt" data-ptxt="'+s[0]+'">'+markText(v)+'</span></div>'; }).join('')+'</div>';
+  h+='<div class="card long">'+REFL_Q.map(function(q,i){ return '<label class="f"><span>'+(i+1)+'. '+q[1]+'</span><textarea data-refl="'+q[0]+'" placeholder="'+esc(q[2])+'">'+esc(r[q[0]]||'')+'</textarea></label>'; }).join('')+
+    '<p class="autosave" id="b1-rsaved">'+savedLabel()+'</p></div>';
+  /* B1-13: 評価シートと記録のまとめ(提出物に入る) */
+  if(ap){
+    h+='<div class="card long"><div class="row"><h3 style="margin:0;flex:1">📝 評価シートのまとめ</h3><button type="button" class="btn sm noprint" data-act="tab" data-v="eval">評価シートを書く</button></div>'+
+      '<table class="t" style="margin-top:8px">'+evalRows(ap).map(function(x){ return '<tr><th style="width:12em">'+esc(x[0])+'</th><td style="white-space:pre-wrap">'+(x[1]!=null&&String(x[1]).trim()!==''?esc(x[1]):'<span class="small">(未記入)</span>')+'</td></tr>'; }).join('')+'</table>'+
+      '<h3 style="margin-top:12px">📊 記録のまとめ</h3>'+recordSummaryHTML(ap)+'</div>';
+  }
+  h+='<div class="card noprint"><h3>📤 書き出す・提出する</h3><div class="row"><button type="button" class="btn" data-act="reflTxt">📄 テキストで保存</button><button type="button" class="btn" data-act="reflCopy">📋 コピー</button><button type="button" class="btn" data-act="reflPrint">🖨️ 印刷・PDF</button></div><p class="small">テキストやPDFにして、Classroomなどで先生に提出できます。</p></div>';
+  el.innerHTML=h;
+};
+function collectRefl(){
+  var p=P(); if(!p) return; p.refl=p.refl||{};
+  $$('#b1-refl [data-refl]').forEach(function(t){ p.refl[t.dataset.refl]=t.value; });
+  $$('#b1-refl [data-rh]').forEach(function(t){ p.refl[t.dataset.rh]=t.value; });
+}
+/* K9: 振り返りの書きぐあい {filled, total} をメニュー用に保存 */
+function writeReflStat(){
+  var p=P(); if(!p || p.demo) return;
+  var r=p.refl||{}, f=REFL_Q.filter(function(q){ return String(r[q[0]]||'').replace(/\s+/g,'')!==''; }).length;
+  try{ localStorage.setItem('b1_reflstat', JSON.stringify({filled:f, total:REFL_Q.length})); }catch(e){}
+}
+function reflText(){
+  var p=P(), r=p.refl||{}, ap=reflPlan();
+  var t='【生物育成 振り返り】\n組: '+(r.cls||'')+'  番号: '+(r.no||'')+'  名前: '+(r.fullname||'')+'\n登録名: '+p.name+'\n育てた生物: '+(ap? ap.name+'('+crop(ap.cropId).name+')':'—')+'\n記録日: '+mdw(today())+'\n\n■ 自己評価\n';
+  /* 教材側の文(問い・項目名)は kzRuby.plain でルビの読みを取る。生徒の文はそのまま */
+  REFL_S.forEach(function(s){ t+='・'+plain(s[1])+': '+markText(r[s[0]]||'')+'\n'; });
+  REFL_Q.forEach(function(q,i){ t+='\n■ '+(i+1)+'. '+plain(q[1])+'\n'+(String(r[q[0]]||'').trim()?r[q[0]]:'(未記入)')+'\n'; });
+  if(ap){
+    t+='\n■ 評価シートのまとめ\n'; evalRows(ap).forEach(function(x){ t+='・'+plain(x[0])+': '+(x[1]!=null&&String(x[1]).trim()!==''?x[1]:'(未記入)')+'\n'; });
+    t+='\n■ 記録のまとめ\n'; recordSummary(ap).forEach(function(x){ t+='・'+plain(x[0])+': '+x[1]+'\n'; });
+    var n=p.notes[ap.id]||{}; if(n.graph) t+='\n■ グラフから気づいたこと\n'+n.graph+'\n'; if(n.predict) t+='\n■ 予測と実際のちがい\n'+n.predict+'\n';
+  }
+  return t;
+}
+
+/* ================= 使い方・設定 ================= */
+R.help = function(opt){
+  var el=$('#b1-help');
+  var h='<h2>❓ 使い方・設定</h2>';
+  h+='<div class="card"><h3>⚙️ 表示の設定</h3><div class="row"><label class="chip"><input type="checkbox" id="b1-set-ruby" data-chg="setRuby"'+(PF.ruby?' checked':'')+'> <span>ふりがなを表示</span></label>'+
+     '<span class="row" style="gap:6px"><span>文字の大きさ</span><button type="button" class="btn sm" data-act="fsDec" aria-label="文字を小さくする"'+(PF.fs<=kzPrefs.FS_MIN?' disabled':'')+'>A−</button><b id="b1-set-fsv" style="min-width:3.2em;text-align:center">'+PF.fs+'px</b><button type="button" class="btn sm" data-act="fsInc" aria-label="文字を大きくする"'+(PF.fs>=kzPrefs.FS_MAX?' disabled':'')+'>A＋</button></span></div>'+
+     '<p class="small" style="margin-bottom:0">上の帯の「ふりがな」「A−」「A＋」と同じ設定です。教材集のほかの教材にも同じように反映されます。</p></div>';
+  h+='<details open><summary>📖 この教材の使い方(5ステップ)</summary><div><ol>'+
+    '<li><b>計画</b>: 育てる生物・開始日・場所と、<b>育成環境の調節方法</b>(日よけ・かん水・保温など)を決める。作業の予定が自動でカレンダーに入ります。</li>'+
+    '<li><b>記録</b>: 観察した日に、天気・温度・水やり・草丈(体重/体長)・メモ・写真を記録する。前の記録を直すときは、「これまでの記録」の「直す」を押します。</li>'+
+    '<li><b>グラフ・写真</b>: 成長と温度の関係を読み取る。写真を2枚ならべて変化を比べる。</li>'+
+    '<li><b>予測</b>: 積算温度で発芽・開花・収穫の時期を、成長曲線でこれからの大きさを予測する。「もしも〜なら?」で条件を変えて比べる。</li>'+
+    '<li><b>診断・評価・振り返り</b>: 困ったときは診断で原因を調べる。育て終わったら評価シートと振り返りを書いて、次の改善につなげる。</li></ol>'+
+    '<p class="hint">ホームの「今日のやること」と「お知らせ」で、水やり・低温・追肥の時期などを確認できます。</p></div></details>';
+  h+='<details id="b1-kensa"'+(opt.anchor==='kensa'?' open':'')+'><summary>📏 正しい測り方(検査ガイド)</summary><div>'+
+    '<p><b>🌱 草丈</b>: 土の表面から、茎のいちばん先(生長点)までを、ものさしでまっすぐ測る。毎回同じ株・同じ方法で測る。</p>'+
+    '<p><b>🍃 葉数</b>: 本葉を数える(最初に出る子葉は数えない)。かれた葉は数えない、などルールを決めておく。</p>'+
+    '<p><b>🌡️ 気温</b>: 日なたに温度計を直接置かず、日かげ・風通しのよい場所で、地面から約1.5mの高さで測る。最高・最低温度計があれば便利。</p>'+
+    '<p><b>⚖️ 体重(動物)</b>: 容器ごとはかりにのせて、あとで容器の重さを引く。毎回同じ時間(えさの前など)に測る。</p>'+
+    '<p><b>📐 体長(魚)</b>: 透明な容器に入れ、外側からものさしを当てて、口の先から尾びれのつけ根まで(または尾の先まで、決めておく)を測る。魚にさわりすぎない。</p>'+
+    '<p><b>🌡️ 水温</b>: 水温計を水の中ほどまで入れて、1分ほど待ってから、目の高さを合わせて読む。毎回同じ時間・同じ場所で測る。</p>'+
+    '<p><b>🧪 pH</b>: 試験紙を水にひたし、すぐに色見本とくらべる。</p></div></details>';
+  h+='<details><summary>💾 データの保存・書き出し</summary><div>'+
+    '<p>記録はこのタブレットのブラウザの中に保存されます(インターネットは使いません)。<b>ブラウザのデータを消したり、端末を初期化したりすると記録が消えます。</b>週に1回は書き出しをしよう。</p>'+
+    '<div class="row"><button class="btn pri" data-act="exportJSON">💾 すべて書き出す(写真つき)</button><button class="btn" data-act="exportJSON" data-nophoto="1">写真なしで書き出す</button><button class="btn" data-act="importJSON">📂 読みこむ</button></div>'+
+    '<h3 style="margin-top:14px">班・クラスで集める(CSV)</h3><p class="small">表計算ソフトで開けるCSVファイルを書き出します。先生が集めてまとめたり、他の班のデータを「グラフ」で重ねて比べたりできます。</p>'+
+    '<div class="row"><label class="chip"><input type="checkbox" id="b1-anon" checked> <span>名前を出さない(匿名)</span></label><button class="btn" data-act="exportCSV">📊 CSVで書き出す</button></div>'+
+    '<p class="small">保存先: 写真 '+(PhotoDB.mode==='idb'?'IndexedDB':'ブラウザの保存領域(小さめ)')+'</p></div></details>';
+  h+='<details><summary>👤 名前(班)の切り替え・削除</summary><div><p>同じタブレットを何人かで使うときは、右上の名前をタップして切り替えます。</p><div class="row"><button type="button" class="btn" data-act="who">名前を切り替える</button>'+(P()?'<button type="button" class="btn danger" data-act="delProfile">「'+esc(P().name)+'」の記録をすべて削除</button>':'')+'</div></div></details>';
+  h+='<details><summary>⚠️ 安全と環境への配慮</summary><div><ul>'+
+    '<li>農薬・薬品は先生と一緒に、決められた使い方(量・時期)を守って使う。</li>'+
+    '<li>育てた生き物を川や池などに放さない。外来種は地域の生態系に影響を与えます。</li>'+
+    '<li>刃物(はさみ・移植ごて)の扱い、土や肥料にふれたあとの手洗いをわすれずに。</li>'+
+    '<li>生き物の命を大切にし、最後まで責任をもって育てる。</li></ul></div></details>';
+  h+='<details><summary>ℹ️ この教材について</summary><div><p class="small">技術・家庭科(技術分野)「B 生物育成の技術」の学習用教材です。作物・動物・水産生物のプロファイルの数値は、学習用の<b>目安</b>です。地域・品種・季節で大きく変わります。予測は学習のためのかんたんなモデルです。<br>保存キー: localStorage「b1_store」、IndexedDB「b1_photos」。外部への通信はしません。</p>'+
+    '<p class="small">「サンプルデータを入れる」と、練習用の名前「サンプル(練習用)」に切りかわります。自分の記録には混ざりません。</p>'+
+    '<div class="row"><button type="button" class="btn" data-act="demo">サンプルデータを入れる</button></div></div></details>';
+  el.innerHTML=h;
+  /* B1-15: 固定された上の帯にかくれないように、帯の高さの分だけ下げて表示する */
+  if(opt.anchor==='kensa'){ var k=$('#b1-kensa'); setTimeout(function(){ var hd=$('.top'), y=k.getBoundingClientRect().top+(window.pageYOffset||0)-(hd?hd.offsetHeight:0)-8; window.scrollTo(0, Math.max(0,y)); }, 30); }
+};
+
+/* ================= 書き出し / 読み込み ================= */
+function exportJSON(withPhoto){
+  var p=P(); if(!p) return;
+  var ids=[]; p.entries.forEach(function(e){ ids=ids.concat(e.photoIds||[]); });
+  var out={schema:'artifact', app:'B1', title:'育成日誌', version:1, exportedAt:new Date().toISOString(), profile:p, photos:[]};
+  toast('書き出しを準備しています…');
+  var chain=Promise.resolve();
+  if(withPhoto) ids.forEach(function(id){ chain=chain.then(function(){ return PhotoDB.get(id).then(function(r){ if(r&&r.blob) return blobToDataURL(r.blob).then(function(u){ out.photos.push({id:id, takenAt:r.takenAt, data:u}); }); }); }); });
+  chain.then(function(){
+    download('B1_育成日誌_'+safeName(p.name)+'_'+fileStamp()+'.json', JSON.stringify(out), 'application/json');
+    p.lastExport=today(); save(); toast('💾 書き出しました'+(withPhoto?'(写真'+out.photos.length+'枚)':'')); if(cur==='home') R.home({});
+  }).catch(function(){ toast('書き出しに失敗しました'); });
+}
+function importJSON(){
+  pickFile('.json,application/json').then(function(fs){
+    if(!fs.length) return;
+    readText(fs[0]).then(function(txt){
+      var j; try{ j=JSON.parse(txt); }catch(e){ toast('ファイルを読めませんでした'); return; }
+      if(!j || j.app!=='B1' || !j.profile || typeof j.profile!=='object'){ toast('この教材(B1)のファイルではありません'); return; }
+      var pr=j.profile, exists=pr.id && S.profiles[pr.id];
+      if(!pr.id) pr.id=uid();
+      /* B1-14: やめる/置きかえる/別の名前で追加 の3つから選べるように、2回に分けてきく */
+      var ask = exists ? kzConfirm('「'+exists.name+'」の記録がすでにこのタブレットにあります。\nファイルの記録を読みこみますか?', {ok:'読みこむ', cancel:'やめる'}).then(function(go1){
+          if(!go1) return null;
+          return kzConfirm('どちらにしますか?\n\n・置きかえる: 今の「'+exists.name+'」の記録と写真は消えて、ファイルの内容になります。\n・別の名前で追加: 今の記録はそのまま残り、「'+pr.name+'(読込)」として追加します。', {ok:'置きかえる', cancel:'別の名前で追加', danger:true}).then(function(rep){ return rep ? 'replace' : 'add'; });
+        }) : Promise.resolve('new');
+      ask.then(function(mode){
+        if(!mode) { toast('読みこみをやめました'); return; }
+        pr = migrate({profiles:{x:pr}}).profiles.x;
+        var photos = (j.photos||[]).filter(function(ph){ return ph && ph.id && ph.data; });
+        if(mode==='add'){
+          /* 写真は新しいIDにつけかえる(元の記録と写真を共有しない) */
+          var idmap={}; photos = photos.map(function(ph){ var n=uid(); idmap[ph.id]=n; return {id:n, takenAt:ph.takenAt, data:ph.data}; });
+          pr.entries.forEach(function(e){ e.photoIds=(e.photoIds||[]).map(function(id){ return idmap[id]; }).filter(Boolean); });
+          pr.id=uid(); pr.name=pr.name+'(読込)';
+        }
+        var oldIds=[];
+        if(mode==='replace'){
+          var keep={}; pr.entries.forEach(function(e){ (e.photoIds||[]).forEach(function(id){ keep[id]=1; }); });
+          exists.entries.forEach(function(e){ (e.photoIds||[]).forEach(function(id){ if(!keep[id]) oldIds.push(id); }); });
+        }
+        var chain=Promise.resolve();
+        photos.forEach(function(ph){ chain=chain.then(function(){ return PhotoDB.put({id:ph.id, takenAt:ph.takenAt, blob:dataURLToBlob(ph.data), profileId:pr.id}).catch(function(){}); }); });
+        chain.then(function(){
+          oldIds.forEach(function(id){ PhotoDB.del(id); });
+          S.profiles[pr.id]=pr; if(S.order.indexOf(pr.id)<0) S.order.push(pr.id); S.current=pr.id; save(); draft=null; applySettings();
+          toast('📂 読みこみました: '+pr.name); go('home');
+        });
+      });
+    });
+  });
+}
+function csvCell(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v)? '"'+v.replace(/"/g,'""')+'"' : v; }
+function exportCSV(){
+  var p=P(); if(!p) return;
+  if(p.demo){ toast('サンプル(練習用)の記録はCSVに書き出せません。「自分の記録にもどる」を押してね'); return; }
+  var anon = $('#b1-anon') ? $('#b1-anon').checked : true;
+  var nm = anon? '匿名'+(Math.abs(hash(p.id))%900+100) : p.name;
+  var rows=[['名前','生物','呼び名','日付','経過日数','天気','最高温度','最低温度','水やり・水替え','肥料・えさ','測定1','測定1の項目','測定2','測定2の項目','pH','メモ']];
+  /* B1-09: サンプルの計画は書き出さない。教材側の文字は kzRuby.plain でルビを取る */
+  p.plans.filter(function(pl){ return !pl.demo; }).forEach(function(pl){ var c=crop(pl.cropId); entriesOf(pl.id).forEach(function(e){ rows.push([nm, plain(c.name), pl.name, e.date, diffDays(pl.sowDate,e.date), plain(wxName(e.weather)), e.tmax, e.tmin, e.water, e.feed, e.m1, plain(c.m1.label+'('+c.m1.unit+')'), e.m2, c.m2?plain(c.m2.label+'('+c.m2.unit+')'):'', e.ph, anon?'':e.memo]); }); });
+  if(rows.length<2){ toast('書き出す記録がありません'); return; }
+  download('B1_記録_'+safeName(nm)+'_'+fileStamp()+'.csv', '﻿'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n'), 'text/csv;charset=utf-8');
+  toast('📊 CSVを書き出しました');
+}
+function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return h; }
+function parseCSV(t){
+  t=t.replace(/^﻿/,''); var rows=[], row=[], cell='', q=false;
+  for(var i=0;i<t.length;i++){ var ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){ cell+='"'; i++; } else q=false; } else cell+=ch; }
+    else if(ch==='"') q=true; else if(ch===','){ row.push(cell); cell=''; } else if(ch==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; } else if(ch!=='\r') cell+=ch; }
+  if(cell||row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+function importCompare(){
+  pickFile('.csv,text/csv').then(function(fs){
+    if(!fs.length) return;
+    readText(fs[0]).then(function(txt){
+      var rows=parseCSV(txt), hd=rows[0]||[], iD=hd.indexOf('経過日数'), iV=hd.indexOf('測定1'), iN=hd.indexOf('名前'), iC=hd.indexOf('生物');
+      if(iD<0||iV<0){ toast('この教材で書き出したCSVを選んでください'); return; }
+      var ap=activePlan(), cname=crop(ap.cropId).name, groups={}, skipped=0;
+      rows.slice(1).forEach(function(r){ var d=num(r[iD]), v=num(r[iV]); if(d==null||v==null) return; if(iC>=0 && r[iC] && r[iC]!==cname){ skipped++; return; } var n=(iN>=0&&r[iN])||'比較'; (groups[n]=groups[n]||[]).push([d,v]); });
+      var gs=Object.keys(groups).slice(0,4).map(function(n){ return {name:n, pts:groups[n].sort(function(a,b){return a[0]-b[0];})}; });
+      if(!gs.length){ toast(cname+'のデータが見つかりませんでした'+(skipped?'(別の生物のデータでした)':'')); return; }
+      graphOpt.compare={groups:gs}; graphOpt.metric='m1'; toast('比較データを読みこみました('+gs.length+'グループ)'); R.graph();
+    });
+  });
+}
+
+/* ================= サンプルデータ ================= */
+function makeDemo(){
+  var p=P(); if(!p) return Promise.resolve();
+  var sow=addDays(today(),-46), c=crop('tomato');
+  var pl={id:uid(), cropId:'tomato', name:'ミニトマト(サンプル)', sowDate:sow, location:'学校の畑(サンプル)', methods:['支柱・誘引','マルチング','かん水(水やり)の工夫'], methodNote:'サンプル: 風で倒れないように支柱を立て、乾燥を防ぐためにマルチをした。', goal:'1株から30個収穫する', tasks:makeTasks(c, sow), demo:true};
+  pl.tasks.forEach(function(k){ if(k.date<addDays(today(),-1)) k.done=true; });
+  p.plans.push(pl); p.activePlan=pl.id;
+  var seed=7; function rnd(){ seed=(seed*16807)%2147483647; return seed/2147483647; }
+  var days=[]; for(var d=3; d<=45; d+= (rnd()<0.5?2:3)) days.push(d);
+  var chain=Promise.resolve();
+  days.forEach(function(d, i){
+    var hgt=round(118/(1+Math.exp(-0.095*(d-48)))+ (rnd()-0.5)*1.2, 1); if(hgt<0.5) hgt=0.5;
+    var tx=round(23+4*Math.sin(d/9)+rnd()*3,1), tn=round(tx-7-rnd()*3,1);
+    var e={id:uid(), planId:pl.id, date:addDays(sow,d), weather:['sun','sun','cloud','rain'][Math.floor(rnd()*4)], tmax:tx, tmin:tn, water:rnd()<0.75?round(300+rnd()*400,-2):'', feed:(d>=49&&d<=51)?'追肥(固形)':'なし', m1:hgt, m2:Math.max(0,Math.round(hgt/5.5+rnd())), ph:'', memo:i===0?'芽が出た! 子葉が2枚。':(d>=24&&d<=27)?'つぼみのようなものが見えた。':'', photoIds:[]};
+    if(i%2===0) chain=chain.then(function(){ return demoPhoto(hgt, d).then(function(b){ var id=uid(); e.photoIds.push(id); return PhotoDB.put({id:id, takenAt:e.date, blob:b, profileId:p.id}).catch(function(){ e.photoIds.pop(); }); }); });
+    p.entries.push(e);
+  });
+  return chain.then(function(){ save(); });
+}
+function demoPhoto(h, d){
+  var cv=document.createElement('canvas'); cv.width=480; cv.height=480; var g=cv.getContext('2d');
+  var sky=g.createLinearGradient(0,0,0,480); sky.addColorStop(0,'#bfe3ff'); sky.addColorStop(1,'#eaf6ff'); g.fillStyle=sky; g.fillRect(0,0,480,480);
+  g.fillStyle='#7b5a3c'; g.fillRect(0,400,480,80); g.fillStyle='#5d4037'; g.fillRect(160,360,160,60);
+  var ph=Math.min(330, 10+h*2.6); g.strokeStyle='#2e7d32'; g.lineWidth=6; g.beginPath(); g.moveTo(240,370); g.quadraticCurveTo(232,370-ph/2,240,370-ph); g.stroke();
+  var nl=Math.max(2, Math.round(h/6)); for(var i=0;i<nl;i++){ var y=370-ph*(i+1)/(nl+1), s=i%2?1:-1, w=12+Math.min(28,h/3); g.fillStyle='#43a047'; g.beginPath(); g.ellipse(240+s*w, y, w, w*0.45, s*0.4, 0, Math.PI*2); g.fill(); }
+  if(d>30){ g.fillStyle='#fdd835'; for(var k=0;k<3;k++){ g.beginPath(); g.arc(225+k*15, 370-ph*0.7, 6, 0, Math.PI*2); g.fill(); } }
+  g.fillStyle='rgba(0,0,0,.55)'; g.fillRect(0,0,480,44); g.fillStyle='#fff'; g.font='bold 24px sans-serif'; g.fillText('サンプル写真 '+d+'日目', 14, 30);
+  return canvasToBlob(cv, 0.7);
+}
+
+/* ================= イベント ================= */
+APP.addEventListener('click', function(ev){
+  var b=ev.target.closest('[data-act]'); if(!b || !APP.contains(b)) return;
+  var a=b.dataset.act, v=b.dataset.v, id=b.dataset.id, p=P(), ap=activePlan();
+  switch(a){
+  case 'tab': if(cur==='entry') collectDraft(); go(v, {anchor:b.dataset.anchor}); break;
+  case 'who': askName(false); break;
+  case 'closeOv': closeOverlay(); break;
+  case 'addProfile': addProfile(); break;
+  case 'switchProfile': switchProfile(id); closeOverlay(); toast('「'+P().name+'」に切り替えました'); break;
+  case 'demoBack': { var back=(S.demoReturn&&S.profiles[S.demoReturn]&&!S.profiles[S.demoReturn].demo)? S.demoReturn : S.order.filter(function(i){ return S.profiles[i] && !S.profiles[i].demo; })[0];
+    if(back){ switchProfile(back); toast('「'+P().name+'」の記録にもどりました'); } else askName(false); break; }
+  case 'fsDec': kzPrefs.bump(-1); break;
+  case 'fsInc': kzPrefs.bump(1); break;
+  case 'delProfile': if(!p) return; kzConfirm('「'+p.name+'」の記録・写真・評価・振り返りをすべて削除します。元にもどせません。よろしいですか?', {ok:'削除する', danger:true}).then(function(ok){ return ok && kzConfirm('本当に削除しますか? (書き出しはしましたか?)', {ok:'削除する', danger:true}); }).then(function(ok){ if(!ok) return;
+    p.entries.forEach(function(e){ (e.photoIds||[]).forEach(function(i){ PhotoDB.del(i); }); }); delete S.profiles[p.id]; S.order=S.order.filter(function(i){return i!==p.id;}); S.current=S.order[0]||null; save(); applySettings(); draft=null; go('home'); toast('削除しました'); }); break;
+  case 'demo': {
+    /* B1-09: サンプルは専用の名前「サンプル(練習用)」に作り、自分の記録とは分ける */
+    var dpid = S.order.filter(function(i){ return S.profiles[i] && S.profiles[i].demo; })[0];
+    if(p && !p.demo) S.demoReturn = p.id;
+    if(dpid){ switchProfile(dpid); toast('🧪 サンプル(練習用)に切りかえました'); return; }
+    flushSave(); b.disabled=true; toast('サンプルデータを作っています…');
+    var dp=newProfile('サンプル(練習用)'); dp.demo=true; save();
+    makeDemo().then(function(){ planEdit=null; draft=null; applySettings(); go('home'); toast('🍅 サンプルデータを入れました(46日分)。練習用の名前に切りかえました'); }); break; }
+  /* 計画 */
+  case 'newPlan': planEdit=''; R.plan({}); break;
+  case 'editPlan': planEdit=id; R.plan({}); break;
+  case 'cancelPlan': planEdit=null; R.plan({}); break;
+  case 'savePlan': {
+    var cid=$('#b1-pcrop').value, c=crop(cid), nm=($('#b1-pname').value||'').trim()||c.name, sd=$('#b1-pdate').value;
+    if(!validDate(sd)){ toast(c.startLabel+'を入れてください'); return; }
+    var ms=$$('#b1-pmethods input:checked').map(function(i){return i.value;});
+    var obj = id? plan(id) : null;
+    var ploc=$('#b1-ploc').value, pmnote=$('#b1-pmnote').value, pgoal=$('#b1-pgoal').value, pissue=$('#b1-pissue').value, prev=$('#b1-prev')?$('#b1-prev').value.trim():'';
+    var finishPlan=function(regen){
+      if(obj){
+        /* B1-17: 計画を直したら、何を直したかと理由を残す */
+        var what=[]; if(obj.cropId!==cid) what.push('育てる生物'); if(obj.sowDate!==sd) what.push(c.startLabel); if((obj.methods||[]).join()!==ms.join()||(obj.methodNote||'')!==pmnote) what.push('調節方法'); if((obj.goal||'')!==pgoal) what.push('目標'); if((obj.issue||'')!==pissue) what.push('課題'); if((obj.location||'')!==ploc) what.push('場所'); if(obj.name!==nm) what.push('呼び名');
+        if(what.length || prev){ obj.revisions=obj.revisions||[]; obj.revisions.push({date:today(), what:what.join('・'), why:prev}); }
+        obj.cropId=cid; obj.name=nm; obj.location=ploc; obj.methods=ms; obj.methodNote=pmnote; obj.goal=pgoal; obj.issue=pissue;
+        obj.sowDate=sd;
+        if(regen){ obj.tasks=(obj.tasks||[]).filter(function(k){return !k.auto;}).concat(makeTasks(c, sd)); }
+      } else {
+        obj={id:uid(), cropId:cid, name:nm, sowDate:sd, location:ploc, methods:ms, methodNote:pmnote, goal:pgoal, issue:pissue, revisions:[], tasks:makeTasks(c, sd)};
+        p.plans.push(obj);
+      }
+      p.activePlan=obj.id; save(); planEdit=null; calMonth=null; calSel=null; draft=null; toast('🗓️ 計画を保存しました'); R.plan({});
+    };
+    var regen0 = obj ? (($('#b1-pregen')&&$('#b1-pregen').checked) || obj.cropId!==cid) : false;
+    if(obj && obj.sowDate!==sd && !regen0){ kzConfirm('開始日が変わりました。作業の予定を新しい開始日に合わせて作り直しますか?\n(作り直すと、自動で入った作業の「済み」の印は消えます。自分で追加した作業は残ります)', {ok:'作り直す', cancel:'今の予定のまま'}).then(finishPlan); break; }
+    finishPlan(regen0); break; }
+  case 'delPlan': kzConfirm('計画「'+plan(id).name+'」と、その記録・写真・診断・評価・メモをすべて削除します。元にもどせません。よろしいですか?', {ok:'削除する', danger:true}).then(function(ok){ if(!ok) return;
+    p.entries.filter(function(e){return e.planId===id;}).forEach(function(e){ (e.photoIds||[]).forEach(function(i){ PhotoDB.del(i); }); });
+    p.entries=p.entries.filter(function(e){return e.planId!==id;}); p.diag=p.diag.filter(function(d){return d.planId!==id;}); delete p.evals[id]; delete p.notes[id];
+    p.plans=p.plans.filter(function(x){return x.id!==id;}); p.activePlan=p.plans.length?p.plans[p.plans.length-1].id:null; save(); draft=null; R.plan({}); toast('削除しました'); }); break;
+  case 'calMove': { var y=+calMonth.slice(0,4), m=+calMonth.slice(5,7)-1+Number(v); var d=new Date(y,m,1); calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1); R.plan({}); break; }
+  case 'calToday': calMonth=today().slice(0,7); calSel=today(); R.plan({}); break;
+  case 'calDay': calSel=v; $$('.cal button.sel').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); $('#b1-calday').innerHTML=calDayHTML(ap); var td=$('#b1-tdate'); if(td) td.value=v; break;
+  case 'addTask': { var dt=$('#b1-tdate').value, tn=($('#b1-tname').value||'').trim(); if(!validDate(dt)||!tn){ toast('日付と作業の名前を入れてください'); return; } ap.tasks.push({id:uid(), date:dt, type:tn, done:false}); save(); calSel=dt; calMonth=dt.slice(0,7); R.plan({}); toast('作業を追加しました'); break; }
+  case 'delTask': kzConfirm('作業「'+((ap.tasks||[]).filter(function(k){return k.id===id;})[0]||{type:''}).type+'」を予定から削除しますか?', {ok:'削除する', danger:true}).then(function(ok){ if(!ok) return; ap.tasks=ap.tasks.filter(function(k){return k.id!==id;}); save(); R.plan({}); }); break;
+  /* 記録 */
+  case 'wx': collectDraft(); draft.weather = draft.weather===v? '' : v; $$('.wx button').forEach(function(x){ var on=x.dataset.v===draft.weather; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); }); break;
+  case 'step': { var inp=$('#b1-entry [data-fld="'+b.dataset.k+'"]'), st=Number(v), cv=num(inp.value);
+    if(cv==null){ var last=entriesOf(ap.id).filter(function(e){ return num(e[b.dataset.k])!=null && e.id!==draft.id; }).pop(); cv = last? num(last[b.dataset.k]) : 0;
+      if(last){ inp.value=cv; var lb=inp.closest('label'), ln=lb&&lb.querySelector('span'); toast('前回('+md(last.date)+')の値 '+cv+' を入れました。＋−で直そう'); break; } }
+    var nv=round(cv+st, 2); if(b.dataset.k!=='tmax'&&b.dataset.k!=='tmin') nv=Math.max(0,nv); inp.value=nv; break; }
+  case 'addPhoto': collectDraft(); pickFile('image/*', true, b.dataset.cap?'environment':null).then(function(fs){
+      if(!fs.length) return; toast('写真を保存しています…');
+      var chain=Promise.resolve(), ok=0;
+      fs.forEach(function(f){ chain=chain.then(function(){ return resizePhoto(f).then(function(bl){ var pid=uid(); return PhotoDB.put({id:pid, takenAt:draft.date, blob:bl, profileId:p.id}).then(function(){ draft.photoIds.push(pid); ok++; }); }).catch(function(er){ toast('⚠ '+(er&&er.message||'写真を保存できませんでした')); }); }); });
+      chain.then(function(){ renderDraftPhotos(); if(ok) toast('📷 写真'+ok+'枚を追加しました。「記録を保存」を押してね'); });
+    }); break;
+  case 'rmPhoto': collectDraft(); draft.photoIds=draft.photoIds.filter(function(x){return x!==id;}); pendingDelete.push(id); renderDraftPhotos(); break;
+  case 'saveEntry': saveEntry(); break;
+  case 'newEntry': draft=null; pendingDelete=[]; R.entry({}); break;
+  case 'editEntry': draft=null; pendingDelete=[]; go('entry', {id:id}); break;
+  case 'delEntry': kzConfirm((draft&&draft.date?mdw(draft.date)+'の':'この')+'記録を削除しますか?\n(数値・メモ・写真が消えます)', {ok:'削除する', danger:true}).then(function(ok){ if(!ok) return; var de=p.entries.filter(function(e){return e.id===id;})[0]; if(de) (de.photoIds||[]).forEach(function(i){ PhotoDB.del(i); }); p.entries=p.entries.filter(function(e){return e.id!==id;}); save(); draft=null; R.entry({}); toast('削除しました'); }); break;
+  /* グラフ */
+  case 'gMetric': graphOpt.metric=v; $$('[data-act="gMetric"]').forEach(function(x){ x.classList.toggle('on', x.dataset.v===v); }); drawGraph(); break;
+  case 'gCompare': importCompare(); break;
+  case 'gCompareClr': graphOpt.compare=null; R.graph(); break;
+  /* 写真 */
+  case 'phPick': { var i=phSel.indexOf(id); if(i>=0) phSel.splice(i,1); else { if(phSel.length>=2) phSel.shift(); phSel.push(id); } R.photos(); break; }
+  case 'phClear': phSel=[]; R.photos(); break;
+  case 'phCompare': {
+    var es2=phSel.map(photoInfo).map(function(e,i){ return {e:e, id:phSel[i]}; }).sort(function(a,b){ return a.e.date<b.e.date?-1:1; });
+    var c2=crop(ap.cropId);
+    var o=overlay('<h2>🔍 ならべて比べる</h2><div class="cmp">'+es2.map(function(x){ return '<figure><img data-ph="'+x.id+'" alt="'+md(x.e.date)+'の写真"><figcaption><b>'+mdw(x.e.date)+'</b>('+diffDays(ap.sowDate,x.e.date)+'日目)'+(num(x.e.m1)!=null?'<br>'+c2.m1.label+': '+x.e.m1+c2.m1.unit:'')+'</figcaption></figure>'; }).join('')+'</div>'+
+      (es2.length===2?'<p class="hint">'+Math.abs(diffDays(es2[0].e.date,es2[1].e.date))+'日間の変化'+(num(es2[0].e.m1)!=null&&num(es2[1].e.m1)!=null?': '+c2.m1.label+'が '+round(es2[1].e.m1-es2[0].e.m1,1)+c2.m1.unit+' 変化':'')+'。色・形・葉の数など、ちがいを見つけよう。</p>':'')+
+      '<div class="row end"><button class="btn pri" data-act="closeOv">とじる</button></div>', true);
+    loadImgs(o); break; }
+  case 'viewPhoto': { var pe=photoInfo(id); var o2=overlay('<img data-ph="'+id+'" alt="写真" style="width:100%;border-radius:10px;max-height:70vh;object-fit:contain;background:#222"><p>'+(pe?mdw(pe.date)+(pe.memo?' 📝 '+esc(pe.memo):''):'')+'</p><div class="row end"><button class="btn pri" data-act="closeOv">とじる</button></div>', true); loadImgs(o2); break; }
+  /* 予測 */
+  case 'wiSel': wi.sel[b.dataset.k]=v; $$('[data-act="wiSel"][data-k="'+b.dataset.k+'"]').forEach(function(x){ x.classList.toggle('on', x.dataset.v===v); }); renderPredictResult(); break;
+  case 'wiReset': wi.delta=0; wi.sel={}; wi.futureT=null; R.predict(); break;
+  /* 診断 */
+  case 'dgReset': dg={where:null,sym:null}; R.diag(); break;
+  case 'dgWhere': dg.where=v; dg.sym=null; R.diag(); break;
+  case 'dgSym': dg.sym=Number(v); R.diag(); break;
+  case 'dgSave': { var D=DIAG[crop(ap.cropId).cat], s=D.sym[dg.where][dg.sym]; p.diag.push({id:uid(), planId:ap.id, date:today(), sym:s[0], cands:s[1].map(function(x){return x[0];}).join('、'), memo:$('#b1-dgmemo').value}); if(p.notes[ap.id]) delete p.notes[ap.id].dgDraft; save(); dg={where:null,sym:null}; R.diag(); toast('📒 診断を記録しました'); break; }
+  case 'dgDel': kzConfirm('この診断の記録を削除しますか?', {ok:'削除する', danger:true}).then(function(ok){ if(!ok) return; p.diag=p.diag.filter(function(d){return d.id!==id;}); save(); R.diag(); }); break;
+  /* 評価・振り返り */
+  case 'star': { var k2=b.dataset.k, n2=Number(v); var grp=b.parentNode; $$('button', grp).forEach(function(x){ var on=Number(x.dataset.v)<=n2; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); });
+      var pt=grp.parentNode.querySelector('[data-ptxt="'+k2+'"]'); if(pt) pt.textContent=starText(n2);
+      p.evals[ap.id]=p.evals[ap.id]||{}; p.evals[ap.id][k2]=n2; markDirty(); flushSave(); break; }
+  case 'rself': { p.refl=p.refl||{}; p.refl[b.dataset.k]=v; $$('[data-act="rself"][data-k="'+b.dataset.k+'"]').forEach(function(x){ var on=x.dataset.v===v; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); });
+      var pt2=$('#b1-refl [data-ptxt="'+b.dataset.k+'"]'); if(pt2) pt2.textContent=markText(v); reflDirty=true; markDirty(); flushSave(); break; }
+  case 'reflTxt': collectRefl(); flushSave(); download('B1_振り返り_'+safeName(p.name)+'_'+fileStamp()+'.txt', reflText()); toast('📄 テキストで保存しました'); break;
+  case 'reflCopy': { collectRefl(); flushSave(); var tx=reflText();
+      var done=function(){ toast('📋 コピーしました'); };
+      if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(tx).then(done, fallback); else fallback();
+      function fallback(){ var ta=document.createElement('textarea'); ta.value=tx; ta.style.position='fixed'; ta.style.opacity='0'; APP.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ toast('コピーできませんでした'); } ta.remove(); }
+      break; }
+  case 'reflPrint': collectRefl(); flushSave(); kzPrintText($('#b1-refl')); APP.classList.add('print-refl'); setTimeout(function(){ window.print(); APP.classList.remove('print-refl'); }, 50); break;
+  /* データ */
+  case 'exportJSON': exportJSON(!b.dataset.nophoto); break;
+  case 'importJSON': importJSON(); break;
+  case 'exportCSV': exportCSV(); break;
+  }
+});
+APP.addEventListener('change', function(ev){
+  var t=ev.target, k=t.dataset && t.dataset.chg; if(!k) return;
+  var p=P();
+  switch(k){
+  case 'activePlan': flushSave(); if(cur==='entry') collectDraft(); p.activePlan=t.value; save(); draft=null; phSel=[]; graphOpt.compare=null; dg={where:null,sym:null}; calSel=null; R[cur]({}); break;
+  case 'taskDone': { var pl=plan(t.dataset.plan); pl.tasks.forEach(function(x){ if(x.id===t.dataset.id) x.done=t.checked; }); save(); toast(t.checked?'✅ 作業を完了にしました':'作業を未完了にもどしました'); if(cur==='plan') R.plan({}); else if(cur==='home') setTimeout(function(){ R.home({}); }, 400); break; }
+  case 'pcrop': { var c=crop(t.value); $('#b1-pstartl').textContent=c.startLabel; $('#b1-pmethods').innerHTML=methodChips(c.cat, []); var nm=$('#b1-pname'); if(!planEdit && CROPS.some(function(x){ return nm.value===x.name+'(1)'; })) nm.value=c.name+'(1)'; updateSeason(); break; }
+  case 'pdate': updateSeason(); break;
+  case 'edate': { collectDraft(); var ap=activePlan(), d=t.value; if(!validDate(d) || !draft) return;
+      /* B1-01: 保存ずみの記録の日付を変えるときは、移すか新しい記録にするかをきく(だまって移さない) */
+      var old=P().entries.filter(function(x){ return x.id===draft.id; })[0];
+      var afterDate=function(){
+        var ex=P().entries.filter(function(x){ return x.planId===ap.id && x.date===draft.date && x.id!==draft.id; })[0];
+        if(ex){ kzConfirm(mdw(draft.date)+'の記録がすでにあります。その記録を開きますか?', {ok:'その記録を開く', cancel:'このまま'}).then(function(o){ if(o){ draft=JSON.parse(JSON.stringify(ex)); pendingDelete=[]; } R.entry({}); }); return; }
+        R.entry({});
+      };
+      if(old && old.date!==d){
+        kzConfirm('いま開いているのは '+mdw(old.date)+' の記録です。\nこの記録の日付を '+mdw(d)+' に変えますか?\n\n「新しい記録にする」を選ぶと、'+md(old.date)+'の記録はそのまま残り、'+md(d)+'の新しい記録を書けます。', {ok:'日付を変える', cancel:'新しい記録にする'}).then(function(mv){
+          if(mv) draft.date=d; else { draft=blankEntry(ap, d); pendingDelete=[]; }
+          afterDate();
+        }); break; }
+      draft.date=d; afterDate(); break; }
+  case 'gTemp': graphOpt.temp=t.checked; drawGraph(); break;
+  case 'setRuby': kzPrefs.set({ruby:t.checked}); break;
+  }
+});
+/* B1-03 / K7: 評価・メモ・振り返りは入力のたびに自動で保存する */
+var saveTimer=null, dirty=false, reflDirty=false;
+function markDirty(){ dirty=true; clearTimeout(saveTimer); saveTimer=setTimeout(flushSave, 500); }
+function flushSave(){
+  clearTimeout(saveTimer); saveTimer=null;
+  if(!dirty) return;
+  dirty=false;
+  var p=P(); if(!p) return;
+  if(reflDirty){ p.refl=p.refl||{}; p.refl.savedTs=new Date().toISOString(); p.refl.savedAt=mdw(today())+' '+hhmm(); reflDirty=false; }
+  save(); writeReflStat();
+  var rs=$('#b1-rsaved'); if(rs) rs.textContent=savedLabel();
+  $$('[data-autosave]').forEach(function(x){ x.textContent='✓ 自動で保存しました('+hhmm()+')'; });
+}
+function autoInput(t){
+  var p=P(); if(!p || !t.dataset) return false;
+  var ap=activePlan(), d=t.dataset;
+  if(d.refl || d.rh){ p.refl=p.refl||{}; p.refl[d.refl||d.rh]=t.value; reflDirty=true; markDirty(); return true; }
+  if(!ap) return false;
+  if(d.ev){ p.evals[ap.id]=p.evals[ap.id]||{}; p.evals[ap.id][d.ev]=t.value; markDirty(); return true; }
+  if(d.note){ p.notes[ap.id]=p.notes[ap.id]||{}; p.notes[ap.id][d.note]=t.value; markDirty(); return true; }
+  if(t.id==='b1-dgmemo'){ p.notes[ap.id]=p.notes[ap.id]||{}; p.notes[ap.id].dgDraft=t.value; markDirty(); return true; }
+  return false;
+}
+APP.addEventListener('input', function(ev){
+  var t=ev.target; if(autoInput(t)) return;
+  var k=t.dataset && t.dataset.chg; if(!k) return;
+  if(k==='wiFT'){ wi.futureT=Number(t.value); $('#b1-ft').textContent=wi.futureT; schedulePredict(); }
+  if(k==='wiD'){ wi.delta=Number(t.value); $('#b1-wd').textContent=(wi.delta>0?'+':'')+wi.delta; schedulePredict(); }
+});
+var predTimer=null; function schedulePredict(){ clearTimeout(predTimer); predTimer=setTimeout(renderPredictResult, 120); }
+var rzTimer=null; window.addEventListener('resize', function(){ clearTimeout(rzTimer); rzTimer=setTimeout(function(){ layoutTabs(); if(cur==='graph') drawGraph(); if(cur==='predict') renderPredictResult(); }, 200); });
+function switchProfile(id){ flushSave(); S.current=id; save(); applySettings(); draft=null; pendingDelete=[]; phSel=[]; graphOpt.compare=null; dg={where:null,sym:null}; planEdit=null; calSel=null; go('home'); }
+/* 書きかけを失わないように(どの画面にいても) */
+function flushAll(){ try{ if(P()){ if(cur==='refl') collectRefl(); if(dirty) flushSave(); } }catch(e){} }
+window.addEventListener('pagehide', flushAll);
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') flushAll(); });
+
+/* ================= 起動 ================= */
+/* B1 だけの用語(見出しのことばは1字ずつ読みを付けて、字の間があかないようにする) */
+kzRuby.add([
+  ['育成',[['育','いく'],['成','せい']]],['日誌',[['日','にっ'],['誌','し']]],['成長',[['成','せい'],['長','ちょう']]],['予測',[['予','よ'],['測','そく']]],
+  ['環境',[['環','かん'],['境','きょう']]],['調節',[['調','ちょう'],['節','せつ']]],['方法',[['方','ほう'],['法','ほう']]],['診断',[['診','しん'],['断','だん']]],
+  ['評価',[['評','ひょう'],['価','か']]],['観察',[['観','かん'],['察','さつ']]],['振り返り',[['振','ふ'],'り',['返','かえ'],'り']],['使い方',[['使','つか'],'い',['方','かた']]],
+  ['記録',[['記','き'],['録','ろく']]],['計画',[['計','けい'],['画','かく']]],['写真',[['写','しゃ'],['真','しん']]],['設定',[['設','せっ'],['定','てい']]],
+  ['有毒','ゆうどく'],['未熟','みじゅく'],['加熱','かねつ'],['仮説','かせつ'],['曲線','きょくせん'],['品質','ひんしつ'],['内訳','うちわけ'],['達成度','たっせいど'],
+  ['課題','かだい'],['経済','けいざい'],['清潔','せいけつ'],['酸素','さんそ'],['試験紙','しけんし'],['検査','けんさ'],['節目','ふしめ'],['費用','ひよう'],
+  ['容量','ようりょう'],['成鳥','せいちょう'],['自己','じこ'],['木ぼけ',[['木','き'],'ぼけ']],['決定係数','けっていけいすう'],['平均','へいきん']
+]);
+decoObs.observe(APP, {childList:true, subtree:true});
+kzRuby(APP.querySelector('.top'), {skip:RUBY_SKIP}); kzRuby($('#b1-demobar'), {skip:RUBY_SKIP});
+/* K1: hub の設定がまだ無いときだけ、前の B1 の設定(b1_store.settings)を使う */
+(function(){
+  var hp=kzPrefs.get(), lg=legacyPrefs(), o={};
+  if(hp.ruby===null && lg.ruby===false) o.ruby=false;
+  if(hp.fs===null && lg.fs!==kzPrefs.FS_DEFAULT) o.fs=lg.fs;
+  if(o.ruby!==undefined || o.fs!==undefined) kzPrefs.set(o);
+})();
+kzPrefs.bind($('#b1-pf-ruby'), $('#b1-pf-dec'), $('#b1-pf-inc'));
+kzPrefs.on(function(){ applyPrefs(); try{ save(); }catch(e){} });
+PhotoDB.open().then(function(){
+  applySettings(); renderTabs();
+  try{ localStorage.setItem('b1__t','1'); localStorage.removeItem('b1__t'); }catch(e){ storageOK=false; }
+  go('home');
+});
+window.B1 = {version:'1.0', store:function(){ return S; }, crops:CROPS, fitLogistic:fitLogistic};
+})();
+</script>
+</body>
+</html>
