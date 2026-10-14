@@ -7,8 +7,8 @@
 | フォルダ | 分野 | 中身 |
 |---|---|---|
 | [`materials-apps/`](materials-apps/) | A 材料と加工の技術 | 材料ナビ・木材ラボ・構造ラボ・製図トレーナー・工具の安全・部品取り計画・先生用ビューア |
-| [`energy-apps/`](energy-apps/) | B エネルギー変換の技術 | E1〜E5（`dist/` に配布用1ファイルと zip、`review/` にレビュー） |
-| [`bio-apps/`](bio-apps/) | C 生物育成の技術 | B1〜B4（`dist/` に教材集と先生用ガイド、`review/` にレビューとビルド） |
+| [`bio-apps/`](bio-apps/) | B 生物育成の技術 | B1〜B4（`dist/` に教材集と先生用ガイド、`review/` にレビューとビルド） |
+| [`energy-apps/`](energy-apps/) | C エネルギー変換の技術 | E1〜E5（`dist/` に配布用1ファイルと zip、`review/` にレビュー） |
 | [`information-apps/`](information-apps/) | D 情報の技術 | 体験教材集とデジタル化・仮想CPU・ネットワーク・セキュリティ・双方向・計測制御の各ラボ |
 
 ## 共通のルール
