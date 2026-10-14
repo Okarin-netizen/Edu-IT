@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B4 栽培暦ビルダー</title>
+<style>
+#b4-app{
+  --b4-bg:#f4f7f1; --b4-card:#ffffff; --b4-ink:#1f2a1f; --b4-sub:#55624f; --b4-line:#cdd6c6;
+  --b4-main:#2f7d32; --b4-main-d:#1b5e20; --b4-soft:#e6f2e2; --b4-warn:#a85b00; --b4-warn-bg:#fff4e0;
+  --b4-bad:#b3261e; --b4-bad-bg:#fdeceb; --b4-hol:#eef0f6; --b4-fs:18px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif;
+  font-size:var(--b4-fs); line-height:1.6; color:var(--b4-ink); background:var(--b4-bg);
+  min-height:100vh; box-sizing:border-box; -webkit-text-size-adjust:100%; overflow-wrap:anywhere;
+}
+#b4-app *,#b4-app *::before,#b4-app *::after{box-sizing:inherit}
+#b4-app.b4-noruby rt{display:none}
+#b4-app rt{font-size:.55em}
+#b4-app button,#b4-app input,#b4-app select,#b4-app textarea{font:inherit;color:inherit}
+#b4-app button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#b4-app :focus-visible{outline:3px solid #1565c0;outline-offset:2px}
+#b4-app .b4-head{display:flex;align-items:center;gap:.6em;flex-wrap:wrap;padding:.5em 1em;background:var(--b4-main);color:#fff}
+#b4-app .b4-head h1{font-size:1.25em;margin:0;flex:1 1 auto;line-height:1.5}
+#b4-app .b4-tools{display:flex;gap:.4em}
+#b4-app .b4-tools button{min-height:44px;min-width:48px;border:2px solid #fff;background:transparent;color:#fff;border-radius:10px;padding:0 .6em;font-weight:bold}
+#b4-app .b4-tools button[aria-pressed="true"]{background:#fff;color:var(--b4-main-d)}
+#b4-app .b4-tools button:disabled{opacity:.4;cursor:not-allowed}
+html.kz-embed #b4-app .b4-head{display:none}
+/* タブ(K4) */
+#b4-app .b4-tabs{display:flex;gap:4px;padding:6px 6px 0;background:#1b5e20;position:sticky;top:0;z-index:5}
+#b4-app .b4-tabs button{flex:1 1 0;min-width:0;min-height:52px;border:0;border-radius:12px 12px 0 0;background:transparent;color:#e3f1e4;padding:.25em .4em;font-weight:bold;white-space:normal;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+#b4-app .b4-tabs button:hover{background:rgba(255,255,255,.12)}
+#b4-app .b4-tabs button[aria-selected="true"]{background:var(--b4-bg);color:#1b5e20}
+#b4-app.b4-big .b4-tabs .b4-tl{display:none}
+#b4-app .b4-tbl td:nth-child(3),#b4-app .b4-tbl td:nth-child(4){white-space:nowrap}
+#b4-app main{padding:1em;max-width:1200px;margin:0 auto}
+#b4-app h2{font-size:1.2em;margin:.2em 0 .5em;color:var(--b4-main-d)}
+#b4-app h3{font-size:1.05em;margin:.8em 0 .4em}
+#b4-app .b4-lead{background:var(--b4-soft);border-left:6px solid var(--b4-main);padding:.6em .9em;border-radius:8px;margin:0 0 1em}
+#b4-app .b4-card{background:var(--b4-card);border:1px solid var(--b4-line);border-radius:14px;padding:1em;margin-bottom:1em;min-width:0}
+#b4-app .b4-grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1em;align-items:start}
+#b4-app .b4-grid2>*{min-width:0}
+@media (max-width:860px){#b4-app .b4-grid2{grid-template-columns:minmax(0,1fr)}}
+#b4-app .b4-btn{min-height:48px;padding:.3em 1em;border-radius:12px;border:2px solid var(--b4-main);background:#fff;color:var(--b4-main-d);font-weight:bold;max-width:100%}
+#b4-app .b4-btn.b4-primary{background:var(--b4-main);color:#fff}
+#b4-app .b4-btn.b4-danger{border-color:var(--b4-bad);color:var(--b4-bad)}
+#b4-app .b4-btn.b4-small{min-height:44px;min-width:48px;padding:.1em .7em;font-size:.9em}
+#b4-app .b4-btn:disabled{opacity:.45;cursor:not-allowed}
+#b4-app .b4-row{display:flex;gap:.6em;flex-wrap:wrap;align-items:center}
+#b4-app .b4-seg{display:flex;flex-wrap:wrap;gap:.5em}
+#b4-app .b4-seg button{min-height:52px;min-width:0;flex:1 1 8em;border:2px solid var(--b4-line);background:#fff;border-radius:12px;padding:.3em .6em;text-align:left;line-height:1.35}
+#b4-app .b4-seg button small{display:block;color:var(--b4-sub);font-size:.75em}
+#b4-app .b4-seg button[aria-pressed="true"]{border-color:var(--b4-main);background:var(--b4-soft);box-shadow:0 0 0 2px var(--b4-main) inset}
+#b4-app .b4-seg button[aria-pressed="true"]::before{content:"✔ ";color:var(--b4-main);font-weight:bold}
+#b4-app label.b4-field{display:block;margin:.5em 0}
+#b4-app label.b4-field>span{display:block;font-weight:bold;margin-bottom:.2em}
+#b4-app input[type=date],#b4-app input[type=text],#b4-app input[type=number],#b4-app select{min-height:48px;border:2px solid var(--b4-line);border-radius:10px;padding:.2em .5em;background:#fff;max-width:100%;min-width:0}
+#b4-app textarea{width:100%;min-height:6em;border:2px solid var(--b4-line);border-radius:10px;padding:.5em;background:#fff;resize:vertical}
+#b4-app input[type=checkbox]{width:30px;height:30px;vertical-align:middle;accent-color:var(--b4-main);margin:0}
+#b4-app .b4-check{display:inline-flex;align-items:center;gap:.4em;min-height:48px;white-space:nowrap;cursor:pointer}
+#b4-app .b4-cbx{display:flex;justify-content:center;align-items:center;min-width:56px;min-height:56px;margin:-.35em -.45em;cursor:pointer}
+#b4-app .b4-crops{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(14em,100%),1fr));gap:.8em;margin-bottom:1em}
+#b4-app .b4-crop{display:flex;gap:.7em;align-items:center;text-align:left;border:2px solid var(--b4-line);background:#fff;border-radius:14px;padding:.7em;min-height:84px;min-width:0}
+#b4-app .b4-crop[aria-pressed="true"]{border-color:var(--b4-main);background:var(--b4-soft);box-shadow:0 0 0 3px var(--b4-main) inset}
+#b4-app .b4-badge{flex:0 0 auto;width:2.4em;height:2.4em;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:1.05em}
+#b4-app .b4-crop b{display:block;font-size:1.05em}
+#b4-app .b4-crop small{color:var(--b4-sub);font-size:.8em;display:block;line-height:1.4}
+/* 作業の流れ */
+#b4-app .b4-flow{list-style:none;margin:0;padding:0;position:relative}
+#b4-app .b4-flow li{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:.6em;padding:.45em 0;border-bottom:1px dashed var(--b4-line);align-items:start}
+@supports (grid-template-columns:subgrid){
+  #b4-app .b4-flow{display:grid;grid-template-columns:minmax(6em,max-content) minmax(0,1fr);column-gap:.8em}
+  #b4-app .b4-flow li{grid-column:1/-1;grid-template-columns:subgrid}
+}
+#b4-app .b4-flow li:last-child{border-bottom:0}
+#b4-app .b4-flow .b4-when{font-weight:bold;color:var(--b4-main-d)}
+#b4-app .b4-flow .b4-note{display:block;font-size:.82em;color:var(--b4-warn)}
+#b4-app .b4-flow li.b4-done .b4-what{text-decoration:line-through;color:var(--b4-sub)}
+#b4-app .b4-flow li.b4-prep .b4-when{color:#6d4c41}
+#b4-app .b4-obs{display:inline-block;font-size:.78em;border:1.5px dashed #5c6bc0;color:#283593;border-radius:8px;padding:0 .4em;margin-left:.3em;font-weight:bold;white-space:nowrap}
+#b4-app .b4-gq{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:0;background:transparent;padding:0;vertical-align:middle;margin:-8px 0}
+#b4-app .b4-gq>span{display:inline-flex;align-items:center;justify-content:center;width:1.5em;height:1.5em;border-radius:50%;border:2px solid var(--b4-main);background:#eef6ec;color:var(--b4-main-d);font-weight:bold;font-size:.85em;line-height:1}
+#b4-app .b4-msg{padding:.6em .8em;border-radius:10px;margin:.5em 0;border:2px solid}
+#b4-app .b4-msg.b4-warn{background:var(--b4-warn-bg);border-color:#f0b765;color:#5a3300}
+#b4-app .b4-msg.b4-bad{background:var(--b4-bad-bg);border-color:#e7a29d;color:#6b120d}
+#b4-app .b4-msg.b4-ok{background:var(--b4-soft);border-color:#9cc995;color:#173d19}
+#b4-app .b4-msg.b4-info{background:#eaf2fb;border-color:#a7c4e6;color:#123a63}
+#b4-app .b4-msg .b4-btn{margin-top:.3em}
+/* 休業日(2段組み) */
+#b4-app .b4-hol-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"name rep del" "dates dates dates";gap:.3em .5em;align-items:center;margin:.4em 0;padding:.4em 0;border-bottom:1px dashed var(--b4-line)}
+#b4-app .b4-hol-item .b4-hn{grid-area:name;width:100%}
+#b4-app .b4-hol-item .b4-check{grid-area:rep}
+#b4-app .b4-hol-item .b4-hdel{grid-area:del;white-space:nowrap}
+#b4-app .b4-hol-item .b4-dates{grid-area:dates;display:flex;gap:.3em;align-items:center;flex-wrap:wrap}
+#b4-app .b4-hol-item .b4-dates input{flex:1 1 9em}
+#b4-app .b4-hol-item .b4-hmsg{grid-column:1/-1;margin:0}
+#b4-app .b4-chipbtn{min-height:44px;border:2px dashed var(--b4-main);background:#fff;color:var(--b4-main-d);border-radius:22px;padding:0 .9em;font-weight:bold}
+#b4-app .b4-plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(16em,100%),1fr));gap:.7em}
+#b4-app .b4-plan{border:2px solid var(--b4-line);border-left-width:10px;border-radius:12px;padding:.6em .8em;background:#fff;min-width:0}
+#b4-app .b4-plan.b4-cur{box-shadow:0 0 0 3px #f9a825}
+#b4-app .b4-plan .b4-row{margin-top:.4em}
+/* 縦向きの要約バー */
+#b4-app .b4-sumbar{display:none}
+@media (max-width:860px){
+  #b4-app .b4-sumbar{display:flex;position:sticky;bottom:0;z-index:4;gap:.5em;align-items:center;flex-wrap:wrap;background:#fff;border:2px solid var(--b4-main);border-radius:14px;padding:.5em .7em;margin:0 0 1em;box-shadow:0 -4px 14px rgba(0,0,0,.15)}
+  #b4-app .b4-sumbar .b4-sumtxt{flex:1 1 12em;line-height:1.4;min-width:0}
+}
+/* calendar */
+#b4-app .b4-calbar{display:flex;flex-wrap:wrap;gap:.5em;align-items:center;margin-bottom:.6em}
+#b4-app .b4-calbar .b4-title{font-size:1.2em;font-weight:bold;min-width:6em;text-align:center}
+#b4-app .b4-calbar select{flex:1 1 10em}
+#b4-app .b4-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--b4-line);border-radius:12px;overflow:hidden;background:#fff}
+#b4-app .b4-month .b4-dow{text-align:center;font-weight:bold;padding:.2em;background:#e9eee5;font-size:.9em}
+#b4-app .b4-dow.b4-sun,#b4-app .b4-day.b4-sun .b4-dnum{color:#c62828}
+#b4-app .b4-dow.b4-sat,#b4-app .b4-day.b4-sat .b4-dnum{color:#1565c0}
+#b4-app .b4-day{min-height:6.2em;min-width:0;border-top:1px solid var(--b4-line);border-left:1px solid var(--b4-line);padding:.2em;text-align:left;background:#fff;display:flex;flex-direction:column;gap:2px;overflow:hidden;border-radius:0;border-right:0;border-bottom:0}
+#b4-app .b4-day:nth-child(7n+1){border-left:0}
+#b4-app .b4-day.b4-out{background:#f3f3f3;color:#999}
+#b4-app .b4-day.b4-holday{background:repeating-linear-gradient(135deg,var(--b4-hol) 0 8px,#fff 8px 16px)}
+#b4-app .b4-day.b4-today{box-shadow:inset 0 0 0 3px #f9a825}
+#b4-app .b4-day.b4-sel{box-shadow:inset 0 0 0 4px #1565c0}
+#b4-app .b4-dnum{font-weight:bold;font-size:.9em;line-height:1.2}
+#b4-app .b4-hl{font-size:.78em;color:#3d4a7a;line-height:1.2;font-weight:bold;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#b4-app .b4-ev{font-size:.8em;line-height:1.35;border-radius:6px;padding:1px 4px;border-left:5px solid;background:#f5f7f2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-all}
+#b4-app .b4-ev.b4-evobs{background:#fff;border-top:1.5px dashed #7986cb;border-right:1.5px dashed #7986cb;border-bottom:1.5px dashed #7986cb}
+#b4-app .b4-ev.b4-evdone{text-decoration:line-through;opacity:.65}
+#b4-app .b4-evk{display:inline-block;color:#fff;border-radius:4px;padding:0 3px;margin-right:2px;font-size:.9em;line-height:1.3}
+#b4-app .b4-more{font-size:.75em;color:var(--b4-sub)}
+#b4-app .b4-week{display:flex;flex-direction:column;gap:.4em}
+#b4-app .b4-wday{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:.6em;background:#fff;border:1px solid var(--b4-line);border-radius:12px;padding:.5em;text-align:left;min-height:64px}
+#b4-app .b4-wday.b4-holday{background:repeating-linear-gradient(135deg,var(--b4-hol) 0 8px,#fff 8px 16px)}
+#b4-app .b4-wday.b4-today{box-shadow:inset 0 0 0 3px #f9a825}
+#b4-app .b4-wday.b4-sel{box-shadow:inset 0 0 0 4px #1565c0}
+#b4-app .b4-wday .b4-ev{font-size:.9em;margin-bottom:3px;-webkit-line-clamp:3}
+#b4-app .b4-legend{display:flex;flex-wrap:wrap;gap:.8em;font-size:.85em;margin:.6em 0;color:var(--b4-sub)}
+#b4-app .b4-legend span{display:inline-flex;align-items:center;gap:.3em}
+#b4-app .b4-sw{display:inline-block;width:1.2em;height:1.2em;border-radius:4px;border:1px solid var(--b4-line)}
+#b4-app .b4-daypanel .b4-task{display:flex;gap:.6em;align-items:center;justify-content:space-between;border-left:8px solid;padding:.4em .6em;margin:.4em 0;background:#fafbf8;border-radius:8px;flex-wrap:wrap}
+#b4-app .b4-daypanel .b4-task>span{min-width:0;flex:1 1 14em}
+/* eval table */
+#b4-app .b4-tablewrap{overflow-x:auto}
+#b4-app table.b4-tbl{border-collapse:collapse;width:100%;min-width:640px;background:#fff}
+#b4-app .b4-tbl th,#b4-app .b4-tbl td{border:1px solid var(--b4-line);padding:.35em .45em;text-align:left;vertical-align:middle}
+#b4-app .b4-tbl th{background:#e9eee5;font-size:.9em}
+#b4-app .b4-tbl tr.b4-done td{background:#f2f8f0}
+#b4-app .b4-tbl tr.b4-trobs td{background:#f7f8fd}
+#b4-app .b4-late{color:var(--b4-bad);font-weight:bold}
+#b4-app .b4-early{color:#1565c0;font-weight:bold}
+#b4-app .b4-ontime{color:var(--b4-main-d);font-weight:bold}
+#b4-app .b4-stepper{display:inline-flex;align-items:center;gap:.3em}
+#b4-app .b4-stepper .b4-btn{min-width:48px}
+#b4-app .b4-stepper input{width:4.5em;text-align:center}
+#b4-app .b4-self{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4em .8em;align-items:center}
+@media (max-width:700px){#b4-app .b4-self{grid-template-columns:minmax(0,1fr)}}
+#b4-app .b4-self .b4-seg button{flex:0 0 auto;min-width:4.2em;text-align:center}
+#b4-app .b4-who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.7fr) minmax(0,2fr);gap:.6em}
+#b4-app .b4-who label.b4-field{margin:0}
+#b4-app .b4-who input{width:100%}
+@media (max-width:520px){#b4-app .b4-who{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#b4-app .b4-who .b4-wname{grid-column:1/-1}}
+#b4-app .b4-saved{color:var(--b4-sub);font-size:.85em}
+#b4-app .b4-toast{position:fixed;left:50%;bottom:1.5em;transform:translateX(-50%) translateY(200%);opacity:0;visibility:hidden;background:#263238;color:#fff;padding:.7em 1.2em;border-radius:12px;max-width:90vw;transition:transform .25s,opacity .25s,visibility .25s;z-index:20;pointer-events:none}
+#b4-app .b4-toast.b4-show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+#b4-app .b4-hidden{display:none!important}
+#b4-app .b4-muted{color:var(--b4-sub);font-size:.88em}
+#b4-app .b4-bottomnav{display:flex;justify-content:space-between;gap:.6em;margin-top:1em;flex-wrap:wrap}
+@media print{
+  #b4-app .b4-head,#b4-app .b4-tabs,#b4-app .b4-noprint,#b4-app .b4-toast,#b4-app .b4-sumbar,#b4-app .b4-gq{display:none!important}
+  #b4-app{background:#fff;min-height:0}
+  #b4-app .b4-card{break-inside:auto;border-color:#999}
+  #b4-app .b4-tablewrap{overflow:visible}
+  #b4-app table.b4-tbl{min-width:0}
+}
+</style>
+</head>
+<body style="margin:0">
+<div id="b4-app">
+  <header class="b4-head">
+    <h1>B4 栽培暦ビルダー</h1>
+    <div class="b4-tools">
+      <button type="button" id="b4-ruby" aria-pressed="true" title="ふりがなの表示を切りかえ">ふりがな</button>
+      <button type="button" id="b4-dec" aria-label="文字を小さく">A−</button>
+      <button type="button" id="b4-inc" aria-label="文字を大きく">A＋</button>
+    </div>
+  </header>
+  <nav class="b4-tabs" role="tablist" aria-label="ページ">
+    <button type="button" role="tab" data-act="tab" data-t="crop">① 作物<span class="b4-tl">をえらぶ</span></button>
+    <button type="button" role="tab" data-act="tab" data-t="plan">② 計画<span class="b4-tl">をつくる</span></button>
+    <button type="button" role="tab" data-act="tab" data-t="cal">③ カレンダー</button>
+    <button type="button" role="tab" data-act="tab" data-t="eval">④ 記録<span class="b4-tl">と評価</span></button>
+    <button type="button" role="tab" data-act="tab" data-t="refl">⑤ 振り返り</button>
+  </nav>
+  <main id="b4-main" role="tabpanel"></main>
+  <input type="file" id="b4-file" accept=".json,application/json" class="b4-hidden">
+  <div class="b4-toast" id="b4-toast" role="status" aria-live="polite"></div>
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<!--
+  kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzRuby だけ):
+    kzRuby(root, opts)   root(要素。省略時 document.body)の下の文字に <ruby>語<rt>よみ</rt></ruby> を付ける。
+                         ・長い語から先に当てる(「積算温度」は「積算」より先)
+                         ・ruby, rt, rp, textarea, input, select, option, script, style, svg, canvas, code,
+                           noscript, [contenteditable], class="kz-norb" の要素の中はとばす
+                         ・何度よんでも二重にならない(ruby の中はとばすため)。描画のたびによんでよい
+                         opts.skip : とばす要素を CSS セレクタで追加(例 '.b4-cal')
+                         戻り値: 付けた ruby の数
+    kzRuby.str(html)     HTML 文字列のタグの外の文字にだけ ruby を付けた文字列を返す
+                         (innerHTML に入れる前に使う場合。ruby/textarea/script/style/code の中はとばす)
+    kzRuby.plain(html)   ruby の読み(rt・rp)とタグを取りのぞいた文字だけを返す(テキスト書き出し・コピー用)。
+                         <br> は改行、&amp; などは元の文字にもどす
+    kzRuby.dict          辞書の配列 [語, よみ]。よみは文字列、または区切り配列
+                         例 ['分げつ', [['分','ぶん'],'げつ']](かなの部分にはよみを付けない)
+                         文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
+    kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
+
+  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
+-->
+<style data-kz-ruby>
+ruby.kzr{ruby-position:over;}
+</style>
+<script data-kz-ruby>
+(function(){
+  if (window.kzRuby) return;
+  var DICT = [["徒長","とちょう"],["摘芯","てきしん"],["摘心","てきしん"],["摘芽","てきが"],["芽かき","めかき"],["わき芽かき","わきめかき"],["わき芽","わきめ"],["誘引","ゆういん"],["支柱","しちゅう"],["支柱立て","しちゅうたて"],["出穂","しゅっすい"],["穂肥","ほごえ"],["分げつ",[["分","ぶん"],"げつ"]],["積算温度","せきさんおんど"],["有効積算温度","ゆうこうせきさんおんど"],["基準温度","きじゅんおんど"],["積算水温","せきさんすいおん"],["積算","せきさん"],["間引き","まびき"],["間引","まび"],["追肥","ついひ"],["元肥","もとごえ"],["土寄せ","つちよせ"],["土寄","つちよ"],["畝立て","うねたて"],["畝","うね"],["定植","ていしょく"],["植えつけ","うえつけ"],["植えかえ","うえかえ"],["収穫","しゅうかく"],["収穫量","しゅうかくりょう"],["播種","はしゅ"],["発芽","はつが"],["芽出し","めだし"],["逆算","ぎゃくさん"],["適期","てきき"],["適温","てきおん"],["適量","てきりょう"],["連作障害","れんさくしょうがい"],["連作","れんさく"],["休業日","きゅうぎょうび"],["区画","くかく"],["栽培","さいばい"],["栽培暦","さいばいごよみ"],["露地","ろじ"],["温室","おんしつ"],["遮光","しゃこう"],["換気","かんき"],["加温","かおん"],["保温","ほおん"],["暖房","だんぼう"],["苗","なえ"],["苗床","なえどこ"],["育苗","いくびょう"],["茎","くき"],["稲","いね"],["稲刈り","いねかり"],["田植え","たうえ"],["中干し","なかぼし"],["種もみ","たねもみ"],["種いも","たねいも"],["浸種","しんしゅ"],["湛水","たんすい"],["水田","すいでん"],["本葉","ほんば"],["子葉","しよう"],["生長点","せいちょうてん"],["光合成","こうごうせい"],["開花","かいか"],["結実","けつじつ"],["受粉","じゅふん"],["人工授粉","じんこうじゅふん"],["着果","ちゃっか"],["番花","ばんか"],["結球","けっきゅう"],["草丈","くさたけ"],["葉数","ようすう"],["株元","かぶもと"],["密植","みっしょく"],["移植","いしょく"],["肥料","ひりょう"],["肥料やけ",[["肥料","ひりょう"],"やけ"]],["化学肥料","かがくひりょう"],["有機物","ゆうきぶつ"],["窒素","ちっそ"],["堆肥","たいひ"],["石灰","せっかい"],["苦土石灰","くどせっかい"],["腐葉土","ふようど"],["液肥","えきひ"],["養分","ようぶん"],["根粒菌","こんりゅうきん"],["根腐れ","ねぐされ"],["根ぐされ",[["根","ね"],"ぐされ"]],["尻腐れ症","しりぐされしょう"],["尻腐れ","しりぐされ"],["青枯病","あおがれびょう"],["白点病","はくてんびょう"],["病害虫","びょうがいちゅう"],["害虫","がいちゅう"],["益虫","えきちゅう"],["天敵","てんてき"],["捕殺","ほさつ"],["防除","ぼうじょ"],["防虫","ぼうちゅう"],["農薬","のうやく"],["殺菌","さっきん"],["斑点","はんてん"],["細菌","さいきん"],["微生物","びせいぶつ"],["食害","しょくがい"],["幼虫","ようちゅう"],["雑草","ざっそう"],["除草","じょそう"],["乾燥","かんそう"],["蒸発","じょうはつ"],["排水","はいすい"],["日照不足","にっしょうぶそく"],["直射日光","ちょくしゃにっこう"],["日陰","ひかげ"],["半日陰","はんひかげ"],["高温障害","こうおんしょうがい"],["寒冷地","かんれいち"],["温暖地","おんだんち"],["暖地","だんち"],["中間地","ちゅうかんち"],["品種","ひんしゅ"],["品種改良","ひんしゅかいりょう"],["鉢","はち"],["二十日大根","はつかだいこん"],["湿度","しつど"],["濃度","のうど"],["促進","そくしん"],["飼育","しいく"],["飼育密度","しいくみつど"],["飼料","しりょう"],["配合飼料","はいごうしりょう"],["給餌","きゅうじ"],["自動給餌器","じどうきゅうじき"],["餌","えさ"],["衛生","えいせい"],["不衛生","ふえいせい"],["稚魚","ちぎょ"],["成魚","せいぎょ"],["産卵","さんらん"],["繁殖","はんしょく"],["水替え","みずかえ"],["水替","みずか"],["床材","ゆかざい"],["敷きわら","しきわら"],["溶存酸素","ようぞんさんそ"],["塩素","えんそ"],["中和剤","ちゅうわざい"],["調整剤","ちょうせいざい"],["水質","すいしつ"],["過密","かみつ"],["密度","みつど"],["家畜化","かちくか"],["家畜","かちく"],["畜産業","ちくさんぎょう"],["畜産","ちくさん"],["観賞魚","かんしょうぎょ"],["変温動物","へんおんどうぶつ"],["恒温動物","こうおんどうぶつ"],["外来生物","がいらいせいぶつ"],["外来種","がいらいしゅ"],["特定外来生物","とくていがいらいせいぶつ"],["条件付特定外来生物","じょうけんつきとくていがいらいせいぶつ"],["動物由来感染症","どうぶつゆらいかんせんしょう"],["感染症","かんせんしょう"],["動物福祉","どうぶつふくし"],["栽培漁業","さいばいぎょぎょう"],["養殖","ようしょく"],["養殖業","ようしょくぎょう"],["遠洋漁業","えんようぎょぎょう"],["沖合漁業","おきあいぎょぎょう"],["沿岸漁業","えんがんぎょぎょう"],["漁業","ぎょぎょう"],["水産","すいさん"],["赤潮","あかしお"],["生態系","せいたいけい"],["遺伝子","いでんし"],["放流","ほうりゅう"],["呼吸器","こきゅうき"],["羽毛","うもう"],["牧草","ぼくそう"],["体色","たいしょく"],["食欲","しょくよく"],["排水口","はいすいこう"],["治療","ちりょう"],["症状","しょうじょう"],["消毒","しょうどく"],["清掃","せいそう"],["掃除","そうじ"],["洗剤","せんざい"],["個体","こたい"],["殻","から"],["寄生虫","きせいちゅう"],["振り返り","ふりかえり"],["振り返る","ふりかえる"],["振り返","ふりかえ"],["育成","いくせい"],["育成日誌","いくせいにっし"],["日誌","にっし"],["環境","かんきょう"],["調節","ちょうせつ"],["診断","しんだん"],["端末","たんまつ"],["共用","きょうよう"],["削除","さくじょ"],["完了","かんりょう"],["選択","せんたく"],["挑戦","ちょうせん"],["再挑戦","さいちょうせん"],["途中","とちゅう"],["範囲","はんい"],["影響","えいきょう"],["配慮","はいりょ"],["比較","ひかく"],["交換","こうかん"],["匿名","とくめい"],["項目","こうもく"],["根拠","こんきょ"],["傾向","けいこう"],["一緒","いっしょ"],["一般的","いっぱんてき"],["極端","きょくたん"],["特徴","とくちょう"],["販売","はんばい"],["間隔","かんかく"],["新鮮","しんせん"],["変更","へんこう"],["被害","ひがい"],["交互","こうご"],["実施","じっし"],["制御","せいぎょ"],["終了","しゅうりょう"],["欄","らん"],["粘着","ねんちゃく"],["透明","とうめい"],["手袋","てぶくろ"],["刃物","はもの"],["距離","きょり"],["面倒","めんどう"],["紀伊半島","きいはんとう"],["最小二乗法","さいしょうにじょうほう"],["汚れ","よごれ"],["汚す","よごす"],["汚い","きたない"],["遅れ","おくれ"],["遅い","おそい"],["遅く","おそく"],["遅め","おそめ"],["押","お"],["抜","ぬ"],["伸","の"],["乾","かわ"],["替","か"],["込","こ"],["与","あた"],["離","はな"],["逃","に"],["倒","たお"],["茂","しげ"],["甘","あま"],["咲","さ"],["枯","か"],["埋","う"],["扱","あつか"],["汗","あせ"],["腐","くさ"],["促","うなが"],["溺","おぼ"],["穂","ほ"],["芯","しん"],["掘","ほ"],["刈","か"],["泥","どろ"],["菌","きん"],["芋","いも"],["狭","せま"],["渇","かわ"],["飢","う"],["幅","はば"],["軸","じく"],["粒","つぶ"],["濃","こ"],["湿","しめ"],["渡","わた"],["多湿","たしつ"],["高温多湿","こうおんたしつ"],["植木鉢","うえきばち"],["地下茎","ちかけい"],["水稲","すいとう"],["跳ね","はね"],["跳ぶ","とぶ"],["跳び","とび"],["捕まえ","つかまえ"]];
+  var KANA_RUN = /[ぁ-ゟ゠-ヿ]+|[^ぁ-ゟ゠-ヿ]+/g;
+  var IS_KANA = /^[ぁ-ゟ゠-ヿ]/;
+  var SKIP = 'ruby,rt,rp,textarea,input,select,option,script,style,svg,canvas,code,noscript,[contenteditable],.kz-norb';
+  var map = {}, re = null;
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function segs(w, r){
+    if (typeof r !== 'string') return r;
+    var runs = w.match(KANA_RUN) || [w];
+    if (runs.length === 1) return IS_KANA.test(w) ? [w] : [[w, r]];
+    var pat = '^';
+    for (var i = 0; i < runs.length; i++) pat += IS_KANA.test(runs[i]) ? escRe(runs[i]) : '(.+?)';
+    var m = new RegExp(pat + '$').exec(r);
+    if (!m) return [[w, r]];
+    var out = [], g = 1;
+    for (var j = 0; j < runs.length; j++) out.push(IS_KANA.test(runs[j]) ? runs[j] : [runs[j], m[g++]]);
+    return out;
+  }
+  function compile(){
+    map = {};
+    var words = [];
+    for (var i = 0; i < DICT.length; i++) { var w = DICT[i][0]; if (!map[w]) words.push(w); map[w] = segs(w, DICT[i][1]); }
+    words.sort(function(a, b){ return b.length - a.length; });
+    re = words.length ? new RegExp(words.map(escRe).join('|'), 'g') : null;
+  }
+  function escH(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function rubyHtml(word){
+    var p = map[word], h = '';
+    for (var i = 0; i < p.length; i++) h += (typeof p[i] === 'string') ? escH(p[i]) : '<ruby class="kzr">' + escH(p[i][0]) + '<rt>' + escH(p[i][1]) + '</rt></ruby>';
+    return h;
+  }
+  function rubyFrag(word){
+    var p = map[word], f = document.createDocumentFragment();
+    for (var i = 0; i < p.length; i++) {
+      if (typeof p[i] === 'string') { f.appendChild(document.createTextNode(p[i])); continue; }
+      var r = document.createElement('ruby'); r.className = 'kzr';
+      r.appendChild(document.createTextNode(p[i][0]));
+      var rt = document.createElement('rt'); rt.appendChild(document.createTextNode(p[i][1])); r.appendChild(rt);
+      f.appendChild(r);
+    }
+    return f;
+  }
+
+  function kzRuby(root, opts){
+    root = root || document.body;
+    if (!root || !re) return 0;
+    var skip = SKIP + (opts && opts.skip ? ',' + opts.skip : '');
+    if (root.nodeType === 1 && root.closest && root.closest(skip)) return 0;
+    var list = [], n, w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || v.length < 1) continue;
+      re.lastIndex = 0;
+      if (!re.test(v)) continue;
+      var par = n.parentNode;
+      if (!par || par.nodeType !== 1 || (par.closest && par.closest(skip))) continue;
+      list.push(n);
+    }
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], s = t.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        f.appendChild(rubyFrag(m[0])); count++;
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(f, t);
+    }
+    return count;
+  }
+
+  /* HTML 文字列版: タグの外の文字にだけ付ける */
+  kzRuby.str = function(html){
+    if (!re) return String(html);
+    var parts = String(html).split(/(<[^>]*>)/), depth = 0, out = '';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.charAt(0) === '<') {
+        var m = /^<(\/?)([a-zA-Z0-9]+)/.exec(p);
+        if (m && /^(ruby|textarea|script|style|code|svg|select|option)$/i.test(m[2])) depth += m[1] ? -1 : 1;
+        if (depth < 0) depth = 0;
+        out += p; continue;
+      }
+      if (depth > 0 || !p) { out += p; continue; }
+      re.lastIndex = 0;
+      out += p.replace(re, rubyHtml);
+    }
+    return out;
+  };
+  kzRuby.plain = function(html){
+    return String(html == null ? '' : html)
+      .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, '').replace(/<rp[^>]*>[\s\S]*?<\/rp>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#0*39;/g, "'").replace(/&#x0*27;/gi, "'").replace(/&amp;/g, '&');
+  };
+  kzRuby.add = function(list){
+    for (var i = 0; i < (list || []).length; i++) {
+      var found = false;
+      for (var j = 0; j < DICT.length; j++) if (DICT[j][0] === list[i][0]) { DICT[j] = list[i]; found = true; break; }
+      if (!found) DICT.push(list[i]);
+    }
+    compile();
+  };
+  kzRuby.dict = DICT;
+  compile();
+  window.kzRuby = kzRuby;
+})();
+</script>
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var root=document.getElementById('b4-app');
+var main=root.querySelector('#b4-main');
+var KEY='b4_state_v1', RKEY='b4_reflection_v1', SKEY='b4_reflstat';
+
+/* ---------- 日付(UTCの日数計算でうるう年・月またぎも正確に) ---------- */
+var DAY=86400000;
+function pad(n){return (n<10?'0':'')+n}
+function P(s){var a=s.split('-');return Date.UTC(+a[0],+a[1]-1,+a[2])}
+function F(t){var d=new Date(t);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())}
+function add(s,n){return F(P(s)+n*DAY)}
+function diff(a,b){return Math.round((P(a)-P(b))/DAY)}
+function dow(s){return new Date(P(s)).getUTCDay()}
+function today(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function isDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&F(P(s))===s}
+var WD=['日','月','火','水','木','金','土'];
+function md(s){var a=s.split('-');return (+a[1])+'/'+(+a[2])+'('+WD[dow(s)]+')'}
+function jd(s){var a=s.split('-');return (+a[1])+'月'+(+a[2])+'日('+WD[dow(s)]+')'}
+function jdy(s){return s.split('-')[0]+'年'+jd(s)}
+
+/* ---------- データ(目安。地域・年・品種で変わる) ---------- */
+var REG={
+  cold:{name:'寒冷地',ex:'北海道・東北・高い山の地域など',fac:1.1,shift:21},
+  mid:{name:'温暖地(中間地)',ex:'関東〜九州の平地の多く',fac:1,shift:0},
+  warm:{name:'暖地',ex:'九州南部・四国や紀伊半島の太平洋側など',fac:0.95,shift:-14}
+};
+var FAM={
+  none:{name:'はじめて・わからない'},
+  nasu:{name:'ナス科(トマト・ナス・ジャガイモ・ピーマン)',years:'3〜4年'},
+  abura:{name:'アブラナ科(コマツナ・ダイコン・キャベツ)',years:'1〜2年'},
+  mame:{name:'マメ科(エダマメ・インゲン・ラッカセイ)',years:'2〜3年'},
+  uri:{name:'ウリ科(キュウリ・カボチャ・スイカ)',years:'2〜3年'},
+  ine:{name:'イネ科(イネ・トウモロコシ)',years:''},
+  hiyu:{name:'ヒユ科(ホウレンソウ・ビート)',years:'1〜2年'},
+  kiku:{name:'キク科(レタス・シュンギク)',years:'1〜2年'}
+};
+/* tasks: [種類, 何日目, 作業名, カレンダー用の短い名前]
+   種類 check(発芽の確認)・flower(開花・出穂)は「観察」=自然に進むので休みで動かさない。
+   prep は種まき・植えつけの前の準備(土づくりなど)。 */
+var PREP_STD=[['prep',-14,'土づくり(石灰をまいて耕す)','土づくり'],['prep',-7,'元肥・畝立て','元肥・畝立て']];
+var CROP={
+  radish:{name:'ラディッシュ',kana:'ラ',color:'#c2185b',fam:'abura',how:'種から(直まき)',start:'種まき',
+    win:[['03-15','05-31'],['09-01','10-31']],
+    tip:'プランターでも育てやすく、早く収穫できる。収穫がおくれると根が割れたり、中にすき間ができたりする。',
+    comp:'レタスなどキク科の野菜と近くに植えると、虫がつきにくいといわれる。',
+    tasks:PREP_STD.concat([['sow',0,'種まき','種まき'],['check',4,'発芽の確認','発芽'],['thin',7,'間引き(1回目)','間引き1'],['thin',14,'間引き(2回目)・土寄せ','間引き2'],['harvest',28,'収穫(はじめ)','収穫はじめ'],['end',35,'収穫(おわり)','収穫おわり']])},
+  komatsuna:{name:'コマツナ',kana:'コ',color:'#2e7d32',fam:'abura',how:'種から(直まき)',start:'種まき',
+    win:[['03-15','05-31'],['09-01','10-31']],
+    tip:'暑さ・寒さに比較的強い。アオムシなどの害虫がつきやすいので、防虫ネットが役立つ。',
+    comp:'ニンジンやレタスなど、ちがう科の野菜と交互に植えると虫の被害が分散しやすい。',
+    tasks:PREP_STD.concat([['sow',0,'種まき','種まき'],['check',4,'発芽の確認','発芽'],['thin',10,'間引き(1回目)','間引き1'],['thin',18,'間引き(2回目)','間引き2'],['fert',20,'追肥','追肥'],['harvest',35,'収穫(はじめ)','収穫はじめ'],['end',45,'収穫(おわり)','収穫おわり']])},
+  spinach:{name:'ホウレンソウ',kana:'ホ',color:'#00796b',fam:'hiyu',how:'種から(直まき)',start:'種まき',
+    win:[['03-01','04-15'],['09-10','10-31']],
+    tip:'寒さに強く暑さに弱い。酸性の土が苦手なので、種まきの2週間ほど前に石灰をまいて土を整えておく。',
+    comp:'ネギ類と近くに植えると病気が出にくいといわれる。',
+    tasks:PREP_STD.concat([['sow',0,'種まき','種まき'],['check',7,'発芽の確認','発芽'],['thin',14,'間引き(1回目)','間引き1'],['thin',25,'間引き(2回目)','間引き2'],['fert',27,'追肥','追肥'],['harvest',45,'収穫(はじめ)','収穫はじめ'],['end',55,'収穫(おわり)','収穫おわり']])},
+  tomato:{name:'ミニトマト',kana:'ト',color:'#d84315',fam:'nasu',how:'苗から(植えつけ)',start:'苗の植えつけ',
+    win:[['04-25','05-31']],
+    tip:'わき芽かき・支柱立てなどの手入れが多い。水のやりすぎに注意すると実があまくなる。',
+    comp:'バジルやマリーゴールドと近くに植えると虫よけになるといわれる。',
+    tasks:[['prep',-14,'土づくり(石灰をまいて耕す)','土づくり'],['prep',-7,'植え穴の準備・元肥','元肥'],['plant',0,'苗の植えつけ・仮支柱','植えつけ'],['support',12,'支柱立て・誘引','支柱・誘引'],['bud',14,'わき芽かき(週1回くり返す)','わき芽かき'],['fert',21,'追肥(1回目)','追肥1'],['fert',42,'追肥(2回目)','追肥2'],['harvest',55,'収穫(はじめ)','収穫はじめ'],['fert',63,'追肥(3回目)','追肥3'],['top',70,'摘芯(先をとめる)','摘芯'],['end',110,'収穫(おわり)','収穫おわり']]},
+  edamame:{name:'エダマメ',kana:'エ',color:'#689f38',fam:'mame',how:'種から(直まき)',start:'種まき',
+    win:[['04-20','06-15']],
+    tip:'まいた種を鳥に食べられやすいので、発芽するまでネットをかける。花がさくころの水切れに注意。根につく根粒菌が肥料(窒素)の一部を作るので、肥料は少なめにする(多すぎると葉ばかりしげって実が入らない)。',
+    comp:'トウモロコシと近くに植えると、たがいに育ちやすいといわれる。',
+    tasks:[['prep',-14,'土づくり(石灰をまいて耕す)','土づくり'],['prep',-7,'元肥(少なめ)・畝立て','元肥・畝立て'],['sow',0,'種まき','種まき'],['check',6,'発芽の確認(鳥よけ)','発芽'],['thin',15,'間引き(1か所2本に)','間引き'],['fert',30,'土寄せ(追肥は葉の色が悪いときだけ少し)','土寄せ'],['flower',40,'開花(水切れ注意)','開花'],['harvest',80,'収穫(はじめ)','収穫はじめ'],['end',90,'収穫(おわり)','収穫おわり']]},
+  potato:{name:'ジャガイモ',kana:'ジ',color:'#8d6e63',fam:'nasu',how:'種いもから(植えつけ)',start:'種いもの植えつけ',
+    win:[['03-01','03-31'],['08-25','09-15',{no:['cold']}]],
+    tip:'種いもは切り口を乾かしてから植える。いもが日に当たると緑色になるので、土寄せをする。石灰を入れすぎると、いもの皮に病気が出やすい。',
+    comp:'ナス科どうし(トマト・ナス)の近くはさける。同じ場所で続けて作らない。',
+    noteReg:{cold:'寒冷地では、秋植え(夏の終わりに植える)はむずかしいので、春植えだけにしています。'},
+    tasks:[['prep',-14,'土づくり(耕す。石灰は入れない)','土づくり'],['prep',-7,'元肥・植えみぞを掘る','元肥・みぞ'],['plant',0,'種いもの植えつけ','植えつけ'],['check',20,'芽が出たか確認','芽が出た'],['bud',28,'芽かき(2〜3本残す)','芽かき'],['fert',30,'追肥・土寄せ(1回目)','追肥・土寄せ1'],['fert',50,'追肥・土寄せ(2回目)','追肥・土寄せ2'],['flower',55,'開花','開花'],['harvest',95,'収穫','収穫']]},
+  rice:{name:'バケツ稲',kana:'イ',color:'#f9a825',fam:'ine',how:'種もみから(浸種→芽出し→種まき)',start:'種まき',fixFac:true,
+    win:[['04-20','05-20']],
+    tip:'種もみは1週間ほど水につけ(浸種)、芽を出してからまく。田植えのあとは水を切らさないようにする。寒い地域では、早く実る品種(早生)を使うことが多い。',
+    comp:'水田のイネは連作障害が出にくい作物として知られている。',
+    tasks:[['prep',-7,'種もみの浸種(水につける)','浸種'],['prep',-2,'芽出し(あたたかい所で芽を出す)','芽出し'],['sow',0,'種まき(芽出しした種もみ)','種まき'],['check',5,'発芽の確認','発芽'],['plant',30,'植えかえ(田植え)','田植え'],['fert',50,'追肥','追肥'],['dry',65,'中干し(水をぬく)','中干し'],['flower',95,'出穂・開花','出穂'],['harvest',140,'稲刈り(収穫)','稲刈り']]}
+};
+var ORDER=['radish','komatsuna','spinach','edamame','tomato','potato','rice'];
+var ICON={prep:'⛏️',sow:'🌱',check:'👀',thin:'✂️',plant:'🌿',support:'🎋',bud:'✂️',fert:'🟫',top:'✂️',flower:'🌸',dry:'☀️',harvest:'🧺',end:'🏁'};
+var PCOL=['#2e7d32','#c62828','#1565c0','#6a1b9a','#ef6c00','#00838f','#5d4037','#ad1457'];
+var PRESETS=[['春休み','03-25','04-07'],['大型連休','05-03','05-06'],['夏休み','07-20','08-31'],['冬休み','12-25','01-07']];
+/* むずかしい作業用語の短い説明(B4-15) */
+var GLOSS={
+  '土づくり':['つちづくり','種まきや植えつけの前に土を耕し、石灰や肥料を入れて、作物が育ちやすい土にしておくこと。'],
+  '石灰':['せっかい','酸性にかたよった土を直すためにまく白い粉。まいてから1〜2週間あけて種をまく。'],
+  '元肥':['もとごえ','種まきや植えつけの前に、先に土に入れておく肥料。'],
+  '畝立て':['うねたて','土を細長くもり上げて、作物を植える場所(畝)をつくること。水はけがよくなる。'],
+  '間引き':['まびき','芽がこみあっているところで、弱い芽をぬいて数をへらすこと。残った株が大きく育つ。'],
+  '土寄せ':['つちよせ','株の根もとに土を寄せること。株がたおれにくくなる。ジャガイモは、いもが日に当たって緑になるのを防ぐ。'],
+  '追肥':['ついひ','育っているとちゅうで、足りなくなった肥料をあとから追加すること。'],
+  '支柱':['しちゅう','茎や実の重さで株がたおれないように立てる棒。'],
+  '誘引':['ゆういん','のびた茎をひもで支柱にゆるく結び、決まった方向にのばすこと。'],
+  'わき芽かき':['わきめかき','葉のつけ根から出る「わき芽」をつみとること。養分が実に回りやすくなる。'],
+  '芽かき':['めかき','たくさん出た芽のうち元気な2〜3本を残して、ほかをかきとること。いもが大きくなる。'],
+  '摘芯':['てきしん','茎の先の芽をつんで、それ以上のびないようにすること。実に養分が回る。'],
+  '中干し':['なかぼし','田の水を一度ぬいて土をかわかすこと。根が強くなり、むだな茎がふえるのをおさえる。'],
+  '出穂':['しゅっすい','イネの穂が茎の中から出てくること。このあと花がさき、米が実る。'],
+  '浸種':['しんしゅ','種もみを水につけて、芽が出る準備をさせること(1週間ほど)。'],
+  '芽出し':['めだし','水につけた種もみをあたたかい所におき、少し芽を出させること。'],
+  '田植え':['たうえ','育てた苗を、水を入れた田(バケツ)に植えかえること。']
+};
+var GKEYS=Object.keys(GLOSS).sort(function(a,b){return b.length-a.length});
+function glossOf(label){var found=[],rest=String(label);
+  GKEYS.forEach(function(k){if(rest.indexOf(k)>=0){found.push(k);rest=rest.split(k).join('\u0000')}});return found}
+function gq(label){return glossOf(label).map(function(k){return '<button type="button" class="b4-gq b4-noprint kz-norb" data-act="gloss" data-w="'+k+'" aria-label="「'+k+'」のいみ"><span aria-hidden="true">?</span></button>'}).join('')}
+if(window.kzRuby&&kzRuby.add)kzRuby.add([['作物','さくもつ'],['計画','けいかく'],['記録','きろく'],['評価','ひょうか'],['自己評価','じこひょうか'],['地域','ちいき'],
+  ['種まき','たねまき'],['直まき','じかまき'],['種','たね'],['種類','しゅるい'],['芽','め'],['葉','は'],['株','かぶ'],['鳥','とり'],['虫','むし'],
+  ['確認','かくにん'],['原因','げんいん'],['改善','かいぜん'],['実際','じっさい'],['気温','きおん'],['観察','かんさつ'],['目安','めやす'],['当番','とうばん'],
+  ['技術','ぎじゅつ'],['農業','のうぎょう'],['条件','じょうけん'],['性質','せいしつ'],['季節','きせつ'],['耕','たがや'],['植え穴','うえあな'],['仮支柱','かりしちゅう'],
+  ['酸性','さんせい'],['生育','せいいく'],['土づくり','つちづくり'],['水切れ','みずぎれ'],['鳥よけ','とりよけ'],['表計算','ひょうけいさん'],['予想','よそう'],['対策','たいさく'],
+  ['登校日','とうこうび'],['大型連休','おおがたれんきゅう'],['連休','れんきゅう'],['太平洋','たいへいよう'],['九州','きゅうしゅう'],['四国','しこく'],['東北','とうほく'],
+  ['関東','かんとう'],['北海道','ほっかいどう'],['未熟','みじゅく'],['反映','はんえい'],['提出','ていしゅつ'],['印刷','いんさつ'],['早生','わせ'],['霜','しも'],
+  ['掘る','ほる'],['比較的','ひかくてき'],['分散','ぶんさん'],['平地','へいち']]);
+
+/* ---------- 状態と保存 ---------- */
+function fresh(){return {v:1,set:{ruby:true,fs:18,wk:true,tab:'crop'},cropId:'radish',
+  draft:{region:'mid',mode:'harvest',harvest:'',start:'',plot:'',prev:'none',early:0},
+  hol:[],plans:[],cur:null,cal:{view:'month',anchor:'',filter:'all',sel:''}}}
+function freshR(){return {kumi:'',ban:'',name:'',q1:'',q2:'',q3:'',q4:'',self:{a:0,b:0,c:0},saved:''}}
+var storageOK=true;
+function readLS(k){try{return localStorage.getItem(k)}catch(e){storageOK=false;return null}}
+function writeLS(k,v){try{localStorage.setItem(k,v);return true}catch(e){storageOK=false;return false}}
+function removeLS(k){try{localStorage.removeItem(k)}catch(e){}}
+function kindOf(k){return (k==='check'||k==='flower')?'obs':'work'}
+function shortOf(cid,t){if(t.short)return t.short;var ts=CROP[cid]?CROP[cid].tasks:[];
+  for(var i=0;i<ts.length;i++)if(ts[i][2]===t.label&&ts[i][3])return ts[i][3];
+  return String(t.label||'').replace(/[((].*$/,'')||String(t.label||'')}
+/* 古い保存データ(作業の種類・色がない計画)をいまの形に直す */
+function migrate(j){
+  var f=fresh();for(var k in f){if(j[k]===undefined||j[k]===null&&k!=='cur')j[k]=f[k]}
+  if(typeof j.set!=='object')j.set=f.set;for(var s in f.set){if(j.set[s]===undefined)j.set[s]=f.set[s]}
+  if(typeof j.draft!=='object')j.draft=f.draft;for(var d in f.draft){if(j.draft[d]===undefined)j.draft[d]=f.draft[d]}
+  if(!REG[j.draft.region])j.draft.region='mid';
+  if(typeof j.cal!=='object')j.cal=f.cal;
+  if(!CROP[j.cropId])j.cropId='radish';
+  if(!Array.isArray(j.hol))j.hol=[];
+  j.hol=j.hol.filter(function(h){return h&&typeof h==='object'});
+  j.plans=(Array.isArray(j.plans)?j.plans:[]).filter(function(p){return p&&CROP[p.cropId]&&p.tasks&&p.tasks.length&&REG[p.region]});
+  var used=[];
+  j.plans.forEach(function(p){
+    if(!p.ev||typeof p.ev!=='object')p.ev={cause:'',improve:'',result:''};
+    p.tasks.forEach(function(t){if(!t.kind)t.kind=kindOf(t.k);if(!t.short)t.short=shortOf(p.cropId,t)});
+    if(!p.v2){ /* 前の版は、最初の作業が完了するとずらしを0として計算していた。日付が変わらないように合わせる */
+      if(p.tasks[anchorIdx(p)].done)p.startShift=0;p.v2=true}
+    if(!p.color){p.color=pickColorFrom(p.cropId,used)}used.push(p.color)});
+  return j}
+function load(){var j=null;try{j=JSON.parse(readLS(KEY))}catch(e){}
+  if(!j||typeof j!=='object'||j.v!==1)return fresh();
+  try{return migrate(j)}catch(e){return fresh()}}
+function loadR(){var j=null;try{j=JSON.parse(readLS(RKEY))}catch(e){}
+  var f=freshR();if(!j||typeof j!=='object')return f;for(var k in f){if(j[k]===undefined||j[k]===null)j[k]=f[k]}
+  if(typeof j.self!=='object')j.self=f.self;
+  return j}
+var S, R=loadR();
+var warned=false;
+function save(){if(!writeLS(KEY,JSON.stringify(S))&&!warned){warned=true;toast('この端末に保存できません。「バックアップを書き出す」で保存してください。',5000)}}
+function nowStamp(){var d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes())}
+function reflStat(){var n=0;Q.forEach(function(q){if(String(R[q[0]]||'').replace(/\s+/g,''))n++});return {filled:n,total:Q.length}}
+function writeStat(){writeLS(SKEY,JSON.stringify(reflStat()))}
+function saveR(){R.saved=nowStamp();var ok=writeLS(RKEY,JSON.stringify(R));writeStat();
+  if(!ok&&!warned){warned=true;toast('この端末に保存できません。「テキストで書き出す」で保存してください。',5000)}}
+function savedText(){var m=/(\d{4})\/(\d{1,2})\/(\d{1,2})\D+(\d{1,2}):(\d{2})/.exec(R.saved||'');if(!m)return 'まだ保存していません';
+  var td=new Date(),isToday=(+m[1]===td.getFullYear()&&+m[2]===td.getMonth()+1&&+m[3]===td.getDate());
+  return '最後に保存 '+(isToday?'':(+m[2])+'/'+(+m[3])+' ')+pad(+m[4])+':'+m[5]}
+
+/* ---------- 小道具 ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function plain(s){return window.kzRuby&&kzRuby.plain?kzRuby.plain(s):String(s).replace(/<rt>.*?<\/rt>/g,'').replace(/<[^>]+>/g,'')}
+function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+var tt=null;
+function toast(m,ms){var t=root.querySelector('#b4-toast');t.textContent=m;t.classList.add('b4-show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('b4-show')},ms||2200)}
+function $(sel){return main.querySelector(sel)}
+/* 読みが長いルビは文字を少し小さくして、漢字の間があきすぎないようにする(B4-21) */
+function fitRuby(el){var rs=el.querySelectorAll('ruby');for(var i=0;i<rs.length;i++){var rt=rs[i].querySelector('rt');if(!rt||rt.getAttribute('data-fit'))continue;
+  var rl=rt.textContent.length,bl=rs[i].textContent.length-rl;rt.setAttribute('data-fit','1');if(rl&&bl&&bl/rl<.55)rt.style.fontSize=Math.max(.46,bl/rl).toFixed(2)+'em'}}
+function fill(el,html){el.innerHTML=html;if(window.kzRuby){kzRuby(el);fitRuby(el)}if(window.kzPrintText&&el.querySelector('textarea'))kzPrintText(el)}
+function badge(c,big){return '<span class="b4-badge" style="background:'+c.color+(big?';width:3em;height:3em;font-size:1.3em':'')+'" aria-hidden="true">'+c.kana+'</span>'}
+function cropName(id){return CROP[id].name}
+function cropPlain(id){return CROP[id].name}
+function download(name,text,mime){
+  try{var blob=new Blob([text],{type:mime});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);toast('「'+name+'」を書き出しました')}
+  catch(e){toast('書き出しできませんでした')}}
+function copyText(text){
+  function fb(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();toast(ok?'コピーしました':'コピーできませんでした')}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){toast('コピーしました')},fb)}else fb()}
+
+/* ---------- 適期の判定 ---------- */
+function windows(c,region,y){var sh=REG[region].shift;return c.win.filter(function(w){return !(w[2]&&w[2].no&&w[2].no.indexOf(region)>=0)}).map(function(w){
+  var spring=+w[0].slice(0,2)<7, s=y+'-'+w[0], ey=(w[1]<w[0])?y+1:y, e=ey+'-'+w[1];
+  var k=spring?sh:-sh;return [add(s,k),add(e,k)]})}
+function inWin(c,region,d){var y=+d.slice(0,4);for(var yy=y-1;yy<=y+1;yy++){var ws=windows(c,region,yy);
+  for(var i=0;i<ws.length;i++){if(d>=ws[i][0]&&d<=ws[i][1])return true}}return false}
+function nearestWin(c,region,d){var best=null,bd=1e9,y=+d.slice(0,4);
+  for(var yy=y-1;yy<=y+1;yy++){windows(c,region,yy).forEach(function(w){w.forEach(function(e){var k=Math.abs(diff(e,d));if(k<bd){bd=k;best=e}})})}return best}
+function nextWinStart(c,region,from){var y=+from.slice(0,4),c2=[];
+  for(var yy=y;yy<=y+1;yy++){windows(c,region,yy).forEach(function(w){if(w[1]>=from)c2.push(w[0]>from?w[0]:from)})}
+  c2.sort();return c2[0]}
+function winText(c,region){var ws=windows(c,region,2027);if(!ws.length)return 'なし';return ws.map(function(w){var a=w[0].split('-'),b=w[1].split('-');
+  return (+a[1])+'月'+(+a[2])+'日〜'+(+b[1])+'月'+(+b[2])+'日'}).join('、')}
+
+/* ---------- 休業日と作業日の調整 ---------- */
+function holOf(d){var m=d.slice(5);for(var i=0;i<S.hol.length;i++){var h=S.hol[i];if(h.draft||!isDate(h.s)||!isDate(h.e)||h.e<h.s)continue;
+  if(h.rep){var hs=h.s.slice(5),he=h.e.slice(5);if(diff(h.e,h.s)>=365||(hs<=he?(m>=hs&&m<=he):(m>=hs||m<=he)))return h}
+  else if(d>=h.s&&d<=h.e)return h}return null}
+function blocked(d){if(S.set.wk){var w=dow(d);if(w===0||w===6)return true}return !!holOf(d)}
+/* いちばん近い登校日(backFirst=true なら、同じ近さのとき前の日を先に) */
+function adjust(d,backFirst){if(!blocked(d))return d;for(var k=1;k<=200;k++){var a=add(d,backFirst?-k:k),b=add(d,backFirst?k:-k);if(!blocked(a))return a;if(!blocked(b))return b}return d}
+/* 後ろ(あと)の方向だけさがす:収穫は前倒ししない */
+function adjustFwd(d){for(var k=0;k<=200;k++){if(!blocked(add(d,k)))return add(d,k)}return d}
+function facOf(cid,region){return CROP[cid].fixFac?1:REG[region].fac}
+/* 秋おそく〜冬に始めると、気温が低く育つのに時間がかかる(B4-17) */
+var SLOW=1.3;
+function slowFac(cid,region,start){if(!isDate(start))return 1;var y=+start.slice(0,4),th=add(y+'-10-01',-REG[region].shift),m=start.slice(5);
+  return (start>=th||m<'02-01')?SLOW:1}
+function cropTasks(cid,region,slow){var f=facOf(cid,region)*(slow||1);return CROP[cid].tasks.map(function(t){
+  return {k:t[0],off:t[1]>0?Math.round(t[1]*f):t[1],label:t[2],short:t[3]||t[2],kind:kindOf(t[0])}})}
+function hOff(cid,region,slow){var ts=cropTasks(cid,region,slow);for(var i=0;i<ts.length;i++)if(ts[i].k==='harvest')return ts[i].off;return ts[ts.length-1].off}
+function anchorIdx(p){for(var i=0;i<p.tasks.length;i++)if(p.tasks[i].k==='sow'||p.tasks[i].k==='plant')return i;return 0}
+function aTask(p){return p.tasks[anchorIdx(p)]}
+function buildPlan(d,cid){
+  var reg=d.region,slow=1,start,early=0;
+  if(d.mode==='harvest'){start=add(d.harvest,-hOff(cid,reg,1));slow=slowFac(cid,reg,start);
+    if(slow!==1)start=add(d.harvest,-hOff(cid,reg,slow));
+    early=Math.max(0,+d.early||0);start=add(start,-early)}
+  else{start=d.start;slow=slowFac(cid,reg,start)}
+  var T=cropTasks(cid,reg,slow);
+  var p={id:uid(),v2:true,cropId:cid,region:reg,mode:d.mode,input:d.mode==='harvest'?d.harvest:d.start,startCalc:start,early:early,slow:slow,
+    plot:d.plot||'',prev:d.prev||'none',created:today(),color:'',lastRef:'',undo:null,
+    ev:{cause:'',improve:'',result:''},
+    tasks:T.map(function(t,i){return {id:'t'+i,k:t.k,kind:t.kind,label:t.label,short:t.short,off:t.off,ideal:add(start,t.off),base:'',date:'',orig:'',moved:0,done:false,actual:'',note:''}})};
+  layout(p);p.tasks.forEach(function(t){t.orig=t.date});return p}
+function effDate(t){return t.done&&isDate(t.actual)?t.actual:t.date}
+/* 作業日の割りつけ(B4-01・02・03)
+   ・人の作業(work)は休みをさけていちばん近い登校日へ。収穫(はじめ・おわり)は前倒ししない(あとへだけ動かす)
+   ・観察(obs:発芽・開花・出穂)は自然に進むので動かさない
+   ・「収穫したい日から逆算」では、目標をこえないように種まきを前にずらす
+   ・作業の順番は前後しないようにする */
+function layout(p){var ai=anchorIdx(p),a=p.tasks[ai],d=0,h=hTask(p),tgt=(p.mode==='harvest'&&isDate(p.input))?p.input:'';
+  if(a.done){d=p.startShift||0}
+  else if(tgt){d=diff(adjust(a.ideal,true),a.ideal);
+    if(!h.done&&(h.k==='harvest'||h.k==='end')&&adjustFwd(add(h.ideal,d))>tgt){
+      for(var e=0;e<=7;e++){var s=add(a.ideal,-e);if(blocked(s))continue;if(adjustFwd(add(h.ideal,-e))<=tgt){d=-e;break}}}}
+  else d=diff(adjust(a.ideal),a.ideal);
+  p.startShift=d;var prev='',hd='';
+  p.tasks.forEach(function(t,i){if(!t.kind)t.kind=kindOf(t.k);
+    if(t.done){var ed=effDate(t);if(ed>prev)prev=ed;if(t.k==='harvest')hd=ed;return}
+    t.base=add(t.ideal,d);
+    if(t.kind==='obs')t.date=t.base;
+    else{
+      if(i===ai)t.date=blocked(t.base)?adjust(t.base,!!tgt):t.base;
+      else if(t.k==='harvest'){t.date=adjustFwd(t.base);hd=t.date}
+      else if(t.k==='end'){var cand=t.base;if(hd&&h.k==='harvest'){var c2=add(hd,diff(t.ideal,h.ideal));if(c2>cand)cand=c2}t.date=adjustFwd(cand)}
+      else t.date=adjust(t.base);
+      if(prev&&t.date<prev)t.date=adjustFwd(prev);
+    }
+    t.moved=diff(t.date,t.base);if(t.date>prev)prev=t.date})}
+function relayoutAll(){S.plans.forEach(layout)}
+function planEnd(p){var m='';p.tasks.forEach(function(t){var e=effDate(t);if(e>m)m=e});return m}
+function planStart(p){var m='';p.tasks.forEach(function(t){var e=effDate(t);if(!m||e<m)m=e});return m}
+function sowDate(p){return effDate(aTask(p))}
+function hTask(p){for(var i=0;i<p.tasks.length;i++)if(p.tasks[i].k==='harvest')return p.tasks[i];return p.tasks[p.tasks.length-1]}
+function curPlan(){for(var i=0;i<S.plans.length;i++)if(S.plans[i].id===S.cur)return S.plans[i];return null}
+function planById(id){for(var i=0;i<S.plans.length;i++)if(S.plans[i].id===id)return S.plans[i];return null}
+function pickColorFrom(cid,used){var cc=CROP[cid].color;if(used.indexOf(cc)<0)return cc;
+  for(var i=0;i<PCOL.length;i++)if(used.indexOf(PCOL[i])<0)return PCOL[i];return PCOL[used.length%PCOL.length]}
+function planColor(p){return p.color||CROP[p.cropId].color}
+/* 目標の収穫日に間に合わせるには、何日早めればよいか */
+function needEarly(p){var a=aTask(p),h=hTask(p),tgt=p.input;if(a.done||h.done||!isDate(tgt))return 0;
+  for(var e=1;e<=150;e++){var s=add(a.ideal,-e);if(blocked(s))continue;if(adjustFwd(add(h.ideal,-e))<=tgt)return e}return 0}
+
+/* ---------- 注意(警告)の生成 ---------- */
+function warnings(p,isDraft){var c=CROP[p.cropId],out=[],a=aTask(p),h=hTask(p);
+  if(!a.done&&!inWin(c,p.region,a.date)){var wt=winText(c,p.region);out.push({lv:'bad',fix:wt!=='なし',html:'⚠ '+c.start+'日 <b>'+jd(a.date)+'</b> は、'+REG[p.region].name+'の適期(目安:'+wt+')からはずれています。うまく育たない・収穫できない心配があります。'})}
+  if(p.mode==='harvest'&&isDate(p.input)&&!h.done&&h.date>p.input){var e=needEarly(p);
+    out.push({lv:'bad',early:e,html:'⚠ 目標の'+jd(p.input)+'に収穫が間に合いません(この計画では収穫は '+jd(h.date)+')。'+(e?c.start+'を<b>'+e+'日</b>早めよう。':'時期を見直そう。')})}
+  if(!h.done&&h.moved>=7){var hh=holOf(h.base);out.push({lv:'bad',html:'⚠ 休み中'+(hh&&hh.l?'(<b>'+esc(hh.l)+'</b>)':'')+'に収穫の時期('+jd(h.base)+'ごろ)になります。収穫は前倒しできない(実が育っていない)ので、休み明けの <b>'+jd(h.date)+'</b> にしました('+h.moved+'日あと)。実がとりおくれるので、休み中の当番を決めるか、時期を見直そう。'})}
+  if(p.startShift){out.push({lv:'info',html:'ℹ 計算した'+c.start+'の日('+jd(p.startCalc)+')'+(p.mode==='harvest'&&p.startShift<0?'では、休みと重なるか、収穫が目標の日に間に合わないため':'が休みの日だったので')+'、'+c.start+'を<b>'+Math.abs(p.startShift)+'日'+(p.startShift>0?'あと':'まえ')+'</b>にずらし、ほかの作業もいっしょにずらしました。'})}
+  if(p.early){out.push({lv:'info',html:'ℹ 目標の収穫日に間に合わせるため、逆算した日より <b>'+p.early+'日</b> 早く始める計画にしています。'})}
+  if(p.slow>1){out.push({lv:'info',html:'ℹ 秋おそく(または冬)に始める計画です。気温が低いので育つのに時間がかかるため、日数を約'+p.slow+'倍にしています。'})}
+  p.tasks.forEach(function(t){if(t.done||t===h)return;
+    if(t.kind==='obs'){var ho=holOf(t.date);if(ho)out.push({lv:'info',html:'ℹ 「'+esc(t.label)+'」('+jd(t.date)+'ごろ)は休み中ですが、作物は休まず育ちます。観察できる人を決めておこう。'});return}
+    if(Math.abs(t.moved)>=7)out.push({lv:'warn',html:'⚠ 「'+esc(t.label)+'」は休みと重なるため <b>'+Math.abs(t.moved)+'日'+(t.moved>0?'あと':'まえ')+'</b>('+jd(t.date)+')に動かしました。ずれが大きいので、休み中の当番を決める・作物や時期を見直すなどを考えよう。'})});
+  var f=FAM[p.prev];
+  if(p.prev&&p.prev===c.fam&&f){
+    if(c.fam==='ine')out.push({lv:'info',html:'ℹ 水田のイネは、続けて同じ場所で育てやすい(連作しやすい)作物です。バケツなら、毎年土を入れかえるとよい。'});
+    else out.push({lv:'warn',html:'⚠ 前に同じ<b>'+f.name.split('(')[0]+'</b>を育てた場所です。連作障害(病気や生育不良)が起きやすくなります。'+(f.years?'目安として'+f.years+'はあけるか、土を入れかえよう。':'')})}
+  if(p.plot){S.plans.forEach(function(q){if(q===p||q.id===p.id||!q.plot||q.plot!==p.plot||(isDraft&&q.cropId===p.cropId&&q.startCalc===p.startCalc&&q.region===p.region))return;
+    var ov=!(planEnd(q)<planStart(p)||planEnd(p)<planStart(q));
+    if(ov)out.push({lv:'warn',html:'⚠ 同じ区画「'+esc(p.plot)+'」に'+cropPlain(q.cropId)+'の計画があり、期間が重なっています('+md(planStart(q))+'〜'+md(planEnd(q))+')。'});
+    else if(CROP[q.cropId].fam===c.fam&&c.fam!=='ine')out.push({lv:'warn',html:'⚠ 同じ区画「'+esc(p.plot)+'」で同じ科('+FAM[c.fam].name.split('(')[0]+')の'+cropPlain(q.cropId)+'も育てる計画です。連作にならないか確認しよう。'})})}
+  return out}
+function msgHtml(ws,withFix){return ws.map(function(w){return '<div class="b4-msg b4-'+w.lv+'">'+w.html+
+  (w.fix&&withFix?' <button type="button" class="b4-btn b4-small" data-act="fixwin">適期に合わせる</button>':'')+
+  (w.early&&withFix?' <button type="button" class="b4-btn b4-small" data-act="early" data-v="'+w.early+'">間に合うように早める</button>':'')+'</div>'}).join('')}
+
+/* ---------- ふりがな・文字サイズ(K1・K2・K3) ---------- */
+var btnRuby=root.querySelector('#b4-ruby'),btnDec=root.querySelector('#b4-dec'),btnInc=root.querySelector('#b4-inc');
+var FSMIN=14,FSMAX=26;
+function clampFs(n){return window.kzPrefs?kzPrefs.clampFs(n):Math.max(FSMIN,Math.min(FSMAX,Math.round((+n||18)/2)*2))}
+function applyPrefs(){root.classList.toggle('b4-noruby',!S.set.ruby);root.classList.toggle('b4-big',S.set.fs>=24);root.style.setProperty('--b4-fs',S.set.fs+'px');
+  btnRuby.setAttribute('aria-pressed',S.set.ruby?'true':'false');btnDec.disabled=S.set.fs<=FSMIN;btnInc.disabled=S.set.fs>=FSMAX}
+function setPrefs(o){if(o.ruby!==undefined)S.set.ruby=!!o.ruby;if(o.fs!==undefined)S.set.fs=clampFs(o.fs);save();applyPrefs();
+  if(window.kzPrefs)kzPrefs.set(o.fs!==undefined?{fs:S.set.fs}:{ruby:S.set.ruby})}
+function initPrefs(){S.set.fs=clampFs(S.set.fs);S.set.ruby=S.set.ruby!==false;
+  if(window.kzPrefs){var p=kzPrefs.get();if(p.ruby!==null&&p.ruby!==undefined)S.set.ruby=p.ruby;if(p.fs!==null&&p.fs!==undefined)S.set.fs=clampFs(p.fs)}}
+btnRuby.addEventListener('click',function(){setPrefs({ruby:!S.set.ruby})});
+btnDec.addEventListener('click',function(){setPrefs({fs:S.set.fs-2})});
+btnInc.addEventListener('click',function(){setPrefs({fs:S.set.fs+2})});
+if(window.kzPrefs)kzPrefs.on(function(p){var ch=false;
+  if(p.ruby===true||p.ruby===false){if(S.set.ruby!==p.ruby){S.set.ruby=p.ruby;ch=true}}
+  if(typeof p.fs==='number'){var f=clampFs(p.fs);if(S.set.fs!==f){S.set.fs=f;ch=true}}
+  if(ch){save();applyPrefs()}});
+
+/* ---------- 描画 ---------- */
+var TABS=['crop','plan','cal','eval','refl'];
+function render(){
+  applyPrefs();
+  if(TABS.indexOf(S.set.tab)<0)S.set.tab='crop';
+  root.querySelectorAll('.b4-tabs [data-t]').forEach(function(b){b.setAttribute('aria-selected',b.getAttribute('data-t')===S.set.tab?'true':'false')});
+  ({crop:rCrop,plan:rPlan,cal:rCal,eval:rEval,refl:rRefl})[S.set.tab]();
+}
+function nav(prev,next){return '<div class="b4-bottomnav b4-noprint">'+(prev?'<button type="button" class="b4-btn" data-act="tab" data-t="'+prev[0]+'">◀ '+prev[1]+'</button>':'<span></span>')+
+  (next?'<button type="button" class="b4-btn b4-primary" data-act="tab" data-t="'+next[0]+'">'+next[1]+' ▶</button>':'')+'</div>'}
+function obsTag(t){return t.kind==='obs'?'<span class="b4-obs">観察</span>':''}
+function whenText(c,t){return t.off<0?(-t.off)+'日前':t.off===0?c.start+'の日':t.off+'日目ごろ'}
+
+function flowList(cid,region){var c=CROP[cid];return '<ol class="b4-flow">'+cropTasks(cid,region,1).map(function(t){
+  return '<li class="'+(t.k==='prep'?'b4-prep':'')+'"><span class="b4-when">'+whenText(c,t)+'</span><span class="b4-what">'+ICON[t.k]+' '+esc(t.label)+obsTag(t)+gq(t.label)+'</span></li>'}).join('')+'</ol>'}
+
+function rCrop(){var c=CROP[S.cropId],reg=S.draft.region,hasAutumn=c.win.some(function(w){return +w[0].slice(0,2)>=7});
+  fill(main,'<h2>① 育てる作物をえらぼう</h2>'+
+  '<p class="b4-lead">このアプリでは、<b>「いつ収穫したいか」から逆算</b>して、種まきや手入れの日を決める栽培計画(栽培暦)をつくります。①→⑤の順に進もう。まずは作物をタップしてえらんでね。</p>'+
+  '<div class="b4-crops">'+ORDER.map(function(id){var k=CROP[id];return '<button type="button" class="b4-crop" data-act="crop" data-id="'+id+'" aria-pressed="'+(id===S.cropId)+'">'+badge(k)+
+    '<span><b>'+cropName(id)+'</b><small>'+k.how+'</small><small>収穫まで 約'+hOff(id,'mid',1)+'日</small></span></button>'}).join('')+'</div>'+
+  '<div class="b4-grid2"><div class="b4-card"><div class="b4-row">'+badge(c,true)+'<h3 style="margin:0">'+cropName(S.cropId)+'</h3></div>'+
+  '<p><b>育て方:</b>'+c.how+'<br><b>'+c.start+'の適期(目安):</b>'+winText(c,reg)+'<span class="b4-muted">('+REG[reg].name+')</span><br><b>科:</b>'+FAM[c.fam].name.split('(')[0]+'</p>'+
+  (c.noteReg&&c.noteReg[reg]?'<div class="b4-msg b4-info">ℹ '+c.noteReg[reg]+'</div>':'')+
+  '<p><b>ポイント:</b>'+c.tip+'</p><p><b>組み合わせ・連作:</b>'+c.comp+(FAM[c.fam].years?'同じ科の作物を同じ場所で続けて育てるときは、'+FAM[c.fam].years+'あけるのが目安。':'')+'</p></div>'+
+  '<div class="b4-card"><h3 style="margin-top:0">作業の流れ(目安・'+REG[reg].name+')</h3>'+flowList(S.cropId,reg)+
+  '<p class="b4-muted">※「観察」の印は、人が決める作業ではなく、作物が自然に育って起こること(発芽・開花など)です。休みでも動きません。<br>※「?」をタップすると、ことばの説明が出ます。</p>'+
+  (hasAutumn?'<p class="b4-muted">※秋おそく(10月ごろから)にまくと、気温が低いので育つのに時間がかかります(計画では日数を約1.3倍にします)。</p>':'')+
+  '<p class="b4-muted">※日数は目安です。天気・品種・育てる場所で変わります。実際の育ち方を見て計画を直すことが大切です。</p></div></div>'+
+  nav(null,['plan','この作物で計画をつくる']));
+}
+
+function ensureDraftDates(){var d=S.draft,cid=S.cropId,c=CROP[cid];
+  if(!isDate(d.start)&&!isDate(d.harvest)){d.start=nextWinStart(c,d.region,today())||today();d.harvest=add(d.start,hOff(cid,d.region,slowFac(cid,d.region,d.start)))}
+  else if(!isDate(d.start)&&d.mode==='start'&&d.start!==''){d.start=add(d.harvest,-hOff(cid,d.region,1))}
+  else if(!isDate(d.harvest)&&d.mode==='harvest'&&d.harvest!==''){d.harvest=add(d.start,hOff(cid,d.region,1))}}
+function holHtml(){
+  return (S.hol.length?S.hol.map(function(h,i){return '<div class="b4-hol-item"><input type="text" class="b4-hn" aria-label="休みの名前" data-hol="l" data-i="'+i+'" value="'+esc(h.l)+'" placeholder="例:夏休み">'+
+    '<label class="b4-check"><input type="checkbox" data-act="holrep" data-i="'+i+'"'+(h.rep?' checked':'')+'> 毎年</label><button type="button" class="b4-btn b4-small b4-danger b4-hdel" data-act="holdel" data-i="'+i+'" aria-label="この休みを消す">消す</button>'+
+    '<span class="b4-dates"><input type="date" aria-label="はじまり" data-hol="s" data-i="'+i+'" value="'+esc(h.s)+'">〜<input type="date" aria-label="おわり" data-hol="e" data-i="'+i+'" value="'+esc(h.e)+'"></span>'+
+    (h.draft?'<p class="b4-msg b4-info b4-hmsg">ℹ はじまりとおわりの日付を入れてください(入れるまでは計画に反映しません)。</p>':'')+
+    (isDate(h.s)&&isDate(h.e)&&h.e<h.s?'<p class="b4-msg b4-bad b4-hmsg">おわりの日が、はじまりの日より前になっています。</p>':'')+'</div>'}).join(''):'<p class="b4-muted">まだ休業日は入っていません。</p>')+
+  '<div class="b4-row" style="margin-top:.4em">'+PRESETS.map(function(p,i){return '<button type="button" class="b4-chipbtn" data-act="holpre" data-i="'+i+'">＋'+p[0]+'</button>'}).join('')+
+  '<button type="button" class="b4-chipbtn" data-act="holadd">＋自分で入力</button></div>'}
+var regionNote='', lastSavedSig='';
+function draftSig(){var d=S.draft;return JSON.stringify([S.cropId,d.region,d.mode,d.mode==='harvest'?d.harvest:d.start,d.plot,d.prev,d.early||0,S.hol,S.set.wk])}
+function rPlan(){ensureDraftDates();var d=S.draft,c=CROP[S.cropId];
+  fill(main,'<h2>② '+cropName(S.cropId)+'の栽培計画をつくろう</h2>'+
+  '<p class="b4-lead">地域・収穫したい日・休みの日を入れると、作業日が自動で計算されます。入れかえると「計画の下書き」(横向きの画面では右、縦向きでは下と、画面の下の要約バー)がすぐ変わるので、いろいろためしてみよう。<button type="button" class="b4-btn b4-small" data-act="tab" data-t="crop">作物を変える</button></p>'+
+  '<div class="b4-grid2"><div>'+
+   '<div class="b4-card"><h3 style="margin-top:0">1. 地域(気温のちがい)</h3><div class="b4-seg">'+Object.keys(REG).map(function(k){return '<button type="button" data-act="region" data-v="'+k+'" aria-pressed="'+(d.region===k)+'">'+REG[k].name+'<small>'+REG[k].ex+'</small></button>'}).join('')+'</div>'+
+   '<p class="b4-muted">寒い地域ほど適期がおそく(秋は早く)なり、育つのにも日数がかかります。収穫したい日はそのままなので、地域だけを変えてくらべてみよう。</p></div>'+
+   '<div class="b4-card"><h3 style="margin-top:0">2. 日にちの決め方</h3><div class="b4-seg">'+
+    '<button type="button" data-act="mode" data-v="harvest" aria-pressed="'+(d.mode==='harvest')+'">収穫したい日から<b>逆算</b><small>例:文化祭で使いたい</small></button>'+
+    '<button type="button" data-act="mode" data-v="start" aria-pressed="'+(d.mode==='start')+'">'+c.start+'の日から計算<small>例:始める日が決まっている</small></button></div>'+
+    '<label class="b4-field"><span>'+(d.mode==='harvest'?'収穫したい日(収穫をはじめる日)':c.start+'をする日')+'</span><input type="date" data-draft="'+(d.mode==='harvest'?'harvest':'start')+'" value="'+esc(d.mode==='harvest'?d.harvest:d.start)+'"></label></div>'+
+   '<div class="b4-card"><h3 style="margin-top:0">3. 休業日(作業できない日)</h3>'+
+    '<label class="b4-check"><input type="checkbox" data-act="wk"'+(S.set.wk?' checked':'')+'> 土曜・日曜は作業しない</label>'+
+    '<div id="b4-hol">'+holHtml()+'</div><p class="b4-muted">休みと重なった人の作業は、いちばん近い登校日に動きます。収穫は早めず、休み明けに動きます。発芽・開花などの「観察」は自然に進むので動きません。「毎年」にチェックすると、どの年の計画にも同じ日付で入ります。休業日はすべての計画で共通です。</p></div>'+
+   '<div class="b4-card"><h3 style="margin-top:0">4. 育てる場所</h3>'+
+    '<label class="b4-field"><span>畑の区画・プランター名(なくてもよい)</span><input type="text" data-draft="plot" value="'+esc(d.plot)+'" placeholder="例:A区画、2班のプランター"></label>'+
+    '<label class="b4-field"><span>その場所で前に育てた作物</span><select data-draft="prev">'+Object.keys(FAM).map(function(k){return '<option value="'+k+'"'+(d.prev===k?' selected':'')+'>'+FAM[k].name+'</option>'}).join('')+'</select></label></div>'+
+  '</div><div><div class="b4-card" id="b4-preview"></div></div></div>'+
+  '<div class="b4-sumbar b4-noprint" id="b4-sumbar"></div>'+
+  '<div class="b4-card"><h3 style="margin-top:0">保存した計画('+S.plans.length+')</h3>'+plansHtml()+'</div>'+
+  nav(['crop','作物をえらぶ'],['cal','カレンダーで見る']));
+  rPreview();
+}
+function saveBtn(){var same=lastSavedSig&&lastSavedSig===draftSig();
+  return '<button type="button" class="b4-btn b4-primary" data-act="saveplan"'+(same?' disabled':'')+'>'+(same?'保存ずみ ✓':'この計画を保存する')+'</button>'}
+function rPreview(){var box=$('#b4-preview'),bar=$('#b4-sumbar');if(!box)return;var d=S.draft,c=CROP[S.cropId];
+  var v=d.mode==='harvest'?d.harvest:d.start;
+  if(!isDate(v)){fill(box,'<h3 style="margin-top:0">計画の下書き</h3><div class="b4-msg b4-bad">日にちを入れてください。</div>');
+    if(bar)fill(bar,'<span class="b4-sumtxt">日にちを入れてください。</span>');return}
+  var p=buildPlan(d,S.cropId),ws=warnings(p,true),h=hTask(p),a=aTask(p),nb=ws.filter(function(w){return w.lv==='bad'||w.lv==='warn'}).length;
+  var tg='';
+  if(d.mode==='harvest'){var g=diff(h.date,d.harvest);tg=g===0?'(目標どおり)':g<0?'(目標より'+(-g)+'日早い)':'(目標より'+g+'日おそい)'}
+  fill(box,'<h3 style="margin-top:0">計画の下書き(まだ保存していません)</h3>'+
+   (regionNote?'<div class="b4-msg b4-info">'+regionNote+'</div>':'')+
+   '<div class="b4-msg b4-ok">'+(d.mode==='harvest'?'収穫したい日 '+jd(d.harvest)+' から、育つ日数(約'+diff(h.ideal,a.ideal)+'日)をさかのぼって計算しました。<br>':'')+
+   '<b>'+c.start+':'+jdy(a.date)+'</b><br><b>収穫:'+jdy(h.date)+'</b>'+(tg?' <span class="b4-muted">'+tg+'</span>':'')+'</div>'+
+   msgHtml(ws,true)+timeline(p,false)+
+   '<div class="b4-row" style="margin-top:.6em">'+saveBtn()+'</div>');
+  if(bar)fill(bar,'<span class="b4-sumtxt"><b>'+c.start+' '+md(a.date)+'</b> → <b>収穫 '+md(h.date)+'</b>'+(nb?' <span class="b4-late">⚠ 注意'+nb+'件</span>':'')+'</span>'+
+    '<button type="button" class="b4-btn b4-small" data-act="toprev">くわしく見る</button>'+saveBtn());
+}
+function timeline(p,showDone){var c=CROP[p.cropId];return '<ol class="b4-flow">'+p.tasks.map(function(t){
+  var note='';if(t.moved&&t.kind!=='obs')note='<span class="b4-note">↪ 休みのため '+md(t.base)+' → '+md(t.date)+' に移動</span>';
+  return '<li class="'+(showDone&&t.done?'b4-done':'')+(t.k==='prep'?' b4-prep':'')+'"><span class="b4-when">'+md(t.date)+(t.kind==='obs'?'ごろ':'')+'</span><span class="b4-what">'+ICON[t.k]+' '+esc(t.label)+obsTag(t)+(showDone&&t.done?' ✅':'')+note+'</span></li>'}).join('')+'</ol>'}
+function plansHtml(){if(!S.plans.length)return '<p class="b4-muted">まだありません。上で計画をつくって「この計画を保存する」を押そう。いくつでも保存できます(例:春と秋、ちがう作物)。</p>';
+  return '<div class="b4-plans">'+S.plans.map(function(p){var done=p.tasks.filter(function(t){return t.done}).length;
+    return '<div class="b4-plan'+(p.id===S.cur?' b4-cur':'')+'" style="border-left-color:'+planColor(p)+'"><div class="b4-row">'+badge(CROP[p.cropId])+'<b>'+cropName(p.cropId)+'</b>'+(p.id===S.cur?'<span class="b4-muted">(えらんでいる計画)</span>':'')+'</div>'+
+    '<div class="b4-muted">'+REG[p.region].name+(p.plot?'・'+esc(p.plot):'')+'</div><div>'+CROP[p.cropId].start+' '+md(sowDate(p))+' 〜 収穫 '+md(effDate(hTask(p)))+'</div><div class="b4-muted">作業 '+done+'/'+p.tasks.length+' 完了</div>'+
+    '<div class="b4-row"><button type="button" class="b4-btn b4-small" data-act="opencal" data-id="'+p.id+'">カレンダー</button><button type="button" class="b4-btn b4-small" data-act="openeval" data-id="'+p.id+'">記録・評価</button><button type="button" class="b4-btn b4-small b4-danger" data-act="delplan" data-id="'+p.id+'">削除</button></div></div>'}).join('')+'</div>'}
+
+/* カレンダー */
+function events(){var ev={};S.plans.forEach(function(p){if(S.cal.filter!=='all'&&S.cal.filter!==p.id)return;
+  p.tasks.forEach(function(t){var d=effDate(t);(ev[d]=ev[d]||[]).push({p:p,t:t})})});return ev}
+function evHtml(e,full){var multi=visiblePlans().length>1,obs=e.t.kind==='obs';
+  return '<span class="b4-ev'+(e.t.done?' b4-evdone':'')+(obs?' b4-evobs':'')+'" style="border-left-color:'+planColor(e.p)+'">'+
+    (multi?'<b class="b4-evk kz-norb" style="background:'+planColor(e.p)+'">'+CROP[e.p.cropId].kana+'</b>':'')+ICON[e.t.k]+
+    (full?(multi?cropPlain(e.p.cropId)+' ':'')+esc(e.t.label):esc(shortOf(e.p.cropId,e.t)))+(obs?'ごろ':'')+'</span>'}
+function firstTaskIn(y,m){var ev=events(),ks=Object.keys(ev).sort(),pre=y+'-'+pad(m)+'-';for(var i=0;i<ks.length;i++)if(ks[i].indexOf(pre)===0)return ks[i];return ''}
+function rCal(){
+  if(!isDate(S.cal.anchor)){var p0=curPlan();var tdy=today();
+    S.cal.anchor=(p0&&(tdy<planStart(p0)||tdy>planEnd(p0)))?(p0.tasks.filter(function(t){return !t.done})[0]||p0.tasks[0]).date:tdy}
+  if(S.cal.filter!=='all'&&!planById(S.cal.filter))S.cal.filter='all';
+  var a=S.cal.anchor,ev=events(),tdy=today(),title,body='';
+  if(S.cal.view==='month'){var y=+a.slice(0,4),m=+a.slice(5,7),first=y+'-'+pad(m)+'-01',st=add(first,-dow(first));
+    title=y+'年'+m+'月';
+    body='<div class="b4-month" role="grid">'+WD.map(function(w,i){return '<div class="b4-dow'+(i===0?' b4-sun':i===6?' b4-sat':'')+'">'+w+'</div>'}).join('');
+    for(var i=0;i<42;i++){var d=add(st,i);if(i===35&&+d.slice(5,7)!==m)break;var h=holOf(d),list=ev[d]||[];
+      body+='<button type="button" class="b4-day'+(+d.slice(5,7)!==m?' b4-out':'')+(h?' b4-holday':'')+(d===tdy?' b4-today':'')+(d===S.cal.sel?' b4-sel':'')+(dow(d)===0?' b4-sun':dow(d)===6?' b4-sat':'')+'" data-act="day" data-d="'+d+'" aria-label="'+jd(d)+(h?' '+esc(h.l||'休み'):'')+' 作業'+list.length+'件">'+
+        '<span class="b4-dnum">'+(+d.slice(8))+'</span>'+(h?'<span class="b4-hl">休 '+esc((h.l||'').slice(0,5))+'</span>':'')+
+        list.slice(0,3).map(function(e){return evHtml(e,false)}).join('')+(list.length>3?'<span class="b4-more">ほか'+(list.length-3)+'件</span>':'')+'</button>'}
+    body+='</div>';
+  }else{var ws=add(a,-dow(a));title=md(ws)+'〜'+md(add(ws,6));
+    body='<div class="b4-week">';for(var j=0;j<7;j++){var dd=add(ws,j),hh=holOf(dd),ls=ev[dd]||[];
+      body+='<button type="button" class="b4-wday'+(hh?' b4-holday':'')+(dd===tdy?' b4-today':'')+(dd===S.cal.sel?' b4-sel':'')+'" data-act="day" data-d="'+dd+'"><span><b style="color:'+(dow(dd)===0?'#c62828':dow(dd)===6?'#1565c0':'inherit')+'">'+md(dd)+'</b>'+(hh?'<br><span class="b4-hl">休み:'+esc(hh.l||'')+'</span>':'')+'</span><span>'+(ls.length?ls.map(function(e){return evHtml(e,true)}).join(''):'<span class="b4-muted">作業なし</span>')+'</span></button>'}
+    body+='</div>'}
+  fill(main,'<h2>③ カレンダー(栽培暦)</h2>'+
+   (S.plans.length?'':'<div class="b4-msg b4-info">まだ計画がありません。②で計画をつくって保存すると、ここに作業が表示されます。</div>')+
+   '<p class="b4-lead">日にちをタップすると、その日の作業が下に出ます。作業が終わったら「できた!」を押して記録しよう。点線のわくは「観察」(発芽・開花など、自然に起こること)です。</p>'+
+   '<div class="b4-calbar b4-noprint"><div class="b4-seg" style="flex:0 0 auto"><button type="button" data-act="cview" data-v="month" aria-pressed="'+(S.cal.view==='month')+'" style="flex:0 0 auto">月</button><button type="button" data-act="cview" data-v="week" aria-pressed="'+(S.cal.view==='week')+'" style="flex:0 0 auto">週</button></div>'+
+   '<button type="button" class="b4-btn" data-act="cmove" data-v="-1" aria-label="前へ">◀</button><span class="b4-title">'+title+'</span><button type="button" class="b4-btn" data-act="cmove" data-v="1" aria-label="次へ">▶</button>'+
+   '<button type="button" class="b4-btn b4-small" data-act="ctoday">今日</button>'+
+   '<select data-act="cfilter" aria-label="表示する計画"><option value="all">すべての計画</option>'+S.plans.map(function(p){return '<option value="'+p.id+'"'+(S.cal.filter===p.id?' selected':'')+'>'+cropPlain(p.cropId)+'('+md(sowDate(p))+'〜)</option>'}).join('')+'</select></div>'+
+   body+
+   '<div class="b4-legend">'+S.plans.map(function(p){return '<span><i class="b4-sw" style="background:'+planColor(p)+'"></i>'+cropPlain(p.cropId)+'</span>'}).join('')+
+   '<span><i class="b4-sw" style="background:repeating-linear-gradient(135deg,#eef0f6 0 4px,#fff 4px 8px)"></i>しま模様=休業日</span><span><i class="b4-sw" style="box-shadow:inset 0 0 0 3px #f9a825"></i>今日</span><span><i class="b4-sw" style="border:1.5px dashed #7986cb"></i>点線=観察(〜ごろ)</span><span>線つき=完了</span></div>'+
+   '<div class="b4-card b4-daypanel" id="b4-daypanel">'+dayPanel()+'</div>'+
+   '<div class="b4-card b4-noprint"><h3 style="margin-top:0">書き出し</h3><div class="b4-row">'+
+   '<button type="button" class="b4-btn" data-act="csv"'+(S.plans.length?'':' disabled')+'>CSV(表計算用)</button><button type="button" class="b4-btn" data-act="ics"'+(S.plans.length?'':' disabled')+'>ICS(カレンダーアプリ用)</button></div>'+
+   '<p class="b4-muted">「すべての計画/えらんだ計画」の表示中のものを書き出します。ICSはカレンダーアプリに読みこめます。</p></div>'+
+   nav(['plan','計画をつくる'],['eval','記録と評価']));
+}
+function dayPanel(){var d=S.cal.sel;if(!isDate(d))return '<p class="b4-muted" style="margin:0">日にちをタップしてください。</p>';
+  var list=events()[d]||[],h=holOf(d);
+  return '<h3 style="margin-top:0">'+jdy(d)+(h?'(休み:'+esc(h.l||'')+')':'')+'</h3>'+(list.length?list.map(function(e){var obs=e.t.kind==='obs';
+    return '<div class="b4-task" style="border-left-color:'+planColor(e.p)+'"><span>'+badge(CROP[e.p.cropId])+' <b>'+cropName(e.p.cropId)+'</b>:'+ICON[e.t.k]+' '+esc(e.t.label)+(obs?'ごろ'+obsTag(e.t):'')+gq(e.t.label)+(e.t.done?'<br><span class="b4-ontime">✅ '+(obs?'観察できた':'完了')+'('+md(e.t.actual)+')</span>':'')+'</span>'+
+    '<button type="button" class="b4-btn '+(e.t.done?'':'b4-primary')+'" data-act="toggle" data-id="'+e.p.id+'" data-t="'+e.t.id+'">'+(e.t.done?'取り消す':obs?'観察できた!':'できた!')+'</button></div>'}).join(''):'<p class="b4-muted">この日の作業はありません。</p>')}
+function markDone(p,t){t.done=true;t.actual=today()}
+function unmark(p,t){t.done=false;t.actual='';layout(p)}
+/* 完了にする前の確認(B4-02・25) */
+function tryDone(p,t,after){var tdy=today(),msgs=[],idx=p.tasks.indexOf(t);
+  if(t.date>tdy)msgs.push('「'+t.label+'」の予定日('+jd(t.date)+')は、まだ先です。\n今日('+jd(tdy)+')に'+(t.kind==='obs'?'観察できた':'やった')+'ことにしますか?');
+  var before=p.tasks.filter(function(x,i){return i<idx&&!x.done&&x.kind!=='obs'});
+  if(before.length)msgs.push('この前の作業「'+before.slice(0,3).map(function(x){return x.label}).join('」「')+'」'+(before.length>3?'など':'')+'が、まだ完了になっていません。順番がちがっていないか確かめよう。');
+  function go(){markDone(p,t);save();after(true)}
+  if(!msgs.length){go();return}
+  kzConfirm(msgs.join('\n\n'),{ok:'完了にする',cancel:'やめる'}).then(function(ok){if(ok)go();else after(false)})}
+
+/* 記録と評価 */
+function gap(t){if(!t.done||!isDate(t.actual)||!isDate(t.orig))return '<span class="b4-muted">−</span>';var g=diff(t.actual,t.orig);
+  return g>0?'<span class="b4-late">'+g+'日おくれ</span>':g<0?'<span class="b4-early">'+(-g)+'日早い</span>':'<span class="b4-ontime">予定どおり</span>'}
+function rEval(){var p=curPlan();if(!p&&S.plans.length){p=S.plans[0];S.cur=p.id}
+  var head='<h2>④ 記録と評価</h2><p class="b4-lead">実際に作業した日を記録し、<b>計画とのずれ</b>をくらべます。育ちがおくれたときは「再計算」で残りの作業日を直そう。最後に原因と改善案を書きます。</p>';
+  var resetCard='<div class="b4-card b4-noprint"><h3 style="margin-top:0">書き出し・バックアップ</h3>'+(p?'<div class="b4-row">'+
+  '<button type="button" class="b4-btn" data-act="csv1">この計画をCSVで書き出す</button><button type="button" class="b4-btn" data-act="ics1">この計画をICSで書き出す</button></div>':'')+
+  '<div class="b4-row" style="margin-top:.5em"><button type="button" class="b4-btn" data-act="backup">バックアップを書き出す</button><button type="button" class="b4-btn" data-act="restore">バックアップを読みこむ</button></div>'+
+  '<p class="b4-muted">端末を変えるときや、データが消えたときのために、バックアップ(JSONファイル)をとっておこう。</p>'+
+  '<div class="b4-row"><button type="button" class="b4-btn b4-danger" data-act="resetall">すべてのデータを消して最初から</button></div></div>';
+  if(!p){fill(main,head+'<div class="b4-msg b4-info">まだ計画がありません。②で計画をつくって保存してください。</div>'+resetCard+nav(['cal','カレンダー'],['refl','振り返り']));return}
+  var done=p.tasks.filter(function(t){return t.done}),late=done.filter(function(t){return isDate(t.actual)&&diff(t.actual,t.orig)>0}),early=done.filter(function(t){return isDate(t.actual)&&diff(t.actual,t.orig)<0});
+  var maxg=0;done.forEach(function(t){if(isDate(t.actual)){var g=Math.abs(diff(t.actual,t.orig));if(g>maxg)maxg=g}});
+  fill(main,head+
+  '<div class="b4-card"><label class="b4-field"><span>計画をえらぶ</span><select data-act="evsel">'+S.plans.map(function(q){return '<option value="'+q.id+'"'+(q.id===p.id?' selected':'')+'>'+cropPlain(q.cropId)+'('+REG[q.region].name+'・'+md(sowDate(q))+'〜'+(q.plot?'・'+esc(q.plot):'')+')</option>'}).join('')+'</select></label>'+
+  msgHtml(warnings(p,false).filter(function(w){return w.lv!=='info'}),false)+
+  '<div class="b4-tablewrap"><table class="b4-tbl"><thead><tr><th>完了</th><th>作業</th><th>最初の予定</th><th>今の予定</th><th>実際にした日</th><th>最初の予定とのずれ</th></tr></thead><tbody>'+
+  p.tasks.map(function(t){var obs=t.kind==='obs';return '<tr class="'+(t.done?'b4-done':obs?'b4-trobs':'')+'"><td><label class="b4-cbx"><input type="checkbox" data-act="evdone" data-t="'+t.id+'"'+(t.done?' checked':'')+' aria-label="'+esc(t.label)+'を完了にする"></label></td>'+
+    '<td>'+ICON[t.k]+' '+esc(t.label)+obsTag(t)+gq(t.label)+'</td><td>'+(isDate(t.orig)?md(t.orig)+(obs?'ごろ':''):'−')+'</td><td>'+(t.done?'−':md(t.date)+(obs?'ごろ':'')+(t.date!==t.orig?' <span class="b4-muted">(変更)</span>':''))+'</td>'+
+    '<td>'+(t.done?'<input type="date" data-act="evact" data-t="'+t.id+'" value="'+esc(t.actual)+'" aria-label="実際にした日">':'<span class="b4-muted">完了にすると入力</span>')+'</td><td>'+gap(t)+'</td></tr>'}).join('')+
+  '</tbody></table></div>'+
+  '<p class="b4-muted">「観察」は、発芽・開花など作物が自然に進むことです。見られた日を記録しよう。予定より先の作業を完了にするときは、確認が出ます。</p>'+
+  '<h3>育ちがおくれた・早まったとき</h3><div class="b4-row"><button type="button" class="b4-btn b4-primary" data-act="recalc">実際の日に合わせて残りを再計算</button>'+
+  (p.undo?'<button type="button" class="b4-btn" data-act="undo">↩ 元に戻す('+esc(p.undo.label)+'の前へ)</button>':'')+'</div>'+
+  '<p class="b4-muted">最後に完了した作業の「実際にした日」が「今の予定」とずれた分だけ、まだの作業をずらします(表の「ずれ」は最初の予定とくらべた日数です)。</p>'+
+  '<div class="b4-row"><span>まだの作業を</span><span class="b4-stepper"><button type="button" class="b4-btn b4-small" data-act="shn" data-v="-1" aria-label="1日へらす">−</button><input type="number" id="b4-shift" value="3" min="-60" max="60" inputmode="numeric" aria-label="ずらす日数"><button type="button" class="b4-btn b4-small" data-act="shn" data-v="1" aria-label="1日ふやす">＋</button></span><span>日</span><button type="button" class="b4-btn" data-act="shift">ずらす</button></div>'+
+  '<p class="b4-muted">例:天気が悪くて育ちがおそい → ＋の日数。マイナスにすると早めます。</p></div>'+
+  '<div class="b4-card"><h3 style="margin-top:0">計画の評価</h3>'+
+  '<div class="b4-msg b4-info">完了した作業:'+done.length+'/'+p.tasks.length+'<br>予定よりおくれた作業:'+late.length+'、早かった作業:'+early.length+(done.length?'、いちばん大きなずれ:'+maxg+'日':'')+'</div>'+
+  '<label class="b4-field"><span>計画と実際のずれ・育ちのようす</span><textarea data-ev="result" placeholder="例:間引きが予定より3日おくれた。発芽がそろわなかった。">'+esc(p.ev.result)+'</textarea></label>'+
+  '<label class="b4-field"><span>ずれの原因(天気・気温・作業の都合・休みなど)</span><textarea data-ev="cause" placeholder="例:雨の日が続いて気温が低く、発芽がおそかった。">'+esc(p.ev.cause)+'</textarea></label>'+
+  '<label class="b4-field"><span>次に計画を立てるときの改善案</span><textarea data-ev="improve" placeholder="例:種まきを1週間早める。休み中の水やり当番を決めておく。">'+esc(p.ev.improve)+'</textarea></label>'+
+  '<p class="b4-muted">入力すると自動で保存されます。</p></div>'+
+  resetCard+nav(['cal','カレンダー'],['refl','振り返り']));
+}
+function snap(p){return JSON.stringify({ideal:p.tasks.map(function(t){return t.ideal}),lastRef:p.lastRef||'',startShift:p.startShift||0})}
+function pushUndo(p,label){p.undo={s:snap(p),label:label}}
+function undo(p){if(!p.undo)return;var o;try{o=JSON.parse(p.undo.s)}catch(e){p.undo=null;return}
+  o.ideal.forEach(function(v,i){if(p.tasks[i]&&isDate(v))p.tasks[i].ideal=v});p.lastRef=o.lastRef;p.startShift=o.startShift;p.undo=null;layout(p);save();rEval();toast('元に戻しました')}
+function recalc(p){var ref=null,ri=-1;p.tasks.forEach(function(t,i){if(t.done&&isDate(t.actual)&&i>ri){ref=t;ri=i}});
+  if(!ref){toast('まず、完了した作業と「実際にした日」を記録してください');return}
+  var key=ref.id+'@'+ref.actual+'@'+ref.date;if(p.lastRef===key){toast('この記録はもう反映ずみです');return}
+  var dl=diff(ref.actual,ref.date),n=0;
+  if(dl===0){p.lastRef=key;toast('「'+ref.label+'」は今の予定どおりなので、変更はありません');save();return}
+  pushUndo(p,'再計算');
+  p.tasks.forEach(function(t,i){if(!t.done&&i>ri){t.ideal=add(t.ideal,dl);n++}});
+  p.lastRef=key;layout(p);save();rEval();
+  toast(n?'「'+ref.label+'」が今の予定('+md(ref.date)+')より'+Math.abs(dl)+'日'+(dl>0?'おそかった':'早かった')+'ので、残り'+n+'件の作業をずらしました':'ずらす作業は残っていません',4000)}
+function shiftRest(p,n){var c=p.tasks.filter(function(t){return !t.done}).length;
+  if(!c){toast('まだの作業がありません');return}pushUndo(p,'ずらす');p.tasks.forEach(function(t){if(!t.done)t.ideal=add(t.ideal,n)});
+  layout(p);save();rEval();toast('まだの作業'+c+'件を'+Math.abs(n)+'日'+(n>0?'おくらせ':'早め')+'ました')}
+
+/* 書き出し(ふりがなが入らないよう plain にする) */
+function csv(plans){var rows=[['作物','地域','区画','作業','種類','最初の予定日','今の予定日','実際にした日','ずれ(日)','完了']];
+  plans.forEach(function(p){p.tasks.forEach(function(t){rows.push([cropPlain(p.cropId),REG[p.region].name,p.plot,plain(t.label),t.kind==='obs'?'観察(〜ごろ)':'作業',t.orig,t.done?'':t.date,t.actual,t.done&&isDate(t.actual)&&isDate(t.orig)?diff(t.actual,t.orig):'',t.done?'済':''])})});
+  return '\ufeff'+rows.map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')}).join('\r\n')}
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n')}
+function fold(line){var enc=window.TextEncoder?new TextEncoder():null;if(!enc)return line;var out=[],cur='',n=0;
+  for(var ch of line){var b=enc.encode(ch).length;if(n+b>(out.length?74:75)){out.push(cur);cur='';n=0}cur+=ch;n+=b}out.push(cur);return out.join('\r\n ')}
+function ics(plans){var st=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//B4 Saibai-goyomi Builder//JA','CALSCALE:GREGORIAN','X-WR-CALNAME:栽培暦'];
+  plans.forEach(function(p){p.tasks.forEach(function(t){var d=effDate(t);
+    L.push('BEGIN:VEVENT','UID:'+p.id+'-'+t.id+'@b4.local','DTSTAMP:'+st,'DTSTART;VALUE=DATE:'+d.replace(/-/g,''),'DTEND;VALUE=DATE:'+add(d,1).replace(/-/g,''),
+      fold('SUMMARY:'+icsEsc(cropPlain(p.cropId)+' '+plain(t.label)+(t.kind==='obs'&&!t.done?'ごろ(観察)':'')+(t.done?'(済)':''))),fold('DESCRIPTION:'+icsEsc('栽培暦ビルダーで作成。日にちは目安です。'+(p.plot?'区画:'+p.plot:''))),'END:VEVENT')})});
+  L.push('END:VCALENDAR');return L.join('\r\n')+'\r\n'}
+function fname(base,ext){return base+'_'+today().replace(/-/g,'')+'.'+ext}
+function visiblePlans(){return S.cal.filter==='all'?S.plans:S.plans.filter(function(p){return p.id===S.cal.filter})}
+
+/* 振り返り */
+var Q=[['q1','収穫したい日から逆算して計画を立ててみて、気づいたこと・わかったことは?'],
+  ['q2','地域(気温)や休業日を入れると、計画はどう変わった?なぜ、それらを考えて計画するとよいのだろう?'],
+  ['q3','計画と実際をくらべて、ずれとその原因、次の改善案は?(まだ育てていない場合は、予想されるずれとその対策)'],
+  ['q4','育成計画を立てる技術は、農業や社会、自分の生活でどのように役立つと思う?']];
+var SELF=[['a','作物の性質をもとに、作業日を逆算して計画を立てられた'],['b','地域・休業日・連作などの条件を考えて計画を直せた'],['c','計画と実際をくらべて、原因と改善案を考えられた']];
+var LV=[[3,'◎ よくできた'],[2,'○ できた'],[1,'△ もう少し']];
+function rRefl(){
+  fill(main,'<h2>⑤ 振り返り</h2><p class="b4-lead">この教材で学んだことを、自分の言葉で書こう。入力すると自動で保存されます。書き終わったら「テキストで書き出す」か「印刷」で提出しよう。</p>'+
+  '<div class="b4-card"><div class="b4-who"><label class="b4-field"><span>組</span><input type="text" data-r="kumi" value="'+esc(R.kumi)+'" placeholder="例:1年2組" autocomplete="off"></label>'+
+  '<label class="b4-field"><span>番号</span><input type="text" data-r="ban" value="'+esc(R.ban)+'" placeholder="例:15" inputmode="numeric" autocomplete="off"></label>'+
+  '<label class="b4-field b4-wname"><span>名前</span><input type="text" data-r="name" value="'+esc(R.name)+'" placeholder="例:山田 花子" autocomplete="off"></label></div>'+
+  '<p class="b4-muted" style="margin:.5em 0 0">つくった計画:'+(S.plans.length?S.plans.map(function(p){return cropPlain(p.cropId)+'('+md(sowDate(p))+'〜)'}).join('、'):'なし')+'</p></div>'+
+  Q.map(function(q,i){return '<div class="b4-card"><label class="b4-field"><span>'+(i+1)+'. '+q[1]+'</span><textarea data-r="'+q[0]+'" rows="4">'+esc(R[q[0]])+'</textarea></label></div>'}).join('')+
+  '<div class="b4-card"><h3 style="margin-top:0">自己評価</h3><div class="b4-self">'+SELF.map(function(s){return '<span>'+s[1]+'</span><div class="b4-seg" role="group" aria-label="'+s[1]+'">'+LV.map(function(l){return '<button type="button" data-act="self" data-k="'+s[0]+'" data-v="'+l[0]+'" aria-pressed="'+(R.self[s[0]]===l[0])+'">'+l[1]+'</button>'}).join('')+'</div>'}).join('')+'</div></div>'+
+  '<div class="b4-card b4-noprint"><div class="b4-row"><button type="button" class="b4-btn b4-primary" data-act="rsave">保存する</button><button type="button" class="b4-btn" data-act="rtxt">テキストで書き出す</button><button type="button" class="b4-btn" data-act="rcopy">コピーする</button><button type="button" class="b4-btn" data-act="rprint">印刷する</button></div>'+
+  '<p class="b4-saved" id="b4-saved" aria-live="polite">'+savedText()+'</p>'+
+  '<div class="b4-row" style="margin-top:.6em"><button type="button" class="b4-btn b4-danger" data-act="resetall">すべてのデータを消して最初から</button></div>'+
+  '<p class="b4-muted">共用のタブレットで、次の人に使ってもらう前に押そう(計画・休業日・記録・振り返りがすべて消えます)。</p></div>'+
+  nav(['eval','記録と評価'],null));
+}
+function who(){return [R.kumi,R.ban?R.ban+'番':'',R.name].filter(function(x){return x}).join(' ')}
+function reflText(){var L=['【B4 栽培暦ビルダー 振り返り】','組:'+(R.kumi||''),'番号:'+(R.ban||''),'名前:'+(R.name||''),'書き出した日:'+jdy(today()),''];
+  L.push('■ つくった計画');if(!S.plans.length)L.push('(なし)');
+  S.plans.forEach(function(p){var done=p.tasks.filter(function(t){return t.done}).length;
+    L.push('・'+cropPlain(p.cropId)+'/'+REG[p.region].name+(p.plot?'/'+p.plot:'')+'/'+CROP[p.cropId].start+' '+jdy(sowDate(p))+' → 収穫 '+jdy(effDate(hTask(p)))+'/作業完了 '+done+'/'+p.tasks.length);
+    if(p.ev.result)L.push('  ずれ・ようす:'+p.ev.result);if(p.ev.cause)L.push('  原因:'+p.ev.cause);if(p.ev.improve)L.push('  改善案:'+p.ev.improve)});
+  L.push('');Q.forEach(function(q,i){L.push('■ '+(i+1)+'. '+plain(q[1]));L.push(R[q[0]]||'(未記入)');L.push('')});
+  L.push('■ 自己評価');SELF.forEach(function(s){var l=LV.filter(function(x){return x[0]===R.self[s[0]]})[0];L.push('・'+plain(s[1])+':'+(l?l[1]:'(未選択)'))});
+  return L.join('\n')}
+
+/* ---------- イベント ---------- */
+function setDraftDate(k,v){S.draft[k]=v;S.draft.early=0;regionNote=''}
+function fixWin(){var d=S.draft,c=CROP[S.cropId],pp=buildPlan(d,S.cropId),a0=aTask(pp).date,n=nearestWin(c,d.region,a0);if(!n)return;
+  var dir=n>a0?1:-1,h=hOff(S.cropId,d.region,1);
+  for(var i=0;i<60;i++){var cand=add(n,dir*i);d.early=0;
+    if(d.mode==='harvest')d.harvest=add(cand,hOff(S.cropId,d.region,slowFac(S.cropId,d.region,cand)));else d.start=cand;
+    var q=buildPlan(d,S.cropId);if(inWin(c,d.region,aTask(q).date))break}
+  regionNote='';save();rPlan();toast('適期に合わせました')}
+root.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||!root.contains(b))return;var a=b.getAttribute('data-act'),p;
+  if(b.tagName==='SELECT'||(b.tagName==='INPUT'&&b.type!=='button'))return;
+  switch(a){
+  case 'tab':S.set.tab=b.getAttribute('data-t');save();render();window.scrollTo(0,0);break;
+  case 'crop':S.cropId=b.getAttribute('data-id');S.draft.early=0;regionNote='';save();rCrop();break;
+  case 'region':(function(){var d=S.draft,old=d.region,nv=b.getAttribute('data-v');if(old===nv)return;var v=d.mode==='harvest'?d.harvest:d.start,c=CROP[S.cropId];
+    var p1=isDate(v)?buildPlan(d,S.cropId):null;d.region=nv;d.early=0;regionNote='';
+    if(p1){var p2=buildPlan(d,S.cropId),a1=aTask(p1).date,a2=aTask(p2).date,g1=diff(hTask(p1).ideal,aTask(p1).ideal),g2=diff(hTask(p2).ideal,aTask(p2).ideal),dd=diff(a2,a1);
+      regionNote='ℹ 地域を「'+REG[old].name+'」→「'+REG[nv].name+'」に変えると:'+c.start+'の日が '+md(a1)+' → <b>'+md(a2)+'</b>('+(dd===0?'同じ日':Math.abs(dd)+'日'+(dd>0?'おそく':'早く'))+')、'+c.start+'から収穫まで 約'+g1+'日 → <b>約'+g2+'日</b>。'}
+    save();rPlan()})();break;
+  case 'mode':(function(){var d=S.draft,nv=b.getAttribute('data-v');if(d.mode===nv)return;var v=d.mode==='harvest'?d.harvest:d.start;
+    if(isDate(v)){var pp=buildPlan(d,S.cropId);if(nv==='start')d.start=aTask(pp).date;else d.harvest=hTask(pp).date}
+    d.mode=nv;d.early=0;regionNote='';save();rPlan()})();break;
+  case 'fixwin':fixWin();break;
+  case 'early':S.draft.early=Math.max(0,(+S.draft.early||0)+(+b.getAttribute('data-v')||0));save();rPreview();toast(CROP[S.cropId].start+'を'+b.getAttribute('data-v')+'日早めました');break;
+  case 'toprev':(function(){var bx=$('#b4-preview');if(bx&&bx.scrollIntoView)bx.scrollIntoView({behavior:'smooth',block:'start'})})();break;
+  case 'gloss':(function(){var w=b.getAttribute('data-w'),g=GLOSS[w];if(g)kzAlert(w+'('+g[0]+')\n\n'+g[1],{ok:'とじる'})})();break;
+  case 'holpre':(function(){var pr=PRESETS[+b.getAttribute('data-i')],d=S.draft,base=d.mode==='harvest'?d.harvest:d.start,y=+(isDate(base)?base:today()).slice(0,4);
+    var s=y+'-'+pr[1],e2=(pr[2]<pr[1]?y+1:y)+'-'+pr[2];
+    if(S.hol.some(function(h){return h.l===pr[0]&&h.rep})){toast('もう入っています');return}
+    S.hol.push({l:pr[0],s:s,e:e2,rep:true});relayoutAll();save();rPlan();toast(pr[0]+'を入れました。日にちは学校の予定に合わせて直そう',3000)})();break;
+  case 'holadd':(function(){var t=today();S.hol.push({l:'休み',s:t,e:t,rep:false,draft:true});save();rPlan();
+    var ins=main.querySelectorAll('[data-hol=s]');if(ins.length){ins[ins.length-1].focus();if(ins[ins.length-1].scrollIntoView)ins[ins.length-1].scrollIntoView({block:'center'})}toast('休みの名前と日付を入れてください',3000)})();break;
+  case 'holdel':(function(){var i=+b.getAttribute('data-i'),h=S.hol[i];if(!h)return;
+    kzConfirm('休業日「'+(h.l||'休み')+'」('+(isDate(h.s)?md(h.s):'?')+'〜'+(isDate(h.e)?md(h.e):'?')+')を消します。計画の作業日も計算しなおします。よろしいですか?',{ok:'消す',danger:true}).then(function(ok){if(!ok)return;
+      var j=S.hol.indexOf(h);if(j>=0)S.hol.splice(j,1);relayoutAll();save();rPlan()})})();break;
+  case 'saveplan':(function(){var d=S.draft,v=d.mode==='harvest'?d.harvest:d.start;if(!isDate(v)){toast('日にちを入れてください');return}
+    var np=buildPlan(d,S.cropId);
+    function doSave(){np.color=pickColorFrom(np.cropId,S.plans.map(planColor));S.plans.push(np);S.cur=np.id;S.cal.filter='all';S.cal.anchor=sowDate(np);S.cal.sel='';lastSavedSig=draftSig();save();rPlan();
+      toast('保存しました!③カレンダーで確認しよう',3000)}
+    var dup=S.plans.some(function(q){return q.cropId===np.cropId&&q.startCalc===np.startCalc&&q.region===np.region&&(q.plot||'')===(np.plot||'')});
+    if(dup)kzConfirm('同じ作物・同じ日にち・同じ場所の計画が、もう保存されています。もう1つ保存しますか?(カレンダーに同じ作業が2つずつ出ます)',{ok:'もう1つ保存する'}).then(function(ok){if(ok)doSave()});
+    else doSave()})();break;
+  case 'delplan':p=planById(b.getAttribute('data-id'));if(p){(function(p){kzConfirm(cropPlain(p.cropId)+'の計画を削除します。記録や評価も消えます。よろしいですか?',{ok:'削除する',danger:true}).then(function(ok){if(!ok)return;
+    var i=S.plans.indexOf(p);if(i>=0)S.plans.splice(i,1);if(S.cur===p.id)S.cur=S.plans.length?S.plans[0].id:null;lastSavedSig='';save();render()})})(p)}break;
+  case 'opencal':p=planById(b.getAttribute('data-id'));if(!p)break;S.cur=p.id;S.cal.filter=p.id;S.cal.anchor=(p.tasks.filter(function(t){return !t.done})[0]||p.tasks[0]).date;S.cal.sel=S.cal.anchor;S.set.tab='cal';save();render();window.scrollTo(0,0);break;
+  case 'openeval':S.cur=b.getAttribute('data-id');S.set.tab='eval';save();render();window.scrollTo(0,0);break;
+  case 'cview':(function(){var v=b.getAttribute('data-v');if(v==='week'&&S.cal.view!=='week'){var a2=S.cal.anchor,ym=a2.slice(0,7),tdy=today();
+      S.cal.anchor=isDate(S.cal.sel)?S.cal.sel:(tdy.slice(0,7)===ym?tdy:(firstTaskIn(+ym.slice(0,4),+ym.slice(5,7))||a2))}
+    S.cal.view=v;save();rCal()})();break;
+  case 'cmove':(function(){var n=+b.getAttribute('data-v'),a2=S.cal.anchor;
+    if(S.cal.view==='week')S.cal.anchor=add(a2,7*n);else{var y=+a2.slice(0,4),m=+a2.slice(5,7)+n;if(m<1){m=12;y--}if(m>12){m=1;y++}S.cal.anchor=y+'-'+pad(m)+'-01'}
+    save();rCal()})();break;
+  case 'ctoday':S.cal.anchor=today();S.cal.sel=today();save();rCal();break;
+  case 'day':(function(){var d=b.getAttribute('data-d');S.cal.sel=d;if(S.cal.view==='week'||d.slice(0,7)===S.cal.anchor.slice(0,7))S.cal.anchor=d;save();rCal();
+    var dp=$('#b4-daypanel');if(dp&&dp.scrollIntoView)dp.scrollIntoView({behavior:'smooth',block:'nearest'})})();break;
+  case 'toggle':(function(){var pp=planById(b.getAttribute('data-id'));if(!pp)return;var t=pp.tasks.filter(function(x){return x.id===b.getAttribute('data-t')})[0];if(!t)return;
+    S.cur=pp.id;
+    if(t.done){unmark(pp,t);save();rCal()}
+    else tryDone(pp,t,function(ok){if(ok){layout(pp);save();toast('記録しました!実際の日にちがちがうときは④で直そう',3000)}rCal()})})();break;
+  case 'recalc':p=curPlan();if(p)recalc(p);break;
+  case 'undo':p=curPlan();if(p)undo(p);break;
+  case 'shn':(function(){var i=$('#b4-shift');var v=(parseInt(i.value,10)||0)+(+b.getAttribute('data-v'));i.value=Math.max(-60,Math.min(60,v))})();break;
+  case 'shift':(function(){var n=parseInt($('#b4-shift').value,10);if(!n||Math.abs(n)>60){toast('−60〜60の日数(0以外)を入れてください');return}p=curPlan();if(p)shiftRest(p,n)})();break;
+  case 'csv':download(fname('栽培暦','csv'),csv(visiblePlans()),'text/csv');break;
+  case 'ics':download(fname('栽培暦','ics'),ics(visiblePlans()),'text/calendar');break;
+  case 'csv1':p=curPlan();if(p)download(fname('栽培暦_'+cropPlain(p.cropId),'csv'),csv([p]),'text/csv');break;
+  case 'ics1':p=curPlan();if(p)download(fname('栽培暦_'+cropPlain(p.cropId),'ics'),ics([p]),'text/calendar');break;
+  case 'backup':download(fname('b4_バックアップ','json'),JSON.stringify({app:'b4',v:1,state:S,reflection:R},null,1),'application/json');break;
+  case 'restore':root.querySelector('#b4-file').click();break;
+  case 'resetall':kzConfirm('この端末に保存した、すべての計画・休業日・記録と評価・振り返り(組・番号・名前も)を消して、最初の状態にもどします。\n消したデータは元に戻せません。必要なら先に「バックアップを書き出す」をしよう。\n本当に消しますか?',{ok:'すべて消す',danger:true}).then(function(ok){if(!ok)return;
+    var keep={ruby:S.set.ruby,fs:S.set.fs};removeLS(KEY);removeLS(RKEY);S=fresh();S.set.ruby=keep.ruby;S.set.fs=keep.fs;R=freshR();writeStat();lastSavedSig='';regionNote='';save();render();window.scrollTo(0,0);toast('すべてのデータを消しました',3000)});break;
+  case 'self':R.self[b.getAttribute('data-k')]=+b.getAttribute('data-v');saveR();
+    b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});setSaved();break;
+  case 'rsave':saveR();setSaved();toast('保存しました');break;
+  case 'rtxt':saveR();setSaved();download(fname('B4振り返り'+(who()?'_'+who().replace(/[\\\/:*?"<>|\s]+/g,''):''),'txt'),'\ufeff'+reflText().replace(/\n/g,'\r\n'),'text/plain');break;
+  case 'rcopy':copyText(reflText());break;
+  case 'rprint':saveR();setSaved();if(window.kzPrintText)kzPrintText.sync();window.print();break;
+  }
+});
+function setSaved(){var s=$('#b4-saved');if(s)s.textContent=savedText()}
+var rt=null;
+root.addEventListener('input',function(e){var el=e.target;
+  if(el.hasAttribute('data-r')){R[el.getAttribute('data-r')]=el.value;clearTimeout(rt);rt=setTimeout(function(){saveR();setSaved()},500)}
+  else if(el.hasAttribute('data-ev')){var p=curPlan();if(p){p.ev[el.getAttribute('data-ev')]=el.value;save()}}
+  else if(el.getAttribute('data-draft')==='plot'){S.draft.plot=el.value;save();rPreview()}
+  else if(el.getAttribute('data-hol')==='l'){var hh=S.hol[+el.getAttribute('data-i')];if(hh){hh.l=el.value;save()}}
+});
+root.addEventListener('change',function(e){var el=e.target,a=el.getAttribute('data-act'),p;
+  if(el.type==='text')return; /* 文字入力は input で反映ずみ。blur時に再描画するとボタンのタップが消えるため */
+  if(el.hasAttribute('data-draft')){var k=el.getAttribute('data-draft');
+    if(k==='harvest'||k==='start'){setDraftDate(k,isDate(el.value)?el.value:'');save();rPreview();return}
+    S.draft[k]=el.value;save();rPreview();return}
+  if(el.hasAttribute('data-hol')){var i=+el.getAttribute('data-i'),f=el.getAttribute('data-hol');if(!S.hol[i])return;
+    S.hol[i][f]=el.value;if(f==='s'&&isDate(el.value)&&(!isDate(S.hol[i].e)||S.hol[i].e<el.value))S.hol[i].e=el.value;
+    if(isDate(S.hol[i].s)&&isDate(S.hol[i].e))delete S.hol[i].draft;
+    relayoutAll();save();fill($('#b4-hol'),holHtml());rPreview();return}
+  if(a==='holrep'){var hi=S.hol[+el.getAttribute('data-i')];if(hi){hi.rep=el.checked;relayoutAll();save();rPreview()}return}
+  if(a==='wk'){S.set.wk=el.checked;relayoutAll();save();rPreview();return}
+  if(a==='cfilter'){S.cal.filter=el.value;if(el.value!=='all'){S.cur=el.value}save();rCal();return}
+  if(a==='evsel'){S.cur=el.value;save();rEval();return}
+  if(a==='evdone'){p=curPlan();if(!p)return;var t=p.tasks.filter(function(x){return x.id===el.getAttribute('data-t')})[0];if(!t)return;
+    if(el.checked)tryDone(p,t,function(ok){if(ok){layout(p);save()}rEval()});else{unmark(p,t);save();rEval()}return}
+  if(a==='evact'){p=curPlan();var t2=p.tasks.filter(function(x){return x.id===el.getAttribute('data-t')})[0];if(isDate(el.value)){t2.actual=el.value;layout(p);save()}rEval();return}
+});
+root.querySelector('#b4-file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var j=JSON.parse(r.result);if(!j||j.app!=='b4'||!j.state||j.state.v!==1)throw 0;
+    kzConfirm('バックアップを読みこむと、今のデータ(計画・休業日・記録と評価・振り返り)は消えて、バックアップの内容に置きかわります。よろしいですか?',{ok:'読みこむ',danger:true}).then(function(ok){if(!ok)return;
+    writeLS(KEY,JSON.stringify(j.state));if(j.reflection)writeLS(RKEY,JSON.stringify(j.reflection));
+    var keep={ruby:S.set.ruby,fs:S.set.fs};S=load();R=loadR();
+    if(!storageOK){try{S=migrate(j.state)}catch(er){S=fresh()}R=j.reflection||freshR();var f2=freshR();for(var k in f2)if(R[k]===undefined)R[k]=f2[k]}
+    S.set.ruby=keep.ruby;S.set.fs=keep.fs;relayoutAll();save();writeStat();lastSavedSig='';render();toast('読みこみました')})}catch(err){toast('このファイルは読みこめません(B4のバックアップではありません)',3500)}};
+  r.readAsText(f);e.target.value=''});
+
+S=load();
+initPrefs();
+relayoutAll();
+if(window.kzRuby){kzRuby(root.querySelector('.b4-head'));kzRuby(root.querySelector('.b4-tabs'));fitRuby(root)}
+render();
+})();
+</script>
+</body>
+</html>
