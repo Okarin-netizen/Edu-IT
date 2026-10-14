@@ -1,0 +1,3291 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ネットワーク通信シミュレータ</title>
+  <meta name="description" content="中学校技術科「情報の技術」向け。パケット・IPアドレス・DNS・経路・暗号化を、ブラウザの中の模型ネットワークで体験する教材。">
+  <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="author" content="羽生市立南中学校 技術 岡田">
+  <meta name="theme-color" content="#256abf">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM6YzJwYT0iaHR0cDovL2MycGEub3JnL21hbmlmZXN0Ij48bWV0YWRhdGE+PGMycGE6bWFuaWZlc3Q+QUFBV2dtcDFiV0lBQUFBZWFuVnRaR015Y0dFQUVRQVFnQUFBcWdBNG0zRURZekp3WVFBQUFCWmNhblZ0WWdBQUFFZHFkVzFrWXpKdFlRQVJBQkNBQUFDcUFEaWJjUU4xY200Nll6SndZVG80TldVMk0yWTFaUzFrWW1WakxUUTFNbUl0T0RFeU1DMWxaREl4TVdOaU5XSmhaRFlBQUFBRGwycDFiV0lBQUFBcGFuVnRaR015WVhNQUVRQVFnQUFBcWdBNG0zRURZekp3WVM1aGMzTmxjblJwYjI1ekFBQUFBTHhxZFcxaUFBQUFSR3AxYldSalltOXlBQkVBRUlBQUFLb0FPSnR4RTJNeWNHRXVhVzVuY21Wa2FXVnVkQzUyTXdBQUFBQVlZekp6YUUvTDBBdW40d0tSYnFXNDVPRDNBMWNBQUFCd1kySnZjcU5wWkdNNlptOXliV0YwYldsdFlXZGxMM04yWnl0NGJXeHFhVzV6ZEdGdVkyVkpSSGdzZUcxd09tbHBaRG8wTmpCbE9EUTNZUzAxTVdKa0xUUmxOR1l0T1dGaU1pMDVOakZtTW1aalpEazVOREJzY21Wc1lYUnBiMjV6YUdsd2FIQmhjbVZ1ZEU5bUFBQUI0bXAxYldJQUFBQkJhblZ0WkdOaWIzSUFFUUFRZ0FBQXFnQTRtM0VUWXpKd1lTNWhZM1JwYjI1ekxuWXlBQUFBQUJoak1uTm9vMFN1NHgzSTNDWGNSVExvb0ErVS9nQUFBWmxqWW05eW9tZGhZM1JwYjI1emdxSm1ZV04wYVc5dWEyTXljR0V1YjNCbGJtVmthbkJoY21GdFpYUmxjbk9oYTJsdVozSmxaR2xsYm5SemdhSmpkWEpzZUMxelpXeG1JMnAxYldKbVBXTXljR0V1WVhOelpYSjBhVzl1Y3k5ak1uQmhMbWx1WjNKbFpHbGxiblF1ZGpOa2FHRnphRmdnUlZLc2NnS3diQjNrVnFoOUVaRmR1NU9YaXMyL1AxV0s5WVhDa2FiOVpTbWtabUZqZEdsdmJuZ2RZMjl0TG1GdWRHaHliM0JwWXk1amJHRjFaR1V1Y0hKdmRtbGtaV1JxY0dGeVlXMWxkR1Z5YzZGNEgyTnZiUzVoYm5Sb2NtOXdhV011YjNKcFoybHVMV052Ym1acFpHVnVZMlZuZFc1cmJtOTNibXRrWlhOamNtbHdkR2x2Ym5obVEyeGhkV1JsSUhCeWIzWnBaR1ZrSUhSb2FYTWdabWxzWlNCaGRDQjBhR1VnY21WeGRXVnpkQ0J2WmlCaElIVnpaWElnWVc1a0lHMWhlU0JvWVhabElHTnlaV0YwWldRZ2IzSWdiVzlrYVdacFpXUWdkR2hsSUdacGJHVWdZMjl1ZEdWdWRITXViWE52Wm5SM1lYSmxRV2RsYm5TaFpHNWhiV1ZtUTJ4aGRXUmxjbUZzYkVGamRHbHZibk5KYm1Oc2RXUmxaUFVBQUFESWFuVnRZZ0FBQUVCcWRXMWtZMkp2Y2dBUkFCQ0FBQUNxQURpYmNSTmpNbkJoTG1oaGMyZ3VaR0YwWVFBQUFBQVlZekp6YUtWZEJzZU0rcE5BS0ZscU1yMHQ3ZHdBQUFDQVkySnZjcVZqWVd4blpuTm9ZVEkxTm1Od1lXUk5BQUFBQUFBQUFBQUFBQUFBQUdSb1lYTm9XQ0FuaVhzdzBDMThGREpNSnp1SmlqRXhFcFRzZ2FRVGMzL05mcHJFSjh3eVNtUnVZVzFsYm1wMWJXSm1JRzFoYm1sbVpYTjBhbVY0WTJ4MWMybHZibk9Cb21WemRHRnlkQmg3Wm14bGJtZDBhQmtlQkFBQUFqNXFkVzFpQUFBQUoycDFiV1JqTW1Oc0FCRUFFSUFBQUtvQU9KdHhBMk15Y0dFdVkyeGhhVzB1ZGpJQUFBQUNEMk5pYjNLbFkyRnNaMlp6YUdFeU5UWnBjMmxuYm1GMGRYSmxlRTF6Wld4bUkycDFiV0ptUFM5ak1uQmhMM1Z5Ympwak1uQmhPamcxWlRZelpqVmxMV1JpWldNdE5EVXlZaTA0TVRJd0xXVmtNakV4WTJJMVltRmtOaTlqTW5CaExuTnBaMjVoZEhWeVpXcHBibk4wWVc1alpVbEVlQ3g0YlhBNmFXbGtPamM1WXpZMVptRTVMVEpsT0RJdE5HRTVNQzFoWldZMUxURXlOR0l3Wm1OaVkyRmlPWEpqY21WaGRHVmtYMkZ6YzJWeWRHbHZibk9Eb21OMWNteDRMWE5sYkdZamFuVnRZbVk5WXpKd1lTNWhjM05sY25ScGIyNXpMMk15Y0dFdWFXNW5jbVZrYVdWdWRDNTJNMlJvWVhOb1dDQkZVcXh5QXJCc0hlUldxSDBSa1YyN2s1ZUt6YjgvVllyMWhjS1JwdjFsS2FKamRYSnNlQ3B6Wld4bUkycDFiV0ptUFdNeWNHRXVZWE56WlhKMGFXOXVjeTlqTW5CaExtRmpkR2x2Ym5NdWRqSmthR0Z6YUZnZ1NxWmVFVnppZHZPdXNRcVVBUWlGNXRjREh1VUgxYTltbkJ2NlpUTzM1UXFpWTNWeWJIZ3BjMlZzWmlOcWRXMWlaajFqTW5CaExtRnpjMlZ5ZEdsdmJuTXZZekp3WVM1b1lYTm9MbVJoZEdGa2FHRnphRmdnY3dOaGVRcHRWUjJMM0doaVpoSlc4a2dRSm5yb0ZPK1N1cmwyYTBBNDdHdDBZMnhoYVcxZloyVnVaWEpoZEc5eVgybHVabStqWkc1aGJXVnZRVzUwYUhKdmNHbGpJRVpwYkdWelozWmxjbk5wYjI1bE1TNHdMakJyYzNCbFkxWmxjbk5wYjI1bE1pNDBMakFBQUJBNGFuVnRZZ0FBQUNocWRXMWtZekpqY3dBUkFCQ0FBQUNxQURpYmNRTmpNbkJoTG5OcFoyNWhkSFZ5WlFBQUFCQUlZMkp2Y3RLRVdRSVNvZ0VtR0NGWkFnb3dnZ0lHTUlJQmphQURBZ0VDQWhSQTVhQUs3c0k1MEw2NGcvb0dRZ1U5WjFVVEFEQUtCZ2dxaGtqT1BRUURBekJKTVJjd0ZRWURWUVFLRXc1QmJuUm9jbTl3YVdNc0lGQkNRekV1TUN3R0ExVUVBeE1sUVc1MGFISnZjR2xqSUVOdmJuUmxiblFnUTNKbFpHVnVkR2xoYkhNZ1VtOXZkQ0JEUVRBZUZ3MHlOakE0TURjeE9EUXpOVFphRncweU9EQTRNRFl4T1RRek5UWmFNRVF4RnpBVkJnTlZCQW9URGtGdWRHaHliM0JwWXl3Z1VFSkRNU2t3SndZRFZRUURFeUJCYm5Sb2NtOXdhV01nUTJ4aGRXUmxJRU52Ym5SbGJuUWdVMmxuYm1sdVp6QlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJKaDZDbXZMVUJnRkZOVTB2VUtsT1Z0RTZkamQxN0w1U3V3WDBMZW1GaXNCTTNka2QvM2N5anhGQTNRbzVTNDZmWDAvaWhZMFZaN21mYjlLRjcwM3Q1T2pXREJXTUE0R0ExVWREd0VCL3dRRUF3SUhnREFWQmdOVkhTVUVEakFNQmdvckJnRUVBWVBvWGdJQk1Bd0dBMVVkRXdFQi93UUNNQUF3SHdZRFZSMGpCQmd3Rm9BVXpsSGlCSUZPWkZzaitPUEV6NW8rbk1IWFhNSXdDZ1lJS29aSXpqMEVBd01EWndBd1pBSXdNWE1kRko0QmV0TExWWTdPUnVFOW5vcWJiQVpPWm4vYUFyWHlUd0ZBWmZLclB6eEYydlBvSk5mMStVQ2RnMVhHQWpCd1gxemQ5V0dxWWtxbUw1U0ZxdzFReVNqcjF6SmZwSk05KzFyZER3U1BMTU9QT2pLdWlYam9VL3BVVWVHOVJ3bWhZM0JoWkZrTm5nQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUFpZUUZZSnNaRVdJRUNGd3dzNlJmK0lyUi9PbkRJdVEwT3RqRXJuTmJkMzBEUythYXlYK21jNXBJTFVjdk5UajNCRksxSHZxTXREOXY1UDNsd002bFVLZDBjPTwvYzJwYTptYW5pZmVzdD48L21ldGFkYXRhPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjU2YWJmIi8+CiAgPGcgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj4KICAgIDxsaW5lIHgxPSIxNiIgeTE9IjE4IiB4Mj0iMzIiIHkyPSIzMiIvPjxsaW5lIHgxPSIxNiIgeTE9IjQ2IiB4Mj0iMzIiIHkyPSIzMiIvPgogICAgPGxpbmUgeDE9IjMyIiB5MT0iMzIiIHgyPSI0OCIgeTI9IjE4Ii8+PGxpbmUgeDE9IjMyIiB5MT0iMzIiIHgyPSI0OCIgeTI9IjQ2Ii8+PGxpbmUgeDE9IjQ4IiB5MT0iMTgiIHgyPSI0OCIgeTI9IjQ2Ii8+CiAgPC9nPgogIDxnIGZpbGw9IiNmZmYiPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTgiIHI9IjYiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjQ2IiByPSI2Ii8+PGNpcmNsZSBjeD0iNDgiIGN5PSIxOCIgcj0iNiIvPjxjaXJjbGUgY3g9IjQ4IiBjeT0iNDYiIHI9IjYiLz48L2c+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iOCIgZmlsbD0iI2ZmZDI3YSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+Cg==" type="image/svg+xml">
+  <style>
+/* ネットワーク通信シミュレータ 共通スタイル（情報セキュリティ体験ラボと共通の土台） */
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1;
+  --surface-1: #fcfcfb;
+  --surface-2: #efeee9;
+  --border: #d9d7cf;
+  --text-primary: #1b1b1a;
+  --text-secondary: #52514e;
+  --text-muted: #6d6c67;
+  --accent: #256abf;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3eefb;
+  --good: #1f7a3a;
+  --good-soft: #e3f3e7;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d9;
+  --bad: #b3261e;
+  --bad-soft: #fbe5e3;
+  --focus: #eda100;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --font: "BIZ UDPGothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --mono: "BIZ UDGothic", "Consolas", "Menlo", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface-1: #1a1a19;
+    --surface-2: #242422;
+    --border: #3a3936;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #a3a29a;
+    --accent: #5598e7;
+    --accent-ink: #0b0b0b;
+    --accent-soft: #1c2b40;
+    --good: #5fc27a;
+    --good-soft: #17301f;
+    --warn: #e7b450;
+    --warn-soft: #362a12;
+    --bad: #f08a83;
+    --bad-soft: #3a1b19;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface-1: #1a1a19;
+  --surface-2: #242422;
+  --border: #3a3936;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #a3a29a;
+  --accent: #5598e7;
+  --accent-ink: #0b0b0b;
+  --accent-soft: #1c2b40;
+  --good: #5fc27a;
+  --good-soft: #17301f;
+  --warn: #e7b450;
+  --warn-soft: #362a12;
+  --bad: #f08a83;
+  --bad-soft: #3a1b19;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --shadow: none;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 17px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font);
+  line-height: 1.75;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 { line-height: 1.4; margin: 0 0 0.5em; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+p { margin: 0 0 0.8em; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--surface-1); padding: 8px 12px; z-index: 10; }
+.skip-link:focus { left: 8px; }
+
+/* レイアウト */
+.app-header {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 20px; background: var(--surface-1); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 5;
+}
+.app-header .brand { font-weight: 700; font-size: 1.05rem; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.app-header .brand img { width: 28px; height: 28px; }
+.app-header .spacer { flex: 1; }
+.overall-progress { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+.overall-progress .bar { width: 120px; }
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1400px; margin: 0 auto; gap: 24px; padding: 20px; }
+.chapter-nav { position: sticky; top: 72px; align-self: start; min-width: 0; }
+.chapter-nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; position: relative; }
+.chapter-nav a, .chapter-nav span.disabled {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px;
+  text-decoration: none; color: var(--text-primary); font-size: 0.92rem;
+}
+.chapter-nav a:hover { background: var(--surface-2); }
+.chapter-nav a[aria-current="page"] { background: var(--accent-soft); font-weight: 700; }
+.chapter-nav span.disabled { color: var(--text-muted); }
+.chapter-nav .num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-size: 0.78rem; border: 1.5px solid var(--border); background: var(--surface-1);
+}
+.chapter-nav .done .num { background: var(--good); border-color: var(--good); color: var(--surface-1); }
+.chapter-nav .nav-group { font-size: 0.75rem; color: var(--text-muted); margin: 14px 10px 4px; letter-spacing: 0.05em; }
+main { min-width: 0; }
+.app-footer { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 24px 16px 40px; }
+
+@media (max-width: 860px) {
+  html { font-size: 16px; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; }
+  .chapter-nav { position: static; }
+  .chapter-nav ol { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: 6px; }
+  .chapter-nav .nav-group { display: none; }
+  .overall-progress .bar { width: 70px; }
+}
+
+/* 部品 */
+.card {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px 22px; margin-bottom: 18px; box-shadow: var(--shadow);
+}
+.card > :last-child { margin-bottom: 0; }
+.module-head { margin-bottom: 18px; }
+.module-head .meta { color: var(--text-secondary); font-size: 0.9rem; }
+.step-title { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; }
+.step-title .badge {
+  flex: none; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 99px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.step-title .check { margin-left: auto; font-size: 0.8rem; color: var(--good); font-weight: 700; }
+
+.explain {
+  border-left: 5px solid var(--accent); background: var(--accent-soft);
+  border-radius: 8px; padding: 12px 16px; margin: 14px 0;
+}
+.explain .explain-label { font-weight: 700; font-size: 0.85rem; color: var(--accent); display: block; margin-bottom: 2px; }
+.explain.warn { border-color: var(--warn); background: var(--warn-soft); }
+.explain.warn .explain-label { color: var(--warn); }
+.explain.good { border-color: var(--good); background: var(--good-soft); }
+.explain.good .explain-label { color: var(--good); }
+.explain.bad { border-color: var(--bad); background: var(--bad-soft); }
+.explain.bad .explain-label { color: var(--bad); }
+.explain > :last-child { margin-bottom: 0; }
+
+.three-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; padding: 0; list-style: none; counter-reset: s; }
+.three-steps li {
+  background: var(--surface-2); border-radius: 10px; padding: 10px 12px; text-align: center; font-size: 0.9rem;
+  counter-increment: s;
+}
+.three-steps li strong { display: block; font-size: 1.05rem; }
+.three-steps li strong::before { content: counter(s) ". "; }
+@media (max-width: 560px) { .three-steps { grid-template-columns: 1fr; } }
+
+.btn {
+  font: inherit; font-size: 0.95rem; cursor: pointer; border-radius: 10px; padding: 8px 16px;
+  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 700;
+  min-height: 44px;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn.secondary { background: transparent; color: var(--accent); }
+.btn.small { min-height: 36px; padding: 4px 12px; font-size: 0.88rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+
+label { font-weight: 700; font-size: 0.92rem; }
+input[type="text"], input[type="number"], textarea, select {
+  max-width: 100%;
+  font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; width: 100%; min-height: 44px;
+}
+textarea { min-height: 90px; resize: vertical; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.field { margin: 10px 0; display: grid; gap: 4px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.hint { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; }
+
+.bar { height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--border); }
+.bar > span { display: block; height: 100%; background: var(--good); border-radius: 99px; }
+
+.result-box {
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 12px 0; background: var(--surface-2);
+}
+.big-number { font-size: 1.8rem; font-weight: 700; line-height: 1.3; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 2px 10px; border-radius: 99px; font-size: 0.9rem; }
+.status.good { background: var(--good-soft); color: var(--good); }
+.status.warn { background: var(--warn-soft); color: var(--warn); }
+.status.bad { background: var(--bad-soft); color: var(--bad); }
+
+.choice-list { display: grid; gap: 8px; margin: 10px 0; padding: 0; list-style: none; }
+.choice-list button {
+  width: 100%; text-align: left; font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; min-height: 44px;
+}
+.choice-list button:hover { border-color: var(--accent); }
+.choice-list button.correct { border-color: var(--good); background: var(--good-soft); }
+.choice-list button.wrong { border-color: var(--bad); background: var(--bad-soft); }
+
+table.data { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+table.data th, table.data td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.data th { color: var(--text-secondary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.module-card {
+  display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-primary);
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+}
+a.module-card:hover { border-color: var(--accent); }
+.module-card .mc-num { font-size: 0.8rem; color: var(--text-muted); }
+.module-card .mc-title { font-weight: 700; font-size: 1.05rem; }
+.module-card .mc-desc { font-size: 0.88rem; color: var(--text-secondary); flex: 1; }
+.module-card.soon { opacity: 0.6; }
+
+.reflection textarea { margin-top: 6px; }
+.saved-note { font-size: 0.85rem; color: var(--good); min-height: 1.4em; }
+.reflection .autosave-hint { margin: 2px 0 6px; }
+.packets-note { margin: 6px 0 0; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text-primary); color: var(--surface-1);
+  padding: 10px 18px; border-radius: 99px; font-size: 0.9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* 表示の切りかえ */
+.display-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+.display-toggles .toggle {
+  font: inherit; font-size: 0.8rem; padding: 4px 10px; border-radius: 99px; border: 1.5px solid var(--border);
+  background: var(--surface-1); color: var(--text-secondary); cursor: pointer; min-height: 32px;
+}
+.display-toggles .toggle[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.display-toggles .toggle[aria-pressed="true"]::before { content: "✓ "; }
+html.large-text { font-size: 20px; }
+@media (max-width: 860px) { html.large-text { font-size: 18px; } .display-toggles { order: 3; width: 100%; } }
+
+.export-note:empty { display: none; }
+.export-note { font-weight: 700; margin: 4px 0 0; }
+.export-note.warn { color: var(--bad); }
+.export-note.good { color: var(--good); }
+.lesson-plan table th[scope="row"] { white-space: nowrap; }
+.glossary summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; }
+.glossary dl { margin: 10px 0 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; }
+.glossary dt { font-weight: 700; }
+.glossary dd { margin: 0; }
+.glossary .ruby-note { font-weight: 400; font-size: 0.85rem; color: var(--text-secondary); }
+@media (max-width: 560px) { .glossary dl { grid-template-columns: 1fr; } .glossary dd { margin-bottom: 6px; } }
+.module-head .author { font-size: 0.9rem; color: var(--text-secondary); font-weight: 700; }
+.module-next { justify-content: space-between; margin-top: 8px; }
+a.btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* 切りかえボタン（小） */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+.chip-row .spacer { flex: 1; }
+.chip {
+  font: inherit; font-size: 0.88rem; padding: 6px 12px; border-radius: 99px; border: 1.5px solid var(--border);
+  background: var(--surface-1); color: var(--text-primary); cursor: pointer; min-height: 40px;
+}
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ネットワーク図 */
+/* 図の上でも指でページをスクロールできる。動かせる機器の上だけ、指の動きを機器のドラッグに使う（NW-14） */
+.net-canvas {
+  border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface-2);
+  margin: 10px 0; overflow: hidden; position: relative;
+}
+.net-canvas[data-tool="move"] .nn { touch-action: none; }
+.net-svg { width: 100%; height: auto; display: block; user-select: none; -webkit-user-select: none; }
+.net-svg text { font-family: var(--font); }
+.nl-line { stroke: var(--text-muted); stroke-width: 4; stroke-linecap: round; }
+.nl.on-path .nl-line { stroke: var(--accent); stroke-width: 8; }
+.nl.old-path .nl-line { stroke: var(--accent); stroke-width: 4; stroke-dasharray: 1 10; opacity: 0.85; }
+.nl.cut .nl-line { stroke: var(--bad); stroke-dasharray: 8 8; stroke-width: 3; }
+.nl-hit { stroke: transparent; stroke-width: 22; cursor: pointer; }
+.nl:hover .nl-line, .nl:focus-visible .nl-line { stroke: var(--focus); }
+.nl:focus { outline: none; }
+.nl-mark { font-size: 22px; fill: var(--bad); }
+.nl-spy { font-size: 26px; }
+.nn { cursor: pointer; }
+.nn:focus { outline: none; }
+.nn:focus-visible .nn-bg { stroke: var(--focus); stroke-width: 5; }
+.nn-bg { fill: var(--surface-1); stroke: var(--text-muted); stroke-width: 2.5; }
+.nn.t-router .nn-bg { fill: var(--accent-soft); }
+.nn.t-server .nn-bg, .nn.t-dns .nn-bg { fill: var(--good-soft); }
+.nn.on-path .nn-bg { stroke: var(--accent); stroke-width: 4; }
+.nn.selected .nn-bg { stroke: var(--focus); stroke-width: 5; }
+.nn-icon { font-size: 28px; }
+.nn-name { font-size: 17px; font-weight: 700; fill: var(--text-primary); paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; }
+.nn-ip { font-size: 15px; fill: var(--text-secondary); font-family: var(--mono); paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; }
+.nn-host { font-size: 14px; fill: var(--good); font-family: var(--mono); paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; }
+/* 「大きな文字」のときは、図の中の名前とIPアドレスも大きくする（NW-15） */
+html.large-text .nn-name { font-size: 19px; }
+html.large-text .nn-ip { font-size: 17px; }
+html.large-text .nn-host { font-size: 16px; }
+.nn.down .nn-bg { fill: var(--bad-soft); stroke: var(--bad); stroke-dasharray: 5 4; }
+.nn.down .nn-icon { opacity: 0.35; }
+.nn-x { font-size: 40px; fill: var(--bad); font-weight: 700; }
+.nn.unreach { opacity: 0.35; }
+.nn.reach .nn-bg { stroke: var(--good); stroke-width: 4; }
+.nn.just-added .nn-bg { stroke: var(--focus); stroke-width: 6; animation: nn-pulse 0.8s ease-in-out 3; }
+@keyframes nn-pulse { 50% { stroke-width: 12; } }
+@media (prefers-reduced-motion: reduce) { .nn.just-added .nn-bg { animation: none; } }
+.pkt rect { stroke: var(--surface-1); stroke-width: 2; }
+.pkt text { font-size: 13px; font-weight: 700; fill: #ffffff; }
+.pkt.k-dns rect { fill: #8a5cc2; }
+.pkt.k-req rect { fill: var(--series-2); }
+.pkt.k-data rect { fill: var(--series-1); }
+.pkt.k-secure rect { fill: var(--good); }
+.legend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pk { display: inline-block; min-width: 26px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 700; font-size: 0.8rem; text-align: center; }
+.pk.k-dns { background: #8a5cc2; }
+.pk.k-req { background: var(--series-2); }
+.pk.k-data { background: var(--series-1); }
+
+/* 組み立て */
+.palette { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.palette-item {
+  font: inherit; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; cursor: grab;
+  padding: 6px 12px; min-height: 44px; border-radius: 10px; border: 1.5px dashed var(--accent); background: var(--surface-1); color: var(--text-primary);
+}
+.palette-item .emoji { font-size: 1.3rem; }
+.node-editor:not(:empty) { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 10px 0; background: var(--surface-1); }
+.kbd-wire { margin: 10px 0; }
+.kbd-wire select { width: auto; }
+.net-canvas[data-tool="wire"] .nn { cursor: crosshair; }
+.net-canvas[data-tool="erase"] .nn, .net-canvas[data-tool="erase"] .nl-hit { cursor: pointer; }
+.net-canvas[data-tool="erase"] { border-color: var(--bad); }
+.tool-banner {
+  position: absolute; left: 8px; top: 8px; max-width: calc(100% - 16px); pointer-events: none;
+  font-size: 0.85rem; font-weight: 700; line-height: 1.4; padding: 4px 10px; border-radius: 8px;
+  background: var(--surface-1); border: 1.5px solid var(--accent); color: var(--accent);
+}
+.tool-banner:empty { display: none; }
+.net-canvas[data-tool="erase"] .tool-banner { border-color: var(--bad); color: var(--bad); }
+.build-status { margin: 0 0 8px; font-size: 0.92rem; }
+.node-editor .field-row { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+td .why { margin-top: 4px; }
+
+/* 図と結果を左右にならべる（NW-04）。広い画面では右の欄が図と同じ高さで、中だけスクロールする */
+.sim-split { display: grid; gap: 12px; margin: 10px 0; }
+.sim-split > .net-canvas { margin: 0; }
+.sim-side { min-width: 0; }
+.sim-side-inner > :first-child { margin-top: 0; }
+.sim-side-inner > :last-child { margin-bottom: 0; }
+@media (min-width: 1200px) {
+  .sim-split { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: stretch; }
+  .sim-side { position: relative; }
+  .sim-side-inner {
+    position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain;
+    border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--surface-1);
+  }
+  .sim-side-inner .explain { margin: 8px 0; }
+  .sim-side-inner .mock { max-width: 100%; }
+  /* 図が小さくなるので、機器の名前とIPアドレスの文字を大きくする */
+  .sim-split .nn-name { font-size: 20px; }
+  .sim-split .nn-ip { font-size: 18px; }
+  .sim-split .nn-host { font-size: 15px; }
+  html.large-text .sim-split .nn-name { font-size: 22px; }
+  html.large-text .sim-split .nn-ip { font-size: 20px; }
+  html.large-text .sim-split .nn-host { font-size: 17px; }
+  .sim-split .flow-log { font-size: 0.9rem; }
+  .sim-split .packets-table { font-size: 0.78rem; }
+  .sim-split .packets-table th, .sim-split .packets-table td { padding: 4px 5px; }
+}
+.play-state:empty { display: none; }
+.play-state { margin: -4px 0 6px; font-weight: 700; color: var(--accent); }
+
+/* 通信アニメ */
+.flow-log { margin: 10px 0; padding-left: 0; list-style: none; display: grid; gap: 4px; }
+.flow-log:empty { display: none; }
+.flow-log .packet-box { margin-top: 6px; }
+.flow-log li { padding: 4px 8px; border-radius: 6px; }
+.flow-log li.good { background: var(--good-soft); }
+.flow-log li.bad { background: var(--bad-soft); }
+.packets-table caption { text-align: left; }
+.packets-table td.arrive { white-space: nowrap; font-weight: 700; }
+.fault-status p { margin: 0; }
+
+/* のぞき見 */
+.spy-panel { border: 2px dashed var(--bad); border-radius: 10px; padding: 12px; margin-top: 8px; }
+.spy-item { border-bottom: 1px solid var(--border); padding: 6px 0; }
+.spy-item pre { white-space: pre-wrap; word-break: break-all; margin: 4px 0; font-family: var(--mono); font-size: 0.85rem; background: var(--surface-2); border-radius: 6px; padding: 6px 8px; }
+.spy-item pre.plain { color: var(--bad); font-weight: 700; }
+.spy-item pre.cipher { color: var(--text-muted); }
+
+/* ドリル */
+.ip-bits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; }
+.ip-bits .octet { border-radius: 8px; padding: 8px 4px; text-align: center; }
+.ip-bits .dec { font-size: 1.3rem; font-weight: 700; }
+.ip-bits .bin { font-size: 0.9rem; letter-spacing: 0.08em; }
+.netpart { background: var(--accent-soft); }
+.hostpart { background: var(--warn-soft); }
+.weight-box { margin: 8px 0 12px; }
+.weight-table { width: auto; text-align: center; }
+.weight-table th, .weight-table td { text-align: center; padding: 4px 8px; }
+.weight-table td.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.challenge { margin-top: 12px; }
+.challenge summary { cursor: pointer; font-weight: 700; padding: 6px 0; min-height: 40px; }
+.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; border: 1px solid var(--border); }
+@media (max-width: 560px) { .ip-bits .bin { font-size: 0.75rem; letter-spacing: 0; } }
+
+@media (forced-colors: active) {
+  .nl-line { stroke: CanvasText; }
+  .nl.on-path .nl-line { stroke: Highlight; }
+  .nl.old-path .nl-line { stroke: Highlight; }
+  .nn-bg { stroke: CanvasText; }
+}
+
+/* 画面の模型（ブラウザ） */
+.mock {
+  border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; background: #ffffff; color: #1b1b1a;
+  max-width: 560px; margin: 0 auto;
+}
+.mock-bar { background: #eceae4; padding: 8px 12px; font-size: 0.8rem; color: #52514e; display: flex; gap: 8px; align-items: center; }
+.mock-bar .dots::before { content: "● ● ●"; letter-spacing: 2px; color: #b9b6ad; }
+.mock-body { padding: 16px; }
+.flow-browser { margin-top: 12px; }
+.mock .url { font-family: var(--mono); font-size: 0.85rem; background: #fff; border: 1px solid #d9d7cf; border-radius: 99px; padding: 2px 10px; flex: 1; }
+.mock .login-box { border: 1px solid #e3e1da; border-radius: 10px; padding: 14px; display: grid; gap: 8px; }
+.mock .login-box .fake-input { border: 1px solid #c9c6bd; border-radius: 6px; padding: 6px 8px; color: #8a8880; font-size: 0.85rem; }
+.mock .logo { font-weight: 800; font-size: 1.1rem; }
+
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#view">本文へ移動</a>
+  <header class="app-header">
+    <a class="brand" href="#/"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM6YzJwYT0iaHR0cDovL2MycGEub3JnL21hbmlmZXN0Ij48bWV0YWRhdGE+PGMycGE6bWFuaWZlc3Q+QUFBV2dtcDFiV0lBQUFBZWFuVnRaR015Y0dFQUVRQVFnQUFBcWdBNG0zRURZekp3WVFBQUFCWmNhblZ0WWdBQUFFZHFkVzFrWXpKdFlRQVJBQkNBQUFDcUFEaWJjUU4xY200Nll6SndZVG80TldVMk0yWTFaUzFrWW1WakxUUTFNbUl0T0RFeU1DMWxaREl4TVdOaU5XSmhaRFlBQUFBRGwycDFiV0lBQUFBcGFuVnRaR015WVhNQUVRQVFnQUFBcWdBNG0zRURZekp3WVM1aGMzTmxjblJwYjI1ekFBQUFBTHhxZFcxaUFBQUFSR3AxYldSalltOXlBQkVBRUlBQUFLb0FPSnR4RTJNeWNHRXVhVzVuY21Wa2FXVnVkQzUyTXdBQUFBQVlZekp6YUUvTDBBdW40d0tSYnFXNDVPRDNBMWNBQUFCd1kySnZjcU5wWkdNNlptOXliV0YwYldsdFlXZGxMM04yWnl0NGJXeHFhVzV6ZEdGdVkyVkpSSGdzZUcxd09tbHBaRG8wTmpCbE9EUTNZUzAxTVdKa0xUUmxOR1l0T1dGaU1pMDVOakZtTW1aalpEazVOREJzY21Wc1lYUnBiMjV6YUdsd2FIQmhjbVZ1ZEU5bUFBQUI0bXAxYldJQUFBQkJhblZ0WkdOaWIzSUFFUUFRZ0FBQXFnQTRtM0VUWXpKd1lTNWhZM1JwYjI1ekxuWXlBQUFBQUJoak1uTm9vMFN1NHgzSTNDWGNSVExvb0ErVS9nQUFBWmxqWW05eW9tZGhZM1JwYjI1emdxSm1ZV04wYVc5dWEyTXljR0V1YjNCbGJtVmthbkJoY21GdFpYUmxjbk9oYTJsdVozSmxaR2xsYm5SemdhSmpkWEpzZUMxelpXeG1JMnAxYldKbVBXTXljR0V1WVhOelpYSjBhVzl1Y3k5ak1uQmhMbWx1WjNKbFpHbGxiblF1ZGpOa2FHRnphRmdnUlZLc2NnS3diQjNrVnFoOUVaRmR1NU9YaXMyL1AxV0s5WVhDa2FiOVpTbWtabUZqZEdsdmJuZ2RZMjl0TG1GdWRHaHliM0JwWXk1amJHRjFaR1V1Y0hKdmRtbGtaV1JxY0dGeVlXMWxkR1Z5YzZGNEgyTnZiUzVoYm5Sb2NtOXdhV011YjNKcFoybHVMV052Ym1acFpHVnVZMlZuZFc1cmJtOTNibXRrWlhOamNtbHdkR2x2Ym5obVEyeGhkV1JsSUhCeWIzWnBaR1ZrSUhSb2FYTWdabWxzWlNCaGRDQjBhR1VnY21WeGRXVnpkQ0J2WmlCaElIVnpaWElnWVc1a0lHMWhlU0JvWVhabElHTnlaV0YwWldRZ2IzSWdiVzlrYVdacFpXUWdkR2hsSUdacGJHVWdZMjl1ZEdWdWRITXViWE52Wm5SM1lYSmxRV2RsYm5TaFpHNWhiV1ZtUTJ4aGRXUmxjbUZzYkVGamRHbHZibk5KYm1Oc2RXUmxaUFVBQUFESWFuVnRZZ0FBQUVCcWRXMWtZMkp2Y2dBUkFCQ0FBQUNxQURpYmNSTmpNbkJoTG1oaGMyZ3VaR0YwWVFBQUFBQVlZekp6YUtWZEJzZU0rcE5BS0ZscU1yMHQ3ZHdBQUFDQVkySnZjcVZqWVd4blpuTm9ZVEkxTm1Od1lXUk5BQUFBQUFBQUFBQUFBQUFBQUdSb1lYTm9XQ0FuaVhzdzBDMThGREpNSnp1SmlqRXhFcFRzZ2FRVGMzL05mcHJFSjh3eVNtUnVZVzFsYm1wMWJXSm1JRzFoYm1sbVpYTjBhbVY0WTJ4MWMybHZibk9Cb21WemRHRnlkQmg3Wm14bGJtZDBhQmtlQkFBQUFqNXFkVzFpQUFBQUoycDFiV1JqTW1Oc0FCRUFFSUFBQUtvQU9KdHhBMk15Y0dFdVkyeGhhVzB1ZGpJQUFBQUNEMk5pYjNLbFkyRnNaMlp6YUdFeU5UWnBjMmxuYm1GMGRYSmxlRTF6Wld4bUkycDFiV0ptUFM5ak1uQmhMM1Z5Ympwak1uQmhPamcxWlRZelpqVmxMV1JpWldNdE5EVXlZaTA0TVRJd0xXVmtNakV4WTJJMVltRmtOaTlqTW5CaExuTnBaMjVoZEhWeVpXcHBibk4wWVc1alpVbEVlQ3g0YlhBNmFXbGtPamM1WXpZMVptRTVMVEpsT0RJdE5HRTVNQzFoWldZMUxURXlOR0l3Wm1OaVkyRmlPWEpqY21WaGRHVmtYMkZ6YzJWeWRHbHZibk9Eb21OMWNteDRMWE5sYkdZamFuVnRZbVk5WXpKd1lTNWhjM05sY25ScGIyNXpMMk15Y0dFdWFXNW5jbVZrYVdWdWRDNTJNMlJvWVhOb1dDQkZVcXh5QXJCc0hlUldxSDBSa1YyN2s1ZUt6YjgvVllyMWhjS1JwdjFsS2FKamRYSnNlQ3B6Wld4bUkycDFiV0ptUFdNeWNHRXVZWE56WlhKMGFXOXVjeTlqTW5CaExtRmpkR2x2Ym5NdWRqSmthR0Z6YUZnZ1NxWmVFVnppZHZPdXNRcVVBUWlGNXRjREh1VUgxYTltbkJ2NlpUTzM1UXFpWTNWeWJIZ3BjMlZzWmlOcWRXMWlaajFqTW5CaExtRnpjMlZ5ZEdsdmJuTXZZekp3WVM1b1lYTm9MbVJoZEdGa2FHRnphRmdnY3dOaGVRcHRWUjJMM0doaVpoSlc4a2dRSm5yb0ZPK1N1cmwyYTBBNDdHdDBZMnhoYVcxZloyVnVaWEpoZEc5eVgybHVabStqWkc1aGJXVnZRVzUwYUhKdmNHbGpJRVpwYkdWelozWmxjbk5wYjI1bE1TNHdMakJyYzNCbFkxWmxjbk5wYjI1bE1pNDBMakFBQUJBNGFuVnRZZ0FBQUNocWRXMWtZekpqY3dBUkFCQ0FBQUNxQURpYmNRTmpNbkJoTG5OcFoyNWhkSFZ5WlFBQUFCQUlZMkp2Y3RLRVdRSVNvZ0VtR0NGWkFnb3dnZ0lHTUlJQmphQURBZ0VDQWhSQTVhQUs3c0k1MEw2NGcvb0dRZ1U5WjFVVEFEQUtCZ2dxaGtqT1BRUURBekJKTVJjd0ZRWURWUVFLRXc1QmJuUm9jbTl3YVdNc0lGQkNRekV1TUN3R0ExVUVBeE1sUVc1MGFISnZjR2xqSUVOdmJuUmxiblFnUTNKbFpHVnVkR2xoYkhNZ1VtOXZkQ0JEUVRBZUZ3MHlOakE0TURjeE9EUXpOVFphRncweU9EQTRNRFl4T1RRek5UWmFNRVF4RnpBVkJnTlZCQW9URGtGdWRHaHliM0JwWXl3Z1VFSkRNU2t3SndZRFZRUURFeUJCYm5Sb2NtOXdhV01nUTJ4aGRXUmxJRU52Ym5SbGJuUWdVMmxuYm1sdVp6QlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJKaDZDbXZMVUJnRkZOVTB2VUtsT1Z0RTZkamQxN0w1U3V3WDBMZW1GaXNCTTNka2QvM2N5anhGQTNRbzVTNDZmWDAvaWhZMFZaN21mYjlLRjcwM3Q1T2pXREJXTUE0R0ExVWREd0VCL3dRRUF3SUhnREFWQmdOVkhTVUVEakFNQmdvckJnRUVBWVBvWGdJQk1Bd0dBMVVkRXdFQi93UUNNQUF3SHdZRFZSMGpCQmd3Rm9BVXpsSGlCSUZPWkZzaitPUEV6NW8rbk1IWFhNSXdDZ1lJS29aSXpqMEVBd01EWndBd1pBSXdNWE1kRko0QmV0TExWWTdPUnVFOW5vcWJiQVpPWm4vYUFyWHlUd0ZBWmZLclB6eEYydlBvSk5mMStVQ2RnMVhHQWpCd1gxemQ5V0dxWWtxbUw1U0ZxdzFReVNqcjF6SmZwSk05KzFyZER3U1BMTU9QT2pLdWlYam9VL3BVVWVHOVJ3bWhZM0JoWkZrTm5nQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUFpZUUZZSnNaRVdJRUNGd3dzNlJmK0lyUi9PbkRJdVEwT3RqRXJuTmJkMzBEUythYXlYK21jNXBJTFVjdk5UajNCRksxSHZxTXREOXY1UDNsd002bFVLZDBjPTwvYzJwYTptYW5pZmVzdD48L21ldGFkYXRhPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjU2YWJmIi8+CiAgPGcgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj4KICAgIDxsaW5lIHgxPSIxNiIgeTE9IjE4IiB4Mj0iMzIiIHkyPSIzMiIvPjxsaW5lIHgxPSIxNiIgeTE9IjQ2IiB4Mj0iMzIiIHkyPSIzMiIvPgogICAgPGxpbmUgeDE9IjMyIiB5MT0iMzIiIHgyPSI0OCIgeTI9IjE4Ii8+PGxpbmUgeDE9IjMyIiB5MT0iMzIiIHgyPSI0OCIgeTI9IjQ2Ii8+PGxpbmUgeDE9IjQ4IiB5MT0iMTgiIHgyPSI0OCIgeTI9IjQ2Ii8+CiAgPC9nPgogIDxnIGZpbGw9IiNmZmYiPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTgiIHI9IjYiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjQ2IiByPSI2Ii8+PGNpcmNsZSBjeD0iNDgiIGN5PSIxOCIgcj0iNiIvPjxjaXJjbGUgY3g9IjQ4IiBjeT0iNDYiIHI9IjYiLz48L2c+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iOCIgZmlsbD0iI2ZmZDI3YSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+Cg==" alt="" width="28" height="28">ネットワーク通信シミュレータ</a>
+    <span class="spacer"></span>
+    <div class="display-toggles" id="display-toggles" role="group" aria-label="表示の切りかえ"></div>
+    <div class="overall-progress" id="overall-progress"></div>
+  </header>
+  <div class="layout">
+    <aside class="chapter-nav" id="chapter-nav"></aside>
+    <main id="view" tabindex="-1">
+      <noscript><p>この教材を使うには JavaScript を有効にしてください。</p></noscript>
+    </main>
+  </div>
+  <footer class="app-footer">
+    <p class="author">作成：羽生市立南中学校 技術 岡田（第1.3版 2026年10月）</p>
+    <p>この教材はブラウザの中だけで動く模型のネットワークです。本物のネットワークや外部のサイトには接続しません。サイト名・IPアドレスは説明用の架空のものです。</p>
+  </footer>
+  <script>
+window.__NETSIM_STANDALONE = true;
+</script>
+<script>
+"use strict";
+// ---- js/netlib.js ----
+const __m_js_netlib_js = (() => {
+
+// ネットワークの計算（画面に依存しない部分。tests/unit.test.mjs でテストする）
+// すべてブラウザの中の「模型のネットワーク」。実際のネットワークには一切さわらない。
+
+// 機器の種類。forward: true の機器（ルータ）だけが、他の機器あてのパケットを中継する
+const NODE_TYPES = {
+  pc: { label: "パソコン", icon: "💻", forward: false, client: true },
+  phone: { label: "スマホ", icon: "📱", forward: false, client: true },
+  router: { label: "ルータ", icon: "🔀", forward: true, client: false },
+  server: { label: "Webサーバ", icon: "🖥", forward: false, client: false },
+  dns: { label: "DNSサーバ", icon: "📖", forward: false, client: false },
+};
+
+// はじめのネットワーク（家庭 → プロバイダの網の目 → サーバ）
+// IPアドレスは、家の中はプライベートアドレス、外は説明用に予約されたアドレス（203.0.113.x など）を使う
+function defaultNetwork() {
+  const nodes = [
+    { id: "pc1", type: "pc", name: "わたしのPC", ip: "192.168.1.10", x: 80, y: 170 },
+    { id: "phone1", type: "phone", name: "スマホ", ip: "192.168.1.11", x: 80, y: 370 },
+    { id: "home", type: "router", name: "家のルータ", ip: "192.168.1.1", x: 240, y: 270 },
+    { id: "rA", type: "router", name: "ルータA", ip: "10.0.0.1", x: 420, y: 140 },
+    { id: "rB", type: "router", name: "ルータB", ip: "10.0.0.2", x: 420, y: 400 },
+    { id: "rC", type: "router", name: "ルータC", ip: "10.0.0.3", x: 620, y: 140 },
+    { id: "rD", type: "router", name: "ルータD", ip: "10.0.0.4", x: 620, y: 400 },
+    { id: "web", type: "server", name: "クモストア", host: "kumo-store.example", ip: "203.0.113.10", x: 840, y: 170 },
+    { id: "dns1", type: "dns", name: "DNSサーバ", ip: "198.51.100.53", x: 840, y: 400 },
+  ];
+  const pairs = [
+    ["pc1", "home"], ["phone1", "home"], ["home", "rA"], ["home", "rB"], ["rA", "rB"],
+    ["rA", "rC"], ["rB", "rD"], ["rC", "rD"], ["rC", "web"], ["rD", "web"], ["rD", "dns1"],
+  ];
+  return { nodes, links: pairs.map(([a, b]) => ({ id: `${a}-${b}`, a, b })) };
+}
+
+// 前の版の店の名前（くもストア／www.kumo-store.example）を、情報セキュリティ体験ラボと同じ
+// 「クモストア」「kumo-store.example」に直す（NW-18）。生徒が自分で変えた名前はそのまま。
+function migrateShopNames(net) {
+  for (const n of net?.nodes || []) {
+    if (n.type !== "server") continue;
+    if (n.host === "www.kumo-store.example") n.host = "kumo-store.example";
+    if (n.name === "くもストア") n.name = "クモストア";
+  }
+  return net;
+}
+
+function cloneNet(net) {
+  return JSON.parse(JSON.stringify(net));
+}
+
+const nodeById = (net, id) => net.nodes.find((n) => n.id === id);
+const linkBetween = (net, a, b) => net.links.find((l) => (l.a === a && l.b === b) || (l.a === b && l.b === a));
+const canForward = (node) => Boolean(NODE_TYPES[node?.type]?.forward);
+
+// 使える隣の機器（回線が切れていない・相手が止まっていない）
+function neighbors(net, id) {
+  const out = [];
+  for (const l of net.links) {
+    if (l.cut) continue;
+    const other = l.a === id ? l.b : l.b === id ? l.a : null;
+    if (!other) continue;
+    const n = nodeById(net, other);
+    if (n && !n.down) out.push({ id: other, cost: l.cost || 1 });
+  }
+  return out;
+}
+
+// ダイクストラ法で、いちばん近い道（通る回線の数が少ない道）を探す。
+// 同じ長さの道が複数あるときは rng で選ぶ（パケットごとに道が変わることがある）。
+// 途中で中継できるのはルータだけ。届かないときは null。
+function shortestPath(net, from, to, rng = Math.random) {
+  const src = nodeById(net, from);
+  const dst = nodeById(net, to);
+  if (!src || !dst || src.down || dst.down) return null;
+  if (from === to) return [from];
+  const dist = new Map([[from, 0]]);
+  const preds = new Map([[from, []]]);
+  const done = new Set();
+  const queue = [from];
+  while (queue.length) {
+    queue.sort((x, y) => dist.get(x) - dist.get(y));
+    const u = queue.shift();
+    if (done.has(u)) continue;
+    done.add(u);
+    if (u !== from && !canForward(nodeById(net, u))) continue; // ルータ以外は中継しない
+    for (const { id: v, cost } of neighbors(net, u)) {
+      const d = dist.get(u) + cost;
+      const cur = dist.get(v);
+      if (cur === undefined || d < cur) {
+        dist.set(v, d);
+        preds.set(v, [u]);
+        queue.push(v);
+      } else if (d === cur) {
+        preds.get(v).push(u);
+      }
+    }
+  }
+  if (!dist.has(to)) return null;
+  const path = [to];
+  let cur = to;
+  while (cur !== from) {
+    const ps = preds.get(cur);
+    cur = ps[Math.min(ps.length - 1, Math.floor(rng() * ps.length))];
+    path.unshift(cur);
+  }
+  return path;
+}
+
+// 同じ長さの道がいくつあるか（テストと説明用）
+function countShortestPaths(net, from, to) {
+  const seen = new Set();
+  for (let i = 0; i < 200; i++) {
+    const p = shortestPath(net, from, to, () => Math.random());
+    if (!p) return 0;
+    seen.add(p.join(">"));
+  }
+  return seen.size;
+}
+
+// 道がいまも使えるか（回線が切れていない・機器が止まっていない・途中はルータだけ）
+function routeWorks(net, path) {
+  if (!Array.isArray(path) || !path.length) return false;
+  for (let i = 0; i < path.length; i++) {
+    const n = nodeById(net, path[i]);
+    if (!n || n.down) return false;
+    if (i > 0 && i < path.length - 1 && !canForward(n)) return false;
+    if (i > 0) {
+      const l = linkBetween(net, path[i - 1], path[i]);
+      if (!l || l.cut) return false;
+    }
+  }
+  return true;
+}
+const routeCost = (net, path) => {
+  let c = 0;
+  for (let i = 1; i < path.length; i++) c += linkBetween(net, path[i - 1], path[i])?.cost || 1;
+  return c;
+};
+const sameRoute = (a, b) => Boolean(a && b && a.join(">") === b.join(">"));
+
+// 図に太い線で出す道を決める（くじは使わない。くじで道を変えるのは「2」のパケットのアニメだけ）。
+// prefer にあげた道が、まだ使えて、いちばん近い道と同じ長さなら、その道をそのまま使う（前から順に）。
+// そうでなければ、毎回同じ決まった道を選ぶ。届かないときは null。
+function stableRoute(net, from, to, ...prefer) {
+  const best = shortestPath(net, from, to, () => 0);
+  if (!best) return null;
+  const cost = routeCost(net, best);
+  for (const p of prefer) {
+    if (p && p[0] === from && p[p.length - 1] === to && routeWorks(net, p) && routeCost(net, p) === cost) return p;
+  }
+  return best;
+}
+
+// 道の上で、こわれているところ（切れた回線・止まった機器）
+function brokenOnRoute(net, path) {
+  const out = { links: [], nodes: [] };
+  if (!path) return out;
+  for (let i = 0; i < path.length; i++) {
+    const n = nodeById(net, path[i]);
+    if (n?.down) out.nodes.push(n.id);
+    if (i > 0) {
+      const l = linkBetween(net, path[i - 1], path[i]);
+      if (!l || l.cut) out.links.push([path[i - 1], path[i]]);
+    }
+  }
+  return out;
+}
+
+// こわす前の道（before）と、いまの道（now）をくらべる。
+// kind: "ok"（こわれたところがない）| "same"（こわれたところは通り道ではない）| "detour"（別の道になった）| "unreachable"
+function compareRoutes(net, before, now) {
+  const faults = net.links.filter((l) => l.cut).length + net.nodes.filter((n) => n.down).length;
+  const name = (id) => nodeById(net, id)?.name || id;
+  const broken = brokenOnRoute(net, before);
+  const brokenNames = [...broken.links.map(([a, b]) => `${name(a)}–${name(b)}`), ...broken.nodes.map(name)];
+  if (!now) return { kind: "unreachable", faults, brokenNames };
+  if (!faults) return { kind: "ok", faults, brokenNames };
+  if (sameRoute(before, now)) return { kind: "same", faults, brokenNames };
+  return { kind: "detour", faults, brokenNames, middle: now.slice(1, -1).map(name) };
+}
+
+// from から届く機器（中継はルータだけ）
+function reachableFrom(net, from) {
+  const start = nodeById(net, from);
+  if (!start || start.down) return new Set();
+  const seen = new Set([from]);
+  const stack = [from];
+  while (stack.length) {
+    const u = stack.pop();
+    if (u !== from && !canForward(nodeById(net, u))) continue;
+    for (const { id: v } of neighbors(net, u)) {
+      if (!seen.has(v)) {
+        seen.add(v);
+        stack.push(v);
+      }
+    }
+  }
+  return seen;
+}
+
+// DNSの名前解決。届くDNSサーバに聞いて、名前（host）からIPアドレスを調べる
+function resolveName(net, clientId, host) {
+  const dnsServers = net.nodes.filter((n) => n.type === "dns");
+  if (!dnsServers.length) return { ok: false, reason: "no-dns" };
+  let path = null;
+  let dns = null;
+  for (const d of dnsServers) {
+    const p = shortestPath(net, clientId, d.id);
+    if (p && (!path || p.length < path.length)) {
+      path = p;
+      dns = d;
+    }
+  }
+  if (!path) return { ok: false, reason: "dns-unreachable" };
+  const target = net.nodes.find((n) => n.type === "server" && n.host && n.host.toLowerCase() === String(host).trim().toLowerCase());
+  if (!target) return { ok: false, reason: "not-found", dns, path };
+  return { ok: true, dns, path, ip: target.ip, server: target };
+}
+
+// 届かないわけ（NW-07）。中継できるのはルータだけ、というきまりも説明に使う。
+// kind: "ok" | "missing" | "to-down" | "from-down" | "isolated"（node がどこにもつながっていない）
+//   | "broken"（こわれたところのせい） | "no-relay"（線はつながっているが、途中にルータでない機器 node がある） | "no-line"（線でつながっていない）
+function unreachableReason(net, fromId, toId) {
+  const from = nodeById(net, fromId);
+  const to = nodeById(net, toId);
+  if (!from || !to) return { kind: "missing" };
+  if (shortestPath(net, fromId, toId, () => 0)) return { kind: "ok" };
+  if (to.down) return { kind: "to-down", node: to };
+  if (from.down) return { kind: "from-down", node: from };
+  const wired = (id) => net.links.some((l) => (l.a === id || l.b === id) && nodeById(net, l.a) && nodeById(net, l.b));
+  if (!wired(fromId)) return { kind: "isolated", node: from };
+  if (!wired(toId)) return { kind: "isolated", node: to };
+  const healed = cloneNet(net);
+  healed.links.forEach((l) => delete l.cut);
+  healed.nodes.forEach((n) => delete n.down);
+  if (shortestPath(healed, fromId, toId, () => 0)) return { kind: "broken" };
+  // ルータでない機器も中継できるとしたら届くか（線だけを見て、近い順にさがす）
+  const prev = new Map([[fromId, null]]);
+  const queue = [fromId];
+  while (queue.length && !prev.has(toId)) {
+    const u = queue.shift();
+    for (const l of net.links) {
+      const v = l.a === u ? l.b : l.b === u ? l.a : null;
+      if (v && !prev.has(v) && nodeById(net, v)) {
+        prev.set(v, u);
+        queue.push(v);
+      }
+    }
+  }
+  if (!prev.has(toId)) return { kind: "no-line" };
+  const path = [];
+  for (let v = toId; v !== null; v = prev.get(v)) path.unshift(v);
+  const node = path
+    .slice(1, -1)
+    .map((id) => nodeById(net, id))
+    .find((n) => !canForward(n));
+  return { kind: "no-relay", node, path };
+}
+// 届かないわけを、中学生向けの文にする（HTMLではない、ふつうの文字）
+function reasonText(r, toName) {
+  switch (r?.kind) {
+    case "to-down":
+      return `「${r.node.name}」そのものが止まっています。`;
+    case "from-down":
+      return `送る側の「${r.node.name}」が止まっています。`;
+    case "isolated":
+      return `「${r.node.name}」は、どこにもつながっていません。線でつなごう。`;
+    case "broken":
+      return `こわれたところのせいで、${toName} までの道がすべてとぎれています。`;
+    case "no-relay":
+      return `「${r.node.name}」の先へは進めません。${NODE_TYPES[r.node.type]?.label || "この機器"}はパケットを中継しないからです（中継するのはルータだけ）。ルータにつなごう。`;
+    case "no-line":
+      return `${toName} まで、線がつながっていません。`;
+    default:
+      return "";
+  }
+}
+
+// 点(px,py)から線分(a-b)までのきょり
+function segDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2)) : 0;
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+// 新しい機器を置く、空いている場所（ほかの機器や線と重ならない所）。図の左下から順にさがす（NW-04）。
+// 空きがなければ、いちばん空いている所。
+function freeSpot(net, W, H, { minNode = 110, minLink = 45 } = {}) {
+  let best = null;
+  for (let y = H - 75; y >= 60; y -= 35) {
+    for (let x = 60; x <= W - 60; x += 40) {
+      let dn = Infinity;
+      for (const n of net.nodes) dn = Math.min(dn, Math.hypot(n.x - x, n.y - y));
+      let dl = Infinity;
+      for (const l of net.links) {
+        const a = nodeById(net, l.a);
+        const b = nodeById(net, l.b);
+        if (a && b) dl = Math.min(dl, segDist(x, y, a.x, a.y, b.x, b.y));
+      }
+      if (dn >= minNode && dl >= minLink) return { x, y };
+      const score = Math.min(dn / minNode, dl / minLink);
+      if (!best || score > best.score) best = { x, y, score };
+    }
+  }
+  return { x: best.x, y: best.y };
+}
+
+// ---- IPアドレス ----
+function parseIPv4(s) {
+  const parts = String(s).trim().split(".");
+  if (parts.length !== 4) return null;
+  const nums = [];
+  for (const p of parts) {
+    if (!/^\d{1,3}$/.test(p)) return null;
+    if (p.length > 1 && p[0] === "0") return null; // 012 のような書き方はしない
+    const n = Number(p);
+    if (n > 255) return null;
+    nums.push(n);
+  }
+  return nums;
+}
+const isValidIPv4 = (s) => parseIPv4(s) !== null;
+
+// 生徒が打った文字を、判定の前にそろえる（全角の数字・点を半角に、前後と途中の空白を取る）
+function normalizeIp(s) {
+  return String(s ?? "")
+    .normalize("NFKC")
+    .replace(/[。｡]/g, ".")
+    .replace(/\s+/g, "")
+    .trim();
+}
+// サイトの名前（ドメイン名）をそろえる（全角を半角に、空白を取る、小文字に、http:// と / から後ろを取る）
+function normalizeHost(s) {
+  return String(s ?? "")
+    .normalize("NFKC")
+    .replace(/[。｡]/g, ".")
+    .replace(/\s+/g, "")
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "");
+}
+// 説明用の名前（最後が .example）になっているか
+const isExampleHost = (host) => /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+example$/.test(String(host));
+const IP_FORMAT_HELP = "半角の数字（0〜255）を4つ、点（.）で区切って書こう。例：192.168.1.10";
+
+const toInt = (nums) => ((nums[0] << 24) >>> 0) + (nums[1] << 16) + (nums[2] << 8) + nums[3];
+const fromInt = (n) => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+const maskInt = (prefix) => (prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0);
+
+const maskFromPrefix = (prefix) => fromInt(maskInt(prefix));
+function networkAddress(ip, prefix = 24) {
+  const nums = parseIPv4(ip);
+  if (!nums) return null;
+  return fromInt((toInt(nums) & maskInt(prefix)) >>> 0);
+}
+function sameNetwork(a, b, prefix = 24) {
+  const na = networkAddress(a, prefix);
+  return na !== null && na === networkAddress(b, prefix);
+}
+// つなげられる機器の数（ネットワークを表す番号とブロードキャスト用の2つを除く）
+const hostCount = (prefix) => Math.max(0, 2 ** (32 - prefix) - 2);
+const toBinary8 = (n) => Number(n).toString(2).padStart(8, "0");
+
+// 機器を追加するときの空いているIPアドレス
+function nextFreeIp(net, type) {
+  const used = new Set(net.nodes.map((n) => n.ip));
+  const base = { pc: ["192.168.1.", 20], phone: ["192.168.1.", 30], router: ["10.0.0.", 11], server: ["203.0.113.", 20], dns: ["198.51.100.", 60] }[type] || ["10.0.1.", 1];
+  for (let i = base[1]; i < 255; i++) if (!used.has(base[0] + i)) return base[0] + i;
+  return "";
+}
+
+// ネットワークの点検（IPアドレスの書き方・重なり、つながっていない機器）
+function checkNetwork(net) {
+  const issues = [];
+  const byIp = new Map();
+  for (const n of net.nodes) {
+    if (!isValidIPv4(n.ip)) issues.push({ kind: "bad-ip", node: n.id, text: `「${n.name}」のIPアドレス「${n.ip || "（空）"}」は正しい形ではありません（0〜255の数を4つ、点で区切る）` });
+    else if (byIp.has(n.ip)) issues.push({ kind: "dup-ip", node: n.id, text: `「${n.name}」と「${byIp.get(n.ip).name}」が同じIPアドレス ${n.ip} です。同じだと、どちらに届ければよいかわかりません` });
+    else byIp.set(n.ip, n);
+    if (!net.links.some((l) => l.a === n.id || l.b === n.id)) issues.push({ kind: "isolated", node: n.id, text: `「${n.name}」がどこにもつながっていません` });
+  }
+  return issues;
+}
+
+// ---- パケット ----
+// データを小さなまとまり（パケット）に分ける。各パケットには番号・宛先・送信元が付く
+function splitIntoPackets(text, size, header = {}) {
+  const chars = [...String(text)];
+  const total = Math.max(1, Math.ceil(chars.length / size));
+  const out = [];
+  for (let i = 0; i < total; i++) out.push({ ...header, seq: i + 1, total, data: chars.slice(i * size, (i + 1) * size).join("") });
+  return out;
+}
+
+// 届いた順がばらばらでも、番号順に並べれば元にもどる。足りない番号も調べる
+function reassemble(packets) {
+  if (!packets.length) return { text: "", missing: [], complete: false };
+  const total = packets[0].total;
+  const bySeq = new Map(packets.map((p) => [p.seq, p]));
+  const missing = [];
+  for (let i = 1; i <= total; i++) if (!bySeq.has(i)) missing.push(i);
+  const text = [...bySeq.values()].sort((a, b) => a.seq - b.seq).map((p) => p.data).join("");
+  return { text, missing, complete: missing.length === 0 };
+}
+
+// のぞき見で、ある部分（たとえば "password=neko-sora-123"）がどれだけ見えたか。
+// body を size 文字ずつのパケットに分けたとき、番号が seenSeqs のパケットだけが見えたとする。
+// 返り値: { state: "all" | "part" | "none", text: 見えた文字（見えない所は「…」） }
+function visiblePart(body, size, seenSeqs, field) {
+  const chars = [...String(body)];
+  const f = [...String(field)];
+  let start = -1;
+  for (let i = 0; i + f.length <= chars.length && start < 0; i++) if (f.every((c, k) => chars[i + k] === c)) start = i;
+  if (start < 0 || !f.length) return { state: "none", text: "" };
+  const seen = new Set(seenSeqs);
+  let text = "";
+  let shown = 0;
+  for (let i = 0; i < f.length; i++) {
+    if (seen.has(Math.floor((start + i) / size) + 1)) {
+      text += f[i];
+      shown++;
+    } else if (!text.endsWith("…")) text += "…";
+  }
+  return { state: shown === f.length ? "all" : shown ? "part" : "none", text: shown ? text : "" };
+}
+
+// 暗号化したように見せる模型（中身の代わりに意味のない16進数を表示する。本物の暗号ではない）
+function scrambleLike(text, rng = Math.random) {
+  const len = new TextEncoder().encode(String(text)).length + 16;
+  let s = "";
+  for (let i = 0; i < len; i++) s += Math.floor(rng() * 256).toString(16).padStart(2, "0") + (i % 16 === 15 ? "\n" : " ");
+  return s.trim();
+}
+
+return { NODE_TYPES, defaultNetwork, migrateShopNames, cloneNet, nodeById, linkBetween, canForward, shortestPath, countShortestPaths, routeWorks, sameRoute, stableRoute, brokenOnRoute, compareRoutes, reachableFrom, resolveName, unreachableReason, reasonText, freeSpot, parseIPv4, isValidIPv4, normalizeIp, normalizeHost, isExampleHost, IP_FORMAT_HELP, maskFromPrefix, networkAddress, sameNetwork, hostCount, toBinary8, nextFreeIp, checkNetwork, splitIntoPackets, reassemble, visiblePart, scrambleLike };
+})();
+
+// ---- js/store.js ----
+const __m_js_store_js = (() => {
+const { defaultNetwork, cloneNet, migrateShopNames } = __m_js_netlib_js;
+// 進み具合・ふりかえり・作ったネットワークの保存（この端末のブラウザ内 localStorage のみ。外部には送らない）
+
+const STORE_KEY = "netsim.v1";
+
+function emptyState() {
+  return {
+    version: 1,
+    student: { cls: "", num: "", name: "" },
+    net: defaultNetwork(),
+    modules: {}, // { [moduleId]: { steps: { [stepId]: isoDate }, score: {...} } }
+    reflections: {}, // { [moduleId]: { text, at } }
+    updatedAt: null,
+  };
+}
+
+let state = load();
+const listeners = new Set();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return emptyState();
+    const parsed = JSON.parse(raw);
+    const s = { ...emptyState(), ...parsed };
+    if (!s.net || !Array.isArray(s.net.nodes) || !Array.isArray(s.net.links)) s.net = defaultNetwork();
+    else migrateShopNames(s.net);
+    return s;
+  } catch {
+    return emptyState();
+  }
+}
+
+function save() {
+  state.updatedAt = new Date().toISOString();
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  } catch {
+    // プライベートモード等で保存できない場合も、画面上の体験は続けられる
+  }
+  listeners.forEach((fn) => fn(state));
+}
+
+const store = {
+  get state() {
+    return state;
+  },
+  subscribe(fn) {
+    listeners.add(fn);
+    return () => listeners.delete(fn);
+  },
+  get net() {
+    return state.net;
+  },
+  saveNet(net) {
+    state.net = cloneNet(net);
+    save();
+  },
+  resetNet() {
+    state.net = defaultNetwork();
+    save();
+    return cloneNet(state.net);
+  },
+  completeStep(moduleId, stepId) {
+    const m = (state.modules[moduleId] ||= { steps: {}, score: {} });
+    if (m.steps[stepId]) return false;
+    m.steps[stepId] = new Date().toISOString();
+    save();
+    return true;
+  },
+  isStepDone(moduleId, stepId) {
+    return Boolean(state.modules[moduleId]?.steps?.[stepId]);
+  },
+  setScore(moduleId, key, value) {
+    const m = (state.modules[moduleId] ||= { steps: {}, score: {} });
+    m.score[key] = value;
+    save();
+  },
+  getScore(moduleId, key) {
+    return state.modules[moduleId]?.score?.[key];
+  },
+  setReflection(moduleId, text) {
+    state.reflections[moduleId] = { text, at: new Date().toISOString() };
+    save();
+  },
+  getReflection(moduleId) {
+    return state.reflections[moduleId]?.text || "";
+  },
+  setStudent(info) {
+    state.student = { ...state.student, ...info };
+    save();
+  },
+  reset() {
+    state = emptyState();
+    save();
+  },
+};
+
+return { store };
+})();
+
+// ---- js/ui.js ----
+const __m_js_ui_js = (() => {
+const { store } = __m_js_store_js;
+// 共通UI部品（要素ビルダー、解説カード、ステップ枠、ふりかえり、クイズ、トースト）
+
+// 小さな要素ビルダー: h("div", { class: "card" }, "text", child)
+function h(tag, attrs = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === false || v === null || v === undefined) continue;
+    if (k === "class") el.className = v;
+    else if (k === "html") el.innerHTML = v;
+    else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (k === "dataset") Object.assign(el.dataset, v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat(Infinity)) {
+    if (c === null || c === undefined || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+// 解説カード。kind: "info" | "warn" | "good" | "bad"
+function explainCard(label, body, kind = "info") {
+  const card = h("div", { class: `explain ${kind === "info" ? "" : kind}`, role: kind === "warn" ? "note" : null });
+  card.append(h("span", { class: "explain-label" }, label));
+  if (typeof body === "string") card.append(h("p", { html: body }));
+  else card.append(body);
+  return card;
+}
+
+
+// ステップ枠。done() を呼ぶとチェックが付き、進捗に記録される
+function stepCard(moduleId, step, index) {
+  const check = h("span", { class: "check", "aria-live": "polite" });
+  const head = h(
+    "h2",
+    { class: "step-title", id: `step-${moduleId}-${step.id}` },
+    h("span", { class: "badge" }, `ステップ${index + 1}`),
+    h("span", {}, step.title),
+    check,
+  );
+  const body = h("div");
+  const card = h("section", { class: "card", "aria-labelledby": `step-${moduleId}-${step.id}` }, head, body);
+  const refresh = () => {
+    check.textContent = store.isStepDone(moduleId, step.id) ? "✓ できた" : "";
+  };
+  refresh();
+  return {
+    el: card,
+    body,
+    done() {
+      if (store.completeStep(moduleId, step.id)) toast(`「${step.title}」をクリアしました`);
+      refresh();
+    },
+  };
+}
+
+// ふりかえりの自動保存。書いている途中の文も、ボタンを押したときと同じ場所（store）に保存する。
+// 5文字以上なら、ボタンを押したときと同じように「できた」にする（onSaved）。
+const AUTOSAVE_MS = 400;
+const MIN_REFLECTION = 5;
+const pendingDrafts = new Set();
+function makeDraftSaver(moduleId, getText, { onSaved, onStatus, delay = AUTOSAVE_MS } = {}) {
+  let timer = null;
+  const saveNow = () => {
+    clearTimeout(timer);
+    timer = null;
+    pendingDrafts.delete(saver);
+    const text = String(getText() ?? "").trim();
+    if (text === store.getReflection(moduleId)) return false;
+    store.setReflection(moduleId, text);
+    if (text.length >= MIN_REFLECTION) onSaved && onSaved(text);
+    onStatus && onStatus("保存しました");
+    return true;
+  };
+  const saver = {
+    schedule() {
+      clearTimeout(timer);
+      pendingDrafts.add(saver);
+      timer = setTimeout(saveNow, delay);
+    },
+    flush: saveNow,
+    get pending() {
+      return timer !== null;
+    },
+  };
+  return saver;
+}
+// まだ保存していない下書きを、すぐに保存する（ページを移るとき・閉じるときに呼ぶ）
+function flushDrafts() {
+  for (const s of [...pendingDrafts]) s.flush();
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", flushDrafts);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushDrafts();
+  });
+}
+
+// ふりかえり。例文とヒントは問いごとに変える（NW-16）
+const REFLECTION_DEFAULTS = { placeholder: "例: 〇〇をためしたら△△になった。それは□□だから。", hint: "ためしたこと・見たことをもとに、「なぜそうなるのか」を自分の言葉で書こう。" };
+function reflectionBox(moduleId, prompt, onSaved, { placeholder = REFLECTION_DEFAULTS.placeholder, hint = REFLECTION_DEFAULTS.hint } = {}) {
+  const id = `reflect-${moduleId}`;
+  const ta = h("textarea", { id, maxlength: "400", placeholder });
+  ta.value = store.getReflection(moduleId);
+  const note = h("div", { class: "saved-note", "aria-live": "polite" });
+  const setNote = (msg, warn = false) => {
+    note.style.color = warn ? "var(--warn)" : "";
+    note.textContent = msg;
+  };
+  const saver = makeDraftSaver(moduleId, () => ta.value, { onSaved, onStatus: (msg) => setNote(msg) });
+  ta.addEventListener("input", () => saver.schedule());
+  ta.addEventListener("blur", () => saver.pending && saver.flush());
+  const saveBtn = h("button", { class: "btn", type: "button" }, "ふりかえりを保存");
+  saveBtn.addEventListener("click", () => {
+    saver.flush();
+    const text = ta.value.trim();
+    if (text.length < MIN_REFLECTION) {
+      setNote(text ? "保存しました。もう少し書いてみよう（5文字以上）" : "書いてから押そう（5文字以上）", true);
+      return;
+    }
+    setNote("保存しました");
+    onSaved && onSaved(text);
+  });
+  return h(
+    "div",
+    { class: "reflection" },
+    h("label", { for: id }, prompt),
+    h("div", { class: "hint" }, hint),
+    ta,
+    h("div", { class: "hint autosave-hint" }, "書いた文は、自動でこの端末に保存されます。"),
+    h("div", { class: "btn-row" }, saveBtn),
+    note,
+  );
+}
+
+// 選択肢の順番を入れかえる（位置で答えを覚えないように）
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 選択式クイズ（1問）。選択肢は毎回ならびかえる。
+// retry: true（確かめよう）… まちがえたら、もう一度えらべる。正解したときだけ onAnswer(true, 何回目で正解したか)。
+// retry: false（ドリル）… 1回だけ答える。onAnswer(正解か)。まちがえたら正解を見せる。
+function choiceQuiz({ question, choices, answer, explain }, onAnswer, { retry = false } = {}) {
+  const wrap = h("div", { class: "quiz" });
+  const fb = h("div", { "aria-live": "polite" });
+  const list = h("ul", { class: "choice-list" });
+  let answered = false;
+  let tries = 0;
+  let correctBtn = null;
+  const buttons = [];
+  for (const [c, i] of shuffled(choices.map((c, i) => [c, i]))) {
+    const b = h("button", { type: "button" }, c);
+    buttons.push(b);
+    if (i === answer) correctBtn = b;
+    b.addEventListener("click", () => {
+      if (answered || b.disabled) return;
+      tries++;
+      const ok = i === answer;
+      b.classList.add(ok ? "correct" : "wrong");
+      b.prepend(ok ? "○ " : "× ");
+      if (ok || !retry) {
+        answered = true;
+        buttons.forEach((x) => x !== b && x !== correctBtn && (x.disabled = true));
+        if (!ok) {
+          correctBtn.classList.add("correct");
+          correctBtn.prepend("○ ");
+        }
+        fb.replaceChildren(explainCard(ok ? (retry && tries > 1 ? `正解！（${tries}回目）` : "正解！") : "おしい！", explain, ok ? "good" : "warn"));
+        onAnswer && onAnswer(ok, tries);
+        return;
+      }
+      // もう一度えらべる（まちがえた選択肢だけ押せなくする）
+      b.disabled = true;
+      fb.replaceChildren(explainCard("ちがうみたい", "ほかの答えを、もう一度えらんでみよう。この問題は、正解するとクリアになります。", "warn"));
+    });
+    list.append(h("li", {}, b));
+  }
+  wrap.append(h("p", {}, h("strong", {}, question)), list, fb);
+  return wrap;
+}
+
+// 図と、その結果（説明・編集欄など）を左右にならべる（NW-04）。広い画面では右の欄が図と同じ高さで、中だけスクロールする。
+function simSplit(canvas, ...side) {
+  const inner = h("div", { class: "sim-side-inner" }, ...side);
+  const el = h("div", { class: "sim-split" }, canvas, h("div", { class: "sim-side" }, inner));
+  return {
+    el,
+    side: inner,
+    // 右の欄の中だけを、いちばん下（新しく出た文）までスクロールする。ページは動かさない
+    scrollSideToEnd() {
+      inner.scrollTop = inner.scrollHeight;
+    },
+  };
+}
+
+// ボタン（top）から図（bottom）までが画面に入るように、必要なときだけ少しスクロールする（ボタンが見えなくならない範囲で）
+function revealBetween(top, bottom) {
+  if (typeof window === "undefined" || !top || !bottom) return;
+  const header = document.querySelector(".app-header");
+  const headBottom = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+  const need = bottom.getBoundingClientRect().bottom - window.innerHeight + 8;
+  if (need <= 0) return;
+  const room = top.getBoundingClientRect().top - headBottom - 8;
+  const dy = Math.min(need, Math.max(0, room));
+  if (dy <= 0) return;
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  window.scrollBy({ top: dy, behavior: reduce ? "auto" : "smooth" });
+}
+
+let toastTimer;
+function toast(msg) {
+  let t = document.querySelector(".toast");
+  if (!t) {
+    t = h("div", { class: "toast", role: "status" });
+    document.body.append(t);
+  }
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// 端末内でファイルを作ってダウンロードさせる（送信はしない）
+function downloadFile(filename, text, type = "application/json") {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = h("a", { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+return { h, escapeHtml, explainCard, stepCard, AUTOSAVE_MS, MIN_REFLECTION, makeDraftSaver, flushDrafts, REFLECTION_DEFAULTS, reflectionBox, shuffled, choiceQuiz, simSplit, revealBetween, toast, downloadFile };
+})();
+
+// ---- js/netview.js ----
+const __m_js_netview_js = (() => {
+const { NODE_TYPES, nodeById } = __m_js_netlib_js;
+// ネットワーク図（SVG）とパケットのアニメーション
+
+const NS = "http://www.w3.org/2000/svg";
+const VIEW_W = 920;
+const VIEW_H = 540;
+
+// サイト名（nn-host）の置き方。x は機器の中心の位置（図の座標）
+function hostAnchor(x, edge = 200) {
+  if (x > VIEW_W - edge) return { x: Math.min(40, VIEW_W - 8 - x), "text-anchor": "end" };
+  if (x < edge) return { x: Math.max(-40, 8 - x), "text-anchor": "start" };
+  return { x: 0, "text-anchor": "middle" };
+}
+
+function s(tag, attrs = {}, ...children) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v !== null && v !== undefined && v !== false) el.setAttribute(k, v);
+  for (const c of children.flat()) if (c !== null && c !== undefined) el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return el;
+}
+
+// アニメーションの速さ（1 = ふつう）。動きを減らす設定のときは速くする
+let speed = 1;
+const getSpeed = () => speed;
+const setSpeed = (v) => {
+  speed = v;
+};
+const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+// 一時停止（NW-02）。止めているあいだは、パケットも待ち時間も進まない
+let paused = false;
+let resumeWaiters = [];
+const isPaused = () => paused;
+function setPaused(v) {
+  paused = Boolean(v);
+  if (!paused) resumeWaiters.splice(0).forEach((f) => f());
+}
+// 止めていなければすぐ、止めていれば「つづける」まで待つ
+const whenResumed = () => (paused ? new Promise((r) => resumeWaiters.push(r)) : Promise.resolve());
+
+const wait = (ms) =>
+  new Promise((r) => {
+    let left = reducedMotion() ? Math.min(ms, 60) : ms / speed;
+    let last = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      if (!paused) left -= now - last;
+      last = now;
+      if (left <= 0) r();
+      else setTimeout(tick, Math.min(left, 50));
+    };
+    tick();
+  });
+
+// 速さの切りかえボタン
+function speedControl(h) {
+  const opts = [
+    [0.5, "ゆっくり"],
+    [1, "ふつう"],
+    [2, "はやい"],
+  ];
+  const btns = opts.map(([v, label]) => {
+    const b = h("button", { type: "button", class: "chip", "aria-pressed": v === speed ? "true" : "false" }, label);
+    b.addEventListener("click", () => {
+      setSpeed(v);
+      btns.forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    });
+    return b;
+  });
+  return h("div", { class: "chip-row", role: "group", "aria-label": "アニメーションの速さ" }, h("span", { class: "hint" }, "速さ："), ...btns);
+}
+
+// 指で操作したときは、少しぶれても「押した」と見なす（NW-14）
+const DRAG_THRESHOLD = { mouse: 4, touch: 12, pen: 8 };
+const dragThreshold = (pointerType) => DRAG_THRESHOLD[pointerType] ?? DRAG_THRESHOLD.mouse;
+
+/**
+ * ネットワーク図を作る。
+ * opts: { net, draggable（true/false か、いま動かせるかを返す関数）, onNodeClick(node), onLinkClick(link), label, onChange(), onBeforeChange() }
+ */
+function createNetView(opts) {
+  setPaused(false); // 前の画面で止めたままにしない
+  let net = opts.net;
+  const canDrag = () => (typeof opts.draggable === "function" ? opts.draggable() : Boolean(opts.draggable));
+  const marks = { nodes: new Map(), links: new Map(), path: null, oldPath: null, spyLink: null, selected: null };
+
+  const svg = s("svg", { viewBox: `0 0 ${VIEW_W} ${VIEW_H}`, class: "net-svg", role: "group", "aria-label": opts.label || "ネットワーク図" });
+  const linkLayer = s("g", { class: "links" });
+  const nodeLayer = s("g", { class: "nodes" });
+  const pktLayer = s("g", { class: "packets", "aria-hidden": "true" });
+  svg.append(linkLayer, nodeLayer, pktLayer);
+
+  const toSvgPoint = (clientX, clientY) => {
+    const m = svg.getScreenCTM();
+    if (!m) return { x: VIEW_W / 2, y: VIEW_H / 2 };
+    const p = new DOMPoint(clientX, clientY).matrixTransform(m.inverse());
+    return { x: p.x, y: p.y };
+  };
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  function pathHasLink(l, p = marks.path) {
+    if (!p) return false;
+    for (let i = 0; i < p.length - 1; i++) if ((p[i] === l.a && p[i + 1] === l.b) || (p[i] === l.b && p[i + 1] === l.a)) return true;
+    return false;
+  }
+
+  function render() {
+    linkLayer.replaceChildren();
+    nodeLayer.replaceChildren();
+    for (const l of net.links) {
+      const a = nodeById(net, l.a);
+      const b = nodeById(net, l.b);
+      if (!a || !b) continue;
+      const onPath = pathHasLink(l);
+      const cls = ["nl", l.cut ? "cut" : "", onPath ? "on-path" : "", !onPath && pathHasLink(l, marks.oldPath) ? "old-path" : "", marks.links.get(l.id) || ""].join(" ");
+      const g = s("g", { class: cls, "data-link": l.id });
+      g.append(s("line", { class: "nl-line", x1: a.x, y1: a.y, x2: b.x, y2: b.y }));
+      const mx = (a.x + b.x) / 2;
+      const my = (a.y + b.y) / 2;
+      if (l.cut) g.append(s("text", { class: "nl-mark", x: mx, y: my + 7, "text-anchor": "middle" }, "✂"));
+      if (marks.spyLink === l.id) g.append(s("text", { class: "nl-spy", x: mx, y: my + 9, "text-anchor": "middle" }, "👀"));
+      if (opts.onLinkClick) {
+        const hit = s("line", { class: "nl-hit", x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+        g.append(hit);
+        g.setAttribute("tabindex", "0");
+        g.setAttribute("role", "button");
+        g.setAttribute("aria-label", `${a.name} と ${b.name} の回線${l.cut ? "（切れている）" : ""}`);
+        g.addEventListener("click", () => opts.onLinkClick(l));
+        g.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            opts.onLinkClick(l);
+          }
+        });
+      }
+      linkLayer.append(g);
+    }
+    for (const n of net.nodes) {
+      const t = NODE_TYPES[n.type] || NODE_TYPES.pc;
+      const onPath = marks.path?.includes(n.id);
+      const cls = ["nn", `t-${n.type}`, n.down ? "down" : "", onPath ? "on-path" : "", marks.selected === n.id ? "selected" : "", marks.nodes.get(n.id) || ""].join(" ");
+      const g = s("g", { class: cls, transform: `translate(${n.x} ${n.y})`, "data-node": n.id, tabindex: opts.onNodeClick || opts.draggable ? "0" : null, role: opts.onNodeClick ? "button" : "img" });
+      g.setAttribute("aria-label", `${t.label}「${n.name}」 IPアドレス ${n.ip}${n.host ? ` 名前 ${n.host}` : ""}${n.down ? "（止まっている）" : ""}`);
+      g.append(
+        s("circle", { class: "nn-bg", r: 30 }),
+        s("text", { class: "nn-icon", y: 10, "text-anchor": "middle" }, t.icon),
+        s("text", { class: "nn-name", y: 50, "text-anchor": "middle" }, n.name),
+        s("text", { class: "nn-ip", y: 70, "text-anchor": "middle" }, n.ip),
+      );
+      // サイト名は長いので、図の右はし・左はしでは図の内側にそろえる（文字を大きくしても切れないように）
+      if (n.host) g.append(s("text", { class: "nn-host", y: -38, ...hostAnchor(n.x) }, n.host));
+      if (n.down) g.append(s("text", { class: "nn-x", y: 14, "text-anchor": "middle" }, "✕"));
+      attachNodeEvents(g, n);
+      nodeLayer.append(g);
+    }
+  }
+
+  function attachNodeEvents(g, n) {
+    let start = null;
+    let moved = false;
+    // 動かせるときだけ、機器の上での指の動きでページがスクロールしないようにする（図のほかの所ではスクロールできる）
+    g.addEventListener(
+      "touchstart",
+      (e) => {
+        if (canDrag()) e.preventDefault();
+      },
+      { passive: false },
+    );
+    g.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      start = { x: e.clientX, y: e.clientY, limit: dragThreshold(e.pointerType), drag: canDrag() };
+      moved = false;
+      if (start.drag) {
+        g.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      }
+    });
+    g.addEventListener("pointermove", (e) => {
+      if (!start || !start.drag) return;
+      if (!moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) > start.limit) {
+        moved = true;
+        opts.onBeforeChange && opts.onBeforeChange();
+      }
+      if (!moved) return;
+      const p = toSvgPoint(e.clientX, e.clientY);
+      n.x = Math.round(clamp(p.x, 40, VIEW_W - 40));
+      n.y = Math.round(clamp(p.y, 50, VIEW_H - 75));
+      g.setAttribute("transform", `translate(${n.x} ${n.y})`);
+      for (const line of linkLayer.querySelectorAll("line")) {
+        const l = net.links.find((x) => x.id === line.parentNode.dataset.link);
+        if (!l) continue;
+        if (l.a === n.id) line.setAttribute("x1", n.x), line.setAttribute("y1", n.y);
+        if (l.b === n.id) line.setAttribute("x2", n.x), line.setAttribute("y2", n.y);
+      }
+    });
+    const end = () => {
+      if (!start) return;
+      const wasMoved = moved;
+      start = null;
+      if (wasMoved) {
+        render();
+        opts.onChange && opts.onChange();
+      } else if (opts.onNodeClick) opts.onNodeClick(n);
+    };
+    g.addEventListener("pointerup", end);
+    g.addEventListener("pointercancel", () => (start = null));
+    g.addEventListener("keydown", (e) => {
+      if ((e.key === "Enter" || e.key === " ") && opts.onNodeClick) {
+        e.preventDefault();
+        opts.onNodeClick(n);
+      }
+      // 矢印キーでも動かせる
+      if (canDrag() && e.key.startsWith("Arrow")) {
+        e.preventDefault();
+        opts.onBeforeChange && opts.onBeforeChange();
+        const d = e.shiftKey ? 40 : 10;
+        if (e.key === "ArrowLeft") n.x = clamp(n.x - d, 40, VIEW_W - 40);
+        if (e.key === "ArrowRight") n.x = clamp(n.x + d, 40, VIEW_W - 40);
+        if (e.key === "ArrowUp") n.y = clamp(n.y - d, 50, VIEW_H - 75);
+        if (e.key === "ArrowDown") n.y = clamp(n.y + d, 50, VIEW_H - 75);
+        render();
+        nodeLayer.querySelector(`[data-node="${n.id}"]`)?.focus();
+        opts.onChange && opts.onChange();
+      }
+    });
+  }
+
+  // パケットを道にそって動かす。kind: "dns" | "req" | "data" | "secure" | "lost"
+  function animate(path, { label = "", kind = "data", hopMs = 650, stopAt = null, onHop = null } = {}) {
+    const pts = path.map((id) => nodeById(net, id)).filter(Boolean);
+    if (stopAt !== null) pts.splice(stopAt + 1);
+    const g = s("g", { class: `pkt k-${kind}` }, s("rect", { x: -16, y: -12, width: 32, height: 24, rx: 6 }), s("text", { y: 5, "text-anchor": "middle" }, label));
+    pktLayer.append(g);
+    const place = (x, y) => g.setAttribute("transform", `translate(${x} ${y - 30})`);
+    place(pts[0].x, pts[0].y);
+    if (pts.length < 2) {
+      return wait(300).then(() => g.remove());
+    }
+    const hop = reducedMotion() ? 40 : hopMs;
+    return new Promise((resolve) => {
+      let i = 0;
+      let t0 = null;
+      let lastTs = null;
+      const step = (ts) => {
+        if (!g.isConnected) return resolve();
+        if (t0 === null) t0 = ts;
+        // 一時停止のあいだは、時間を進めない
+        if (paused && lastTs !== null) t0 += ts - lastTs;
+        lastTs = ts;
+        if (paused) return requestAnimationFrame(step);
+        const dur = hop / speed;
+        let k = (ts - t0) / dur;
+        while (k >= 1 && i < pts.length - 1) {
+          i++;
+          t0 += dur;
+          k = (ts - t0) / dur;
+          if (onHop) onHop(pts[i - 1].id, pts[i].id);
+        }
+        if (i >= pts.length - 1) {
+          place(pts[pts.length - 1].x, pts[pts.length - 1].y);
+          setTimeout(() => g.remove(), 150);
+          return resolve();
+        }
+        const a = pts[i];
+        const b = pts[i + 1];
+        place(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k);
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
+  render();
+  return {
+    el: svg,
+    render,
+    animate,
+    toSvgPoint,
+    get net() {
+      return net;
+    },
+    setNet(next) {
+      net = next;
+      render();
+    },
+    setPath(path) {
+      marks.path = path;
+      render();
+    },
+    // こわす前の道を点線で見せる（null で消す）
+    setOldPath(path) {
+      marks.oldPath = path;
+      render();
+    },
+    setSelected(id) {
+      marks.selected = id;
+      render();
+    },
+    markNode(id, cls) {
+      if (cls) marks.nodes.set(id, cls);
+      else marks.nodes.delete(id);
+      render();
+    },
+    setSpyLink(id) {
+      marks.spyLink = id;
+      render();
+    },
+    clearMarks() {
+      marks.nodes.clear();
+      marks.links.clear();
+      marks.path = null;
+      marks.oldPath = null;
+      render();
+    },
+    clearPackets() {
+      pktLayer.replaceChildren();
+    },
+  };
+}
+
+// 道を「A → B → C」の文に
+const pathText = (net, path) => path.map((id) => nodeById(net, id)?.name || id).join(" → ");
+
+return { VIEW_W, VIEW_H, hostAnchor, getSpeed, setSpeed, isPaused, setPaused, whenResumed, wait, speedControl, DRAG_THRESHOLD, dragThreshold, createNetView, pathText };
+})();
+
+// ---- js/drilllib.js ----
+const __m_js_drilllib_js = (() => {
+const { isValidIPv4, sameNetwork, toBinary8, hostCount } = __m_js_netlib_js;
+// IPアドレス・ネットワークの基礎ドリルの問題を作る（画面に依存しない。テストあり）
+
+const ri = (rng, lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
+function uniq(rng, make, n, avoid = new Set()) {
+  const out = [];
+  const seen = new Set(avoid);
+  let guard = 0;
+  while (out.length < n && guard++ < 500) {
+    const v = make();
+    if (!seen.has(String(v))) {
+      seen.add(String(v));
+      out.push(v);
+    }
+  }
+  return out;
+}
+// 正解をランダムな位置に入れる
+function place(rng, correct, wrongs) {
+  const choices = [...wrongs];
+  const answer = ri(rng, 0, choices.length);
+  choices.splice(answer, 0, correct);
+  return { choices: choices.map(String), answer };
+}
+
+// 2進数の重み（128・64・…・1）のうち、n を作るもの。例：68 → [64, 4]
+function weightParts(n) {
+  return [128, 64, 32, 16, 8, 4, 2, 1].filter((w) => n & w);
+}
+const MASKS = { 24: "255.255.255.0", 25: "255.255.255.128", 28: "255.255.255.240" };
+function hostsQuestion(rng, p) {
+  const ok = hostCount(p);
+  const wrongs = [2 ** (32 - p), 2 ** (32 - p) - 1, p].filter((x) => x !== ok);
+  const all = 2 ** (32 - p);
+  return {
+    kind: "hosts",
+    prefix: p,
+    question: `サブネットマスク ${MASKS[p]}（/${p}）のネットワークに、IPアドレスを割り当てられる機器は最大で何台？`,
+    ...place(rng, ok, wrongs),
+    explain:
+      p === 24
+        ? "/24 のときは、最後の1つの数（ホスト部・8ビット）で機器を見分けます。0〜255 の 256とおりのうち、0（ネットワークそのものを表す番号）と 255（ネットワークの全員あての番号）の2つは機器に使えないので、254台です。"
+        : `/${p} は「前から${p}ビットがネットワーク部」という意味です。ホスト部は ${32 - p} ビットなので 2の${32 - p}乗 = ${all} とおり。そのうち、いちばん小さい番号（ネットワークそのものを表す番号）といちばん大きい番号（全員あての番号）の2つは使えないので、${ok}台です。`,
+  };
+}
+
+const GEN = {
+  validIp(rng) {
+    const ok = `192.168.${ri(rng, 0, 9)}.${ri(rng, 1, 254)}`;
+    const bads = [
+      () => `192.168.${ri(rng, 0, 9)}.${ri(rng, 256, 300)}`,
+      () => `10.${ri(rng, 0, 255)}.${ri(rng, 0, 255)}`,
+      () => `172.16.${ri(rng, 0, 9)}.${ri(rng, 1, 99)}.${ri(rng, 1, 9)}`,
+      () => `${ri(rng, 300, 999)}.0.113.${ri(rng, 1, 254)}`,
+      () => `203,0,113,${ri(rng, 1, 254)}`,
+    ];
+    const wrongs = uniq(rng, () => pick(rng, bads)(), 3, new Set([ok])).filter((x) => !isValidIPv4(x));
+    return { kind: "validIp", question: "正しいIPアドレス（IPv4）の書き方になっているのはどれ？", ...place(rng, ok, wrongs), explain: "IPv4アドレスは、0〜255の数を4つ、点（.）で区切って書きます。256以上の数や、数が3つ・5つのものはまちがいです。" };
+  },
+  sameNet(rng) {
+    const c = ri(rng, 0, 9);
+    const base = `192.168.${c}.${ri(rng, 2, 99)}`;
+    const ok = `192.168.${c}.${ri(rng, 100, 250)}`;
+    const wrongs = uniq(rng, () => `192.168.${pick(rng, [c + 1, c + 2, c + 10, c + 20])}.${ri(rng, 2, 250)}`, 3, new Set([ok])).filter((x) => !sameNetwork(x, base, 24));
+    return {
+      kind: "sameNet",
+      question: `サブネットマスクが 255.255.255.0（/24）のとき、${base} と同じネットワークにあるのはどれ？`,
+      ...place(rng, ok, wrongs),
+      explain: "255.255.255.0 のときは、前の3つの数（ネットワーク部）が同じなら同じネットワークです。最後の1つの数（ホスト部）で機器を見分けます。",
+    };
+  },
+  toBinary(rng) {
+    const n = ri(rng, 1, 255);
+    const ok = toBinary8(n);
+    const wrongs = uniq(rng, () => toBinary8(n ^ (1 << ri(rng, 0, 7))), 3, new Set([ok]));
+    return {
+      kind: "toBinary",
+      question: `10進数の ${n} を、2進数8けたで表すとどれ？`,
+      ...place(rng, ok, wrongs),
+      explain: `${n} = ${weightParts(n).join(" + ")} → ${ok}。大きい重み（128・64・32・16・8・4・2・1）から順に、引けるところを1、引けないところを0にします。`,
+    };
+  },
+  fromBinary(rng) {
+    const n = ri(rng, 1, 255);
+    const wrongs = uniq(rng, () => n ^ (1 << ri(rng, 0, 7)), 3, new Set([String(n)]));
+    const bits = toBinary8(n);
+    return { kind: "fromBinary", question: `2進数の ${bits} を10進数で表すといくつ？`, ...place(rng, n, wrongs), explain: `1のところの重みを足します：${weightParts(n).join(" + ")} = ${n}` };
+  },
+  // 機器の台数（/24 だけ。/25・/28 はチャレンジ問題 makeChallenge で出す）
+  hosts(rng) {
+    return hostsQuestion(rng, 24);
+  },
+  role(rng) {
+    const qs = [
+      { question: "サイトの名前（ドメイン名）から、IPアドレスを調べる役目の機器は？", ok: "DNSサーバ", wrongs: ["ルータ", "Webサーバ", "スマホ"], explain: "DNSサーバは、名前とIPアドレスの対応表を持っている「電話帳」の役目です。" },
+      { question: "パケットの宛先を見て、次にどの回線へ送るかを決める機器は？", ok: "ルータ", wrongs: ["DNSサーバ", "Webサーバ", "パソコン"], explain: "ルータはパケットの宛先IPアドレスを見て、目的地に近づく回線へ中継します。" },
+      { question: "たのまれたWebページのデータを送り返す機器は？", ok: "Webサーバ", wrongs: ["ルータ", "DNSサーバ", "スマホ"], explain: "Webサーバは、クライアント（パソコンやスマホのブラウザ）のお願いに応えて、ページを送ります。" },
+      { question: "IPv4アドレスは、全部で何ビットの数？", ok: "32ビット", wrongs: ["8ビット", "16ビット", "64ビット"], explain: "8ビットの数が4つで、8×4＝32ビットです。" },
+      { question: "パケットに付いている情報として、ふさわしくないものはどれ？", ok: "送った人の顔写真", wrongs: ["宛先のIPアドレス", "送信元のIPアドレス", "何番目のパケットかを表す番号"], explain: "パケットには、宛先・送信元のIPアドレスや番号など、届けて組み立てるための情報（ヘッダ）が付いています。" },
+    ];
+    const q = pick(rng, qs);
+    return { kind: "role", question: q.question, ...place(rng, q.ok, q.wrongs), explain: q.explain };
+  },
+};
+const DRILL_KINDS = Object.keys(GEN);
+
+function makeQuestion(kind, rng = Math.random) {
+  return GEN[kind](rng);
+}
+
+// チャレンジ問題（サブネット /25・/28）。中学の範囲をこえるので、クリアの数には入れない（NW-03）
+function makeChallenge(rng = Math.random) {
+  return [25, 28].map((p) => ({ ...hostsQuestion(rng, p), challenge: true }));
+}
+
+// 10問のセット（種類がかたよらないように順にまぜる）
+function makeDrill(n = 10, rng = Math.random) {
+  const order = [];
+  while (order.length < n) {
+    const round = [...DRILL_KINDS];
+    for (let i = round.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [round[i], round[j]] = [round[j], round[i]];
+    }
+    order.push(...round);
+  }
+  return order.slice(0, n).map((k) => makeQuestion(k, rng));
+}
+
+return { weightParts, DRILL_KINDS, makeQuestion, makeChallenge, makeDrill };
+})();
+
+// ---- modules/build.js ----
+const __m_modules_build_js = (() => {
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, toast, simSplit, revealBetween } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { NODE_TYPES, cloneNet, nodeById, linkBetween, nextFreeIp, checkNetwork, isValidIPv4, reachableFrom, resolveName, normalizeIp, normalizeHost, isExampleHost, IP_FORMAT_HELP, freeSpot, unreachableReason, reasonText } = __m_js_netlib_js;
+const { createNetView, VIEW_W, VIEW_H } = __m_js_netview_js;
+// モジュール1: ネットワークを組み立てる（機器を置く・線でつなぐ・IPアドレスを確かめる）
+
+
+
+
+const ID = "build";
+const STEPS = [
+  { id: "place", title: "機器を置いてみよう" },
+  { id: "wire", title: "線でつないでみよう" },
+  { id: "check", title: "みんながWebサーバに届くか調べよう" },
+  { id: "quiz", title: "確かめよう" },
+  { id: "reflect", title: "ふりかえり" },
+];
+
+const buildModule = {
+  id: ID,
+  minutes: "15〜20分",
+  lead: "インターネットは、パソコンやスマホ、ルータ、サーバなどの機器が回線でつながった「網の目」です。機器を置いて線でつなぎ、自分だけの小さなネットワークを作ってみよう。ここで作ったネットワークは、ほかの画面でも使われます。",
+  steps: STEPS,
+  render(root) {
+    const cards = STEPS.map((s, i) => stepCard(ID, s, i));
+    let net = cloneNet(store.net);
+    let tool = "move"; // move | wire | erase
+    let wireFrom = null;
+    let selected = null;
+
+    const persist = () => store.saveNet(net);
+    const status = h("p", { class: "build-status", "aria-live": "polite" });
+
+    // 「1つもどす」ための写し（変える前のネットワーク）。この画面にいるあいだだけ覚えておく（NW-05）
+    const history = [];
+    const remember = () => {
+      history.push(cloneNet(net));
+      if (history.length > 30) history.shift();
+      undoBtn.disabled = false;
+    };
+
+    const view = createNetView({
+      net,
+      draggable: () => tool === "move",
+      label: "組み立て中のネットワーク図。機器をドラッグで動かせます。",
+      onChange: persist,
+      onBeforeChange: remember,
+      onNodeClick: (n) => {
+        if (tool === "erase") {
+          const lines = net.links.filter((l) => l.a === n.id || l.b === n.id).length;
+          if (lines && !confirm(`「${n.name}」と、つながっている線${lines}本を消します。よろしいですか？\n（まちがえたときは「↶ 1つもどす」でもどせます）`)) {
+            status.textContent = "消すのをやめました。";
+            return;
+          }
+          remember();
+          net.nodes = net.nodes.filter((x) => x.id !== n.id);
+          net.links = net.links.filter((l) => l.a !== n.id && l.b !== n.id);
+          if (selected === n.id) selected = null;
+          persist();
+          view.setNet(net);
+          showEditor(null);
+          refreshPairForm();
+          status.textContent = `「${n.name}」${lines ? `と線${lines}本` : ""}を消しました。まちがえたときは「↶ 1つもどす」。`;
+          return;
+        }
+        if (tool === "wire") {
+          if (!wireFrom) {
+            wireFrom = n.id;
+            view.setSelected(n.id);
+            status.textContent = `「${n.name}」を選びました。つなぐ相手を押してください。`;
+            return;
+          }
+          if (wireFrom === n.id) {
+            wireFrom = null;
+            view.setSelected(null);
+            status.textContent = "選ぶのをやめました。";
+            return;
+          }
+          connect(wireFrom, n.id);
+          wireFrom = null;
+          view.setSelected(null);
+          refreshPairForm();
+          return;
+        }
+        selected = n.id;
+        view.setSelected(n.id);
+        showEditor(n);
+      },
+      onLinkClick: (l) => {
+        if (tool !== "erase") return;
+        remember();
+        net.links = net.links.filter((x) => x !== l);
+        persist();
+        view.setNet(net);
+        refreshPairForm();
+        status.textContent = `「${nodeById(net, l.a)?.name}」と「${nodeById(net, l.b)?.name}」の線を外しました。まちがえたときは「↶ 1つもどす」。`;
+      },
+    });
+
+    // 機器の追加（パレットからドラッグ、またはクリック）
+    let addCount = 0;
+    function addNode(type, x, y) {
+      remember();
+      const t = NODE_TYPES[type];
+      const id = `${type}${Date.now().toString(36)}${addCount++}`;
+      const same = net.nodes.filter((n) => n.type === type).length + 1;
+      const node = { id, type, name: `${t.label}${same}`, ip: nextFreeIp(net, type), x: Math.round(x), y: Math.round(y) };
+      if (type === "server") node.host = `www.site${same}.example`;
+      net.nodes.push(node);
+      persist();
+      view.setNet(net);
+      refreshPairForm();
+      status.textContent = `「${node.name}」（IPアドレス ${node.ip}）を置きました。光っている機器です。`;
+      // 置いた機器を少しのあいだ光らせて、図が画面に入るようにする（NW-04）
+      view.markNode(node.id, "just-added");
+      setTimeout(() => view.markNode(node.id, null), 2500);
+      revealBetween(palette, canvasWrap);
+      cards[0].done();
+      return node;
+    }
+    const palette = h(
+      "div",
+      { class: "palette", role: "group", "aria-label": "置く機器" },
+      ...Object.entries(NODE_TYPES).map(([type, t]) => {
+        const b = h("button", { type: "button", class: "palette-item", draggable: "true" }, h("span", { class: "emoji", "aria-hidden": "true" }, t.icon), `＋${t.label}`);
+        b.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/x-netsim", type);
+          e.dataTransfer.effectAllowed = "copy";
+        });
+        // クリック（タップ）で置くときは、ほかの機器や線と重ならない、空いている所に置く
+        b.addEventListener("click", () => {
+          const p = freeSpot(net, VIEW_W, VIEW_H);
+          addNode(type, p.x, p.y);
+        });
+        return b;
+      }),
+    );
+    const toolBanner = h("div", { class: "tool-banner", "aria-hidden": "true" });
+    const canvasWrap = h("div", { class: "net-canvas" }, view.el, toolBanner);
+    canvasWrap.addEventListener("dragover", (e) => {
+      if ([...e.dataTransfer.types].includes("text/x-netsim")) e.preventDefault();
+    });
+    canvasWrap.addEventListener("drop", (e) => {
+      const type = e.dataTransfer.getData("text/x-netsim");
+      if (!NODE_TYPES[type]) return;
+      e.preventDefault();
+      const p = view.toSvgPoint(e.clientX, e.clientY);
+      addNode(type, Math.max(40, Math.min(VIEW_W - 40, p.x)), Math.max(50, Math.min(VIEW_H - 75, p.y)));
+    });
+
+    const tools = [
+      ["move", "✋ 動かす・選ぶ"],
+      ["wire", "🔗 線でつなぐ"],
+      ["erase", "🧽 消す"],
+    ];
+    const toolBtns = tools.map(([id, label]) => {
+      const b = h("button", { type: "button", class: "chip", "aria-pressed": id === tool ? "true" : "false" }, label);
+      b.addEventListener("click", () => {
+        tool = id;
+        wireFrom = null;
+        view.setSelected(null);
+        toolBtns.forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+        canvasWrap.dataset.tool = id;
+        toolBanner.textContent = { move: "", wire: "🔗 いまは「線でつなぐ」を選んでいます", erase: "🧽 いまは「消す」を選んでいます（押した機器や線が消えます）" }[id];
+        status.textContent = { move: "機器をドラッグで動かせます。機器を押すと、名前やIPアドレスを変えられます。", wire: "つなぎたい2つの機器を順に押そう。", erase: "消したい機器や線を押そう。終わったら「✋ 動かす・選ぶ」にもどそう。" }[id];
+      });
+      return b;
+    });
+    canvasWrap.dataset.tool = tool;
+    const undoBtn = h("button", { type: "button", class: "chip", disabled: true }, "↶ 1つもどす");
+    undoBtn.addEventListener("click", () => {
+      const prev = history.pop();
+      if (!prev) return;
+      net = prev;
+      wireFrom = null;
+      selected = null;
+      persist();
+      view.setNet(net);
+      view.setSelected(null);
+      showEditor(null);
+      refreshPairForm();
+      undoBtn.disabled = history.length === 0;
+      status.textContent = "1つ前の形にもどしました。";
+    });
+
+    // キーボード・タブレット用：選んでつなぐフォーム
+    const selA = h("select", { id: "pair-a", "aria-label": "1つ目の機器" });
+    const selB = h("select", { id: "pair-b", "aria-label": "2つ目の機器" });
+    function refreshPairForm() {
+      for (const sel of [selA, selB]) {
+        const keep = sel.value;
+        sel.replaceChildren(...net.nodes.map((n) => h("option", { value: n.id }, `${n.name}（${n.ip}）`)));
+        if (net.nodes.some((n) => n.id === keep)) sel.value = keep;
+      }
+    }
+    refreshPairForm();
+    const pairBtn = h("button", { type: "button", class: "btn small secondary" }, "つなぐ");
+    pairBtn.addEventListener("click", () => {
+      if (!selA.value || !selB.value || selA.value === selB.value) return toast("ちがう2つの機器を選んでください");
+      connect(selA.value, selB.value);
+    });
+    const unpairBtn = h("button", { type: "button", class: "btn small secondary" }, "線を外す");
+    unpairBtn.addEventListener("click", () => {
+      const exist = linkBetween(net, selA.value, selB.value);
+      if (!exist) return toast("この2つの機器は、つながっていません");
+      remember();
+      net.links = net.links.filter((l) => l !== exist);
+      persist();
+      view.setNet(net);
+      status.textContent = `「${nodeById(net, exist.a)?.name}」と「${nodeById(net, exist.b)?.name}」の線を外しました。まちがえたときは「↶ 1つもどす」。`;
+    });
+    // 線をつなぐ。すでにつながっていれば、外さずに知らせる（線を外すのは「消す」だけ。NW-05）
+    function connect(aId, bId) {
+      const a = nodeById(net, aId);
+      const b = nodeById(net, bId);
+      if (linkBetween(net, aId, bId)) {
+        status.textContent = `「${a.name}」と「${b.name}」は、もうつながっています。線を外すときは「🧽 消す」を使おう。`;
+        return;
+      }
+      remember();
+      net.links.push({ id: `${aId}-${bId}-${Date.now().toString(36)}`, a: aId, b: bId });
+      status.textContent = `「${a.name}」と「${b.name}」をつなぎました。`;
+      cards[1].done();
+      persist();
+      view.setNet(net);
+    }
+
+    // 選んだ機器の名前・IPアドレスを変える
+    const editor = h("div", { class: "node-editor", "aria-live": "polite" });
+    function showEditor(n) {
+      if (!n) {
+        editor.replaceChildren(h("p", { class: "hint" }, "「✋ 動かす・選ぶ」で機器を押すと、ここで名前やIPアドレスを変えられます。"));
+        return;
+      }
+      const t = NODE_TYPES[n.type];
+      const name = h("input", { type: "text", id: "ed-name", maxlength: "12", value: n.name });
+      const ip = h("input", { type: "text", id: "ed-ip", maxlength: "15", value: n.ip, inputmode: "decimal", spellcheck: "false" });
+      const ipNote = h("div", { class: "hint", "aria-live": "polite" });
+      const host = n.type === "server" ? h("input", { type: "text", id: "ed-host", maxlength: "40", value: n.host || "", spellcheck: "false" }) : null;
+      const hostNote = host ? h("div", { class: "hint", "aria-live": "polite" }, "最後は .example にしよう（説明用の名前）") : null;
+      const checkIp = (reverted = false) => {
+        const v = normalizeIp(ip.value);
+        const ok = isValidIPv4(v);
+        const dup = net.nodes.some((x) => x !== n && x.ip === v);
+        ipNote.textContent = !v ? "⚠ IPアドレスを入れよう" : !ok ? `⚠ ${IP_FORMAT_HELP}` : dup ? "⚠ ほかの機器と同じIPアドレスです" : reverted ? "⚠ 正しい形ではなかったので、元の番号にもどしました" : "✓ 正しい形です";
+        ipNote.style.color = !ok || dup || reverted ? "var(--bad)" : "var(--good)";
+      };
+      const apply = (e) => {
+        remember();
+        n.name = name.value.trim() || n.name;
+        name.value = n.name;
+        // IPアドレス：全角の数字や点は半角に直す。正しい形でなければ保存せず、元の番号にもどす
+        let reverted = false;
+        const v = normalizeIp(ip.value);
+        if (isValidIPv4(v)) n.ip = v;
+        else if (e?.target === ip) reverted = true;
+        ip.value = n.ip;
+        // サイトの名前：最後が .example でなければ保存せず、元の名前にもどす
+        if (host) {
+          const hv = normalizeHost(host.value);
+          if (isExampleHost(hv)) {
+            n.host = hv;
+            hostNote.textContent = "最後は .example にしよう（説明用の名前）";
+            hostNote.style.color = "";
+          } else if (e?.target === host) {
+            hostNote.textContent = `⚠ ${hv ? "説明用の名前（最後が .example）にしよう。" : "サイトの名前を入れよう。"}元の名前にもどしました`;
+            hostNote.style.color = "var(--bad)";
+          }
+          host.value = n.host || "";
+        }
+        persist();
+        view.render();
+        refreshPairForm();
+        checkIp(reverted);
+      };
+      for (const el of [name, ip, host].filter(Boolean)) el.addEventListener("change", apply);
+      ip.addEventListener("input", () => checkIp());
+      checkIp();
+      editor.replaceChildren(
+        h("h3", {}, `${t.icon} ${t.label}「${n.name}」`),
+        h(
+          "div",
+          { class: "field-row" },
+          h("div", { class: "field" }, h("label", { for: "ed-name" }, "名前"), name),
+          h("div", { class: "field" }, h("label", { for: "ed-ip" }, "IPアドレス"), ip, ipNote),
+          host ? h("div", { class: "field" }, h("label", { for: "ed-host" }, "サイトの名前（ドメイン名）"), host, hostNote) : null,
+        ),
+        h("p", { class: "hint" }, NODE_TYPES[n.type].forward ? "ルータは、パケットの宛先を見て、次にどの回線へ送るかを決める「中継係」です。" : n.type === "dns" ? "DNSサーバは、サイトの名前からIPアドレスを調べてくれる「電話帳」の役目です。ほかの機器あてのパケットは中継しません。" : n.type === "server" ? "Webサーバは、たのまれたWebページを送り返す機器です。ほかの機器あてのパケットは中継しません。" : "パソコンやスマホは、通信をたのむ側（クライアント）です。ほかの機器あてのパケットは中継しません。"),
+      );
+    }
+
+    const resetBtn = h("button", { type: "button", class: "btn small secondary" }, "はじめの形にもどす");
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("作ったネットワークを消して、はじめの形にもどしますか？\n（まちがえたときは「↶ 1つもどす」でもどせます）")) return;
+      remember();
+      net = store.resetNet();
+      view.setNet(net);
+      showEditor(null);
+      refreshPairForm();
+      status.textContent = "はじめの形にもどしました。";
+    });
+
+    // ステップ1・2: 作業エリア
+    showEditor(null);
+    status.textContent = "機器をドラッグで動かせます。機器を押すと、名前やIPアドレスを変えられます。";
+    const split = simSplit(canvasWrap, status, editor);
+    cards[0].body.append(
+      h("p", {}, "下の機器ボタンを押して置こう（パソコンでは、図の上へドラッグしても置けます）。「線でつなぐ」を選んで2つの機器を順に押すと、回線でつながります。"),
+      palette,
+      h("div", { class: "chip-row", role: "group", "aria-label": "道具" }, ...toolBtns, undoBtn, h("span", { class: "spacer" }), resetBtn),
+      split.el,
+      h("details", { class: "kbd-wire" }, h("summary", {}, "キーボードで線をつなぐ"), h("div", { class: "btn-row" }, selA, selB, pairBtn, unpairBtn), h("p", { class: "hint" }, "機器にフォーカスして矢印キーを押すと動かせます。")),
+    );
+    cards[1].body.append(
+      h("p", {}, "家のパソコンやスマホは、まず「家のルータ」につながり、ルータどうしが回線でつながって、遠くのサーバまで届きます。"),
+      explainCard("きまり：中継するのはルータだけ", "ほかの機器あてのパケットを<strong>中継</strong>（受け取って次へ送ること）するのは<strong>ルータ</strong>だけです。パソコン・スマホ・サーバは中継しません。だから、スマホをパソコンにだけつないでも、その先へは届きません。"),
+      explainCard("ポイント", "ルータとルータの間を<strong>何本もの道</strong>でつないでおくと、1本が切れても別の道で届きます（あとの「回線が切れたら？」で試せます）。"),
+    );
+
+    // ステップ3: つながりチェック
+    const resultBox = h("div", { "aria-live": "polite" });
+    const checkBtn = h("button", { type: "button", class: "btn" }, "つながりを調べる");
+    checkBtn.addEventListener("click", () => {
+      const issues = checkNetwork(net);
+      const clients = net.nodes.filter((n) => NODE_TYPES[n.type].client);
+      const servers = net.nodes.filter((n) => n.type === "server");
+      const rows = [];
+      let allOk = clients.length > 0 && servers.length > 0;
+      for (const c of clients) {
+        const reach = reachableFrom(net, c.id);
+        for (const sv of servers) {
+          const ok = reach.has(sv.id);
+          const dns = resolveName(net, c.id, sv.host);
+          if (!ok || !dns.ok) allOk = false;
+          // 届かないときは、わけも出す（NW-07）
+          const why = ok ? "" : reasonText(unreachableReason(net, c.id, sv.id), sv.name);
+          const dnsNode = net.nodes.find((n) => n.type === "dns");
+          const dnsWhy = dns.ok || dns.reason === "no-dns" || !dnsNode ? "" : reasonText(unreachableReason(net, c.id, dnsNode.id), dnsNode.name);
+          rows.push(
+            h(
+              "tr",
+              {},
+              h("td", {}, c.name),
+              h("td", {}, sv.name),
+              h("td", {}, h("span", { class: `status ${ok ? "good" : "bad"}` }, ok ? "届く" : "届かない"), why ? h("div", { class: "hint why" }, why) : null),
+              h("td", {}, h("span", { class: `status ${dns.ok ? "good" : "warn"}` }, dns.ok ? "名前で調べられる" : dns.reason === "no-dns" ? "DNSサーバがない" : "DNSに届かない"), dnsWhy && dnsWhy !== why ? h("div", { class: "hint why" }, dnsWhy) : null),
+            ),
+          );
+        }
+      }
+      if (issues.length) allOk = false;
+      resultBox.replaceChildren(
+        ...[
+        !clients.length || !servers.length ? explainCard("たりない機器", "パソコンかスマホと、Webサーバを少なくとも1台ずつ置こう。", "warn") : null,
+        rows.length ? h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "から"), h("th", {}, "へ"), h("th", {}, "パケット"), h("th", {}, "DNS"))), h("tbody", {}, rows))) : null,
+        issues.length ? explainCard("直したいところ", h("ul", {}, issues.map((i) => h("li", {}, i.text))), "warn") : null,
+        allOk ? explainCard("ばっちり！", "どのパソコン・スマホからも、Webサーバに届き、サイトの名前も調べられます。", "good") : null,
+        ].filter(Boolean),
+      );
+      if (allOk) cards[2].done();
+    });
+    cards[2].body.append(h("p", {}, "パソコン・スマホから、Webサーバまで本当に届くかを調べよう。IPアドレスがまちがっていたり、ほかの機器と同じだったりしないかも点検します。"), checkBtn, resultBox);
+
+    // ステップ4
+    cards[3].body.append(
+      choiceQuiz(
+        {
+          question: "ネットワークの中で、IPアドレスが果たしている役目はどれ？",
+          choices: ["機器を見分けるための「住所」の役目", "通信を暗号化するための鍵", "Webページの題名", "回線の速さを表す数"],
+          answer: 0,
+          explain: "IPアドレスは、ネットワークにつながった機器一つ一つを見分ける番号です。だから同じネットワークの中で、ほかの機器と重なってはいけません。",
+        },
+        () => cards[3].done(),
+        { retry: true },
+      ),
+    );
+
+    // ステップ5
+    cards[4].body.append(
+      reflectionBox(ID, "ルータどうしを何本もの道でつなぐと、どんなよいことがありそう？", () => cards[4].done(), {
+        placeholder: "例: 1本の線が切れても、〇〇を通って届くから、△△になる。",
+        hint: "図でためしたこと（どの線とどの線をつないだか）をもとに書こう。",
+      }),
+    );
+
+    root.append(...cards.map((c) => c.el));
+  },
+};
+
+return { buildModule };
+})();
+
+// ---- modules/flow.js ----
+const __m_modules_flow_js = (() => {
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, escapeHtml : escape, simSplit, revealBetween } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { NODE_TYPES, cloneNet, nodeById, shortestPath, resolveName, splitIntoPackets, reassemble, normalizeHost, unreachableReason, reasonText } = __m_js_netlib_js;
+const { createNetView, speedControl, wait, pathText, setPaused, isPaused, whenResumed } = __m_js_netview_js;
+// モジュール2: Webページが届くまで（DNS問い合わせ → IPアドレス → パケットに分ける → 経路 → 組み立て）
+
+
+
+
+const ID = "flow";
+const STEPS = [
+  { id: "run", title: "Webページを見てみよう" },
+  { id: "dns", title: "DNSのしごと" },
+  { id: "packet", title: "なぜパケットに分けるの？" },
+  { id: "reflect", title: "ふりかえり" },
+];
+
+const pageText = (server) => `${server.name}へようこそ！今日のおすすめは、青いノートと消しゴムのセットです。`;
+
+const flowModule = {
+  id: ID,
+  minutes: "15分",
+  lead: "ブラウザにサイトの名前を入れてからWebページが表示されるまでに、ネットワークの中では何が起きているのでしょう。DNSへの問い合わせ、パケットへの分割、ルータによる中継、組み立てを順番に見てみよう。",
+  steps: STEPS,
+  render(root) {
+    const cards = STEPS.map((s, i) => stepCard(ID, s, i));
+    const net = cloneNet(store.net);
+    const view = createNetView({ net, label: "通信のようすを表すネットワーク図" });
+
+    const clients = net.nodes.filter((n) => NODE_TYPES[n.type].client);
+    const servers = net.nodes.filter((n) => n.type === "server" && n.host);
+    const clientSel = h("select", { id: "flow-client" }, clients.map((c) => h("option", { value: c.id }, `${c.name}（${c.ip}）`)));
+    const hostList = h("datalist", { id: "flow-hosts" }, servers.map((s) => h("option", { value: s.host })));
+    const urlIn = h("input", { type: "text", id: "flow-url", list: "flow-hosts", value: servers[0]?.host || "", spellcheck: "false", autocomplete: "off" });
+
+    const log = h("ol", { class: "flow-log", "aria-live": "polite" });
+    const logHint = h("p", { class: "hint" }, "「▶ 通信スタート」を押すと、ここに ①〜⑦ の説明が出ます。「⏭ 1つずつ進む」で始めると、1つごとに止まります。");
+    const startBtn = h("button", { type: "button", class: "btn" }, "▶ 通信スタート");
+    const pauseBtn = h("button", { type: "button", class: "btn secondary", disabled: true }, "⏸ 一時停止");
+    const stepBtn = h("button", { type: "button", class: "btn secondary" }, "⏭ 1つずつ進む");
+    const playState = h("p", { class: "hint play-state", "aria-live": "polite" });
+    let running = false;
+    let stepMode = false; // 1つずつ進むとき、①〜⑦の文が1つ出るごとに止まる
+    const canvas = h("div", { class: "net-canvas" }, view.el);
+    const split = simSplit(canvas, logHint, log);
+
+    function refreshPlay() {
+      startBtn.disabled = running;
+      pauseBtn.disabled = !running;
+      pauseBtn.textContent = running && isPaused() ? "▶ つづける" : "⏸ 一時停止";
+      pauseBtn.setAttribute("aria-pressed", running && isPaused() ? "true" : "false");
+      stepBtn.textContent = running && isPaused() ? "⏭ 次へ進む" : "⏭ 1つずつ進む";
+      playState.textContent = !running ? "" : isPaused() ? "止まっています。「⏭ 次へ進む」で1つ進みます。「▶ つづける」で最後まで進みます。" : stepMode ? "次の文が出たら止まります。" : "";
+    }
+    // 文を出したあと、止めているあいだはここで待つ（画面がちがうページに移ったら、やめる）
+    const ABORT = Symbol("abort");
+    async function gate() {
+      if (stepMode) setPaused(true);
+      refreshPlay();
+      await whenResumed();
+      if (!view.el.isConnected) throw ABORT;
+      refreshPlay();
+    }
+    // ページは動かさない（NW-02）。右の欄の中だけを、新しい文までスクロールする
+    const say = (html, kind = "") => {
+      const li = h("li", { class: kind, html });
+      log.append(li);
+      split.scrollSideToEnd();
+      return li;
+    };
+
+    pauseBtn.addEventListener("click", () => {
+      if (!running) return;
+      if (isPaused()) {
+        stepMode = false;
+        setPaused(false);
+      } else setPaused(true);
+      refreshPlay();
+    });
+    stepBtn.addEventListener("click", () => {
+      stepMode = true;
+      if (!running) return run();
+      setPaused(false);
+      refreshPlay();
+    });
+
+    async function run() {
+      if (running) return;
+      running = true;
+      setPaused(false);
+      refreshPlay();
+      revealBetween(startBtn, canvas);
+      logHint.hidden = true;
+      log.replaceChildren();
+      view.clearMarks();
+      try {
+        const client = nodeById(net, clientSel.value);
+        const host = normalizeHost(urlIn.value);
+        if (!client) return say("パソコンかスマホを、組み立て画面で置いてください。", "bad");
+        if (!host) {
+          say("サイトの名前を入れよう。例：<code>kumo-store.example</code>", "bad");
+          urlIn.focus();
+          return;
+        }
+        say(`① ブラウザに <code>${escape(host)}</code> と入力しました。でも、名前のままでは相手に送れません。<strong>IPアドレス</strong>が必要です。`);
+        await gate();
+
+        // DNS
+        const dns = resolveName(net, client.id, host);
+        if (!dns.ok && dns.reason !== "not-found") {
+          const dnsNode = net.nodes.find((n) => n.type === "dns");
+          const why = dnsNode ? reasonText(unreachableReason(net, client.id, dnsNode.id), dnsNode.name) : "";
+          say(dns.reason === "no-dns" ? "DNSサーバがないので、名前からIPアドレスを調べられません。組み立て画面でDNSサーバを置いてつなごう。" : `DNSサーバまでの道がありません。名前を調べられないので、ページを開けません。${escape(why)}`, "bad");
+          return;
+        }
+        view.setPath(dns.path);
+        say(`② <strong>DNSサーバ</strong>（${dns.dns.ip}）に「${escape(host)} のIPアドレスは？」と問い合わせます。`);
+        await gate();
+        await view.animate(dns.path, { label: "？", kind: "dns" });
+        await view.animate([...dns.path].reverse(), { label: "IP", kind: "dns" });
+        if (!dns.ok) {
+          say(`DNSサーバの答え：「${escape(host)} という名前は見つかりません」。名前がまちがっていないか確かめよう。`, "bad");
+          view.setPath(null);
+          return;
+        }
+        say(`③ DNSサーバの答え：「${escape(host)} は <strong>${dns.ip}</strong> です」`, "good");
+        await gate();
+
+        // リクエスト
+        const server = dns.server;
+        const reqPath = shortestPath(net, client.id, server.id);
+        if (!reqPath) {
+          say(`IPアドレスはわかったけれど、${escape(server.name)} までの道がありません（到達できない）。${escape(reasonText(unreachableReason(net, client.id, server.id), server.name))}`, "bad");
+          view.setPath(null);
+          return;
+        }
+        view.setPath(reqPath);
+        say(`④ ${server.ip} あてに「ページをください」というお願い（<strong>GET</strong>）を送ります。道：${escape(pathText(net, reqPath))}`);
+        await gate();
+        await view.animate(reqPath, { label: "GET", kind: "req" });
+
+        // パケットに分けて送る
+        const packets = splitIntoPackets(pageText(server), 8, { from: server.ip, to: client.ip });
+        const li5 = say(`⑤ Webサーバは、ページを <strong>${packets.length}個のパケット</strong> に分けて送り返します。一つ一つに「宛先」「送信元」「番号」が付いています（パケットについている、こうした情報を<strong>ヘッダ</strong>といいます）。`);
+        const rows = packets.map((p) => h("tr", { "data-seq": p.seq }, h("td", {}, `${p.seq}/${p.total}`), h("td", { class: "mono" }, p.to), h("td", { class: "mono" }, p.from), h("td", {}, p.data), h("td", { class: "arrive" }, "…")));
+        const packetBox = h("div", { class: "packet-box" });
+        li5.append(packetBox);
+        packetBox.replaceChildren(h("div", { class: "table-wrap" }, h("table", { class: "data packets-table" }, h("caption", { class: "hint" }, "送られるパケット"), h("thead", {}, h("tr", {}, h("th", {}, "番号"), h("th", {}, "宛先IP"), h("th", {}, "送信元IP"), h("th", {}, "中身"), h("th", {}, "とう着"))), h("tbody", {}, rows))),
+          h("p", { class: "hint packets-note" }, "※ しくみを見やすくするため、ここでは暗号化しないで送っています。暗号化するとどうなるかは「4 のぞき見と暗号化」で比べます。"),
+          h("p", { class: "hint packets-note" }, "※ 192.168.… のような家の中の番号は、そのままではインターネットに出られません。ほんとうは、家のルータが、外に出るときに自分の番号に付けかえています（NAT）。"),
+        );
+        split.scrollSideToEnd();
+        await gate();
+        const arrived = [];
+        const usedPaths = new Set();
+        view.setPath(null);
+        await Promise.all(
+          packets.map(async (p, i) => {
+            await wait(i * 260);
+            const path = shortestPath(net, server.id, client.id);
+            if (!path) return;
+            usedPaths.add(pathText(net, path));
+            await view.animate(path, { label: String(p.seq), kind: "data", hopMs: 450 + Math.random() * 500 });
+            arrived.push(p);
+            const cell = rows[p.seq - 1].querySelector(".arrive");
+            cell.textContent = `${arrived.length}番目`;
+          }),
+        );
+        say(`⑥ とどいた順番：<strong>${arrived.map((p) => p.seq).join(" → ")}</strong>${usedPaths.size > 1 ? `（${usedPaths.size}とおりの道を通りました）` : ""}`);
+        await gate();
+        const re = reassemble(arrived);
+        const li7 = say(`⑦ ブラウザは番号の順に並べ直して、元のページに<strong>組み立て</strong>ます。`, "good");
+        li7.append(
+          h("div", { class: "mock flow-browser" }, h("div", { class: "mock-bar" }, h("span", { class: "dots" }), h("span", { class: "url" }, `https://${host}/`)), h("div", { class: "mock-body" }, h("p", { class: "logo" }, server.name), h("p", {}, re.text))),
+        );
+        split.scrollSideToEnd();
+        if (view.el.isConnected) cards[0].done();
+      } catch (e) {
+        if (e !== ABORT) throw e;
+      } finally {
+        running = false;
+        stepMode = false;
+        setPaused(false);
+        refreshPlay();
+      }
+    }
+    startBtn.addEventListener("click", () => {
+      stepMode = false;
+      run();
+    });
+
+    cards[0].body.append(
+      h("p", {}, "どの機器から、どのサイトを見るかを決めて「通信スタート」を押そう。とちゅうで止めたり、1つずつ進めたりできます。"),
+      h("div", { class: "field-row" }, h("div", { class: "field" }, h("label", { for: "flow-client" }, "使う機器"), clientSel), h("div", { class: "field" }, h("label", { for: "flow-url" }, "サイトの名前"), urlIn, hostList)),
+      h("div", { class: "btn-row" }, startBtn, pauseBtn, stepBtn, speedControl(h)),
+      playState,
+      split.el,
+      h("div", { class: "legend-row hint" }, h("span", { class: "pk k-dns" }, "？"), " DNSへの問い合わせ　", h("span", { class: "pk k-req" }, "GET"), " ページのお願い　", h("span", { class: "pk k-data" }, "1"), " ページのパケット（数字は番号）"),
+      ...(!clients.length || !servers.length ? [explainCard("たりない機器", "「ネットワークを組み立てる」で、パソコンかスマホとWebサーバを置こう。", "warn")] : []),
+      explainCard(
+        "プロトコル（通信の約束ごと）",
+        "ネットワークでは、送る側と受け取る側が、同じ<strong>約束ごと</strong>を守って通信します。この約束ごとを<strong>プロトコル</strong>といいます。Webページのやりとりには <strong>HTTP</strong>（暗号化するときは <strong>HTTPS</strong>）というプロトコルを使います。「GET」は、HTTPで「ページをください」とたのむときの言葉です。パケットをIPアドレスで相手に届けるきまり（<strong>IP</strong>）も、プロトコルの1つです。",
+      ),
+    );
+
+    cards[1].body.append(
+      explainCard("DNSは電話帳", "人は <code>kumo-store.example</code> のような<strong>名前</strong>で覚えますが、機器どうしは <strong>IPアドレス</strong>（数字）で相手を見分けます。名前からIPアドレスを調べるのがDNSサーバのしごとです。"),
+      choiceQuiz(
+        {
+          question: "DNSサーバが止まってしまったら、どうなる？",
+          choices: ["サイトの名前からIPアドレスを調べられず、名前ではページを開けなくなる", "回線がすべて切れる", "パソコンの電源が切れる", "ページの文字が暗号化される"],
+          answer: 0,
+          explain: "ネットワークがつながっていても、名前からIPアドレスがわからないと相手に送れません。「回線が切れたら？」でDNSサーバを止めて試せます。",
+        },
+        () => cards[1].done(),
+        { retry: true },
+      ),
+    );
+    cards[2].body.append(
+      explainCard("パケット通信", "データを小さなパケットに分けると、<strong>1本の回線をたくさんの人で分け合える</strong>うえ、こわれたパケットだけを送り直したり、混んでいない道を通したりできます。番号が付いているので、ばらばらの順に届いても組み立てられます。"),
+      choiceQuiz(
+        {
+          question: "パケットに「番号」が付いているのはなぜ？",
+          choices: ["届いた順番がばらばらでも、元の順に組み立てるため", "パケットを暗号化するため", "ルータの名前を表すため", "通信料金を計算するため"],
+          answer: 0,
+          explain: "パケットは別々の道を通ることがあり、届く順番が入れかわることもあります。番号を見て並べ直すので、元のデータにもどせます。",
+        },
+        () => cards[2].done(),
+        { retry: true },
+      ),
+    );
+    cards[3].body.append(
+      reflectionBox(ID, "Webページが表示されるまでに起きていたことを、自分の言葉で順番に書こう。", () => cards[3].done(), {
+        placeholder: "例: ①サイトの名前を入れる → ②DNSサーバに〇〇を聞く → ③…",
+        hint: "①〜⑦の文を見ながら、起きた順に書こう。",
+      }),
+    );
+    root.append(...cards.map((c) => c.el));
+  },
+};
+
+
+return { pageText, flowModule };
+})();
+
+// ---- modules/fault.js ----
+const __m_modules_fault_js = (() => {
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, escapeHtml : escape, simSplit, revealBetween } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { NODE_TYPES, cloneNet, nodeById, shortestPath, reachableFrom, resolveName, stableRoute, sameRoute, compareRoutes, unreachableReason, reasonText } = __m_js_netlib_js;
+const { createNetView, speedControl, pathText } = __m_js_netview_js;
+// モジュール3: 回線が切れたら？（回線を切る・ルータを止める → 別の道で届く／届かない）
+
+
+
+
+const ID = "fault";
+const STEPS = [
+  { id: "detour", title: "1か所こわれても届く？" },
+  { id: "unreach", title: "届かなくなるのはどんなとき？" },
+  { id: "dns", title: "DNSサーバが止まったら？" },
+  { id: "quiz", title: "確かめよう" },
+  { id: "reflect", title: "ふりかえり" },
+];
+
+const faultModule = {
+  id: ID,
+  minutes: "15分",
+  lead: "回線が切れたりルータが止まったりしても、インターネットはすぐには止まりません。こわれた場所をさけて、別の道（経路）を通るからです。図の回線やルータをクリックして、こわしたり直したりしてみよう。",
+  steps: STEPS,
+  render(root) {
+    const cards = STEPS.map((s, i) => stepCard(ID, s, i));
+    let net = cloneNet(store.net);
+    const clients = () => net.nodes.filter((n) => NODE_TYPES[n.type].client);
+    const targets = () => net.nodes.filter((n) => !NODE_TYPES[n.type].client && n.type !== "router");
+    const status = h("div", { class: "fault-status", "aria-live": "polite" });
+    const faultCount = () => net.links.filter((l) => l.cut).length + net.nodes.filter((n) => n.down).length;
+
+    const view = createNetView({
+      net,
+      label: "障害を起こせるネットワーク図。回線やルータを押すと、切ったり止めたりできます。",
+      onLinkClick: (l) => {
+        l.cut = !l.cut;
+        afterChange(`${nodeById(net, l.a).name} と ${nodeById(net, l.b).name} の回線を${l.cut ? "切りました ✂" : "つなぎ直しました"}。`);
+      },
+      onNodeClick: (n) => {
+        if (n.id === fromSel.value) return afterChange("送る側の機器は止められません。");
+        n.down = !n.down;
+        afterChange(`「${n.name}」を${n.down ? "止めました ✕" : "動かしました"}。`);
+      },
+    });
+
+    const fromSel = h("select", { id: "fault-from" });
+    const toSel = h("select", { id: "fault-to" });
+    function fillSelects() {
+      fromSel.replaceChildren(...clients().map((c) => h("option", { value: c.id }, c.name)));
+      toSel.replaceChildren(...targets().map((c) => h("option", { value: c.id }, c.name)));
+    }
+    fillSelects();
+
+    // 太い線で出す道は、くじで決めない。こわす前の道（どこもこわれていないときの道）がまだ使えれば、その道のまま。
+    // こわす前の道が使えなくなったときだけ、別の道にする（前に出していた道がまだ使えれば、それを続ける）。
+    let shownRoute = null;
+    const healedNet = () => {
+      const c = cloneNet(net);
+      c.links.forEach((l) => delete l.cut);
+      c.nodes.forEach((n) => delete n.down);
+      return c;
+    };
+    const beforeRoute = () => stableRoute(healedNet(), fromSel.value, toSel.value);
+    function showRoute() {
+      const before = beforeRoute();
+      const p = stableRoute(net, fromSel.value, toSel.value, before, shownRoute);
+      shownRoute = p;
+      view.clearMarks();
+      view.setPath(p);
+      view.setOldPath(before && !sameRoute(before, p) ? before : null);
+      return { path: p, before };
+    }
+    function afterChange(msg) {
+      status.replaceChildren(h("p", {}, msg, ` いまこわれているところ：${faultCount()}か所`));
+      showRoute();
+    }
+    fromSel.addEventListener("change", showRoute);
+    toSel.addEventListener("change", showRoute);
+
+    // 機器が足りないときの案内（NW-08）。2と同じ「たりない機器」のカード
+    const missingText = () => {
+      const lack = [];
+      if (!clients().length) lack.push("パソコンかスマホ");
+      if (!targets().length) lack.push("Webサーバ（またはDNSサーバ）");
+      return lack.length ? `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。` : "";
+    };
+    const missingCard = () => explainCard("たりない機器", missingText(), "warn");
+
+    const sendBtn = h("button", { type: "button", class: "btn" }, "▶ パケットを送る");
+    const result = h("div", { "aria-live": "polite" });
+    sendBtn.addEventListener("click", async () => {
+      const from = nodeById(net, fromSel.value);
+      const to = nodeById(net, toSel.value);
+      if (!from || !to) {
+        result.replaceChildren(missingCard());
+        return;
+      }
+      sendBtn.disabled = true;
+      revealBetween(sendBtn, canvasWrap);
+      try {
+        const { path: p, before } = showRoute();
+        if (p) {
+          await view.animate(p, { label: "✉", kind: "req" });
+          const cmp = compareRoutes(net, before, p);
+          const more =
+            cmp.kind === "detour"
+              ? `<br>こわれたところ${cmp.brokenNames.length ? `（${escape(cmp.brokenNames.join("、"))}）` : ""}をさけて、別の道${cmp.middle.length ? `（${escape(cmp.middle.join(" → "))}）` : ""}を通りました。点線は、こわす前の道です。`
+              : cmp.kind === "same"
+                ? "<br>こわれたところは、今回の通り道ではなかったので、同じ道で届きました。太い線（通り道）の回線を切ってみよう。"
+                : "";
+          result.replaceChildren(explainCard("届いた！", `道：${escape(pathText(net, p))}（通った回線 ${p.length - 1}本）${more}`, "good"));
+          if (cmp.kind === "detour") cards[0].done();
+        } else {
+          const reach = reachableFrom(net, from.id);
+          for (const n of net.nodes) if (n.id !== from.id) view.markNode(n.id, reach.has(n.id) ? "reach" : "unreach");
+          // 届かないわけを分けて出す（NW-07）。こわれたところのせいでないときは、ステップ2のクリアにしない
+          const r = unreachableReason(net, from.id, to.id);
+          const why = escape(reasonText(r, to.name));
+          const faded = `「${escape(from.name)}」から届くのは、うすい色になっていない機器だけです。`;
+          result.replaceChildren(explainCard("到達できない（とどかない）", `${why}<br>${faded}${r.kind === "broken" || r.kind === "to-down" ? "どこを直せば届くか、考えてみよう。" : "これは、こわれたところのせいではありません。「ネットワークを組み立てる」で、つなぎ方を確かめよう。"}`, "bad"));
+          if (r.kind === "broken" || r.kind === "to-down") cards[1].done();
+        }
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    const dnsBtn = h("button", { type: "button", class: "btn secondary" }, "名前でWebページを開いてみる");
+    const dnsResult = h("div", { "aria-live": "polite" });
+    dnsBtn.addEventListener("click", () => {
+      const from = nodeById(net, fromSel.value);
+      const server = net.nodes.find((n) => n.type === "server" && n.host);
+      if (!from) return dnsResult.replaceChildren(explainCard("たりない機器", "パソコンかスマホがありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。", "warn"));
+      if (!server) return dnsResult.replaceChildren(explainCard("たりない機器", "Webサーバがありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。", "warn"));
+      const r = resolveName(net, from.id, server.host);
+      const direct = shortestPath(net, from.id, server.id);
+      if (r.ok) {
+        dnsResult.replaceChildren(explainCard("開けた", `DNSサーバ（${escape(r.dns.name)}）が「${server.host} は ${r.ip}」と答えました。${direct ? "" : "でも、Webサーバまでの道はとぎれています。"}DNSサーバを止めて、もう一度ためそう。`, direct ? "good" : "warn"));
+      } else {
+        dnsResult.replaceChildren(
+          explainCard(
+            "名前がわからない",
+            `DNSサーバに問い合わせできないので、<code>${server.host}</code> のIPアドレスがわかりません。${direct ? `<br>Webサーバ（${server.ip}）までの道は<strong>つながっている</strong>のに、名前では開けません。` : ""}`,
+            "bad",
+          ),
+        );
+        if (direct) cards[2].done();
+      }
+    });
+
+    const resetBtn = h("button", { type: "button", class: "btn small secondary" }, "ぜんぶ直す");
+    resetBtn.addEventListener("click", () => {
+      net.links.forEach((l) => delete l.cut);
+      net.nodes.forEach((n) => delete n.down);
+      result.replaceChildren();
+      dnsResult.replaceChildren();
+      afterChange("すべて直しました。");
+    });
+
+    const canvasWrap = h("div", { class: "net-canvas" }, view.el);
+    const missingNow = missingText();
+    cards[0].body.append(
+      h("p", {}, "図の", h("strong", {}, "回線（線）"), "を押すと切れ（✂）、", h("strong", {}, "ルータやサーバ"), "を押すと止まります（✕）。もう一度押すと元にもどります。太い線は、いまいちばん近い道です。道が変わると、こわす前の道が点線で残ります。"),
+      h("p", { class: "hint" }, "パケットを中継するのはルータだけです。パソコン・スマホ・サーバは中継しません。"),
+      h("div", { class: "field-row" }, h("div", { class: "field" }, h("label", { for: "fault-from" }, "送る機器"), fromSel), h("div", { class: "field" }, h("label", { for: "fault-to" }, "あて先"), toSel)),
+      ...(missingNow ? [missingCard()] : []),
+      h("div", { class: "btn-row" }, sendBtn, resetBtn, speedControl(h)),
+      simSplit(canvasWrap, status, result).el,
+      h("p", {}, h("strong", {}, "やってみよう："), "太い線（通り道）の回線を1本切ってから「パケットを送る」。それでも届くか確かめよう。"),
+    );
+    cards[1].body.append(
+      h("p", {}, "今度は、わざと届かない状態を作ってみよう。どこを切ると届かなくなる？　何か所こわすと届かなくなる？"),
+      explainCard("ポイント", "道が1本しかないところ（たとえば家のパソコンと家のルータの間）が切れると、ほかに回り道がないので届かなくなります。大事なところは道を2本以上にしておく（<strong>冗長化</strong>）のが、こわれにくいネットワークの工夫です。"),
+    );
+    cards[2].body.append(h("p", {}, "DNSサーバを止めて（図のDNSサーバを押す）、名前でWebページを開いてみよう。Webサーバまでの道がつながっていても開ける？"), h("div", { class: "btn-row" }, dnsBtn), dnsResult);
+    cards[3].body.append(
+      choiceQuiz(
+        {
+          question: "ルータAが止まったのに、Webページがちゃんと表示された。いちばんの理由は？",
+          choices: ["ほかのルータを通る別の道があり、パケットがその道を通ったから", "ルータは止まってもパケットを通すから", "Webページはパケットを使わないから", "DNSサーバがページを送ってくれたから"],
+          answer: 0,
+          explain: "ネットワークは網の目のようにつながっているので、一部がこわれても別の経路で届けられます。全部の道がとぎれると「到達できない」になります。",
+        },
+        () => cards[3].done(),
+        { retry: true },
+      ),
+    );
+    cards[4].body.append(
+      reflectionBox(ID, "インターネットがこわれにくいのはなぜ？　ためしたことをもとに書こう。", () => cards[4].done(), {
+        placeholder: "例: 〇〇の回線を切っても、△△を通って届いた。それは…",
+        hint: "どこをこわしたら、どうなったかを入れて書こう。",
+      }),
+    );
+
+    afterChange("はじめは、どこもこわれていません。");
+    root.append(...cards.map((c) => c.el));
+  },
+};
+
+return { faultModule };
+})();
+
+// ---- modules/spy.js ----
+const __m_modules_spy_js = (() => {
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, escapeHtml, simSplit, revealBetween } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { NODE_TYPES, cloneNet, nodeById, shortestPath, splitIntoPackets, scrambleLike, visiblePart, unreachableReason, reasonText } = __m_js_netlib_js;
+const { createNetView, speedControl, wait } = __m_js_netview_js;
+// モジュール4: のぞき見と暗号化（途中の回線で見える内容を、HTTP と HTTPS で比べる）
+// 実際の通信はしない。HTTPS の「暗号文」は意味のない16進数を表示する模型。
+
+
+
+
+const ID = "spy";
+const STEPS = [
+  { id: "http", title: "HTTP（暗号化なし）で送る" },
+  { id: "https", title: "HTTPS（暗号化あり）で送る" },
+  { id: "place", title: "のぞき見の場所を変えてみる" },
+  { id: "quiz", title: "確かめよう" },
+  { id: "reflect", title: "ふりかえり" },
+];
+// 架空のログイン情報（入力はさせない）
+const DEMO = { id: "taro2026", pass: "neko-sora-123" };
+const LOGIN_BODY = `POST /login\nid=${DEMO.id}\npassword=${DEMO.pass}`;
+const PACKET_SIZE = 18;
+
+// HTTPで、のぞき見した人に見えたパケット（番号 seenSeqs）に合わせた説明の文
+function httpLeakText(seenSeqs, total) {
+  const pass = visiblePart(LOGIN_BODY, PACKET_SIZE, seenSeqs, `password=${DEMO.pass}`);
+  const id = visiblePart(LOGIN_BODY, PACKET_SIZE, seenSeqs, `id=${DEMO.id}`);
+  const code = (t) => `<code>${escapeHtml(t)}</code>`;
+  if (pass.state === "all" && id.state === "all") return `暗号化していないので、IDとパスワード（${code(DEMO.pass)}）がそのまま読めてしまいました。`;
+  const parts = [];
+  if (id.state === "all") parts.push(`ID（${code(DEMO.id)}）`);
+  else if (id.state === "part") parts.push(`IDの一部「${code(id.text)}」`);
+  if (pass.state === "all") parts.push(`パスワード（${code(DEMO.pass)}）`);
+  else if (pass.state === "part") parts.push(`パスワードの一部「${code(pass.text)}」`);
+  const head = `暗号化していないので、通ったパケットの中身がそのまま読めてしまいました（${total}個のうち${seenSeqs.length}個）。`;
+  const what = parts.length ? `${parts.join("と、")}が見えています。` : "";
+  return `${head}${what}ほかのパケットも同じ回線を通れば、全部読まれてしまいます。`;
+}
+
+const spyModule = {
+  id: ID,
+  minutes: "10〜15分",
+  lead: "パケットはいくつもの回線や機器を通って届きます。もし途中の回線をのぞき見している人がいたら、何が見えてしまうのでしょう。暗号化しない HTTP と、暗号化する HTTPS（どちらもWebページをやりとりするためのプロトコル＝通信の約束ごと）で比べてみよう。",
+  steps: STEPS,
+  render(root) {
+    const cards = STEPS.map((s, i) => stepCard(ID, s, i));
+    const net = cloneNet(store.net);
+    const client = net.nodes.find((n) => NODE_TYPES[n.type].client);
+    const server = net.nodes.find((n) => n.type === "server" && n.host) || net.nodes.find((n) => n.type === "server");
+    let spyLink = (client && net.links.find((l) => l.a === client.id || l.b === client.id)) || net.links[0];
+    let moved = false;
+    let mode = "http";
+
+    const placeMsg = h("p", { class: "hint", "aria-live": "polite" });
+    const linkName = (l) => `${nodeById(net, l.a)?.name} と ${nodeById(net, l.b)?.name} の間`;
+    const view = createNetView({
+      net,
+      label: "のぞき見している人（目のマーク）がいる回線を、押して選べるネットワーク図",
+      onLinkClick: (l) => {
+        spyLink = l;
+        moved = true;
+        view.setSpyLink(l.id);
+        placeMsg.textContent = `👀 のぞき見する人を「${linkName(l)}」に動かしました。`;
+      },
+    });
+    if (spyLink) {
+      view.setSpyLink(spyLink.id);
+      placeMsg.textContent = `👀 のぞき見する人は「${linkName(spyLink)}」の回線にいます。図の回線を押すと場所を変えられます。`;
+    }
+
+    const modeBtns = [
+      ["http", "HTTP（暗号化なし）"],
+      ["https", "HTTPS（暗号化あり）"],
+    ].map(([m, label]) => {
+      const b = h("button", { type: "button", class: "chip", "aria-pressed": m === mode ? "true" : "false" }, label);
+      b.addEventListener("click", () => {
+        mode = m;
+        modeBtns.forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+        addr.textContent = `${m}://${server?.host || "site.example"}/login`;
+        lock.textContent = m === "https" ? "🔒" : "⚠ 保護されていない通信";
+      });
+      return b;
+    });
+    const addr = h("span", { class: "url" }, `http://${server?.host || "site.example"}/login`);
+    const lock = h("span", {}, "⚠ 保護されていない通信");
+    const form = h(
+      "div",
+      { class: "mock" },
+      h("div", { class: "mock-bar" }, h("span", { class: "dots" }), lock, addr),
+      h("div", { class: "mock-body" }, h("div", { class: "login-box" }, h("div", { class: "logo" }, server?.name || "サイト"), h("div", {}, "ID"), h("div", { class: "fake-input" }, DEMO.id), h("div", {}, "パスワード"), h("div", { class: "fake-input" }, "●".repeat(DEMO.pass.length)))),
+    );
+
+    const spyPanel = h("div", { class: "spy-panel", "aria-live": "polite" }, h("p", { class: "hint" }, "のぞき見している人の画面：まだ何も通っていません。"));
+    const sendBtn = h("button", { type: "button", class: "btn" }, "ログイン（送信）");
+    // 機器や線が足りないときの案内（NW-08）
+    const missingText = () => {
+      const lack = [];
+      if (!client) lack.push("パソコンかスマホ");
+      if (!server) lack.push("Webサーバ");
+      if (lack.length) return `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。`;
+      if (!spyLink) return "回線（線）が1本もありません。「ネットワークを組み立てる」で、機器を線でつなごう（「はじめの形にもどす」でもかまいません）。";
+      return "";
+    };
+    let split = null;
+    sendBtn.addEventListener("click", async () => {
+      const lack = missingText();
+      if (lack) {
+        spyPanel.replaceChildren(explainCard("たりない機器", lack, "warn"));
+        return;
+      }
+      sendBtn.disabled = true;
+      revealBetween(sendBtn, canvasWrap);
+      try {
+        spyPanel.replaceChildren(h("p", {}, h("strong", {}, `👀 のぞき見している人の画面（${linkName(spyLink)}）`)));
+        const packets = splitIntoPackets(LOGIN_BODY, PACKET_SIZE, { from: client.ip, to: server.ip });
+        let seen = 0;
+        const seenSeqs = new Set();
+        const sendMode = mode;
+        await Promise.all(
+          packets.map(async (p, i) => {
+            await wait(i * 300);
+            const path = shortestPath(net, client.id, server.id);
+            if (!path) return;
+            await view.animate(path, {
+              label: sendMode === "https" ? "🔒" : String(p.seq),
+              kind: sendMode === "https" ? "secure" : "data",
+              onHop: (a, b) => {
+                if (!spyLink || !((spyLink.a === a && spyLink.b === b) || (spyLink.a === b && spyLink.b === a))) return;
+                seen++;
+                seenSeqs.add(p.seq);
+                spyPanel.append(
+                  h(
+                    "div",
+                    { class: "spy-item" },
+                    h("div", { class: "hint" }, `パケット ${p.seq}/${p.total}　送信元 ${p.from} → 宛先 ${p.to}${sendMode === "https" ? `　（行き先のサイト名 ${server.host} も見えることがある）` : ""}`),
+                    h("pre", { class: sendMode === "https" ? "cipher" : "plain" }, sendMode === "https" ? scrambleLike(p.data) : p.data),
+                  ),
+                );
+                split.scrollSideToEnd();
+              },
+            });
+          }),
+        );
+        if (!shortestPath(net, client.id, server.id)) {
+          spyPanel.append(explainCard("届かない", `サーバまでの道がありません。${escapeHtml(reasonText(unreachableReason(net, client.id, server.id), server.name))}「ネットワークを組み立てる」で確かめよう。`, "warn"));
+        } else if (!seen) {
+          spyPanel.append(explainCard("何も見えなかった", "今回のパケットは、のぞき見している回線を通りませんでした。でも、通り道が変わると見られるかもしれません。いつも通る場所（家のWi‑Fiや、お店のフリーWi‑Fiなど）でのぞかれたら？", "info"));
+          if (moved) cards[2].done();
+        } else if (sendMode === "http") {
+          const all = seenSeqs.size === packets.length;
+          spyPanel.append(explainCard(all ? "丸見え！" : "中身が読めた！", httpLeakText([...seenSeqs].sort((a, b) => a - b), packets.length), "bad"));
+          cards[0].done();
+          if (moved) cards[2].done();
+        } else {
+          spyPanel.append(explainCard("中身は読めない", "送り先のIPアドレスやデータの量は見えても、中身は暗号化されていて読めません。かぎを持っているのは、あなたのブラウザとサーバだけです。", "good"));
+          cards[1].done();
+          if (moved) cards[2].done();
+        }
+        split.scrollSideToEnd();
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    const canvasWrap = h("div", { class: "net-canvas" }, view.el);
+    split = simSplit(canvasWrap, placeMsg, spyPanel);
+    const lackNow = missingText();
+    cards[0].body.append(
+      h("p", {}, "IDとパスワード（架空のもの）でログインします。まず HTTP のまま「ログイン（送信）」を押そう。"),
+      h("div", { class: "chip-row", role: "group", "aria-label": "通信の方法" }, ...modeBtns),
+      form,
+      ...(lackNow ? [explainCard("たりない機器", lackNow, "warn")] : []),
+      h("div", { class: "btn-row" }, sendBtn, speedControl(h)),
+      split.el,
+      h("p", { class: "hint" }, "※ のぞき見の画面の「POST /login」は、HTTPで「入力した内容（IDとパスワード）を送ります」というお願いの書き方です。"),
+      h("p", { class: "hint" }, "※ HTTPS の暗号文は、しくみを見せるための模型です（本物の暗号ではありません）。"),
+    );
+    cards[1].body.append(h("p", {}, "上の「HTTPS（暗号化あり）」に切りかえて、もう一度送ってみよう。のぞき見している人には何が見える？"));
+    cards[2].body.append(
+      h("p", {}, "図の別の回線を押して、のぞき見する人の場所を変えてから送ってみよう。パケットが通らない回線では、何も見えません。"),
+      explainCard("考えよう", "いちばん危ないのは、<strong>毎回かならず通る場所</strong>です。たとえば、あなたの端末とWi‑Fiの間。だれでも使えるフリーWi‑Fiでは、暗号化されていない通信を見られるおそれがあります。"),
+    );
+    cards[3].body.append(
+      choiceQuiz(
+        {
+          question: "HTTPS（鍵マーク）について正しいのはどれ？",
+          choices: ["通信の中身が暗号化され、途中でのぞかれても読まれにくい", "鍵マークがあれば、そのサイトは必ず安全な本物のサイトだ", "HTTPSなら、パスワードをどのサイトに入れても大丈夫", "HTTPSにすると、通信の行き先もすべて見えなくなる"],
+          answer: 0,
+          explain: "HTTPSが守るのは「通信の途中」です。にせもののサイトも鍵マークを付けられるので、サイトのアドレスが本物かどうかは別に確かめる必要があります。HTTPSでも、通信の相手（IPアドレスやサイト名）や、いつ・どれくらい通信したかは見えることがあります。",
+        },
+        () => cards[3].done(),
+        { retry: true },
+      ),
+    );
+    cards[4].body.append(
+      reflectionBox(ID, "フリーWi‑Fiを使うとき、どんなことに気をつける？　理由もいっしょに書こう。", () => cards[4].done(), {
+        placeholder: "例: 〇〇に気をつける。なぜなら、のぞき見している人に△△が見えてしまうから。",
+        hint: "HTTPとHTTPSで、のぞき見している人の画面がどうちがったかを思い出して書こう。",
+      }),
+    );
+    root.append(...cards.map((c) => c.el));
+  },
+};
+
+return { DEMO, LOGIN_BODY, PACKET_SIZE, httpLeakText, spyModule };
+})();
+
+// ---- modules/drill.js ----
+const __m_modules_drill_js = (() => {
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, toast } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { parseIPv4, toBinary8, networkAddress, normalizeIp, IP_FORMAT_HELP } = __m_js_netlib_js;
+const { makeDrill, makeChallenge, weightParts } = __m_js_drilllib_js;
+// モジュール5: IPアドレス・サブネットの基礎ドリル
+
+
+
+
+const ID = "drill";
+const STEPS = [
+  { id: "explore", title: "IPアドレスを2進数で見てみよう" },
+  { id: "drill", title: "ドリルに挑戦（10問）" },
+  { id: "master", title: "8問以上正解しよう" },
+  { id: "reflect", title: "ふりかえり" },
+];
+
+const drillModule = {
+  id: ID,
+  minutes: "15分",
+  lead: "IPアドレスは、機器を見分けるための番号です。コンピュータの中では2進数で扱われます。しくみを確かめてから、ドリルで練習しよう。問題は毎回ちがうものが出ます。",
+  steps: STEPS,
+  render(root) {
+    const cards = STEPS.map((s, i) => stepCard(ID, s, i));
+
+    // ステップ1: IPアドレスを2進数で見る
+    const ipIn = h("input", { type: "text", id: "drill-ip", value: "192.168.1.10", maxlength: "15", inputmode: "decimal", spellcheck: "false" });
+    const out = h("div", { "aria-live": "polite" });
+    let touched = false;
+    let octetIdx = 3; // 重みの表で見る数（はじめは4つ目）
+    const WEIGHTS = [128, 64, 32, 16, 8, 4, 2, 1];
+    // 1つの数を、重みの表で見せる（NW-03）
+    const weightTable = (nums) => {
+      const n = nums[octetIdx];
+      const bits = toBinary8(n);
+      const chips = nums.map((v, i) => {
+        const b = h("button", { type: "button", class: "chip", "aria-pressed": i === octetIdx ? "true" : "false" }, `${i + 1}つ目（${v}）`);
+        b.addEventListener("click", () => {
+          octetIdx = i;
+          show();
+        });
+        return b;
+      });
+      const parts = weightParts(n);
+      return h(
+        "div",
+        { class: "weight-box" },
+        h("div", { class: "chip-row", role: "group", "aria-label": "重みの表で見る数" }, h("span", { class: "hint" }, "表で見る数："), ...chips),
+        h(
+          "div",
+          { class: "table-wrap" },
+          h(
+            "table",
+            { class: "data weight-table" },
+            h("tbody", {}, h("tr", {}, h("th", { scope: "row" }, "重み"), WEIGHTS.map((w) => h("td", {}, w))), h("tr", {}, h("th", { scope: "row" }, "2進数"), [...bits].map((b) => h("td", { class: b === "1" ? "on mono" : "mono" }, b)))),
+          ),
+        ),
+        h("p", {}, `1のところの重みを足すと：${parts.length ? parts.join(" + ") : "0"} = ${n}`),
+      );
+    };
+    const show = () => {
+      const ip = normalizeIp(ipIn.value);
+      const nums = parseIPv4(ip);
+      if (!nums) {
+        out.replaceChildren(explainCard("書き方をチェック", ip ? IP_FORMAT_HELP : `IPアドレスを入れよう。${IP_FORMAT_HELP}`, "warn"));
+        return;
+      }
+      out.replaceChildren(
+        h(
+          "div",
+          { class: "ip-bits", role: "img", "aria-label": `${ip} を2進数にすると ${nums.map(toBinary8).join(" ")}` },
+          ...nums.map((n, i) => h("div", { class: `octet ${i < 3 ? "netpart" : "hostpart"}` }, h("div", { class: "dec" }, n), h("div", { class: "bin mono" }, toBinary8(n)))),
+        ),
+        h("p", { class: "hint" }, h("span", { class: "sw netpart" }), "ネットワーク部（サブネットマスク 255.255.255.0 のとき）　", h("span", { class: "sw hostpart" }), "ホスト部"),
+        weightTable(nums),
+        h("p", {}, `この機器のネットワークは ${networkAddress(ip, 24)}/24（/24 は「前から24ビット＝前の3つの数がネットワーク部」という意味）。前の3つの数が同じ機器とは、同じネットワーク（たとえば同じ家の中）です。`),
+      );
+      if (touched) cards[0].done();
+    };
+    ipIn.addEventListener("input", () => {
+      touched = true;
+      show();
+    });
+    show();
+    cards[0].body.append(
+      explainCard("IPアドレスのしくみ", "いま広く使われている IPアドレスの形（<strong>IPv4</strong>。IPのバージョン4）は、<strong>8ビットの数 × 4つ ＝ 32ビット</strong>。それぞれ0〜255の数で書きます。前半は「どのネットワークか」（ネットワーク部）、後半は「その中のどの機器か」（ホスト部）を表します。どこまでがネットワーク部かは<strong>サブネットマスク</strong>で決めます。"),
+      explainCard(
+        "2進数の読み方（重み）",
+        "2進数の8けたには、左から <strong>128・64・32・16・8・4・2・1</strong> の<strong>重み</strong>があります。<strong>1のところの重みを足すと、10進数</strong>になります（例：01000100 → 64 + 4 = 68）。反対に、10進数を2進数にするときは、<strong>大きい重みから順に引いていき</strong>、引けたら1、引けなければ0にします（例：68 → 64を引くと残り4 → 4を引くと残り0 → 01000100）。2進数は「デジタル化ラボ」でもくわしく練習できます。",
+      ),
+      h("div", { class: "field" }, h("label", { for: "drill-ip" }, "IPアドレスを入れてみよう（数を変えてみよう）"), ipIn),
+      out,
+    );
+
+    // ステップ2・3: ドリル
+    const area = h("div");
+    const best = store.getScore(ID, "best");
+    const bestNote = h("p", { class: "hint" }, best !== undefined ? `これまでの最高：${best} / 10問` : "");
+    const startBtn = h("button", { type: "button", class: "btn" }, "ドリルをはじめる");
+    function startDrill() {
+      const qs = makeDrill(10);
+      let i = 0;
+      let correct = 0;
+      const next = () => {
+        if (i >= qs.length) return finish();
+        const q = qs[i];
+        const nextBtn = h("button", { type: "button", class: "btn", disabled: true }, i === qs.length - 1 ? "結果を見る" : "次の問題へ");
+        nextBtn.addEventListener("click", () => {
+          i++;
+          next();
+        });
+        area.replaceChildren(
+          h("p", { class: "hint" }, `${i + 1} / ${qs.length}問　正解 ${correct}`),
+          h("div", { class: "bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(qs.length), "aria-valuenow": String(i), "aria-label": "ドリルの進み具合" }, h("span", { style: `width:${(i / qs.length) * 100}%` })),
+          choiceQuiz(q, (ok) => {
+            if (ok) correct++;
+            nextBtn.disabled = false;
+            nextBtn.focus();
+          }),
+          h("div", { class: "btn-row" }, nextBtn),
+        );
+        area.querySelector(".choice-list button")?.focus();
+      };
+      const finish = () => {
+        const prev = store.getScore(ID, "best");
+        if (prev === undefined || correct > prev) store.setScore(ID, "best", correct);
+        store.setScore(ID, "last", correct);
+        bestNote.textContent = `これまでの最高：${Math.max(correct, prev ?? 0)} / 10問`;
+        cards[1].done();
+        if (correct >= 8) cards[2].done();
+        const again = h("button", { type: "button", class: "btn" }, "もう一度（新しい問題）");
+        again.addEventListener("click", startDrill);
+        area.replaceChildren(
+          h("div", { class: "result-box" }, h("div", { class: "big-number" }, `${correct} / ${qs.length}問 正解`), h("p", {}, correct >= 8 ? "すばらしい！ IPアドレスのしくみがよくわかっています。" : "まちがえた問題の解説を思い出して、もう一度挑戦しよう。8問以上が目標です。")),
+          h("div", { class: "btn-row" }, again),
+        );
+        toast(`${correct}問正解でした`);
+      };
+      next();
+    }
+    startBtn.addEventListener("click", startDrill);
+    area.append(h("div", { class: "btn-row" }, startBtn));
+    cards[1].body.append(h("p", {}, "IPアドレスの書き方、同じネットワークかどうか、2進数、機器の役目などから10問出ます。どれも、ステップ1の説明で答えられます。"), bestNote, area);
+
+    // チャレンジ問題（サブネット /25・/28）。中学の範囲をこえるので、クリア（8問以上）には入れない（NW-03）
+    const chArea = h("div");
+    const chBest = store.getScore(ID, "challengeBest");
+    const chNote = h("p", { class: "hint" }, chBest !== undefined ? `チャレンジ問題のこれまでの最高：${chBest} / 2問` : "");
+    function startChallenge() {
+      const qs = makeChallenge();
+      let i = 0;
+      let correct = 0;
+      const next = () => {
+        if (i >= qs.length) {
+          const prev = store.getScore(ID, "challengeBest");
+          if (prev === undefined || correct > prev) store.setScore(ID, "challengeBest", correct);
+          chNote.textContent = `チャレンジ問題のこれまでの最高：${Math.max(correct, prev ?? 0)} / 2問`;
+          const again = h("button", { type: "button", class: "btn secondary" }, "もう一度チャレンジ");
+          again.addEventListener("click", startChallenge);
+          chArea.replaceChildren(h("div", { class: "result-box" }, h("p", {}, h("strong", {}, `チャレンジ問題 ${correct} / ${qs.length}問 正解`), "（クリアの数には入りません）")), h("div", { class: "btn-row" }, again));
+          return;
+        }
+        const nextBtn = h("button", { type: "button", class: "btn", disabled: true }, i === qs.length - 1 ? "結果を見る" : "次の問題へ");
+        nextBtn.addEventListener("click", () => {
+          i++;
+          next();
+        });
+        chArea.replaceChildren(
+          h("p", { class: "hint" }, `チャレンジ ${i + 1} / ${qs.length}問`),
+          choiceQuiz(qs[i], (ok) => {
+            if (ok) correct++;
+            nextBtn.disabled = false;
+            nextBtn.focus();
+          }),
+          h("div", { class: "btn-row" }, nextBtn),
+        );
+        chArea.querySelector(".choice-list button")?.focus();
+      };
+      next();
+    }
+    const chBtn = h("button", { type: "button", class: "btn secondary" }, "チャレンジ問題をはじめる（2問）");
+    chBtn.addEventListener("click", startChallenge);
+    chArea.append(h("div", { class: "btn-row" }, chBtn));
+
+    cards[2].body.append(
+      h("p", {}, "ドリルで8問以上正解するとクリアです。何度でも挑戦できます（問題は毎回変わります）。"),
+      h(
+        "details",
+        { class: "challenge" },
+        h("summary", {}, "チャレンジ問題（できる人だけ・クリアには関係ありません）"),
+        explainCard(
+          "サブネットマスクを変えると",
+          "サブネットマスクを 255.255.255.128（/25）や 255.255.255.240（/28）にすると、ネットワーク部が長くなり、ホスト部（機器を見分ける部分）が短くなります。ホスト部が n ビットなら、番号は 2の n 乗とおり。そのうち、いちばん小さい番号（ネットワークそのものを表す番号）と、いちばん大きい番号（全員あての番号）の2つは機器に使えません。",
+        ),
+        chNote,
+        chArea,
+      ),
+    );
+    cards[3].body.append(
+      reflectionBox(ID, "家のパソコンとスマホは、IPアドレスのどこが同じで、どこがちがう？　それはなぜ？", () => cards[3].done(), {
+        placeholder: "例: 前の3つの数が〇〇で同じ。最後の数は△△でちがう。それは…",
+        hint: "ステップ1で入れたIPアドレスや、ドリルの解説を思い出して書こう。",
+      }),
+    );
+    root.append(...cards.map((c) => c.el));
+  },
+};
+
+return { drillModule };
+})();
+
+// ---- js/app.js ----
+const __m_js_app_js = (() => {
+const { store } = __m_js_store_js;
+const { h, explainCard, downloadFile, toast, flushDrafts } = __m_js_ui_js;
+const { buildModule } = __m_modules_build_js;
+const { flowModule } = __m_modules_flow_js;
+const { faultModule } = __m_modules_fault_js;
+const { spyModule } = __m_modules_spy_js;
+const { drillModule } = __m_modules_drill_js;
+// アプリ本体: 章ナビ、ルーティング、進み具合、トップページ、記録ページ
+
+
+
+
+
+
+
+const MODULES = [
+  { ...buildModule, num: 1, period: 1, title: "ネットワークを組み立てる", desc: "パソコン・スマホ・ルータ・サーバ・DNSを置いて線でつなぐ。IPアドレスも確かめる。" },
+  { ...flowModule, num: 2, period: 1, title: "Webページが届くまで", desc: "DNSへの問い合わせ → IPアドレス → パケットに分ける → 経路 → 組み立てをアニメで見る。" },
+  { ...faultModule, num: 3, period: 2, title: "回線が切れたら？", desc: "回線を切る・ルータを止める。別の道で届く？ 届かなくなる？" },
+  { ...spyModule, num: 4, period: 2, title: "のぞき見と暗号化", desc: "途中の回線をのぞく人に見えるものを、HTTP と HTTPS で比べる。" },
+  { ...drillModule, num: 5, period: 2, title: "IPアドレス・ドリル", desc: "IPアドレスの書き方、同じネットワーク、2進数、機器の役目を練習。" },
+];
+
+const view = document.getElementById("view");
+const nav = document.getElementById("chapter-nav");
+const overall = document.getElementById("overall-progress");
+const toggles = document.getElementById("display-toggles");
+
+const progress = (m) => {
+  const done = m.steps.filter((s) => store.isStepDone(m.id, s.id)).length;
+  return { done, total: m.steps.length, complete: done === m.steps.length };
+};
+
+function renderNav(currentId) {
+  const ol = h("ol");
+  const link = (href, num, title, id, done) =>
+    h(
+      "li",
+      { class: done ? "done" : "" },
+      h("a", { href, "aria-current": currentId === id ? "page" : null }, h("span", { class: "num", "aria-hidden": "true" }, done ? "✓" : num), h("span", {}, title, done ? h("span", { class: "visually-hidden" }, "（完了）") : null)),
+    );
+  ol.append(link("#/", "⌂", "はじめに", "home", false));
+  ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "体験する"));
+  for (const m of MODULES) ol.append(link(`#/${m.id}`, m.num, m.title, m.id, progress(m).complete));
+  ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"));
+  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  nav.replaceChildren(h("nav", { "aria-label": "章ナビゲーション" }, ol));
+}
+
+function renderOverall() {
+  const all = MODULES.map(progress);
+  const done = all.reduce((a, p) => a + p.done, 0);
+  const total = all.reduce((a, p) => a + p.total, 0);
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  overall.replaceChildren(
+    h("span", {}, "進み具合"),
+    h("div", { class: "bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": pct, "aria-label": "全体の進み具合" }, h("span", { style: `width:${pct}%` })),
+    h("span", {}, `${pct}%`),
+  );
+}
+
+const LARGE_KEY = "netsim.largeText";
+function renderToggles() {
+  let on = false;
+  try {
+    on = localStorage.getItem(LARGE_KEY) === "1";
+  } catch {}
+  document.documentElement.classList.toggle("large-text", on);
+  const b = h("button", { type: "button", class: "toggle", "aria-pressed": on ? "true" : "false" }, "大きな文字");
+  b.addEventListener("click", () => {
+    try {
+      localStorage.setItem(LARGE_KEY, on ? "0" : "1");
+    } catch {}
+    renderToggles();
+  });
+  toggles.replaceChildren(b);
+}
+
+const GLOSSARY = [
+  ["プロトコル", "", "通信の約束ごと。送る側と受け取る側が同じ約束ごとを守るので、通信できる。HTTP・HTTPS・IP などがある。"],
+  ["パケット", "", "データを小さく分けたまとまり。宛先・送信元・番号などの情報（ヘッダ）が付いている。"],
+  ["IPアドレス", "", "ネットワークにつながった機器を見分ける番号。例：192.168.1.10"],
+  ["宛先・送信元", "あてさき・そうしんもと", "パケットを届ける相手と、送った機器。"],
+  ["経路", "けいろ", "パケットが通る道。"],
+  ["中継", "ちゅうけい", "受け取ったパケットを、次の機器へ送ること。中継するのはルータだけ。"],
+  ["到達", "とうたつ", "相手まで届くこと。"],
+  ["冗長化", "じょうちょうか", "1本がこわれても困らないように、道や機器を2つ以上用意しておくこと。"],
+  ["暗号化", "あんごうか", "かぎを持っている人にしか読めない形に変えること。"],
+  ["DNS", "ディーエヌエス", "サイトの名前（ドメイン名）からIPアドレスを調べるしくみ。"],
+];
+
+function renderHome() {
+  const grid = h(
+    "div",
+    { class: "module-grid" },
+    MODULES.map((m) => {
+      const p = progress(m);
+      return h(
+        "a",
+        { class: "module-card", href: `#/${m.id}` },
+        h("span", { class: "mc-num" }, `${m.num}　目安 ${m.minutes}（${m.period}時間目）`),
+        h("span", { class: "mc-title" }, m.title),
+        h("span", { class: "mc-desc" }, m.desc),
+        h("span", { class: "hint" }, p.complete ? "✓ クリア" : `${p.done} / ${p.total} ステップ`),
+      );
+    }),
+  );
+  view.replaceChildren(
+    h(
+      "div",
+      { class: "module-head" },
+      h("h1", {}, "ネットワーク通信シミュレータ"),
+      h("p", { class: "meta" }, "中学校 技術・家庭科（技術分野）D「情報の技術」　情報通信ネットワークの構成と、情報を利用するための基本的なしくみ"),
+      h("p", { class: "author" }, "作成：羽生市立南中学校 技術 岡田"),
+    ),
+    h(
+      "div",
+      { class: "card" },
+      h("p", {}, "パソコンでWebページを見るとき、ネットワークの中では何が起きているのでしょう。このシミュレータでは、ブラウザの中の", h("strong", {}, "模型のネットワーク"), "を組み立てて、パケット・IPアドレス・DNS・ルータ・サーバのはたらきを目で見て確かめます。"),
+      explainCard("安心して使えます", "この教材はブラウザの中だけで動き、本物のネットワークや外部のサイトには一切接続しません。出てくるサイト名は架空（<code>.example</code>）です。IPアドレスは、家の中で使う番号（プライベートアドレス）と、説明用に予約された番号を使っています。"),
+      h("p", { class: "hint" }, "おすすめの順番：1 → 2 → 3 → 4 → 5。1で作ったネットワークが2〜4で使われます（はじめから用意された形のままでも体験できます）。"),
+    ),
+    // 授業の区切り（NW-17）。2時間で使う
+    h(
+      "div",
+      { class: "card lesson-plan" },
+      h("h2", {}, "授業で使うとき（2時間）"),
+      h(
+        "table",
+        { class: "data" },
+        h("thead", {}, h("tr", {}, h("th", {}, "時間"), h("th", {}, "やること"), h("th", {}, "目安"))),
+        h(
+          "tbody",
+          {},
+          [1, 2].map((p) => {
+            const ms = MODULES.filter((m) => m.period === p);
+            return h("tr", {}, h("th", { scope: "row" }, `${p}時間目`), h("td", {}, ms.map((m) => `${m.num} ${m.title}`).join("、")), h("td", {}, ms.map((m) => m.minutes).join(" ＋ ")));
+          }),
+        ),
+      ),
+      h("p", { class: "hint" }, "どのページも、終わりに「ふりかえり」を書きます。5のドリルの「チャレンジ問題」は、時間がある人だけでかまいません。"),
+    ),
+    grid,
+    // ことばの一覧（読み方つき）（NW-13）
+    h(
+      "details",
+      { class: "card glossary" },
+      h("summary", {}, h("strong", {}, "ことばの一覧（読み方つき）")),
+      h(
+        "dl",
+        {},
+        GLOSSARY.map(([w, r, d]) => [h("dt", {}, w, r ? h("span", { class: "ruby-note" }, `（${r}）`) : null), h("dd", {}, d)]),
+      ),
+    ),
+  );
+}
+
+function renderRecords() {
+  const st = store.state;
+  const fields = [
+    ["cls", "組"],
+    ["num", "番号"],
+    ["name", "名前"],
+  ].map(([k, label]) => {
+    const input = h("input", { type: "text", id: `stu-${k}`, maxlength: "20", value: st.student[k] || "" });
+    input.addEventListener("change", () => store.setStudent({ [k]: input.value.trim() }));
+    return h("div", { class: "field" }, h("label", { for: `stu-${k}` }, label), input);
+  });
+  const rows = MODULES.map((m) => {
+    const p = progress(m);
+    return h("tr", {}, h("td", {}, `${m.num}. ${m.title}`), h("td", {}, `${p.done} / ${p.total}`), h("td", {}, store.getReflection(m.id) || "—"));
+  });
+  // 書き出す前に、組と番号が入っているかを確かめる。書き出したら、ファイル名と出し方を知らせる（共通のきまり）
+  const exportNote = h("p", { class: "export-note", "aria-live": "polite" });
+  const readyToExport = () => {
+    const vals = Object.fromEntries(fields.map((f) => f.querySelector("input")).map((inp) => [inp.id.replace("stu-", ""), inp.value.trim()]));
+    store.setStudent(vals);
+    if (!vals.cls || !vals.num) {
+      exportNote.className = "export-note warn";
+      exportNote.textContent = "組と番号を入れてから書き出そう";
+      (vals.cls ? fields[1] : fields[0]).querySelector("input").focus();
+      return false;
+    }
+    return true;
+  };
+  const exported = (filename) => {
+    exportNote.className = "export-note good";
+    exportNote.textContent = `ファイルを保存しました（ファイル名: ${filename}）。先生に言われた場所に出そう。`;
+  };
+  const exportBtn = h("button", { type: "button", class: "btn" }, "記録を書き出す（JSON）");
+  exportBtn.addEventListener("click", () => {
+    if (!readyToExport()) return;
+    const s = store.state;
+    const data = {
+      app: "network-sim",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      student: s.student,
+      modules: Object.fromEntries(MODULES.map((m) => [m.id, { title: m.title, ...progress(m), steps: s.modules[m.id]?.steps || {}, score: s.modules[m.id]?.score || {} }])),
+      reflections: s.reflections,
+    };
+    const who = [s.student.cls, s.student.num, s.student.name].filter(Boolean).join("-") || "記録";
+    const filename = `ネットワーク_${who}.json`;
+    downloadFile(filename, JSON.stringify(data, null, 2));
+    exported(filename);
+  });
+  const csvBtn = h("button", { type: "button", class: "btn secondary" }, "CSVで書き出す");
+  csvBtn.addEventListener("click", () => {
+    if (!readyToExport()) return;
+    const s = store.state;
+    const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [["組", "番号", "名前", "モジュール", "できたステップ", "全ステップ", "ドリル最高点", "ふりかえり"].map(q).join(",")];
+    for (const m of MODULES) {
+      const p = progress(m);
+      lines.push([s.student.cls, s.student.num, s.student.name, m.title, p.done, p.total, m.id === "drill" ? (store.getScore("drill", "best") ?? "") : "", store.getReflection(m.id)].map(q).join(","));
+    }
+    const filename = `ネットワーク_${s.student.name || "記録"}.csv`;
+    downloadFile(filename, "﻿" + lines.join("\r\n"), "text/csv");
+    exported(filename);
+  });
+  const resetBtn = h("button", { type: "button", class: "btn secondary" }, "この端末の記録をすべて消す");
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("進み具合・ふりかえり・作ったネットワークをすべて消します。よろしいですか？")) return;
+    store.reset();
+    toast("記録を消しました");
+    route();
+  });
+  view.replaceChildren(
+    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, fields)),
+    h("div", { class: "card" }, h("h2", {}, "進み具合とふりかえり"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "ステップ"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows))), h("p", {}, `IPアドレス・ドリルの最高点：${store.getScore("drill", "best") ?? "—"} / 10`), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, exportBtn, csvBtn), exportNote),
+    h("div", { class: "card" }, h("h2", {}, "記録を消す"), h("p", { class: "hint" }, "次の人に端末をわたすときに使います。"), h("div", { class: "btn-row" }, resetBtn)),
+  );
+}
+
+function renderModule(m) {
+  const head = h("div", { class: "module-head" }, h("h1", {}, `${m.num}. ${m.title}`), h("p", { class: "meta" }, `目安 ${m.minutes}（2時間で使うときは ${m.period}時間目）`), h("p", {}, m.lead));
+  view.replaceChildren(head);
+  m.render(view);
+  const idx = MODULES.indexOf(m);
+  const next = MODULES[idx + 1];
+  view.append(h("div", { class: "btn-row module-next" }, idx > 0 ? h("a", { class: "btn secondary", href: `#/${MODULES[idx - 1].id}` }, `← ${MODULES[idx - 1].title}`) : null, next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, "ふりかえり・記録へ →")));
+}
+
+let lastId = null;
+function route() {
+  flushDrafts(); // 書きかけのふりかえりを、ページを移る前に保存する
+  const id = location.hash.replace(/^#\/?/, "").split("/")[0] || "home";
+  const m = MODULES.find((x) => x.id === id);
+  if (m) renderModule(m);
+  else if (id === "records") renderRecords();
+  else renderHome();
+  renderNav(m ? m.id : id);
+  renderOverall();
+  if (lastId !== null && lastId !== id) {
+    window.scrollTo(0, 0);
+    view.focus({ preventScroll: true });
+  }
+  lastId = id;
+}
+
+store.subscribe(() => {
+  renderOverall();
+  const id = location.hash.replace(/^#\/?/, "").split("/")[0] || "home";
+  renderNav(id);
+});
+window.addEventListener("hashchange", route);
+renderToggles();
+route();
+
+// オフライン用（サーバーから配信したときだけ。1ファイル版では使わない）
+if ("serviceWorker" in navigator && location.protocol.startsWith("http") && !window.__NETSIM_STANDALONE) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+return { MODULES };
+})();
+</script>
+</body>
+</html>
