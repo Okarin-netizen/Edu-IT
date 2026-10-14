@@ -1,0 +1,322 @@
+{
+ "_note": "フィッシング見分けのシナリオ。会社名・アドレスはすべて架空（.example は例示用に予約されたドメインで、実在しない）。先生が追加・変更してよい。action.danger は、選ぶと「それは危ない選び方です」と出る選択肢の番号（0 から数える。正解の番号は入れない）。",
+ "scenarios": [
+  {
+   "id": "sms-delivery",
+   "title": "宅配の不在通知（SMS）",
+   "kind": "sms",
+   "isPhishing": true,
+   "intro": "スマホにこんなショートメッセージが届きました。怪しいと思うところをすべて選んでから「答え合わせ」を押そう。",
+   "parts": [
+    {
+     "id": "from",
+     "role": "sender",
+     "text": "070-xxxx-xxxx",
+     "suspicious": true,
+     "explain": "配送会社からの連絡なのに、個人の携帯電話の番号から届いている。会社の正式な連絡先ではない。"
+    },
+    {
+     "id": "t1",
+     "role": "text",
+     "text": "【ハヤテ配送】お客様宛にお荷物のお届けにあがりましたが、不在の為持ち帰りました。",
+     "suspicious": false,
+     "explain": "不在通知そのものはよくある文面。本物そっくりに作られるので、ここだけでは判断できない。"
+    },
+    {
+     "id": "t2",
+     "role": "text",
+     "text": "本日中に下記よりご確認ください。確認がない場合、お荷物は返送されます。",
+     "suspicious": true,
+     "explain": "「本日中に」「返送されます」と急かして、考える時間をうばおうとしている。"
+    },
+    {
+     "id": "url",
+     "role": "link",
+     "text": "http://hayate-haisou.delivery-check.example/xk7",
+     "suspicious": true,
+     "explain": "ドメイン名（「//」のあとから次の「/」まで）は hayate-haisou.delivery-check.example。右から読むと、持ち主は delivery-check.example。左の hayate-haisou は、持ち主が自由に付けられる飾り。ハヤテ配送の公式（hayate.example）ではない。"
+    }
+   ],
+   "action": {
+    "question": "あなたならどうする？",
+    "choices": [
+     "リンクを開いて、荷物の状況を確かめる",
+     "リンクは開かず、自分でハヤテ配送の公式アプリやサイトを開いて確かめる",
+     "このSMSに返信して「本物ですか？」と聞く"
+    ],
+    "answer": 1,
+    "danger": [
+     0,
+     2
+    ],
+    "explain": "メッセージ内のリンクは使わず、ふだん使っている公式アプリやブックマークから確かめるのが安全。返信すると「この番号は使われている」と相手に知らせてしまう。"
+   }
+  },
+  {
+   "id": "mail-bank",
+   "title": "銀行からの「アカウント停止」メール",
+   "kind": "email",
+   "isPhishing": true,
+   "intro": "家族のスマホに届いたメールを一緒に見ています。怪しいと思うところをすべて選ぼう。",
+   "parts": [
+    {
+     "id": "from",
+     "role": "sender",
+     "text": "ミドリ銀行 <support@midori-bank.account-verify.example>",
+     "suspicious": true,
+     "explain": "表示名は自由に名乗れる。メールアドレスの @ の後ろ（ドメイン名）を右から読むと、持ち主は account-verify.example。左の midori-bank は飾りで、ミドリ銀行（midori-bank.example）のものではない。"
+    },
+    {
+     "id": "subject",
+     "role": "subject",
+     "text": "【重要】お客様のアカウントが一時停止されました",
+     "suspicious": true,
+     "explain": "「重要」「停止」で不安にさせ、あわてさせようとしている。"
+    },
+    {
+     "id": "greet",
+     "role": "text",
+     "text": "お客様各位",
+     "suspicious": true,
+     "explain": "本物の取引先なら名前で呼びかけることが多い。だれにでも同じ文面を送っているサインかもしれない（これだけで決めつけはできない）。"
+    },
+    {
+     "id": "t1",
+     "role": "text",
+     "text": "不正なアクセスが検出されたので、お客様のアカウントは一時停止されましたです。",
+     "suspicious": true,
+     "explain": "「されましたです」は不自然な日本語。翻訳ソフトで作った文面によくある。"
+    },
+    {
+     "id": "t2",
+     "role": "text",
+     "text": "24時間以内に下記より本人確認を行ってください。確認がない場合、口座は永久に凍結されます。",
+     "suspicious": true,
+     "explain": "期限を切って脅すのは典型的な手口。銀行がメールのリンクから暗証番号などを入力させることは、ふつうはない。"
+    },
+    {
+     "id": "btn",
+     "role": "button",
+     "text": "本人確認をする",
+     "sub": "リンク先: http://rnidori-bank.example/login",
+     "suspicious": true,
+     "explain": "よく見ると「m」ではなく「r」と「n」（rnidori）。ドメイン名は rnidori-bank.example で、本物（midori-bank.example）そっくりの別のアドレス。"
+    },
+    {
+     "id": "foot",
+     "role": "text",
+     "text": "ミドリ銀行 お客様サポートセンター",
+     "suspicious": false,
+     "explain": "署名は誰でも書ける。あってもなくても、本物かどうかの決め手にはならない。"
+    }
+   ],
+   "action": {
+    "question": "家族にどうアドバイスする？",
+    "choices": [
+     "急いでボタンを押して本人確認したほうがいい",
+     "ボタンは押さず、銀行の公式アプリや通帳に書かれた電話番号で確かめよう",
+     "メールを友達に転送して、同じメールが来ていないか聞く"
+    ],
+    "answer": 1,
+    "danger": [
+     0,
+     2
+    ],
+    "explain": "メールに書かれた連絡先やリンクではなく、自分で調べた公式の連絡先で確かめよう。怪しいメールを転送すると、友達がうっかり押してしまう危険もある。"
+   }
+  },
+  {
+   "id": "web-game",
+   "title": "ゲームの「無料プレゼント」ログイン画面",
+   "kind": "web",
+   "isPhishing": true,
+   "address": {
+    "id": "url",
+    "text": "http://pocketquest-free-gems.example/login",
+    "suspicious": true,
+    "explain": "公式サイト（pocketquest.example）とは違うアドレス。「free-gems」のような言葉が入っているのも怪しい。また「http://」で始まり、通信が暗号化されていない。"
+   },
+   "intro": "SNSの広告をタップしたら、このページが開きました。怪しいと思うところをすべて選ぼう（アドレスバーも選べます）。",
+   "parts": [
+    {
+     "id": "logo",
+     "role": "logo",
+     "text": "PQ ポケットクエスト",
+     "suspicious": false,
+     "explain": "ロゴや画像は簡単にコピーできる。本物そっくりでも安心の理由にはならない。"
+    },
+    {
+     "id": "head",
+     "role": "heading",
+     "text": "公式イベント！今だけ ジェム10000個 無料プレゼント",
+     "suspicious": true,
+     "explain": "「今だけ」「無料」「大量」は、うまい話でおびき寄せる典型的な言葉。"
+    },
+    {
+     "id": "timer",
+     "role": "timer",
+     "text": "受け取り期限まで 残り 04:59",
+     "suspicious": true,
+     "explain": "カウントダウンで急がせ、立ち止まって考えるのをじゃましている。"
+    },
+    {
+     "id": "f1",
+     "role": "field",
+     "text": "ユーザーID",
+     "suspicious": false,
+     "explain": "ログインにIDを使うのはふつう。ただし、このページに入力すること自体が危ない。"
+    },
+    {
+     "id": "f2",
+     "role": "field",
+     "text": "パスワード",
+     "suspicious": false,
+     "explain": "ふつうのログインでも聞かれる項目。問題は「どのページで」入力するか。"
+    },
+    {
+     "id": "f3",
+     "role": "field",
+     "text": "電話番号・生年月日",
+     "suspicious": true,
+     "explain": "プレゼントを受け取るのに必要のない個人情報まで集めようとしている。"
+    }
+   ],
+   "action": {
+    "question": "このページでどうする？",
+    "choices": [
+     "ジェムがほしいので、IDとパスワードだけ入力する",
+     "入力せずにページを閉じ、ゲームアプリの中のお知らせで本当にイベントがあるか確かめる",
+     "友達のアカウントで試してもらう"
+    ],
+    "answer": 1,
+    "danger": [
+     0,
+     2
+    ],
+    "explain": "一度入力したIDとパスワードは盗まれて、アカウントを乗っ取られるおそれがある。もし入力してしまったら、すぐにパスワードを変えて、家族や先生に相談しよう。"
+   }
+  },
+  {
+   "id": "mail-order",
+   "title": "ネットショップの注文確認メール",
+   "kind": "email",
+   "isPhishing": false,
+   "intro": "先週、家族と一緒にクモストアで本を注文しました。そのあとに届いたメールです。怪しいと思うところがあれば選ぼう（なければ選ばずに答え合わせ）。",
+   "parts": [
+    {
+     "id": "from",
+     "role": "sender",
+     "text": "クモストア <order@kumo-store.example>",
+     "suspicious": false,
+     "explain": "@ の後ろが、いつも使っているクモストアの公式アドレス（kumo-store.example）と同じ。ただし、差出人のアドレスは本物と同じに見せかけることもできるので、これだけでは決められない。注文した内容と合っているかを見て、心配なら公式アプリの注文履歴で確かめよう。"
+    },
+    {
+     "id": "subject",
+     "role": "subject",
+     "text": "ご注文の商品を発送しました（注文番号 KS-2026-1004-0042）",
+     "suspicious": false,
+     "explain": "自分が実際に注文した内容と合っている。急かす言葉もない。"
+    },
+    {
+     "id": "greet",
+     "role": "text",
+     "text": "山田 花子 様",
+     "suspicious": false,
+     "explain": "登録した名前で呼びかけている。"
+    },
+    {
+     "id": "t1",
+     "role": "text",
+     "text": "ご注文いただいた商品「はじめてのプログラミング」を本日発送しました。お届け予定日は10月6日です。",
+     "suspicious": false,
+     "explain": "注文した商品と日付が合っている。自然な日本語。"
+    },
+    {
+     "id": "t2",
+     "role": "text",
+     "text": "配送状況は、クモストアのアプリの「注文履歴」からご確認いただけます。",
+     "suspicious": false,
+     "explain": "リンクを押させるのではなく、公式アプリで確かめるよう案内している。"
+    }
+   ],
+   "action": {
+    "question": "このメールについて、どう考える？",
+    "choices": [
+     "メールはすべて詐欺なので、すぐに削除して誰にも言わない",
+     "注文した内容と合っていて怪しい点もない。心配なら公式アプリの注文履歴で確かめればよい",
+     "念のため、メールに書かれていない電話番号を検索してかけてみる"
+    ],
+    "answer": 1,
+    "danger": [
+     2
+    ],
+    "explain": "本物のメールもたくさんある。大切なのは「こわがって全部無視」ではなく、手順にそって確かめること。検索で出てきた電話番号が偽物のこともあるので、公式アプリや公式サイトから確かめよう。"
+   }
+  },
+  {
+   "id": "dm-prize",
+   "title": "SNSの「当選しました」DM",
+   "kind": "dm",
+   "isPhishing": true,
+   "intro": "SNSに知らないアカウントからダイレクトメッセージ（DM）が届きました。怪しいと思うところをすべて選ぼう。",
+   "parts": [
+    {
+     "id": "from",
+     "role": "sender",
+     "text": "@hikari_live_present（フォロワー 3人・今月作成）",
+     "suspicious": true,
+     "explain": "公式マークがなく、作られたばかりでフォロワーもほとんどいない。公式を名乗るなりすましアカウントの特徴。"
+    },
+    {
+     "id": "t1",
+     "role": "text",
+     "text": "おめでとうございます🎉 あなたは人気アイドル「ヒカリ」のライブチケットに当選しました！",
+     "suspicious": true,
+     "explain": "応募していないのに当選するのはおかしい。"
+    },
+    {
+     "id": "t2",
+     "role": "text",
+     "text": "受け取りのため、下のフォームに 名前・住所・学校名・電話番号 を入力してね。",
+     "suspicious": true,
+     "explain": "住所や学校名などの個人情報を集めようとしている。一度知られると取り消せない。"
+    },
+    {
+     "id": "t3",
+     "role": "text",
+     "text": "発送手数料として、コンビニで500円のギフトカードを買って番号を送ってください。",
+     "suspicious": true,
+     "explain": "ギフトカードの番号を送らせるのは詐欺の典型的な手口。番号を送った時点でお金がとられる。"
+    },
+    {
+     "id": "t4",
+     "role": "text",
+     "text": "このことは、ほかの人には内緒にしてね！",
+     "suspicious": true,
+     "explain": "「内緒に」は、家族や先生に相談させないためのことば。相談されると困るのは、だます側。"
+    },
+    {
+     "id": "link",
+     "role": "link",
+     "text": "https://hikari-present.form-site.example",
+     "suspicious": true,
+     "explain": "「https」でも安全とは限らない。https は通信が暗号化されているという意味で、相手が本物かどうかは別の話。"
+    }
+   ],
+   "action": {
+    "question": "あなたならどうする？",
+    "choices": [
+     "チケットがほしいので、名前だけ入力してみる",
+     "返信せず、家族や先生に見せて相談し、アカウントをブロック・通報する",
+     "「本当ですか？」と返信して確かめる"
+    ],
+    "answer": 1,
+    "danger": [
+     0,
+     2
+    ],
+    "explain": "返信すると、さらに言葉たくみに個人情報を聞き出されることがある。1人で判断せず相談し、ブロック・通報しよう。"
+   }
+  }
+ ]
+}

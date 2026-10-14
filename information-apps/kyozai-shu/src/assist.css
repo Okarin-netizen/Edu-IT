@@ -1,0 +1,60 @@
+/* 教材集の中で開いたときだけ足す見やすさの調整（元の教材ファイルは変えない）
+   落ち着いた配色はそのままに、入力欄・進み具合のバー・いま開いているページの印を見分けやすくする。
+   --kz-line は背景との差が 3:1 以上になる線の色（WCAG 1.4.11 の目安） */
+:root { --kz-line: #8c8a82; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kz-line: #7c7b74; } }
+:root[data-theme="dark"] { --kz-line: #7c7b74; }
+
+input[type="text"], input[type="number"], input[type="search"], input:not([type]), textarea, select { border-color: var(--kz-line); }
+.bar { border-color: var(--kz-line); }
+.chapter-nav .num { border-color: var(--kz-line); }
+.display-toggles .toggle { border-color: var(--kz-line); }
+
+/* いま開いているページ: 色の薄い背景だけでなく、青い線でも示す */
+.chapter-nav a[aria-current="page"] { box-shadow: inset 4px 0 0 var(--accent); }
+.main-nav a[aria-current="page"], .top-nav a[aria-current="page"], .tabs .tab[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--accent); }
+
+/* つぎはこれ（guide.js） */
+.kyozai-next {
+  margin: 28px 0 12px; padding: 16px 18px; border-radius: 12px;
+  background: var(--accent-soft); border: 1.5px solid var(--accent);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+}
+.kyozai-next .kyozai-next-label { flex-basis: 100%; font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+.kyozai-next p { margin: 0; flex: 1 1 18em; }
+.kyozai-next .btn { text-decoration: none; display: inline-flex; align-items: center; }
+@media print { .kyozai-next { display: none; } }
+
+/* 教材集の上のバーの「ふりがな」「大きな文字」（display.js）
+   教材にもともとある同じボタンは、教材集のボタンが代わりに押すので、教材集の中ではかくす */
+[data-kz-driven], .display-toggles[data-kz-empty] { display: none !important; }
+/* 「大きな文字」のボタンを持たない教材でも、文字を大きくする（ボタンを持つ教材は、教材の決まりのほうが先） */
+html:where(.large-text) { font-size: 20px; }
+@media (max-width: 860px) { html:where(.large-text) { font-size: 18px; } }
+/* ふりがな（ruby.js） */
+ruby.kz-ruby { ruby-position: over; ruby-align: center; }
+ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color: inherit; opacity: 0.85; user-select: none; -webkit-user-select: none; }
+
+/* KS-03: 教材集の中では教材の上のバーを少し細くする（教材集のバーと2本で高さを取りすぎないように） */
+.app-header { padding-top: 6px; padding-bottom: 6px; }
+
+/* KS-02: タブレット縦など、はばがせまいときの左のメニュー。
+   横1列の帯（右が見えない）をやめて、折り返して全部のページを見せる */
+@media (max-width: 860px) {
+  .chapter-nav ol { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); overflow-x: visible; padding-bottom: 0; gap: 4px; }
+  .chapter-nav a, .chapter-nav span.disabled { padding: 5px 8px; min-height: 40px; font-size: 0.88rem; line-height: 1.35; border: 1px solid var(--border); }
+  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
+  .chapter-nav .nav-group { display: none; }
+}
+/* KS-03: はばがせまいとき、教材の表示の切りかえ（「やさしい日本語」など）を2段目に送らず、入るなら1段にする */
+@media (max-width: 860px) { .app-header .display-toggles { order: 0; width: auto; } }
+
+/* SEC-15: ほかの教材への案内（bridge.js）は、モジュールのさいごに控えめに出す */
+.kyozai-link { margin-top: 20px; }
+.kyozai-link .btn { text-decoration: none; }
+.kyozai-link .kyozai-link-hint { margin: 8px 0 0; font-size: 0.88rem; color: var(--text-secondary); }
+/* NW-18: ほかの教材の案内から来たときの「← もとの教材にもどる」（guide.js） */
+.kyozai-back { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.kyozai-back-bottom { margin: 18px 0 8px; }
+.kyozai-back .btn { min-height: 40px; }
+@media print { .kyozai-back, .kyozai-link { display: none; } }
