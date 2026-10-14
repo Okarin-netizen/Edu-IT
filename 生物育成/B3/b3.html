@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B3 動物飼育・水産ミニシミュレータ</title>
+<style>
+body{margin:0;background:#f4f7f1}
+#b3app{
+  --b3-bg:#f4f7f1;--b3-card:#ffffff;--b3-ink:#1b2a1b;--b3-sub:#4d5e4f;--b3-line:#cfdccc;
+  --b3-main:#2e7d32;--b3-main-d:#1b5e20;--b3-soft:#e8f5e9;--b3-ok:#2e7d32;--b3-warn:#a86400;--b3-bad:#b23b3b;
+  --b3-fs:18px;--b3-headh:120px;--b3-barh:0px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Meiryo","Noto Sans JP",sans-serif;
+  font-size:var(--b3-fs);line-height:1.65;color:var(--b3-ink);background:var(--b3-bg);
+  min-height:100vh;-webkit-text-size-adjust:100%;
+}
+#b3app *{box-sizing:border-box}
+#b3app.b3-noruby rt{display:none}
+#b3app rt{font-size:.55em;color:var(--b3-sub)}
+#b3app h1,#b3app h2,#b3app h3{line-height:1.4;margin:.3em 0 .5em}
+#b3app h1{font-size:1.3em}
+#b3app h2{font-size:1.2em;color:var(--b3-main-d)}
+#b3app h3{font-size:1.05em}
+#b3app p{margin:.4em 0}
+#b3app button,#b3app select,#b3app input,#b3app textarea{font:inherit;color:inherit}
+#b3app button{cursor:pointer;touch-action:manipulation}
+#b3app .b3-head{position:sticky;top:0;z-index:20;background:#1b5e20;color:#fff;padding:8px 14px 0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+#b3app .b3-head-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#b3app .b3-title{font-weight:700;font-size:min(1.05em,20px);flex:1 1 auto;min-width:200px;line-height:1.4}
+#b3app .b3-title small{font-weight:400;opacity:.85;font-size:.8em;display:block}
+@media (max-height:800px){#b3app .b3-title small{display:none}}
+#b3app .b3-tools{display:flex;gap:6px;font-size:min(1em,20px)}
+#b3app .b3-tools button{background:transparent;border:2px solid rgba(255,255,255,.75);color:#fff;border-radius:10px;min-height:44px;min-width:48px;padding:4px 10px;font-size:.85em;font-weight:700}
+#b3app .b3-tools button[aria-pressed="true"]{background:#fff;color:#1b5e20;border-color:#fff}
+#b3app .b3-tools button:disabled{opacity:.4;cursor:not-allowed}
+/* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする(K3) */
+html.kz-embed #b3app .b3-head-row{display:none}
+html.kz-embed #b3app .b3-head{padding-top:6px}
+html.kz-embed #b3app .b3-nav{margin-top:0}
+#b3app .b3-nav{display:flex;gap:4px;margin-top:8px}
+#b3app .b3-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#e3f1e4;padding:8px 8px;min-height:52px;border-radius:12px 12px 0 0;font-weight:700;font-size:min(.92em,20px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+#b3app .b3-nav button[data-tab="sim"]{flex-grow:1.7}
+#b3app .b3-nav button[aria-selected="true"]{background:var(--b3-bg);color:#1b5e20}
+#b3app .b3-nav rt{color:inherit;opacity:.85}
+#b3app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b3app section[hidden]{display:none!important}
+#b3app section,#b3app .b3-card,#b3app #b3-qexp{scroll-margin-top:calc(var(--b3-headh) + var(--b3-barh) + 8px)}
+#b3app .b3-card{background:var(--b3-card);border:1px solid var(--b3-line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+#b3app .b3-note{background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:10px 14px;margin:10px 0}
+#b3app .b3-btn{display:inline-block;text-align:center;vertical-align:middle;min-height:48px;line-height:1.5;padding:8px 18px;border-radius:12px;border:2px solid var(--b3-main);background:#fff;color:var(--b3-main-d);font-weight:700}
+#b3app .b3-btn.b3-pri{background:var(--b3-main);color:#fff}
+#b3app .b3-btn.b3-pri rt{color:#e8f5e9}
+#b3app .b3-btn:disabled{opacity:.45;cursor:not-allowed}
+#b3app .b3-btn:active:not(:disabled){transform:translateY(1px)}
+#b3app .b3-btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#b3app :focus-visible{outline:3px solid #f0a020;outline-offset:2px}
+/* 対象選択 */
+#b3app .b3-species{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+#b3app .b3-sp{background:#fff;border:2px solid var(--b3-line);border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:200px}
+#b3app .b3-sp:hover{border-color:var(--b3-main)}
+#b3app .b3-sp.b3-cur{border-color:var(--b3-main);box-shadow:0 0 0 3px var(--b3-soft)}
+#b3app .b3-sp svg{width:100%;height:96px}
+#b3app .b3-sp b{font-size:1.1em}
+#b3app .b3-sp span{font-size:.85em;color:var(--b3-sub)}
+#b3app .b3-tag{display:inline-block;font-size:.75em;padding:1px 8px;border-radius:99px;background:var(--b3-soft);color:var(--b3-main-d);font-weight:700}
+#b3app .b3-sp .b3-tag{align-self:flex-start;color:var(--b3-main-d);font-size:.75em}
+#b3app .b3-sp .b3-done{align-self:flex-start;font-size:.8em;color:#7a5a00;font-weight:700}
+/* シミュレーション */
+#b3app .b3-simbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:10px}
+#b3app #b3-simbar{position:sticky;top:var(--b3-headh);z-index:15;background:var(--b3-bg);margin:-14px -14px 10px;padding:10px 14px;border-bottom:1px solid var(--b3-line)}
+#b3app .b3-day{font-size:1.15em;font-weight:700}
+#b3app .b3-daybar{flex:1 1 160px;height:12px;background:#dfe8dc;border-radius:6px;overflow:hidden;min-width:120px}
+#b3app .b3-daybar i{display:block;height:100%;background:var(--b3-main)}
+#b3app .b3-simgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"vis set" "met set";gap:0 14px;align-items:start}
+#b3app .b3-g-vis{grid-area:vis}#b3app .b3-g-met{grid-area:met}#b3app .b3-g-set{grid-area:set}
+@media (max-width:900px){#b3app .b3-simgrid{grid-template-columns:1fr;grid-template-rows:none;grid-template-areas:"vis" "set" "met"}}
+#b3app .b3-vis{width:100%;height:auto;display:block;border-radius:10px}
+#b3app .b3-meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+@media (max-width:520px){#b3app .b3-meters{grid-template-columns:1fr}}
+#b3app.b3-big .b3-meters{grid-template-columns:1fr}
+#b3app .b3-meter{border:1px solid var(--b3-line);border-radius:10px;padding:6px 10px;background:#fbfdfa}
+#b3app .b3-meter.b3-chg{animation:b3chg 1.2s ease-out}
+@keyframes b3chg{0%{background:#fff3c4;box-shadow:0 0 0 3px #f0c040}100%{background:#fbfdfa;box-shadow:none}}
+#b3app .b3-meter-top{display:flex;flex-direction:column;gap:0;font-size:.88em}
+#b3app .b3-meter-top b{font-size:1.05em}
+#b3app .b3-bar{height:10px;border-radius:5px;background:#e3ebe1;overflow:hidden;margin-top:3px}
+#b3app .b3-bar i{display:block;height:100%}
+#b3app .b3-lv{font-size:.78em;font-weight:700;padding:0 6px;border-radius:6px;white-space:nowrap}
+#b3app .b3-lv.ok{color:var(--b3-ok);background:#e3f4e5}
+#b3app .b3-lv.warn{color:var(--b3-warn);background:#fdf0dc}
+#b3app .b3-lv.bad{color:var(--b3-bad);background:#fbe5e5}
+#b3app .b3-look{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+#b3app .b3-look div{background:var(--b3-soft);border-radius:10px;padding:6px 8px;text-align:center;font-size:.9em}
+#b3app .b3-look div b{display:block;font-size:1.05em}
+#b3app .b3-signs{margin:8px 0 0;padding-left:1.2em}
+#b3app .b3-signs li{margin:2px 0}
+#b3app .b3-ctl{margin-bottom:12px}
+#b3app .b3-ctl-label{display:block;font-weight:700;margin-bottom:4px;overflow:hidden}
+#b3app .b3-ctl-label small{float:right;font-weight:400;color:var(--b3-sub);font-size:.8em;margin-left:8px}
+#b3app .b3-seg{display:flex;flex-wrap:wrap;gap:4px}
+#b3app .b3-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--b3-line);background:#fff;border-radius:10px;padding:4px 6px;font-size:.88em;line-height:1.25}
+#b3app .b3-seg button[aria-pressed="true"]{border-color:var(--b3-main);background:var(--b3-main);color:#fff;font-weight:700}
+#b3app .b3-seg button[aria-pressed="true"] rt{color:#e8f5e9}
+#b3app .b3-range{display:flex;align-items:center;gap:6px}
+#b3app .b3-range input[type=range]{flex:1;min-width:0;height:44px;accent-color:var(--b3-main)}
+#b3app .b3-range button{width:48px;height:48px;border-radius:10px;border:2px solid var(--b3-line);background:#fff;font-size:1.3em;font-weight:700;flex:none}
+#b3app .b3-range output{min-width:4.2em;text-align:right;font-weight:700;font-size:1.05em}
+#b3app .b3-act{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#b3app .b3-msg{padding:10px 14px;border-radius:12px;margin:8px 0;border:1px solid}
+#b3app .b3-msg.info{background:#eef7ee;border-color:#b9d8bb}
+#b3app .b3-msg.warn{background:#fff6e5;border-color:#efcf8b}
+#b3app .b3-log{max-height:300px;overflow:auto;margin:0;padding:0;list-style:none;font-size:.9em}
+#b3app .b3-log li{padding:4px 2px;border-bottom:1px dashed var(--b3-line)}
+#b3app .b3-log li b{color:var(--b3-main-d);margin-right:6px}
+#b3app .b3-log li.b3-sum{color:var(--b3-sub)}
+#b3app canvas{width:100%;height:220px;display:block}
+#b3app .b3-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;color:var(--b3-sub)}
+#b3app .b3-legend span::before{content:"";display:inline-block;width:26px;height:0;border-top:3px solid currentColor;vertical-align:middle;margin-right:4px}
+#b3app .b3-legend .l1{color:#2e7d32}#b3app .b3-legend .l2{color:#9a6a1a}#b3app .b3-legend .l2::before{border-top-style:dashed}
+#b3app .b3-legend .l3{color:#6a4fa3}#b3app .b3-legend .l3::before{border-top-style:dotted;border-top-width:4px}
+#b3app .b3-result{border:3px solid var(--b3-main);background:#f3faf3}
+#b3app .b3-stars{font-size:1.6em;letter-spacing:4px;color:#d39b00}
+#b3app .b3-cause{background:#fff6e5;border:1px solid #efcf8b;border-radius:12px;padding:8px 14px;margin:8px 0}
+#b3app .b3-small{font-size:.85em;color:var(--b3-sub)}
+#b3app .b3-cause ol{margin:4px 0;padding-left:1.4em}
+/* クイズ */
+#b3app .b3-qcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+#b3app .b3-qcat>div{display:flex;flex-direction:column;gap:6px}
+#b3app .b3-qcat button.b3-qbtn{min-height:90px;border-radius:14px;border:2px solid var(--b3-line);background:#fff;text-align:left;padding:10px 14px;flex:1}
+#b3app .b3-qcat button b{display:block;font-size:1.05em}
+#b3app .b3-qcat button span{font-size:.85em;color:var(--b3-sub)}
+#b3app .b3-qscene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+@media (max-width:760px){#b3app .b3-qscene{grid-template-columns:1fr}}
+#b3app .b3-choices{display:grid;gap:8px;margin-top:10px}
+#b3app .b3-choices button{min-height:56px;text-align:left;padding:8px 14px;border-radius:12px;border:2px solid var(--b3-line);background:#fff}
+#b3app .b3-choices button.b3-right{border-color:var(--b3-ok);background:#e9f6ea}
+#b3app .b3-choices button.b3-wrong{border-color:var(--b3-bad);background:#fbeaea}
+#b3app .b3-choices button:disabled{cursor:default;opacity:1}
+#b3app .b3-explain{margin-top:10px;padding:10px 14px;border-radius:12px;background:#eef7ee;border:1px solid #b9d8bb}
+#b3app .b3-miss li{margin-bottom:8px}
+#b3app .b3-miss details{margin:4px 0}
+/* 計画書・振り返り */
+#b3app label.b3-f{display:block;font-weight:700;margin:10px 0 4px}
+#b3app label.b3-f small{font-weight:400;color:var(--b3-sub)}
+#b3app input[type=text],#b3app select,#b3app textarea{width:100%;min-height:48px;border:2px solid var(--b3-line);border-radius:10px;padding:8px 10px;background:#fff}
+#b3app textarea{min-height:110px;resize:vertical;line-height:1.6}
+#b3app .b3-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+#b3app .b3-who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px}
+@media (max-width:520px){#b3app .b3-who{grid-template-columns:1fr 1fr}#b3app .b3-who>div:last-child{grid-column:1/-1}}
+#b3app table.b3-week{border-collapse:collapse;width:100%;text-align:center;font-size:.92em}
+#b3app table.b3-week th,#b3app table.b3-week td{border:1px solid var(--b3-line);padding:2px}
+#b3app table.b3-week th{background:var(--b3-soft)}
+#b3app .b3-chk{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;cursor:pointer}
+#b3app .b3-chk input{width:26px;height:26px;accent-color:var(--b3-main)}
+#b3app .b3-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 12px}
+#b3app .b3-checks label{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
+#b3app .b3-checks input{width:26px;height:26px;flex:none;accent-color:var(--b3-main)}
+#b3app .b3-eval{display:grid;gap:8px}
+#b3app .b3-eval-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--b3-line);padding-bottom:8px}
+@media (max-width:700px){#b3app .b3-eval-row{grid-template-columns:1fr}}
+#b3app .b3-saved{font-size:.85em;color:var(--b3-ok);min-height:1.4em}
+#b3app .b3-pval{display:none}
+#b3app .b3-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f3320;color:#fff;padding:10px 18px;border-radius:12px;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
+#b3app .b3-toast.show{opacity:1}
+#b3app details{border:1px solid var(--b3-line);border-radius:12px;padding:8px 12px;background:#fff;margin:8px 0}
+#b3app summary{font-weight:700;cursor:pointer;min-height:48px;display:list-item;padding:10px 0;box-sizing:border-box}
+#b3app .b3-summary-box{background:#f5f9f4;border-radius:10px;padding:8px 12px;font-size:.92em}
+/* アニメーション(やさしく) */
+#b3app .b3-swim{animation:b3swim 3s ease-in-out infinite}
+#b3app .b3-bob{animation:b3bob 2.4s ease-in-out infinite}
+#b3app .b3-bub{animation:b3bub 2.6s linear infinite}
+@keyframes b3swim{0%,100%{transform:translateX(0)}50%{transform:translateX(16px)}}
+@keyframes b3bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes b3bub{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-170px);opacity:0}}
+@media (prefers-reduced-motion:reduce){#b3app .b3-swim,#b3app .b3-bob,#b3app .b3-bub,#b3app .b3-meter.b3-chg{animation:none}}
+@media print{
+  #b3app{min-height:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #b3app .b3-head,#b3app .b3-btns,#b3app .b3-noprint,#b3app .b3-toast{display:none!important}
+  #b3app #b3-simbar{position:static}
+  #b3app main{padding:0}
+  #b3app .b3-card{break-inside:auto;border-color:#999}
+  #b3app h2,#b3app label.b3-f{break-after:avoid}
+  #b3app input[type=text],#b3app select{display:none!important}
+  #b3app .b3-pval{display:block;border:1px solid #999;border-radius:6px;padding:4px 8px;min-height:2em;white-space:pre-wrap;word-break:break-word}
+  #b3app .b3-pval.b3-empty{color:#666}
+  #b3app .b3-seg button[aria-pressed="true"]{outline:3px solid #000;outline-offset:-3px}
+  #b3app .b3-meter.b3-chg{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="b3app">
+  <header class="b3-head" id="b3-head">
+    <div class="b3-head-row">
+      <div class="b3-title">B3 動物飼育・水産ミニシミュレータ<small>生物育成の技術|動物・水産生物を育てる</small></div>
+      <div class="b3-tools">
+        <button type="button" id="b3-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" id="b3-fminus" aria-label="文字を小さく">A−</button>
+        <button type="button" id="b3-fplus" aria-label="文字を大きく">A＋</button>
+      </div>
+    </div>
+    <nav class="b3-nav" role="tablist" aria-label="画面の切りかえ">
+      <button type="button" role="tab" data-tab="home">① はじめに</button>
+      <button type="button" role="tab" data-tab="sim">② 飼育<wbr>シミュレーション</button>
+      <button type="button" role="tab" data-tab="quiz">③ 診断<wbr>クイズ</button>
+      <button type="button" role="tab" data-tab="plan">④ 飼育<wbr>計画書</button>
+      <button type="button" role="tab" data-tab="refl">⑤ 振り返り</button>
+    </nav>
+  </header>
+  <main>
+    <section id="b3-sec-home" data-sec="home"></section>
+    <section id="b3-sec-sim" data-sec="sim" hidden></section>
+    <section id="b3-sec-quiz" data-sec="quiz" hidden></section>
+    <section id="b3-sec-plan" data-sec="plan" hidden></section>
+    <section id="b3-sec-refl" data-sec="refl" hidden></section>
+  </main>
+  <div class="b3-toast" id="b3-toast" role="status" aria-live="polite"></div>
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<!--
+  kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzRuby だけ):
+    kzRuby(root, opts)   root(要素。省略時 document.body)の下の文字に <ruby>語<rt>よみ</rt></ruby> を付ける。
+                         ・長い語から先に当てる(「積算温度」は「積算」より先)
+                         ・ruby, rt, rp, textarea, input, select, option, script, style, svg, canvas, code,
+                           noscript, [contenteditable], class="kz-norb" の要素の中はとばす
+                         ・何度よんでも二重にならない(ruby の中はとばすため)。描画のたびによんでよい
+                         opts.skip : とばす要素を CSS セレクタで追加(例 '.b4-cal')
+                         戻り値: 付けた ruby の数
+    kzRuby.str(html)     HTML 文字列のタグの外の文字にだけ ruby を付けた文字列を返す
+                         (innerHTML に入れる前に使う場合。ruby/textarea/script/style/code の中はとばす)
+    kzRuby.plain(html)   ruby の読み(rt・rp)とタグを取りのぞいた文字だけを返す(テキスト書き出し・コピー用)。
+                         <br> は改行、&amp; などは元の文字にもどす
+    kzRuby.dict          辞書の配列 [語, よみ]。よみは文字列、または区切り配列
+                         例 ['分げつ', [['分','ぶん'],'げつ']](かなの部分にはよみを付けない)
+                         文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
+    kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
+
+  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
+-->
+<style data-kz-ruby>
+ruby.kzr{ruby-position:over;}
+</style>
+<script data-kz-ruby>
+(function(){
+  if (window.kzRuby) return;
+  var DICT = [["徒長","とちょう"],["摘芯","てきしん"],["摘心","てきしん"],["摘芽","てきが"],["芽かき","めかき"],["わき芽かき","わきめかき"],["わき芽","わきめ"],["誘引","ゆういん"],["支柱","しちゅう"],["支柱立て","しちゅうたて"],["出穂","しゅっすい"],["穂肥","ほごえ"],["分げつ",[["分","ぶん"],"げつ"]],["積算温度","せきさんおんど"],["有効積算温度","ゆうこうせきさんおんど"],["基準温度","きじゅんおんど"],["積算水温","せきさんすいおん"],["積算","せきさん"],["間引き","まびき"],["間引","まび"],["追肥","ついひ"],["元肥","もとごえ"],["土寄せ","つちよせ"],["土寄","つちよ"],["畝立て","うねたて"],["畝","うね"],["定植","ていしょく"],["植えつけ","うえつけ"],["植えかえ","うえかえ"],["収穫","しゅうかく"],["収穫量","しゅうかくりょう"],["播種","はしゅ"],["発芽","はつが"],["芽出し","めだし"],["逆算","ぎゃくさん"],["適期","てきき"],["適温","てきおん"],["適量","てきりょう"],["連作障害","れんさくしょうがい"],["連作","れんさく"],["休業日","きゅうぎょうび"],["区画","くかく"],["栽培","さいばい"],["栽培暦","さいばいごよみ"],["露地","ろじ"],["温室","おんしつ"],["遮光","しゃこう"],["換気","かんき"],["加温","かおん"],["保温","ほおん"],["暖房","だんぼう"],["苗","なえ"],["苗床","なえどこ"],["育苗","いくびょう"],["茎","くき"],["稲","いね"],["稲刈り","いねかり"],["田植え","たうえ"],["中干し","なかぼし"],["種もみ","たねもみ"],["種いも","たねいも"],["浸種","しんしゅ"],["湛水","たんすい"],["水田","すいでん"],["本葉","ほんば"],["子葉","しよう"],["生長点","せいちょうてん"],["光合成","こうごうせい"],["開花","かいか"],["結実","けつじつ"],["受粉","じゅふん"],["人工授粉","じんこうじゅふん"],["着果","ちゃっか"],["番花","ばんか"],["結球","けっきゅう"],["草丈","くさたけ"],["葉数","ようすう"],["株元","かぶもと"],["密植","みっしょく"],["移植","いしょく"],["肥料","ひりょう"],["肥料やけ",[["肥料","ひりょう"],"やけ"]],["化学肥料","かがくひりょう"],["有機物","ゆうきぶつ"],["窒素","ちっそ"],["堆肥","たいひ"],["石灰","せっかい"],["苦土石灰","くどせっかい"],["腐葉土","ふようど"],["液肥","えきひ"],["養分","ようぶん"],["根粒菌","こんりゅうきん"],["根腐れ","ねぐされ"],["根ぐされ",[["根","ね"],"ぐされ"]],["尻腐れ症","しりぐされしょう"],["尻腐れ","しりぐされ"],["青枯病","あおがれびょう"],["白点病","はくてんびょう"],["病害虫","びょうがいちゅう"],["害虫","がいちゅう"],["益虫","えきちゅう"],["天敵","てんてき"],["捕殺","ほさつ"],["防除","ぼうじょ"],["防虫","ぼうちゅう"],["農薬","のうやく"],["殺菌","さっきん"],["斑点","はんてん"],["細菌","さいきん"],["微生物","びせいぶつ"],["食害","しょくがい"],["幼虫","ようちゅう"],["雑草","ざっそう"],["除草","じょそう"],["乾燥","かんそう"],["蒸発","じょうはつ"],["排水","はいすい"],["日照不足","にっしょうぶそく"],["直射日光","ちょくしゃにっこう"],["日陰","ひかげ"],["半日陰","はんひかげ"],["高温障害","こうおんしょうがい"],["寒冷地","かんれいち"],["温暖地","おんだんち"],["暖地","だんち"],["中間地","ちゅうかんち"],["品種","ひんしゅ"],["品種改良","ひんしゅかいりょう"],["鉢","はち"],["二十日大根","はつかだいこん"],["湿度","しつど"],["濃度","のうど"],["促進","そくしん"],["飼育","しいく"],["飼育密度","しいくみつど"],["飼料","しりょう"],["配合飼料","はいごうしりょう"],["給餌","きゅうじ"],["自動給餌器","じどうきゅうじき"],["餌","えさ"],["衛生","えいせい"],["不衛生","ふえいせい"],["稚魚","ちぎょ"],["成魚","せいぎょ"],["産卵","さんらん"],["繁殖","はんしょく"],["水替え","みずかえ"],["水替","みずか"],["床材","ゆかざい"],["敷きわら","しきわら"],["溶存酸素","ようぞんさんそ"],["塩素","えんそ"],["中和剤","ちゅうわざい"],["調整剤","ちょうせいざい"],["水質","すいしつ"],["過密","かみつ"],["密度","みつど"],["家畜化","かちくか"],["家畜","かちく"],["畜産業","ちくさんぎょう"],["畜産","ちくさん"],["観賞魚","かんしょうぎょ"],["変温動物","へんおんどうぶつ"],["恒温動物","こうおんどうぶつ"],["外来生物","がいらいせいぶつ"],["外来種","がいらいしゅ"],["特定外来生物","とくていがいらいせいぶつ"],["条件付特定外来生物","じょうけんつきとくていがいらいせいぶつ"],["動物由来感染症","どうぶつゆらいかんせんしょう"],["感染症","かんせんしょう"],["動物福祉","どうぶつふくし"],["栽培漁業","さいばいぎょぎょう"],["養殖","ようしょく"],["養殖業","ようしょくぎょう"],["遠洋漁業","えんようぎょぎょう"],["沖合漁業","おきあいぎょぎょう"],["沿岸漁業","えんがんぎょぎょう"],["漁業","ぎょぎょう"],["水産","すいさん"],["赤潮","あかしお"],["生態系","せいたいけい"],["遺伝子","いでんし"],["放流","ほうりゅう"],["呼吸器","こきゅうき"],["羽毛","うもう"],["牧草","ぼくそう"],["体色","たいしょく"],["食欲","しょくよく"],["排水口","はいすいこう"],["治療","ちりょう"],["症状","しょうじょう"],["消毒","しょうどく"],["清掃","せいそう"],["掃除","そうじ"],["洗剤","せんざい"],["個体","こたい"],["殻","から"],["寄生虫","きせいちゅう"],["振り返り","ふりかえり"],["振り返る","ふりかえる"],["振り返","ふりかえ"],["育成","いくせい"],["育成日誌","いくせいにっし"],["日誌","にっし"],["環境","かんきょう"],["調節","ちょうせつ"],["診断","しんだん"],["端末","たんまつ"],["共用","きょうよう"],["削除","さくじょ"],["完了","かんりょう"],["選択","せんたく"],["挑戦","ちょうせん"],["再挑戦","さいちょうせん"],["途中","とちゅう"],["範囲","はんい"],["影響","えいきょう"],["配慮","はいりょ"],["比較","ひかく"],["交換","こうかん"],["匿名","とくめい"],["項目","こうもく"],["根拠","こんきょ"],["傾向","けいこう"],["一緒","いっしょ"],["一般的","いっぱんてき"],["極端","きょくたん"],["特徴","とくちょう"],["販売","はんばい"],["間隔","かんかく"],["新鮮","しんせん"],["変更","へんこう"],["被害","ひがい"],["交互","こうご"],["実施","じっし"],["制御","せいぎょ"],["終了","しゅうりょう"],["欄","らん"],["粘着","ねんちゃく"],["透明","とうめい"],["手袋","てぶくろ"],["刃物","はもの"],["距離","きょり"],["面倒","めんどう"],["紀伊半島","きいはんとう"],["最小二乗法","さいしょうにじょうほう"],["汚れ","よごれ"],["汚す","よごす"],["汚い","きたない"],["遅れ","おくれ"],["遅い","おそい"],["遅く","おそく"],["遅め","おそめ"],["押","お"],["抜","ぬ"],["伸","の"],["乾","かわ"],["替","か"],["込","こ"],["与","あた"],["離","はな"],["逃","に"],["倒","たお"],["茂","しげ"],["甘","あま"],["咲","さ"],["枯","か"],["埋","う"],["扱","あつか"],["汗","あせ"],["腐","くさ"],["促","うなが"],["溺","おぼ"],["穂","ほ"],["芯","しん"],["掘","ほ"],["刈","か"],["泥","どろ"],["菌","きん"],["芋","いも"],["狭","せま"],["渇","かわ"],["飢","う"],["幅","はば"],["軸","じく"],["粒","つぶ"],["濃","こ"],["湿","しめ"],["渡","わた"],["多湿","たしつ"],["高温多湿","こうおんたしつ"],["植木鉢","うえきばち"],["地下茎","ちかけい"],["水稲","すいとう"],["跳ね","はね"],["跳ぶ","とぶ"],["跳び","とび"],["捕まえ","つかまえ"]];
+  var KANA_RUN = /[ぁ-ゟ゠-ヿ]+|[^ぁ-ゟ゠-ヿ]+/g;
+  var IS_KANA = /^[ぁ-ゟ゠-ヿ]/;
+  var SKIP = 'ruby,rt,rp,textarea,input,select,option,script,style,svg,canvas,code,noscript,[contenteditable],.kz-norb';
+  var map = {}, re = null;
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function segs(w, r){
+    if (typeof r !== 'string') return r;
+    var runs = w.match(KANA_RUN) || [w];
+    if (runs.length === 1) return IS_KANA.test(w) ? [w] : [[w, r]];
+    var pat = '^';
+    for (var i = 0; i < runs.length; i++) pat += IS_KANA.test(runs[i]) ? escRe(runs[i]) : '(.+?)';
+    var m = new RegExp(pat + '$').exec(r);
+    if (!m) return [[w, r]];
+    var out = [], g = 1;
+    for (var j = 0; j < runs.length; j++) out.push(IS_KANA.test(runs[j]) ? runs[j] : [runs[j], m[g++]]);
+    return out;
+  }
+  function compile(){
+    map = {};
+    var words = [];
+    for (var i = 0; i < DICT.length; i++) { var w = DICT[i][0]; if (!map[w]) words.push(w); map[w] = segs(w, DICT[i][1]); }
+    words.sort(function(a, b){ return b.length - a.length; });
+    re = words.length ? new RegExp(words.map(escRe).join('|'), 'g') : null;
+  }
+  function escH(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function rubyHtml(word){
+    var p = map[word], h = '';
+    for (var i = 0; i < p.length; i++) h += (typeof p[i] === 'string') ? escH(p[i]) : '<ruby class="kzr">' + escH(p[i][0]) + '<rt>' + escH(p[i][1]) + '</rt></ruby>';
+    return h;
+  }
+  function rubyFrag(word){
+    var p = map[word], f = document.createDocumentFragment();
+    for (var i = 0; i < p.length; i++) {
+      if (typeof p[i] === 'string') { f.appendChild(document.createTextNode(p[i])); continue; }
+      var r = document.createElement('ruby'); r.className = 'kzr';
+      r.appendChild(document.createTextNode(p[i][0]));
+      var rt = document.createElement('rt'); rt.appendChild(document.createTextNode(p[i][1])); r.appendChild(rt);
+      f.appendChild(r);
+    }
+    return f;
+  }
+
+  function kzRuby(root, opts){
+    root = root || document.body;
+    if (!root || !re) return 0;
+    var skip = SKIP + (opts && opts.skip ? ',' + opts.skip : '');
+    if (root.nodeType === 1 && root.closest && root.closest(skip)) return 0;
+    var list = [], n, w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || v.length < 1) continue;
+      re.lastIndex = 0;
+      if (!re.test(v)) continue;
+      var par = n.parentNode;
+      if (!par || par.nodeType !== 1 || (par.closest && par.closest(skip))) continue;
+      list.push(n);
+    }
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], s = t.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        f.appendChild(rubyFrag(m[0])); count++;
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(f, t);
+    }
+    return count;
+  }
+
+  /* HTML 文字列版: タグの外の文字にだけ付ける */
+  kzRuby.str = function(html){
+    if (!re) return String(html);
+    var parts = String(html).split(/(<[^>]*>)/), depth = 0, out = '';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.charAt(0) === '<') {
+        var m = /^<(\/?)([a-zA-Z0-9]+)/.exec(p);
+        if (m && /^(ruby|textarea|script|style|code|svg|select|option)$/i.test(m[2])) depth += m[1] ? -1 : 1;
+        if (depth < 0) depth = 0;
+        out += p; continue;
+      }
+      if (depth > 0 || !p) { out += p; continue; }
+      re.lastIndex = 0;
+      out += p.replace(re, rubyHtml);
+    }
+    return out;
+  };
+  kzRuby.plain = function(html){
+    return String(html == null ? '' : html)
+      .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, '').replace(/<rp[^>]*>[\s\S]*?<\/rp>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#0*39;/g, "'").replace(/&#x0*27;/gi, "'").replace(/&amp;/g, '&');
+  };
+  kzRuby.add = function(list){
+    for (var i = 0; i < (list || []).length; i++) {
+      var found = false;
+      for (var j = 0; j < DICT.length; j++) if (DICT[j][0] === list[i][0]) { DICT[j] = list[i]; found = true; break; }
+      if (!found) DICT.push(list[i]);
+    }
+    compile();
+  };
+  kzRuby.dict = DICT;
+  compile();
+  window.kzRuby = kzRuby;
+})();
+</script>
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var root=document.getElementById('b3app');
+function $(s,el){return (el||root).querySelector(s)}
+function $$(s,el){return Array.prototype.slice.call((el||root).querySelectorAll(s))}
+var store={
+  get:function(k,d){try{var v=localStorage.getItem('b3_'+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem('b3_'+k,JSON.stringify(v));return true}catch(e){return false}},
+  del:function(k){try{localStorage.removeItem('b3_'+k)}catch(e){}}
+};
+function isObj(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
+function R(k,y){return '<ruby>'+k+'<rt>'+y+'</rt></ruby>'}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function round(v,d){var p=Math.pow(10,d||0);return Math.round(v*p)/p}
+function mix(a,b,t){t=clamp(t,0,1);var pa=[1,3,5].map(function(i){return parseInt(a.substr(i,2),16)}),pb=[1,3,5].map(function(i){return parseInt(b.substr(i,2),16)});
+  return '#'+pa.map(function(v,i){var x=Math.round(v+(pb[i]-v)*t).toString(16);return x.length<2?'0'+x:x}).join('')}
+/* ふりがな(共通の用語辞書 kzRuby)。B3 だけで使う語を追加する */
+if(window.kzRuby)kzRuby.add([['水温','すいおん'],['室温','しつおん'],['酸性','さんせい'],['中性','ちゅうせい'],['酸素','さんそ'],['技術','ぎじゅつ'],['水産生物','すいさんせいぶつ'],
+  ['床','ゆか'],['分解','ぶんかい'],['有害','ゆうがい'],['呼吸','こきゅう'],['消化','しょうか'],['縄張り','なわばり'],['冬眠','とうみん'],['汚','よご'],['飢え','うえ'],['渇き','かわき'],
+  ['遺伝的','いでんてき'],['鼻上げ','はなあげ'],['祖先','そせん'],['pH','ピーエイチ'],['食物','しょくもつ'],['炭水化物','たんすいかぶつ'],['採卵','さいらん']]);
+function plain(h){return window.kzRuby?kzRuby.plain(h):String(h==null?'':h).replace(/<rt>[\s\S]*?<\/rt>/g,'').replace(/<br\s*\/?>/g,'\n').replace(/<[^>]+>/g,'')}
+function rb(el){if(window.kzRuby&&el){try{kzRuby(el)}catch(e){}}}
+function toast(msg){var t=$('#b3-toast');t.textContent=plain(msg);t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show')},2600)}
+function download(name,text,type){
+  try{var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);toast('「'+name+'」を書き出しました')}catch(e){toast('書き出しできませんでした。コピーを使ってください')}
+}
+function copyText(text){
+  function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();toast(ok?'コピーしました':'コピーできませんでした')}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){toast('コピーしました')},fallback)}else fallback();
+}
+function p2(n){return ('0'+n).slice(-2)}
+function today(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function nowStamp(){var d=new Date();return today()+' '+p2(d.getHours())+':'+p2(d.getMinutes())}
+function savedLabel(stamp){if(!stamp)return '';var m=/^(\d{4}-\d\d-\d\d) (\d\d:\d\d)$/.exec(stamp);if(!m)return '';
+  return '✓ 最後に保存 '+(m[1]===today()?m[2]:(+m[1].slice(5,7))+'/'+(+m[1].slice(8))+' '+m[2])}
+/* 印刷用:input・select の値を文字で出す(K5。textarea は kzPrintText) */
+function printVals(el){
+  $$('input[type=text],select',el||root).forEach(function(i){
+    var d=i.nextElementSibling;
+    if(!d||!d.classList||!d.classList.contains('b3-pval')){d=document.createElement('div');d.className='b3-pval';d.setAttribute('aria-hidden','true');i.parentNode.insertBefore(d,i.nextSibling)}
+    var v=i.tagName==='SELECT'?(i.value?i.options[i.selectedIndex].text:''):i.value;
+    d.textContent=v.replace(/\s+/g,'')?v:'(未記入)';d.classList.toggle('b3-empty',!v.replace(/\s+/g,''));
+  });
+}
+function printSync(el){printVals(el);if(window.kzPrintText)kzPrintText(el||root)}
+root.addEventListener('input',function(e){if(e.target.matches&&e.target.matches('input[type=text]'))printVals(e.target.parentNode)});
+root.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('select'))printVals(e.target.parentNode)});
+window.addEventListener('beforeprint',function(){printSync(root)});
+
+/* ================= 生き物のデータ(パラメータ) ================= */
+var SP={
+  medaka:{key:'medaka',name:'メダカ',kind:'water',tankL:30,capPer:1,defN:10,maxN:60,
+    temp:{min:18,max:28,ideal:25,stop:4,lethal:34},ph:{min:6.5,max:8.0},
+    size:{start:12,max:36,unit:'mm',label:'体長',dec:1},growth:0.045,
+    col:['#f3c24a','#efe4c4'],eggs:true,
+    info:'日本の小川や田んぼにすむ小さな魚。日の長い時期(春〜夏)、水温25℃前後で卵をよく産みます。寒い冬は、底でじっとして冬をこします。',
+    rule:'30Lの水そうで、1匹あたり水1L が目安',feedNote:'1日1〜2回、2〜3分で食べきる量',amountNote:'2〜3分で食べきる量',
+    issue:{routine:'none'}},
+  kingyo:{key:'kingyo',name:'金魚',kind:'water',tankL:60,capPer:12,defN:4,maxN:15,
+    temp:{min:15,max:28,ideal:22,stop:5,lethal:33},ph:{min:6.5,max:8.0},
+    size:{start:30,max:95,unit:'mm',label:'体長',dec:1},growth:0.012,
+    col:['#f2683a','#f3c4ae'],eggs:false,
+    info:'フナを品種改良した観賞魚。たくさん食べ、たくさんフンをするので水が汚れやすい。',
+    rule:'60Lの水そうで、1匹あたり水12L が目安',feedNote:'1日1〜2回、数分で食べきる量',amountNote:'数分で食べきる量',
+    issue:{air:0,feed:3}},
+  chicken:{key:'chicken',name:'ニワトリ',kind:'land',cap:4,defN:3,maxN:10,
+    temp:{min:10,max:26,ideal:20,stop:0,lethal:33},
+    size:{start:1.88,max:2.6,ideal:1.9,unit:'kg',label:'体重',dec:2},adult:true,eggRate:0.8,
+    info:'東南アジアのセキショクヤケイを家畜化した鳥。卵用や肉用に改良された品種がある。暑さが苦手で、口を開けて呼吸して体温を下げます。',
+    rule:'この小屋では4羽までが目安',dietLabel:['配合飼料＋かき殻','穀物だけ'],
+    issue:{diet:1}},
+  quail:{key:'quail',name:'ウズラ',kind:'land',cap:8,defN:6,maxN:20,
+    temp:{min:18,max:28,ideal:24,stop:8,lethal:34},
+    size:{start:128,max:170,ideal:130,unit:'g',label:'体重',dec:0},adult:true,eggRate:0.85,
+    info:'小さくても毎日のように卵を産む鳥。寒さにやや弱い。',
+    rule:'このケージでは8羽までが目安',dietLabel:['配合飼料＋かき殻','穀物だけ'],
+    issue:{temp:15}},
+  rabbit:{key:'rabbit',name:'ウサギ',kind:'land',cap:2,defN:1,maxN:4,
+    temp:{min:15,max:25,ideal:20,stop:5,lethal:31},
+    size:{start:1.0,max:2.4,ideal:2.2,unit:'kg',label:'体重',dec:2},adult:false,growth:0.055,
+    info:'成長中の子ウサギ。暑さにとても弱く、牧草(食物せんい)をたくさん食べる必要があります。縄張り意識が強い動物です。',
+    rule:'ケージは1匹ずつが基本(この広さでは2匹まで)',dietLabel:['牧草中心＋ペレット','ペレット・おやつ中心'],
+    issue:{diet:1}}
+};
+var FEED_AMT=[0,0.5,1,1.3,2.2];
+var FEED_LABEL=['なし','少なめ','適量','多め','とても多い'];
+/* 世話の手本(先生用の目安・テスト用)。初期状態はここから「課題」を1つ変えたもの */
+var GOOD={
+  medaka:{temp:25,feed:2,air:1,plants:1,n:10,routine:'w1',move:1},
+  kingyo:{temp:22,feed:2,air:2,plants:1,n:4,routine:'w1',move:0},
+  chicken:{temp:20,feed:2,diet:0,waterR:'daily',clean:'3d',ex:1,n:3},
+  quail:{temp:24,feed:2,diet:0,waterR:'daily',clean:'3d',ex:1,n:6},
+  rabbit:{temp:20,feed:2,diet:0,waterR:'daily',clean:'3d',ex:1,n:1}
+};
+
+/* ================= シミュレーションの計算 ================= */
+function defaultSet(key){
+  var sp=SP[key];
+  return sp.kind==='water'?{temp:sp.temp.ideal-2,feed:2,air:1,plants:0,n:sp.defN,routine:'w1',move:0}
+                          :{temp:sp.temp.ideal,feed:2,diet:0,waterR:'daily',clean:'3d',ex:1,n:sp.defN};
+}
+function newRun(key,plainStart){
+  var sp=SP[key];
+  var st={sp:key,day:0,health:80,size:sp.size.start,dirt:6,no3:8,ph:7.2,bio:1,water:100,eggAcc:0,eggs:0,eggsToday:0,fry:0,pending:[],
+    hist:[],log:[],done:false,acted:{},pen:{},look:null,doNow:0,app:1,left:0,streak:{},penSum:{},penDays:{},lastT:null,archive:{},
+    set:defaultSet(key)};
+  if(!plainStart&&sp.issue)Object.keys(sp.issue).forEach(function(k){st.set[k]=sp.issue[k]});
+  st.lastT=st.set.temp;
+  st.doNow=calcDO(st);
+  st.look=look(st);
+  st.hist.push(snap(st));
+  addLog(st,'飼育を始めました。まずは今の環境のまま1日すすめて、生き物の様子を見てみよう。');
+  if(!plainStart&&sp.issue)addLog(st,'最初の環境には、見直したほうがよいところがあります。様子・メーター・💡ヒントを手がかりに、さがしてみよう。');
+  return st;
+}
+function addLog(st,t,cls){st.log.unshift(cls?{d:st.day,t:t,c:cls}:{d:st.day,t:t});if(st.log.length>120)st.log.length=120}
+function loadOf(st){var sp=SP[st.sp];return sp.kind==='water'?st.set.n*sp.capPer/sp.tankL:st.set.n/sp.cap}
+function tempFactor(sp,T){ // 活動・食欲(0〜1)
+  var t=sp.temp,span=t.max-t.min;
+  if(T<t.stop)return 0.08;
+  if(T<t.min){var fMin=1-Math.abs(t.min-t.ideal)/span*0.5;return 0.15+(fMin-0.15)*(T-t.stop)/(t.min-t.stop)}
+  if(T<=t.max)return 1-Math.abs(T-t.ideal)/span*0.5;
+  return Math.max(0.15,0.75-(T-t.max)*0.12);
+}
+function satDO(T){return 14.652-0.41022*T+0.007991*T*T-0.000077774*T*T*T} // 水にとける酸素の量(飽和、mg/L)
+function calcDO(st){
+  var s=st.set,T=s.temp,sat=satDO(T);
+  var hot=T>30?1+(T-30)*0.12:1;
+  var v=sat*[0.72,0.9,1.0][s.air]+(s.plants?0.4:0)-loadOf(st)*1.1*(0.5+T/30)*hot-st.dirt*0.03;
+  return clamp(v,0.5,sat);
+}
+function changeWater(st,frac,full){
+  st.dirt*=(1-frac);
+  st.no3=(st.no3||0)*(1-frac);
+  st.ph+=(7.2-st.ph)*frac;
+  if(full){st.bio*=0.35;st.shock=(st.shock||0)+9;}
+}
+function stepDay(st){
+  var sp=SP[st.sp],s=st.set,pen={},T=s.temp,ld=loadOf(st);
+  st.day++;
+  var msgs=[],prevH=st.health,prevD=st.dirt;
+  if(st.lastT==null)st.lastT=T;
+  if(sp.kind==='water'){
+    var r=s.routine,due=(r==='w2'&&st.day%14===0)||(r==='w1'&&st.day%7===0)||(r==='d3'&&st.day%3===0);
+    if(due){changeWater(st,1/3,false);msgs.push('習慣にしている水替え(くみ置きの水で3分の1)をしました。');}
+    var app=tempFactor(sp,T)*(st.doNow<3?0.5:st.doNow<5?0.8:1)*(st.dirt>60?0.7:1)*(0.55+st.health/220)*(st.ph<6.2?0.8:1);
+    var fa=FEED_AMT[s.feed],eaten=Math.min(fa,1.05*app),left=Math.max(0,fa-eaten);
+    st.app=app;st.left=left;st.eaten=eaten;
+    var add=ld*(1.6+2.8*eaten)+left*ld*12;
+    var decay=0.045*st.bio+(s.plants?0.03:0)+(s.air>0?0.01:0);
+    var broken=st.dirt*decay;
+    st.dirt=clamp(st.dirt+add-broken,0,100);
+    // 目に見えない汚れ(フンなどが分解されてできたもの)。水替えでしか減らない
+    st.no3=clamp((st.no3||0)+1.6+ld*0.5*eaten+left*ld*6+broken*0.05-(s.plants?0.15:0),0,150);
+    st.bio=Math.min(1,st.bio+0.08);
+    var phT=7.3-Math.max(0,st.no3-20)*0.035;
+    st.ph=clamp(st.ph+(phT-st.ph)*0.15-st.dirt*0.001+(s.plants?0.005:0),5.0,9.0);
+    st.doNow=calcDO(st);
+    var t=sp.temp;
+    if(T<t.min)pen.temp_low=(T<t.stop?(t.stop-T)*1.5+1:0.2);
+    if(T>t.max)pen.temp_high=(T-t.max)*1.3;
+    if(st.ph<sp.ph.min)pen.ph_low=(sp.ph.min-st.ph)*6;
+    if(st.ph>sp.ph.max)pen.ph_high=(st.ph-sp.ph.max)*6;
+    if(st.doNow<5)pen['do']=(5-st.doNow)*2.2;
+    if(st.dirt>30)pen.dirt=(st.dirt-30)*0.12;
+    if(st.no3>36)pen.no3=(st.no3-36)*0.2;
+    if(s.feed===0)pen.hunger=3;else if(s.feed===1&&app>0.6)pen.hunger=0.6;
+    if(left>0.4)pen.over=0.3+left*0.3;
+    if(ld>1.05)pen.crowd=(ld-1)*3;
+    var dT=Math.abs(T-st.lastT);
+    if(dT>3){pen.shock=(dT-3)*1.5;msgs.push('水温を急に変えすぎました('+st.lastT+'℃→'+T+'℃)。1日2〜3℃ずつ変えよう。');}
+    if(st.shock){pen.shock=(pen.shock||0)+st.shock;st.shock=0;}
+    if(st.phShock){pen.shock=(pen.shock||0)+st.phShock;st.phShock=0;}
+    var g=sp.growth*Math.min(eaten,1.05)*Math.min(1,tempFactor(sp,T)*1.1)*(st.health/100)*(T<t.min?0:1);
+    st.size+=(sp.size.max-st.size)*g;
+    // 卵(メダカ)
+    st.eggsToday=0;
+    if(sp.eggs&&T>=20&&T<=30&&st.health>=65&&eaten>=0.8&&s.n>=2){
+      var eg=Math.floor(Math.floor(s.n/2)*(T>=24?10:5)*st.health/100);
+      st.eggsToday=eg;st.eggs+=eg;
+      if(s.move){var hd=Math.max(7,Math.round(250/T));st.pending.push({d:st.day+hd,c:Math.round(eg*0.3)});}
+      else{var sv=Math.round(eg*0.03);if(sv>0)st.pending.push({d:st.day+Math.round(250/T),c:sv});}
+    }
+    var keep=[],hatched=0;st.pending.forEach(function(p){if(p.d<=st.day){hatched+=p.c}else keep.push(p)});st.pending=keep;
+    if(hatched>0&&st.fry===0)msgs.push('はじめて卵から稚魚がかえりました!(かえるまでの日数の目安:水温×日数がおよそ250℃・日)');
+    st.fry+=hatched;
+  }else{
+    if(s.waterR==='daily'||(s.waterR==='2d'&&st.day%2===0)){st.water=100;}
+    var appL=tempFactor(sp,T)*(st.water<30?0.6:1)*(0.55+st.health/220);
+    var faL=FEED_AMT[s.feed],eatenL=Math.min(faL,1.05*appL),leftL=Math.max(0,faL-eatenL);
+    st.app=appL;st.left=leftL;st.eaten=eatenL;
+    st.dirt=clamp(st.dirt+ld*(3+3*eatenL)+leftL*3*ld,0,100);
+    var cl=s.clean,cdue=cl==='daily'||(cl==='3d'&&st.day%3===0)||(cl==='weekly'&&st.day%7===0);
+    if(cdue){st.dirt*=0.12;}
+    st.water=Math.max(0,st.water-(T>sp.temp.max?55:T>22?42:32));
+    var tl=sp.temp;
+    if(T<tl.min)pen.temp_low=(T<tl.stop?(tl.stop-T)*1.2+1.5:(tl.min-T)*0.3);
+    if(T>tl.max)pen.temp_high=(T-tl.max)*(st.sp==='rabbit'?1.8:1.3);
+    if(st.water<30)pen.thirst=(30-st.water)*0.12;
+    if(st.dirt>40)pen.floor=(st.dirt-40)*0.1;
+    if(s.diet===1)pen.diet=0.8;
+    if(s.feed===0)pen.hunger=4;else if(s.feed===1)pen.hunger=1;
+    if(leftL>0.4)pen.over=0.3+leftL*0.3;
+    if(s.ex===0)pen.exercise=0.8;
+    if(s.ex===2&&T>tl.max)pen.exercise=1;
+    if(ld>1.05)pen.crowd=(ld-1)*3;
+    var ff=[0.82,0.93,1.0,1.08,1.16][s.feed],ideal=sp.size.ideal;
+    if(sp.adult){
+      var target=ideal*ff*(s.ex===0?1.03:1);
+      st.size+=(target-st.size)*0.07;
+    }else{
+      var gL=sp.growth*Math.min(eatenL,1.1)*(s.diet===1?0.7:1)*(st.health/100)*Math.min(1,tempFactor(sp,T)*1.1);
+      var cap=sp.size.max*(s.feed>=3?1.08:1)*(s.ex===0&&s.feed>=3?1.05:1);
+      st.size+=(cap-st.size)*gL;
+    }
+    if(st.size>ideal*1.1)pen.obese=Math.min(3,(st.size/ideal-1.1)*20);
+    st.eggsToday=0;
+    if(sp.eggRate){
+      var rate=sp.eggRate*Math.pow(st.health/100,1.5)*(s.diet===1?0.6:1)*(s.feed<2?0.6:1)*(T>tl.max||T<tl.min?0.6:1);
+      st.eggAcc+=s.n*rate;var e=Math.floor(st.eggAcc);st.eggAcc-=e;st.eggsToday=e;st.eggs+=e;
+    }
+  }
+  st.lastT=T;
+  // 同じ問題が続くほど、体への負担が大きくなる(連続日数)
+  if(!isObj(st.streak))st.streak={};
+  if(!isObj(st.penSum))st.penSum={};
+  if(!isObj(st.penDays))st.penDays={};
+  Object.keys(st.streak).forEach(function(k){if(!(k in pen))st.streak[k]=0});
+  var total=0;
+  Object.keys(pen).forEach(function(k){
+    if(k!=='shock'){st.streak[k]=(st.streak[k]||0)+1;pen[k]*=Math.min(2,1+(st.streak[k]-1)/10);}
+    total+=pen[k];st.penSum[k]=(st.penSum[k]||0)+pen[k];if(pen[k]>0.25)st.penDays[k]=(st.penDays[k]||0)+1;
+  });
+  st.health=clamp(st.health+(total<0.5?2.5:0.5)-total,5,100);
+  st.pen=pen;
+  st.look=look(st);
+  st.hist.push(snap(st));
+  if(st.eggsToday>0&&sp.kind==='water'&&st.eggs===st.eggsToday)msgs.push('メダカがはじめて卵を産みました'+(s.move?'(別の容器へ移しました)。':'(親といっしょなので、多くは食べられてしまうかも)。'));
+  if(st.day%7===0&&(sp.eggs||sp.eggRate))msgs.push('この日までの記録:卵 '+st.eggs+'個'+(sp.eggs?'・稚魚 '+st.fry+'匹':'')+'。');
+  if(st.health<30&&prevH>=30)msgs.push('とても弱っています。実際の飼育なら命にかかわる状態です。すぐに環境を見直そう。');
+  else if(st.health<50&&prevH>=50)msgs.push('元気がなくなってきています。様子をよく観察しよう。');
+  else if(st.health>=70&&prevH<70&&st.day>1)msgs.push('健康度が回復してきました。');
+  msgs.forEach(function(m){addLog(st,m)});
+  // その日のまとめ(毎日1行)
+  var hN=Math.round(st.health),hP=Math.round(prevH),dh=hN-hP;
+  var line='健康度 '+hP+'→'+hN+(dh>0?'(▲'+dh+')':dh<0?'(▼'+(-dh)+')':'(±0)')+'・'+(sp.kind==='water'?'水':'床')+'の汚れ '+Math.round(st.dirt);
+  if(st.left>0.3)line+='・食べ残しあり';
+  if(sp.kind!=='water'&&st.water<30)line+='・水入れが空';
+  var top=Object.keys(pen).filter(function(k){return pen[k]>0.25}).sort(function(a,b){return pen[b]-pen[a]})[0];
+  if(top)line+='。気になること:'+HINT_S[top];
+  addLog(st,line,'sum');
+  if(st.day>=30){st.done=true;addLog(st,'30日間の飼育が終わりました。結果を確かめよう。');}
+}
+function snap(st){var sp=SP[st.sp];var g=sp.adult?clamp(100-Math.abs(st.size-sp.size.ideal)/sp.size.ideal*400,0,100):(st.size-sp.size.start)/(sp.size.max-sp.size.start)*100;
+  return {d:st.day,h:round(st.health,1),dirt:round(st.dirt,1),g:round(clamp(g,0,100),1),size:round(st.size,2)}}
+/* 保存データの形を確かめ、足りない項目をおぎなう(古いデータ・こわれたデータ対策) */
+function normRun(o){
+  if(!isObj(o)||!SP[o.sp])return null;
+  var base=newRun(o.sp,true),st=base;
+  Object.keys(o).forEach(function(k){
+    var v=o[k];
+    if(k==='set'||k==='sp')return;
+    if(k in base){
+      if(Array.isArray(base[k])){if(Array.isArray(v))st[k]=v;}
+      else if(base[k]===null||typeof base[k]==='number'){if(typeof v==='number'&&isFinite(v))st[k]=v;}
+      else if(typeof base[k]==='boolean'){if(typeof v==='boolean')st[k]=v;}
+      else if(isObj(base[k])){if(isObj(v))st[k]=v;}
+    }else if(typeof v==='number'&&isFinite(v))st[k]=v;
+  });
+  var ds=defaultSet(o.sp);st.set=ds;
+  if(isObj(o.set))Object.keys(ds).forEach(function(k){var v=o.set[k];if(typeof v===typeof ds[k]&&(typeof v!=='number'||isFinite(v)))ds[k]=v});
+  st.set.n=clamp(Math.round(st.set.n),1,SP[o.sp].maxN);
+  st.day=clamp(Math.floor(st.day),0,30);st.done=st.day>=30;
+  st.hist=st.hist.filter(function(x){return isObj(x)&&typeof x.d==='number'&&typeof x.h==='number'});
+  st.log=st.log.filter(function(x){return isObj(x)&&typeof x.t==='string'});
+  st.pending=st.pending.filter(function(x){return isObj(x)&&typeof x.d==='number'&&typeof x.c==='number'});
+  if(!st.hist.length)st.hist.push(snap(st));
+  if(st.lastT==null)st.lastT=st.set.temp;
+  if(SP[o.sp].kind==='water')st.doNow=calcDO(st);
+  st.look=look(st);
+  if(!isObj(st.archive))st.archive={};
+  Object.keys(st.archive).forEach(function(k){if(!SP[k]||!isObj(st.archive[k]))delete st.archive[k]});
+  return st;
+}
+
+/* 生き物の様子(観察できること) */
+function look(st){
+  var sp=SP[st.sp],s=st.set,T=s.temp,signs=[],h=st.health,app=st.app==null?1:st.app;
+  var L={};
+  L.appetite=app>0.8&&h>60?'よい':app>0.45?'ふつう':'少ない';
+  var act=tempFactor(sp,T)*(0.4+h/160);
+  L.move=act>0.8?'活発':act>0.45?'ふつう':'にぶい';
+  L.color=h>75?(sp.kind==='water'?'あざやか':'つやがある'):h>45?'ふつう':(sp.kind==='water'?'うすい':'くすんでいる');
+  if(sp.kind==='water'){
+    if(st.doNow<4)signs.push('水面近くで口をパクパクしている(「鼻上げ」)');
+    if(T<sp.temp.min)signs.push('底のほうでじっとしていることが多い');
+    if(T>sp.temp.max)signs.push('落ち着きなく泳ぎ回る');
+    if(st.left>0.3)signs.push('底に食べ残しのえさが残っている');
+    if(st.dirt>50)signs.push('水が白っぽくにごり、においがする');
+    else if(st.dirt>30)signs.push('水が少しにごってきた');
+    if((st.no3||0)>45)signs.push('水が少し黄色っぽい。長いあいだ水をかえていない');
+    if(st.ph<6.3)signs.push('ヒレをたたんで泳いでいる');
+    if(loadOf(st)>1.25)signs.push('せまい中でぶつかり合うように泳いでいる');
+  }else{
+    var bird=st.sp!=='rabbit';
+    if(T>sp.temp.max)signs.push(bird?'口を開けて呼吸し、羽を体から少し離している':'体を長くのばしてぐったりし、耳が熱い');
+    if(T<sp.temp.min)signs.push(bird?'羽をふくらませて、じっとしている':'体を丸めて、じっとしている');
+    if(st.water<30)signs.push('水入れが空っぽになっている');
+    if(st.dirt>50)signs.push('床がしめって、ツンとするにおい(アンモニア)がする');
+    else if(st.dirt>30)signs.push('床にフンが目立ってきた');
+    if(s.diet===1)signs.push(bird?'卵のからがうすく、われやすい':'フンが小さく、数が少ない');
+    if(loadOf(st)>1.25)signs.push(bird?'羽をつつき合っている':'けんかをすることがある');
+    if(st.left>0.3)signs.push('えさが食べ残されている');
+    if(st.size>sp.size.ideal*1.1)signs.push('体が重そうで、あまり動かない');
+    if(s.ex===0)signs.push('せまい中で同じ動きをくり返している');
+  }
+  if(!signs.length&&h>=70)signs.push(sp.kind==='water'?'元気に泳ぎ、えさにすぐ集まってくる':'元気に動き回り、よく食べている');
+  L.signs=signs;return L;
+}
+var HINT={
+  temp_low:'温度が低すぎます。水温・室温を、この生き物に合う範囲まで上げよう(水温は1日2〜3℃ずつ)。',
+  temp_high:'温度が高すぎます。日かげ・風通し・置き場所を見直して温度を下げよう。',
+  ph_low:'水が酸性にかたむいています(汚れがたまると下がる)。水替えをして中性に近づけよう。',
+  ph_high:'水がアルカリ性にかたむいています。少しずつ中性に近づけよう。',
+  'do':'水にとけている酸素が足りません。エアレーション・水草・数を減らす、を考えよう。',
+  dirt:'水が汚れています。えさの量を見直し、3分の1ずつ水替えをしよう。',
+  no3:'水替えが足りず、目に見えない汚れ(フンなどが分解されてできたもの)がたまっています。くみ置きの水で、定期的に3分の1ずつかえよう。',
+  hunger:'えさが足りません。体の大きさに合った量をあげよう。',
+  over:'えさが食べ残されています。食べ残しは水や床を汚すもとになります。',
+  crowd:'数が多すぎます(飼育密度が高い)。広さに合った数にしよう。',
+  shock:'環境を急に変えすぎました。水替えは少しずつ、温度を合わせて。',
+  thirst:'水が足りません。毎日新しい水にかえよう。',
+  floor:'床材が汚れています。そうじの回数を増やそう。',
+  diet:'えさの内容がかたよっています。栄養のバランスを考えよう。',
+  obese:'太りすぎです。えさの量と運動を見直そう。',
+  exercise:'運動の量が合っていません(少なすぎ/暑い日の運動しすぎ)。'
+};
+var HINT_S={temp_low:'温度が低い',temp_high:'温度が高い',ph_low:'水が酸性にかたむいた',ph_high:'水がアルカリ性にかたむいた','do':'酸素が足りない',dirt:'水の汚れ',
+  no3:'水替えが足りない(汚れがたまった)',hunger:'えさが足りない',over:'えさの食べ残し',crowd:'数が多すぎる',shock:'環境の急な変化',thirst:'飲み水が足りない',
+  floor:'床の汚れ',diet:'えさの内容のかたより',obese:'太りすぎ',exercise:'運動が合っていない'};
+/* ================= 絵(SVG) ================= */
+function fishG(col,x,y,sc,flip,dur,delay,cls){
+  return '<g class="'+(cls||'b3-swim')+'" style="animation-duration:'+dur+'s;animation-delay:-'+delay+'s"><g transform="translate('+x+' '+y+') scale('+(flip?-sc:sc)+' '+sc+')">'+
+    '<path d="M-22 0 Q-6 -13 14 -4 Q20 0 14 4 Q-6 13 -22 0Z" fill="'+col+'" stroke="rgba(0,0,0,.25)" stroke-width="1"/>'+
+    '<path d="M-21 0 L-34 -10 L-31 0 L-34 10Z" fill="'+col+'" stroke="rgba(0,0,0,.25)" stroke-width="1"/>'+
+    '<path d="M-4 -8 Q2 -14 6 -7" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>'+
+    '<circle cx="9" cy="-2" r="2.6" fill="#1d2a30"/><circle cx="9.8" cy="-2.8" r=".9" fill="#fff"/></g></g>';
+}
+function tankSVG(v){
+  var sp=SP[v.sp],d=clamp(v.dirt,0,100)/100,wc=mix('#d3effa','#b3c08d',d*1.1),s='';
+  s+='<svg viewBox="0 0 400 240" class="b3-vis" role="img" aria-label="'+esc(v.aria||(sp.name+'の水そう'))+'">';
+  s+='<rect x="0" y="0" width="400" height="240" fill="#eef4f2"/>';
+  s+='<rect x="10" y="16" width="380" height="214" rx="10" fill="'+wc+'" stroke="#6f93a6" stroke-width="4"/>';
+  s+='<rect x="12" y="22" width="376" height="6" fill="rgba(255,255,255,.6)"/>';
+  s+='<path d="M12 206 Q100 196 200 204 T388 202 L388 228 L12 228Z" fill="#d8c7a3"/>';
+  for(var i=0;i<26;i++){s+='<circle cx="'+(20+i*14.3)+'" cy="'+(214+(i*7)%10)+'" r="'+(2+(i%3))+'" fill="#bfa97f"/>'}
+  if(v.plants){[60,90,300,330].forEach(function(px,k){s+='<path d="M'+px+' 210 Q'+(px-14)+' 160 '+(px+4)+' '+(110+k*8)+' M'+px+' 210 Q'+(px+16)+' 165 '+(px+10)+' 130" stroke="#3f8f4f" stroke-width="5" fill="none" stroke-linecap="round"/>'})}
+  if(v.left>0.3){for(var j=0;j<Math.min(14,Math.round(v.left*10));j++){s+='<circle cx="'+(120+j*13)+'" cy="'+(205-(j%2)*3)+'" r="2.4" fill="#8a5a2b"/>'}}
+  if(v.air){s+='<rect x="352" y="196" width="18" height="10" rx="3" fill="#7a8a90"/>';for(var b=0;b<v.air*4;b++){s+='<circle class="b3-bub" style="animation-delay:-'+(b*0.55)+'s" cx="'+(358+(b%3)*4)+'" cy="196" r="'+(2+(b%2))+'" fill="rgba(255,255,255,.85)" stroke="#9cc" stroke-width=".6"/>'}}
+  var c=Math.min(v.n,14),col=mix(sp.col[1],sp.col[0],v.vivid),sc=v.sp==='kingyo'?(0.75+clamp(v.sizeRate,0,1)*0.55):(0.5+clamp(v.sizeRate,0,1)*0.45);
+  var dur=v.speed>0.8?2.2:v.speed>0.45?3.6:6.5;
+  for(var f=0;f<c;f++){
+    var x=50+(f*71)%290,y;
+    if(v.pose==='top')y=44+(f%3)*9;else if(v.pose==='bottom')y=178+(f%3)*7;else y=62+(f*41)%118;
+    s+=fishG(col,x,y,sc,f%2===1,dur,f*0.7);
+  }
+  if(v.n>14)s+='<text x="14" y="13" font-size="13" fill="#2c4b55">(絵は14匹まで。ほかにも '+(v.n-14)+' 匹)</text>';
+  if(v.fry>0){for(var q=0;q<Math.min(8,v.fry);q++){s+='<circle cx="'+(30+q*9)+'" cy="'+(150+(q%2)*5)+'" r="1.8" fill="#6c5b3a"/>'}}
+  s+='<text x="388" y="14" text-anchor="end" font-size="13" fill="#4f6169">'+v.temp+'℃</text>';
+  return s+'</svg>';
+}
+function birdG(kind,x,y,sc,hot,cold,dur,delay){
+  var q=kind==='quail',body=q?'#b28a5c':'#fbfaf6',st='#8c7f70';
+  var r=cold?1.15:1,s='<g class="b3-bob" style="animation-duration:'+dur+'s;animation-delay:-'+delay+'s"><g transform="translate('+x+' '+y+') scale('+sc+')">';
+  if(!q)s+='<line x1="-6" y1="16" x2="-8" y2="30" stroke="#e0a030" stroke-width="3"/><line x1="6" y1="16" x2="8" y2="30" stroke="#e0a030" stroke-width="3"/>';
+  else s+='<line x1="-4" y1="12" x2="-5" y2="20" stroke="#c99a6a" stroke-width="2.5"/><line x1="4" y1="12" x2="5" y2="20" stroke="#c99a6a" stroke-width="2.5"/>';
+  s+='<ellipse cx="0" cy="2" rx="'+(q?22:24)*r+'" ry="'+(q?14:18)*r+'" fill="'+body+'" stroke="'+st+'" stroke-width="1.5"/>';
+  s+='<path d="M-20 0 L-34 -10 L-30 6Z" fill="'+body+'" stroke="'+st+'" stroke-width="1.2"/>';
+  s+='<ellipse cx="'+(hot?-2:-4)+'" cy="'+(hot?6:4)+'" rx="12" ry="7" fill="'+(q?'#9c754a':'#efeadf')+'" stroke="'+st+'" stroke-width="1" transform="rotate('+(hot?-25:0)+')"/>';
+  s+='<circle cx="18" cy="-12" r="'+(q?8:10)+'" fill="'+body+'" stroke="'+st+'" stroke-width="1.5"/>';
+  if(!q)s+='<path d="M12 -21 Q15 -30 18 -22 Q21 -31 24 -21Z" fill="#d9483b"/><path d="M22 -6 Q24 0 20 2" fill="#d9483b"/>';
+  if(q)for(var i=0;i<5;i++)s+='<circle cx="'+(-12+i*6)+'" cy="'+(-2+(i%2)*5)+'" r="1.6" fill="#5b4126"/>';
+  s+=hot?'<path d="M26 -13 L34 -14 L27 -10Z M26 -10 L33 -6 L26 -8Z" fill="#e8a417"/>':'<path d="M26 -13 L34 -11 L26 -9Z" fill="#e8a417"/>';
+  s+='<circle cx="21" cy="-14" r="1.8" fill="#222"/></g></g>';return s;
+}
+function rabbitG(x,y,sc,hot,cold,dur,delay){
+  var c='#d9d4cc',s='<g class="b3-bob" style="animation-duration:'+dur+'s;animation-delay:-'+delay+'s"><g transform="translate('+x+' '+y+') scale('+sc+')">';
+  if(hot)s+='<ellipse cx="0" cy="12" rx="34" ry="12" fill="'+c+'" stroke="#9a948a" stroke-width="1.5"/><circle cx="32" cy="6" r="11" fill="'+c+'" stroke="#9a948a" stroke-width="1.5"/><ellipse cx="44" cy="-6" rx="5" ry="16" transform="rotate(50 44 -6)" fill="'+c+'" stroke="#9a948a"/>';
+  else{var r=cold?0.9:1;
+    s+='<ellipse cx="0" cy="6" rx="'+26*r+'" ry="'+20*r+'" fill="'+c+'" stroke="#9a948a" stroke-width="1.5"/><circle cx="-24" cy="8" r="6" fill="#fff"/>';
+    s+='<circle cx="20" cy="-10" r="12" fill="'+c+'" stroke="#9a948a" stroke-width="1.5"/>';
+    s+='<ellipse cx="16" cy="-34" rx="5" ry="16" fill="'+c+'" stroke="#9a948a" stroke-width="1.2" transform="rotate('+(cold?-40:-8)+' 16 -22)"/><ellipse cx="16" cy="-34" rx="2.2" ry="11" fill="#f1b9c2" transform="rotate('+(cold?-40:-8)+' 16 -22)"/>';
+    s+='<ellipse cx="24" cy="-33" rx="5" ry="16" fill="'+c+'" stroke="#9a948a" stroke-width="1.2" transform="rotate('+(cold?-30:10)+' 24 -21)"/>';
+    s+='<circle cx="25" cy="-12" r="2" fill="#3a2a2a"/><circle cx="31" cy="-6" r="1.6" fill="#d98a96"/>';}
+  return s+'</g></g>';
+}
+function penSVG(v){
+  var sp=SP[v.sp],d=clamp(v.dirt,0,100)/100,s='';
+  s+='<svg viewBox="0 0 400 240" class="b3-vis" role="img" aria-label="'+esc(v.aria||(sp.name+'の飼育スペース'))+'">';
+  s+='<rect width="400" height="240" fill="'+(v.hot?'#fbeedd':v.cold?'#e6eef7':'#eef3ea')+'"/>';
+  s+='<rect x="0" y="150" width="400" height="90" fill="'+mix('#f1deaa','#9c8657',d*1.1)+'"/>';
+  for(var i=0;i<30;i++)s+='<path d="M'+(i*13+3)+' '+(170+(i*17)%60)+' l8 -3" stroke="'+mix('#d7bd7c','#7c6a43',d)+'" stroke-width="2"/>';
+  if(d>0.3){for(var k=0;k<Math.round(d*14);k++)s+='<ellipse cx="'+(30+(k*53)%340)+'" cy="'+(190+(k*23)%40)+'" rx="4" ry="3" fill="#6d5634"/>'}
+  s+='<rect x="0" y="0" width="400" height="150" fill="none"/>';
+  for(var g=0;g<=400;g+=25)s+='<line x1="'+g+'" y1="0" x2="'+g+'" y2="150" stroke="rgba(90,110,120,.18)" stroke-width="2"/>';
+  // 水入れ
+  var wl=clamp(v.water,0,100)/100;
+  s+='<rect x="320" y="196" width="60" height="26" rx="6" fill="#a9b8c0" stroke="#6d7f88" stroke-width="2"/>';
+  if(wl>0)s+='<rect x="324" y="'+(200+18*(1-wl))+'" width="52" height="'+(18*wl)+'" rx="3" fill="#7cc4e6"/>';
+  s+='<text x="350" y="236" text-anchor="middle" font-size="12" fill="#4f6169">水入れ</text>';
+  // えさ入れ
+  s+='<rect x="20" y="200" width="60" height="20" rx="6" fill="#c9a36b" stroke="#8a6a3c" stroke-width="2"/>';
+  if(v.left>0.3)s+='<ellipse cx="50" cy="201" rx="24" ry="5" fill="#e6c27a"/>';
+  s+='<text x="50" y="236" text-anchor="middle" font-size="12" fill="#4f6169">えさ入れ</text>';
+  if(v.hot)s+='<circle cx="370" cy="30" r="16" fill="#f6b73c"/><text x="330" y="36" font-size="14" fill="#9a5b00" text-anchor="end">あつい</text>';
+  if(v.cold)s+='<text x="380" y="34" font-size="22" fill="#5d86b5" text-anchor="end">❄ さむい</text>';
+  var c=Math.min(v.n,8),dur=v.speed>0.8?1.6:v.speed>0.45?2.6:4.5;
+  for(var a=0;a<c;a++){
+    var x=a>3?130+(a%4)*52:110+a*62,y=(a>3?185:150);
+    if(v.sp==='rabbit')s+=rabbitG(c>1?80+a*(210/(c-1)):190,168,(0.95+clamp(v.sizeRate,0,1)*0.35)*(c>2?0.8:1),v.hot,v.cold,dur,a*0.5);
+    else s+=birdG(v.sp,x,y,v.sp==='quail'?0.8:1,v.hot,v.cold,dur,a*0.4);
+  }
+  if(v.n>8)s+='<text x="12" y="24" font-size="15" fill="#2c4b55">ほかにも '+(v.n-8)+' 羽</text>';
+  s+='<text x="12" y="'+(v.n>8?44:24)+'" font-size="13" fill="#4f6169">室温 '+v.temp+'℃</text>';
+  return s+'</svg>';
+}
+function viewOf(st){
+  var sp=SP[st.sp],s=st.set,T=s.temp;
+  var sr=sp.adult?0.6:(st.size-sp.size.start)/(sp.size.max-sp.size.start);
+  if(sp.kind==='water')sr=(st.size-sp.size.start)/(sp.size.max-sp.size.start);
+  var speed=tempFactor(sp,T)*(0.4+st.health/160);
+  return {sp:st.sp,n:s.n,dirt:st.dirt,plants:s.plants,air:s.air,left:st.left||0,water:st.water,temp:T,fry:st.fry,
+    vivid:clamp((st.health-30)/60,0,1),sizeRate:sr,speed:speed,
+    pose:sp.kind==='water'?(st.doNow<4?'top':T<sp.temp.min?'bottom':'mid'):'',
+    hot:T>sp.temp.max,cold:T<sp.temp.min,aria:sp.name+'の様子。'+(st.look?st.look.signs.join('。'):'')};
+}
+function visSVG(v){return SP[v.sp].kind==='water'?tankSVG(v):penSVG(v)}
+function iconSVG(key){
+  var sp=SP[key];
+  if(sp.kind==='water')return tankSVG({sp:key,n:key==='medaka'?5:3,dirt:5,plants:1,air:1,left:0,temp:sp.temp.ideal,fry:0,vivid:1,sizeRate:0.6,speed:0.9,pose:'mid',aria:sp.name});
+  return penSVG({sp:key,n:key==='rabbit'?1:3,dirt:5,water:90,left:0,temp:sp.temp.ideal,vivid:1,sizeRate:0.6,speed:0.9,aria:sp.name});
+}
+
+
+/* ================= 画面:共通 ================= */
+var settings=store.get('settings',null);
+if(!isObj(settings))settings={};
+settings={ruby:settings.ruby!==false,fs:kzPrefs.clampFs(settings.fs||18),tab:typeof settings.tab==='string'?settings.tab:'home'};
+(function(){ // 共通設定(hub_ruby / hub_fs)がまだないときは、B3 の古い設定を引きつぐ
+  var p=kzPrefs.get(),o={};
+  if(p.ruby===null&&settings.ruby===false)o.ruby=false;
+  if(p.fs===null&&settings.fs!==18)o.fs=settings.fs;
+  if(o.ruby!==undefined||o.fs!==undefined)kzPrefs.set(o);
+})();
+function measure(){
+  var hd=$('#b3-head');if(hd)root.style.setProperty('--b3-headh',hd.offsetHeight+'px');
+  var sb=$('#b3-simbar');root.style.setProperty('--b3-barh',(sb&&sb.offsetParent!==null?sb.offsetHeight:0)+'px');
+}
+function applySettings(){
+  var p=kzPrefs.get();
+  settings.ruby=p.ruby!==null?p.ruby:settings.ruby;
+  settings.fs=p.fs!==null?p.fs:settings.fs;
+  root.classList.toggle('b3-noruby',!settings.ruby);
+  root.classList.toggle('b3-big',settings.fs>=22);
+  root.style.setProperty('--b3-fs',settings.fs+'px');
+  store.set('settings',settings);
+  measure();drawChart();
+}
+kzPrefs.bind($('#b3-ruby'),$('#b3-fminus'),$('#b3-fplus'));
+kzPrefs.on(function(){applySettings()});
+window.addEventListener('resize',function(){clearTimeout(measure._t);measure._t=setTimeout(function(){measure();drawChart()},150)});
+function showTab(tab){
+  settings.tab=tab;store.set('settings',settings);
+  $$('.b3-nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false')});
+  $$('main > section').forEach(function(s){s.hidden=s.dataset.sec!==tab});
+  if(tab==='home')renderHome();
+  if(tab==='sim')renderSim();
+  if(tab==='quiz')renderQuizMenu();
+  if(tab==='plan')renderPlan();
+  if(tab==='refl')renderRefl();
+  measure();
+  window.scrollTo(0,0);
+}
+$$('.b3-nav button').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
+
+/* ================= ① はじめに ================= */
+var run=normRun(store.get('sim',null));
+function starStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(n)}
+function renderHome(){
+  var el=$('#b3-sec-home'),h='',arch=run?run.archive:{};
+  h+='<div class="b3-card"><h1>生き物を育てる技術を体験しよう</h1>';
+  h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。</p>';
+  h+='<div class="b3-note">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
+  h+='<h2>① 育てる生き物を選ぼう</h2><div class="b3-species">';
+  Object.keys(SP).forEach(function(k){var sp=SP[k],a=arch[k];
+    h+='<button type="button" class="b3-sp'+(run&&run.sp===k?' b3-cur':'')+'" data-sp="'+k+'">'+iconSVG(k)+'<b>'+sp.name+'</b><span class="b3-tag">'+(sp.kind==='water'?'水産生物':'陸の動物')+'</span>'+
+      (a?'<span class="b3-done">30日の記録あり '+starStr(a.star)+'</span>':'')+'<span>'+sp.info+'</span></button>';});
+  h+='</div>';
+  if(run)h+='<p class="b3-msg info">いま <b>'+SP[run.sp].name+'</b> を育てています('+run.day+'日目'+(run.done?'・30日やり終えました':'')+')。<button type="button" class="b3-btn b3-pri" id="b3-go-sim" style="margin-left:8px">'+(run.done?'結果を見る':'続きから育てる')+'</button></p>';
+  h+='</div>';
+  h+='<div class="b3-card"><h2>使い方</h2>';
+  h+='<details open><summary>学習の流れ(約2〜3時間)</summary><ol>'+
+    '<li><b>はじめに</b>:育てる生き物を選ぶ。</li>'+
+    '<li><b>飼育シミュレーション</b>:温度・えさ・水替え・数などを決めて「1日すすめる」。様子・グラフ・日誌を見ながら30日間育てる。最初の環境には、見直したほうがよいところがあります。うまくいかないときは「ヒント」。</li>'+
+    '<li><b>診断クイズ</b>:生き物の様子から、原因と対策を考える。</li>'+
+    '<li><b>飼育計画書</b>:えさやり・水替え・観察・衛生の計画を立てる。</li>'+
+    '<li><b>振り返り</b>:分かったこと・考えたことを書いて保存・書き出しする。</li></ol></details>';
+  h+='<details><summary>ためしてみよう(実験のアイデア)</summary><ul>'+
+    '<li>えさを「とても多い」にして、水そうの汚れがどう変わるか。</li>'+
+    '<li>水替えを「しない」にすると、pHや「水の古さ」はどうなるか。</li>'+
+    '<li>水温を上げると、溶存酸素(水にとけている酸素)はどうなるか。</li>'+
+    '<li>ウサギの室温を30℃にすると、様子はどう変わるか。</li>'+
+    '<li>メダカの卵を「別の容器に移す」と「移さない」で、稚魚の数をくらべる。</li></ul></details>';
+  h+='<details><summary>保存とデータ</summary><p>入力したことは、このタブレットのブラウザに自動で保存されます(インターネットは使いません)。別の端末に移すときや先生に提出するときは、下のボタンでファイルに書き出してください。</p>'+
+    '<div class="b3-btns"><button type="button" class="b3-btn" id="b3-exp-all">すべてのデータを書き出す(.json)</button>'+
+    '<label class="b3-btn" for="b3-imp-all" style="cursor:pointer">データを読み込む</label><input type="file" id="b3-imp-all" accept=".json,application/json" hidden>'+
+    '<button type="button" class="b3-btn" id="b3-clear-all">すべて消す</button></div></details>';
+  h+='</div>';
+  el.innerHTML=h;rb(el);
+  $$('.b3-sp',el).forEach(function(b){b.addEventListener('click',function(){chooseSpecies(b.dataset.sp)})});
+  var g=$('#b3-go-sim',el);if(g)g.addEventListener('click',function(){showTab('sim')});
+  $('#b3-exp-all',el).addEventListener('click',exportAll);
+  $('#b3-imp-all',el).addEventListener('change',importAll);
+  $('#b3-clear-all',el).addEventListener('click',function(){
+    kzConfirm('飼育(結果の記録もふくむ)・クイズ・計画書・振り返りのデータをすべて消します。元にもどせません。よろしいですか?',{ok:'すべて消す',cancel:'やめる',danger:true}).then(function(ok){if(!ok)return;
+    ['sim','quiz','plan','refl'].forEach(store.del);run=null;planData=null;reflData=null;writeReflStat({});toast('データを消しました');renderHome();});});
+}
+function startRun(k){
+  var arch=run&&isObj(run.archive)?run.archive:{};
+  run=newRun(k);run.archive=arch;saveRun();simBuiltFor=null;
+}
+function confirmReplace(nextName){ // 今の記録が消えるときの確認(B3-04・B3-14)
+  if(!run||run.day===0)return Promise.resolve(true);
+  var nm=SP[run.sp].name,msg;
+  if(run.done)msg=nm+'の30日の記録(グラフ・日誌)は消えます。★と健康度の平均は、振り返りの「学習の記録」に残ります。\n'+nextName+'を最初から育てますか?';
+  else msg=nm+'の飼育('+run.day+'日目まで)の記録は消えます。\n'+nextName+'を最初から育てますか?';
+  return kzConfirm(msg,{ok:nextName+'を育てる',cancel:'やめる',danger:true});
+}
+function chooseSpecies(k){
+  if(run&&run.sp===k&&!run.done){showTab('sim');return}
+  confirmReplace(SP[k].name).then(function(ok){if(!ok)return;startRun(k);showTab('sim');});
+}
+function saveRun(){if(!store.set('sim',run))toast('保存できませんでした(ブラウザの設定を確認)')}
+function archiveRun(st){
+  var r=summary(st);
+  if(!isObj(st.archive))st.archive={};
+  st.archive[st.sp]={star:r.star,avg:Math.round(r.avg),final:Math.round(r.final),min:Math.round(r.min),causes:r.causes,date:today(),
+    size:round(r.size,2),eggs:r.eggs,fry:r.fry};
+}
+
+/* ================= ② 飼育シミュレーション ================= */
+var simBuiltFor=null;
+function seg(name,opts,val){
+  return '<div class="b3-seg" data-set="'+name+'">'+opts.map(function(o){return '<button type="button" data-v="'+o[0]+'" aria-pressed="'+(String(o[0])===String(val)?'true':'false')+'">'+o[1]+'</button>'}).join('')+'</div>';
+}
+function rangeCtl(name,min,max,step,val,unit,label){
+  return '<div class="b3-range" data-range="'+name+'"><button type="button" data-d="-1" aria-label="'+label+'を下げる">−</button><input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" aria-label="'+label+'"><button type="button" data-d="1" aria-label="'+label+'を上げる">＋</button><output>'+val+unit+'</output></div>';
+}
+function renderSim(){
+  var el=$('#b3-sec-sim');
+  if(!run){el.innerHTML='<div class="b3-card"><p>まだ育てる生き物が選ばれていません。</p><button type="button" class="b3-btn b3-pri" id="b3-to-home">「はじめに」で生き物を選ぶ</button></div>';$('#b3-to-home',el).addEventListener('click',function(){showTab('home')});simBuiltFor=null;rb(el);return}
+  var sp=SP[run.sp],s=run.set,h='';
+  h+='<div class="b3-simbar" id="b3-simbar"><span class="b3-day" id="b3-day"></span><div class="b3-daybar" aria-hidden="true"><i id="b3-daybar"></i></div>'+
+     '<button type="button" class="b3-btn b3-pri" id="b3-step1">1日すすめる</button><button type="button" class="b3-btn" id="b3-step7">7日すすめる</button>'+
+     '<button type="button" class="b3-btn" id="b3-hint">💡 ヒント</button></div>';
+  h+='<div id="b3-result"></div><div id="b3-hintbox"></div>';
+  h+='<div class="b3-simgrid">';
+  h+='<div class="b3-card b3-g-vis"><h2>'+sp.name+'の様子</h2><div id="b3-vis"></div>';
+  h+='<h3 style="margin-top:10px">観察してみよう</h3><div class="b3-look" id="b3-look"></div><ul class="b3-signs" id="b3-signs"></ul></div>';
+  h+='<div class="b3-card b3-g-met"><h2>はかってみよう</h2><div class="b3-meters" id="b3-meters"></div></div>';
+  h+='<div class="b3-card b3-g-set"><h2>環境と世話の設定</h2><p style="font-size:.88em;color:var(--b3-sub)">設定は「1日すすめる」を押したときから毎日続きます。目安:'+sp.rule+'。</p>';
+  if(sp.kind==='water'){
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">水温<small>ヒーター・置き場所で調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/1日2〜3℃ずつ</small></div>'+rangeCtl('temp',4,34,1,s.temp,'℃','水温')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの量<small>'+sp.feedNote+'</small></div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">エアレーション<small>空気を送って酸素をとかす</small></div>'+seg('air',[[0,'なし'],[1,'弱'],[2,'強']],s.air)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">水草</div>'+seg('plants',[[0,'入れない'],[1,'入れる']],s.plants)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)<small>'+sp.tankL+'Lの水そう</small></div>'+rangeCtl('n',1,sp.maxN,1,s.n,'匹','数')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">水替えの習慣<small>くみ置きの水で、1回に3分の1ずつ</small></div>'+seg('routine',[['none','しない'],['w2','2週に1回'],['w1','週1回'],['d3','3日に1回']],s.routine)+'</div>';
+    if(sp.eggs)h+='<div class="b3-ctl"><div class="b3-ctl-label">産んだ卵を<small>メダカは卵を食べてしまうことがある</small></div>'+seg('move',[[0,'そのままにする'],[1,'別の容器に移す']],s.move)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">pH調整剤<small>今の水に少しだけ入れる</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="phm">酸性側へ(−0.2)</button><button type="button" class="b3-btn" data-act="php">アルカリ性側へ(＋0.2)</button></div></div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="w13">くみ置きの水で3分の1かえる</button><button type="button" class="b3-btn" data-act="wall">水を全部かえる</button></div></div>';
+  }else{
+    var bird=run.sp!=='rabbit';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">室温<small>保温・換気・日よけで調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃</small></div>'+rangeCtl('temp',0,36,1,s.temp,'℃','室温')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの量</div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの内容</div>'+seg('diet',[[0,sp.dietLabel[0]],[1,sp.dietLabel[1]]],s.diet)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">飲み水の交換</div>'+seg('waterR',[['daily','毎日'],['2d','2日に1回'],['none','しない']],s.waterR)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">床のそうじ<small>フンや汚れた床材をとりかえる</small></div>'+seg('clean',[['daily','毎日'],['3d','3日に1回'],['weekly','週1回'],['none','しない']],s.clean)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">運動<small>'+(bird?'広い場所で歩かせる':'ケージの外で遊ばせる')+'</small></div>'+seg('ex',[[0,'なし'],[1,'少し'],[2,'たっぷり']],s.ex)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)</div>'+rangeCtl('n',1,sp.maxN,1,s.n,bird?'羽':'匹','数')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="water">水をとりかえる</button><button type="button" class="b3-btn" data-act="clean">床をそうじする</button></div></div>';
+  }
+  h+='</div></div>';
+  h+='<div class="b3-card"><h2>記録グラフ</h2><div class="b3-legend"><span class="l1">健康度</span><span class="l2">'+(sp.kind==='water'?'水の汚れ':'床の汚れ')+'</span><span class="l3">'+(sp.adult?'体重の良さ':'成長')+'(%)</span></div><canvas id="b3-chart" height="220" aria-label="健康度と汚れと成長のグラフ" role="img"></canvas></div>';
+  h+='<div class="b3-card"><h2>飼育日誌</h2><ul class="b3-log" id="b3-log"></ul>'+
+     '<div class="b3-btns" style="margin-top:12px"><button type="button" class="b3-btn" id="b3-reset">最初からやり直す</button></div></div>';
+  el.innerHTML=h;simBuiltFor=run.sp;updateSim._prev=null;
+  bindSim(el);updateSim();
+}
+function bindSim(el){
+  $$('[data-set]',el).forEach(function(g){
+    g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=g.dataset.set,v=b.dataset.v;
+      run.set[k]=/^-?\d+$/.test(v)?parseInt(v,10):v;
+      $$('button',g).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+      refreshNow();});
+  });
+  $$('[data-range]',el).forEach(function(g){
+    var k=g.dataset.range,inp=$('input',g),out=$('output',g),unit=out.textContent.replace(/[-\d.]/g,'');
+    function set(v){v=clamp(v,+inp.min,+inp.max);inp.value=v;out.textContent=v+unit;run.set[k]=v;refreshNow()}
+    inp.addEventListener('input',function(){set(parseInt(inp.value,10))});
+    $$('button',g).forEach(function(b){b.addEventListener('click',function(){set(parseInt(inp.value,10)+parseInt(b.dataset.d,10))})});
+  });
+  $$('[data-act]',el).forEach(function(b){b.addEventListener('click',function(){doAction(b.dataset.act)})});
+  $('#b3-step1',el).addEventListener('click',function(){advance(1)});
+  $('#b3-step7',el).addEventListener('click',function(){advance(7)});
+  $('#b3-hint',el).addEventListener('click',showHint);
+  $('#b3-reset',el).addEventListener('click',function(){
+    if(run.day===0){toast('まだ1日もすすめていません');return}
+    confirmReplace(SP[run.sp].name).then(function(ok){if(ok){startRun(run.sp);renderSim();window.scrollTo(0,0)}})});
+}
+function refreshNow(){ // 設定を変えたとき、その場で見える変化(温度・酸素など)
+  if(SP[run.sp].kind==='water')run.doNow=calcDO(run);
+  run.look=look(run);saveRun();updateSim();
+}
+function doAction(a){
+  var key=a==='phm'||a==='php'?'ph':a;
+  if(run.done){toast('30日間の飼育は終わりました');return}
+  if(run.acted[key]===run.day){toast('今日はもうしました。1日すすめてからにしよう');return}
+  run.acted[key]=run.day;
+  if(a==='w13'){changeWater(run,1/3,false);addLog(run,'くみ置きの水で、水を3分の1かえました。');}
+  if(a==='wall'){changeWater(run,0.97,true);addLog(run,'水を全部かえました。水がきれいになったけれど、急な変化で生き物がおどろき、水をきれいにする微生物も減ってしまいました。');}
+  if(a==='phm'||a==='php'){run.ph=clamp(run.ph+(a==='php'?0.2:-0.2),5,9);addLog(run,'pH調整剤を入れました(pH '+run.ph.toFixed(1)+')。');}
+  if(a==='water'){run.water=100;addLog(run,'飲み水を新しくしました。');}
+  if(a==='clean'){run.dirt*=0.12;addLog(run,'床をそうじして、床材をとりかえました。');}
+  refreshNow();toast(plain(run.log[0].t).split('。')[0]+'。');
+}
+function advance(n){
+  if(run.done){toast('30日間の飼育は終わりました。「最初からやり直す」でもう一度できます');return}
+  var h0=Math.round(run.health),d0=run.day;
+  for(var i=0;i<n&&!run.done;i++)stepDay(run);
+  if(run.done)archiveRun(run);
+  saveRun();updateSim(true);$('#b3-hintbox').innerHTML='';
+  var h1=Math.round(run.health);
+  toast((run.day-d0>1?(d0+1)+'〜':'')+run.day+'日目:健康度 '+h0+'→'+h1+(h1>h0?'(▲'+(h1-h0)+')':h1<h0?'(▼'+(h0-h1)+')':''));
+  if(run.done){var r=$('#b3-result .b3-result');if(r)r.scrollIntoView({behavior:'smooth',block:'start'})}
+}
+function level(v,good,warn,rev){ // rev: 小さいほど良い
+  if(!rev)return v>=good?['ok','✓ よい']:v>=warn?['warn','! 注意']:['bad','× 要対策'];
+  return v<=good?['ok','✓ よい']:v<=warn?['warn','! 注意']:['bad','× 要対策'];
+}
+function meter(key,label,valText,pct,lv,color){
+  return '<div class="b3-meter" data-m="'+key+'" data-val="'+esc(valText)+'"><div class="b3-meter-top"><span>'+label+'</span><span><b>'+valText+'</b> <span class="b3-lv '+lv[0]+'">'+lv[1]+'</span></span></div><div class="b3-bar"><i style="width:'+clamp(pct,0,100)+'%;background:'+color+'"></i></div></div>';
+}
+function updateSim(flash){
+  if(!run||simBuiltFor!==run.sp){renderSim();return}
+  var sp=SP[run.sp],s=run.set,el=$('#b3-sec-sim');
+  $('#b3-day').textContent=run.day+'日目 / 30日';
+  $('#b3-daybar').style.width=(run.day/30*100)+'%';
+  $('#b3-step1').disabled=run.done;$('#b3-step7').disabled=run.done;
+  $('#b3-vis').innerHTML=visSVG(viewOf(run));
+  var L=run.look||look(run);
+  $('#b3-look').innerHTML='<div>食欲<b>'+L.appetite+'</b></div><div>動き<b>'+L.move+'</b></div><div>'+(sp.kind==='water'?'体の色':'毛・羽のつや')+'<b>'+L.color+'</b></div>';
+  $('#b3-signs').innerHTML=L.signs.map(function(x){return '<li>'+x+'</li>'}).join('');
+  var m='',hl=run.health;
+  m+=meter('h','健康度',Math.round(hl)+' / 100',hl,level(hl,70,45),'#2e7d32');
+  var sz=sp.size.dec?run.size.toFixed(sp.size.dec):Math.round(run.size);
+  if(sp.adult){var dv=(run.size-sp.size.ideal)/sp.size.ideal,lo=sp.size.ideal*0.94,hi=sp.size.ideal*1.06,dd=sp.size.dec;
+    m+=meter('size',sp.size.label+'(目安 '+lo.toFixed(dd)+'〜'+hi.toFixed(dd)+sp.size.unit+')',sz+' '+sp.size.unit,50+dv*250,Math.abs(dv)<0.06?['ok','✓ ちょうどよい']:Math.abs(dv)<0.1?['warn',dv>0?'! やや太り気味':'! ややせ気味']:['bad',dv>0?'× 太りすぎ':'× やせすぎ'],'#6a4fa3');}
+  else m+=meter('size',sp.size.label+'(はじめ '+sp.size.start+sp.size.unit+')',sz+' '+sp.size.unit,(run.size-sp.size.start)/(sp.size.max-sp.size.start)*100,['ok','成長'],'#6a4fa3');
+  if(sp.kind==='water'){
+    m+=meter('dirt','水の汚れ(アンモニアなど)',Math.round(run.dirt)+' / 100',run.dirt,level(run.dirt,30,50,true),'#9a6a1a');
+    m+=meter('no3','水の古さ(たまった汚れ)',Math.round(run.no3||0)+' / 100',run.no3||0,level(run.no3||0,30,45,true),'#8a7a2a');
+    m+=meter('do','溶存酸素(5以上が目安)',run.doNow.toFixed(1)+' mg/L',run.doNow/10*100,level(run.doNow,5,3),'#3b82b8');
+    m+=meter('ph','pH('+sp.ph.min+'〜'+sp.ph.max+'が目安)',run.ph.toFixed(1),(run.ph-5)/4*100,run.ph>=sp.ph.min&&run.ph<=sp.ph.max?['ok','✓ よい']:(Math.abs(run.ph-7.2)<1.2?['warn','! 注意']:['bad','× 要対策']),'#5a9a5a');
+    var ld=loadOf(run);m+=meter('ld','密度(目安を1とする)',ld.toFixed(2),ld/2*100,level(ld,1.0,1.3,true),'#888');
+    if(sp.eggs)m+=meter('egg','卵 / 稚魚','卵 '+run.eggs+'個・稚魚 '+run.fry+'匹'+(s.move&&run.fry>0?'(別の容器で育てている)':''),Math.min(100,run.fry),['ok','記録'],'#d08a2a');
+  }else{
+    m+=meter('dirt','床の汚れ',Math.round(run.dirt)+' / 100',run.dirt,level(run.dirt,30,50,true),'#9a6a1a');
+    m+=meter('water','飲み水の残り',Math.round(run.water)+' %',run.water,level(run.water,50,30),'#3b82b8');
+    var ldl=loadOf(run);m+=meter('ld','密度(目安を1とする)',ldl.toFixed(2),ldl/2*100,level(ldl,1.0,1.3,true),'#888');
+    if(sp.eggRate)m+=meter('egg','産んだ卵','合計 '+run.eggs+'個(今日 '+run.eggsToday+'個)',Math.min(100,run.eggsToday/Math.max(1,s.n)*100),['ok','記録'],'#d08a2a');
+  }
+  var box=$('#b3-meters');box.innerHTML=m;
+  var prev=updateSim._prev||{},cur={};
+  $$('.b3-meter',box).forEach(function(x){cur[x.dataset.m]=x.dataset.val;if(flash&&prev[x.dataset.m]!=null&&prev[x.dataset.m]!==x.dataset.val)x.classList.add('b3-chg')});
+  updateSim._prev=cur;
+  $('#b3-log').innerHTML=run.log.map(function(l){return '<li'+(l.c==='sum'?' class="b3-sum"':'')+'><b>'+l.d+'日目</b>'+l.t+'</li>'}).join('');
+  $('#b3-result').innerHTML=run.done?resultHTML():'';
+  if(run.done){var b=$('#b3-to-refl');if(b)b.addEventListener('click',function(){showTab('refl')});
+    var b2=$('#b3-again');if(b2)b2.addEventListener('click',function(){confirmReplace(SP[run.sp].name).then(function(ok){if(ok){startRun(run.sp);renderSim();window.scrollTo(0,0)}})});
+    var b3=$('#b3-to-plan');if(b3)b3.addEventListener('click',function(){showTab('plan')})}
+  rb(el);measure();
+  drawChart();
+}
+function showHint(){
+  var keys=Object.keys(run.pen||{}).filter(function(k){return run.pen[k]>0.25}).sort(function(a,b){return run.pen[b]-run.pen[a]}).slice(0,2);
+  var h;
+  if(run.day===0)h='まずは1日すすめて、様子を観察してみよう。'+(SP[run.sp].issue?'最初の環境には、見直したほうがよいところがあります。':'');
+  else if(!keys.length)h='今の環境はよさそうです。この調子で観察を続けよう。'+(run.health<90?'健康度は少しずつ回復していきます。':'');
+  else h=keys.map(function(k){return '・'+HINT[k]}).join('<br>');
+  var hb=$('#b3-hintbox');hb.innerHTML='<div class="b3-msg warn"><b>💡 ヒント</b><br>'+h+'</div>';rb(hb);
+}
+/* ★の基準:平均・最後の日・いちばん低かった日の3つで決める */
+function starOf(avg,fin,min){return (avg>=85&&fin>=80&&min>=60)?3:(avg>=60&&fin>=45)?2:1}
+function summary(st){
+  var sp=SP[st.sp],hs=st.hist.slice(1),avg=0,avgD=0,min=st.health;
+  hs.forEach(function(x){avg+=x.h;avgD+=x.dirt;if(x.h<min)min=x.h});
+  avg=hs.length?avg/hs.length:st.health;avgD=hs.length?avgD/hs.length:st.dirt;
+  var ps=isObj(st.penSum)?st.penSum:{};
+  var causes=Object.keys(ps).filter(function(k){return HINT[k]&&ps[k]>=4}).sort(function(a,b){return ps[b]-ps[a]}).slice(0,2);
+  return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:starOf(avg,st.health,min),causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{}};
+}
+function resultHTML(){
+  var r=summary(run),sp=r.sp,star=r.star,h='';
+  h+='<div class="b3-card b3-result"><h2>30日間の飼育の結果</h2><div class="b3-stars" aria-label="星'+star+'つ">'+'★★★'.slice(0,star)+'<span style="color:#ccc">'+'★★★'.slice(star)+'</span></div>';
+  h+='<ul><li>健康度の平均:<b>'+Math.round(r.avg)+'</b>(最後の日 '+Math.round(r.final)+'・いちばん低い日 '+Math.round(r.min)+')</li>';
+  h+='<li>'+sp.size.label+':'+sp.size.start+sp.size.unit+' → <b>'+(sp.size.dec?r.size.toFixed(sp.size.dec):Math.round(r.size))+sp.size.unit+'</b></li>';
+  h+='<li>'+(sp.kind==='water'?'水':'床')+'の汚れの平均:<b>'+Math.round(r.avgD)+'</b></li>';
+  if(sp.eggs)h+='<li>産んだ卵:'+r.eggs+'個/かえった稚魚:<b>'+r.fry+'匹</b>'+(run.set.move?'(別の容器で育てている)':'')+'</li>';
+  if(sp.eggRate)h+='<li>産んだ卵:<b>'+r.eggs+'個</b></li>';
+  h+='</ul>';
+  if(r.causes.length)h+='<div class="b3-cause"><b>健康度を下げたおもな原因</b><ol>'+r.causes.map(function(k){return '<li><b>'+HINT_S[k]+'</b>'+(r.penDays[k]?'(30日のうち '+r.penDays[k]+'日)':'')+':'+HINT[k]+'</li>'}).join('')+'</ol></div>';
+  else h+='<div class="b3-msg info">健康度を大きく下げた原因はありませんでした。</div>';
+  h+='<p class="b3-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
+  h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
+  h+='<div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-to-refl">振り返りを書く</button><button type="button" class="b3-btn" id="b3-to-plan">飼育計画書をつくる</button><button type="button" class="b3-btn" id="b3-again">条件を変えてもう一度</button></div></div>';
+  return h;
+}
+function drawChart(){
+  var cv=$('#b3-chart');if(!cv||!run||cv.offsetParent===null)return;
+  var dpr=window.devicePixelRatio||1,w=cv.clientWidth,hh=cv.clientHeight||220;
+  cv.width=w*dpr;cv.height=hh*dpr;var c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,hh);
+  var fpx=Math.round((settings.fs||18)*0.75);
+  c.font=fpx+'px sans-serif';
+  var L=Math.ceil(c.measureText('100').width)+10,Rr=20,T=10,B=fpx+12,pw=w-L-Rr,ph=hh-T-B;
+  c.fillStyle='#4d5e4f';c.strokeStyle='#dbe4d8';c.lineWidth=1;c.textAlign='right';
+  for(var y=0;y<=100;y+=25){var py=T+ph*(1-y/100);c.beginPath();c.moveTo(L,py);c.lineTo(L+pw,py);c.stroke();c.fillText(y,L-6,py+fpx*0.35)}
+  for(var d=0;d<=30;d+=5){var px=L+pw*d/30;c.textAlign=d===30?'right':d===0?'left':'center';c.fillText(d+'日',d===30?px+Rr-2:px,hh-6)}
+  c.textAlign='left';
+  function line(key,color,dash,lw){c.strokeStyle=color;c.lineWidth=lw;c.setLineDash(dash);c.beginPath();
+    run.hist.forEach(function(p,i){var x=L+pw*p.d/30,yy=T+ph*(1-clamp(p[key],0,100)/100);i?c.lineTo(x,yy):c.moveTo(x,yy)});c.stroke();c.setLineDash([])}
+  line('dirt','#9a6a1a',[7,5],2.5);line('g','#6a4fa3',[2,4],3);line('h','#2e7d32',[],3);
+}
+
+/* ================= ③ 診断クイズ ================= */
+var QUIZ={
+ water:{title:'水の生き物の診断',desc:'メダカ・金魚の様子から原因と対策を考えよう',qs:[
+  {v:{sp:'medaka',n:30,dirt:30,air:0,plants:0,temp:30,pose:'top',vivid:.5,speed:.6},look:['水面近くで口をパクパクしている','水温 30℃、エアレーションなし、数が多い'],
+   q:'メダカがこのような様子です。いちばん考えられる原因は?',c:['水にとけている酸素が足りない','えさが足りない','水温が低すぎる','光が強すぎる'],a:0,
+   e:'水温が高いほど、水にとける酸素の量は少なくなります。数が多いとさらに酸素が足りなくなります。エアレーションや水草、数を減らすことで改善します。'},
+  {v:{sp:'kingyo',n:5,dirt:70,air:1,plants:0,temp:22,left:1.2,vivid:.5,speed:.5},look:['水が白くにごり、くさいにおいがする','底に食べ残しのえさがたまっている'],
+   q:'この水そうで、まずするべきことは?',c:['えさの量を減らし、水を3分の1ずつかえる','えさをもっと増やす','水を一度に全部かえ、水そうを洗剤で洗う','水温を上げる'],a:0,
+   e:'食べ残しやフンが分解されると、アンモニアなどの有害な物質が増えます。えさは数分で食べきる量にし、水は少しずつかえます。全部かえたり洗剤を使ったりすると、水をきれいにする微生物まで減ってしまいます。'},
+  {v:{sp:'kingyo',n:4,dirt:10,air:1,plants:1,temp:8,pose:'bottom',vivid:.8,speed:.1},look:['冬、水温は 8℃','底でじっとして、えさをあまり食べない','体の色はふつう'],
+   q:'どう考えて、どうするのがよい?',c:['水温が低く活動がにぶっているので、えさをひかえめにして様子を見る','病気なので薬を入れる','えさを2倍にして元気をつける','すぐに水を全部かえる'],a:0,
+   e:'魚は自分で体温を保てない「変温動物」です。水温が下がると活動や消化がにぶります。食べないえさは水を汚すだけなので、量をひかえます。'},
+  {v:{sp:'medaka',n:10,dirt:5,air:1,plants:0,temp:20,vivid:.6,speed:.4},look:['昨日、水を全部かえた','くみたての水道水を、そのまま入れた','今日は動きがおかしい'],
+   q:'水替えのやり方で、問題だったことは?',c:['水道水の塩素(カルキ)と、急な水温・水質の変化','水をかえるのが遅すぎた','水が少なすぎた','水草を入れなかった'],a:0,
+   e:'水道水には消毒のための塩素がふくまれています。くみ置きするか中和剤を使い、水温を合わせて、3分の1ずつかえるのが基本です。'},
+  {v:{sp:'medaka',n:10,dirt:55,air:1,plants:0,temp:24,vivid:.35,speed:.5},look:['ヒレをたたみ、体の色がうすい','水質検査で pH 5.8','1か月以上、水替えをしていない'],
+   q:'水の状態について正しいのは?',c:['汚れがたまって酸性にかたむいている','アルカリ性にかたむいている','ちょうど中性でよい状態','塩分が多すぎる'],a:0,
+   e:'フンや食べ残しが分解されると、水は少しずつ酸性(pHが小さい)にかたむきます。メダカや金魚には中性付近(6.5〜8)が適しています。定期的な水替えで保ちます。'},
+  {v:{sp:'medaka',n:45,dirt:45,air:1,plants:0,temp:25,vivid:.5,speed:.6},look:['30L の水そうにメダカ 45匹','すぐに水が汚れてしまう'],
+   q:'いちばん効果がある改善策は?',c:['数を減らすか、大きな水そうに分ける','えさを増やす','水温を下げる','照明を暗くする'],a:0,
+   e:'飼育密度が高いと、フンが増えて水が汚れやすく、酸素も不足します。メダカは「1匹に水1L」が目安です。'},
+  {v:{sp:'kingyo',n:4,dirt:8,air:1,plants:1,temp:22,vivid:1,speed:.95},look:['元気に泳いでいる','えさを入れるとすぐに集まる','体の色があざやか'],
+   q:'この金魚の状態は?',c:['健康。今の管理を続け、観察と記録を続ける','病気の始まり','えさが多すぎる','水温が高すぎる'],a:0,
+   e:'「食欲・動き・体色」は健康のサインです。調子が良いときの様子を知っておくと、変化に早く気づけます。'},
+  {v:{sp:'medaka',n:10,dirt:10,air:1,plants:1,temp:25,vivid:1,speed:.9,fry:6},look:['水温 25℃でメダカが毎日卵を産む','でも稚魚がほとんど増えない'],
+   q:'稚魚を増やすにはどうする?',c:['卵を見つけたら、水草ごと別の容器に移す','えさを減らす','水温を15℃に下げる','水替えをやめる'],a:0,
+   e:'親メダカは卵や稚魚を食べてしまうことがあります。別の容器に移して育てます。卵がかえるまでの日数は「水温×日数がおよそ250」が目安(25℃なら約10日)です。'}
+ ]},
+ land:{title:'陸の動物の診断',desc:'ニワトリ・ウズラ・ウサギの様子から考えよう',qs:[
+  {v:{sp:'chicken',n:3,dirt:15,water:40,temp:33,hot:true,vivid:.6,speed:.4},look:['真夏、小屋の中は 33℃','口を開けて呼吸し、羽を体から離している'],
+   q:'ニワトリがこうしている理由と対策は?',c:['暑いので体の熱を逃がしている。日かげ・風通し・冷たい水を用意する','寒いので体を温めている。保温する','おなかがすいている。えさを増やす','運動不足。もっと走らせる'],a:0,
+   e:'鳥は汗をかけないので、口を開けた呼吸や羽を広げることで体温を下げます。暑さ対策は、日よけ・換気・新鮮な水です。'},
+  {v:{sp:'rabbit',n:1,dirt:20,water:80,temp:20,vivid:.5,speed:.5},look:['ペレットとおやつ(果物)ばかり食べ、牧草を残す','フンが小さく、数が少ない'],
+   q:'このウサギに必要なことは?',c:['牧草(食物せんい)を中心にした食事にする','おやつを増やす','水を減らす','運動をやめさせる'],a:0,
+   e:'ウサギの消化や、のび続ける歯をすり減らすには、牧草の食物せんいが欠かせません。フンの大きさや数は、健康を知る大事な手がかりです。'},
+  {v:{sp:'quail',n:8,dirt:85,water:60,temp:24,vivid:.4,speed:.5},look:['床材がしめって、ツンとするにおいがする','目が赤く、なみだっぽい個体がいる'],
+   q:'原因として考えられることは?',c:['フンが分解されて出るアンモニア。床のそうじと換気が必要','水を飲みすぎている','光が足りない','えさが足りない'],a:0,
+   e:'フンがたまると、アンモニアが発生して目や呼吸器をいためます。床材をこまめにとりかえ、換気をします。'},
+  {v:{sp:'chicken',n:3,dirt:15,water:80,temp:2,cold:true,vivid:.6,speed:.2},look:['真冬、すきま風が入る小屋','羽をふくらませて、じっとしている'],
+   q:'羽をふくらませているのはなぜ?',c:['羽の間に空気をためて、体温を逃がさないため','暑いから','おこっているから','羽が生えかわっているから'],a:0,
+   e:'羽毛の間に空気の層をつくって保温しています。寒いときは、すきま風を防ぎ、保温を工夫します。'},
+  {v:{sp:'chicken',n:9,dirt:40,water:60,temp:20,vivid:.5,speed:.7},look:['4羽が目安の小屋に9羽','羽をつつき合い、けがをしている個体がいる'],
+   q:'いちばん大切な対策は?',c:['数を減らすか広さを広げ、密度を下げる','えさを減らす','照明を明るくする','水をかえる回数を減らす'],a:0,
+   e:'せまい場所に多く飼うとストレスで「つつき合い」が起こりやすくなります。動物が本来の行動をとれる広さが大切です。'},
+  {v:{sp:'quail',n:6,dirt:10,water:90,temp:24,vivid:.8,speed:.8},look:['よく食べ、よく卵を産む','でも卵のからがうすく、われやすい','えさは穀物だけ'],
+   q:'足りない栄養はどれ?',c:['カルシウム(かき殻などを与える)','水分','炭水化物','光'],a:0,
+   e:'卵のからはおもにカルシウムでできています。配合飼料やかき殻で補います。えさの「量」だけでなく「内容(栄養のバランス)」も大切です。'},
+  {v:{sp:'rabbit',n:1,dirt:10,water:0,temp:24,vivid:.6,speed:.4},look:['朝、水入れが空っぽ','いつもより元気がなく、えさもあまり食べない'],
+   q:'まずすることは?',c:['新鮮な水をあげて、その後の様子を観察する','えさを2倍にする','すぐに運動させる','何もしない'],a:0,
+   e:'水が足りないと食欲も落ちます。水は毎日とりかえ、量が足りているかも確認します。'},
+  {v:{sp:'chicken',n:3,dirt:10,water:90,temp:20,vivid:1,speed:.9},look:['世話が終わった'],
+   q:'動物の世話のあと、必ずすることは?',c:['せっけんでよく手を洗う','すぐにおやつを食べる','動物にほおずりする','そのまま教室にもどる'],a:0,
+   e:'動物からうつる病気(動物由来感染症)を防ぐため、世話の前後は手を洗います。アレルギーがある人は先生に伝えておきます。'}
+ ]},
+ eco:{title:'生態系と産業への配慮',desc:'外来種・放流・養殖について考えよう',qs:[
+  {q:'飼えなくなったメダカ。どうするのがよい?',c:['最後まで飼うか、飼ってくれる人にゆずる','近くの川に放してあげる','トイレに流す','学校の池に放す'],a:0,
+   e:'店で売られているメダカを川に放すと、その地域にもともといるメダカと交ざり、地域ごとの遺伝的な特徴がこわれてしまいます(遺伝子のかく乱)。'},
+  {q:'アメリカザリガニやアカミミガメについて、正しいのは?',c:['飼うことはできるが、野外に放したり逃がしたりしてはいけない','どこに放してもよい','飼うことも禁止されている','日本にもともといる生き物である'],a:0,
+   e:'どちらも外来生物で、2023年から「条件付特定外来生物」に指定され、野外への放出や販売などが禁止されています。生態系を守るため、最後まで責任をもって飼います。'},
+  {q:'水そうの水や水草を捨てるとき、気をつけることは?',c:['川や池に流さず、水は排水口へ、水草は乾かして燃えるごみにする','川に流す','池にそのまま捨てる','土に埋めずに道路にまく'],a:0,
+   e:'水草や小さな生き物・卵が自然の川や池に入ると、外来種として広がることがあります。'},
+  {q:'海のいけすで魚を育てる「養殖」で、えさを与えすぎると起こりやすいことは?',c:['海が汚れて赤潮などが起き、魚が弱る','魚がどんどん健康になる','海の水がきれいになる','何も起こらない'],a:0,
+   e:'シミュレーションの水そうと同じで、食べ残しやフンが増えると水質が悪くなります。養殖業では、えさの量や密度を管理して環境への負担を減らす技術が工夫されています。'},
+  {q:'卵から稚魚まで人が育て、ある程度大きくしてから海や川に放流し、自然の中で育ったものをとる漁業を何という?',c:['栽培漁業','養殖','遠洋漁業','沖合漁業'],a:0,
+   e:'栽培漁業は、生き物が弱い時期を人が守り育てることで、資源を増やす技術です。最後まで人が育てて出荷するのは「養殖」です。'},
+  {q:'動物福祉(動物の健康と心の状態に配慮すること)の考え方として、正しいのはどれ?',c:['飢えや渇き・けが・病気・不安を防ぎ、その動物本来の行動ができるようにする','人が楽しむためなら、動物の行動を制限してもかまわない','かわいがるために、いつもだっこしてさわっている','えさは、動物がほしがるだけいくらでも与える'],a:0,
+   e:'動物福祉では「5つの自由」(飢えや渇き・不快・痛みやけがや病気・恐怖や不安からの自由と、本来の行動ができる自由)を大切にします。命を預かる責任をもって育てます。'}
+ ]}
+};
+var quiz=null;
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function quizStore(){var qd=store.get('quiz',{});return isObj(qd)?qd:{}}
+function saveQuizNow(){var qd=quizStore();if(quiz)qd._now=quiz;else delete qd._now;store.set('quiz',qd)}
+function validQuiz(q){ // 途中の記録の形を確かめる
+  if(!isObj(q)||!QUIZ[q.cat]||!Array.isArray(q.order)||typeof q.i!=='number')return null;
+  var n=QUIZ[q.cat].qs.length;if(q.order.length!==n||q.i<0||q.i>=n)return null;
+  if(!Array.isArray(q.miss))q.miss=[];if(typeof q.score!=='number')q.score=0;
+  if(!Array.isArray(q.opt)||q.opt.length!==QUIZ[q.cat].qs[q.order[q.i]].c.length)q.opt=null;
+  if(typeof q.ans!=='number')q.ans=null;
+  return q;
+}
+function renderQuizMenu(){
+  var el=$('#b3-sec-quiz'),qd=quizStore(),now=validQuiz(qd._now),h='<div class="b3-card"><h1>診断クイズ</h1><p>生き物の「様子」をよく見て、原因と対策を考えよう。答えると解説が出ます。</p><div class="b3-qcat">';
+  Object.keys(QUIZ).forEach(function(k){var Q=QUIZ[k],best=isObj(qd[k])?qd[k]:null;
+    h+='<div><button type="button" class="b3-qbtn" data-q="'+k+'"><b>'+Q.title+'</b><span>'+Q.desc+'(全'+Q.qs.length+'問)</span><br><span>'+(best?'これまでの最高:'+best.best+' / '+Q.qs.length+' 問正解':'まだ挑戦していません')+'</span></button>';
+    if(now&&now.cat===k)h+='<button type="button" class="b3-btn b3-pri" data-resume="'+k+'">続きから('+(now.i+1)+'問目)</button>';
+    h+='</div>';});
+  h+='</div></div>';el.innerHTML=h;rb(el);
+  $$('[data-q]',el).forEach(function(b){b.addEventListener('click',function(){startQuiz(b.dataset.q)})});
+  $$('[data-resume]',el).forEach(function(b){b.addEventListener('click',function(){quiz=now;renderQuestion()})});
+}
+function startQuiz(cat){
+  quiz={cat:cat,order:shuffle(QUIZ[cat].qs.map(function(_,i){return i})),i:0,score:0,miss:[],opt:null,ans:null};saveQuizNow();renderQuestion();
+}
+function renderQuestion(){
+  var el=$('#b3-sec-quiz'),Q=QUIZ[quiz.cat],qi=quiz.order[quiz.i],q=Q.qs[qi],h='';
+  if(!quiz.opt){quiz.opt=shuffle(q.c.map(function(_,i){return i}));quiz.ans=null;saveQuizNow();}
+  h+='<div class="b3-card"><div class="b3-simbar"><b>'+Q.title+'</b><span>'+(quiz.i+1)+' / '+Q.qs.length+' 問目</span><span>正解 '+quiz.score+'</span><button type="button" class="b3-btn" id="b3-qback">やめる(続きはあとで)</button></div>';
+  if(q.v){var v=q.v,sp=SP[v.sp],full={sp:v.sp,n:v.n,dirt:v.dirt,air:v.air||0,plants:v.plants||0,left:v.left||0,temp:v.temp,water:v.water==null?80:v.water,fry:v.fry||0,vivid:v.vivid,sizeRate:.6,speed:v.speed,pose:v.pose||'mid',hot:!!v.hot,cold:!!v.cold,aria:q.look.join('。')};
+    h+='<div class="b3-qscene"><div>'+visSVG(full)+'</div><div><h3>'+sp.name+'の様子</h3><ul class="b3-signs">'+q.look.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div></div>';}
+  h+='<h2 style="margin-top:10px">'+q.q+'</h2><div class="b3-choices">'+quiz.opt.map(function(i,k){return '<button type="button" data-i="'+i+'">'+'ABCD'[k]+'. '+q.c[i]+'</button>'}).join('')+'</div><div id="b3-qexp"></div></div>';
+  el.innerHTML=h;
+  $('#b3-qback',el).addEventListener('click',function(){quiz=null;renderQuizMenu()});
+  function showAnswer(chosen,scroll){
+    var ok=chosen===q.a;
+    $$('.b3-choices button',el).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a){x.classList.add('b3-right');x.insertAdjacentHTML('beforeend',' ○ 正解')}else if(+x.dataset.i===chosen){x.classList.add('b3-wrong');x.insertAdjacentHTML('beforeend',' ×')}});
+    var ex=$('#b3-qexp',el);
+    ex.innerHTML='<div class="b3-explain"><b>'+(ok?'○ 正解!':'× ざんねん')+'</b><br>'+q.e+'</div><div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-qnext">'+(quiz.i+1<Q.qs.length?'次の問題へ':'結果を見る')+'</button></div>';
+    rb(el);
+    $('#b3-qnext',el).addEventListener('click',function(){quiz.i++;quiz.opt=null;quiz.ans=null;if(quiz.i<Q.qs.length){saveQuizNow();renderQuestion();window.scrollTo(0,0)}else quizEnd()});
+    try{$('#b3-qnext',el).focus({preventScroll:true})}catch(e){}
+    if(scroll)ex.scrollIntoView({block:'nearest'});
+  }
+  $$('.b3-choices button',el).forEach(function(b){b.addEventListener('click',function(){
+    if(quiz.ans!=null)return;
+    var ch=+b.dataset.i;quiz.ans=ch;if(ch===q.a)quiz.score++;else quiz.miss.push(qi);saveQuizNow();
+    showAnswer(ch,true);
+  })});
+  rb(el);
+  if(quiz.ans!=null)showAnswer(quiz.ans,false);
+}
+function quizEnd(){
+  var el=$('#b3-sec-quiz'),Q=QUIZ[quiz.cat],qd=quizStore(),prev=isObj(qd[quiz.cat])?qd[quiz.cat]:{best:0,tries:0};
+  qd[quiz.cat]={best:Math.max(prev.best||0,quiz.score),last:quiz.score,tries:(prev.tries||0)+1,date:today()};delete qd._now;store.set('quiz',qd);
+  var h='<div class="b3-card b3-result"><h2>'+Q.title+' の結果</h2><p style="font-size:1.3em"><b>'+quiz.score+' / '+Q.qs.length+'</b> 問正解</p>';
+  if(quiz.miss.length){h+='<h3>まちがえた問題の確認</h3><ul class="b3-miss">'+quiz.miss.map(function(i){var q=Q.qs[i];return '<li><b>'+q.q+'</b><br>答え:'+q.c[q.a]+'<details><summary>解説を読む</summary><p>'+q.e+'</p></details></li>'}).join('')+'</ul>'}
+  else h+='<p>全問正解です!</p>';
+  h+='<div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-qagain">もう一度</button><button type="button" class="b3-btn" id="b3-qmenu">ほかのクイズへ</button></div></div>';
+  el.innerHTML=h;rb(el);window.scrollTo(0,0);
+  var cat=quiz.cat;quiz=null;
+  $('#b3-qagain',el).addEventListener('click',function(){startQuiz(cat)});
+  $('#b3-qmenu',el).addEventListener('click',function(){renderQuizMenu()});
+}
+
+/* ================= 組・番号・名前(計画書と振り返りで共通) ================= */
+var reflData=null;
+function getRefl(){
+  if(!reflData){var o=store.get('refl',{});reflData=Object.assign({cls:'',no:'',name:'',ev:{}},isObj(o)?o:{});if(!isObj(reflData.ev))reflData.ev={};}
+  return reflData;
+}
+function whoHTML(pre){
+  var d=getRefl();
+  return '<div class="b3-who"><div><label class="b3-f" for="'+pre+'-cls">組</label><input type="text" id="'+pre+'-cls" data-who="cls" value="'+esc(d.cls)+'"></div>'+
+    '<div><label class="b3-f" for="'+pre+'-no">番号</label><input type="text" id="'+pre+'-no" data-who="no" value="'+esc(d.no)+'" inputmode="numeric"></div>'+
+    '<div><label class="b3-f" for="'+pre+'-name">名前</label><input type="text" id="'+pre+'-name" data-who="name" value="'+esc(d.name)+'"></div></div>';
+}
+function whoFile(){var d=getRefl();return (d.cls||'')+(d.no?'-'+d.no:'')+(d.name?'_'+d.name:'')}
+function whoLine(){var d=getRefl();return '組:'+(d.cls||'')+' 番号:'+(d.no||'')+' 名前:'+(d.name||'')}
+function bindWho(el,after){
+  $$('[data-who]',el).forEach(function(i){i.addEventListener('input',function(){var d=getRefl();d[i.dataset.who]=i.value;saveRefl();if(after)after()})});
+}
+function saveRefl(){var d=getRefl();d.date=today();d.saved=nowStamp();var ok=store.set('refl',d);writeReflStat(d);return ok}
+function writeReflStat(d){
+  var f=0;RQ.forEach(function(q){if(d&&typeof d[q.k]==='string'&&d[q.k].replace(/\s+/g,''))f++});
+  try{localStorage.setItem('b3_reflstat',JSON.stringify({filled:f,total:RQ.length}))}catch(e){}
+}
+
+/* ================= ④ 飼育計画書 ================= */
+var DAYS=['月','火','水','木','金','土','日'];
+var planData=null;
+function defaultPlan(){return {sp:run?run.sp:'',other:'',place:'',size:'',num:'',food:'',amount:'',feed:{},water:'',waterHow:'',obs:{},obsOther:'',hyg:{},holiday:'',future:'',date:today()}}
+function getPlan(){
+  if(!planData){var o=store.get('plan',{});planData=Object.assign(defaultPlan(),isObj(o)?o:{});
+    ['feed','obs','hyg'].forEach(function(k){if(!isObj(planData[k]))planData[k]={}});
+    ['sp','other','place','size','num','food','amount','water','waterHow','obsOther','holiday','future'].forEach(function(k){if(typeof planData[k]!=='string')planData[k]=planData[k]==null?'':String(planData[k])});}
+  return planData;
+}
+var OBS=['食欲(えさをよく食べるか)','動き(元気に動くか)','体の色・毛や羽のつや','フンの形・量','水温・室温','水や床のにごり・におい','数(いなくなっていないか)'];
+var HYG=['世話の前後に、せっけんで手を洗う','動物アレルギーの人がいないか確認する','道具は決まった場所で洗い、乾かす','やさしく扱い、かまれたり、ひっかかれたりしない','体調が悪い動物は先生に相談する'];
+function simPlanValues(){
+  var sp=SP[run.sp],s=run.set,v={sp:run.sp,num:s.n+(sp.kind==='water'||run.sp==='rabbit'?'匹':'羽')};
+  if(sp.kind==='water'){v.size=sp.tankL+'Lの水そう';v.amount=sp.amountNote;
+    var rm={none:'',w2:'2週に1回',w1:'週1回',d3:'2〜3日に1回'};if(rm[s.routine])v.water=rm[s.routine];
+    v.waterHow='くみ置きした水で、3分の1ずつかえる。水温を合わせる。水温の目安は'+sp.temp.min+'〜'+sp.temp.max+'℃。';}
+  else{var cm={daily:'毎日','3d':'2〜3日に1回',weekly:'週1回',none:''};if(cm[s.clean])v.water=cm[s.clean];
+    v.waterHow='飲み水は'+(s.waterR==='daily'?'毎日':'こまめに')+'とりかえる。床材をとりかえ、換気をする。室温の目安は'+sp.temp.min+'〜'+sp.temp.max+'℃。';
+    v.food=sp.dietLabel[s.diet]||sp.dietLabel[0];v.amount='食べきれる量(食べ残しが出ない量)';}
+  return v;
+}
+function renderPlan(){
+  var p=getPlan(),el=$('#b3-sec-plan'),h='';
+  h+='<div class="b3-card"><h1>飼育計画書</h1><p>実際に飼育(または観察)するときの計画を立てよう。入力すると自動で保存されます。</p>'+whoHTML('b3-pl');
+  h+='<div class="b3-btns b3-noprint"><button type="button" class="b3-btn" id="b3-pl-sim">シミュレーションの設定を書きこむ</button><button type="button" class="b3-btn" id="b3-pl-txt">テキストで書き出す(.txt)</button><button type="button" class="b3-btn" id="b3-pl-print">印刷する</button></div><div class="b3-saved b3-noprint" id="b3-pl-saved">'+savedLabel(p.saved)+'</div></div>';
+  h+='<div class="b3-card"><h2>1 飼う生き物と場所</h2><div class="b3-row">';
+  h+='<div><label class="b3-f" for="b3-pl-sp">飼う生き物</label><select id="b3-pl-sp" data-p="sp"><option value="">えらぶ</option>'+Object.keys(SP).map(function(k){return '<option value="'+k+'"'+(p.sp===k?' selected':'')+'>'+SP[k].name+'</option>'}).join('')+'<option value="other"'+(p.sp==='other'?' selected':'')+'>その他</option></select></div>';
+  h+='<div><label class="b3-f" for="b3-pl-other">その他の場合の名前</label><input type="text" id="b3-pl-other" data-p="other" value="'+esc(p.other)+'"></div>';
+  h+='<div><label class="b3-f" for="b3-pl-num">数</label><input type="text" id="b3-pl-num" data-p="num" value="'+esc(p.num)+'" placeholder="例:10匹"></div></div><div class="b3-row">';
+  h+='<div><label class="b3-f" for="b3-pl-place">飼う場所</label><input type="text" id="b3-pl-place" data-p="place" value="'+esc(p.place)+'" placeholder="例:理科室のまど際(直射日光が当たらない)"></div>';
+  h+='<div><label class="b3-f" for="b3-pl-size">容器・飼育スペースの大きさ</label><input type="text" id="b3-pl-size" data-p="size" value="'+esc(p.size)+'" placeholder="例:30Lの水そう"></div></div></div>';
+  h+='<div class="b3-card"><h2>2 えさやりの計画</h2><div class="b3-row"><div><label class="b3-f" for="b3-pl-food">えさの種類</label><input type="text" id="b3-pl-food" data-p="food" value="'+esc(p.food)+'" placeholder="例:メダカ用の粉えさ"></div>';
+  h+='<div><label class="b3-f" for="b3-pl-amount">1回の量</label><input type="text" id="b3-pl-amount" data-p="amount" value="'+esc(p.amount)+'" placeholder="例:2〜3分で食べきる量"></div></div>';
+  h+='<p style="margin-top:10px;font-weight:700">えさをあげる日と時間(チェックしよう)</p><table class="b3-week"><tr><th></th>'+DAYS.map(function(d){return '<th>'+d+'</th>'}).join('')+'</tr>';
+  ['朝','昼','夕'].forEach(function(t){h+='<tr><th>'+t+'</th>'+DAYS.map(function(d){var k=d+t;return '<td><label class="b3-chk"><input type="checkbox" data-feed="'+k+'"'+(p.feed[k]?' checked':'')+' aria-label="'+d+'曜日 '+t+'"></label></td>'}).join('')+'</tr>'});
+  h+='</table></div>';
+  h+='<div class="b3-card"><h2>3 水替え・そうじの計画</h2><label class="b3-f" for="b3-pl-water">どのくらいの間隔で?</label><select id="b3-pl-water" data-p="water">'+['','毎日','2〜3日に1回','週1回','2週に1回'].map(function(o){return '<option'+(p.water===o?' selected':'')+' value="'+o+'">'+(o||'えらぶ')+'</option>'}).join('')+'</select>';
+  h+='<label class="b3-f" for="b3-pl-waterHow">やり方・気をつけること</label><textarea id="b3-pl-waterHow" data-p="waterHow" placeholder="例:くみ置きした水で、3分の1ずつかえる。水温を合わせる。">'+esc(p.waterHow)+'</textarea></div>';
+  h+='<div class="b3-card"><h2>4 毎日の観察ポイント</h2><div class="b3-checks">'+OBS.map(function(o,i){return '<label><input type="checkbox" data-obs="'+i+'"'+(p.obs[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div>';
+  h+='<label class="b3-f" for="b3-pl-obsOther">その他に観察すること</label><input type="text" id="b3-pl-obsOther" data-p="obsOther" value="'+esc(p.obsOther)+'"></div>';
+  h+='<div class="b3-card"><h2>5 衛生と安全</h2><div class="b3-checks">'+HYG.map(function(o,i){return '<label><input type="checkbox" data-hyg="'+i+'"'+(p.hyg[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div></div>';
+  h+='<div class="b3-card"><h2>6 休日・長期休みの世話</h2><textarea data-p="holiday" aria-label="休日・長期休みの世話" placeholder="例:土日は自動給餌器を使う。夏休みは当番を決める。">'+esc(p.holiday)+'</textarea></div>';
+  h+='<div class="b3-card"><h2>7 命と生態系への配慮</h2><textarea data-p="future" aria-label="命と生態系への配慮" placeholder="例:最後まで責任をもって飼う。飼えなくなったら、川には放さず、飼ってくれる人をさがす。">'+esc(p.future)+'</textarea></div>';
+  el.innerHTML=h;rb(el);printSync(el);
+  function save(){p.date=today();p.saved=nowStamp();var ok=store.set('plan',p);$('#b3-pl-saved',el).textContent=ok?savedLabel(p.saved):'保存できませんでした';}
+  bindWho(el,function(){$('#b3-pl-saved',el).textContent=savedLabel(getRefl().saved)});
+  $$('[data-p]',el).forEach(function(i){i.addEventListener(i.tagName==='SELECT'?'change':'input',function(){p[i.dataset.p]=i.value;save()})});
+  $$('[data-feed]',el).forEach(function(i){i.addEventListener('change',function(){p.feed[i.dataset.feed]=i.checked;save()})});
+  $$('[data-obs]',el).forEach(function(i){i.addEventListener('change',function(){p.obs[i.dataset.obs]=i.checked;save()})});
+  $$('[data-hyg]',el).forEach(function(i){i.addEventListener('change',function(){p.hyg[i.dataset.hyg]=i.checked;save()})});
+  $('#b3-pl-sim',el).addEventListener('click',function(){
+    if(!run){toast('先にシミュレーションで生き物を選ぼう');return}
+    var v=simPlanValues(),conflict=Object.keys(v).some(function(k){return p[k]&&p[k]!==v[k]});
+    function apply(all){Object.keys(v).forEach(function(k){if(all||!p[k])p[k]=v[k]});save();renderPlan();toast(all?'シミュレーションの設定を書きこみました':'空らんに、シミュレーションの設定を書きこみました')}
+    if(!conflict){apply(false);return}
+    kzConfirm('入力ずみの項目も、シミュレーションの設定で置きかえますか?\n(「空らんだけ」を選ぶと、まだ書いていない欄だけに書きこみます。置きかえた欄の文は消えます)',{ok:'置きかえる',cancel:'空らんだけ',danger:true}).then(function(all){apply(!!all)});
+  });
+  $('#b3-pl-txt',el).addEventListener('click',function(){download('B3_飼育計画書_'+whoFile()+'.txt','﻿'+planText(),'text/plain;charset=utf-8')});
+  $('#b3-pl-print',el).addEventListener('click',function(){printSync(el);window.print()});
+}
+function planText(){
+  var p=getPlan(),t='【B3 飼育計画書】 '+(p.date||'')+'\n'+whoLine()+'\n\n';
+  t+='飼う生き物:'+(p.sp==='other'?p.other:(SP[p.sp]?SP[p.sp].name:''))+'\n数:'+p.num+'\n場所:'+p.place+'\n大きさ:'+p.size+'\n';
+  t+='\n■えさ\n種類:'+p.food+'\n1回の量:'+p.amount+'\n';
+  ['朝','昼','夕'].forEach(function(tm){t+=tm+':'+DAYS.filter(function(d){return p.feed[d+tm]}).join('・')+'\n'});
+  t+='\n■水替え・そうじ\n間隔:'+p.water+'\nやり方:'+p.waterHow+'\n';
+  t+='\n■観察ポイント\n'+OBS.filter(function(_,i){return p.obs[i]}).map(function(o){return '・'+o}).join('\n')+(p.obsOther?'\n・'+p.obsOther:'')+'\n';
+  t+='\n■衛生と安全\n'+HYG.filter(function(_,i){return p.hyg[i]}).map(function(o){return '・'+o}).join('\n')+'\n';
+  t+='\n■休日・長期休みの世話\n'+p.holiday+'\n\n■命と生態系への配慮\n'+p.future+'\n';
+  return plain(t);
+}
+
+/* ================= ⑤ 振り返り ================= */
+var RQ=[
+ {k:'q1',t:'シミュレーションで分かった、生き物を健康に育てるために大切な条件は何ですか。',ph:'例:えさは多ければよいのではなく、食べ残しが水を汚して…'},
+ {k:'q2',t:'うまくいかなかったこと(健康度が下がった・汚れた など)と、その原因・改善した方法を書きましょう。',ph:'例:7日目に水が汚れた。原因は…なので、…にしたら回復した。'},
+ {k:'q3',t:'生き物の「様子」(食欲・動き・体の色など)から状態を読み取るとき、大切だと思ったことは何ですか。',ph:''},
+ {k:'q4',t:'実際の飼育や観察で、生かしたいことは何ですか。',ph:''},
+ {k:'q5',t:'生き物の命や生態系、水産業・畜産業について考えたことを書きましょう。',ph:'例:飼えなくなっても川に放してはいけない理由は…'}
+];
+var EV=[
+ {k:'e1',t:'動物・水産生物に合った環境の条件(温度・水質・えさ・密度・清潔さ)が分かった'},
+ {k:'e2',t:'様子やデータから原因を考え、世話の方法を改善できた'},
+ {k:'e3',t:'命を大切にし、実際の飼育や社会に生かそうと考えた'}
+];
+var EVL=['◎ よくできた','○ できた','△ もう少し'];
+function renderRefl(){
+  var d=getRefl(),el=$('#b3-sec-refl'),h='';
+  h+='<div class="b3-card"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>'+whoHTML('b3-r')+'</div>';
+  h+='<div class="b3-card"><h2>学習の記録(自動)</h2><div class="b3-summary-box" id="b3-r-auto">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
+  h+='<div class="b3-card"><h2>ふり返りを書こう</h2>';
+  RQ.forEach(function(q,i){h+='<label class="b3-f" for="b3-r-'+q.k+'">'+(i+1)+'. '+q.t+'</label><textarea id="b3-r-'+q.k+'" data-r="'+q.k+'" placeholder="'+esc(q.ph)+'">'+esc(d[q.k]||'')+'</textarea>'});
+  h+='</div><div class="b3-card"><h2>自己評価</h2><div class="b3-eval">';
+  EV.forEach(function(e){h+='<div class="b3-eval-row"><div>'+e.t+'</div><div class="b3-seg" data-ev="'+e.k+'" role="group" aria-label="'+esc(e.t)+'">'+EVL.map(function(l,i){return '<button type="button" data-v="'+i+'" aria-pressed="'+(d.ev[e.k]===i?'true':'false')+'">'+l+'</button>'}).join('')+'</div></div>'});
+  h+='</div></div>';
+  h+='<div class="b3-card b3-noprint"><div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-r-txt">テキストで書き出す(.txt)</button><button type="button" class="b3-btn" id="b3-r-copy">コピーする</button><button type="button" class="b3-btn" id="b3-r-print">印刷する</button><button type="button" class="b3-btn" id="b3-r-json">データで書き出す(.json)</button></div><div class="b3-saved" id="b3-r-saved">'+savedLabel(d.saved)+'</div></div>';
+  el.innerHTML=h;rb(el);printSync(el);
+  function save(){var ok=saveRefl();$('#b3-r-saved',el).textContent=ok?savedLabel(d.saved):'保存できませんでした'}
+  bindWho(el,function(){$('#b3-r-saved',el).textContent=savedLabel(d.saved)});
+  $$('[data-r]',el).forEach(function(i){i.addEventListener('input',function(){d[i.dataset.r]=i.value;save()})});
+  $$('[data-ev]',el).forEach(function(g){g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;d.ev[g.dataset.ev]=+b.dataset.v;$$('button',g).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});save()})});
+  $('#b3-r-txt',el).addEventListener('click',function(){download('B3_振り返り_'+whoFile()+'.txt','﻿'+reflText(),'text/plain;charset=utf-8')});
+  $('#b3-r-copy',el).addEventListener('click',function(){copyText(reflText())});
+  $('#b3-r-print',el).addEventListener('click',function(){printSync(el);window.print()});
+  $('#b3-r-json',el).addEventListener('click',exportAll);
+}
+function archLine(k,a){
+  var sp=SP[k],t='・'+sp.name+':30日やり終えた '+starStr(a.star)+'/健康度の平均 '+a.avg+'(最後の日 '+a.final+')';
+  if(a.causes&&a.causes.length)t+='/おもな原因:'+a.causes.map(function(c){return HINT_S[c]||c}).join('、');
+  return t;
+}
+function autoSummary(){
+  var t='';
+  if(run){var r=summary(run);t+='飼育シミュレーション(いま):'+r.sp.name+' '+run.day+'日目まで'+(run.done?'(30日やり終えた '+starStr(r.star)+')':'')+'/健康度の平均 '+Math.round(r.avg)+'/'+r.sp.size.label+' '+(r.sp.size.dec?r.size.toFixed(r.sp.size.dec):Math.round(r.size))+r.sp.size.unit;
+    if(r.sp.eggs)t+='/稚魚 '+r.fry+'匹';if(r.sp.eggRate)t+='/卵 '+r.eggs+'個';t+='\n';
+    var ks=Object.keys(run.archive||{}).filter(function(k){return !(run.done&&k===run.sp)});
+    if(ks.length)t+='これまでに30日やり終えた記録:\n'+ks.map(function(k){return archLine(k,run.archive[k])}).join('\n')+'\n';}
+  else t+='飼育シミュレーション:まだ行っていません\n';
+  var qd=quizStore();
+  Object.keys(QUIZ).forEach(function(k){t+=QUIZ[k].title+':'+(isObj(qd[k])?'最高 '+qd[k].best+' / '+QUIZ[k].qs.length+' 問':'未挑戦')+'\n'});
+  var p=store.get('plan',null);t+='飼育計画書:'+(isObj(p)&&(p.place||p.food||p.waterHow)?'作成あり':'未作成');
+  return plain(t);
+}
+function reflText(){
+  var d=getRefl(),t='【B3 動物飼育・水産ミニシミュレータ 振り返り】\n';
+  t+='日付:'+today()+'\n'+whoLine()+'\n\n';
+  t+='■学習の記録\n'+autoSummary()+'\n\n';
+  RQ.forEach(function(q,i){t+='■'+(i+1)+'. '+q.t+'\n'+(d[q.k]||'')+'\n\n'});
+  t+='■自己評価\n';EV.forEach(function(e){t+='・'+e.t+':'+(d.ev[e.k]!=null&&EVL[d.ev[e.k]]?EVL[d.ev[e.k]]:'未記入')+'\n'});
+  return plain(t);
+}
+
+/* ================= データの書き出し・読み込み ================= */
+function exportAll(){
+  var data={app:'B3',version:2,exported:new Date().toISOString(),data:{}};
+  ['sim','quiz','plan','refl','settings'].forEach(function(k){var v=store.get(k,null);if(v!=null)data.data[k]=v});
+  download('B3_データ_'+today()+'.json',JSON.stringify(data,null,1),'application/json');
+}
+function importAll(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){
+    var o;try{o=JSON.parse(rd.result)}catch(err){o=null}
+    if(!isObj(o)||o.app!=='B3'||!isObj(o.data)){toast('このファイルは読み込めません(B3のデータではありません)');return}
+    var ok={},bad=[];
+    if('sim' in o.data){var s=normRun(o.data.sim);if(s)ok.sim=s;else bad.push('飼育')}
+    ['quiz','plan','refl','settings'].forEach(function(k){if(k in o.data){if(isObj(o.data[k]))ok[k]=o.data[k];else bad.push({quiz:'クイズ',plan:'計画書',refl:'振り返り',settings:'設定'}[k])}});
+    if(!Object.keys(ok).length){toast('このファイルには読み込める内容がありません');return}
+    kzConfirm('いまのデータを、読み込んだデータで置きかえます。いまのデータは消えます。よろしいですか?',{ok:'置きかえる',cancel:'やめる',danger:true}).then(function(yes){if(!yes)return;
+      Object.keys(ok).forEach(function(k){store.set(k,ok[k])});
+      run=normRun(store.get('sim',null));planData=null;reflData=null;
+      if(ok.settings){var st=ok.settings;settings.tab=typeof st.tab==='string'?st.tab:settings.tab;store.set('settings',settings)}
+      writeReflStat(getRefl());simBuiltFor=null;
+      toast(bad.length?'読み込みました(読み込めなかったもの:'+bad.join('・')+')':'読み込みました');renderHome();
+    });
+  };
+  rd.readAsText(f);e.target.value='';
+}
+
+if(store.get('refl',null)!==null){try{if(localStorage.getItem('b3_reflstat')===null)writeReflStat(getRefl())}catch(e){}}
+applySettings();
+showTab(settings.tab&&$('[data-sec="'+settings.tab+'"]')?settings.tab:'home');
+rb($('.b3-nav'));measure();
+// テスト用に計算部分を公開(画面には影響しません)
+window.B3SIM={SP:SP,GOOD:GOOD,newRun:newRun,stepDay:stepDay,summary:summary,starOf:starOf,calcDO:calcDO,satDO:satDO,normRun:normRun};
+})();
+</script>
+</body>
+</html>

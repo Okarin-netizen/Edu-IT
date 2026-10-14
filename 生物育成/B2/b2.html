@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B2 育成環境コントローラ体験</title>
+<style>
+html,body{margin:0;padding:0;}
+html{font-size:16.94px;} /* 文字の大きさ(kzPrefs の fs × 16/17)。JS で変える */
+body{background:#f4f7f1;}
+#b2-app{
+  --b2-bg:#f4f7f1; --b2-card:#ffffff; --b2-ink:#1d2a1d; --b2-sub:#526152; --b2-line:#cfdac8;
+  --b2-green:#2e7d32; --b2-green-d:#1b5e20; --b2-green-l:#e3f1df; --b2-accent:#d9701a; --b2-accent-l:#fdf0e3;
+  --b2-blue:#1565c0; --b2-blue-l:#e5effa; --b2-red:#c62828; --b2-red-l:#fdeaea; --b2-yellow-l:#fff7d6;
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size:1.0625rem; line-height:1.6; color:var(--b2-ink); background:var(--b2-bg);
+  min-height:100vh; -webkit-text-size-adjust:100%;
+}
+#b2-app *{ box-sizing:border-box; }
+#b2-app button, #b2-app input, #b2-app textarea, #b2-app select{ font:inherit; color:inherit; }
+#b2-app button{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; cursor:pointer; }
+#b2-app rt{ font-size:0.55em; color:var(--b2-sub); font-weight:normal; }
+#b2-app.b2-noruby rt{ display:none; }
+#b2-app h2{ font-size:1.3rem; margin:0 0 .5rem; color:var(--b2-green-d); }
+#b2-app h3{ font-size:1.08rem; margin:0 0 .4rem; }
+#b2-app p{ margin:.3rem 0 .6rem; }
+
+/* ヘッダーとタブ */
+#b2-app .b2-head{ display:flex; align-items:center; gap:10px 12px; flex-wrap:wrap; padding:10px 16px; background:var(--b2-green-d); color:#fff; }
+#b2-app .b2-head h1{ font-size:1.15rem; margin:0; flex:1 1 12em; line-height:1.35; min-width:0; }
+#b2-app .b2-head h1 small{ font-weight:normal; opacity:.85; font-size:.8rem; margin-left:.4em; white-space:nowrap; }
+#b2-app .b2-head rt{ color:#d8ecd5; }
+#b2-app .b2-hbtns{ display:flex; gap:8px; flex:0 0 auto; }
+#b2-app .b2-hbtn{ min-height:44px; min-width:48px; padding:4px 12px; border-radius:10px; border:2px solid #fff; background:transparent; color:#fff; font-weight:bold; font-size:.95rem; line-height:1.2; }
+#b2-app .b2-hbtn[aria-pressed="true"]{ background:#fff; color:var(--b2-green-d); }
+#b2-app .b2-hbtn:disabled{ opacity:.4; cursor:not-allowed; }
+#b2-app .b2-hbtn:focus-visible{ outline:3px solid #ffd54f; outline-offset:2px; }
+html.kz-embed #b2-app .b2-head{ display:none; }
+#b2-app .b2-tabs{ display:flex; gap:4px; padding:8px 8px 0; background:#1b5e20; position:sticky; top:0; z-index:19; }
+#b2-app .b2-tab{ flex:1 1 0; min-width:0; min-height:52px; padding:6px 8px; border:0; border-radius:12px 12px 0 0; background:transparent; color:#e3f1e4; font-weight:bold; font-size:.98rem; line-height:1.3; white-space:normal; word-break:break-all; }
+#b2-app .b2-tab rt{ color:#c5e1c6; }
+#b2-app .b2-tab[aria-selected="true"]{ background:var(--b2-bg); color:#1b5e20; }
+#b2-app .b2-tab[aria-selected="true"] rt{ color:var(--b2-sub); }
+#b2-app .b2-tab:focus-visible{ outline:3px solid #ffd54f; outline-offset:-3px; }
+#b2-app .b2-tab .b2-tabmark{ display:inline-block; min-width:1.2em; }
+#b2-app main{ padding:14px 16px 40px; max-width:1400px; margin:0 auto; }
+#b2-app .b2-sec{ display:none; }
+#b2-app .b2-sec.b2-on{ display:block; }
+
+/* 共通部品 */
+#b2-app .b2-card{ scroll-margin-top:96px; background:var(--b2-card); border:1px solid var(--b2-line); border-radius:14px; padding:14px 16px; margin-bottom:14px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+#b2-app .b2-note{ background:var(--b2-yellow-l); border-left:6px solid #e0b400; border-radius:8px; padding:10px 14px; font-size:.95rem; }
+#b2-app .b2-btn{ min-height:52px; padding:8px 18px; border-radius:12px; border:2px solid var(--b2-green); background:#fff; color:var(--b2-green-d); font-weight:bold; font-size:1rem; }
+#b2-app .b2-btn:active{ transform:translateY(1px); }
+#b2-app .b2-btn.b2-primary{ background:var(--b2-green); color:#fff; }
+#b2-app .b2-btn.b2-primary rt{ color:#e6f4e4; }
+#b2-app .b2-btn.b2-orange{ background:var(--b2-accent); border-color:var(--b2-accent); color:#fff; }
+#b2-app .b2-btn.b2-orange rt{ color:#fff3e6; }
+#b2-app .b2-btn.b2-danger{ border-color:var(--b2-red); color:var(--b2-red); }
+#b2-app .b2-btn:disabled{ background:#eef1ec !important; border-color:#c9d2c4 !important; color:#97a294 !important; cursor:not-allowed; }
+#b2-app .b2-seg button:disabled{ background:#f1f3ef; color:#a0a99d; }
+#b2-app .b2-btn.b2-big{ font-size:1.12rem; min-height:60px; padding:10px 24px; }
+#b2-app .b2-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+#b2-app .b2-grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+#b2-app .b2-small{ font-size:.88rem; color:var(--b2-sub); }
+
+/* 選択カード */
+#b2-app .b2-choices{ display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px; }
+#b2-app .b2-choice{ text-align:left; border:2px solid var(--b2-line); background:#fff; border-radius:14px; padding:10px 12px; min-height:64px; display:flex; gap:10px; align-items:flex-start; }
+#b2-app .b2-choice .b2-ic{ font-size:1.9rem; line-height:1; }
+#b2-app .b2-choice b{ display:block; font-size:1.02rem; }
+#b2-app .b2-choice span.b2-d{ display:block; font-size:.82rem; color:var(--b2-sub); line-height:1.45; }
+#b2-app .b2-choice[aria-pressed="true"]{ border-color:var(--b2-green); background:var(--b2-green-l); box-shadow:inset 0 0 0 2px var(--b2-green); }
+#b2-app .b2-choice[aria-pressed="true"] b::before{ content:"✔ "; color:var(--b2-green); }
+#b2-app .b2-seed{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#b2-app .b2-seed input{ width:5.5em; min-height:52px; text-align:center; font-size:1.3rem; font-weight:bold; border:2px solid var(--b2-line); border-radius:10px; }
+#b2-app .b2-steps{ margin:0; padding-left:1.3em; }
+#b2-app .b2-steps li{ margin:.2rem 0; }
+
+/* そだてる画面 */
+#b2-app .b2-grow{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:14px; align-items:start; }
+#b2-app .b2-daybar{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+#b2-app .b2-daybar .b2-day{ font-size:1.6rem; font-weight:bold; color:var(--b2-green-d); }
+#b2-app .b2-progress{ height:10px; background:#e2e8de; border-radius:99px; overflow:hidden; margin:6px 0 8px; }
+#b2-app .b2-progress > div{ height:100%; background:var(--b2-green); width:0; transition:width .3s; }
+#b2-app .b2-plantwrap{ position:relative; background:linear-gradient(#e8f4ff, #f6fbff 70%); border-radius:12px; border:1px solid var(--b2-line); }
+#b2-app .b2-plantwrap svg{ display:block; width:100%; height:auto; max-height:250px; }
+#b2-app .b2-badges{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; min-height:34px; }
+#b2-app .b2-badge{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 10px; font-size:.9rem; font-weight:bold; border:2px solid; }
+#b2-app .b2-badge.ok{ color:var(--b2-green-d); border-color:var(--b2-green); background:var(--b2-green-l); }
+#b2-app .b2-badge.warn{ color:#8a4b00; border-color:var(--b2-accent); background:var(--b2-accent-l); }
+#b2-app .b2-badge.bad{ color:var(--b2-red); border-color:var(--b2-red); background:var(--b2-red-l); }
+#b2-app .b2-stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; text-align:center; }
+#b2-app .b2-stat{ background:#f7faf5; border:1px solid var(--b2-line); border-radius:10px; padding:4px 2px; }
+#b2-app .b2-stat small{ display:block; font-size:.76rem; color:var(--b2-sub); }
+#b2-app .b2-stat b{ font-size:1.12rem; }
+#b2-app .b2-memo{ margin-top:10px; background:#fff; border:2px dashed var(--b2-green); border-radius:12px; padding:8px 12px; min-height:3em; }
+#b2-app .b2-memo b{ color:var(--b2-green-d); }
+#b2-app .b2-weather{ display:flex; align-items:center; gap:12px; background:var(--b2-blue-l); border-radius:12px; padding:8px 12px; margin-bottom:10px; }
+#b2-app .b2-weather .b2-wic{ font-size:2.2rem; line-height:1; }
+#b2-app .b2-weather b{ font-size:1.1rem; }
+#b2-app .b2-ev{ display:inline-block; margin-left:6px; padding:1px 8px; border-radius:6px; background:#fff; border:1px solid var(--b2-blue); font-size:.85rem; font-weight:bold; color:var(--b2-blue); }
+
+/* ゲージ */
+#b2-app .b2-gauge{ display:grid; grid-template-columns:6.2em 1fr 6.6em; gap:8px; align-items:center; margin:4px 0 8px; }
+#b2-app .b2-gauge .b2-gl{ font-weight:bold; font-size:.95rem; line-height:1.3; }
+#b2-app .b2-gauge .b2-gl small{ display:block; font-weight:normal; font-size:.78rem; color:var(--b2-sub); }
+#b2-app .b2-track{ position:relative; height:26px; background:#eef1ec; border-radius:6px; border:1px solid #c9d2c4; }
+#b2-app .b2-band{ position:absolute; top:0; bottom:0; background:repeating-linear-gradient(45deg, rgba(46,125,50,.28) 0 6px, rgba(46,125,50,.14) 6px 12px); border-left:2px solid var(--b2-green); border-right:2px solid var(--b2-green); }
+#b2-app .b2-fill{ position:absolute; left:0; top:8px; height:10px; background:#7d8c7a; border-radius:0 4px 4px 0; opacity:.55; }
+#b2-app .b2-mark{ position:absolute; top:-6px; width:0; height:38px; border-left:3px solid #111; }
+#b2-app .b2-mark::after{ content:""; position:absolute; left:-9px; top:-4px; border:7px solid transparent; border-top:9px solid #111; }
+#b2-app .b2-gv{ font-size:.92rem; line-height:1.25; text-align:right; }
+#b2-app .b2-gv b{ font-size:1rem; }
+#b2-app .b2-gs{ display:block; font-weight:bold; font-size:.85rem; }
+#b2-app .b2-gs.ok{ color:var(--b2-green-d); } #b2-app .b2-gs.low{ color:var(--b2-blue); } #b2-app .b2-gs.high{ color:var(--b2-red); } #b2-app .b2-gs.wx{ color:#6b746a; font-weight:normal; }
+
+/* 操作ボタン */
+#b2-app .b2-op{ margin:6px 0 10px; }
+#b2-app .b2-op .b2-opl{ font-weight:bold; font-size:.95rem; margin-bottom:3px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; }
+#b2-app .b2-chip{ display:inline-block; font-size:.82rem; font-weight:bold; border-radius:999px; padding:1px 10px; border:1px solid; background:#fff; }
+#b2-app .b2-chip.ok{ color:var(--b2-green-d); border-color:var(--b2-green); background:var(--b2-green-l); }
+#b2-app .b2-chip.low{ color:var(--b2-blue); border-color:var(--b2-blue); background:var(--b2-blue-l); }
+#b2-app .b2-chip.high{ color:var(--b2-red); border-color:var(--b2-red); background:var(--b2-red-l); }
+#b2-app .b2-chip.wx{ color:#5b645a; border-color:#b9c2b6; background:#f1f3ef; font-weight:normal; }
+#b2-app .b2-sumbar{ order:-2; grid-column:1 / -1; font-size:.9rem; line-height:1.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#b2-app .b2-sumbar:empty{ display:none; }
+#b2-app .b2-sumbar .b2-badge{ font-size:.8rem; padding:0 8px; margin-left:4px; }
+#b2-app .b2-sumbar .b2-tip{ color:#8a4b00; font-weight:bold; }
+#b2-app .b2-seg{ display:flex; gap:6px; }
+#b2-app .b2-seg button{ flex:1; min-height:50px; border:2px solid var(--b2-line); background:#fff; border-radius:10px; padding:4px 6px; font-size:.93rem; line-height:1.25; }
+#b2-app .b2-seg button[aria-pressed="true"]{ border-color:var(--b2-accent); background:var(--b2-accent-l); font-weight:bold; box-shadow:inset 0 0 0 2px var(--b2-accent); }
+#b2-app .b2-seg button[aria-pressed="true"]::before{ content:"● "; color:var(--b2-accent); }
+#b2-app .b2-actions .b2-btn{ padding-left:10px; padding-right:10px; }
+#b2-app .b2-actions{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1.3fr); gap:8px; margin:6px -8px 0; padding:8px; position:sticky; bottom:0; z-index:5; background:rgba(255,255,255,.96); border-top:2px solid var(--b2-line); border-radius:0 0 12px 12px; }
+#b2-app .b2-finished{ background:var(--b2-accent-l); border:2px solid var(--b2-accent); border-radius:12px; padding:10px 14px; margin-top:10px; display:none; }
+#b2-app .b2-finished.b2-show{ display:block; }
+
+/* グラフ */
+#b2-app .b2-charts{ display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:10px; }
+#b2-app .b2-mini{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+#b2-app canvas.b2-chart{ width:100%; height:10.6rem; display:block; background:#fff; border:1px solid var(--b2-line); border-radius:10px; }
+#b2-app .b2-mini canvas.b2-chart{ height:8.75rem; }
+#b2-app canvas.b2-chart.b2-hl{ border:3px solid var(--b2-accent); }
+#b2-app .b2-legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:.9rem; margin:4px 0; align-items:center; }
+#b2-app .b2-legend svg{ vertical-align:middle; }
+
+/* 結果 */
+#b2-app .b2-grade{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+#b2-app .b2-grade .b2-mk{ font-size:3.2rem; font-weight:bold; width:1.6em; height:1.6em; display:flex; align-items:center; justify-content:center; border-radius:50%; border:4px solid; }
+#b2-app .b2-mk.great, #b2-app .b2-mk.good{ color:var(--b2-green-d); border-color:var(--b2-green); background:var(--b2-green-l); }
+#b2-app .b2-mk.mid{ color:#8a4b00; border-color:var(--b2-accent); background:var(--b2-accent-l); }
+#b2-app .b2-mk.bad{ color:var(--b2-red); border-color:var(--b2-red); background:var(--b2-red-l); }
+#b2-app .b2-mk.wip{ color:var(--b2-sub); border-color:var(--b2-line); background:#fff; font-size:1.2rem; }
+#b2-app .b2-quiz{ display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 8.5em), 1fr)); gap:8px; margin:8px 0; }
+#b2-app .b2-quiz button{ min-height:64px; padding:6px 8px; line-height:1.35; border:2px solid var(--b2-line); background:#fff; border-radius:12px; font-size:1rem; font-weight:bold; }
+#b2-app .b2-quiz button.b2-right{ border-color:var(--b2-green); background:var(--b2-green-l); }
+#b2-app .b2-quiz button.b2-wrong{ border-color:var(--b2-red); background:var(--b2-red-l); }
+#b2-app .b2-lossbar{ display:grid; grid-template-columns:7.5em 1fr 4.5em; gap:8px; align-items:center; margin:4px 0; }
+#b2-app .b2-lossbar .b2-lb{ height:18px; background:#eef1ec; border-radius:4px; overflow:hidden; }
+#b2-app .b2-lossbar .b2-lb > div{ height:100%; background:repeating-linear-gradient(90deg, #c0582a 0 8px, #d9701a 8px 16px); }
+#b2-app .b2-lossbar.b2-wx{ color:#5b645a; }
+#b2-app .b2-lossbar.b2-wx .b2-lb > div{ background:repeating-linear-gradient(90deg, #a7b0a5 0 8px, #c3cac1 8px 16px); }
+#b2-app .b2-hints li.b2-info{ border-left-color:#a7b0a5; color:#3d473c; }
+#b2-app .b2-hints{ margin:6px 0; padding-left:0; list-style:none; }
+#b2-app .b2-hints li{ background:#fbfcfa; border:1px solid var(--b2-line); border-left:6px solid var(--b2-accent); border-radius:8px; padding:8px 12px; margin:6px 0; }
+#b2-app .b2-tablewrap{ overflow:auto; max-height:420px; border:1px solid var(--b2-line); border-radius:10px; -webkit-overflow-scrolling:touch; }
+#b2-app table.b2-log{ border-collapse:collapse; width:100%; font-size:.85rem; background:#fff; }
+#b2-app table.b2-log th, #b2-app table.b2-log td{ border-bottom:1px solid #e6ebe3; padding:5px 6px; text-align:center; white-space:nowrap; }
+#b2-app table.b2-log th{ position:sticky; top:0; background:var(--b2-green-l); z-index:1; }
+#b2-app details > summary{ cursor:pointer; min-height:48px; display:flex; align-items:center; font-weight:bold; color:var(--b2-green-d); }
+#b2-app .b2-hist{ font-size:.92rem; }
+#b2-app .b2-hist li{ margin:3px 0; }
+
+/* くらべる */
+#b2-app .b2-cmpgrid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+#b2-app .b2-cmpbox{ border:3px solid var(--b2-line); border-radius:14px; padding:10px 12px; background:#fff; }
+#b2-app .b2-cmpbox.b2-a{ border-color:#2e7d32; } #b2-app .b2-cmpbox.b2-b{ border-color:#d9701a; border-style:dashed; }
+#b2-app .b2-cmpbox h3 .b2-tag{ display:inline-block; width:1.7em; height:1.7em; line-height:1.7em; text-align:center; border-radius:50%; color:#fff; margin-right:6px; }
+#b2-app .b2-a .b2-tag{ background:#2e7d32; } #b2-app .b2-b .b2-tag{ background:#d9701a; }
+#b2-app .b2-sel{ display:grid; grid-template-columns:5.5em 1fr; gap:6px; align-items:center; margin:5px 0; }
+#b2-app .b2-selnote{ grid-column:2; font-size:.82rem; color:var(--b2-sub); line-height:1.3; margin-top:-2px; }
+#b2-app.b2-noruby .b2-selnote{ display:none; }
+#b2-app .b2-stale{ opacity:.5; }
+#b2-app .b2-stalemsg{ background:var(--b2-yellow-l); border:2px solid #e0b400; border-radius:10px; padding:8px 12px; margin:0 0 10px; font-weight:bold; }
+#b2-app #b2-cmp-out{ scroll-margin-top:96px; }
+#b2-app .b2-sel select{ min-height:46px; border:2px solid var(--b2-line); border-radius:10px; padding:4px 8px; background:#fff; width:100%; }
+#b2-app .b2-presets{ display:flex; flex-wrap:wrap; gap:8px; }
+#b2-app .b2-presets button{ min-height:48px; border:2px solid var(--b2-blue); color:var(--b2-blue); background:#fff; border-radius:999px; padding:4px 14px; font-weight:bold; font-size:.92rem; }
+#b2-app .b2-cmpres{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+#b2-app .b2-cmpres svg{ display:block; width:100%; max-height:260px; height:auto; }
+
+/* 振り返り */
+#b2-app .b2-field{ margin:10px 0 14px; }
+#b2-app .b2-field label{ display:block; font-weight:bold; margin-bottom:4px; }
+#b2-app .b2-field .b2-hintq{ font-size:.85rem; color:var(--b2-sub); font-weight:normal; display:block; }
+#b2-app textarea{ width:100%; min-height:110px; border:2px solid var(--b2-line); border-radius:10px; padding:8px 10px; resize:vertical; font-size:1rem; line-height:1.6; background:#fff; }
+#b2-app textarea:focus, #b2-app input:focus, #b2-app select:focus{ outline:3px solid #8cc28f; border-color:var(--b2-green); }
+#b2-app .b2-id{ display:grid; grid-template-columns:1fr 1fr 2fr; gap:10px; }
+#b2-app .b2-id input{ width:100%; min-height:48px; border:2px solid var(--b2-line); border-radius:10px; padding:4px 10px; font-size:1rem; }
+#b2-app .b2-self{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 10px; align-items:center; }
+#b2-app .b2-self .b2-seg button{ min-width:3.2em; }
+#b2-app .b2-auto{ background:#f7faf5; border:1px solid var(--b2-line); border-radius:10px; padding:8px 12px; font-size:.92rem; white-space:pre-wrap; }
+#b2-app .b2-saved{ font-size:.9rem; color:var(--b2-green-d); font-weight:bold; min-height:1.5em; }
+
+/* トースト・モーダル */
+#b2-app .b2-toast{ pointer-events:none; position:fixed; left:50%; top:76px; transform:translateX(-50%) translateY(-240px); background:#1d2a1d; color:#fff; padding:12px 20px; border-radius:12px; font-weight:bold; z-index:50; transition:transform .25s, visibility .25s; max-width:90vw; text-align:center; visibility:hidden; }
+#b2-app .b2-toast.b2-show{ transform:translateX(-50%) translateY(0); visibility:visible; }
+#b2-app .b2-modal{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:60; padding:16px; }
+#b2-app .b2-modal.b2-show{ display:flex; }
+#b2-app .b2-modal .b2-card{ max-width:640px; width:100%; max-height:90vh; max-height:calc(100dvh - 32px); overflow:auto; -webkit-overflow-scrolling:touch; }
+#b2-app .b2-modal{ padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left)); }
+#b2-app #b2-modal-btns{ position:sticky; bottom:0; background:var(--b2-card); padding:10px 0 4px; flex-wrap:wrap; }
+
+/* 縦向き・狭い画面 */
+@media (max-width: 900px){
+  #b2-app .b2-grow{ grid-template-columns:1fr; }
+  #b2-app .b2-grow > div:first-child{ order:2; }
+  #b2-app .b2-plantwrap svg{ max-height:240px; }
+  #b2-app .b2-tab{ padding:6px 6px; font-size:.92rem; }
+}
+@media (max-width: 640px){
+  #b2-app{ font-size:1rem; }
+  #b2-app .b2-grid2, #b2-app .b2-cmpgrid, #b2-app .b2-cmpres{ grid-template-columns:1fr; }
+  #b2-app .b2-quiz{ grid-template-columns:1fr 1fr; }
+  #b2-app .b2-stats{ grid-template-columns:1fr 1fr; }
+  #b2-app .b2-id{ grid-template-columns:1fr 1fr; }
+  #b2-app .b2-actions{ grid-template-columns:1fr 1fr; }
+  #b2-app .b2-actions .b2-next{ grid-column:1 / -1; order:-1; }
+  #b2-app .b2-gauge{ grid-template-columns:5.4em 1fr 5.8em; }
+}
+@media print{
+  #b2-app .b2-head, #b2-app .b2-tabs, #b2-app .b2-noprint, #b2-app .b2-toast{ display:none !important; }
+  #b2-app .b2-sec{ display:none !important; }
+  #b2-app #b2-sec-reflect{ display:block !important; }
+  #b2-app{ background:#fff; }
+  #b2-app textarea{ border:1px solid #999; min-height:auto; height:auto; }
+}
+#b2-app #b2-printout{ display:none; }
+@media print{
+  #b2-app #b2-sec-reflect > .b2-card{ display:none !important; }
+  #b2-app #b2-printout{ display:block !important; white-space:pre-wrap; font-size:11pt; line-height:1.7; }
+}
+#b2-app .b2-self .b2-seg button[aria-pressed="true"]::before{ content:none; }
+</style>
+</head>
+<body>
+<div id="b2-app">
+<header class="b2-head">
+  <h1>🌱 育成環境コントローラ体験<small>技術分野 B 生物育成</small></h1>
+  <div class="b2-hbtns">
+    <button type="button" class="b2-hbtn" id="b2-rubybtn" aria-pressed="true">ふりがな</button>
+    <button type="button" class="b2-hbtn" id="b2-fsdec" aria-label="文字を小さく">A−</button>
+    <button type="button" class="b2-hbtn" id="b2-fsinc" aria-label="文字を大きく">A＋</button>
+  </div>
+</header>
+<nav class="b2-tabs" role="tablist" aria-label="画面の切りかえ">
+  <button type="button" class="b2-tab" role="tab" data-tab="start">① はじめに</button>
+  <button type="button" class="b2-tab" role="tab" data-tab="grow">② そだてる</button>
+  <button type="button" class="b2-tab" role="tab" data-tab="result">③ 結果・原因さがし</button>
+  <button type="button" class="b2-tab" role="tab" data-tab="compare">④ くらべる</button>
+  <button type="button" class="b2-tab" role="tab" data-tab="reflect">⑤ 振り返り</button>
+</nav>
+<main>
+
+<!-- ① はじめに -->
+<section class="b2-sec" id="b2-sec-start" aria-labelledby="b2-h-start">
+  <div class="b2-card">
+    <h2 id="b2-h-start">この教材でやること</h2>
+    <p>作物は、<b>温度・光・水・養分</b>などの育成環境によって育ち方が大きく変わります。コンピュータの中で作物を30日間育て、毎日の環境を自分で調節してみましょう。</p>
+    <ol class="b2-steps">
+      <li><b>② そだてる</b>:毎日の天気予報を見て、温度・光・水・肥料・見回りの操作を選び「次の日へ」。</li>
+      <li><b>③ 結果・原因さがし</b>:グラフと記録から「何が足りなかったか・多すぎたか」を調べ、もう一度挑戦。</li>
+      <li><b>④ くらべる</b>:同じ作物を2つの環境で同時に育て、ちがいを比べる。</li>
+      <li><b>⑤ 振り返り</b>:わかったことを書いて保存・書き出しする。</li>
+    </ol>
+    <div class="b2-note">これは学習用の<b>簡易モデル</b>です。本物の作物は、土・品種・風・病害虫などでもっと複雑に変わります。また、30日間は<b>栽培の前半だけ</b>(育ちはじめ〜花や実がつきはじめるころ)です。実際の栽培の記録(育成日誌)とくらべて考えましょう。</div>
+  </div>
+
+  <div class="b2-card" id="b2-resume" hidden>
+    <h3>つづきから育てる</h3>
+    <p id="b2-resume-text"></p>
+    <button type="button" class="b2-btn b2-primary b2-big" data-act="resume">つづきから ▶</button>
+  </div>
+
+  <div class="b2-card">
+    <h3>1. 育てる作物をえらぶ</h3>
+    <div class="b2-choices" id="b2-pick-crop"></div>
+  </div>
+  <div class="b2-card">
+    <h3>2. 育てる場所(環境)をえらぶ</h3>
+    <div class="b2-choices" id="b2-pick-env"></div>
+  </div>
+  <div class="b2-card">
+    <h3>3. 季節をえらぶ</h3>
+    <div class="b2-choices" id="b2-pick-season"></div>
+    <p class="b2-small" id="b2-season-tip"></p>
+  </div>
+  <div class="b2-card">
+    <h3>4. 天気の番号(ステージ番号)</h3>
+    <p class="b2-small">同じ番号なら、だれがやっても同じ天気になります。先生が言った番号を入れると、クラス全員が同じ条件でくらべられます。</p>
+    <div class="b2-seed">
+      <button type="button" class="b2-btn" data-act="seed-dec" aria-label="番号を1へらす">−</button>
+      <input type="number" id="b2-seed" min="1" max="999" value="1" inputmode="numeric" aria-label="天気の番号">
+      <button type="button" class="b2-btn" data-act="seed-inc" aria-label="番号を1ふやす">+</button>
+      <button type="button" class="b2-btn" data-act="seed-rand">🎲 ランダム</button>
+    </div>
+  </div>
+  <div class="b2-row">
+    <button type="button" class="b2-btn b2-orange b2-big" data-act="start-new">🌱 この条件で育てはじめる</button>
+  </div>
+  <details class="b2-card b2-small" style="margin-top:24px">
+    <summary>先生用:データを消す</summary>
+    <p>この端末に保存されたB2の記録(栽培・振り返り)をすべて消します。共用端末で次の人に渡すときに使います。</p>
+    <button type="button" class="b2-btn b2-danger" data-act="wipe">B2のデータをすべて消す</button>
+  </details>
+</section>
+
+<!-- ② そだてる -->
+<section class="b2-sec" id="b2-sec-grow" aria-label="そだてる">
+  <div class="b2-card" id="b2-nogame">
+    <p>まだ作物をえらんでいません。</p>
+    <button type="button" class="b2-btn b2-primary" data-goto="start">① はじめに へ</button>
+  </div>
+  <div class="b2-grow" id="b2-growui" hidden>
+    <div>
+      <div class="b2-card">
+        <div class="b2-daybar">
+          <span class="b2-day" id="b2-daynum">0日目</span>
+          <span id="b2-cond" class="b2-small"></span>
+        </div>
+        <div class="b2-progress" aria-hidden="true"><div id="b2-prog"></div></div>
+        <div class="b2-plantwrap" id="b2-plant"></div>
+        <div class="b2-badges" id="b2-badges" aria-live="polite"></div>
+        <div class="b2-stats" id="b2-stats"></div>
+        <div class="b2-memo" id="b2-memo" aria-live="polite"></div>
+        <div class="b2-mini">
+          <canvas class="b2-chart" id="b2-mc-h" aria-label="草丈のグラフ"></canvas>
+          <canvas class="b2-chart" id="b2-mc-hl" aria-label="健康度のグラフ"></canvas>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="b2-card">
+        <div class="b2-weather" id="b2-weather"></div>
+        <h3>今日の環境の予想 <span class="b2-small">(操作を変えると予想も変わる)</span></h3>
+        <div id="b2-gauges"></div>
+        <p class="b2-small">しま模様=この作物に「ちょうどよい範囲」、▼=今日の予想(雨・水やり・肥料のあと)、灰色の帯=今の土の状態</p>
+      </div>
+      <div class="b2-card">
+        <h3>今日の操作をえらぶ</h3>
+        <div id="b2-ops"></div>
+        <div class="b2-actions">
+          <div class="b2-sumbar" id="b2-sumbar" aria-live="polite"></div>
+          <button type="button" class="b2-btn" data-act="undo">◀ 1日もどす</button>
+          <button type="button" class="b2-btn b2-orange b2-big b2-next" data-act="next">次の日へ ▶</button>
+          <button type="button" class="b2-btn" data-act="next5">同じ操作で5日 ▶▶</button>
+        </div>
+        <div class="b2-finished" id="b2-finished">
+          <p id="b2-finished-text"></p>
+          <button type="button" class="b2-btn b2-primary" data-goto="result">③ 結果・原因さがし へ ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ 結果・原因さがし -->
+<section class="b2-sec" id="b2-sec-result" aria-label="結果・原因さがし">
+  <div id="b2-result"></div>
+</section>
+
+<!-- ④ くらべる -->
+<section class="b2-sec" id="b2-sec-compare" aria-label="くらべる">
+  <div class="b2-card">
+    <h2>2つの環境で同時に育ててくらべる</h2>
+    <p>同じ作物・同じ天気で、<b>1つの条件だけ</b>を変えてくらべると、その条件の影響がよくわかります(条件制御)。毎日の操作は、えらんだ「やり方」で自動で行います。</p>
+    <div class="b2-grid2">
+      <div class="b2-sel"><label for="b2-cmp-crop">作物</label><select id="b2-cmp-crop"></select></div>
+      <div class="b2-sel"><label for="b2-cmp-season">季節</label><select id="b2-cmp-season"></select></div>
+    </div>
+    <div class="b2-row" style="margin:6px 0"><label for="b2-cmp-seed" style="min-width:5.5em">天気の番号</label>
+      <div class="b2-seed">
+        <button type="button" class="b2-btn" data-act="cseed-dec" aria-label="番号を1へらす">−</button>
+        <input type="number" id="b2-cmp-seed" min="1" max="999" value="1" inputmode="numeric">
+        <button type="button" class="b2-btn" data-act="cseed-inc" aria-label="番号を1ふやす">+</button>
+        <button type="button" class="b2-btn" data-act="cseed-rand">🎲 ランダム</button>
+      </div>
+    </div>
+    <h3 style="margin-top:10px">ためしてみよう(おすすめの組み合わせ)</h3>
+    <div class="b2-presets" id="b2-presets"></div>
+  </div>
+  <div class="b2-cmpgrid">
+    <div class="b2-cmpbox b2-a" id="b2-cmp-a"></div>
+    <div class="b2-cmpbox b2-b" id="b2-cmp-b"></div>
+  </div>
+  <div class="b2-row" style="margin:14px 0">
+    <button type="button" class="b2-btn b2-orange b2-big" data-act="compare">🌱🌱 30日間育ててくらべる</button>
+    <span class="b2-small" id="b2-cmp-diff"></span>
+  </div>
+  <div id="b2-cmp-out"></div>
+</section>
+
+<!-- ⑤ 振り返り -->
+<section class="b2-sec" id="b2-sec-reflect" aria-label="振り返り">
+  <div class="b2-card">
+    <h2>振り返り</h2>
+    <p class="b2-small b2-noprint">書いた内容は、この端末に自動で保存されます。授業の最後に「書き出し」で提出用のファイルを作りましょう。</p>
+    <div class="b2-id">
+      <div class="b2-field"><label for="b2-rf-class">組</label><input id="b2-rf-class" data-rf="cls" autocomplete="off"></div>
+      <div class="b2-field"><label for="b2-rf-no">番号</label><input id="b2-rf-no" data-rf="no" inputmode="numeric" autocomplete="off"></div>
+      <div class="b2-field"><label for="b2-rf-name">名前</label><input id="b2-rf-name" data-rf="name" autocomplete="off"></div>
+    </div>
+    <div id="b2-rf-qs"></div>
+    <h3>自己評価</h3>
+    <div class="b2-self" id="b2-rf-self"></div>
+    <h3 style="margin-top:14px">学習の記録(自動)</h3>
+    <div class="b2-auto" id="b2-rf-auto"></div>
+    <div class="b2-saved" id="b2-rf-saved" aria-live="polite"></div>
+    <div class="b2-row b2-noprint" style="margin-top:10px">
+      <button type="button" class="b2-btn b2-primary" data-act="rf-save">💾 保存する</button>
+      <button type="button" class="b2-btn b2-orange" data-act="rf-export">📄 書き出し(テキスト)</button>
+      <button type="button" class="b2-btn" data-act="rf-copy">📋 コピー</button>
+      <button type="button" class="b2-btn" data-act="rf-print">🖨 印刷</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<div class="b2-toast" id="b2-toast" role="status"></div>
+<div class="b2-modal" id="b2-modal" role="dialog" aria-modal="true" aria-labelledby="b2-modal-title">
+  <div class="b2-card">
+    <h3 id="b2-modal-title"></h3>
+    <div id="b2-modal-body"></div>
+    <div class="b2-row" id="b2-modal-btns" style="margin-top:12px;justify-content:flex-end"></div>
+  </div>
+</div>
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<script>
+/* ===== B2 成長モデル(簡易) ===== */
+var B2E = (function(){
+'use strict';
+function hash(){
+  var h = 2166136261 >>> 0;
+  for (var i = 0; i < arguments.length; i++) {
+    h ^= (arguments[i] | 0);
+    h = Math.imul(h, 16777619) >>> 0;
+    h ^= h >>> 13;
+  }
+  return h >>> 0;
+}
+function rng(seed){
+  var a = seed >>> 0;
+  return function(){
+    a = (a + 0x6D2B79F5) >>> 0;
+    var t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+/* 台形関数: a以下・d以上で0、b〜cで1 */
+function trap(x, p){
+  var a = p[0], b = p[1], c = p[2], d = p[3];
+  if (x <= a || x >= d) return 0;
+  if (x < b) return (x - a) / (b - a);
+  if (x <= c) return 1;
+  return (d - x) / (d - c);
+}
+
+var CROPS = {
+  tomato: { id:'tomato', name:'ミニトマト', icon:'🍅', season:'early',
+    temp:[8,20,28,35], light:[20,70], water:[20,40,72,95], nutr:[10,35,70,92],
+    start:{ H:12, lv:5 }, initM:50, gmax:2.4, hmax:110, leafRate:0.4, reproStart:12,
+    yieldName:'ついた実の数', yieldUnit:'個', yieldCalc:function(yp){ return Math.round(yp * 1.0); },
+    flowerDrop:true,
+    note:'光と温かさが大好き。水のやりすぎ・寒さに弱い。苗を植えたところから始まる。' },
+  radish: { id:'radish', name:'ラディッシュ', icon:'🔴', season:'spring',
+    temp:[3,15,22,30], light:[15,55], water:[28,45,75,95], nutr:[10,35,65,90],
+    start:{ H:1, lv:0 }, initM:50, gmax:0.9, hmax:22, leafRate:0.3, reproStart:8,
+    yieldName:'根の太さ', yieldUnit:'mm', yieldCalc:function(yp){ return Math.round(3 + yp * 1.4); },
+    note:'「はつか大根」ともよばれ、短い期間で育つ。すずしい気候を好む。種まきから始まる。' },
+  /* ダイズの開花は種まき後30〜40日ごろ。30日では「つぼみ・花」まで(B2-07) */
+  soy: { id:'soy', name:'ダイズ', icon:'🫘', season:'early',
+    temp:[10,20,30,36], light:[20,65], water:[25,45,75,95], nutr:[5,20,55,85],
+    start:{ H:3, lv:2 }, initM:50, gmax:1.6, hmax:70, leafRate:0.35, reproStart:25,
+    yieldName:'つぼみ・花の数', yieldUnit:'個', yieldCalc:function(yp){ return Math.round(yp * 2.2); },
+    tsuruboke:true, sizeYield:true,
+    note:'根につく根粒菌が養分をつくるので、肥料は少なめでよい。肥料が多いと葉ばかりしげる。' },
+  rice: { id:'rice', name:'イネ(バケツ稲)', icon:'🌾', season:'early',
+    temp:[13,20,32,38], light:[25,70], water:[55,80,100,101], nutr:[10,35,65,90],
+    start:{ H:12, lv:3 }, initM:85, gmax:1.6, hmax:90, leafRate:0.3, reproStart:5,
+    yieldName:'茎の数(分げつ)', yieldUnit:'本', yieldCalc:function(yp){ return 1 + Math.round(yp * 0.6); },
+    noDrain:true,
+    note:'バケツに水をはって育てる(湛水)。茎が根もとから分かれてふえる(分げつ・ぶんけつ)。水が多くても根ぐされしにくい。' }
+};
+var ENVS = {
+  field:   { id:'field', name:'露地(畑)', riceName:'屋外(バケツ)', icon:'🟫', rain:true,  evap:1.0,  drain:0.6, initN:50, heat:2, cool:-1,   house:null, lightMul:1,
+             heatName:'トンネルで保温', coolName:'風通しをよくする',
+             note:'雨がそのまま当たる。土が多いので水分・養分が安定しやすい。', riceNote:'日当たりのよい屋外。雨がそのまま当たる。' },
+  planter: { id:'planter', name:'プランター', riceName:'屋外(小さめバケツ)', icon:'🪴', rain:true,  evap:1.45, drain:0.55, initN:35, heat:2, cool:-1.5, house:null, lightMul:1,
+             heatName:'トンネルで保温', coolName:'風通しのよい所へ',
+             note:'土の量が少ないので、かわきやすく、養分も少なめ。', riceNote:'バケツが小さいので、水がへりやすく、養分も少なめ。' },
+  house:   { id:'house', name:'温室(ビニルハウス)', riceName:'温室(バケツ)', icon:'🏠', rain:false, evap:1.15, drain:0.4,  initN:50, heat:5, cool:-5,  house:{ sun:6, cloud:3, rain:2 }, lightMul:0.85,
+             heatName:'暖房で加温', coolName:'窓を開けて換気',
+             note:'雨が当たらないので水やりが必要。晴れた日は中がとても暑くなる。', riceNote:'雨が当たらないので水を足す必要がある。晴れた日は中がとても暑くなる。' }
+};
+/* 環境の表示名(イネはバケツで育てるので名前を変える: B2-23) */
+function envName(envId, cropId){ var e = ENVS[envId]; return (cropId === 'rice' && e.riceName) ? e.riceName : e.name; }
+var SEASONS = {
+  spring: { id:'spring', name:'春(4月)',      mean:13, trend:0.17, idx:1 },
+  early:  { id:'early',  name:'初夏(5〜6月)', mean:19, trend:0.12, idx:2 },
+  summer: { id:'summer', name:'夏(7〜8月)',   mean:28, trend:0.0,  idx:3 },
+  autumn: { id:'autumn', name:'秋(9〜10月)',  mean:24, trend:-0.25, idx:4 }
+};
+var WEATHER = {
+  sun:   { name:'晴れ', icon:'☀️', light:100 },
+  cloud: { name:'くもり', icon:'☁️', light:65 },
+  rain:  { name:'雨', icon:'☔', light:40 }
+};
+var DAYS = 30;
+
+function makeWeather(seed, seasonId){
+  var s = SEASONS[seasonId];
+  var r = rng(hash(seed, 7, s.idx));
+  var spell = 0, spellDelta = 0, drift = 0, out = [], prev = null, rainRun = 0;
+  for (var d = 1; d <= DAYS; d++) {
+    var x = r(), y = r(), z = r(), q = r();
+    var type = x < 0.48 ? 'sun' : (x < 0.75 ? 'cloud' : 'rain');
+    if (prev === 'rain' && y < 0.25) type = 'rain';
+    if (type === 'rain' && rainRun >= 3) type = 'cloud';
+    rainRun = (type === 'rain') ? rainRun + 1 : 0;
+    drift = drift * 0.7 + (z - 0.5) * 2.6;
+    var ev = null;
+    if (spell <= 0 && q < 0.07 && d > 2) {
+      spell = 3;
+      if (seasonId === 'summer') spellDelta = 4;
+      else if (seasonId === 'spring') spellDelta = -6;
+      else spellDelta = (r() < 0.5) ? -5 : 5;
+    }
+    var T = s.mean + s.trend * d + drift + (type === 'sun' ? 1.5 : (type === 'rain' ? -2.5 : 0));
+    if (spell > 0) { T += spellDelta; ev = spellDelta > 0 ? 'heat' : 'cold'; spell--; }
+    out.push({ day:d, type:type, T:Math.round(T * 10) / 10, ev:ev });
+    prev = type;
+  }
+  return out;
+}
+
+function initState(cfg){
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env];
+  return { day:0, H:crop.start.H, lv:crop.start.lv, h:90, m:crop.initM, n:env.initN,
+           rot:0, sick:null, yp:0, stretchDays:0, stretchRun:0, dead:false };
+}
+
+/* その日の環境(操作を反映した値)を求める。プレビューにも使う */
+function conditions(st, act, w, cfg){
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env];
+  var T = w.T + (env.house ? env.house[w.type] : 0);
+  if (act.temp === 'heat') T += env.heat;
+  else if (act.temp === 'cool') T += env.cool;
+  if (act.shade) T -= (w.type === 'sun' ? 1.5 : (w.type === 'cloud' ? 0.5 : 0));
+  /* 光: 天気(と場所)で決まる光 L0 と、遮光したあとの光 L に分ける(B2-01) */
+  var L0 = WEATHER[w.type].light * env.lightMul;
+  var L = L0 * (act.shade ? 0.5 : 1);
+  var rain = (env.rain && w.type === 'rain') ? 18 : 0;
+  var add = act.water === 'little' ? 10 : (act.water === 'lots' ? 22 : 0);
+  var m = Math.min(100, st.m + rain + add);
+  var n = Math.min(100, st.n + (act.fert ? 12 : 0));
+  var lp = [crop.light[0], crop.light[1], 1000, 1001];
+  var f = { T:trap(T, crop.temp), L:trap(L, lp), W:trap(m, crop.water), N:trap(n, crop.nutr) };
+  var fL0 = trap(L0, lp);
+  var dir = {
+    T: T < crop.temp[1] ? 'low' : (T > crop.temp[2] ? 'high' : 'ok'),
+    L: L < crop.light[1] ? 'low' : 'ok',
+    W: m < crop.water[1] ? 'low' : (m > crop.water[2] ? 'high' : 'ok'),
+    N: n < crop.nutr[1] ? 'low' : (n > crop.nutr[2] ? 'high' : 'ok')
+  };
+  /* 光が足りない理由: 'shade'=遮光のせい(操作で変えられる) / 'weather'=天気のせい */
+  var lightBy = dir.L === 'low' ? ((act.shade && (L0 >= crop.light[1] || fL0 - f.L > 0.05)) ? 'shade' : 'weather') : null;
+  return { T:Math.round(T * 10) / 10, L:Math.round(L), L0:Math.round(L0), m:m, n:n, rain:rain, f:f, fL0:fL0, dir:dir, lightBy:lightBy };
+}
+
+function step(st, act, w, cfg){
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env];
+  var c = conditions(st, act, w, cfg);
+  var f = c.f;
+  var g = f.T * f.L * f.W * f.N;
+  var fmin = Math.min(f.T, 0.5 + 0.5 * f.L, f.W, f.N);
+  var h = st.h;
+  var events = [];
+  h += (100 * Math.pow(fmin, 0.6) - h) * 0.18;
+
+  var rot = st.rot;
+  /* 根ぐされ: 1日の害は最大4(B2-22) */
+  if (!crop.noDrain && c.m >= crop.water[3] - 5) { rot += 1; h -= Math.min(rot, 4); }
+  else rot = Math.max(0, rot - 1);
+  var wilt = c.m <= crop.water[0] + 3;
+  if (wilt) h -= 6;
+  if (f.T === 0) h -= 5;
+  var burn = c.n >= crop.nutr[3] - 4;
+  if (burn) h -= 4;
+
+  /* 病害虫(seedと日付だけで決まる乱数) */
+  var dr = rng(hash(cfg.seed, w.day, 99));
+  var roll = dr(), kind = dr();
+  var sick = st.sick, cured = false, newSick = null;
+  if (sick && act.guard) { cured = true; events.push('cured'); sick = null; }
+  else if (!sick) {
+    var p = 0.025 + (c.m > crop.water[2] ? 0.07 : 0) + (w.type === 'rain' ? 0.03 : 0)
+          + (st.h < 50 ? 0.05 : 0) + (c.n > crop.nutr[2] ? 0.06 : 0);
+    if (act.guard) p *= 0.4;
+    if (roll < p) {
+      /* 肥料が多い→アブラムシ、しめりすぎ・雨→かび(病気)(B2-18) */
+      sick = (c.n > crop.nutr[2]) ? 'aphid' : (c.m > crop.water[2] || w.type === 'rain') ? 'mold' : (kind < 0.4 ? 'aphid' : 'mold');
+      newSick = sick; events.push('sick');
+    }
+  }
+  if (sick) h -= 3.5;
+
+  var vigor = Math.max(0, Math.min(100, h)) / 100;
+  var room = Math.max(0, 1 - st.H / crop.hmax);
+  var dH = crop.gmax * g * vigor * room;
+  /* 徒長: 光不足で温度・水がある日が3日以上つづいたとき(B2-04) */
+  var stretchCond = f.L < 0.55 && f.T > 0.5 && f.W > 0.4 && h > 15;
+  var stretchRun = stretchCond ? (st.stretchRun || 0) + 1 : 0;
+  var stretch = stretchRun >= 3;
+  var stretchDays = st.stretchDays;
+  var lvGain = crop.leafRate * g * vigor;
+  if (stretch) {
+    dH = Math.max(dH, crop.gmax * 0.9 * f.T * room * vigor);
+    lvGain *= 0.5; h -= 1.5; stretchDays++;
+  }
+  var yp = st.yp;
+  if (w.day >= crop.reproStart) {
+    var gain = g * vigor;
+    /* ダイズ: 花の数は株の大きさ(葉・節の数)で決まる */
+    if (crop.sizeYield) gain *= Math.min(1.3, Math.max(0.2, st.lv / 10));
+    if (crop.flowerDrop && (c.T > 32 || c.T < 10)) { gain *= 0.3; events.push('flowerdrop'); }
+    if (crop.tsuruboke && c.n > crop.nutr[2]) { gain *= 0.4; events.push('tsuruboke'); }
+    yp += gain;
+  }
+  /* 1日の終わり: 養分の消費・水の蒸発・排水 */
+  var n = c.n - (0.8 + 1.4 * g);
+  if (c.m > 75 && !crop.noDrain) n -= 0.8;
+  var m = c.m - (2 + 0.22 * Math.max(0, c.T - 5)) * (0.5 + 0.5 * c.L / 100) * env.evap;
+  if (!crop.noDrain && m > 60) m -= (m - 60) * env.drain;
+  h = Math.max(0, Math.min(100, h));
+  var dead = h <= 0.5;
+  if (dead) { h = 0; events.push('dead'); }
+
+  var limit = null, lmin = 0.95;
+  ['T','L','W','N'].forEach(function(k){ if (f[k] < lmin) { lmin = f[k]; limit = k; } });
+
+  var ns = { day:w.day, H:st.H + dH, lv:st.lv + lvGain, h:h, m:Math.max(0, Math.min(100, m)),
+             n:Math.max(0, Math.min(100, n)), rot:rot, sick:sick, yp:yp, stretchDays:stretchDays, stretchRun:stretchRun, dead:dead };
+  var log = { day:w.day, w:w, act:act, T:c.T, L:c.L, L0:c.L0, fL0:c.fL0, lightBy:c.lightBy, mUsed:c.m, nUsed:c.n, rain:c.rain, f:f, dir:c.dir, g:g,
+              limit:limit, H:ns.H, lv:ns.lv, h:h, m:ns.m, n:ns.n, sick:sick, newSick:newSick, cured:cured,
+              stretch:stretch, wilt:wilt, rot:rot, burn:burn, yp:yp, dead:dead, events:events };
+  return { st:ns, log:log };
+}
+
+/* 手動操作の列を最初から再生する(同じseed・同じ操作なら必ず同じ結果) */
+function replay(cfg, actions){
+  var weather = makeWeather(cfg.seed, cfg.season);
+  var st = initState(cfg), logs = [];
+  for (var i = 0; i < actions.length && i < DAYS; i++) {
+    if (st.dead) break;
+    var r = step(st, actions[i], weather[i], cfg);
+    st = r.st; logs.push(r.log);
+  }
+  return { cfg:cfg, weather:weather, st:st, logs:logs };
+}
+
+/* 自動ルール(くらべる用) */
+function policyAction(pol, cfg, st, w, day){
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env];
+  var a = { temp:'none', shade:pol.light === 'shade', water:'none', fert:false, guard:pol.guard !== 'no' };
+  switch (pol.water) {
+    case 'daily_lots': a.water = 'lots'; break;
+    case 'daily_little': a.water = 'little'; break;
+    case 'every2_lots': a.water = (day % 2 === 1) ? 'lots' : 'none'; break;
+    case 'every4_little': a.water = (day % 4 === 1) ? 'little' : 'none'; break;
+    case 'dry_lots': a.water = (st.m < crop.water[1] + 3 && !(env.rain && w.type === 'rain')) ? 'lots' : 'none'; break;
+    default: a.water = 'none';
+  }
+  if (pol.fert === 'weekly') a.fert = (day % 7 === 1);
+  else if (pol.fert === 'daily') a.fert = true;
+  if (pol.temp === 'auto') {
+    var base = conditions(st, { temp:'none', shade:a.shade, water:'none', fert:false }, w, cfg).T;
+    if (base < crop.temp[1]) a.temp = 'heat';
+    else if (base > crop.temp[2]) a.temp = 'cool';
+  }
+  return a;
+}
+function simulatePolicy(cfg, pol){
+  var weather = makeWeather(cfg.seed, cfg.season);
+  var st = initState(cfg), logs = [];
+  for (var i = 0; i < DAYS; i++) {
+    if (st.dead) break;
+    var a = policyAction(pol, cfg, st, weather[i], i + 1);
+    var r = step(st, a, weather[i], cfg);
+    st = r.st; logs.push(r.log);
+  }
+  return { cfg:cfg, weather:weather, st:st, logs:logs };
+}
+
+/* この天気でのよい育て方の目安(評価の基準 B2-06)。
+   毎日すべての操作をためして、よいもの上位だけを残していく(小さなビーム探索)。同じ条件は覚えておく。 */
+var ACTS = (function(){
+  var o = [];
+  ['none','heat','cool'].forEach(function(t){ [false, true].forEach(function(s){ ['none','little','lots'].forEach(function(wt){ [false, true].forEach(function(fe){
+    o.push({ temp:t, shade:s, water:wt, fert:fe, guard:true });
+  }); }); }); });
+  return o;
+})();
+var refCache = {};
+function refBest(cfg){
+  var key = [cfg.crop, cfg.env, cfg.season, cfg.seed].join('/');
+  if (refCache[key]) return refCache[key];
+  var wx = makeWeather(cfg.seed, cfg.season), beam = [initState(cfg)], WID = 10;
+  for (var d = 0; d < DAYS; d++) {
+    var nb = [];
+    for (var i = 0; i < beam.length; i++) for (var j = 0; j < ACTS.length; j++) {
+      var r = step(beam[i], ACTS[j], wx[d], cfg);
+      if (!r.st.dead) nb.push({ st:r.st, sc:r.st.yp * 10 + r.st.H * 0.3 + r.st.lv * 0.5 + r.st.h * 0.2 });
+    }
+    nb.sort(function(x, y){ return y.sc - x.sc; });
+    beam = []; for (var k = 0; k < nb.length && k < WID; k++) beam.push(nb[k].st);
+    if (!beam.length) break;
+  }
+  var best = 0; beam.forEach(function(s){ if (s.yp > best) best = s.yp; });
+  var o = { yp:best };
+  refCache[key] = o;
+  return o;
+}
+
+function grade(run){
+  var crop = CROPS[run.cfg.crop];
+  var q = run.st.yp / (DAYS - crop.reproStart + 1);
+  var ref = refBest(run.cfg).yp;
+  /* その天気での目安(ref)にくらべてどれだけ育ったか。天気が悪い番号でも、うまく育てれば◎になる */
+  var rel = ref > 0 ? run.st.yp / ref : 0;
+  var o = { q:q, rel:rel, ref:ref, refYield:crop.yieldCalc(ref) };
+  if (run.st.dead) { o.mark = '✕'; o.label = 'かれてしまった'; o.cls = 'bad'; return o; }
+  if (rel >= 0.85) { o.mark = '◎'; o.label = 'とてもよく育った'; o.cls = 'great'; }
+  else if (rel >= 0.6) { o.mark = '○'; o.label = 'よく育った'; o.cls = 'good'; }
+  else if (rel >= 0.35) { o.mark = '△'; o.label = 'もう少し'; o.cls = 'mid'; }
+  else { o.mark = '✕'; o.label = 'あまり育たなかった'; o.cls = 'bad'; }
+  return o;
+}
+function yieldText(run){
+  var crop = CROPS[run.cfg.crop];
+  return crop.yieldName + ' ' + crop.yieldCalc(run.st.yp) + crop.yieldUnit;
+}
+
+/* 原因さがし(B2-01): 操作で変えられる分(温度・遮光による光・水・養分)と、天気による光の弱さを分ける。
+   毎日、操作で変えられる条件のうち いちばん足りなかった(多すぎた)ものに、成長のマイナスを割り当てる。 */
+var MAIN_MIN = 2.0;
+function analyze(run){
+  var loss = { T:0, L:0, W:0, N:0 }, weather = 0;
+  var ldir = { T:{low:0,high:0}, L:{low:0,high:0}, W:{low:0,high:0}, N:{low:0,high:0} };
+  var cnt = { T:{low:0,high:0}, L:{low:0,high:0}, W:{low:0,high:0}, N:{low:0,high:0} };
+  var sickDays = 0, stretchDays = 0, rotMax = 0, wiltDays = 0, burnDays = 0, weatherDays = 0, shadeLowDays = 0;
+  run.logs.forEach(function(d){
+    var fL0 = d.fL0 != null ? d.fL0 : d.f.L;
+    var op = { T:1 - d.f.T, L:Math.max(0, fL0 - d.f.L), W:1 - d.f.W, N:1 - d.f.N };
+    weather += 1 - fL0;
+    var k0 = null, mv = 0.05;
+    ['T','L','W','N'].forEach(function(k){ if (op[k] > mv) { mv = op[k]; k0 = k; } });
+    if (k0) { loss[k0] += op[k0]; ldir[k0][d.dir[k0] === 'high' ? 'high' : 'low'] += op[k0]; }
+    /* グラフの「ちょうどよい範囲」の外にあった日を数える(B2-05) */
+    ['T','W','N'].forEach(function(k){ if (d.dir[k] !== 'ok') cnt[k][d.dir[k]]++; });
+    if (d.dir.L === 'low') { if (d.lightBy === 'shade') { cnt.L.low++; shadeLowDays++; } else weatherDays++; }
+    /* 作物を弱らせた害(しおれ・根ぐされ・肥料やけ・極端な温度)も加える */
+    if (d.wilt) { loss.W += 1; ldir.W.low += 1; }
+    else if (d.rot >= 2) { loss.W += 1; ldir.W.high += 1; }
+    if (d.burn) { loss.N += 1; ldir.N.high += 1; }
+    if (d.f.T === 0) { loss.T += 1; ldir.T[d.dir.T === 'high' ? 'high' : 'low'] += 1; }
+    if (d.sick) sickDays++;
+    if (d.stretch) stretchDays++;
+    if (d.wilt) wiltDays++;
+    if (d.burn) burnDays++;
+    rotMax = Math.max(rotMax, d.rot);
+  });
+  var main = null, mvx = MAIN_MIN;
+  ['T','L','W','N'].forEach(function(k){ if (loss[k] >= mvx) { mvx = loss[k]; main = k; } });
+  var mainDir = null;
+  if (main) mainDir = ldir[main].high > ldir[main].low ? 'high' : 'low';
+  return { loss:loss, weather:weather, cnt:cnt, main:main, mainDir:mainDir, sickDays:sickDays, stretchDays:stretchDays,
+           rotMax:rotMax, wiltDays:wiltDays, burnDays:burnDays, weatherDays:weatherDays, shadeLowDays:shadeLowDays, days:run.logs.length };
+}
+
+return { hash:hash, rng:rng, trap:trap, CROPS:CROPS, ENVS:ENVS, SEASONS:SEASONS, WEATHER:WEATHER, DAYS:DAYS, envName:envName,
+         makeWeather:makeWeather, initState:initState, conditions:conditions, step:step, replay:replay, ACTS:ACTS, refBest:refBest,
+         policyAction:policyAction, simulatePolicy:simulatePolicy, grade:grade, yieldText:yieldText, analyze:analyze, MAIN_MIN:MAIN_MIN };
+})();
+/* ===== B2 画面 ===== */
+(function(){
+'use strict';
+var E = B2E, CROPS = E.CROPS, ENVS = E.ENVS, SEASONS = E.SEASONS, WEATHER = E.WEATHER, DAYS = E.DAYS;
+var root = document.getElementById('b2-app');
+if (!root) return;
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function r1(x){ return Math.round(x * 10) / 10; }
+
+/* ---------- 保存(localStorage, キーは b2_ で始める) ---------- */
+var mem = {}, storeOK = true;
+var store = {
+  get: function(k, def){
+    if (k in mem) return mem[k];
+    try { var v = localStorage.getItem('b2_' + k); var o = v == null ? def : JSON.parse(v); mem[k] = o; return o; }
+    catch (e) { storeOK = false; return def; }
+  },
+  set: function(k, v){
+    mem[k] = v;
+    try { localStorage.setItem('b2_' + k, JSON.stringify(v)); return true; }
+    catch (e) { storeOK = false; return false; }
+  },
+  wipe: function(){
+    mem = {};
+    try {
+      var ks = [];
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('b2_') === 0) ks.push(k); }
+      ks.forEach(function(k){ localStorage.removeItem(k); });
+    } catch (e) {}
+  }
+};
+
+/* ---------- ふりがな ---------- */
+var RUBY = [
+  ['育成','いくせい'],['環境','かんきょう'],['調節','ちょうせつ'],['遮光','しゃこう'],['換気','かんき'],['加温','かおん'],
+  ['保温','ほおん'],['暖房','だんぼう'],['追肥','ついひ'],['肥料','ひりょう'],['養分','ようぶん'],['徒長','とちょう'],
+  ['病害虫','びょうがいちゅう'],['防除','ぼうじょ'],['露地','ろじ'],['温室','おんしつ'],['栽培','さいばい'],['収穫','しゅうかく'],
+  ['草丈','くさたけ'],['健康度','けんこうど'],['原因','げんいん'],['観察','かんさつ'],['予報','よほう'],['湛水','たんすい'],
+  ['分げつ',[['分','ぶん'],'げつ']],['挑戦','ちょうせん'],['渡','わた'],['実線','じっせん'],['点線','てんせん'],['目安','めやす'],['根粒菌','こんりゅうきん'],['再挑戦','さいちょうせん'],['条件','じょうけん'],['制御','せいぎょ'],
+  ['蒸発','じょうはつ'],['害虫','がいちゅう'],['病気','びょうき'],['水分','すいぶん'],['気温','きおん'],['季節','きせつ'],
+  ['作物','さくもつ'],['自己評価','じこひょうか'],['簡易','かんい'],['記録','きろく'],['保存','ほぞん'],['操作','そうさ'],
+  ['予想','よそう'],['範囲','はんい'],['基準','きじゅん'],['薬品','やくひん'],['品種','ひんしゅ'],['複雑','ふくざつ'],['屋外','おくがい'],
+  ['育成日誌','いくせいにっし'],['日誌','にっし'],['影響','えいきょう'],['改善','かいぜん'],['斑点','はんてん'],['害','がい'],
+  ['苗','なえ'],['茎','くき'],['根','ね'],['葉','は'],['種','たね'],['畑','はたけ'],['実','み'],['稲','いね'],
+  ['温度','おんど'],['授業','じゅぎょう'],['提出','ていしゅつ'],['端末','たんまつ'],['印刷','いんさつ'],['先生','せんせい'],
+  ['振り返り',[['振','ふ'],'り',['返','かえ'],'り']],['書き出し',[['書','か'],'き',['出','だ'],'し']],
+  ['根ぐされ',[['根','ね'],'ぐされ']],['肥料やけ',[['肥料','ひりょう'],'やけ']]
+];
+RUBY.sort(function(a, b){ return b[0].length - a[0].length; });
+var RUBY_MAP = {}; RUBY.forEach(function(p){ RUBY_MAP[p[0]] = p[1]; });
+var RUBY_RE = new RegExp(RUBY.map(function(p){ return p[0]; }).join('|'), 'g');
+/* 「実」は「実際」「実物」「実験」では読まない */
+var RUBY_SKIP_NEXT = { '実':/^[際物験行施線]/, '根':/^[拠気]/, '種':/^[類]/ };
+function rubyNode(word){
+  var v = RUBY_MAP[word], frag = document.createDocumentFragment();
+  var parts = Array.isArray(v) ? v : [[word, v]];
+  parts.forEach(function(p){
+    if (typeof p === 'string') { frag.appendChild(document.createTextNode(p)); return; }
+    var r = document.createElement('ruby'); r.appendChild(document.createTextNode(p[0]));
+    var rt = document.createElement('rt'); rt.textContent = p[1]; r.appendChild(rt); frag.appendChild(r);
+  });
+  return frag;
+}
+function applyRuby(el){
+  var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(n){
+      var p = n.parentNode;
+      if (!p || p.closest('ruby, textarea, script, style, option, select, input, svg, .b2-norb')) return NodeFilter.FILTER_REJECT;
+      RUBY_RE.lastIndex = 0;
+      return RUBY_RE.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+  var list = []; while (w.nextNode()) list.push(w.currentNode);
+  list.forEach(function(n){
+    var s = n.nodeValue, frag = document.createDocumentFragment(), last = 0, m;
+    RUBY_RE.lastIndex = 0;
+    while ((m = RUBY_RE.exec(s))) {
+      var word = m[0], after = s.slice(m.index + word.length);
+      if (RUBY_SKIP_NEXT[word] && RUBY_SKIP_NEXT[word].test(after)) continue;
+      if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+      frag.appendChild(rubyNode(word));
+      last = m.index + word.length;
+    }
+    if (last === 0) return;
+    if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  });
+}
+/* ---------- ふりがな・文字の大きさ(教材集で共通の設定 kzPrefs: K1/K2/K3) ---------- */
+var KP = window.kzPrefs || null;
+var PREF = { ruby:true, fs:18 };
+function prefsNow(){
+  var p = KP ? KP.get() : { ruby:null, fs:null };
+  /* 共通の設定がまだないときだけ、B2の古い設定(b2_ruby)を使う */
+  var legacy = store.get('ruby', true);
+  return { ruby:(p.ruby !== null && p.ruby !== undefined) ? p.ruby : legacy !== false,
+           fs:(p.fs !== null && p.fs !== undefined) ? p.fs : 18 };
+}
+var prefsReady = false;
+function applyPrefs(p){
+  var fsChanged = p.fs !== PREF.fs;
+  PREF = { ruby:!!p.ruby, fs:p.fs };
+  root.classList.toggle('b2-noruby', !PREF.ruby);
+  document.documentElement.style.fontSize = (PREF.fs * 16 / 17).toFixed(2) + 'px';
+  var b = $('b2-rubybtn');
+  if (b) b.setAttribute('aria-pressed', PREF.ruby ? 'true' : 'false');
+  var dec = $('b2-fsdec'), inc = $('b2-fsinc'), mn = KP ? KP.FS_MIN : 14, mx = KP ? KP.FS_MAX : 26;
+  if (dec) dec.disabled = PREF.fs <= mn;
+  if (inc) inc.disabled = PREF.fs >= mx;
+  if (fsChanged && prefsReady) redrawCharts();
+}
+function setRuby(on){
+  store.set('ruby', on);
+  if (KP) KP.set({ ruby:on });
+  applyPrefs({ ruby:on, fs:PREF.fs });
+}
+function bumpFs(d){
+  var mn = KP ? KP.FS_MIN : 14, mx = KP ? KP.FS_MAX : 26;
+  var n = Math.max(mn, Math.min(mx, PREF.fs + d * 2));
+  if (KP) n = KP.set({ fs:n }).fs || n;
+  applyPrefs({ ruby:PREF.ruby, fs:n });
+}
+
+/* ---------- 小物 ---------- */
+var toastTimer = null;
+function toast(msg, ms){
+  var t = $('b2-toast'); t.textContent = msg;
+  /* タブの帯のすぐ下に出す(「次の日へ」のボタンにかぶらないように) */
+  var nb = root.querySelector('.b2-tabs'), tb = nb ? nb.getBoundingClientRect().bottom : 0;
+  t.style.top = Math.max(8, Math.min(window.innerHeight * 0.4, tb + 8)) + 'px';
+  t.classList.add('b2-show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('b2-show'); }, ms || 2600);
+}
+/* B2 の独自モーダルは「書き出す内容」を見せるときだけ使う。確認は kzConfirm(K6) */
+var modalPrev = null;
+function closeModal(){
+  var m = $('b2-modal');
+  if (!m.classList.contains('b2-show')) return;
+  m.classList.remove('b2-show');
+  try { if (modalPrev && modalPrev.focus) modalPrev.focus({ preventScroll:true }); } catch (e) {}
+  modalPrev = null;
+}
+function modal(title, html, buttons){
+  modalPrev = document.activeElement;
+  $('b2-modal-title').textContent = title;
+  $('b2-modal-body').innerHTML = html;
+  var bx = $('b2-modal-btns'); bx.innerHTML = '';
+  var lastBtn = null;
+  buttons.forEach(function(b){
+    var el = document.createElement('button'); el.type = 'button';
+    el.className = 'b2-btn' + (b.cls ? ' ' + b.cls : ''); el.textContent = b.label;
+    el.addEventListener('click', function(){ closeModal(); if (b.fn) b.fn(); });
+    bx.appendChild(el); lastBtn = el;
+  });
+  applyRuby($('b2-modal'));
+  $('b2-modal').classList.add('b2-show');
+  /* 開いたらダイアログのボタンにフォーカスを移す(B2-27) */
+  if (lastBtn) try { lastBtn.focus({ preventScroll:true }); } catch (e) {}
+}
+function confirmK(msg, opt, fn){
+  if (window.kzConfirm) window.kzConfirm(msg, opt).then(function(ok){ if (ok) fn(); });
+}
+
+/* ---------- 状態 ---------- */
+var DEF_ACT = { temp:'none', shade:false, water:'none', fert:false, guard:false };
+var S = {
+  tab: store.get('tab', 'start'),
+  pick: store.get('pick', { crop:'tomato', env:'field', season:'early', seed:1 }),
+  game: store.get('game', null),
+  cur: store.get('cur', Object.assign({}, DEF_ACT)),
+  cmp: store.get('cmp', null)
+};
+var runCache = null;
+function run(){
+  if (!S.game) return null;
+  if (!runCache) runCache = E.replay(S.game.cfg, S.game.actions);
+  return runCache;
+}
+function saveGame(){ runCache = null; store.set('game', S.game); store.set('cur', S.cur); }
+function isOver(r){ return r && (r.st.dead || r.logs.length >= DAYS); }
+
+/* ---------- 植物のイラスト(SVG) ---------- */
+function leafColor(h, nLow, dead, stretch){
+  if (dead) return '#8a6d4b';
+  if (h < 35) return '#b5a03c';
+  if (nLow || stretch) return '#94c35f';
+  if (h < 65) return '#79aa3c';
+  return '#3d9a3a';
+}
+function plantSVG(cfg, st, last, opt){
+  opt = opt || {};
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env];
+  var W = 240, H = 250, gy = 196, cx = 120;
+  var dead = st.dead, wilt = last && last.wilt, stretch = last && last.stretch;
+  var nLow = last && last.dir.N === 'low' && last.f.N < 0.6;
+  var sick = st.sick;
+  var lc = leafColor(st.h, nLow, dead, stretch);
+  var o = [];
+  o.push('<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opt.label || (crop.name + 'のようす')) + '">');
+  /* 背景 */
+  if (last) {
+    var wi = WEATHER[last.w.type].icon;
+    o.push('<text x="14" y="30" font-size="24">' + wi + '</text>');
+  }
+  if (env.house) o.push('<path d="M8 ' + gy + ' L8 70 Q120 -4 232 70 L232 ' + gy + '" fill="rgba(210,232,245,.45)" stroke="#8fb3c9" stroke-width="3"/>');
+  if (opt.shade) {
+    o.push('<rect x="40" y="36" width="160" height="12" fill="#555" opacity=".55"/>');
+    for (var sx = 44; sx < 200; sx += 8) o.push('<line x1="' + sx + '" y1="36" x2="' + sx + '" y2="48" stroke="#222" stroke-width="1"/>');
+    o.push('<line x1="44" y1="48" x2="44" y2="' + gy + '" stroke="#777" stroke-width="2"/><line x1="196" y1="48" x2="196" y2="' + gy + '" stroke="#777" stroke-width="2"/>');
+  }
+  /* 地面・容器 */
+  if (cfg.crop === 'rice') {
+    o.push('<path d="M70 ' + (gy - 26) + ' L170 ' + (gy - 26) + ' L160 ' + (H - 6) + ' L80 ' + (H - 6) + ' Z" fill="#4f7fb0" stroke="#2c4f73" stroke-width="3"/>');
+    var wl = Math.max(0, Math.min(1, (st.m - 40) / 60));
+    o.push('<rect x="76" y="' + (gy - 22) + '" width="88" height="' + 30 + '" fill="#7a5a3a"/>');
+    if (st.m >= 55) o.push('<rect x="74" y="' + (gy - 22 - 14 * wl) + '" width="92" height="' + (14 * wl) + '" fill="#7ec3ef" opacity=".85"/>');
+  } else if (cfg.env === 'planter') {
+    o.push('<rect x="50" y="' + gy + '" width="140" height="' + (H - gy - 4) + '" rx="6" fill="#c56a36" stroke="#8a4520" stroke-width="3"/>');
+    o.push('<rect x="54" y="' + (gy - 4) + '" width="132" height="10" fill="' + (st.m > 70 ? '#4a3220' : st.m < 30 ? '#a98a63' : '#6b4a2e') + '"/>');
+  } else {
+    o.push('<rect x="0" y="' + gy + '" width="' + W + '" height="' + (H - gy) + '" fill="' + (st.m > 70 ? '#5c4129' : st.m < 30 ? '#b39572' : '#7d5a3a') + '"/>');
+    o.push('<rect x="0" y="' + gy + '" width="' + W + '" height="5" fill="#5b3f26"/>');
+  }
+  var baseY = cfg.crop === 'rice' ? gy - 22 : gy;
+  var maxPx = cfg.crop === 'rice' ? 150 : 165;
+  var hp = Math.max(4, Math.min(maxPx, 6 + st.H / crop.hmax * maxPx * (crop.hmax < 40 ? 1.6 : 1.25)));
+  var droop = dead ? 1 : (wilt ? 0.7 : (st.h < 40 ? 0.4 : 0));
+  var sw = stretch ? 2 : (cfg.crop === 'radish' ? 2 : 4);
+  var nL = Math.max(0, Math.min(16, Math.round(st.lv)));
+  var spots = [];
+
+  if (cfg.crop === 'rice') {
+    var n = Math.max(1, Math.min(20, crop.yieldCalc(st.yp)));
+    for (var i = 0; i < n * 2; i++) {
+      var off = (i - n) * 2.2, sp = (i % 2 ? 1 : -1) * (8 + (i * 7) % 22);
+      var hh = hp * (0.75 + ((i * 13) % 25) / 100);
+      var ex = cx + off + sp * (0.6 + droop), ey = baseY - hh * (1 - droop * 0.5);
+      o.push('<path d="M' + (cx + off) + ' ' + baseY + ' Q' + (cx + off + sp * 0.2) + ' ' + (baseY - hh * 0.6) + ' ' + ex + ' ' + ey + '" stroke="' + lc + '" stroke-width="3" fill="none" stroke-linecap="round"/>');
+      if (i % 5 === 0) spots.push([ (cx + off + ex) / 2, (baseY + ey) / 2 ]);
+    }
+  } else if (cfg.crop === 'radish') {
+    var dia = crop.yieldCalc(st.yp);
+    var rr = Math.max(3, dia * 0.75);
+    o.push('<line x1="' + cx + '" y1="' + (gy + rr * 1.6) + '" x2="' + cx + '" y2="' + Math.min(H - 4, gy + rr * 1.6 + 16) + '" stroke="#e8c9c9" stroke-width="2"/>');
+    o.push('<ellipse cx="' + cx + '" cy="' + (gy + rr * 0.8) + '" rx="' + rr + '" ry="' + (rr * 0.95) + '" fill="' + (dead ? '#8d6e63' : '#d81b60') + '" stroke="#8e0f3d" stroke-width="1.5"/>');
+    var nr = Math.max(2, nL + 2);
+    for (var j = 0; j < nr; j++) {
+      var ang = (-70 + 140 * (j + 0.5) / nr) * Math.PI / 180;
+      var len = hp * (0.75 + 0.25 * ((j * 7) % 4) / 3);
+      var dx = Math.sin(ang) * len * (1 + droop * 0.6), dy = -Math.cos(ang) * len * (1 - droop * 0.9);
+      var lx = cx + dx, ly = gy + dy;
+      o.push('<line x1="' + cx + '" y1="' + gy + '" x2="' + lx + '" y2="' + ly + '" stroke="#6a9a3a" stroke-width="' + sw + '"/>');
+      o.push('<ellipse cx="' + (cx + dx * 0.78) + '" cy="' + (gy + dy * 0.78) + '" rx="' + Math.max(4, len * 0.22) + '" ry="' + Math.max(2.5, len * 0.11) + '" transform="rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + ' ' + (cx + dx * 0.78) + ' ' + (gy + dy * 0.78) + ')" fill="' + lc + '"/>');
+      spots.push([cx + dx * 0.78, gy + dy * 0.78]);
+    }
+  } else {
+    /* ミニトマト・ダイズ: 茎と葉 */
+    var topX = cx + droop * 34, topY = baseY - hp * (1 - droop * 0.35);
+    o.push('<path d="M' + cx + ' ' + baseY + ' Q' + (cx - 4) + ' ' + (baseY - hp * 0.6) + ' ' + topX + ' ' + topY + '" stroke="' + (dead ? '#7a5c3e' : '#4f8a2f') + '" stroke-width="' + sw + '" fill="none" stroke-linecap="round"/>');
+    function stemAt(t){ /* 2次ベジェ上の点 */
+      var x0 = cx, y0 = baseY, x1 = cx - 4, y1 = baseY - hp * 0.6;
+      return [ (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * topX, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * topY ];
+    }
+    var ls = stretch ? 9 : (cfg.crop === 'soy' ? 15 : 14);
+    for (var k = 0; k < nL; k++) {
+      var t = 0.18 + 0.8 * (k + 1) / (nL + 1), p = stemAt(t), side = k % 2 ? 1 : -1;
+      var lx2 = p[0] + side * ls * 0.9, ly2 = p[1] - 2;
+      var rot = side * -28 + side * droop * 70;
+      o.push('<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + lx2 + '" y2="' + ly2 + '" stroke="#4f8a2f" stroke-width="2"/>');
+      o.push('<ellipse cx="' + lx2 + '" cy="' + ly2 + '" rx="' + ls + '" ry="' + (ls * 0.48) + '" transform="rotate(' + rot + ' ' + lx2 + ' ' + ly2 + ')" fill="' + lc + '"/>');
+      spots.push([lx2, ly2]);
+    }
+    var y = crop.yieldCalc(st.yp);
+    var day = last ? last.day : 0;
+    if (cfg.crop === 'tomato') {
+      if (y === 0 && day >= crop.reproStart - 3 && !dead) {
+        for (var f = 0; f < 3; f++) { var pf = stemAt(0.55 + f * 0.13); o.push('<circle cx="' + (pf[0] + (f % 2 ? 9 : -9)) + '" cy="' + (pf[1] + 6) + '" r="4" fill="#fdd835" stroke="#c49000"/>'); }
+      }
+      /* 30日では実はまだ緑。最後の日だけ、早くついた実が少し色づく(B2-07) */
+      var fin = day >= DAYS && !dead;
+      for (var q = 0; q < Math.min(y, 16); q++) {
+        var pq = stemAt(0.35 + 0.6 * ((q * 5) % 16) / 16), sd = q % 2 ? 1 : -1;
+        o.push('<circle cx="' + (pq[0] + sd * (7 + (q % 3) * 3)) + '" cy="' + (pq[1] + 8) + '" r="5.5" fill="' + (fin && q < 2 ? '#f0a030' : '#8bc34a') + '" stroke="#33691e" stroke-width="1"/>');
+      }
+    } else {
+      /* ダイズ: つぼみ・小さな花(うす紫) */
+      for (var q2 = 0; q2 < Math.min(y, 16); q2++) {
+        var pp = stemAt(0.3 + 0.6 * ((q2 * 5) % 16) / 16), s2 = q2 % 2 ? 1 : -1;
+        var fx = pp[0] + s2 * 6, fy = pp[1] + 4;
+        o.push('<circle cx="' + fx + '" cy="' + fy + '" r="3.6" fill="' + (q2 % 3 === 2 ? '#c5e1a5' : '#b39ddb') + '" stroke="#5e35b1" stroke-width="1"/>');
+      }
+    }
+  }
+  /* 病気・害虫 */
+  if (sick === 'mold') spots.forEach(function(s, i){ if (i % 2 === 0) o.push('<circle cx="' + (s[0] + 3) + '" cy="' + s[1] + '" r="2.8" fill="#f5f5f5" stroke="#8d6e63"/><circle cx="' + (s[0] - 3) + '" cy="' + (s[1] + 1) + '" r="2" fill="#8d6e63"/>'); });
+  if (sick === 'aphid') spots.forEach(function(s, i){ if (i % 2 === 1) for (var a = 0; a < 4; a++) o.push('<circle cx="' + (s[0] + a * 2.5 - 4) + '" cy="' + (s[1] - 2 + (a % 2) * 2) + '" r="1.6" fill="#2e4d14"/>'); });
+  if (cfg.crop === 'radish') o.push('<text x="' + (W - 8) + '" y="' + (H - 8) + '" font-size="11" text-anchor="end" fill="#fff">土の中</text>');
+  if (opt.caption) o.push('<text x="' + (W - 8) + '" y="22" font-size="14" text-anchor="end" font-weight="bold" fill="#1d2a1d">' + esc(opt.caption) + '</text>');
+  o.push('</svg>');
+  return o.join('');
+}
+
+/* ---------- グラフ(Canvas) ---------- */
+var FONT = 'system-ui, "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif';
+/* グラフの文字の大きさは、画面の文字の大きさに合わせる(B2-17・B2-24) */
+function chartK(){ var f = parseFloat(window.getComputedStyle(root).fontSize) || 17; return Math.max(0.85, f / 17); }
+function niceStep(x){
+  if (!(x > 0)) return 1;
+  var p = Math.pow(10, Math.floor(Math.log(x) / Math.LN10)), m = x / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+}
+function drawChart(cv, o){
+  if (!cv) return;
+  var rect = cv.getBoundingClientRect();
+  if (rect.width < 20) return;
+  var dpr = window.devicePixelRatio || 1, k = chartK();
+  cv.width = Math.round(rect.width * dpr); cv.height = Math.round(rect.height * dpr);
+  var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var fs = Math.round(13 * k), fst = Math.round(14 * k);
+  var W = rect.width, H = rect.height, L = Math.round(34 * k) + 6, R = 10, T = Math.round(fst * 1.9), B = Math.round(fs * 1.7), pw = W - L - R, ph = H - T - B;
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = '#1d2a1d'; g.font = 'bold ' + fst + 'px ' + FONT; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  g.fillText(o.title, 8, fst + 3);
+  var xMax = o.xMax || DAYS, yMin = o.yMin || 0, yMax = o.yMax;
+  if (yMax - yMin < 1e-6) yMax = yMin + 1;
+  /* 目もりは 1・2・5・10… の切りのよい数に */
+  var stp = niceStep((yMax - yMin) / 4);
+  yMin = Math.floor(yMin / stp + 1e-9) * stp; yMax = Math.ceil(yMax / stp - 1e-9) * stp;
+  function X(d){ return L + pw * d / xMax; }
+  function Y(v){ return T + ph * (1 - (Math.max(yMin, Math.min(yMax, v)) - yMin) / (yMax - yMin)); }
+  g.strokeStyle = '#e1e6de'; g.lineWidth = 1; g.fillStyle = '#4f5d4f'; g.font = fs + 'px ' + FONT; g.textAlign = 'right';
+  for (var v = yMin; v <= yMax + 1e-9; v += stp) {
+    var yy = Y(v);
+    g.beginPath(); g.moveTo(L, yy); g.lineTo(L + pw, yy); g.stroke();
+    g.fillText(String(Math.round(v * 10) / 10), L - 4, yy + fs * 0.35);
+  }
+  g.textAlign = 'center';
+  for (var d = 0; d <= xMax; d += 5) g.fillText(d + (d === xMax ? '日' : ''), Math.min(X(d), W - fs), H - 5);
+  if (o.band) {
+    var y1 = Y(o.band[1]), y0 = Y(o.band[0]);
+    g.fillStyle = 'rgba(46,125,50,.14)'; g.fillRect(L, y1, pw, y0 - y1);
+    g.strokeStyle = 'rgba(46,125,50,.7)'; g.setLineDash([5, 4]); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(L, y1); g.lineTo(L + pw, y1); g.moveTo(L, y0); g.lineTo(L + pw, y0); g.stroke(); g.setLineDash([]);
+  }
+  g.textAlign = 'left';
+  (o.series || []).forEach(function(s){
+    if (!s.pts.length) return;
+    g.strokeStyle = s.color; g.lineWidth = s.width || 2.5; g.setLineDash(s.dash || []);
+    g.beginPath();
+    s.pts.forEach(function(p, i){ if (i === 0) g.moveTo(X(p[0]), Y(p[1])); else g.lineTo(X(p[0]), Y(p[1])); });
+    g.stroke(); g.setLineDash([]);
+    if (s.marker) {
+      g.fillStyle = s.color;
+      s.pts.forEach(function(p){
+        if (p[0] % 5 !== 0 && p !== s.pts[s.pts.length - 1]) return;
+        var px = X(p[0]), py = Y(p[1]);
+        if (s.marker === 'square') g.fillRect(px - 3.5, py - 3.5, 7, 7);
+        else { g.beginPath(); g.arc(px, py, 3.8, 0, Math.PI * 2); g.fill(); }
+      });
+    }
+  });
+  /* 帯のラベルは帯の左上の内側に、白いふちどりつきで */
+  if (o.band) {
+    var ly = Math.max(T + fs, Y(o.band[1]) + fs + 1);
+    g.font = 'bold ' + fs + 'px ' + FONT; g.textAlign = 'left'; g.lineJoin = 'round';
+    g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 4; g.strokeText(o.bandLabel || 'ちょうどよい範囲', L + 4, ly);
+    g.fillStyle = '#1b5e20'; g.fillText(o.bandLabel || 'ちょうどよい範囲', L + 4, ly);
+  }
+  (o.marks || []).forEach(function(m){
+    g.fillStyle = m.color || '#c62828'; g.font = 'bold ' + fs + 'px ' + FONT; g.textAlign = 'center';
+    g.fillText(m.sym, X(m.x), T + ph - 3);
+  });
+  /* 凡例はグラフの中(右上)に */
+  if (o.legend && o.legend.length) {
+    g.font = fs + 'px ' + FONT; g.textAlign = 'right';
+    var lx = W - R - 2;
+    for (var li = o.legend.length - 1; li >= 0; li--) {
+      var it = o.legend[li], tw = g.measureText(it.label).width;
+      g.fillStyle = '#1d2a1d'; g.fillText(it.label, lx, fst + 3);
+      var x2 = lx - tw - 4;
+      g.strokeStyle = it.color; g.lineWidth = 2.5; g.setLineDash(it.dash || []);
+      g.beginPath(); g.moveTo(x2 - 22, fst - 1); g.lineTo(x2, fst - 1); g.stroke(); g.setLineDash([]);
+      lx = x2 - 30;
+    }
+  }
+  g.textAlign = 'left';
+}
+function legendHTML(items){
+  return '<div class="b2-legend">' + items.map(function(it){
+    var dash = it.dash ? ' stroke-dasharray="6 4"' : '';
+    var mk = it.marker === 'square' ? '<rect x="13" y="5" width="7" height="7" fill="' + it.color + '"/>' : '<circle cx="16.5" cy="8.5" r="3.8" fill="' + it.color + '"/>';
+    return '<span><svg width="34" height="17" aria-hidden="true"><line x1="1" y1="8.5" x2="33" y2="8.5" stroke="' + it.color + '" stroke-width="3"' + dash + '/>' + mk + '</svg> ' + esc(it.label) + '</span>';
+  }).join('') + '</div>';
+}
+
+/* ---------- 文言 ---------- */
+var FN = { T:'温度', L:'光', W:'水', N:'養分' };
+var FI = { T:'🌡', L:'☀', W:'💧', N:'🧪' };
+/* 条件ごとの言い方(B2-19) */
+var DIRW = { T:{ low:'低すぎた', high:'高すぎた' }, L:{ low:'足りなかった', high:'足りなかった' },
+             W:{ low:'足りなかった(かわきすぎ)', high:'多すぎた' }, N:{ low:'足りなかった', high:'多すぎた' } };
+function causeText(k, dir){ return FN[k] + 'が' + DIRW[k][dir === 'high' ? 'high' : 'low']; }
+function statusWord(k, dir){
+  if (dir === 'ok') return { t:'ちょうどよい ○', c:'ok' };
+  if (k === 'T') return dir === 'low' ? { t:'低い ▼', c:'low' } : { t:'高い ▲', c:'high' };
+  if (k === 'L') return { t:'足りない ▼', c:'low' };
+  if (k === 'Lw') return { t:'天気で弱い', c:'wx' };
+  if (k === 'W') return dir === 'low' ? { t:'かわき気味 ▼', c:'low' } : { t:'多すぎ ▲', c:'high' };
+  return dir === 'low' ? { t:'足りない ▼', c:'low' } : { t:'多すぎ ▲', c:'high' };
+}
+function actText(a, env, crop){
+  var p = [];
+  if (a.temp === 'heat') p.push(env.heatName); else if (a.temp === 'cool') p.push(env.coolName);
+  if (a.shade) p.push('遮光');
+  if (a.water === 'little') p.push('水少し'); else if (a.water === 'lots') p.push('水たっぷり');
+  if (a.fert) p.push('追肥');
+  if (a.guard) p.push('見回り');
+  return p.length ? p.join('・') : '何もしない';
+}
+function badgesFor(cfg, st, last){
+  var crop = CROPS[cfg.crop], b = [];
+  if (!last) return [['ok', '🌱 スタート']];
+  if (st.dead) return [['bad', '💀 かれてしまった']];
+  if (last.wilt) b.push(['bad', '🥀 しおれている']);
+  if (last.rot >= 2) b.push(['bad', '🟤 根ぐされぎみ']);
+  if (last.stretch) b.push(['warn', '📏 徒長(ひょろひょろ)']);
+  if (st.sick === 'mold') b.push(['bad', '🍂 病気(かびなど)']);
+  if (st.sick === 'aphid') b.push(['bad', '🐛 害虫(アブラムシ)']);
+  if (last.burn) b.push(['bad', '⚠ 肥料やけ']);
+  if (last.f.T < 0.35) b.push(['bad', last.dir.T === 'high' ? '🥵 暑すぎ' : '🥶 寒すぎ']);
+  if (last.dir.N === 'low' && last.f.N < 0.6) b.push(['warn', '🍃 葉の色がうすい']);
+  if (last.events.indexOf('tsuruboke') >= 0) b.push(['warn', '🌿 葉ばかりしげる']);
+  if (last.events.indexOf('flowerdrop') >= 0) b.push(['warn', '🌼 花が落ちた']);
+  if (!b.length) b.push(st.h >= 75 ? ['ok', '😊 元気'] : ['warn', '😐 少し元気がない']);
+  return b;
+}
+function memoFor(cfg, r, opt){
+  var crop = CROPS[cfg.crop], env = ENVS[cfg.env], last = r.logs[r.logs.length - 1], st = r.st, m = [];
+  if (!last) return '<b>0日目:</b>' + esc(crop.name) + 'を' + esc(E.envName(cfg.env, cfg.crop)) + 'で育てはじめた。天気予報と「今日の環境の予想」を見て、操作をえらぼう。';
+  if (last.rain) m.push('雨がふって、土がしめった。');
+  if (last.newSick === 'mold') m.push('葉に白っぽい斑点を見つけた! 病気かもしれない。「見回り(防除)」で病気の葉を取りのぞこう。');
+  if (last.newSick === 'aphid') m.push('新しい葉に小さな虫(アブラムシ)がたくさんついている! 「見回り(防除)」で取りのぞこう。');
+  if (last.cured) m.push('見回りをして、病気の葉や虫を取りのぞいた。');
+  if (st.dead) m.push('作物がかれてしまった…。「1日もどす」で前の日にもどってやり直すか、③で原因をさがそう。');
+  else {
+    if (last.wilt) m.push('葉がぐったりしおれている。土がカラカラだ。');
+    if (last.rot >= 2) m.push('土がずっとじめじめしている。根が弱ってきたかもしれない。');
+    else if (last.dir.W === 'high' && last.f.W < 0.7) m.push('土がかなりしめっている。');
+    if (last.stretch) m.push('光の弱い日がつづき、茎が細くひょろ長くのびている(徒長)。');
+    if (last.f.T < 0.35) m.push(last.dir.T === 'high' ? '暑くて作物がぐったりしている。' : '寒くて作物がちぢこまっている。');
+    if (last.burn) m.push('根がいたんでいるようだ。肥料が多すぎるのかも?');
+    if (last.dir.N === 'low' && last.f.N < 0.6) m.push('葉の色がうすくなってきた。');
+    if (last.events.indexOf('tsuruboke') >= 0 && last.day % 3 === 0) m.push('葉や茎ばかりしげっている。');
+    if (last.events.indexOf('flowerdrop') >= 0) m.push('温度が合わず、花が落ちてしまった。');
+    if (last.day === crop.reproStart) m.push(cfg.crop === 'tomato' ? '黄色い花がさいた!' : cfg.crop === 'soy' ? 'つぼみができはじめた!' : cfg.crop === 'radish' ? '根が太りはじめた!' : '茎の数(分げつ)がふえはじめた!');
+    if (!m.length) m.push(st.h >= 75 ? '元気に育っている。' : '少し元気がない。ゲージを見てみよう。');
+  }
+  if (r.logs.length >= DAYS && !st.dead) m.push('30日間の栽培が終わった! ③で結果を見よう。');
+  if (opt && opt.list) return m;
+  return '<b>' + last.day + '日目の観察:</b>' + m.map(esc).join('');
+}
+/* トーストや要約に出す1文(雨のお知らせより大事なことを先に) */
+function memoLine(cfg, r){
+  var m = memoFor(cfg, r, { list:true });
+  if (!Array.isArray(m)) return '';
+  for (var i = 0; i < m.length; i++) if (m[i].indexOf('雨がふって') !== 0) return m[i];
+  return m[0] || '';
+}
+
+/* ---------- ① はじめに ---------- */
+var SEASON_TIP = { tomato:'ミニトマトは初夏が育てやすい季節です。', radish:'ラディッシュは春や秋のすずしい季節が向いています。', soy:'ダイズは初夏に種をまくのが一般的です。', rice:'イネは初夏に苗を植えるのが一般的です。' };
+function renderStart(){
+  var p = S.pick;
+  $('b2-pick-crop').innerHTML = Object.keys(CROPS).map(function(k){
+    var c = CROPS[k];
+    return '<button type="button" class="b2-choice" data-pick="crop" data-val="' + k + '" aria-pressed="' + (p.crop === k) + '"><span class="b2-ic">' + c.icon + '</span><span><b>' + esc(c.name) + '</b><span class="b2-d">' + esc(c.note) + '</span></span></button>';
+  }).join('');
+  $('b2-pick-env').innerHTML = Object.keys(ENVS).map(function(k){
+    var e = ENVS[k], rice = p.crop === 'rice';
+    return '<button type="button" class="b2-choice" data-pick="env" data-val="' + k + '" aria-pressed="' + (p.env === k) + '"><span class="b2-ic">' + (rice ? '🪣' : e.icon) + '</span><span><b>' + esc(E.envName(k, p.crop)) + '</b><span class="b2-d">' + esc(rice ? e.riceNote : e.note) + '</span></span></button>';
+  }).join('');
+  $('b2-pick-season').innerHTML = Object.keys(SEASONS).map(function(k){
+    var s = SEASONS[k];
+    return '<button type="button" class="b2-choice" data-pick="season" data-val="' + k + '" aria-pressed="' + (p.season === k) + '"><span class="b2-ic">' + { spring:'🌸', early:'🌿', summer:'🌻', autumn:'🍁' }[k] + '</span><span><b>' + esc(s.name) + '</b><span class="b2-d">平均気温 およそ' + Math.round(s.mean + s.trend * 15) + '℃</span></span></button>';
+  }).join('');
+  $('b2-season-tip').textContent = SEASON_TIP[p.crop] || '';
+  $('b2-seed').value = p.seed;
+  var r = run();
+  if (S.game && r) {
+    $('b2-resume').hidden = false;
+    var c = S.game.cfg;
+    $('b2-resume-text').textContent = CROPS[c.crop].name + '/' + E.envName(c.env, c.crop) + '/' + SEASONS[c.season].name + '/番号' + c.seed + ' の栽培:' + r.logs.length + '日目' + (isOver(r) ? '(終了)' : '');
+  } else $('b2-resume').hidden = true;
+  applyRuby($('b2-sec-start'));
+}
+function readSeed(el){
+  var v = parseInt(el.value, 10);
+  if (!(v >= 1)) v = 1; if (v > 999) v = 999;
+  el.value = v; return v;
+}
+function startNew(){
+  S.pick.seed = readSeed($('b2-seed'));
+  store.set('pick', S.pick);
+  function go(){
+    S.game = { id:Date.now(), cfg:{ crop:S.pick.crop, env:S.pick.env, season:S.pick.season, seed:S.pick.seed }, actions:[], quiz:null };
+    S.cur = Object.assign({}, DEF_ACT);
+    saveGame(); showTab('grow');
+  }
+  var r = run();
+  if (S.game && r && r.logs.length > 0 && !isOver(r)) {
+    confirmK('新しく育てはじめますか?\n\n今の栽培(' + r.logs.length + '日目まで)の操作の記録は消えて、1日目から新しい栽培が始まります。', { ok:'新しく始める', cancel:'やめる' }, go);
+  } else go();
+}
+
+/* ---------- ② そだてる ---------- */
+function gaugeRow(k, label, unit, val, before, band, scale, dir, swKey){
+  var lo = scale[0], hi = scale[1];
+  function pc(v){ return Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)); }
+  var sw = statusWord(swKey || k, dir);
+  var fill = before == null ? '' : '<div class="b2-fill" style="width:' + pc(before) + '%"></div>';
+  return '<div class="b2-gauge"><div class="b2-gl">' + FI[k] + ' ' + label + '<small>' + esc(unit) + '</small></div>' +
+    '<div class="b2-track"><div class="b2-band" style="left:' + pc(band[0]) + '%;width:' + (pc(band[1]) - pc(band[0])) + '%"></div>' + fill +
+    '<div class="b2-mark" style="left:' + pc(val) + '%"></div></div>' +
+    '<div class="b2-gv"><b>' + val + '</b><span class="b2-gs ' + sw.c + '">' + sw.t + '</span></div></div>';
+}
+/* 操作の見出しの右に、その条件の予想を小さく出す(B2-02) */
+function chipHTML(text, cls){ return '<span class="b2-chip ' + cls + '">' + text + '</span>'; }
+function opGroup(key, label, opts, chip){
+  return '<div class="b2-op"><div class="b2-opl"><span>' + label + '</span>' + (chip || '') + '</div><div class="b2-seg" role="group" aria-label="' + esc(label.replace(/<[^>]+>/g, '')) + '">' +
+    opts.map(function(o){
+      var on = String(S.cur[key]) === String(o[0]);
+      return '<button type="button" data-op="' + key + '" data-val="' + o[0] + '" aria-pressed="' + on + '">' + o[1] + '</button>';
+    }).join('') + '</div></div>';
+}
+var opsTouched = false;
+function renderGrow(){
+  var r = run();
+  $('b2-nogame').hidden = !!r; $('b2-growui').hidden = !r;
+  if (!r) { applyRuby($('b2-sec-grow')); return; }
+  var cfg = r.cfg, crop = CROPS[cfg.crop], env = ENVS[cfg.env], st = r.st, last = r.logs[r.logs.length - 1];
+  var over = isOver(r), day = r.logs.length;
+  $('b2-daynum').textContent = day + '日目';
+  $('b2-cond').textContent = crop.icon + crop.name + '/' + E.envName(cfg.env, cfg.crop) + '/' + SEASONS[cfg.season].name + '/番号' + cfg.seed;
+  $('b2-prog').style.width = (day / DAYS * 100) + '%';
+  $('b2-plant').innerHTML = plantSVG(cfg, st, last, { shade:S.cur.shade && !over });
+  var bdg = badgesFor(cfg, st, last);
+  $('b2-badges').innerHTML = bdg.map(function(b){ return '<span class="b2-badge ' + b[0] + '">' + esc(b[1]) + '</span>'; }).join('');
+  var y = crop.yieldCalc(st.yp);
+  $('b2-stats').innerHTML =
+    '<div class="b2-stat"><small>草丈</small><b>' + r1(st.H) + '</b>cm</div>' +
+    '<div class="b2-stat"><small>葉の数</small><b>' + Math.floor(st.lv) + '</b>枚</div>' +
+    '<div class="b2-stat"><small>健康度</small><b>' + Math.round(st.h) + '</b>%</div>' +
+    '<div class="b2-stat"><small>' + esc(crop.yieldName) + '</small><b>' + (day >= crop.reproStart ? y : '−') + '</b>' + (day >= crop.reproStart ? crop.yieldUnit : '') + '</div>';
+  $('b2-memo').innerHTML = memoFor(cfg, r);
+
+  var w = over ? null : r.weather[day], c = null;
+  if (w) {
+    var ev = w.ev === 'heat' ? '<span class="b2-ev">高温注意</span>' : w.ev === 'cold' ? '<span class="b2-ev">低温注意</span>' : '';
+    $('b2-weather').innerHTML = '<span class="b2-wic" aria-hidden="true">' + WEATHER[w.type].icon + '</span><div><div class="b2-small">' + (day + 1) + '日目の天気予報</div><b>' + WEATHER[w.type].name + '</b> 外の気温 <b>' + w.T + '℃</b>' + ev + (env.house ? '<div class="b2-small">温室の中は晴れの日ほど暑くなる</div>' : '') + '</div>';
+    c = E.conditions(st, S.cur, w, cfg);
+    var gauge = gaugeRow('T', '温度', '℃', c.T, null, [crop.temp[1], crop.temp[2]], [0, 45], c.dir.T) +
+      gaugeRow('L', '光', '強さ', c.L, null, [crop.light[1], 100], [0, 100], c.dir.L, c.lightBy === 'weather' ? 'Lw' : 'L') +
+      gaugeRow('W', '土の水分', '%', Math.round(c.m), st.m, [crop.water[1], crop.water[2]], [0, 100], c.dir.W) +
+      gaugeRow('N', '養分', '%', Math.round(c.n), st.n, [crop.nutr[1], crop.nutr[2]], [0, 100], c.dir.N);
+    $('b2-gauges').innerHTML = gauge;
+  } else {
+    $('b2-weather').innerHTML = '<span class="b2-wic" aria-hidden="true">🏁</span><div><b>栽培は終わりました</b></div>';
+    $('b2-gauges').innerHTML = '';
+  }
+  function chip(k, val){
+    if (!c) return '';
+    var key = (k === 'L' && c.lightBy === 'weather') ? 'Lw' : k;
+    var sw = statusWord(key, c.dir[k]);
+    return chipHTML('予想 ' + val + ' ' + sw.t, sw.c);
+  }
+  var guardChip = over ? '' : (st.sick ? chipHTML((st.sick === 'aphid' ? '🐛 虫がいる' : '🍂 病気が出ている'), 'high') : chipHTML('今は病気・虫なし', 'ok'));
+  var waterLabel = cfg.crop === 'rice' ? '💧 水を足す' : '💧 水やり';
+  $('b2-ops').innerHTML =
+    opGroup('temp', '🌡 温度', [['heat', '🔥 ' + env.heatName + '<br><small>+' + env.heat + '℃</small>'], ['none', 'そのまま'], ['cool', '💨 ' + env.coolName + '<br><small>' + env.cool + '℃</small>']], chip('T', c ? c.T + '℃' : '')) +
+    opGroup('shade', '☀ 光', [['false', '日光をそのまま'], ['true', '⛱ 遮光する<br><small>光を半分に</small>']], chip('L', c ? c.L : '')) +
+    opGroup('water', waterLabel, [['none', 'やらない'], ['little', '少し'], ['lots', 'たっぷり']], chip('W', c ? Math.round(c.m) + '%' : '')) +
+    opGroup('fert', '🧪 肥料', [['false', 'やらない'], ['true', '追肥する']], chip('N', c ? Math.round(c.n) + '%' : '')) +
+    opGroup('guard', '🔍 見回り(防除)', [['false', 'しない'], ['true', 'する<br><small>病気の葉・虫を取る</small>']], guardChip) +
+    '<p class="b2-small">温度と光の操作はそのまま続きます。水やり・肥料・見回りは毎日えらび直します。「同じ操作で5日」では、水やりと肥料は1日目だけ行います。</p>';
+  /* 「次の日へ」の上の1行: その日のようすと、ほかの操作への案内(B2-02・B2-03) */
+  var sb = '';
+  if (!over && (day === 0 || !opsTouched)) sb = '<span class="b2-tip">⬇ 温度だけでなく、光・水やり・肥料・見回りもえらんでから「次の日へ」</span>';
+  else if (day > 0) {
+    bdg.forEach(function(b){ if (b[0] !== 'ok') sb += '<span class="b2-badge ' + b[0] + '">' + esc(b[1]) + '</span> '; });
+    sb += '<b>' + day + '日目:</b>' + esc(memoLine(cfg, r));
+  }
+  $('b2-sumbar').innerHTML = sb;
+  $$('#b2-ops button, .b2-actions button').forEach(function(b){
+    if (b.dataset.act === 'undo') b.disabled = day === 0;
+    else b.disabled = over;
+  });
+  $('b2-finished').classList.toggle('b2-show', over);
+  if (over) {
+    var gr = E.grade(r);
+    $('b2-finished-text').innerHTML = st.dead ? '<b>' + day + '日目に作物がかれてしまいました。</b>「1日もどす」でやり直すこともできます。' : '<b>30日間の栽培が終わりました!</b> 結果:' + gr.mark + ' ' + esc(gr.label) + '(' + esc(E.yieldText(r)) + ')';
+  }
+  applyRuby($('b2-sec-grow'));
+  drawGrowCharts(r);
+}
+function $$(sel){ return Array.prototype.slice.call(root.querySelectorAll(sel)); }
+function seriesOf(r, fn, includeStart){
+  var pts = [];
+  if (includeStart) pts.push([0, fn(null)]);
+  r.logs.forEach(function(d){ pts.push([d.day, fn(d)]); });
+  return pts;
+}
+function drawGrowCharts(r){
+  var crop = CROPS[r.cfg.crop], H0 = crop.start.H;
+  var hs = seriesOf(r, function(d){ return d ? d.H : H0; }, true);
+  var maxH = Math.max(10, Math.ceil(Math.max.apply(null, hs.map(function(p){ return p[1]; })) * 1.2 / 5) * 5);
+  drawChart($('b2-mc-h'), { title:'草丈(cm)', yMax:maxH, series:[{ pts:hs, color:'#2e7d32' }] });
+  drawChart($('b2-mc-hl'), { title:'健康度(%)', yMax:100, series:[{ pts:seriesOf(r, function(d){ return d ? d.h : 90; }, true), color:'#d9701a' }],
+    marks:r.logs.filter(function(d){ return d.sick; }).map(function(d){ return { x:d.day, sym:'×' }; }) });
+}
+function advance(n){
+  var r = run(); if (!r || isOver(r)) return;
+  var a = Object.assign({}, S.cur);
+  for (var i = 0; i < n; i++) {
+    if (S.game.actions.length >= DAYS) break;
+    /* 5日送り: 温度・光・見回りは続ける。水やり・肥料は1日目だけ(B2-09) */
+    S.game.actions.push(i === 0 ? a : { temp:a.temp, shade:a.shade, water:'none', fert:false, guard:a.guard });
+    runCache = null;
+    if (run().st.dead) break;
+  }
+  S.cur = { temp:a.temp, shade:a.shade, water:'none', fert:false, guard:false };
+  saveGame();
+  var r2 = run();
+  if (isOver(r2)) recordHistory(r2);
+  renderGrow();
+  /* その日の観察をトーストで知らせる。悪いことがおきた日は観察メモを見せる */
+  var line = memoLine(r2.cfg, r2);
+  if (line) toast(r2.logs.length + '日目: ' + line, 2500);
+  var bad = badgesFor(r2.cfg, r2.st, r2.logs[r2.logs.length - 1]).some(function(b){ return b[0] === 'bad'; });
+  if (bad && window.matchMedia && window.matchMedia('(min-width: 901px)').matches) {
+    var memo = $('b2-memo'), rc = memo.getBoundingClientRect();
+    if (rc.top < 60 || rc.bottom > window.innerHeight) { try { memo.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch (e) {} }
+  }
+}
+function undo(){
+  if (!S.game || !S.game.actions.length) return;
+  var a = S.game.actions.pop();
+  S.cur = Object.assign({}, a);
+  saveGame(); renderGrow();
+  toast('1日もどしました(' + S.game.actions.length + '日目)');
+}
+function recordHistory(r){
+  var hist = store.get('history', []);
+  var gr = E.grade(r), cfg = r.cfg;
+  var a = E.analyze(r);
+  var entry = { id:S.game.id, at:new Date().toISOString(), crop:cfg.crop, env:cfg.env, season:cfg.season, seed:cfg.seed, v:2,
+    mark:gr.mark, label:gr.label, yield:E.yieldText(r), days:r.logs.length, dead:r.st.dead, main:a.main, mainDir:a.mainDir };
+  hist = hist.filter(function(h){ return h.id !== entry.id; });
+  hist.push(entry);
+  if (hist.length > 40) hist = hist.slice(-40);
+  store.set('history', hist);
+}
+
+/* ---------- ③ 結果・原因さがし ---------- */
+var HINT = {
+  T_low:'温度が低すぎた日(グラフで帯より下)が{n}日ありました。寒いと成長がにぶります。保温・加温(トンネル・温室)をしたり、種まきや植えつけの季節を見直したりしよう。',
+  T_high:'温度が高すぎた日(グラフで帯より上)が{n}日ありました。温室は晴れた日にとても暑くなります。換気や遮光で温度を下げよう。夏に向かない作物もあります。',
+  L_low:'遮光をして、光が足りなくなった日が{n}日ありました。光が弱いと成長がにぶり、茎ばかりのびる「徒長」もおこりやすくなります。遮光は、暑すぎる日だけにしよう。',
+  W_low:'土がかわきすぎた日(グラフで帯より下)が{n}日ありました。水が足りないと作物はしおれます。晴れて暑い日やプランターは土がかわきやすいよ。',
+  W_high:'土の水分が多すぎた日(グラフで帯より上)が{n}日ありました。土がいつもしめっていると根が呼吸できず「根ぐされ」の原因になります。水やりは「土の表面がかわいてから、たっぷり」が基本。雨の日は水やりをひかえよう。',
+  N_low:'養分(肥料)が足りない日(グラフで帯より下)が{n}日ありました。葉の色がうすくなり、成長がにぶります。育ち具合を見て追肥しよう。',
+  N_high:'肥料が多すぎた日(グラフで帯より上)が{n}日ありました。根がいたむ「肥料やけ」や、病害虫がふえる原因になります。ダイズでは葉ばかりしげって花がつきにくくなります(つるぼけ)。'
+};
+function hintsFor(r, a){
+  var out = [];
+  var list = [];
+  ['T','L','W','N'].forEach(function(k){ ['low','high'].forEach(function(d){ if (a.cnt[k][d] >= 2 && HINT[k + '_' + d]) list.push([a.cnt[k][d], k + '_' + d]); }); });
+  list.sort(function(x, y){ return y[0] - x[0]; });
+  list.forEach(function(x){ out.push([HINT[x[1]].replace('{n}', x[0]), '']); });
+  if (a.sickDays) out.push(['病気・害虫がついていた日が' + a.sickDays + '日ありました。毎日の見回りで早く見つけ、病気の葉を取る・虫を取るなどして防除しよう。薬品を使うときは、使用上の基準と注意を必ず守ります。', '']);
+  if (a.stretchDays >= 1) out.push(['徒長(茎が細くひょろ長くなる)がおきた日が' + a.stretchDays + '日ありました。光の弱い日がつづき、温度や水が十分にあるとおこりやすくなります。', '']);
+  if (!out.length) out.push(['操作で変えられる条件には、大きな失敗はありませんでした。天気の番号を変えたり、別の季節や環境でもためしてみよう。', '']);
+  /* 天気による光の弱さは「情報」として最後に(B2-01) */
+  if (a.weatherDays >= 2) out.push(['☁ くもり・雨のせいで光が弱い日が' + a.weatherDays + '日ありました。これは人の操作では変えられません。実際の栽培では、日当たりのよい場所えらびが大切です。', 'b2-info']);
+  return out;
+}
+var QKEYS = ['T','L','W','N','none'];
+var QLABEL = { none:'🌤 どれも大きな問題なし(天気のせい)' };
+function quizHTML(r, a){
+  var q = S.game.quiz;
+  var answered = q && q.n === r.logs.length;
+  var correct = a.main || 'none';
+  var h = '<div class="b2-card"><h2>🔎 原因さがし</h2>';
+  if (r.logs.length < 5) return h + '<p>5日以上育てると、原因さがしができます。</p></div>';
+  h += '<p><b>問題:</b>この栽培で、<b>操作で変えられる条件</b>のうち、成長をいちばんさまたげたのはどれだろう? 下のグラフで「ちょうどよい範囲」から外れた日を数えて予想しよう。くもり・雨で光が弱いのは天気のせいで、操作では変えられないよ。</p>';
+  h += '<div class="b2-quiz">' + QKEYS.map(function(k){
+    var cls = '';
+    if (answered) { if (k === correct) cls = ' class="b2-right"'; else if (k === q.ans) cls = ' class="b2-wrong"'; }
+    var lab = k === 'none' ? QLABEL.none : FI[k] + ' ' + FN[k] + (k === 'L' ? '(遮光)' : '');
+    return '<button type="button" data-quiz="' + k + '"' + cls + '>' + lab + (answered && k === correct ? ' ✔' : '') + (answered && k === q.ans && k !== correct ? ' ✕' : '') + '</button>';
+  }).join('') + '</div>';
+  if (!answered) return h + '<p class="b2-small">ボタンをおすと答えと解説が出ます。</p></div>';
+  var right = q.ans === correct;
+  h += '<p><b>' + (right ? '⭕ 正解!' : '❌ おしい!') + '</b> ';
+  if (a.main) h += 'いちばん影響が大きかったのは「' + causeText(a.main, a.mainDir) + '」ことでした。' + (a.main === 'L' ? '遮光をした日に光が足りなくなっていました。' : '') + '</p>';
+  else h += '操作で変えられる条件(温度・遮光・水・養分)は、どれも大きな問題はありませんでした。光が弱い日があったのは天気(くもり・雨)のせいで、人の操作では変えられません。</p>';
+  var mx = Math.max(1, a.loss.T, a.loss.L, a.loss.W, a.loss.N, a.weather);
+  h += '<h3>条件ごとの「成長へのマイナス」</h3><p class="b2-small">ちょうどよい範囲から外れるほど、成長がへります。何日分の成長が失われたかに直した目安です。' + E.MAIN_MIN + '日分より小さければ「大きな問題なし」としています。光の行は遮光によるマイナスだけで、天気による分は下の灰色の行です。</p>';
+  ['T','L','W','N'].forEach(function(k){
+    h += '<div class="b2-lossbar"><span>' + FI[k] + ' ' + FN[k] + (k === 'L' ? '(遮光)' : '') + '</span><div class="b2-lb"><div style="width:' + (a.loss[k] / mx * 100) + '%"></div></div><span>' + r1(a.loss[k]) + '日分</span></div>';
+  });
+  h += '<div class="b2-lossbar b2-wx"><span>☁ 天気の光<br><small>(変えられない)</small></span><div class="b2-lb"><div style="width:' + (a.weather / mx * 100) + '%"></div></div><span>' + r1(a.weather) + '日分</span></div>';
+  h += '<h3 style="margin-top:12px">ヒント</h3><ul class="b2-hints">' + hintsFor(r, a).map(function(x){ return '<li' + (x[1] ? ' class="' + x[1] + '"' : '') + '>' + esc(x[0]) + '</li>'; }).join('') + '</ul>';
+  h += '<div class="b2-row"><button type="button" class="b2-btn b2-orange" data-act="retry">🔁 同じ条件で再挑戦</button><button type="button" class="b2-btn" data-goto="grow">◀ そだてるにもどる(「1日もどす」でやり直せる)</button><button type="button" class="b2-btn" data-goto="start">条件を変えて育てる</button></div>';
+  return h + '</div>';
+}
+function renderResult(){
+  var r = run(), box = $('b2-result');
+  var hist = store.get('history', []);
+  var histHTML = hist.length ? '<details class="b2-card"><summary>これまでの栽培の記録(' + hist.length + '回)</summary><ol class="b2-hist">' + hist.slice().reverse().map(function(h){
+    return '<li>' + esc(fmtDate(h.at)) + ' ' + esc(CROPS[h.crop].name) + '/' + esc(E.envName(h.env, h.crop)) + '/' + esc(SEASONS[h.season].name) + '/番号' + h.seed + ' → <b>' + esc(h.mark) + '</b> ' + esc(h.yield) + (h.dead ? '(' + h.days + '日目にかれた)' : '') + '</li>';
+  }).join('') + '</ol></details>' : '';
+  if (!r) { box.innerHTML = '<div class="b2-card"><p>まだ育てていません。</p><button type="button" class="b2-btn b2-primary" data-goto="start">① はじめに へ</button></div>' + histHTML; applyRuby(box); return; }
+  var cfg = r.cfg, crop = CROPS[cfg.crop], env = ENVS[cfg.env], st = r.st, over = isOver(r), a = E.analyze(r);
+  var gr = E.grade(r);
+  var h = '<div class="b2-card"><div class="b2-grade">';
+  h += over ? '<div class="b2-mk ' + gr.cls + '" aria-label="評価">' + gr.mark + '</div>' : '<div class="b2-mk wip">途中</div>';
+  h += '<div><h2 style="margin:0">' + (over ? esc(gr.label) : r.logs.length + '日目まで(栽培の途中)') + '</h2>';
+  h += '<div>' + crop.icon + ' ' + esc(crop.name) + '/' + esc(E.envName(cfg.env, cfg.crop)) + '/' + esc(SEASONS[cfg.season].name) + '/番号' + cfg.seed + '</div>';
+  h += '<div>草丈 <b>' + r1(st.H) + '</b>cm・葉 <b>' + Math.floor(st.lv) + '</b>枚・健康度 <b>' + Math.round(st.h) + '</b>%' + (r.logs.length >= crop.reproStart ? '・' + esc(crop.yieldName) + ' <b>' + crop.yieldCalc(st.yp) + '</b>' + crop.yieldUnit : '') + '</div>';
+  if (st.dead) h += '<div style="color:var(--b2-red);font-weight:bold">' + r.logs.length + '日目にかれてしまった</div>';
+  if (over) h += '<div class="b2-small">この天気(番号' + cfg.seed + ')で、上手に育てたときの目安:' + esc(crop.yieldName) + ' およそ' + gr.refYield + crop.yieldUnit + '。評価(◎○△)は、この目安とくらべて決めています。</div>';
+  h += '</div></div></div>';
+  h += quizHTML(r, a);
+  h += '<div class="b2-card"><h2>📈 グラフで見る</h2><p class="b2-small">緑の帯=ちょうどよい範囲。健康度の×は病気・害虫がいた日。温度の赤い線は操作したあとの温度、灰色の点線は外の気温。光の灰色の点線は、遮光しなかったときの光(天気だけで決まる光)。</p><div class="b2-charts">' +
+    ['h','hl','t','l','w','n'].map(function(k){ return '<canvas class="b2-chart" id="b2-rc-' + k + '"></canvas>'; }).join('') + '</div></div>';
+  h += '<details class="b2-card"><summary>📋 毎日の記録(ログ)を見る</summary><div class="b2-tablewrap"><table class="b2-log"><thead><tr><th>日</th><th>天気</th><th>温度</th><th>光</th><th>土の水分</th><th>養分</th><th>操作</th><th>草丈</th><th>健康度</th><th>いちばんの問題</th></tr></thead><tbody>' +
+    r.logs.map(function(d){
+      var lim = !d.limit ? '−' : (d.limit === 'L' && d.lightBy !== 'shade') ? '<span style="color:#6b746a">☁光(天気)</span>' : FI[d.limit] + FN[d.limit] + (d.limit === 'L' ? '不足(遮光)' : d.dir[d.limit] === 'high' ? (d.limit === 'T' ? '高すぎ' : '多すぎ') : (d.limit === 'T' ? '低すぎ' : '不足'));
+      return '<tr><td>' + d.day + '</td><td>' + WEATHER[d.w.type].icon + '</td><td>' + d.T + '℃</td><td>' + d.L + '</td><td>' + Math.round(d.mUsed) + '%</td><td>' + Math.round(d.nUsed) + '%</td><td>' + esc(actText(d.act, env, crop)) + '</td><td>' + r1(d.H) + '</td><td>' + Math.round(d.h) + (d.sick ? ' ×' : '') + '</td><td>' + lim + '</td></tr>';
+    }).join('') + '</tbody></table></div></details>';
+  h += histHTML;
+  box.innerHTML = h;
+  applyRuby(box);
+  drawResultCharts(r);
+}
+function drawResultCharts(r){
+  if (!$('b2-rc-h')) return;
+  var crop = CROPS[r.cfg.crop];
+  var hs = seriesOf(r, function(d){ return d ? d.H : crop.start.H; }, true);
+  var maxH = Math.max(10, Math.ceil(Math.max.apply(null, hs.map(function(p){ return p[1]; })) * 1.2 / 5) * 5);
+  drawChart($('b2-rc-h'), { title:'草丈(cm)', yMax:maxH, series:[{ pts:hs, color:'#2e7d32' }] });
+  drawChart($('b2-rc-hl'), { title:'健康度(%)', yMax:100, series:[{ pts:seriesOf(r, function(d){ return d ? d.h : 90; }, true), color:'#d9701a' }],
+    marks:r.logs.filter(function(d){ return d.sick; }).map(function(d){ return { x:d.day, sym:'×' }; }) });
+  var ts = seriesOf(r, function(d){ return d.T; }), ws = seriesOf(r, function(d){ return d.w.T; });
+  var all = ts.concat(ws).map(function(p){ return p[1]; });
+  drawChart($('b2-rc-t'), { title:'温度(℃)', yMin:Math.min(0, Math.floor(Math.min.apply(null, all) / 5) * 5), yMax:Math.max(40, Math.ceil(Math.max.apply(null, all) / 5) * 5),
+    band:[crop.temp[1], crop.temp[2]], series:[{ pts:ws, color:'#888', dash:[6,4], width:2, marker:'square' }, { pts:ts, color:'#c62828', marker:'circle' }],
+    legend:[{ label:'操作後', color:'#c62828' }, { label:'外の気温', color:'#888', dash:[6,4] }] });
+  var anyShade = r.logs.some(function(d){ return d.act && d.act.shade; });
+  var lser = [{ pts:seriesOf(r, function(d){ return d.L; }), color:'#e0a800', marker:'circle' }];
+  if (anyShade) lser.unshift({ pts:seriesOf(r, function(d){ return d.L0 != null ? d.L0 : d.L; }), color:'#9aa39a', dash:[6,4], width:2 });
+  drawChart($('b2-rc-l'), { title:'光の強さ', yMax:100, band:[crop.light[1], 100], series:lser,
+    legend:anyShade ? [{ label:'遮光後', color:'#e0a800' }, { label:'天気だけ', color:'#9aa39a', dash:[6,4] }] : null });
+  drawChart($('b2-rc-w'), { title:'土の水分(%)', yMax:100, band:[crop.water[1], crop.water[2]], series:[{ pts:seriesOf(r, function(d){ return d.mUsed; }), color:'#1565c0', marker:'circle' }] });
+  drawChart($('b2-rc-n'), { title:'養分(%)', yMax:100, band:[crop.nutr[1], crop.nutr[2]], series:[{ pts:seriesOf(r, function(d){ return d.nUsed; }), color:'#6a1b9a', marker:'circle' }] });
+}
+function fmtDate(iso){
+  var d = new Date(iso);
+  if (isNaN(d)) return '';
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2);
+}
+
+/* ---------- ④ くらべる ---------- */
+var POL_OPTS = {
+  env:   [['field','露地(畑)'],['planter','プランター'],['house','温室(ビニルハウス)']],
+  light: [['sun','日なた(遮光しない)'],['shade','日かげ(ずっと遮光)']],
+  water: [['dry_lots','土がかわいたら たっぷり'],['daily_little','毎日 少し'],['daily_lots','毎日 たっぷり'],['every2_lots','2日に1回 たっぷり'],['every4_little','4日に1回 少し'],['none','水やりなし']],
+  fert:  [['none','肥料なし'],['weekly','週に1回 追肥'],['daily','毎日 追肥']],
+  temp:  [['none','何もしない'],['auto','暑い日・寒い日に調節']],
+  guard: [['yes','毎日 見回る'],['no','見回らない']]
+};
+var POL_LABEL = { env:'環境', light:'光', water:'水やり', fert:'肥料', temp:'温度', guard:'見回り' };
+var POL_DEF = { env:'field', light:'sun', water:'dry_lots', fert:'weekly', temp:'auto', guard:'yes' };
+var PRESETS = [
+  { name:'日なた と 日かげ', A:{ light:'sun' }, B:{ light:'shade' } },
+  { name:'かわいたら水 と 毎日たっぷり', A:{ water:'dry_lots' }, B:{ water:'daily_lots' } },
+  /* 露地は雨で差が出にくいので、プランターでくらべる(B2-15) */
+  { name:'かわいたら水 と 水やりなし(プランター)', A:{ water:'dry_lots', env:'planter' }, B:{ water:'none', env:'planter' } },
+  { name:'肥料 週1回 と なし', A:{ fert:'weekly' }, B:{ fert:'none' } },
+  { name:'肥料 週1回 と 毎日', A:{ fert:'weekly' }, B:{ fert:'daily' } },
+  { name:'露地 と 温室', A:{ env:'field' }, B:{ env:'house' } },
+  { name:'温度調節 あり と なし', A:{ temp:'auto' }, B:{ temp:'none' } }
+];
+function polOptLabel(key, val, cropId){
+  if (key === 'env') return E.envName(val, cropId);
+  var o = POL_OPTS[key].filter(function(x){ return x[0] === val; })[0];
+  return o ? o[1] : '';
+}
+function cmpState(){
+  if (!S.cmp) S.cmp = { crop:S.pick.crop, season:S.pick.season, seed:S.pick.seed, A:Object.assign({}, POL_DEF), B:Object.assign({}, POL_DEF, { light:'shade' }), note:'' };
+  var c = S.cmp;
+  /* 古い保存データ(c.last が {at} だけ)は、今の条件をそのとき くらべたものとして読みかえる */
+  if (c.last && !c.last.A) c.last = cmpSnap(c, c.last.at);
+  return c;
+}
+function cmpSnap(c, at){
+  return { at:at || Date.now(), crop:c.crop, season:c.season, seed:c.seed, A:Object.assign({}, c.A), B:Object.assign({}, c.B) };
+}
+function cmpKey(o){ return JSON.stringify([o.crop, o.season, o.seed, o.A, o.B]); }
+function cmpStale(){ var c = cmpState(); return !!(c.last && cmpKey(c.last) !== cmpKey(c)); }
+function hasRuby(t){ RUBY_RE.lastIndex = 0; return RUBY_RE.test(t); }
+function selHTML(side, key, val, cropId){
+  return '<div class="b2-sel"><label for="b2-cs-' + side + key + '">' + POL_LABEL[key] + '</label><select id="b2-cs-' + side + key + '" data-cmp="' + side + '" data-key="' + key + '">' +
+    POL_OPTS[key].map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === val ? ' selected' : '') + '>' + esc(polOptLabel(key, o[0], cropId)) + '</option>'; }).join('') + '</select>' +
+    (hasRuby(polOptLabel(key, val, cropId)) ? '<span class="b2-selnote" aria-hidden="true">' + esc(polOptLabel(key, val, cropId)) + '</span>' : '') + '</div>';
+}
+function renderCmpBoxes(){
+  var c = cmpState();
+  ['A','B'].forEach(function(side){
+    var el = $('b2-cmp-' + side.toLowerCase());
+    el.innerHTML = '<h3><span class="b2-tag">' + side + '</span>' + (side === 'A' ? '実線' : '点線') + 'の作物</h3>' +
+      Object.keys(POL_OPTS).map(function(k){ return selHTML(side, k, c[side][k], c.crop); }).join('');
+    applyRuby(el);
+  });
+}
+function renderCompare(){
+  var c = cmpState();
+  $('b2-cmp-crop').innerHTML = Object.keys(CROPS).map(function(k){ return '<option value="' + k + '"' + (k === c.crop ? ' selected' : '') + '>' + CROPS[k].icon + ' ' + CROPS[k].name + '</option>'; }).join('');
+  $('b2-cmp-season').innerHTML = Object.keys(SEASONS).map(function(k){ return '<option value="' + k + '"' + (k === c.season ? ' selected' : '') + '>' + SEASONS[k].name + '</option>'; }).join('');
+  $('b2-cmp-seed').value = c.seed;
+  $('b2-presets').innerHTML = PRESETS.map(function(p, i){ return '<button type="button" data-preset="' + i + '">' + esc(p.name) + '</button>'; }).join('');
+  renderCmpBoxes();
+  updateDiff();
+  applyRuby($('b2-sec-compare'));
+  if (c.last) drawCompareOut(); else $('b2-cmp-out').innerHTML = '';
+}
+function cmpDiff(o){ return Object.keys(POL_OPTS).filter(function(k){ return o.A[k] !== o.B[k]; }); }
+function updateDiff(){
+  var c = cmpState(), diff = cmpDiff(c);
+  var el = $('b2-cmp-diff');
+  if (!diff.length) el.textContent = '⚠ AとBが同じ条件です。どれか1つを変えよう。';
+  else if (diff.length === 1) el.textContent = '✔ ちがう条件は「' + POL_LABEL[diff[0]] + '」の1つだけ。よいくらべ方です。';
+  else el.textContent = '⚠ ちがう条件が' + diff.length + 'つ(' + diff.map(function(k){ return POL_LABEL[k]; }).join('・') + ')あります。どれが原因かわかりにくくなるよ。';
+  applyRuby(el.parentNode);
+  markStale();
+}
+/* 条件を変えたら、前の結果はうすく表示して「更新しよう」と知らせる(B2-11) */
+function markStale(){
+  var card = $('b2-cmp-res'), msg = $('b2-cmp-stale');
+  if (!card || !msg) return;
+  var st = cmpStale();
+  card.classList.toggle('b2-stale', st);
+  msg.hidden = !st;
+}
+function doCompare(){
+  var c = cmpState();
+  c.seed = readSeed($('b2-cmp-seed'));
+  c.last = cmpSnap(c);
+  store.set('cmp', c);
+  drawCompareOut(true);
+}
+function cmpRun(o, side){
+  var p = o[side];
+  return E.simulatePolicy({ crop:o.crop, env:p.env, season:o.season, seed:o.seed }, p);
+}
+function polText(p, cropId){
+  return Object.keys(POL_OPTS).map(function(k){ return polOptLabel(k, p[k], cropId); }).join('・');
+}
+var cmpRuns = null;
+function drawCompareOut(fresh){
+  var c = cmpState(), out = $('b2-cmp-out'), o = c.last;
+  if (!o) { out.innerHTML = ''; return; }
+  var ra = cmpRun(o, 'A'), rb = cmpRun(o, 'B'), crop = CROPS[o.crop];
+  cmpRuns = { o:o, A:ra, B:rb };
+  function box(side, r){
+    var gr = E.grade(r), st = r.st;
+    return '<div class="b2-cmpbox b2-' + side.toLowerCase() + '"><h3><span class="b2-tag">' + side + '</span>' + gr.mark + ' ' + esc(gr.label) + '</h3>' +
+      plantSVG(r.cfg, st, r.logs[r.logs.length - 1], { shade:o[side].light === 'shade', caption:side }) +
+      '<div>草丈 <b>' + r1(st.H) + '</b>cm・健康度 <b>' + Math.round(st.h) + '</b>%</div><div>' + esc(E.yieldText(r)) + (st.dead ? '(' + r.logs.length + '日目にかれた)' : '') + '</div>' +
+      '<div class="b2-small">' + esc(polText(o[side], o.crop)) + '</div></div>';
+  }
+  var diff = cmpDiff(o);
+  var h = '<div class="b2-msg b2-stalemsg" id="b2-cmp-stale" hidden>⚠ 条件が変わりました。「30日間育ててくらべる」をおして結果を更新しよう。</div>';
+  h += '<div class="b2-card" id="b2-cmp-res"><h2>くらべた結果(' + crop.icon + esc(crop.name) + '/' + esc(SEASONS[o.season].name) + '/番号' + o.seed + ')</h2><div class="b2-cmpres">' + box('A', ra) + box('B', rb) + '</div>';
+  /* 差が小さいとき(B2-15) */
+  var ya = ra.st.yp, yb = rb.st.yp, big = Math.max(ya, yb);
+  if (!ra.st.dead && !rb.st.dead && big > 0 && Math.abs(ya - yb) / big < 0.1) {
+    h += '<p class="b2-note">AとBの差は小さめでした(10%未満)。今回の天気(雨の多さなど)では差が出にくかったのかもしれません。環境(プランターなど)や天気の番号を変えて、もう一度ためしてみよう。</p>';
+  }
+  h += legendHTML([{ label:'A', color:'#2e7d32', marker:'circle' }, { label:'B', color:'#d9701a', dash:true, marker:'square' }]);
+  if (diff.length) h += '<p class="b2-small">オレンジのわくのグラフは、AとBでちがう条件に関係するグラフです。</p>';
+  h += '<div class="b2-charts" id="b2-cc-wrap"></div>';
+  h += '<div class="b2-field"><label for="b2-cmp-note">気づいたこと(AとBで何がちがった? それはなぜ?)</label><textarea id="b2-cmp-note" data-cmpnote="1" placeholder="例:Aは〇〇で、Bは〇〇だった。ちがいは〇〇。それは〇〇だからだと思う。"></textarea></div>';
+  h += '</div>';
+  out.innerHTML = h;
+  $('b2-cmp-note').value = c.note || '';
+  applyRuby(out);
+  drawCompareCharts();
+  markStale();
+  if (fresh) {
+    var ch = store.get('cmphist', []);
+    ch.push({ at:new Date().toISOString(), crop:o.crop, season:o.season, seed:o.seed,
+      A:polText(o.A, o.crop) + ' → ' + E.grade(ra).mark + ' ' + E.yieldText(ra), B:polText(o.B, o.crop) + ' → ' + E.grade(rb).mark + ' ' + E.yieldText(rb) });
+    if (ch.length > 20) ch = ch.slice(-20);
+    store.set('cmphist', ch);
+    out.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+/* グラフだけ描きなおす(画面サイズが変わったとき。メモ欄は作り直さない: B2-12) */
+var CC_FOR = { light:['l'], env:['t','l','w'], water:['w'], fert:['n'], temp:['t'], guard:['hl'] };
+function drawCompareCharts(){
+  var wrap = $('b2-cc-wrap');
+  if (!wrap || !cmpRuns) return;
+  var o = cmpRuns.o, ra = cmpRuns.A, rb = cmpRuns.B, crop = CROPS[o.crop];
+  var hl = {}; cmpDiff(o).forEach(function(k){ (CC_FOR[k] || []).forEach(function(x){ hl[x] = true; }); });
+  var order = ['l','t','w','n','h','hl'].sort(function(x, y){ return (hl[y] ? 1 : 0) - (hl[x] ? 1 : 0); });
+  var ids = order.join(',');
+  if (wrap.getAttribute('data-ids') !== ids) {
+    wrap.innerHTML = order.map(function(k){ return '<canvas class="b2-chart' + (hl[k] ? ' b2-hl' : '') + '" id="b2-cc-' + k + '"></canvas>'; }).join('');
+    wrap.setAttribute('data-ids', ids);
+  }
+  function series(r, fn){ return [[0, fn(null, r)]].concat(r.logs.map(function(d){ return [d.day, fn(d, r)]; })); }
+  var hA = series(ra, function(d){ return d ? d.H : crop.start.H; }), hB = series(rb, function(d){ return d ? d.H : crop.start.H; });
+  var mx = Math.max(10, Math.ceil(Math.max.apply(null, hA.concat(hB).map(function(p){ return p[1]; })) * 1.2 / 5) * 5);
+  var SA = { color:'#2e7d32', marker:'circle' }, SB = { color:'#d9701a', dash:[7,5], marker:'square' };
+  function sr(base, pts){ return Object.assign({ pts:pts }, base); }
+  function lg(r, fn){ return r.logs.map(function(d){ return [d.day, fn(d)]; }); }
+  drawChart($('b2-cc-h'), { title:'草丈(cm) A・B', yMax:mx, series:[sr(SA, hA), sr(SB, hB)] });
+  drawChart($('b2-cc-hl'), { title:'健康度(%) A・B', yMax:100, series:[sr(SA, series(ra, function(d){ return d ? d.h : 90; })), sr(SB, series(rb, function(d){ return d ? d.h : 90; }))] });
+  drawChart($('b2-cc-l'), { title:'光の強さ A・B', yMax:100, band:[crop.light[1], 100], series:[sr(SA, lg(ra, function(d){ return d.L; })), sr(SB, lg(rb, function(d){ return d.L; }))] });
+  drawChart($('b2-cc-w'), { title:'土の水分(%) A・B', yMax:100, band:[crop.water[1], crop.water[2]], series:[sr(SA, lg(ra, function(d){ return d.mUsed; })), sr(SB, lg(rb, function(d){ return d.mUsed; }))] });
+  drawChart($('b2-cc-n'), { title:'養分(%) A・B', yMax:100, band:[crop.nutr[1], crop.nutr[2]], series:[sr(SA, lg(ra, function(d){ return d.nUsed; })), sr(SB, lg(rb, function(d){ return d.nUsed; }))] });
+  var tA = lg(ra, function(d){ return d.T; }), tB = lg(rb, function(d){ return d.T; });
+  var tall = tA.concat(tB).map(function(p){ return p[1]; });
+  drawChart($('b2-cc-t'), { title:'温度(℃) A・B', yMin:Math.min(0, Math.floor(Math.min.apply(null, tall) / 5) * 5), yMax:Math.max(40, Math.ceil(Math.max.apply(null, tall) / 5) * 5), band:[crop.temp[1], crop.temp[2]], series:[sr(SA, tA), sr(SB, tB)] });
+}
+
+/* ---------- ⑤ 振り返り ---------- */
+var RQ = [
+  { k:'q1', t:'1. 育成環境(温度・光・水・養分)を調節すると、作物の育ち方はどう変わりましたか。', h:'グラフや記録の数字を使って書こう。' },
+  { k:'q2', t:'2. うまくいかなかったとき、その原因は何でしたか。どのように改善しましたか。', h:'「③ 結果・原因さがし」のヒントやログを参考にしよう。' },
+  { k:'q3', t:'3.「くらべる」で、条件を1つだけ変えてわかったことは何ですか。', h:'AとBのちがいと、その理由を書こう。' },
+  { k:'q4', t:'4. このシミュレーション(簡易モデル)と本物の栽培とでは、どんなちがいがあると思いますか。実際の栽培で生かしたいことも書こう。', h:'土・品種・風・病害虫など、モデルに入っていないことも考えよう。' }
+];
+var SELF = [
+  { k:'s1', t:'育成環境と作物の成長の関係を理解できた' },
+  { k:'s2', t:'グラフや記録から原因を考え、育て方を改善できた' },
+  { k:'s3', t:'すすんで何度も試し、よりよい育て方を考えようとした' }
+];
+function rfData(){ return store.get('reflect', { cls:'', no:'', name:'', q1:'', q2:'', q3:'', q4:'', s1:'', s2:'', s3:'', savedAt:null }); }
+function autoSummary(){
+  var hist = store.get('history', []), ch = store.get('cmphist', []);
+  var lines = [];
+  lines.push('◆ そだてた記録(' + hist.length + '回)');
+  if (!hist.length) lines.push('  まだありません');
+  hist.slice(-8).forEach(function(h){
+    lines.push('  ' + fmtDate(h.at) + ' ' + CROPS[h.crop].name + '/' + E.envName(h.env, h.crop) + '/' + SEASONS[h.season].name + '/番号' + h.seed + ' → ' + h.mark + ' ' + h.label + '(' + h.yield + (h.dead ? '・' + h.days + '日目にかれた' : '') + ')' +
+      (h.main ? ' 主な原因:' + causeText(h.main, h.mainDir) : (h.v ? ' 主な原因:大きな問題なし' : '')));
+  });
+  lines.push('◆ くらべた記録(' + ch.length + '回)');
+  if (!ch.length) lines.push('  まだありません');
+  ch.slice(-4).forEach(function(c){
+    lines.push('  ' + fmtDate(c.at) + ' ' + CROPS[c.crop].name + '/' + SEASONS[c.season].name + '/番号' + c.seed);
+    lines.push('    A:' + c.A); lines.push('    B:' + c.B);
+  });
+  var note = (S.cmp && S.cmp.note) || '';
+  if (note) { lines.push('◆ くらべて気づいたこと'); lines.push('  ' + note.replace(/\n/g, '\n  ')); }
+  return lines.join('\n');
+}
+function renderReflect(){
+  var d = rfData();
+  $('b2-rf-class').value = d.cls; $('b2-rf-no').value = d.no; $('b2-rf-name').value = d.name;
+  $('b2-rf-qs').innerHTML = RQ.map(function(q){
+    return '<div class="b2-field"><label for="b2-rf-' + q.k + '">' + esc(q.t) + '<span class="b2-hintq">' + esc(q.h) + '</span></label><textarea id="b2-rf-' + q.k + '" data-rf="' + q.k + '"></textarea></div>';
+  }).join('');
+  RQ.forEach(function(q){ $('b2-rf-' + q.k).value = d[q.k] || ''; });
+  $('b2-rf-self').innerHTML = SELF.map(function(s){
+    return '<div>' + esc(s.t) + '</div><div class="b2-seg" role="group" aria-label="' + esc(s.t) + '">' + ['◎','○','△'].map(function(m){
+      return '<button type="button" data-self="' + s.k + '" data-val="' + m + '" aria-pressed="' + (d[s.k] === m) + '">' + m + '</button>';
+    }).join('') + '</div>';
+  }).join('') + '<div class="b2-small" style="grid-column:1/-1">◎よくできた ○できた △もう少し</div>';
+  $('b2-rf-auto').textContent = autoSummary();
+  $('b2-rf-saved').textContent = d.savedAt ? '最後に保存 ' + hhmm(d.savedAt) : '';
+  applyRuby($('b2-sec-reflect'));
+}
+var rfTimer = null;
+function rfCollect(){
+  var d = rfData();
+  d.cls = $('b2-rf-class').value; d.no = $('b2-rf-no').value; d.name = $('b2-rf-name').value;
+  RQ.forEach(function(q){ var el = $('b2-rf-' + q.k); if (el) d[q.k] = el.value; });
+  return d;
+}
+function hhmm(iso){ var d = new Date(iso); if (isNaN(d)) return ''; return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+/* 振り返りの書きぐあい(K9): 記述の問いのうち、書いてある数 */
+function rfStat(d){ var n = 0; RQ.forEach(function(q){ if (String(d[q.k] || '').replace(/\s+/g, '')) n++; }); return { filled:n, total:RQ.length }; }
+function rfStore(d){
+  var ok = store.set('reflect', d);
+  store.set('reflstat', rfStat(d));
+  return ok;
+}
+function rfSave(manual){
+  var d = rfCollect(); d.savedAt = new Date().toISOString();
+  var ok = rfStore(d);
+  var el = $('b2-rf-saved');
+  if (el) el.textContent = ok ? '最後に保存 ' + hhmm(d.savedAt) : '⚠ この端末には保存できませんでした。「書き出し」でファイルにしてください。';
+  if (manual) toast(ok ? '振り返りを保存しました' : '保存できませんでした。書き出しを使ってください');
+}
+function rfText(){
+  var d = rfCollect(), now = new Date();
+  var L = [];
+  L.push('【技術分野 B 生物育成】B2 育成環境コントローラ体験 振り返り');
+  L.push('書き出し日時:' + now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2));
+  L.push('組:' + d.cls + ' 番号:' + d.no + ' 名前:' + d.name);
+  L.push('');
+  RQ.forEach(function(q){ L.push('■' + q.t); L.push(d[q.k] ? d[q.k] : '(未記入)'); L.push(''); });
+  L.push('■自己評価(◎よくできた ○できた △もう少し)');
+  SELF.forEach(function(s){ L.push('・' + s.t + ':' + (d[s.k] || '未記入')); });
+  L.push('');
+  L.push('■学習の記録(自動)');
+  L.push(autoSummary());
+  return L.join('\r\n');
+}
+function rfExport(){
+  rfSave(false);
+  var d = rfCollect(), now = new Date();
+  var ymd = now.getFullYear() + ('0' + (now.getMonth() + 1)).slice(-2) + ('0' + now.getDate()).slice(-2);
+  /* 「1組」と入力しても「1組組」にしない */
+  var cls = String(d.cls || '').trim(), no = String(d.no || '').trim();
+  var fname = 'B2振り返り_' + (cls ? cls + (/組$/.test(cls) ? '' : '組') : '') + (no ? no + (/番$/.test(no) ? '' : '番') : '') + (String(d.name || '').trim() || '名前なし') + '_' + ymd + '.txt';
+  fname = fname.replace(/[\\\/:*?"<>|\s]/g, '_');
+  var text = rfText();
+  try {
+    var blob = new Blob(['﻿' + text], { type:'text/plain;charset=utf-8' });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, fname); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = fname; a.style.display = 'none';
+    root.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    toast('「' + fname + '」を書き出しました');
+  } catch (e) {
+    showText(text);
+  }
+}
+function showText(text){
+  modal('書き出す内容', '<p class="b2-small">ファイルを作れなかったので、下の文章をコピーして提出してください。</p><textarea readonly style="min-height:300px">' + esc(text) + '</textarea>', [{ label:'とじる', cls:'b2-primary' }]);
+}
+function rfCopy(){
+  var text = rfText();
+  function fallback(){
+    var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-1000px';
+    root.appendChild(ta); ta.focus(); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    if (ok) toast('コピーしました'); else showText(text);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ toast('コピーしました'); }, fallback);
+  else fallback();
+}
+function rfPrint(){
+  rfSave(false);
+  var p = $('b2-printout');
+  if (!p) { p = document.createElement('div'); p.id = 'b2-printout'; $('b2-sec-reflect').appendChild(p); }
+  p.textContent = rfText();
+  window.print();
+}
+
+/* ---------- タブ ---------- */
+var RENDER = { start:renderStart, grow:renderGrow, result:renderResult, compare:renderCompare, reflect:renderReflect };
+function showTab(t){
+  if (!RENDER[t]) t = 'start';
+  S.tab = t; store.set('tab', t);
+  $$('.b2-tab').forEach(function(b){ var on = b.dataset.tab === t; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+  $$('.b2-sec').forEach(function(s){ s.classList.toggle('b2-on', s.id === 'b2-sec-' + t); });
+  RENDER[t]();
+  var nav = root.querySelector('.b2-tabs');
+  var top = root.getBoundingClientRect().top + window.pageYOffset;
+  if (window.pageYOffset > top + 10) window.scrollTo(0, top);
+}
+
+/* ---------- イベント(ルートにまとめて登録) ---------- */
+root.addEventListener('click', function(ev){
+  var b = ev.target.closest('button, [data-goto]');
+  if (!b || !root.contains(b)) return;
+  if (b.dataset.tab) { showTab(b.dataset.tab); return; }
+  if (b.dataset.goto) { showTab(b.dataset.goto); return; }
+  if (b.id === 'b2-rubybtn') { setRuby(!PREF.ruby); return; }
+  if (b.id === 'b2-fsdec') { bumpFs(-1); return; }
+  if (b.id === 'b2-fsinc') { bumpFs(1); return; }
+  if (b.dataset.pick) {
+    S.pick[b.dataset.pick] = b.dataset.val;
+    if (b.dataset.pick === 'crop') S.pick.season = CROPS[b.dataset.val].season;
+    S.pick.seed = readSeed($('b2-seed'));
+    store.set('pick', S.pick); renderStart(); return;
+  }
+  if (b.dataset.op) {
+    var k = b.dataset.op, v = b.dataset.val;
+    S.cur[k] = (v === 'true') ? true : (v === 'false') ? false : v;
+    if (k !== 'temp') opsTouched = true;
+    store.set('cur', S.cur); renderGrow(); return;
+  }
+  if (b.dataset.quiz) {
+    var r = run(); if (!r) return;
+    S.game.quiz = { ans:b.dataset.quiz, n:r.logs.length }; store.set('game', S.game);
+    renderResult(); return;
+  }
+  if (b.dataset.preset) {
+    var p = PRESETS[+b.dataset.preset], c = cmpState();
+    c.A = Object.assign({}, POL_DEF, p.A); c.B = Object.assign({}, POL_DEF, p.B);
+    c.crop = $('b2-cmp-crop').value; c.season = $('b2-cmp-season').value; c.seed = readSeed($('b2-cmp-seed'));
+    store.set('cmp', c); renderCmpBoxes(); updateDiff(); toast('「' + p.name + '」をセットしました'); return;
+  }
+  if (b.dataset.self) {
+    var d = rfCollect(); d[b.dataset.self] = b.dataset.val; d.savedAt = new Date().toISOString(); rfStore(d);
+    $('b2-rf-saved').textContent = '最後に保存 ' + hhmm(d.savedAt);
+    $$('[data-self="' + b.dataset.self + '"]').forEach(function(x){ x.setAttribute('aria-pressed', x.dataset.val === b.dataset.val ? 'true' : 'false'); });
+    return;
+  }
+  switch (b.dataset.act) {
+    case 'seed-inc': $('b2-seed').value = Math.min(999, readSeed($('b2-seed')) + 1); break;
+    case 'seed-dec': $('b2-seed').value = Math.max(1, readSeed($('b2-seed')) - 1); break;
+    case 'seed-rand': $('b2-seed').value = 1 + Math.floor(Math.random() * 999); break;
+    case 'cseed-inc': case 'cseed-dec': case 'cseed-rand':
+      var cs = $('b2-cmp-seed'), cv = readSeed(cs);
+      cs.value = b.dataset.act === 'cseed-inc' ? Math.min(999, cv + 1) : b.dataset.act === 'cseed-dec' ? Math.max(1, cv - 1) : 1 + Math.floor(Math.random() * 999);
+      cmpCondChanged(cs); break;
+    case 'start-new': startNew(); break;
+    case 'resume': showTab('grow'); break;
+    case 'next': advance(1); break;
+    case 'next5': advance(5); break;
+    case 'undo': undo(); break;
+    case 'retry':
+      var rr = run();
+      confirmK('同じ条件で再挑戦しますか?\n\n同じ作物・環境・季節・天気の番号で、1日目からやり直します。今の栽培(' + (rr ? rr.logs.length : 0) + '日目まで)の操作の記録とクイズの答えは消えます。' + (rr && isOver(rr) ? '(結果は「これまでの栽培の記録」に残ります)' : ''), { ok:'再挑戦する', cancel:'やめる' }, function(){
+        S.game = { id:Date.now(), cfg:Object.assign({}, S.game.cfg), actions:[], quiz:null };
+        S.cur = Object.assign({}, DEF_ACT); opsTouched = false; saveGame(); showTab('grow');
+      }); break;
+    case 'compare': doCompare(); break;
+    case 'rf-save': rfSave(true); break;
+    case 'rf-export': rfExport(); break;
+    case 'rf-copy': rfCopy(); break;
+    case 'rf-print': rfPrint(); break;
+    case 'wipe':
+      confirmK('B2のデータをすべて消しますか?\n\nこの端末に保存された、そだてた栽培・これまでの記録・くらべた記録・振り返り(組・番号・名前と書いた文章)がすべて消えます。元にはもどせません。', { ok:'消す', cancel:'やめる', danger:true }, function(){
+        store.wipe(); S.game = null; S.cmp = null; S.cur = Object.assign({}, DEF_ACT); runCache = null; cmpRuns = null;
+        S.pick = { crop:'tomato', env:'field', season:'early', seed:1 };
+        showTab('start'); toast('データを消しました');
+      }); break;
+  }
+});
+root.addEventListener('change', function(ev){
+  var t = ev.target;
+  if (t.dataset && t.dataset.cmp) {
+    var c = cmpState(); c[t.dataset.cmp][t.dataset.key] = t.value; store.set('cmp', c);
+    var sel = t.parentNode, note = sel.querySelector('.b2-selnote'), lab = polOptLabel(t.dataset.key, t.value, c.crop);
+    if (hasRuby(lab)) { if (!note) { note = document.createElement('span'); note.className = 'b2-selnote'; note.setAttribute('aria-hidden', 'true'); sel.appendChild(note); } note.textContent = lab; applyRuby(note); }
+    else if (note) note.remove();
+    updateDiff(); return;
+  }
+  if (t.id === 'b2-cmp-crop' || t.id === 'b2-cmp-season' || t.id === 'b2-cmp-seed') { cmpCondChanged(t); return; }
+  if (t.id === 'b2-seed') { S.pick.seed = readSeed(t); store.set('pick', S.pick); }
+});
+function cmpCondChanged(t){
+  var c2 = cmpState(), oldCrop = c2.crop;
+  c2.crop = $('b2-cmp-crop').value; c2.season = $('b2-cmp-season').value; c2.seed = readSeed($('b2-cmp-seed'));
+  if (t.id === 'b2-cmp-crop') { c2.season = CROPS[c2.crop].season; $('b2-cmp-season').value = c2.season; }
+  store.set('cmp', c2);
+  if (oldCrop !== c2.crop) renderCmpBoxes();
+  updateDiff();
+}
+root.addEventListener('input', function(ev){
+  var t = ev.target;
+  if (t.dataset && t.dataset.rf) { clearTimeout(rfTimer); rfTimer = setTimeout(function(){ rfSave(false); }, 600); }
+  if (t.dataset && t.dataset.cmpnote) { var c = cmpState(); c.note = t.value; store.set('cmp', c); }
+});
+root.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape') closeModal();
+  var tab = ev.target.closest && ev.target.closest('.b2-tab');
+  if (tab && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) {
+    var tabs = $$('.b2-tab'), i = tabs.indexOf(tab);
+    var n = tabs[(i + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    n.focus(); showTab(n.dataset.tab);
+  }
+});
+$('b2-modal').addEventListener('click', function(ev){ if (ev.target === this) closeModal(); });
+function redrawCharts(){
+  var r = run();
+  if (S.tab === 'grow' && r) drawGrowCharts(r);
+  if (S.tab === 'result' && r) drawResultCharts(r);
+  if (S.tab === 'compare') drawCompareCharts();
+}
+var rzTimer = null;
+window.addEventListener('resize', function(){
+  clearTimeout(rzTimer);
+  rzTimer = setTimeout(redrawCharts, 200);
+});
+window.addEventListener('pagehide', function(){ if (S.tab === 'reflect') rfSave(false); });
+
+/* ---------- 起動 ---------- */
+applyRuby(root.querySelector('.b2-head'));
+applyRuby(root.querySelector('.b2-tabs'));
+applyPrefs(prefsNow());
+if (KP) KP.on(function(p){ applyPrefs({ ruby:(p.ruby !== null && p.ruby !== undefined) ? p.ruby : store.get('ruby', true) !== false, fs:p.fs || 18 }); });
+showTab(S.tab);
+prefsReady = true;
+/* 保存できるかの確認(前の版が残した b2__probe も消す: H-08) */
+try { localStorage.setItem('b2__probe', '1'); localStorage.removeItem('b2__probe'); } catch (e) { storeOK = false; }
+/* 振り返りの書きぐあい(K9)がまだないときは、保存ずみの振り返りから作っておく */
+try { if (localStorage.getItem('b2_reflect') != null && localStorage.getItem('b2_reflstat') == null) store.set('reflstat', rfStat(rfData())); } catch (e) {}
+if (!storeOK) toast('⚠ この端末では記録を保存できません。振り返りは「書き出し」を使ってください');
+window.B2 = { engine:E, state:S, showText:showText };
+})();
+</script>
+</body>
+</html>

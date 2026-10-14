@@ -1,0 +1,76 @@
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
