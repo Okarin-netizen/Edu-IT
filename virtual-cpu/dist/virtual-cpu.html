@@ -1,0 +1,2600 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>仮想CPUラボ</title>
+  <meta name="description" content="中学校技術科「情報の技術」コンピュータの仕組み。5つの装置と、命令が取り出し・解読・実行される様子を小さな仮想CPUで体験する教材。">
+  <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="author" content="技術 岡田">
+  <meta name="theme-color" content="#256abf">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM6YzJwYT0iaHR0cDovL2MycGEub3JnL21hbmlmZXN0Ij48bWV0YWRhdGE+PGMycGE6bWFuaWZlc3Q+QUFBV2dtcDFiV0lBQUFBZWFuVnRaR015Y0dFQUVRQVFnQUFBcWdBNG0zRURZekp3WVFBQUFCWmNhblZ0WWdBQUFFZHFkVzFrWXpKdFlRQVJBQkNBQUFDcUFEaWJjUU4xY200Nll6SndZVG95TURCa056ZGlZaTFtWXpsbExUUXhOamt0WVRGbE5TMWxNRFkyTW1VNE5UY3hOVElBQUFBRGwycDFiV0lBQUFBcGFuVnRaR015WVhNQUVRQVFnQUFBcWdBNG0zRURZekp3WVM1aGMzTmxjblJwYjI1ekFBQUFBTHhxZFcxaUFBQUFSR3AxYldSalltOXlBQkVBRUlBQUFLb0FPSnR4RTJNeWNHRXVhVzVuY21Wa2FXVnVkQzUyTXdBQUFBQVlZekp6YU9nSWFJOThPLzNNTmRSMjc0VWlOclVBQUFCd1kySnZjcU5wWkdNNlptOXliV0YwYldsdFlXZGxMM04yWnl0NGJXeHFhVzV6ZEdGdVkyVkpSSGdzZUcxd09tbHBaRHBoTlRNMU1EUXpOUzAwTVdSaUxUUTNPREV0WWpZNE5TMDFOelU1WlRoa04yTmtPRE5zY21Wc1lYUnBiMjV6YUdsd2FIQmhjbVZ1ZEU5bUFBQUI0bXAxYldJQUFBQkJhblZ0WkdOaWIzSUFFUUFRZ0FBQXFnQTRtM0VUWXpKd1lTNWhZM1JwYjI1ekxuWXlBQUFBQUJoak1uTm9WM1pDQ2VuUVllMlRCZ1RiL1VsY0xRQUFBWmxqWW05eW9tZGhZM1JwYjI1emdxSm1ZV04wYVc5dWEyTXljR0V1YjNCbGJtVmthbkJoY21GdFpYUmxjbk9oYTJsdVozSmxaR2xsYm5SemdhSmpkWEpzZUMxelpXeG1JMnAxYldKbVBXTXljR0V1WVhOelpYSjBhVzl1Y3k5ak1uQmhMbWx1WjNKbFpHbGxiblF1ZGpOa2FHRnphRmdnK1k4UDRHd2pSMTZ3VlVCQ3R0TFRwMXQwMFZlajdyV1J4WlZ2SmprNXZ3R2tabUZqZEdsdmJuZ2RZMjl0TG1GdWRHaHliM0JwWXk1amJHRjFaR1V1Y0hKdmRtbGtaV1JxY0dGeVlXMWxkR1Z5YzZGNEgyTnZiUzVoYm5Sb2NtOXdhV011YjNKcFoybHVMV052Ym1acFpHVnVZMlZuZFc1cmJtOTNibXRrWlhOamNtbHdkR2x2Ym5obVEyeGhkV1JsSUhCeWIzWnBaR1ZrSUhSb2FYTWdabWxzWlNCaGRDQjBhR1VnY21WeGRXVnpkQ0J2WmlCaElIVnpaWElnWVc1a0lHMWhlU0JvWVhabElHTnlaV0YwWldRZ2IzSWdiVzlrYVdacFpXUWdkR2hsSUdacGJHVWdZMjl1ZEdWdWRITXViWE52Wm5SM1lYSmxRV2RsYm5TaFpHNWhiV1ZtUTJ4aGRXUmxjbUZzYkVGamRHbHZibk5KYm1Oc2RXUmxaUFVBQUFESWFuVnRZZ0FBQUVCcWRXMWtZMkp2Y2dBUkFCQ0FBQUNxQURpYmNSTmpNbkJoTG1oaGMyZ3VaR0YwWVFBQUFBQVlZekp6YUFBOWwvWGFUL3JIaTdXN0lkV1FrbkFBQUFDQVkySnZjcVZqWVd4blpuTm9ZVEkxTm1Od1lXUk5BQUFBQUFBQUFBQUFBQUFBQUdSb1lYTm9XQ0JXZCtuZ2VIa1gwTlIwdndlakIxUWk5OFJzSmxwVVA5RmFOb294TXhPdkhtUnVZVzFsYm1wMWJXSm1JRzFoYm1sbVpYTjBhbVY0WTJ4MWMybHZibk9Cb21WemRHRnlkQmg3Wm14bGJtZDBhQmtlQkFBQUFqNXFkVzFpQUFBQUoycDFiV1JqTW1Oc0FCRUFFSUFBQUtvQU9KdHhBMk15Y0dFdVkyeGhhVzB1ZGpJQUFBQUNEMk5pYjNLbFkyRnNaMlp6YUdFeU5UWnBjMmxuYm1GMGRYSmxlRTF6Wld4bUkycDFiV0ptUFM5ak1uQmhMM1Z5Ympwak1uQmhPakl3TUdRM04ySmlMV1pqT1dVdE5ERTJPUzFoTVdVMUxXVXdOall5WlRnMU56RTFNaTlqTW5CaExuTnBaMjVoZEhWeVpXcHBibk4wWVc1alpVbEVlQ3g0YlhBNmFXbGtPamcyWW1OalpHUmhMV0UzWkRRdE5EVm1ZaTA0TTJNeExXWXpNakEwWW1JME5ETmxaWEpqY21WaGRHVmtYMkZ6YzJWeWRHbHZibk9Eb21OMWNteDRMWE5sYkdZamFuVnRZbVk5WXpKd1lTNWhjM05sY25ScGIyNXpMMk15Y0dFdWFXNW5jbVZrYVdWdWRDNTJNMlJvWVhOb1dDRDVqdy9nYkNOSFhyQlZRRUsyMHRPblczVFJWNlB1dFpIRmxXOG1PVG0vQWFKamRYSnNlQ3B6Wld4bUkycDFiV0ptUFdNeWNHRXVZWE56WlhKMGFXOXVjeTlqTW5CaExtRmpkR2x2Ym5NdWRqSmthR0Z6YUZnZytkc255cWZpMkFJa0J6R1NvcnhvaDIxd1V6YkIzNU1Pbkp3MGpPMFZXVENpWTNWeWJIZ3BjMlZzWmlOcWRXMWlaajFqTW5CaExtRnpjMlZ5ZEdsdmJuTXZZekp3WVM1b1lYTm9MbVJoZEdGa2FHRnphRmdnMklhTkVBdW5JNjFPbnNSdzlqekk1WWwvWDVwbzByUm5KbDdJY2NpMWJJRjBZMnhoYVcxZloyVnVaWEpoZEc5eVgybHVabStqWkc1aGJXVnZRVzUwYUhKdmNHbGpJRVpwYkdWelozWmxjbk5wYjI1bE1TNHdMakJyYzNCbFkxWmxjbk5wYjI1bE1pNDBMakFBQUJBNGFuVnRZZ0FBQUNocWRXMWtZekpqY3dBUkFCQ0FBQUNxQURpYmNRTmpNbkJoTG5OcFoyNWhkSFZ5WlFBQUFCQUlZMkp2Y3RLRVdRSVNvZ0VtR0NGWkFnb3dnZ0lHTUlJQmphQURBZ0VDQWhSQTVhQUs3c0k1MEw2NGcvb0dRZ1U5WjFVVEFEQUtCZ2dxaGtqT1BRUURBekJKTVJjd0ZRWURWUVFLRXc1QmJuUm9jbTl3YVdNc0lGQkNRekV1TUN3R0ExVUVBeE1sUVc1MGFISnZjR2xqSUVOdmJuUmxiblFnUTNKbFpHVnVkR2xoYkhNZ1VtOXZkQ0JEUVRBZUZ3MHlOakE0TURjeE9EUXpOVFphRncweU9EQTRNRFl4T1RRek5UWmFNRVF4RnpBVkJnTlZCQW9URGtGdWRHaHliM0JwWXl3Z1VFSkRNU2t3SndZRFZRUURFeUJCYm5Sb2NtOXdhV01nUTJ4aGRXUmxJRU52Ym5SbGJuUWdVMmxuYm1sdVp6QlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJKaDZDbXZMVUJnRkZOVTB2VUtsT1Z0RTZkamQxN0w1U3V3WDBMZW1GaXNCTTNka2QvM2N5anhGQTNRbzVTNDZmWDAvaWhZMFZaN21mYjlLRjcwM3Q1T2pXREJXTUE0R0ExVWREd0VCL3dRRUF3SUhnREFWQmdOVkhTVUVEakFNQmdvckJnRUVBWVBvWGdJQk1Bd0dBMVVkRXdFQi93UUNNQUF3SHdZRFZSMGpCQmd3Rm9BVXpsSGlCSUZPWkZzaitPUEV6NW8rbk1IWFhNSXdDZ1lJS29aSXpqMEVBd01EWndBd1pBSXdNWE1kRko0QmV0TExWWTdPUnVFOW5vcWJiQVpPWm4vYUFyWHlUd0ZBWmZLclB6eEYydlBvSk5mMStVQ2RnMVhHQWpCd1gxemQ5V0dxWWtxbUw1U0ZxdzFReVNqcjF6SmZwSk05KzFyZER3U1BMTU9QT2pLdWlYam9VL3BVVWVHOVJ3bWhZM0JoWkZrTm5nQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUFpZUU8zNkNjMi9kTXlXL2VlSjFPMHhYUytXbVFDdGtMWUQwS3ljb3FHSEpCSldjWjlEUlFjSi9UcVd5SksxK1IxY1lBeGtOVkkyMmpYY21wdENCdGc3UjdVPTwvYzJwYTptYW5pZmVzdD48L21ldGFkYXRhPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjU2YWJmIi8+CiAgPGcgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMjQgMTB2OE0zMiAxMHY4TTQwIDEwdjhNMjQgNDZ2OE0zMiA0NnY4TTQwIDQ2djhNMTAgMjRoOE0xMCAzMmg4TTEwIDQwaDhNNDYgMjRoOE00NiAzMmg4TTQ2IDQwaDgiLz4KICA8L2c+CiAgPHJlY3QgeD0iMTciIHk9IjE3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI1IiBmaWxsPSIjZmZmIi8+CiAgPHRleHQgeD0iMzIiIHk9IjM3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMyNTZhYmYiPkNQVTwvdGV4dD4KPC9zdmc+Cg==" type="image/svg+xml">
+  <style>
+/* 仮想CPUラボ 共通スタイル（情報セキュリティ体験ラボと同じ色・部品） */
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1;
+  --surface-1: #fcfcfb;
+  --surface-2: #efeee9;
+  --border: #d9d7cf;
+  --text-primary: #1b1b1a;
+  --text-secondary: #52514e;
+  --text-muted: #6d6c67;
+  --accent: #256abf;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3eefb;
+  --good: #1f7a3a;
+  --good-soft: #e3f3e7;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d9;
+  --bad: #b3261e;
+  --bad-soft: #fbe5e3;
+  --focus: #eda100;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --font: "BIZ UDPGothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --mono: "BIZ UDGothic", "Consolas", "Menlo", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface-1: #1a1a19;
+    --surface-2: #242422;
+    --border: #3a3936;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #a3a29a;
+    --accent: #5598e7;
+    --accent-ink: #0b0b0b;
+    --accent-soft: #1c2b40;
+    --good: #5fc27a;
+    --good-soft: #17301f;
+    --warn: #e7b450;
+    --warn-soft: #362a12;
+    --bad: #f08a83;
+    --bad-soft: #3a1b19;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface-1: #1a1a19;
+  --surface-2: #242422;
+  --border: #3a3936;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #a3a29a;
+  --accent: #5598e7;
+  --accent-ink: #0b0b0b;
+  --accent-soft: #1c2b40;
+  --good: #5fc27a;
+  --good-soft: #17301f;
+  --warn: #e7b450;
+  --warn-soft: #362a12;
+  --bad: #f08a83;
+  --bad-soft: #3a1b19;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --shadow: none;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { font-size: 17px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font);
+  line-height: 1.75;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 { line-height: 1.4; margin: 0 0 0.5em; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+p { margin: 0 0 0.8em; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--surface-1); padding: 8px 12px; z-index: 10; }
+.skip-link:focus { left: 8px; }
+/* レイアウト */
+.app-header {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 20px; background: var(--surface-1); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 5;
+}
+.app-header .brand { font-weight: 700; font-size: 1.05rem; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.app-header .brand img { width: 28px; height: 28px; }
+.app-header .spacer { flex: 1; }
+.overall-progress { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+.overall-progress .bar { width: 120px; }
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; gap: 24px; padding: 20px; }
+.chapter-nav { position: sticky; top: 72px; align-self: start; min-width: 0; }
+.chapter-nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; position: relative; }
+.chapter-nav a, .chapter-nav span.disabled {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px;
+  text-decoration: none; color: var(--text-primary); font-size: 0.92rem;
+}
+.chapter-nav a:hover { background: var(--surface-2); }
+.chapter-nav a[aria-current="page"] { background: var(--accent-soft); font-weight: 700; }
+.chapter-nav span.disabled { color: var(--text-muted); }
+.chapter-nav .num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-size: 0.78rem; border: 1.5px solid var(--border); background: var(--surface-1);
+}
+.chapter-nav .done .num { background: var(--good); border-color: var(--good); color: var(--surface-1); }
+.chapter-nav .nav-group { font-size: 0.75rem; color: var(--text-muted); margin: 14px 10px 4px; letter-spacing: 0.05em; }
+main { min-width: 0; }
+.app-footer { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 24px 16px 40px; }
+
+@media (max-width: 860px) {
+  html { font-size: 16px; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; }
+  .chapter-nav { position: static; }
+  .chapter-nav ol { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: 6px; }
+  .chapter-nav .nav-group { display: none; }
+  .overall-progress .bar { width: 70px; }
+}
+
+/* 部品 */
+.card {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px 22px; margin-bottom: 18px; box-shadow: var(--shadow);
+}
+.card > :last-child { margin-bottom: 0; }
+.explain {
+  border-left: 5px solid var(--accent); background: var(--accent-soft);
+  border-radius: 8px; padding: 12px 16px; margin: 14px 0;
+}
+.explain .explain-label { font-weight: 700; font-size: 0.85rem; color: var(--accent); display: block; margin-bottom: 2px; }
+.explain.warn { border-color: var(--warn); background: var(--warn-soft); }
+.explain.warn .explain-label { color: var(--warn); }
+.explain.good { border-color: var(--good); background: var(--good-soft); }
+.explain.good .explain-label { color: var(--good); }
+.explain.bad { border-color: var(--bad); background: var(--bad-soft); }
+.explain.bad .explain-label { color: var(--bad); }
+.explain > :last-child { margin-bottom: 0; }
+
+.btn {
+  font: inherit; font-size: 0.95rem; cursor: pointer; border-radius: 10px; padding: 8px 16px;
+  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 700;
+  min-height: 44px;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn.secondary { background: transparent; color: var(--accent); }
+.btn.small { min-height: 36px; padding: 4px 12px; font-size: 0.88rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+
+label { font-weight: 700; font-size: 0.92rem; }
+input[type="text"], input[type="number"], textarea, select {
+  max-width: 100%;
+  font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; width: 100%; min-height: 44px;
+}
+textarea { min-height: 90px; resize: vertical; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.field { margin: 10px 0; display: grid; gap: 4px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.hint { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; }
+
+.bar { height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--border); }
+.bar > span { display: block; height: 100%; background: var(--good); border-radius: 99px; }
+
+.result-box {
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 12px 0; background: var(--surface-2);
+}
+.big-number { font-size: 1.8rem; font-weight: 700; line-height: 1.3; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 2px 10px; border-radius: 99px; font-size: 0.9rem; }
+.status.good { background: var(--good-soft); color: var(--good); }
+.status.warn { background: var(--warn-soft); color: var(--warn); }
+.status.bad { background: var(--bad-soft); color: var(--bad); }
+
+.choice-list { display: grid; gap: 8px; margin: 10px 0; padding: 0; list-style: none; }
+.choice-list button {
+  width: 100%; text-align: left; font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; min-height: 44px;
+}
+.choice-list button:hover { border-color: var(--accent); }
+.choice-list button.correct { border-color: var(--good); background: var(--good-soft); }
+.choice-list button.wrong { border-color: var(--bad); background: var(--bad-soft); }
+
+table.data { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+table.data th, table.data td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.data th { color: var(--text-secondary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.module-card {
+  display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-primary);
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+}
+a.module-card:hover { border-color: var(--accent); }
+.module-card .mc-num { font-size: 0.8rem; color: var(--text-muted); }
+.module-card .mc-title { font-weight: 700; font-size: 1.05rem; }
+.module-card .mc-desc { font-size: 0.88rem; color: var(--text-secondary); flex: 1; }
+.module-card.soon { opacity: 0.6; }
+
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text-primary); color: var(--surface-1);
+  padding: 10px 18px; border-radius: 99px; font-size: 0.9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+
+
+/* ---- 仮想CPUラボ ---- */
+:root {
+  --cpu: #7a4fc4;
+  --cpu-soft: #efe8fb;
+  --write: #c4560f;
+  --write-soft: #fde7d8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --cpu: #b393ec; --cpu-soft: #2a2140; --write: #f0955a; --write-soft: #3d2516; }
+}
+:root[data-theme="dark"] { --cpu: #b393ec; --cpu-soft: #2a2140; --write: #f0955a; --write-soft: #3d2516; }
+
+.muted { color: var(--text-muted); }
+.page { display: block; max-width: 1240px; margin: 0 auto; padding: 20px; outline: none; }
+.main-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.main-nav a { text-decoration: none; color: var(--text-primary); padding: 6px 12px; border-radius: 8px; font-size: 0.92rem; }
+.main-nav a:hover { background: var(--surface-2); }
+.main-nav a[aria-current="page"] { background: var(--accent-soft); font-weight: 700; }
+@media (max-width: 860px) {
+  .main-nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .main-nav a { white-space: nowrap; }
+  .page { padding: 12px 16px; }
+}
+.page-head { margin-bottom: 14px; }
+.page-head .muted { margin: 0; }
+.crumb { font-size: 0.85rem; margin: 0 0 4px; color: var(--text-muted); }
+.hero { padding: 18px 0 22px; }
+.hero h1 { font-size: 2rem; margin-bottom: 6px; }
+.hero .lead { font-size: 1.05rem; color: var(--text-secondary); max-width: 46em; }
+.hero .author { font-weight: 700; color: var(--text-secondary); margin: 0; }
+.small-status { font-size: 0.78rem; padding: 0 8px; margin-left: 6px; align-self: flex-start; }
+.status:not(.good):not(.warn):not(.bad) { background: var(--surface-2); color: var(--text-secondary); }
+.module-card.cleared { border-color: var(--good); }
+.stars { color: var(--focus); letter-spacing: 1px; }
+.teacher { margin-top: 18px; }
+.teacher summary { cursor: pointer; font-weight: 700; }
+.next-link { justify-content: flex-end; }
+a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.linkish { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 700; }
+.code-block { font-family: var(--mono); background: var(--surface-2); border-radius: 8px; padding: 10px 14px; overflow-x: auto; font-size: 0.9rem; line-height: 1.6; margin: 8px 0; }
+.code-block.small { font-size: 0.8rem; max-height: 220px; }
+
+/* 命令表 */
+.isa-table { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 18px; }
+.isa-table summary { cursor: pointer; font-weight: 700; }
+.isa-table code.op { font-weight: 700; color: var(--accent); }
+.syntax-notes { font-size: 0.88rem; color: var(--text-secondary); margin: 10px 0 0; padding-left: 1.3em; }
+
+/* シミュレーター */
+.sim-card { padding: 16px; }
+.sim { display: grid; grid-template-columns: minmax(250px, 340px) minmax(0, 1fr); gap: 18px; }
+/* 2列にするのは、記憶装置のマスが十分広くとれるときだけ（iPad 横 1080px などは1列） */
+@media (max-width: 1180px) { .sim { grid-template-columns: minmax(0, 1fr); } }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.panel-head h3 { margin: 0; }
+.editor { font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; min-height: 320px; white-space: pre; tab-size: 4; }
+.listing { list-style: none; margin: 0; padding: 6px 0; font-family: var(--mono); font-size: 0.92rem; line-height: 1.6; background: var(--surface-2); border-radius: 8px; max-height: 460px; overflow: auto; border: 1.5px solid var(--border); }
+.listing li { display: flex; gap: 10px; padding: 0 10px; border-left: 4px solid transparent; }
+.listing li .addr { flex: none; width: 2.2em; text-align: right; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.15em; }
+.listing li code { white-space: pre; }
+.listing li.now { background: var(--accent-soft); border-left-color: var(--accent); font-weight: 700; }
+.listing li.next { border-left-color: var(--border); }
+.err-list { margin: 0; padding-left: 1.2em; }
+.asm-errors .explain { margin-top: 8px; }
+
+.sim-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+.sim-controls .btn-row { margin: 0; }
+.step-help { flex-basis: 100%; margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+.speed { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; min-width: 230px; flex: 1; max-width: 340px; }
+.speed input { flex: 1; }
+.speed-label { min-width: 6.5em; font-weight: 400; color: var(--text-secondary); }
+
+.board {
+  position: relative; display: grid; gap: 10px; margin-top: 12px;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr) minmax(0, 0.8fr);
+  grid-template-areas: "in cpu out" "mem mem mem";
+}
+@media (max-width: 640px) {
+  .board { grid-template-columns: 1fr 1fr; grid-template-areas: "cpu cpu" "in out" "mem mem"; }
+}
+.unit { background: var(--surface-1); border: 2px solid var(--border); border-radius: 10px; padding: 8px 10px; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; min-width: 0; }
+.unit h4 { margin: 0 0 2px; font-size: 0.95rem; }
+.unit-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+.unit.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.u-in { grid-area: in; }
+.u-out { grid-area: out; }
+.u-mem { grid-area: mem; }
+.cpu { grid-area: cpu; border: 2px dashed var(--cpu); border-radius: 12px; padding: 22px 8px 8px; position: relative; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; background: var(--cpu-soft); }
+@media (max-width: 420px) { .cpu { grid-template-columns: 1fr; } }
+.cpu-label { position: absolute; top: 2px; left: 10px; font-size: 0.75rem; font-weight: 700; color: var(--cpu); }
+.cpu .unit.active { border-color: var(--cpu); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cpu) 25%, transparent); }
+.regs { font-size: 0.8rem; display: grid; gap: 2px; }
+.regs > div { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; }
+.reg-name { color: var(--text-secondary); }
+/* 用語の説明（押すと出る） */
+.term-btn { font: inherit; font-size: 0.8rem; color: var(--text-secondary); background: none; border: 0; padding: 4px 2px; min-height: 34px; cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 4px; text-decoration: underline dotted; text-underline-offset: 3px; }
+.term-btn .term-mark { flex: none; display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; border-radius: 50%; border: 1px solid currentColor; font-size: 0.7rem; text-decoration: none; }
+.term-btn[aria-expanded="true"] { color: var(--accent); font-weight: 700; }
+.term-note { display: block; font-size: 0.78rem; line-height: 1.5; background: var(--surface-2); border-radius: 6px; padding: 4px 8px; margin: 0 0 4px; color: var(--text-primary); }
+.reg-val { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; }
+.reg-val.ir { color: var(--accent); }
+.reg-val.small { font-size: 0.85rem; }
+.steps-line { font-size: 0.75rem; color: var(--text-muted); }
+.phase-pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 2px; }
+.phase-pills .pill { flex: 1 0 auto; text-align: center; font-size: 0.72rem; border-radius: 99px; padding: 1px 4px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); white-space: nowrap; }
+.phase-pills .pill.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.acc-val { display: block; font-family: var(--mono); font-weight: 700; font-size: 1.9rem; line-height: 1.2; text-align: center; padding: 4px 0; }
+.calc { font-family: var(--mono); font-size: 0.85rem; text-align: center; color: var(--cpu); min-height: 1.4em; }
+.queue { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.chip { font-family: var(--mono); font-weight: 700; font-size: 0.9rem; padding: 1px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.chip.used { background: var(--surface-2); color: var(--text-muted); text-decoration: line-through; font-weight: 400; }
+.screen { margin-top: 6px; background: #10231a; color: #7cf0a6; font-family: var(--mono); font-weight: 700; border-radius: 6px; padding: 6px 8px; min-height: 88px; max-height: 150px; overflow-y: auto; font-size: 0.95rem; line-height: 1.4; }
+.mem-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+@media (max-width: 760px) { .mem-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cell { border: 1.5px solid var(--border); border-radius: 6px; padding: 2px 5px; min-height: 44px; display: flex; flex-direction: column; justify-content: flex-start; background: var(--surface-1); min-width: 0; transition: background 0.2s; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.cell-addr { font-size: 0.68rem; color: var(--text-muted); display: flex; justify-content: space-between; gap: 2px; white-space: nowrap; overflow: hidden; }
+.cell-label { color: var(--cpu); font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+/* 命令は切らずに2行まで出す（「STORE max」「JUMP loop」も読める） */
+.cell-val { font-family: var(--mono); font-size: 0.8rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.cell-info { font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 0; min-height: 1.5em; }
+.cell.instr .cell-val { color: var(--accent); }
+.cell.data { background: var(--surface-2); }
+.cell.unused .cell-val { color: var(--text-muted); font-weight: 400; }
+.cell.pc { border-color: var(--accent); border-width: 2.5px; border-style: dashed; }
+.cell.now { background: var(--accent-soft); border-color: var(--accent); border-style: solid; }
+.cell.read { box-shadow: 0 0 0 3px var(--accent); }
+.cell.write { background: var(--write-soft); border-color: var(--write); box-shadow: 0 0 0 3px var(--write); }
+.cell.write .cell-val { color: var(--write); }
+.fly-layer { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.fly-chip { position: absolute; left: 0; top: 0; background: var(--focus); color: #1b1b1a; font-family: var(--mono); font-weight: 700; padding: 2px 10px; border-radius: 99px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); white-space: nowrap; z-index: 3; }
+.narration { margin-top: 8px; min-height: 3.2em; background: var(--surface-2); border-radius: 8px; padding: 8px 12px; font-size: 0.95rem; }
+.phase-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; border-radius: 99px; padding: 0 8px; background: var(--accent); color: var(--accent-ink); vertical-align: 1px; }
+.phase-tag.error { background: var(--bad); }
+.sim-status .explain { margin-bottom: 0; }
+.sample-pick { margin: 0; max-width: 480px; }
+.sample-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 8px 0 0; }
+.sample-row label { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.sample-row select { width: auto; max-width: 100%; }
+/* プログラムの読み方 */
+.reading-list { margin: 6px 0 0; padding-left: 1.2em; font-size: 0.9rem; line-height: 1.6; }
+.reading-list li { margin: 2px 0; }
+.reading-list code { font-weight: 700; color: var(--accent); background: var(--surface-2); border-radius: 4px; padding: 0 4px; }
+.reading-card h3 { margin-bottom: 0; }
+
+/* 課題 */
+.task-card .explain:first-child { margin-top: 0; }
+.hint-list { margin: 6px 0; padding-left: 1.4em; }
+.hint-list li { background: var(--warn-soft); border-radius: 6px; padding: 4px 10px; margin: 4px 0; }
+.answer { margin: 8px 0; }
+.answer summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); }
+.check-table tr.ok td:last-child { color: var(--good); font-weight: 700; }
+.check-table tr.ng td:last-child { color: var(--bad); font-weight: 700; }
+.check-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; }
+.check-bar .hint { margin: 0; }
+.answer-note { font-size: 0.85rem; color: var(--text-secondary); margin: 4px 0; }
+/* 課題の区分（必修・発展・チャレンジ） */
+.tier-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 18px 0 8px; }
+.tier-head h3 { margin: 0; }
+.tier-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; border-radius: 99px; padding: 0 8px; border: 1.5px solid currentColor; vertical-align: 2px; }
+.tier-badge.must { color: var(--accent); }
+.tier-badge.adv { color: var(--cpu); }
+.tier-badge.challenge { color: var(--warn); }
+.concept { font-size: 0.78rem; color: var(--text-secondary); }
+.done-rule { font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 0; }
+
+/* 図解 */
+.diagram-wrap { overflow-x: auto; }
+svg.five-units { width: 100%; min-width: 520px; max-width: 860px; height: auto; max-height: 50vh; display: block; margin: 0 auto 10px; font-family: var(--font); }
+.five-units .box rect { fill: var(--surface-2); stroke: var(--border); stroke-width: 2; transition: fill 0.25s, stroke 0.25s; }
+.five-units .box.cpu rect { fill: var(--cpu-soft); }
+.five-units .box.active rect { stroke: var(--accent); stroke-width: 3; fill: var(--accent-soft); }
+.five-units .box.cpu.active rect { stroke: var(--cpu); fill: var(--cpu-soft); }
+.five-units .box-title { fill: var(--text-primary); font-size: 17px; font-weight: 700; }
+.five-units .box-sub { fill: var(--text-secondary); font-size: 12px; }
+.five-units .box-value { fill: var(--write); font-size: 15px; font-weight: 700; font-family: var(--mono); }
+.five-units .arr { fill: none; stroke: var(--border); stroke-width: 2.5; transition: stroke 0.25s; }
+.five-units .arr.ctrl { stroke-dasharray: 6 5; }
+.five-units .arr.on { stroke: var(--accent); stroke-width: 3.5; }
+.five-units .arr.ctrl.on { stroke: var(--cpu); }
+.five-units .ah { fill: var(--text-muted); }
+.five-units .ah-data-on { fill: var(--accent); }
+.five-units .ah-ctrl-on { fill: var(--cpu); }
+.five-units .legend-g .arr { stroke: var(--text-muted); }
+.five-units .legend-t { fill: var(--text-secondary); font-size: 12px; }
+.five-units .legend-cpu { fill: var(--cpu-soft); stroke: var(--cpu); stroke-dasharray: 4 3; }
+.five-units .packet rect { fill: var(--focus); }
+.five-units .packet text { fill: #1b1b1a; font-weight: 700; font-size: 14px; }
+.sort-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px 16px; margin: 10px 0; }
+.sort-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 400; border-bottom: 1px solid var(--border); padding: 4px 0; }
+.sort-pick { display: flex; align-items: center; gap: 6px; flex: none; }
+.sort-pick select { width: 11em; min-height: 38px; padding: 4px 8px; }
+.mark { width: 1.2em; font-weight: 700; font-size: 1.1rem; }
+.mark.good { color: var(--good); }
+.mark.bad { color: var(--bad); }
+
+/* 手計算くらべ */
+.manual-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.manual-row .btn-row input { width: 9em; }
+.timer { font-family: var(--mono); min-width: 6em; }
+tr.you td { background: var(--warn-soft); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* 左メニュー：ほかの教材（セキュリティラボなど）と同じ位置・同じ見た目。作業画面が広いので幅を広げる */
+.layout.wide { grid-template-columns: 220px minmax(0, 1fr); max-width: 1480px; }
+#view:focus { outline: none; }
+/* 高さの小さい画面（ノートPC 1366×650 や、教材集の中）では見出しを上に固定しない（中身を広く見せる） */
+html { scroll-padding-top: 64px; } /* 自動で動かしたとき、上に固定した見出しの下にかくれないように */
+@media (max-height: 700px) {
+  html { scroll-padding-top: 0; }
+  .app-header { position: static; }
+  .chapter-nav { top: 12px; }
+}
+@media (max-width: 860px) { .layout.wide { grid-template-columns: minmax(0, 1fr); } }
+/* ふりかえり（ほかの教材と同じ形） */
+.reflection label { font-weight: 700; display: block; }
+.reflection textarea { margin-top: 6px; width: 100%; }
+.saved-note { font-size: 0.85rem; color: var(--good); min-height: 1.2em; }
+.export-msg { margin: 0; font-size: 0.9rem; font-weight: 700; flex-basis: 100%; }
+.export-msg:empty { display: none; }
+.export-msg.warn { color: var(--warn); }
+.export-msg.good { color: var(--good); }
+.concept-note { margin-top: 14px; }
+
+/* 第3段: 入力欄の読めなかった文字・× の行の「この入力でためす」・仲間分けの理由・計算中 */
+.input-note { margin: 0; font-size: 0.85rem; color: var(--warn); font-weight: 600; }
+.check-table .try-input { display: block; margin-top: 6px; min-height: 40px; white-space: nowrap; }
+.why-list { margin: 4px 0 8px; padding-left: 1.3em; }
+.why-list li { margin: 2px 0; }
+.calc-busy { padding: 12px 0; }
+.next-guide { margin-top: 16px; }
+.reflect-pointer { margin-top: 12px; }
+
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#view">本文へ移動</a>
+  <header class="app-header">
+    <a class="brand" href="#/"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM6YzJwYT0iaHR0cDovL2MycGEub3JnL21hbmlmZXN0Ij48bWV0YWRhdGE+PGMycGE6bWFuaWZlc3Q+QUFBV2dtcDFiV0lBQUFBZWFuVnRaR015Y0dFQUVRQVFnQUFBcWdBNG0zRURZekp3WVFBQUFCWmNhblZ0WWdBQUFFZHFkVzFrWXpKdFlRQVJBQkNBQUFDcUFEaWJjUU4xY200Nll6SndZVG95TURCa056ZGlZaTFtWXpsbExUUXhOamt0WVRGbE5TMWxNRFkyTW1VNE5UY3hOVElBQUFBRGwycDFiV0lBQUFBcGFuVnRaR015WVhNQUVRQVFnQUFBcWdBNG0zRURZekp3WVM1aGMzTmxjblJwYjI1ekFBQUFBTHhxZFcxaUFBQUFSR3AxYldSalltOXlBQkVBRUlBQUFLb0FPSnR4RTJNeWNHRXVhVzVuY21Wa2FXVnVkQzUyTXdBQUFBQVlZekp6YU9nSWFJOThPLzNNTmRSMjc0VWlOclVBQUFCd1kySnZjcU5wWkdNNlptOXliV0YwYldsdFlXZGxMM04yWnl0NGJXeHFhVzV6ZEdGdVkyVkpSSGdzZUcxd09tbHBaRHBoTlRNMU1EUXpOUzAwTVdSaUxUUTNPREV0WWpZNE5TMDFOelU1WlRoa04yTmtPRE5zY21Wc1lYUnBiMjV6YUdsd2FIQmhjbVZ1ZEU5bUFBQUI0bXAxYldJQUFBQkJhblZ0WkdOaWIzSUFFUUFRZ0FBQXFnQTRtM0VUWXpKd1lTNWhZM1JwYjI1ekxuWXlBQUFBQUJoak1uTm9WM1pDQ2VuUVllMlRCZ1RiL1VsY0xRQUFBWmxqWW05eW9tZGhZM1JwYjI1emdxSm1ZV04wYVc5dWEyTXljR0V1YjNCbGJtVmthbkJoY21GdFpYUmxjbk9oYTJsdVozSmxaR2xsYm5SemdhSmpkWEpzZUMxelpXeG1JMnAxYldKbVBXTXljR0V1WVhOelpYSjBhVzl1Y3k5ak1uQmhMbWx1WjNKbFpHbGxiblF1ZGpOa2FHRnphRmdnK1k4UDRHd2pSMTZ3VlVCQ3R0TFRwMXQwMFZlajdyV1J4WlZ2SmprNXZ3R2tabUZqZEdsdmJuZ2RZMjl0TG1GdWRHaHliM0JwWXk1amJHRjFaR1V1Y0hKdmRtbGtaV1JxY0dGeVlXMWxkR1Z5YzZGNEgyTnZiUzVoYm5Sb2NtOXdhV011YjNKcFoybHVMV052Ym1acFpHVnVZMlZuZFc1cmJtOTNibXRrWlhOamNtbHdkR2x2Ym5obVEyeGhkV1JsSUhCeWIzWnBaR1ZrSUhSb2FYTWdabWxzWlNCaGRDQjBhR1VnY21WeGRXVnpkQ0J2WmlCaElIVnpaWElnWVc1a0lHMWhlU0JvWVhabElHTnlaV0YwWldRZ2IzSWdiVzlrYVdacFpXUWdkR2hsSUdacGJHVWdZMjl1ZEdWdWRITXViWE52Wm5SM1lYSmxRV2RsYm5TaFpHNWhiV1ZtUTJ4aGRXUmxjbUZzYkVGamRHbHZibk5KYm1Oc2RXUmxaUFVBQUFESWFuVnRZZ0FBQUVCcWRXMWtZMkp2Y2dBUkFCQ0FBQUNxQURpYmNSTmpNbkJoTG1oaGMyZ3VaR0YwWVFBQUFBQVlZekp6YUFBOWwvWGFUL3JIaTdXN0lkV1FrbkFBQUFDQVkySnZjcVZqWVd4blpuTm9ZVEkxTm1Od1lXUk5BQUFBQUFBQUFBQUFBQUFBQUdSb1lYTm9XQ0JXZCtuZ2VIa1gwTlIwdndlakIxUWk5OFJzSmxwVVA5RmFOb294TXhPdkhtUnVZVzFsYm1wMWJXSm1JRzFoYm1sbVpYTjBhbVY0WTJ4MWMybHZibk9Cb21WemRHRnlkQmg3Wm14bGJtZDBhQmtlQkFBQUFqNXFkVzFpQUFBQUoycDFiV1JqTW1Oc0FCRUFFSUFBQUtvQU9KdHhBMk15Y0dFdVkyeGhhVzB1ZGpJQUFBQUNEMk5pYjNLbFkyRnNaMlp6YUdFeU5UWnBjMmxuYm1GMGRYSmxlRTF6Wld4bUkycDFiV0ptUFM5ak1uQmhMM1Z5Ympwak1uQmhPakl3TUdRM04ySmlMV1pqT1dVdE5ERTJPUzFoTVdVMUxXVXdOall5WlRnMU56RTFNaTlqTW5CaExuTnBaMjVoZEhWeVpXcHBibk4wWVc1alpVbEVlQ3g0YlhBNmFXbGtPamcyWW1OalpHUmhMV0UzWkRRdE5EVm1ZaTA0TTJNeExXWXpNakEwWW1JME5ETmxaWEpqY21WaGRHVmtYMkZ6YzJWeWRHbHZibk9Eb21OMWNteDRMWE5sYkdZamFuVnRZbVk5WXpKd1lTNWhjM05sY25ScGIyNXpMMk15Y0dFdWFXNW5jbVZrYVdWdWRDNTJNMlJvWVhOb1dDRDVqdy9nYkNOSFhyQlZRRUsyMHRPblczVFJWNlB1dFpIRmxXOG1PVG0vQWFKamRYSnNlQ3B6Wld4bUkycDFiV0ptUFdNeWNHRXVZWE56WlhKMGFXOXVjeTlqTW5CaExtRmpkR2x2Ym5NdWRqSmthR0Z6YUZnZytkc255cWZpMkFJa0J6R1NvcnhvaDIxd1V6YkIzNU1Pbkp3MGpPMFZXVENpWTNWeWJIZ3BjMlZzWmlOcWRXMWlaajFqTW5CaExtRnpjMlZ5ZEdsdmJuTXZZekp3WVM1b1lYTm9MbVJoZEdGa2FHRnphRmdnMklhTkVBdW5JNjFPbnNSdzlqekk1WWwvWDVwbzByUm5KbDdJY2NpMWJJRjBZMnhoYVcxZloyVnVaWEpoZEc5eVgybHVabStqWkc1aGJXVnZRVzUwYUhKdmNHbGpJRVpwYkdWelozWmxjbk5wYjI1bE1TNHdMakJyYzNCbFkxWmxjbk5wYjI1bE1pNDBMakFBQUJBNGFuVnRZZ0FBQUNocWRXMWtZekpqY3dBUkFCQ0FBQUNxQURpYmNRTmpNbkJoTG5OcFoyNWhkSFZ5WlFBQUFCQUlZMkp2Y3RLRVdRSVNvZ0VtR0NGWkFnb3dnZ0lHTUlJQmphQURBZ0VDQWhSQTVhQUs3c0k1MEw2NGcvb0dRZ1U5WjFVVEFEQUtCZ2dxaGtqT1BRUURBekJKTVJjd0ZRWURWUVFLRXc1QmJuUm9jbTl3YVdNc0lGQkNRekV1TUN3R0ExVUVBeE1sUVc1MGFISnZjR2xqSUVOdmJuUmxiblFnUTNKbFpHVnVkR2xoYkhNZ1VtOXZkQ0JEUVRBZUZ3MHlOakE0TURjeE9EUXpOVFphRncweU9EQTRNRFl4T1RRek5UWmFNRVF4RnpBVkJnTlZCQW9URGtGdWRHaHliM0JwWXl3Z1VFSkRNU2t3SndZRFZRUURFeUJCYm5Sb2NtOXdhV01nUTJ4aGRXUmxJRU52Ym5SbGJuUWdVMmxuYm1sdVp6QlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJKaDZDbXZMVUJnRkZOVTB2VUtsT1Z0RTZkamQxN0w1U3V3WDBMZW1GaXNCTTNka2QvM2N5anhGQTNRbzVTNDZmWDAvaWhZMFZaN21mYjlLRjcwM3Q1T2pXREJXTUE0R0ExVWREd0VCL3dRRUF3SUhnREFWQmdOVkhTVUVEakFNQmdvckJnRUVBWVBvWGdJQk1Bd0dBMVVkRXdFQi93UUNNQUF3SHdZRFZSMGpCQmd3Rm9BVXpsSGlCSUZPWkZzaitPUEV6NW8rbk1IWFhNSXdDZ1lJS29aSXpqMEVBd01EWndBd1pBSXdNWE1kRko0QmV0TExWWTdPUnVFOW5vcWJiQVpPWm4vYUFyWHlUd0ZBWmZLclB6eEYydlBvSk5mMStVQ2RnMVhHQWpCd1gxemQ5V0dxWWtxbUw1U0ZxdzFReVNqcjF6SmZwSk05KzFyZER3U1BMTU9QT2pLdWlYam9VL3BVVWVHOVJ3bWhZM0JoWkZrTm5nQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUFpZUU8zNkNjMi9kTXlXL2VlSjFPMHhYUytXbVFDdGtMWUQwS3ljb3FHSEpCSldjWjlEUlFjSi9UcVd5SksxK1IxY1lBeGtOVkkyMmpYY21wdENCdGc3UjdVPTwvYzJwYTptYW5pZmVzdD48L21ldGFkYXRhPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjU2YWJmIi8+CiAgPGcgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMjQgMTB2OE0zMiAxMHY4TTQwIDEwdjhNMjQgNDZ2OE0zMiA0NnY4TTQwIDQ2djhNMTAgMjRoOE0xMCAzMmg4TTEwIDQwaDhNNDYgMjRoOE00NiAzMmg4TTQ2IDQwaDgiLz4KICA8L2c+CiAgPHJlY3QgeD0iMTciIHk9IjE3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI1IiBmaWxsPSIjZmZmIi8+CiAgPHRleHQgeD0iMzIiIHk9IjM3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMyNTZhYmYiPkNQVTwvdGV4dD4KPC9zdmc+Cg==" alt="" width="28" height="28">仮想CPUラボ</a>
+  </header>
+  <div class="layout wide">
+    <aside class="chapter-nav" id="chapter-nav"></aside>
+    <main id="view" tabindex="-1">
+      <noscript><p>この教材を使うには JavaScript を有効にしてください。</p></noscript>
+    </main>
+  </div>
+  <footer class="app-footer">
+    <p class="author">作成：技術 岡田（第1.3版 2026年10月）</p>
+    <p>この教材はブラウザの中だけで動き、外部のサイトには接続しません。</p>
+  </footer>
+  <script>
+window.__VCPU_DATA = {"isa":{"memorySize":32,"maxSteps":10000,"instructions":[{"op":"LOAD","operand":"value","unit":"mem","name":"読み込む","desc":"値を ACC（計算用の箱）に入れる","example":"LOAD x ／ LOAD #5"},{"op":"STORE","operand":"addr","unit":"mem","name":"しまう","desc":"ACC の値を記憶装置の番地に書きこむ","example":"STORE x"},{"op":"ADD","operand":"value","unit":"alu","name":"たす","desc":"ACC に値をたす（演算装置）","example":"ADD x ／ ADD #1"},{"op":"SUB","operand":"value","unit":"alu","name":"ひく","desc":"ACC から値をひく（演算装置）","example":"SUB x ／ SUB #1"},{"op":"JUMP","operand":"addr","unit":"ctrl","name":"とぶ","desc":"次に実行する番地を変える（くり返しに使う）","example":"JUMP loop"},{"op":"JZ","operand":"addr","unit":"ctrl","name":"0ならとぶ","desc":"ACC が 0 のときだけ番地にとぶ（条件分岐）","example":"JZ end"},{"op":"JN","operand":"addr","unit":"ctrl","name":"負ならとぶ","desc":"ACC がマイナスのときだけ番地にとぶ（大小くらべ）","example":"JN skip"},{"op":"IN","operand":"none","unit":"in","name":"入力","desc":"入力装置から数を1つ受け取って ACC に入れる","example":"IN"},{"op":"OUT","operand":"none","unit":"out","name":"出力","desc":"ACC の値を出力装置（画面）に表示する","example":"OUT"},{"op":"HALT","operand":"none","unit":"ctrl","name":"止まる","desc":"プログラムを終わる","example":"HALT"}],"syntax":["1行に1命令。「;」から後ろはメモ（コメント）です。","x のような名前は「番地につけた名前（ラベル）」です。「x: DATA 0」で、0 の入った箱を用意します。","#5 のように # をつけると「5 という数そのもの」、x や 20 だけなら「その番地に入っている数」という意味です。","loop: のように行の先頭に名前と「:」を書くと、その番地に名前がつき、JUMP loop のように使えます。","DATA の行（数の箱）は HALT より後ろに書きます。前に書くと、CPU が数を命令として読もうとして止まります。","番地は 0 から数えます。エラーの「○行目」は 1 から数えます。名前は大文字と小文字を区別します（sum と Sum は別の箱）。"]},"tasks":{"tasks":[{"id":"show","tier":"must","concept":"順次","level":1,"title":"数を表示しよう","goal":"12 を出力装置に表示するプログラムにしよう。","story":"まずは「実行」を押して、7 が表示されるまでの動きを見よう。そのあと、7 を 12 に書きかえて答え合わせをしよう。","starter":"LOAD #7   ; 数 7 を ACC に入れる\nOUT       ; ACC の値を出力する\nHALT      ; 終わり","tests":[{"inputs":[],"outputs":[12]}],"hints":["1行目の「#7」の 7 が、ACC に入る数です。OUT は ACC の数を表示します。","表示したいのは 12 です。1行目の # のあとの数を書きかえよう。"],"answer":"LOAD #12\nOUT\nHALT"},{"id":"add","tier":"must","concept":"順次","level":1,"title":"たし算","goal":"入力された2つの数をたして、答えを出力しよう。","story":"入力装置（キーボード）から数が2つ入ってきます。1つめを記憶装置にしまっておき、2つめが来たらたし算します。","starter":"IN          ; 1つめの数を入力 → ACC\nSTORE a     ; ACC の値を a にしまう\nIN          ; 2つめの数を入力 → ACC\n??? a       ; ACC に a をたす\nOUT         ; 答えを出力\nHALT\na: DATA 0   ; 数をしまう箱","sampleInputs":[3,5],"tests":[{"inputs":[3,5],"outputs":[8]},{"inputs":[10,-4],"outputs":[6]},{"inputs":[0,0],"outputs":[0]}],"hints":["??? には「たす」命令が入ります。下の「命令表」をひらいて、「たす」の行を見よう。","「たす」命令の名前を ??? のところに書きます。後ろの a はそのまま残します。"],"answer":"IN\nSTORE a\nIN\nADD a\nOUT\nHALT\na: DATA 0"},{"id":"sub","tier":"must","concept":"順次","level":2,"title":"ひき算と順番","goal":"入力された2つの数で「1つめ − 2つめ」を計算して出力しよう。","story":"ひき算は順番が大事です。2つの数をそれぞれ a と b にしまってから、正しい順番で計算します。","starter":"IN\nSTORE a     ; 1つめ → a\nIN\nSTORE b     ; 2つめ → b\nLOAD ???    ; ACC に「ひかれる数」を入れる\nSUB ???     ; ACC から「ひく数」をひく\nOUT\nHALT\na: DATA 0\nb: DATA 0","sampleInputs":[9,4],"tests":[{"inputs":[9,4],"outputs":[5]},{"inputs":[3,7],"outputs":[-4]},{"inputs":[6,6],"outputs":[0]}],"hints":["9 と 4 が入力されたら、9 − 4 = 5 を出したい。9 は a と b のどちらに入っている？","LOAD のあとには「ひかれる数（9）」の箱の名前、SUB のあとには「ひく数（4）」の箱の名前を書きます。"],"answer":"IN\nSTORE a\nIN\nSTORE b\nLOAD a\nSUB b\nOUT\nHALT\na: DATA 0\nb: DATA 0"},{"id":"countdown","tier":"must","concept":"反復","level":2,"title":"カウントダウン（くり返し）","goal":"入力された数から 1 まで、1つずつ減らしながら全部出力しよう（5 なら 5, 4, 3, 2, 1）。","story":"同じ命令を何回も書く代わりに、JUMP で前の番地にもどって「くり返し」ます。0 になったら JZ でくり返しをぬけます。","starter":"      IN\nloop: OUT        ; いまの数を出力\n      SUB #1     ; 1 へらす\n      JZ end     ; 0 になったら end へ\n      JUMP ???   ; そうでなければ、くり返す\nend:  HALT","sampleInputs":[5],"tests":[{"inputs":[5],"outputs":[5,4,3,2,1]},{"inputs":[3],"outputs":[3,2,1]},{"inputs":[1],"outputs":[1]}],"hints":["JUMP は「次はこの行にとぶ」という命令です。くり返したいのは、どの行から？","くり返したいのは「OUT」の行からです。その行の先頭には「名前:」がついています。JUMP のあとに、その名前を書きます。"],"answer":"      IN\nloop: OUT\n      SUB #1\n      JZ end\n      JUMP loop\nend:  HALT"},{"id":"sum10","tier":"adv","concept":"反復","level":3,"title":"1から10までの合計","goal":"1 + 2 + 3 + … + 10 を計算して、答え（55）を出力しよう。","story":"i を 1, 2, 3, … と増やしながら、sum に i をたしていきます。i が 11 になったら終わり。答えを直接書くのではなく、くり返しで計算させよう。","starter":"loop: LOAD sum\n      ADD ???    ; sum に i をたす\n      STORE sum\n      LOAD i\n      ADD #1     ; i を 1 ふやす\n      STORE i\n      SUB #11    ; i − 11 を計算\n      JZ end     ; 0 なら（i が 11 なら）終わり\n      JUMP ???   ; くり返す\nend:  LOAD sum\n      OUT\n      HALT\ni:    DATA 1\nsum:  DATA 0","tests":[{"inputs":[],"outputs":[55]}],"minSteps":30,"hints":["くり返すたびに、i は 1 → 2 → 3 → 4 …、sum は 0 → 1 → 3 → 6 … と変わります。sum には毎回、何をたしている？","1つめの ??? : sum に「いまの i」をたします。ADD のあとに、i の箱の名前を書きます。","2つめの ??? : くり返しの始まりの行にとびます。始まりの行の先頭についている名前は？"],"answer":"loop: LOAD sum\n      ADD i\n      STORE sum\n      LOAD i\n      ADD #1\n      STORE i\n      SUB #11\n      JZ end\n      JUMP loop\nend:  LOAD sum\n      OUT\n      HALT\ni:    DATA 1\nsum:  DATA 0"},{"id":"sumN","tier":"adv","concept":"反復","level":3,"title":"1からNまでの合計","goal":"入力された数 N について、1 + 2 + … + N を出力しよう（10 なら 55、100 なら 5050）。","story":"今度は N を n にしまい、n を 1 ずつ減らしながら sum にたしていきます。n が 0 になったら終わり。どんな N でも同じプログラムで計算できます。","starter":"      IN\n      STORE n\nloop: LOAD sum\n      ADD n      ; sum に n をたす\n      STORE ???\n      LOAD n\n      SUB #1     ; n を 1 へらす\n      STORE n\n      ??? end    ; n が 0 なら終わり\n      JUMP loop\nend:  LOAD sum\n      OUT\n      HALT\nn:    DATA 0\nsum:  DATA 0","sampleInputs":[10],"tests":[{"inputs":[10],"outputs":[55]},{"inputs":[100],"outputs":[5050]},{"inputs":[1],"outputs":[1]}],"hints":["N が 3 なら、sum は 0 → 3 → 5 → 6、n は 3 → 2 → 1 → 0 と変わります。n が 0 になったら終わりです。","1つめの ??? : たした結果（ACC の値）を、合計の箱にしまいます。合計の箱の名前は？","2つめの ??? : n が 0 になったら end にとびたい。命令表で「0ならとぶ」命令の名前をさがそう。"],"answer":"      IN\n      STORE n\nloop: LOAD sum\n      ADD n\n      STORE sum\n      LOAD n\n      SUB #1\n      STORE n\n      JZ end\n      JUMP loop\nend:  LOAD sum\n      OUT\n      HALT\nn:    DATA 0\nsum:  DATA 0"},{"id":"max","tier":"adv","concept":"反復・分岐","level":4,"title":"最大値さがし","goal":"入力される数の中でいちばん大きい数を出力しよう。数は 1 以上で、最後に 0 が来たら終わりの合図です。","story":"入力された数 x と、今までの最大 max をくらべます。x − max がマイナスなら x は小さいので何もしない。そうでなければ、x の値を max にしまいます（max ← x）。","starter":"loop: IN\n      JZ end     ; 0 が来たら終わり\n      STORE x\n      SUB max    ; x − max を計算\n      JN ???     ; マイナスなら（x が小さいなら）次の数へ\n      LOAD x\n      STORE ???  ; x の値を max にしまう\n      JUMP loop\nend:  LOAD max\n      OUT\n      HALT\nx:    DATA 0\nmax:  DATA 0","sampleInputs":[3,8,2,0],"tests":[{"inputs":[3,8,2,0],"outputs":[8]},{"inputs":[5,1,0],"outputs":[5]},{"inputs":[1,2,3,4,0],"outputs":[4]},{"inputs":[7,7,0],"outputs":[7]},{"inputs":[3,1,8,0],"outputs":[8]},{"inputs":[2,9,4,10,0],"outputs":[10]}],"hints":["SUB max で x − max を計算しています。答えがマイナスなら、x のほうが小さい、ということです。","x が小さいときは、次の数を読みに行きたい。数を読む IN はどの行？ その行の先頭の名前にとびます（1つめの ???）。","x が大きいときは、x の値を max にしまいます。STORE のあとには、しまう先の箱の名前を書きます（2つめの ???）。"],"answer":"loop: IN\n      JZ end\n      STORE x\n      SUB max\n      JN loop\n      LOAD x\n      STORE max\n      JUMP loop\nend:  LOAD max\n      OUT\n      HALT\nx:    DATA 0\nmax:  DATA 0"},{"id":"free","tier":"challenge","concept":"反復・分岐","level":5,"title":"チャレンジ: 2倍して表示","goal":"入力された数を、1つずつ2倍して出力しよう。0 が来たら終わり（3, 5, 0 なら 6, 10）。","story":"ここからは自分で全部書きます。かけ算の命令はないので、たし算をうまく使おう。","starter":"; ここにプログラムを書こう\n","sampleInputs":[3,5,0],"tests":[{"inputs":[3,5,0],"outputs":[6,10]},{"inputs":[1,0],"outputs":[2]},{"inputs":[-2,4,0],"outputs":[-4,8]},{"inputs":[1,2,3,0],"outputs":[2,4,6]}],"hints":["x の2倍は x + x です。入力した数をいったん x にしまっておくと、ADD x でたせます。","流れは「IN → 0 なら終わりへ → x にしまう → x をたす → 出力 → はじめにもどる」です。とび先の行には「名前:」をつけよう。x の箱（x: DATA 0）は HALT より後ろに書きます。"],"answer":"loop: IN\n      JZ end\n      STORE x\n      ADD x\n      OUT\n      JUMP loop\nend:  HALT\nx:    DATA 0"}]}};
+</script>
+<script>
+"use strict";
+// ---- js/ui.js ----
+const __m_js_ui_js = (() => {
+
+// 共通の小さな部品
+// 要素ビルダー: h("div", { class: "card" }, "text", child)
+function h(tag, attrs = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === false || v === null || v === undefined) continue;
+    if (k === "class") el.className = v;
+    else if (k === "html") el.innerHTML = v;
+    else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (k === "dataset") Object.assign(el.dataset, v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat(Infinity)) {
+    if (c === null || c === undefined || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function s(tag, attrs = {}, ...children) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v !== null && v !== undefined) el.setAttribute(k, v);
+  for (const c of children.flat(Infinity)) {
+    if (c === null || c === undefined || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+
+// 解説カード。kind: "info" | "warn" | "good" | "bad"
+function explain(label, body, kind = "info") {
+  return h("div", { class: `explain ${kind === "info" ? "" : kind}` }, h("span", { class: "explain-label" }, label), typeof body === "string" ? h("p", {}, body) : body);
+}
+
+let toastTimer;
+function toast(text) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = h("div", { id: "toast", class: "toast", role: "status", "aria-live": "polite" });
+    document.body.append(el);
+  }
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+const reducedMotion = () => globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// 用語の説明: 指でも押して読める（マウスを乗せるだけの説明にしない）。押すと下に説明が出て、もう一度押すと閉じる
+let termSeq = 0;
+function term(label, note, cls = "") {
+  const id = `term-note-${++termSeq}`;
+  const noteEl = h("span", { class: "term-note", id, hidden: true }, note);
+  const btn = h("button", { class: `term-btn ${cls}`, type: "button", "aria-expanded": "false", "aria-controls": id }, label, h("span", { class: "term-mark", "aria-hidden": "true" }, "?"));
+  btn.addEventListener("click", () => {
+    noteEl.hidden = !noteEl.hidden;
+    btn.setAttribute("aria-expanded", String(!noteEl.hidden));
+  });
+  return { btn, note: noteEl };
+}
+
+// 次に開くページで、ふりかえり欄まで動かしてもらう（課題8クリア後の「ふりかえりを書こう」ボタンなど）
+let reflectionFocus = false;
+function requestReflectionFocus() {
+  reflectionFocus = true;
+}
+function takeReflectionFocus() {
+  const v = reflectionFocus;
+  reflectionFocus = false;
+  return v;
+}
+
+return { h, s, explain, toast, reducedMotion, sleep, term, requestReflectionFocus, takeReflectionFocus };
+})();
+
+// ---- js/data.js ----
+const __m_js_data_js = (() => {
+
+// data/*.json の読み込み（単一HTML版では埋め込まれたデータを使う）
+const cache = new Map();
+
+async function loadData(name) {
+  if (cache.has(name)) return cache.get(name);
+  let value = globalThis.__VCPU_DATA?.[name];
+  if (!value) {
+    const r = await fetch(`data/${name}.json`);
+    if (!r.ok) throw new Error(`data/${name}.json を読み込めませんでした`);
+    value = await r.json();
+  }
+  cache.set(name, value);
+  return value;
+}
+
+return { loadData };
+})();
+
+// ---- js/store.js ----
+const __m_js_store_js = (() => {
+
+// 進み具合・プログラム・ふりかえりの保存（この端末のブラウザ内 localStorage のみ。外部には送らない）
+const KEY = "vcpu.v1";
+
+function empty() {
+  // visited: 開いたページ（記録用） / done: やり終えたページ（✓ をつける。図解は仲間分けの答え合わせ、手計算くらべは手計算と N のくらべ）
+  // answerViewed: 課題の「答えの例」を開いた時刻 / sim: 仮想CPUページで選んだサンプルの番号と入力の数
+  return { cleared: {}, drafts: {}, visited: {}, done: {}, answerViewed: {}, sim: null, manual: null, reflections: {}, student: { cls: "", num: "", name: "" } };
+}
+
+let state = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? { ...empty(), ...JSON.parse(raw) } : empty();
+  } catch {
+    return empty();
+  }
+}
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch {
+    // 保存できない環境（プライベートモードなど）でも、その場の体験は続けられる
+  }
+}
+
+const store = {
+  get state() {
+    return state;
+  },
+  markVisited(page) {
+    if (state.visited[page]) return;
+    state.visited[page] = new Date().toISOString();
+    save();
+  },
+  // ページをやり終えた印（info は記録に残す中身。例: 仲間分けの正解数）
+  markDone(page, info = {}) {
+    state.done[page] = { ...(state.done[page] || {}), ...info, at: state.done[page]?.at || new Date().toISOString() };
+    save();
+  },
+  isDone: (page) => Boolean(state.done?.[page]?.at),
+  // 課題の「答えの例」を開いたことを記録する（はじめて開いた時刻）
+  markAnswerViewed(id) {
+    if (state.answerViewed[id]) return;
+    state.answerViewed[id] = new Date().toISOString();
+    save();
+  },
+  answerViewed: (id) => state.answerViewed?.[id] || null,
+  setSimMeta(info) {
+    state.sim = { ...(state.sim || {}), ...info };
+    save();
+  },
+  isCleared: (id) => Boolean(state.cleared[id]),
+  clear(id) {
+    if (!state.cleared[id]) state.cleared[id] = new Date().toISOString();
+    save();
+  },
+  getDraft: (id) => state.drafts[id],
+  setDraft(id, text) {
+    if (text === null) delete state.drafts[id];
+    else state.drafts[id] = text;
+    save();
+  },
+  setManual(rec) {
+    state.manual = rec;
+    save();
+  },
+  setReflection(id, text) {
+    if (text) state.reflections[id] = { text, at: new Date().toISOString() };
+    else delete state.reflections[id]; // 全部消したときは「書いていない」にもどす
+    save();
+  },
+  getReflection: (id) => state.reflections[id]?.text || "",
+  setStudent(info) {
+    state.student = { ...state.student, ...info };
+    save();
+  },
+  reset() {
+    state = empty();
+    save();
+  },
+};
+
+return { store };
+})();
+
+// ---- js/vm.js ----
+const __m_js_vm_js = (() => {
+
+// 仮想CPU（教育用の小さなコンピュータ）。画面（DOM）には触らない計算だけの部品。
+// 記憶装置: memorySize 語。1語に「命令」か「数」が1つ入る（プログラムとデータが同じ記憶装置に入る＝プログラム内蔵方式）。
+// レジスタ: PC（プログラムカウンタ＝次に取り出す番地）、IR（命令レジスタ＝いま実行中の命令）、ACC（アキュムレータ＝計算用の箱）。
+// 1つの命令は「取り出し → 解読 → 実行」の3段階で進む。
+
+const UNIT_NAMES = { in: "入力装置", mem: "記憶装置", alu: "演算装置", ctrl: "制御装置", out: "出力装置" };
+const PHASE_NAMES = { fetch: "取り出し", decode: "解読", execute: "実行" };
+
+const LABEL_RE = /^([\p{L}_][\p{L}\p{N}_]*)\s*:\s*(.*)$/u;
+const NAME_RE = /^[\p{L}_][\p{L}\p{N}_]*$/u;
+const INT_RE = /^[+-]?\d+$/;
+const DEC_RE = /^[+-]?\d*\.\d+$/; // 小数（2.5 など）
+const JUMP_OPS = new Set(["JUMP", "JZ", "JN"]);
+
+function isaTable(isa) {
+  return Object.fromEntries(isa.instructions.map((i) => [i.op, i]));
+}
+
+// 全角の英数字・記号（ＬＯＡＤ、＃５、；、：など）を半角にそろえる
+function normalizeSource(src) {
+  return String(src ?? "").normalize("NFKC").replace(/\r\n?/g, "\n");
+}
+
+// プログラムの文字 → 記憶装置の中身
+// 戻り値: { ok, errors: [{ line, message }], memory, labels, addrOfLine, lineOfAddr }
+function assemble(source, isa) {
+  const ops = isaTable(isa);
+  const size = isa.memorySize;
+  const lines = normalizeSource(source).split("\n");
+  const errors = [];
+  const items = []; // { line, op, operand, labels }
+  const labels = {}; // 名前 → 番地
+  let pending = []; // まだ番地が決まっていないラベル（名前だけの行）
+
+  lines.forEach((raw, i) => {
+    const line = i + 1;
+    let text = raw.replace(/(;|\/\/).*$/, "").trim();
+    if (!text) return;
+    const names = [];
+    let m;
+    while ((m = text.match(LABEL_RE))) {
+      names.push(m[1]);
+      text = m[2].trim();
+    }
+    for (const name of names) {
+      if (name.toUpperCase() in ops || name.toUpperCase() === "DATA") errors.push({ line, message: `「${name}」は命令の名前なので、ラベル（番地の名前）には使えません` });
+      else if (name in labels || pending.some((p) => p.name === name)) errors.push({ line, message: `ラベル「${name}」が2回出てきます。名前は1つずつ別にしよう` });
+      else pending.push({ name, line });
+    }
+    if (!text) return;
+    // 「LOAD # 5」「LOAD#5」も「LOAD #5」として読む
+    text = text.replace(/#\s+/g, "#").replace(/^([A-Za-z]+)#/, "$1 #");
+    const parts = text.split(/\s+/);
+    const op = parts[0].toUpperCase();
+    if (parts.length > 2) {
+      errors.push({ line, message: `「${text}」: 1行に書ける命令は1つ、番地や数も1つだけです` });
+      return;
+    }
+    const operand = parts[1];
+    if (op.includes("?") || operand?.includes("?")) {
+      errors.push({ line, message: "「???」のところを、正しい命令・番地・数に書きかえよう" });
+    } else if (op !== "DATA" && !(op in ops)) {
+      // ひらがな・カタカナが入っているときは、日本語入力のまま打ったと考えて知らせる
+      const kana = /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(parts[0]) ? "。日本語入力になっていませんか？ 英数モードにして打ちなおそう" : "";
+      errors.push({ line, message: `「${parts[0]}」という命令はありません（使える命令: ${Object.keys(ops).join(" ")}）${kana}` });
+    }
+    const addr = items.length;
+    for (const p of pending) labels[p.name] = addr;
+    pending = [];
+    items.push({ line, op, operand });
+  });
+  // 最後の行が名前だけのときは、次の空き番地につける
+  for (const p of pending) labels[p.name] = items.length;
+
+  if (items.length > size) {
+    errors.push({ line: items[size].line, message: `記憶装置は ${size} 個（0〜${size - 1}番地）しかありません。命令とデータを合わせて ${size} 個以内にしよう（いま ${items.length} 個）` });
+  }
+
+  const memory = new Array(size).fill(0);
+  const lineOfAddr = new Array(size).fill(null);
+  const addrOfLine = {};
+
+  const resolveAddr = (tok, line, op) => {
+    if (INT_RE.test(tok)) {
+      const n = Number(tok);
+      if (n < 0 || n >= size) {
+        errors.push({ line, message: `${n}番地はありません（0〜${size - 1}番地）` });
+        return null;
+      }
+      return n;
+    }
+    if (NAME_RE.test(tok)) {
+      if (tok in labels) return labels[tok];
+      const near = Object.keys(labels).find((k) => k.toLowerCase() === tok.toLowerCase());
+      if (near) errors.push({ line, message: `「${tok}」という名前はありません。「${near}」のことかな？（名前は大文字と小文字を区別します）` });
+      else if (JUMP_OPS.has(op)) errors.push({ line, message: `「${tok}」という名前の行がありません。とびたい行の先頭に「${tok}:」をつけよう` });
+      else errors.push({ line, message: `「${tok}」という箱がありません。HALT のあとに「${tok}: DATA 0」を書いて用意しよう` });
+      return null;
+    }
+    errors.push({ line, message: `「${tok}」は番地として読めません` });
+    return null;
+  };
+
+  items.slice(0, size).forEach((it, addr) => {
+    const { line, op, operand } = it;
+    lineOfAddr[addr] = line;
+    addrOfLine[line] = addr;
+    if (op.includes("?") || operand?.includes("?")) return; // エラーは上で出した
+    if (op === "DATA") {
+      if (operand === undefined) errors.push({ line, message: "DATA の後ろに、はじめに入れておく数を書こう（例: DATA 0）" });
+      else if (DEC_RE.test(operand)) errors.push({ line, message: `「${operand}」: 小数は使えません。整数にしよう` });
+      else if (!INT_RE.test(operand)) errors.push({ line, message: `DATA の後ろは整数にしよう（「${operand}」は数ではありません）` });
+      else memory[addr] = Number(operand);
+      return;
+    }
+    const spec = ops[op];
+    if (!spec) return;
+    const word = { op, mode: null, arg: null, ref: null, line };
+    if (spec.operand === "none") {
+      if (operand !== undefined) errors.push({ line, message: `${op} の後ろには何も書きません（「${operand}」を消そう）` });
+    } else if (operand === undefined) {
+      errors.push({ line, message: `${op} の後ろに${spec.operand === "addr" ? "番地（またはラベル）" : "番地か #数"}を書こう（例: ${spec.example}）` });
+    } else if (operand.startsWith("#")) {
+      const num = operand.slice(1);
+      if (spec.operand !== "value") errors.push({ line, message: `${op} には # をつけた数は使えません。番地かラベルを書こう（例: ${spec.example}）` });
+      else if (DEC_RE.test(num)) errors.push({ line, message: `「${operand}」: 小数は使えません。整数にしよう` });
+      else if (!INT_RE.test(num)) errors.push({ line, message: `「${operand}」: # の後ろは整数にしよう` });
+      else Object.assign(word, { mode: "imm", arg: Number(num) });
+    } else {
+      const a = resolveAddr(operand, line, op);
+      if (a !== null) Object.assign(word, { mode: "addr", arg: a, ref: INT_RE.test(operand) ? null : operand });
+    }
+    memory[addr] = word;
+  });
+
+  errors.sort((a, b) => a.line - b.line);
+  // # のつけ忘れかもしれない所（エラーではない。答えが合わないときに見せる）
+  const used = Math.min(items.length, size);
+  const notes = [];
+  memory.slice(0, used).forEach((w) => {
+    if (isInstruction(w) && w.mode === "addr" && w.ref === null && w.arg >= used && ["LOAD", "ADD", "SUB"].includes(w.op)) {
+      notes.push({ line: w.line, message: `「${w.op} ${w.arg}」は、${w.arg}番地に入っている数を使います。数 ${w.arg} そのものを使うなら「${w.op} #${w.arg}」のように # をつけよう` });
+    }
+  });
+  return { ok: errors.length === 0, errors, notes, memory, labels, addrOfLine, lineOfAddr, used };
+}
+
+function isInstruction(word) {
+  return typeof word === "object" && word !== null;
+}
+
+// 記憶装置の中身を短い文字で（LOAD #5、ADD sum、12 など）
+function wordText(word) {
+  if (!isInstruction(word)) return String(word);
+  if (word.mode === "imm") return `${word.op} #${word.arg}`;
+  if (word.mode === "addr") return `${word.op} ${word.ref ?? word.arg}`;
+  return word.op;
+}
+
+// 命令の意味を日本語で
+function wordMeaning(word) {
+  if (!isInstruction(word)) return `数 ${word}`;
+  const where = word.mode === "addr" ? (word.ref ? `${word.ref}（${word.arg}番地）` : `${word.arg}番地`) : "";
+  const val = word.mode === "imm" ? `数 ${word.arg}` : `${where} の数`;
+  switch (word.op) {
+    case "LOAD": return `${val}を ACC に読み込む`;
+    case "STORE": return `ACC の値を ${where} にしまう`;
+    case "ADD": return `ACC に ${val}をたす`;
+    case "SUB": return `ACC から ${val}をひく`;
+    case "JUMP": return `${where} にとぶ`;
+    case "JZ": return `ACC が 0 なら ${where} にとぶ`;
+    case "JN": return `ACC がマイナスなら ${where} にとぶ`;
+    case "IN": return "入力された数を ACC に入れる";
+    case "OUT": return "ACC の値を出力する";
+    case "HALT": return "止まる（プログラムの終わり）";
+    default: return word.op;
+  }
+}
+
+function createMachine(program, { inputs = [], maxSteps = 10000 } = {}) {
+  return {
+    mem: program.memory.map((w) => (isInstruction(w) ? { ...w } : w)),
+    pc: 0,
+    acc: 0,
+    ir: null,
+    irAddr: null,
+    inputs: inputs.map(Number),
+    inputPos: 0,
+    outputs: [],
+    phase: "fetch", // 次に行う段階
+    status: "ready", // ready | halted | error | limit
+    jumped: false, // 直前の命令でとんだか（エラーの説明に使う）
+    error: null,
+    steps: 0, // 実行し終えた命令の数
+    maxSteps,
+  };
+}
+
+function isStopped(m) {
+  return m.status === "halted" || m.status === "error" || m.status === "limit";
+}
+
+// LOAD・ADD・SUB で、読もうとした番地に命令が入っていたときの説明
+function notNumberMessage(w) {
+  if (w.ref) return `「${w.ref}」（${w.arg}番地）には命令が入っていて、数として読めません。数をしまう箱は、HALT のあとに「x: DATA 0」のように用意しよう`;
+  return `${w.arg}番地には命令が入っていて、数として読めません。数そのものを使うなら「#${w.arg}」のように # をつけよう`;
+}
+
+function fail(m, message) {
+  m.status = "error";
+  m.error = message;
+  return { phase: "error", units: ["ctrl"], flow: null, read: null, write: null, message };
+}
+
+// 1段階だけ進める。quiet=true のときは説明文を作らない（たくさん実行するとき用）
+// 戻り値: { phase, units, flow: { from, to, value }, read, write, message }
+function stepPhase(m, quiet = false) {
+  if (isStopped(m)) return null;
+  const size = m.mem.length;
+
+  if (m.phase === "fetch") {
+    if (m.pc < 0 || m.pc >= size) return fail(m, `${m.pc}番地はありません。プログラムの終わりに HALT を書いたか確かめよう`);
+    const word = m.mem[m.pc];
+    if (!isInstruction(word)) {
+      if (!m.mem.some(isInstruction)) return fail(m, "まだ命令がありません。プログラム欄に命令を書こう");
+      if (m.pc === 0) return fail(m, `0番地には命令ではなく数（${word}）が入っています。DATA の行は、HALT のあと（いちばん下）に書こう`);
+      if (m.jumped) return fail(m, `とび先の ${m.pc}番地には命令ではなく数（${word}）が入っています。とび先の名前（ラベル）が、命令の行についているか確かめよう`);
+      return fail(m, `${m.pc}番地には命令ではなく数（${word}）が入っています。命令のおわりに HALT を書いたか確かめよう（DATA の行は HALT のあとに書こう）`);
+    }
+    m.ir = word;
+    m.irAddr = m.pc;
+    m.pc += 1;
+    m.phase = "decode";
+    if (quiet) return null;
+    return {
+      phase: "fetch", units: ["ctrl", "mem"], flow: { from: "mem", to: "ctrl", value: wordText(word) }, read: m.irAddr, write: null,
+      message: `制御装置が記憶装置の ${m.irAddr}番地から命令「${wordText(word)}」を取り出し、PC（次の番地）を ${m.pc} にした`,
+    };
+  }
+
+  if (m.phase === "decode") {
+    m.phase = "execute";
+    if (quiet) return null;
+    return { phase: "decode", units: ["ctrl"], flow: null, read: null, write: null, message: `制御装置が命令「${wordText(m.ir)}」を解読した → 「${wordMeaning(m.ir)}」` };
+  }
+
+  // 実行
+  const w = m.ir;
+  m.jumped = false;
+  let ev = { phase: "execute", units: ["ctrl"], flow: null, read: null, write: null, message: "" };
+  const readValue = () => {
+    if (w.mode === "imm") return w.arg;
+    const v = m.mem[w.arg];
+    if (isInstruction(v)) return null;
+    ev.read = w.arg;
+    return v;
+  };
+  const before = m.acc;
+  switch (w.op) {
+    case "LOAD": {
+      const v = readValue();
+      if (v === null) return fail(m, notNumberMessage(w));
+      m.acc = v;
+      ev.units = ["ctrl", "mem", "alu"];
+      ev.flow = { from: w.mode === "imm" ? "ctrl" : "mem", to: "alu", value: String(v) };
+      if (!quiet) ev.message = w.mode === "imm" ? `数 ${v} を ACC に入れた` : `記憶装置の ${w.arg}番地の数 ${v} を ACC に読み込んだ`;
+      break;
+    }
+    case "STORE":
+      m.mem[w.arg] = m.acc;
+      ev.write = w.arg;
+      ev.units = ["ctrl", "alu", "mem"];
+      ev.flow = { from: "alu", to: "mem", value: String(m.acc) };
+      if (!quiet) ev.message = `ACC の値 ${m.acc} を記憶装置の ${w.arg}番地にしまった`;
+      break;
+    case "ADD":
+    case "SUB": {
+      const v = readValue();
+      if (v === null) return fail(m, notNumberMessage(w));
+      m.acc = w.op === "ADD" ? before + v : before - v;
+      ev.units = w.mode === "addr" ? ["ctrl", "mem", "alu"] : ["ctrl", "alu"];
+      ev.flow = w.mode === "addr" ? { from: "mem", to: "alu", value: String(v) } : null;
+      ev.calc = `${before} ${w.op === "ADD" ? "+" : "−"} ${v < 0 ? `(${v})` : v} = ${m.acc}`;
+      if (!quiet) ev.message = `演算装置で計算した: ${ev.calc}`;
+      break;
+    }
+    case "JUMP":
+      m.pc = w.arg;
+      m.jumped = true;
+      if (!quiet) ev.message = `次は ${w.arg}番地から実行する（PC を ${w.arg} にした）`;
+      break;
+    case "JZ":
+    case "JN": {
+      const jump = w.op === "JZ" ? m.acc === 0 : m.acc < 0;
+      if (jump) {
+        m.pc = w.arg;
+        m.jumped = true;
+      }
+      ev.units = ["ctrl", "alu"];
+      if (!quiet) ev.message = `ACC は ${m.acc}。${w.op === "JZ" ? "0" : "マイナス"}${jump ? `なので ${w.arg}番地にとぶ` : "ではないので、とばずに次の命令へ"}`;
+      break;
+    }
+    case "IN":
+      if (m.inputPos >= m.inputs.length) return fail(m, "入力する数がもうありません（入力装置が空っぽ）");
+      m.acc = m.inputs[m.inputPos++];
+      ev.units = ["ctrl", "in", "alu"];
+      ev.flow = { from: "in", to: "alu", value: String(m.acc) };
+      if (!quiet) ev.message = `入力装置から数 ${m.acc} を受け取り、ACC に入れた`;
+      break;
+    case "OUT":
+      m.outputs.push(m.acc);
+      ev.units = ["ctrl", "alu", "out"];
+      ev.flow = { from: "alu", to: "out", value: String(m.acc) };
+      if (!quiet) ev.message = `ACC の値 ${m.acc} を出力装置に表示した`;
+      break;
+    case "HALT":
+      m.status = "halted";
+      if (!quiet) ev.message = "HALT: プログラムが終わった";
+      break;
+    default:
+      return fail(m, `「${w.op}」は実行できません`);
+  }
+  m.steps += 1;
+  m.phase = "fetch";
+  if (m.status !== "halted" && m.steps >= m.maxSteps) {
+    m.status = "limit";
+    m.error = `${m.maxSteps}回 命令を実行しても終わらないので、自動で止めました。無限ループ（終わらないくり返し）になっていないか確かめよう`;
+    if (!quiet) ev.message += `。${m.error}`;
+  }
+  return quiet ? null : ev;
+}
+
+// 1命令分（取り出し→解読→実行）進める。戻り値は段階ごとのできごとの配列
+function stepInstruction(m) {
+  const events = [];
+  do {
+    const ev = stepPhase(m);
+    if (ev) events.push(ev);
+  } while (m.phase !== "fetch" && !isStopped(m));
+  return events;
+}
+
+// 止まるまで一気に実行する
+function runToEnd(m) {
+  while (!isStopped(m)) stepPhase(m, true);
+  return m;
+}
+
+// 数を画面に出す文字（大きすぎて表せない数＝Infinity は、ことばで出す）
+function numText(v) {
+  if (v === Infinity) return "大きすぎて表せない数";
+  if (v === -Infinity) return "マイナスで大きすぎて表せない数";
+  return String(v);
+}
+
+// 数の並びを短くする（多いときは最初の max 個と「…ほか ○個」）
+function shortList(list, max = 10) {
+  if (!list.length) return "（なし）";
+  const head = list.slice(0, max).map(numText).join(", ");
+  return list.length > max ? `${head} …ほか ${(list.length - max).toLocaleString("ja-JP")} 個` : head;
+}
+
+// 課題の答え合わせ。task.tests = [{ inputs, outputs }]、task.minSteps（くり返しを使ったか）
+function checkProgram(source, task, isa) {
+  const prog = assemble(source, isa);
+  if (!prog.ok) return { ok: false, assembleErrors: prog.errors, notes: [], results: [] };
+  const results = task.tests.map((t) => {
+    const m = runToEnd(createMachine(prog, { inputs: t.inputs || [], maxSteps: isa.maxSteps }));
+    const same = m.status === "halted" && m.outputs.length === t.outputs.length && m.outputs.every((v, i) => v === t.outputs[i]);
+    const tooFew = same && task.minSteps && m.steps < task.minSteps;
+    return { inputs: t.inputs || [], expected: t.outputs, outputs: m.outputs, status: m.status, error: m.error, steps: m.steps, ok: same && !tooFew, tooFew: Boolean(tooFew) };
+  });
+  return { ok: results.every((r) => r.ok), assembleErrors: [], notes: prog.notes, results };
+}
+
+return { UNIT_NAMES, PHASE_NAMES, normalizeSource, assemble, isInstruction, wordText, wordMeaning, createMachine, isStopped, stepPhase, stepInstruction, runToEnd, numText, shortList, checkProgram };
+})();
+
+// ---- js/sim.js ----
+const __m_js_sim_js = (() => {
+const { h, explain, term, reducedMotion, sleep } = __m_js_ui_js;
+const { assemble, createMachine, stepPhase, isStopped, wordText, wordMeaning, isInstruction, numText, shortList, UNIT_NAMES, PHASE_NAMES } = __m_js_vm_js;
+// 仮想CPUのシミュレーター画面（プログラム欄・5つの装置・記憶装置・操作ボタン）
+
+
+// 速さ: 1段階ごとの待ち時間（ミリ秒）。最後は「最速」（アニメなしでまとめて実行）
+const SPEEDS = [
+  { label: "とてもゆっくり", wait: 1600 },
+  { label: "ゆっくり", wait: 1000 },
+  { label: "ふつう", wait: 550 },
+  { label: "はやい", wait: 200 },
+  { label: "最速", wait: 0 },
+];
+
+// 入力の数を読む。−（数学のマイナス）・ー（長音）・‐ などもマイナスとして読む。
+// 戻り値: { values: 読めた整数, dropped: 読めなかった文字（1.5、abc など） }
+function readInputs(text) {
+  const values = [];
+  const dropped = [];
+  for (const raw of String(text ?? "").split(/[\s,、，]+/)) {
+    const t = raw.normalize("NFKC").replace(/^[\u2212\u30FC\u2010-\u2015\uFE63]/, "-");
+    if (t === "") continue;
+    if (/^[+-]?\d+$/.test(t)) values.push(Number(t));
+    else dropped.push(raw);
+  }
+  return { values, dropped };
+}
+const parseInputs = (text) => readInputs(text).values;
+
+// プログラムの読み方（#・箱・名前・番地）。open=false なら、たたんで表示
+function readingCard(open = true) {
+  const row = (code, text) => h("li", {}, h("code", {}, code), h("span", { class: "rc-arrow", "aria-hidden": "true" }, " → "), text);
+  const body = h(
+    "ul",
+    { class: "reading-list" },
+    row("LOAD #5", "5 という数そのものを ACC（計算用の箱）に入れる"),
+    row("LOAD x", "箱 x に入っている数を ACC に入れる（# がないときは「箱の中身」）"),
+    row("x: DATA 0", "0 の入った箱 x を用意する。HALT より後ろに書く"),
+    row("loop: OUT", "この行に loop という名前をつける。JUMP loop でここにとぶ"),
+    h("li", {}, "記憶装置のマスの左上の数は「番地」で、0 から数えます。エラーの「○行目」は 1 から数えます。"),
+    h("li", {}, "名前は大文字と小文字を区別します（sum と Sum は別の箱）。"),
+  );
+  return open
+    ? h("section", { class: "card reading-card" }, h("h3", {}, "プログラムの読み方"), body)
+    : h("details", { class: "isa-table reading-card" }, h("summary", {}, "プログラムの読み方（#・箱・名前・番地）"), body);
+}
+
+// 命令表（たたんで表示）
+function isaTable(isa, open = false) {
+  return h(
+    "details",
+    { class: "isa-table", open },
+    h("summary", {}, "命令表（使える命令の一覧）"),
+    h(
+      "div",
+      { class: "table-wrap" },
+      h(
+        "table",
+        { class: "data" },
+        h("thead", {}, h("tr", {}, h("th", {}, "命令"), h("th", {}, "読み"), h("th", {}, "はたらき"), h("th", {}, "書き方の例"))),
+        h("tbody", {}, isa.instructions.map((i) => h("tr", {}, h("td", {}, h("code", { class: "op" }, i.op)), h("td", {}, i.name), h("td", {}, i.desc), h("td", {}, h("code", {}, i.example))))),
+        h("tbody", {}, h("tr", {}, h("td", {}, h("code", { class: "op" }, "DATA")), h("td", {}, "データ"), h("td", {}, "命令ではなく、数を入れた箱を用意する（はじめの値）"), h("td", {}, h("code", {}, "x: DATA 0")))),
+      ),
+    ),
+    h("ul", { class: "syntax-notes" }, isa.syntax.map((t) => h("li", {}, t))),
+  );
+}
+
+// opts: { isa, source, inputs, onSourceChange(text), onHalt(machine) , title }
+function createSimulator(opts) {
+  const { isa } = opts;
+  let source = opts.source ?? "";
+  let prog = null;
+  let m = null;
+  let mode = "edit"; // edit | run
+  let running = false;
+  let runToken = 0;
+  let speed = 2;
+  let lastEvent = null;
+
+  // ---- 左: プログラム ----
+  const textarea = h("textarea", { class: "editor", spellcheck: "false", autocapitalize: "off", autocomplete: "off", autocorrect: "off", "aria-label": "プログラム", rows: 14 });
+  textarea.value = source;
+  textarea.addEventListener("input", () => {
+    source = textarea.value;
+    opts.onSourceChange?.(source);
+  });
+  const listing = h("ol", { class: "listing", "aria-label": "実行中のプログラム" });
+  const errorsBox = h("div", { class: "asm-errors", role: "alert" });
+  const editBtn = h("button", { class: "btn small secondary", type: "button", onclick: () => toEdit() }, "✎ プログラムを書きかえる");
+  const inputField = h("input", { type: "text", inputmode: "numeric", value: (opts.inputs || []).join(", "), "aria-describedby": "in-hint" });
+  // 読めなかった文字があれば知らせる（だまって捨てない）
+  const inputNote = h("p", { class: "input-note", "aria-live": "polite" });
+  const updateInputNote = () => {
+    const { dropped } = readInputs(inputField.value);
+    inputNote.textContent = dropped.length ? `${dropped.map((d) => `「${d}」`).join("")}は読めないので入れませんでした（整数だけ入れられます）` : "";
+    inputNote.hidden = !dropped.length;
+  };
+  updateInputNote();
+  inputField.addEventListener("input", () => {
+    updateInputNote();
+    if (mode === "run") reset();
+    opts.onInputsChange?.(parseInputs(inputField.value));
+  });
+
+  const left = h(
+    "div",
+    { class: "sim-left" },
+    h("div", { class: "panel-head" }, h("h3", {}, opts.title || "プログラム"), editBtn, opts.headExtra || null),
+    textarea,
+    listing,
+    errorsBox,
+    h("div", { class: "field" }, h("label", {}, "入力装置に入れる数", h("span", { class: "hint", id: "in-hint" }, "（「,」で区切る。IN 命令で前から順に読まれます）"), inputField), inputNote),
+  );
+
+  // ---- 右: 操作と装置 ----
+  const btn = (label, onclick, extra = {}) => h("button", { class: "btn small", type: "button", onclick, ...extra }, label);
+  const runBtn = btn("▶ 実行", () => startRun());
+  const pauseBtn = btn("⏸ 一時停止", () => stopRun(), { class: "btn small secondary" });
+  const phaseBtn = btn("1段階すすむ", () => manualStep("phase"), { class: "btn small secondary", title: "取り出し・解読・実行のどれか1つだけ進める" });
+  const instrBtn = btn("1命令すすむ", () => manualStep("instr"), { class: "btn small secondary" });
+  const resetBtn = btn("↺ 最初から", () => reset(), { class: "btn small secondary" });
+  const speedInput = h("input", { type: "range", min: 0, max: SPEEDS.length - 1, step: 1, value: speed, "aria-label": "実行の速さ" });
+  const speedLabel = h("span", { class: "speed-label" }, SPEEDS[speed].label);
+  speedInput.addEventListener("input", () => {
+    speed = Number(speedInput.value);
+    speedLabel.textContent = SPEEDS[speed].label;
+  });
+  const controls = h(
+    "div",
+    { class: "sim-controls" },
+    h("div", { class: "btn-row" }, runBtn, pauseBtn, phaseBtn, instrBtn, resetBtn),
+    h("label", { class: "speed" }, "速さ", speedInput, speedLabel),
+    h("p", { class: "step-help speed-help" }, "くり返しの多いプログラムは「はやい」か「最速」で実行しよう"),
+    h("p", { class: "step-help" }, h("b", {}, "1段階"), ": 取り出し・解読・実行のうち1つだけ進む　", h("b", {}, "1命令"), ": 3つをまとめて進む"),
+  );
+
+  // 装置
+  const unit = (key, cls, ...children) => h("section", { class: `unit ${cls}`, dataset: { unit: key }, "aria-label": UNIT_NAMES[key] }, ...children);
+  const inQueue = h("div", { class: "queue" });
+  const pcVal = h("span", { class: "reg-val" });
+  const irVal = h("span", { class: "reg-val ir" });
+  const phasePills = h("div", { class: "phase-pills" }, Object.entries(PHASE_NAMES).map(([k, v]) => h("span", { class: "pill", dataset: { phase: k } }, v)));
+  const stepsVal = h("span", { class: "reg-val small" });
+  const accVal = h("span", { class: "acc-val" });
+  const calcLine = h("div", { class: "calc" });
+  const outScreen = h("div", { class: "screen", "aria-live": "polite" });
+  const memGrid = h("div", { class: "mem-grid" });
+  const cellInfo = h("p", { class: "cell-info", "aria-live": "polite" }, "マスを押すと、中身の意味が出ます。");
+  let cellInfoAddr = null;
+  // 用語の説明（押すと出る）
+  const tPC = term("PC（次の番地）", "PC は「プログラムカウンタ」。次に取り出す命令の番地を覚えておく、CPU の中の小さな記憶の箱（レジスタ）です。");
+  const tIR = term("いまの命令", "制御装置が記憶装置から取り出して、いま解読・実行している命令です（命令レジスタという箱に入っています）。");
+  const tACC = term("ACC（計算用の箱）", "ACC は「アキュムレータ」。計算に使う、CPU の中の小さな記憶の箱（レジスタ）です。LOAD で数を入れ、ADD・SUB で計算します。");
+
+  const board = h(
+    "div",
+    { class: "board" },
+    unit("in", "u-in", h("h4", {}, "入力装置"), h("div", { class: "unit-sub" }, "キーボードなど"), inQueue),
+    h(
+      "div",
+      { class: "cpu" },
+      h("div", { class: "cpu-label" }, "CPU（中央処理装置）"),
+      unit(
+        "ctrl",
+        "u-ctrl",
+        h("h4", {}, "制御装置"),
+        h("div", { class: "regs" }, h("div", {}, tPC.btn, pcVal), tPC.note, h("div", {}, tIR.btn, irVal), tIR.note),
+        phasePills,
+        h("div", { class: "steps-line" }, "実行した命令の数: ", stepsVal),
+      ),
+      unit("alu", "u-alu", h("h4", {}, "演算装置"), h("div", { class: "regs" }, tACC.btn, tACC.note), accVal, calcLine),
+    ),
+    unit("out", "u-out", h("h4", {}, "出力装置"), h("div", { class: "unit-sub" }, "ディスプレイ"), outScreen),
+    unit("mem", "u-mem", h("h4", {}, "記憶装置（メモリ）", h("span", { class: "unit-sub" }, ` 0〜${isa.memorySize - 1}番地。命令もデータも入る`)), memGrid, cellInfo),
+  );
+  const flyLayer = h("div", { class: "fly-layer", "aria-hidden": "true" });
+  board.append(flyLayer);
+  const narration = h("div", { class: "narration", "aria-live": "polite" });
+  const statusBox = h("div", { class: "sim-status" });
+  // 説明欄は操作ボタンのすぐ下に置く（ボタンを押しながら、何が起きたかを読めるように）
+  const right = h("div", { class: "sim-right" }, controls, narration, statusBox, board);
+
+  const el = h("div", { class: "sim" }, left, right);
+
+  // ---- 動き ----
+  function compile() {
+    prog = assemble(source, isa);
+    errorsBox.replaceChildren();
+    if (!prog.ok) {
+      errorsBox.append(
+        explain(
+          "プログラムに書きまちがいがあります",
+          h("ul", { class: "err-list" }, prog.errors.map((e) => h("li", {}, h("button", { class: "linkish", type: "button", onclick: () => gotoLine(e.line) }, `${e.line}行目`), `: ${e.message}`))),
+          "bad",
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  function gotoLine(line) {
+    const lines = textarea.value.split("\n");
+    const start = lines.slice(0, line - 1).reduce((a, l) => a + l.length + 1, 0);
+    textarea.focus();
+    textarea.setSelectionRange(start, start + (lines[line - 1]?.length ?? 0));
+  }
+
+  function toRun() {
+    if (!compile()) {
+      toEdit(true);
+      return false;
+    }
+    mode = "run";
+    m = createMachine(prog, { inputs: parseInputs(inputField.value), maxSteps: isa.maxSteps });
+    lastEvent = null;
+    buildListing();
+    render();
+    return true;
+  }
+
+  function toEdit(keepErrors = false) {
+    stopRun();
+    mode = "edit";
+    m = null;
+    lastEvent = null;
+    if (!keepErrors) errorsBox.replaceChildren();
+    render();
+  }
+
+  function reset() {
+    stopRun();
+    if (mode === "run") toRun();
+    else render();
+  }
+
+  function buildListing() {
+    listing.replaceChildren(
+      ...source.split("\n").map((text, i) => {
+        const line = i + 1;
+        const addr = prog.addrOfLine[line];
+        return h("li", { dataset: { line } }, h("span", { class: "addr" }, addr === undefined ? "" : addr), h("code", {}, text || " "));
+      }),
+    );
+  }
+
+  function ensureMachine() {
+    if (mode === "edit" || !m) return toRun();
+    if (isStopped(m)) return toRun();
+    return true;
+  }
+
+  function doPhase(quiet = false) {
+    const ev = stepPhase(m, quiet);
+    if (ev) lastEvent = ev;
+    if (isStopped(m)) opts.onHalt?.(m);
+    return ev;
+  }
+
+  async function manualStep(kind) {
+    if (running) stopRun();
+    if (!ensureMachine()) return;
+    if (kind === "phase") {
+      const ev = doPhase();
+      render(ev);
+      if (ev) fly(ev, 500);
+    } else {
+      do {
+        const ev = doPhase();
+        render(ev);
+      } while (m.phase !== "fetch" && !isStopped(m));
+    }
+  }
+
+  async function startRun() {
+    if (running) return;
+    if (!ensureMachine()) return;
+    running = true;
+    const token = ++runToken;
+    render();
+    while (running && token === runToken && !isStopped(m)) {
+      const { wait } = SPEEDS[speed];
+      if (wait === 0) {
+        // 最速: まとめて実行して、ときどき画面を更新
+        const until = performance.now() + 30;
+        while (!isStopped(m) && performance.now() < until) doPhase(m.steps % 50 !== 0);
+        render(lastEvent);
+        await new Promise((r) => requestAnimationFrame(r));
+      } else {
+        const ev = doPhase();
+        render(ev);
+        if (ev) fly(ev, wait * 0.8);
+        await sleep(wait);
+      }
+    }
+    if (token === runToken) running = false;
+    render(lastEvent);
+  }
+
+  function stopRun() {
+    running = false;
+    runToken++;
+    render(lastEvent);
+  }
+
+  // 装置から装置へ、値が飛んでいくアニメーション
+  function fly(ev, dur) {
+    if (!ev.flow || reducedMotion() || dur < 120) return;
+    const from = board.querySelector(`[data-unit="${ev.flow.from}"]`);
+    const to = board.querySelector(`[data-unit="${ev.flow.to}"]`);
+    if (!from || !to) return;
+    const b = board.getBoundingClientRect();
+    const center = (r) => [r.left - b.left + r.width / 2, r.top - b.top + Math.min(r.height / 2, 60)];
+    const fromCell = ev.read !== null && ev.flow.from === "mem" ? memGrid.children[ev.read] : null;
+    const toCell = ev.write !== null && ev.flow.to === "mem" ? memGrid.children[ev.write] : null;
+    const [x1, y1] = center((fromCell || from).getBoundingClientRect());
+    const [x2, y2] = center((toCell || to).getBoundingClientRect());
+    const chip = h("span", { class: "fly-chip" }, ev.flow.value);
+    flyLayer.replaceChildren(chip);
+    chip.animate([{ transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { transform: `translate(${x2}px, ${y2}px) translate(-50%, -50%)`, opacity: 0 }], { duration: dur, easing: "ease-in-out" }).finished.finally(() => chip.remove());
+  }
+
+  function render(ev = lastEvent) {
+    const editing = mode === "edit";
+    textarea.hidden = !editing;
+    listing.hidden = editing;
+    editBtn.hidden = editing;
+    inputField.disabled = running;
+    runBtn.disabled = running;
+    pauseBtn.disabled = !running;
+    runBtn.textContent = m && !isStopped(m) && m.steps + (m.phase === "fetch" ? 0 : 1) > 0 ? "▶ つづきを実行" : "▶ 実行";
+
+    const mach = m;
+    const mem = mach ? mach.mem : new Array(isa.memorySize).fill(null);
+    // 入力装置
+    const inputs = mach ? mach.inputs : parseInputs(inputField.value);
+    const used = mach ? mach.inputPos : 0;
+    inQueue.replaceChildren(...(inputs.length ? inputs.map((v, i) => h("span", { class: `chip ${i < used ? "used" : ""}` }, v)) : [h("span", { class: "muted" }, "（入力なし）")]));
+    // 制御装置
+    pcVal.textContent = mach ? mach.pc : "—";
+    irVal.textContent = mach?.ir ? wordText(mach.ir) : "—";
+    stepsVal.textContent = mach ? mach.steps : 0;
+    for (const p of phasePills.children) p.classList.toggle("on", Boolean(ev) && p.dataset.phase === ev.phase);
+    // 演算装置
+    accVal.textContent = mach ? numText(mach.acc) : "—";
+    calcLine.textContent = ev?.calc || "";
+    // 出力装置
+    const outs = mach ? mach.outputs : [];
+    outScreen.replaceChildren(...outs.map((v) => h("div", {}, numText(v))));
+    outScreen.scrollTop = outScreen.scrollHeight;
+    // 記憶装置
+    const labelOf = {};
+    if (prog && mode === "run") for (const [name, a] of Object.entries(prog.labels)) (labelOf[a] ||= []).push(name);
+    memGrid.replaceChildren(
+      ...mem.map((w, addr) => {
+        const cls = ["cell"];
+        if (mach) {
+          if (isInstruction(w)) cls.push("instr");
+          else if (addr >= prog.used) cls.push("unused");
+          else cls.push("data");
+          if (addr === mach.pc && !isStopped(mach)) cls.push("pc");
+          if (addr === mach.irAddr) cls.push("now");
+          if (ev?.read === addr) cls.push("read");
+          if (ev?.write === addr) cls.push("write");
+        } else cls.push("unused");
+        const meaning = mach ? `${addr}番地: ${wordMeaning(w)}` : `${addr}番地（まだ何も読み込んでいません）`;
+        return h(
+          "button",
+          { type: "button", class: cls.join(" "), title: meaning, "aria-label": meaning, onclick: () => showCell(addr) },
+          h("span", { class: "cell-addr" }, addr, labelOf[addr] ? h("span", { class: "cell-label" }, labelOf[addr].join(",")) : null),
+          h("span", { class: "cell-val" }, mach ? wordText(w) : ""),
+        );
+      }),
+    );
+    if (cellInfoAddr !== null) showCell(cellInfoAddr);
+    // 光っている装置
+    for (const u of board.querySelectorAll("[data-unit]")) u.classList.toggle("active", Boolean(ev?.units?.includes(u.dataset.unit)));
+    // プログラムの行
+    if (!editing && mach) {
+      const nowLine = mach.irAddr !== null ? prog.lineOfAddr[mach.irAddr] : null;
+      const nextLine = !isStopped(mach) ? prog.lineOfAddr[mach.pc] : null;
+      for (const li of listing.children) {
+        const line = Number(li.dataset.line);
+        li.classList.toggle("now", line === nowLine);
+        li.classList.toggle("next", line === nextLine && line !== nowLine);
+      }
+      listing.querySelector(".now")?.scrollIntoView?.({ block: "nearest" });
+    }
+    // 説明
+    if (!mach) narration.textContent = editing ? "「▶ 実行」か「1段階すすむ」を押すと、プログラムが記憶装置に読み込まれて動き始めます。" : "";
+    else if (ev) narration.replaceChildren(h("span", { class: `phase-tag ${ev.phase}` }, PHASE_NAMES[ev.phase] || "停止"), " ", ev.message);
+    else narration.textContent = "プログラムを記憶装置の 0番地から順に読み込みました。PC は 0。ここから命令を1つずつ取り出して実行します。";
+
+    statusBox.replaceChildren();
+    if (mach?.status === "halted") statusBox.append(explain("終わりました", `命令を ${mach.steps} 回実行しました。出力: ${shortList(mach.outputs)}`, "good"));
+    else if (mach?.status === "error") statusBox.append(explain("止まりました", mach.error, "bad"));
+    else if (mach?.status === "limit") statusBox.append(explain("自動で止めました", mach.error, "warn"));
+  }
+
+  // マスを押したときの説明（指でも見られるように）
+  function showCell(addr) {
+    cellInfoAddr = addr;
+    const w = m ? m.mem[addr] : null;
+    cellInfo.textContent = m ? (isInstruction(w) ? `${addr}番地: 命令「${wordText(w)}」… ${wordMeaning(w)}` : `${addr}番地: 数 ${w}（データ）`) : `${addr}番地: まだ何も読み込んでいません。「▶ 実行」か「1段階すすむ」を押すと、プログラムが読み込まれます。`;
+  }
+
+  render();
+
+  return {
+    el,
+    get source() {
+      return source;
+    },
+    setSource(text) {
+      source = text;
+      textarea.value = text;
+      toEdit();
+      opts.onSourceChange?.(source);
+    },
+    get inputs() {
+      return parseInputs(inputField.value);
+    },
+    setInputs(list) {
+      inputField.value = list.join(", ");
+      updateInputNote();
+      reset();
+    },
+    // 速さを変える（0〜4。4 は「最速」）
+    setSpeed(i) {
+      speed = Math.max(0, Math.min(SPEEDS.length - 1, i));
+      speedInput.value = speed;
+      speedLabel.textContent = SPEEDS[speed].label;
+    },
+    FASTEST: SPEEDS.length - 1,
+    focusInputs() {
+      inputField.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    },
+    stop: stopRun,
+    showErrors: compile,
+  };
+}
+
+return { readInputs, parseInputs, readingCard, isaTable, createSimulator };
+})();
+
+// ---- js/diagram.js ----
+const __m_js_diagram_js = (() => {
+const { h, s, explain, reducedMotion, sleep } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+// 図解: コンピュータの5つの装置と、データ・制御の流れ（3 + 5 を計算して表示するまで）
+
+
+const BOX = {
+  ctrl: { x: 285, y: 18, w: 150, h: 66, title: "制御装置", sub: "命令を読んで指示を出す", cpu: true },
+  in: { x: 16, y: 158, w: 148, h: 66, title: "入力装置", sub: "キーボード・マウスなど" },
+  mem: { x: 285, y: 158, w: 150, h: 66, title: "記憶装置", sub: "メモリ（主記憶）" },
+  out: { x: 556, y: 158, w: 148, h: 66, title: "出力装置", sub: "ディスプレイなど" },
+  alu: { x: 285, y: 298, w: 150, h: 66, title: "演算装置", sub: "計算・くらべる" },
+};
+
+// 矢印（data=データの流れ、ctrl=制御の信号）
+const ARROWS = {
+  inMem: { kind: "data", d: "M164 191 H283" },
+  memOut: { kind: "data", d: "M435 191 H554" },
+  memAlu: { kind: "data", d: "M340 224 V296" },
+  aluMem: { kind: "data", d: "M380 298 V226" },
+  memCtrl: { kind: "data", d: "M360 158 V86" },
+  ctrlIn: { kind: "ctrl", d: "M285 40 H90 V156" },
+  ctrlOut: { kind: "ctrl", d: "M435 40 H630 V156" },
+  ctrlMem: { kind: "ctrl", d: "M310 84 V156" },
+  ctrlAlu: { kind: "ctrl", d: "M285 70 H250 V331 H283" },
+};
+
+const STEPS = [
+  {
+    title: "コンピュータの5つの装置",
+    text: "コンピュータは「入力」「記憶」「演算」「制御」「出力」の5つの装置（はたらき）が協力して動きます。制御装置と演算装置をまとめて CPU（中央処理装置）とよびます。これから「3 + 5 を計算して画面に表示する」ようすを、順番に見ていきます。",
+    active: ["in", "mem", "alu", "ctrl", "out"],
+  },
+  {
+    title: "① 入力: 3 を入れる",
+    text: "キーボードから「3」を入力すると、制御装置の指示で、その数が記憶装置にしまわれます。実線の矢印はデータの流れ、点線の矢印は制御装置からの指示（制御の信号）です。",
+    active: ["in", "mem", "ctrl"],
+    arrows: ["ctrlIn", "inMem"],
+    packet: { arrow: "inMem", from: "in", label: "3" },
+    values: { in: "「3」", mem: "3" },
+  },
+  {
+    title: "② 入力: 5 を入れる",
+    text: "同じように「5」も記憶装置にしまわれます。記憶装置には、いくつもの数を番地（場所の番号）ごとに分けてしまっておけます。",
+    active: ["in", "mem", "ctrl"],
+    arrows: ["ctrlIn", "inMem"],
+    packet: { arrow: "inMem", from: "in", label: "5" },
+    values: { in: "「5」", mem: "3, 5" },
+  },
+  {
+    title: "③ 制御: 命令を取り出す",
+    text: "記憶装置には、データだけでなくプログラム（命令の並び）も入っています。制御装置は命令を1つずつ取り出して解読し、ほかの装置に「何をするか」を指示します。",
+    active: ["mem", "ctrl"],
+    arrows: ["memCtrl"],
+    packet: { arrow: "memCtrl", from: "mem", label: "たし算せよ" },
+    values: { mem: "3, 5", ctrl: "命令: たし算" },
+  },
+  {
+    title: "④ 演算: 3 + 5 を計算する",
+    text: "制御装置の指示で、記憶装置から 3 と 5 が演算装置に送られ、たし算が行われます。演算装置は計算や、数の大小くらべをします。",
+    active: ["mem", "alu", "ctrl"],
+    arrows: ["ctrlAlu", "memAlu"],
+    packet: { arrow: "memAlu", from: "mem", label: "3, 5" },
+    values: { mem: "3, 5", ctrl: "命令: たし算", alu: "3 + 5 = 8" },
+  },
+  {
+    title: "⑤ 記憶: 答えをしまう",
+    text: "計算の結果 8 は、記憶装置にもどしてしまわれます。",
+    active: ["alu", "mem", "ctrl"],
+    arrows: ["ctrlMem", "aluMem"],
+    packet: { arrow: "aluMem", from: "alu", label: "8" },
+    values: { mem: "3, 5, 8", alu: "8" },
+  },
+  {
+    title: "⑥ 出力: 画面に表示する",
+    text: "最後に、制御装置の指示で記憶装置の 8 が出力装置（ディスプレイ）に送られ、画面に表示されます。",
+    active: ["mem", "out", "ctrl"],
+    arrows: ["ctrlOut", "memOut"],
+    packet: { arrow: "memOut", from: "mem", label: "8" },
+    values: { mem: "3, 5, 8", out: "8" },
+  },
+  {
+    title: "まとめ",
+    text: "入力 → 記憶 → 演算 → 記憶 → 出力 と、データが流れました。その流れ全体を指示していたのが制御装置です。実際のコンピュータの CPU は、このような命令を 1秒間に何十億回もくり返しています。電源を切ると消えるメモリ（主記憶装置）のほかに、電源を切っても消えない SSD などの補助記憶装置もあります。",
+    active: ["in", "mem", "alu", "ctrl", "out"],
+    arrows: ["inMem", "memAlu", "aluMem", "memOut", "memCtrl", "ctrlIn", "ctrlOut", "ctrlMem", "ctrlAlu"],
+    values: { in: "「3」「5」", mem: "3, 5, 8", alu: "3 + 5 = 8", ctrl: "命令: たし算", out: "8" },
+  },
+];
+
+// why: まちがえたときに出す理由（1行）
+const DEVICES = [
+  { name: "キーボード", answer: "in", why: "キーを打って、文字を受け取る" },
+  { name: "ディスプレイ", answer: "out", why: "文字や絵を画面に映して、人に伝える" },
+  { name: "マウス", answer: "in", why: "手の動きやクリックを受け取る" },
+  { name: "プリンタ", answer: "out", why: "紙に印刷して、人に伝える" },
+  { name: "メモリ（パソコンの中の部品）", answer: "mem", why: "動いているプログラムやデータをためておく（電源を切ると消える主記憶装置）" },
+  { name: "SSD（パソコンの中の部品）", answer: "mem", why: "ファイルをためておく（電源を切っても消えない補助記憶装置）" },
+  { name: "マイク", answer: "in", why: "音を受け取る" },
+  { name: "スピーカー", answer: "out", why: "音を出して、人に伝える" },
+  { name: "CPU", answer: "cpu", why: "計算をして、ほかの装置に指示を出す" },
+  { name: "デジタルカメラ（光を受け取る部品）", answer: "in", why: "光（景色）を受け取って、データにする" },
+];
+const CHOICES = { in: "入力装置", out: "出力装置", mem: "記憶装置", cpu: "演算装置・制御装置" };
+
+// まちがえた機器の理由（例: 「プリンタ: 紙に印刷して、人に伝える → 出力装置」）
+function wrongReasons(picks) {
+  return DEVICES.filter((d, i) => picks[i] && picks[i] !== d.answer).map((d) => `${d.name.replace(/（.*）$/, "")}: ${d.why} → ${CHOICES[d.answer]}`);
+}
+
+function renderDiagram(view) {
+  store.markVisited("diagram");
+  let index = 0;
+  let token = 0;
+
+  const arrowEls = {};
+  const valueEls = {};
+  const boxEls = {};
+  const defs = s(
+    "defs",
+    {},
+    ["data", "ctrl", "data-on", "ctrl-on"].map((k) => s("marker", { id: `ah-${k}`, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 12, markerHeight: 12, markerUnits: "userSpaceOnUse", orient: "auto-start-reverse" }, s("path", { d: "M0 0 L10 5 L0 10 z", class: `ah ah-${k}` }))),
+  );
+  const svg = s("svg", { viewBox: "0 0 720 380", class: "five-units", role: "img", "aria-label": "入力装置・記憶装置・演算装置・制御装置・出力装置の関係の図" }, defs);
+  for (const [id, a] of Object.entries(ARROWS)) {
+    arrowEls[id] = s("path", { d: a.d, class: `arr ${a.kind}`, "marker-end": `url(#ah-${a.kind})` });
+    svg.append(arrowEls[id]);
+  }
+  for (const [key, b] of Object.entries(BOX)) {
+    valueEls[key] = s("text", { x: b.x + b.w / 2, y: b.y + b.h + 18, class: "box-value", "text-anchor": "middle" });
+    boxEls[key] = s(
+      "g",
+      { class: `box ${b.cpu || key === "alu" ? "cpu" : ""}` },
+      s("rect", { x: b.x, y: b.y, width: b.w, height: b.h, rx: 10 }),
+      s("text", { x: b.x + b.w / 2, y: b.y + 28, class: "box-title", "text-anchor": "middle" }, b.title),
+      s("text", { x: b.x + b.w / 2, y: b.y + 50, class: "box-sub", "text-anchor": "middle" }, b.sub),
+    );
+    svg.append(boxEls[key], valueEls[key]);
+  }
+  // 値の表示位置の調整（制御装置は上に余白がないので右に出す）
+  valueEls.ctrl.setAttribute("x", BOX.ctrl.x + BOX.ctrl.w + 8);
+  valueEls.ctrl.setAttribute("y", BOX.ctrl.y + 60);
+  valueEls.ctrl.setAttribute("text-anchor", "start");
+  valueEls.mem.setAttribute("x", BOX.mem.x + BOX.mem.w + 8);
+  valueEls.mem.setAttribute("y", BOX.mem.y + BOX.mem.h + 18);
+  valueEls.mem.setAttribute("text-anchor", "start");
+  valueEls.alu.setAttribute("x", BOX.alu.x + BOX.alu.w + 10);
+  valueEls.alu.setAttribute("y", BOX.alu.y + 38);
+  valueEls.alu.setAttribute("text-anchor", "start");
+  svg.append(
+    s("g", { class: "legend-g" },
+      s("line", { x1: 16, y1: 300, x2: 52, y2: 300, class: "arr data" }), s("text", { x: 58, y: 304, class: "legend-t" }, "データの流れ"),
+      s("line", { x1: 16, y1: 326, x2: 52, y2: 326, class: "arr ctrl" }), s("text", { x: 58, y: 330, class: "legend-t" }, "制御の信号（指示）"),
+      s("rect", { x: 16, y: 344, width: 36, height: 18, rx: 4, class: "legend-cpu" }), s("text", { x: 58, y: 358, class: "legend-t" }, "CPU（制御装置＋演算装置）"),
+    ),
+  );
+  const packet = s("g", { class: "packet", opacity: 0 }, s("rect", { x: -34, y: -14, width: 68, height: 28, rx: 14 }), s("text", { x: 0, y: 5, "text-anchor": "middle" }, ""));
+  svg.append(packet);
+
+  const stepTitle = h("h3", { "aria-live": "polite" });
+  const stepText = h("p");
+  const counter = h("span", { class: "muted" });
+  const prev = h("button", { class: "btn secondary", type: "button", onclick: () => go(index - 1) }, "← 前へ");
+  const next = h("button", { class: "btn", type: "button", onclick: () => go(index + 1) }, "次へ →");
+  const replay = h("button", { class: "btn secondary", type: "button", onclick: () => go(index) }, "↻ もう一度");
+
+  async function movePacket(arrowId, label, my) {
+    const path = arrowEls[arrowId];
+    packet.querySelector("text").textContent = label;
+    const w = Math.max(44, label.length * 15 + 20);
+    const r = packet.querySelector("rect");
+    r.setAttribute("width", w);
+    r.setAttribute("x", -w / 2);
+    const len = path.getTotalLength();
+    const dur = reducedMotion() ? 0 : 1300;
+    const start = performance.now();
+    packet.setAttribute("opacity", 1);
+    while (my === token) {
+      const t = dur ? Math.min(1, (performance.now() - start) / dur) : 1;
+      const p = path.getPointAtLength(len * (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2));
+      packet.setAttribute("transform", `translate(${p.x} ${p.y})`);
+      if (t >= 1) break;
+      await new Promise((res) => requestAnimationFrame(res));
+    }
+    await sleep(dur ? 500 : 0);
+    if (my === token) packet.setAttribute("opacity", 0);
+  }
+
+  async function go(i) {
+    index = Math.max(0, Math.min(STEPS.length - 1, i));
+    const my = ++token;
+    const st = STEPS[index];
+    stepTitle.textContent = st.title;
+    stepText.textContent = st.text;
+    counter.textContent = `${index + 1} / ${STEPS.length}`;
+    prev.disabled = index === 0;
+    next.disabled = index === STEPS.length - 1;
+    for (const [k, g] of Object.entries(boxEls)) g.classList.toggle("active", st.active.includes(k));
+    for (const [k, a] of Object.entries(arrowEls)) {
+      const on = Boolean(st.arrows?.includes(k));
+      a.classList.toggle("on", on);
+      a.setAttribute("marker-end", `url(#ah-${ARROWS[k].kind}${on ? "-on" : ""})`);
+    }
+    const setValues = (vals) => {
+      for (const [k, v] of Object.entries(valueEls)) v.textContent = vals?.[k] || "";
+    };
+    packet.setAttribute("opacity", 0);
+    if (st.packet) {
+      // 前の段階の値を出しておいてから、データを動かす
+      const before = index > 0 ? STEPS[index - 1].values || {} : {};
+      const src = st.packet.from;
+      setValues({ ...before, [src]: st.values?.[src] ?? before[src] });
+      await movePacket(st.packet.arrow, st.packet.label, my);
+      if (my !== token) return;
+    }
+    setValues(st.values);
+  }
+
+  // 機器の仲間分け
+  const selects = DEVICES.map((d) => h("select", { "aria-label": `${d.name}はどの装置？` }, h("option", { value: "" }, "えらぶ"), Object.entries(CHOICES).map(([v, t]) => h("option", { value: v }, t))));
+  const marks = DEVICES.map(() => h("span", { class: "mark" }));
+  const sortResult = h("div", { "aria-live": "polite" });
+  const checkSort = () => {
+    let ok = 0;
+    const blank = selects.filter((x) => !x.value).length;
+    DEVICES.forEach((d, i) => {
+      const v = selects[i].value;
+      const right = v === d.answer;
+      if (right) ok++;
+      marks[i].textContent = !v ? "" : right ? "○" : "×";
+      marks[i].className = `mark ${!v ? "" : right ? "good" : "bad"}`;
+    });
+    const reasons = wrongReasons(selects.map((x) => x.value));
+    sortResult.replaceChildren(
+      explain(
+        `${DEVICES.length}問中 ${ok}問 正解`,
+        h(
+          "div",
+          {},
+          ok === DEVICES.length ? h("p", {}, "全部正解！") : reasons.length ? h("div", {}, h("p", {}, "× の機器の理由:"), h("ul", { class: "why-list" }, reasons.map((t) => h("li", {}, t)))) : null,
+          h("p", {}, "タッチパネルのように、入力と出力の両方をこなす機器もあります。スマートフォンにも5つの装置がそろっているか、考えてみよう。"),
+        ),
+        ok === DEVICES.length ? "good" : "info",
+      ),
+      blank ? h("p", { class: "hint" }, `まだえらんでいない機器が ${blank} こあります。全部えらんで答え合わせをすると、このページに ✓ がつきます。`) : null,
+    );
+    // ✓ は、全部えらんで答え合わせをしたときにつける（開いただけではつけない）
+    if (!blank) {
+      const first = !store.isDone("diagram");
+      store.markDone("diagram", { score: ok, total: DEVICES.length });
+      if (first) document.dispatchEvent(new CustomEvent("vcpu:progress"));
+    }
+  };
+
+  view.replaceChildren(
+    h("div", { class: "page-head" }, h("h2", {}, "図解: コンピュータの5つの装置"), h("p", { class: "muted" }, "「次へ」を押して、データがどの装置を通るか見てみよう。")),
+    h("div", { class: "card" }, h("div", { class: "diagram-wrap" }, svg), stepTitle, stepText, h("div", { class: "btn-row" }, prev, next, replay, counter)),
+    h(
+      "div",
+      { class: "card" },
+      h("h3", {}, "やってみよう: どの装置の仲間？"),
+      h("p", {}, "身のまわりの機器は、5つの装置のどれにあたるでしょう。"),
+      h("div", { class: "sort-grid" }, DEVICES.map((d, i) => h("label", { class: "sort-item" }, h("span", {}, d.name), h("span", { class: "sort-pick" }, selects[i], marks[i])))),
+      h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: checkSort }, "答え合わせ")),
+      sortResult,
+    ),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/sim" }, "次: 仮想CPUで命令を動かしてみよう →")),
+  );
+  go(0);
+  return () => token++;
+}
+
+return { DEVICES, wrongReasons, renderDiagram };
+})();
+
+// ---- js/tasks.js ----
+const __m_js_tasks_js = (() => {
+const { h, explain, toast, requestReflectionFocus } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { checkProgram, shortList } = __m_js_vm_js;
+const { createSimulator, isaTable, readingCard } = __m_js_sim_js;
+// 課題: 一覧と、1つの課題のページ（シミュレーター＋答え合わせ＋ヒント）
+
+
+
+
+const stars = (n) => "★".repeat(n) + "☆".repeat(Math.max(0, 5 - n));
+
+// 課題の区分（先生の決定: 課題1〜4 必修、5〜7 発展、8 チャレンジ）
+const TIERS = [
+  { id: "must", label: "必修", note: "全員がやる課題" },
+  { id: "adv", label: "発展", note: "必修が終わったらやる課題" },
+  { id: "challenge", label: "チャレンジ", note: "自分で全部書く課題" },
+];
+const tierLabel = (id) => TIERS.find((x) => x.id === id)?.label || "";
+function tierCount(tasks, tier) {
+  const list = tasks.filter((t) => (t.tier || "must") === tier);
+  return { done: list.filter((t) => store.isCleared(t.id)).length, total: list.length };
+}
+// 進み具合の文（例: 必修 2/4・発展 0/3・チャレンジ 0/1）
+function tierSummary(tasks) {
+  return TIERS.map((x) => [x, tierCount(tasks, x.id)])
+    .filter(([, c]) => c.total > 0)
+    .map(([x, c]) => `${x.label} ${c.done}/${c.total}`)
+    .join("・");
+}
+const clearedText = (id) => (store.isCleared(id) ? (store.answerViewed(id) ? "✓ クリア（答えの例を見た）" : "✓ クリア") : "");
+
+function renderTaskList(view, { tasks }) {
+  const must = tierCount(tasks, "must");
+  const card = (t) => {
+    const i = tasks.indexOf(t);
+    return h(
+      "a",
+      { class: `module-card ${store.isCleared(t.id) ? "cleared" : ""}`, href: `#/task/${t.id}` },
+      h("span", { class: "mc-num" }, `課題 ${i + 1}　`, h("span", { class: "stars", "aria-label": `難しさ ${t.level}` }, stars(t.level))),
+      h("span", { class: "mc-title" }, t.title, store.isCleared(t.id) ? h("span", { class: "status good small-status" }, clearedText(t.id)) : null),
+      h("span", { class: "mc-desc" }, t.goal),
+      t.concept ? h("span", { class: "concept" }, `考え方: ${t.concept}`) : null,
+    );
+  };
+  view.replaceChildren(
+    h(
+      "div",
+      { class: "page-head" },
+      h("h2", {}, "課題"),
+      h("p", { class: "muted" }, `進み具合: ${tierSummary(tasks)}。まず必修の課題1〜4をやろう。はじめのプログラムは途中まで書いてあり、「???」のところを考えて書きかえます。`),
+      must.done === must.total ? h("p", { class: "status good" }, "✓ 必修クリア！ 発展・チャレンジにも挑戦しよう") : null,
+    ),
+    readingCard(true),
+    ...TIERS.flatMap((tier) => {
+      const list = tasks.filter((t) => (t.tier || "must") === tier.id);
+      if (!list.length) return [];
+      const c = tierCount(tasks, tier.id);
+      return [
+        h("div", { class: "tier-head" }, h("h3", {}, h("span", { class: `tier-badge ${tier.id}` }, tier.label), " ", `課題${tasks.indexOf(list[0]) + 1}${list.length > 1 ? `〜${tasks.indexOf(list[list.length - 1]) + 1}` : ""}`), h("span", { class: "hint" }, `${tier.note}（クリア ${c.done} / ${c.total}）`)),
+        h("div", { class: "module-grid" }, list.map(card)),
+      ];
+    }),
+    h("p", { class: "hint concept-note" }, "考え方: 「順次」は上から順に1つずつ、「反復」はくり返し、「分岐」は条件によって進む道を変えることです（教科書の「順次・分岐・反復」）。"),
+    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、下のふりかえりを書いて④へ進もう。"),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/auto" }, "次: ④手計算とくらべてみよう →")),
+  );
+}
+
+function renderTask(view, { tasks, isa }, id) {
+  const index = tasks.findIndex((t) => t.id === id);
+  const task = tasks[index];
+  if (!task) {
+    view.replaceChildren(h("p", {}, "課題が見つかりません。"), h("a", { href: "#/tasks" }, "課題の一覧へ"));
+    return () => {};
+  }
+  const nextTask = tasks[index + 1];
+  let hintsShown = 0;
+  let saveTimer;
+
+  const sim = createSimulator({
+    isa,
+    title: "プログラム",
+    source: store.getDraft(task.id) ?? task.starter,
+    inputs: task.sampleInputs || [],
+    onSourceChange(text) {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => store.setDraft(task.id, text === task.starter ? null : text), 400);
+    },
+  });
+
+  const resultBox = h("div", { class: "check-result", "aria-live": "polite" });
+  const clearedBadge = h("span", { class: "status good" }, "✓ クリア");
+  clearedBadge.hidden = !store.isCleared(task.id);
+
+  function check() {
+    sim.stop();
+    // 前の答え合わせで出た赤い枠（書きまちがい）は、直っていれば消す
+    sim.showErrors();
+    const r = checkProgram(sim.source, task, isa);
+    resultBox.replaceChildren();
+    if (r.assembleErrors.length) {
+      resultBox.append(explain("まだ答え合わせできません", "プログラムの書きまちがいを先に直そう（プログラム欄の下の赤い枠に、何行目がおかしいか出ています）。", "bad"));
+      // 赤い枠が見えるところまで動かす
+      sim.el.querySelector(".asm-errors")?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+      return;
+    }
+    const fmt = (list) => shortList(list);
+    // × の行の入力を、プログラムの入力欄に入れて見せる
+    const tryBtn = (x) =>
+      h("button", { class: "btn small secondary try-input", type: "button", onclick: () => { sim.setInputs(x.inputs); sim.focusInputs(); toast(x.inputs.length ? `入力に ${x.inputs.join(", ")} を入れました。「1命令すすむ」でためそう` : "入力を空にしました。「1命令すすむ」でためそう"); } }, "この入力でためす");
+    const statusText = (x) => (x.ok ? "○" : x.tooFew ? "△ くり返しを使っていない" : x.status === "halted" ? "×" : x.status === "limit" ? "× 終わらない" : "× 途中で止まった");
+    resultBox.append(
+      h(
+        "div",
+        { class: "table-wrap" },
+        h(
+          "table",
+          { class: "data check-table" },
+          h("thead", {}, h("tr", {}, h("th", {}, "入力"), h("th", {}, "出てほしい答え"), h("th", {}, "あなたのプログラム"), h("th", {}, "結果"))),
+          h("tbody", {}, r.results.map((x) => h("tr", { class: x.ok ? "ok" : "ng" }, h("td", {}, fmt(x.inputs)), h("td", {}, fmt(x.expected)), h("td", {}, fmt(x.outputs), x.status === "limit" ? h("div", { class: "hint" }, "くり返しが終わらず自動で止めました。ぬける条件（JZ/JN）ととび先を確かめよう") : x.error && !x.ok ? h("div", { class: "hint" }, x.error) : null), h("td", {}, statusText(x), !x.ok && !x.tooFew ? tryBtn(x) : null)))),
+        ),
+      ),
+    );
+    if (r.ok) {
+      const first = !store.isCleared(task.id);
+      store.clear(task.id);
+      clearedBadge.hidden = false;
+      resultBox.append(
+        explain(
+          first ? "クリア！" : "正解です",
+          h("div", {}, h("p", {}, r.results.length > 1 ? `ちがう入力でためしても、すべて正しい答えが出ました。いちばん多いときで命令を ${Math.max(...r.results.map((x) => x.steps))} 回実行しています。` : `答えが正しく出ました。命令を ${r.results[0].steps} 回実行しています。`), nextTask ? h("a", { class: "btn", href: `#/task/${nextTask.id}` }, `次の課題「${nextTask.title}」へ →`) : h("a", { class: "btn", href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧へもどって、ふりかえりを書こう →")),
+          "good",
+        ),
+      );
+      if (first) {
+        toast(`課題「${task.title}」をクリアしました`);
+        document.dispatchEvent(new CustomEvent("vcpu:progress"));
+      }
+    } else {
+      const tooFew = r.results.some((x) => x.tooFew);
+      const advice = tooFew ? "答えは合っていますが、答えを直接書くのではなく、くり返しを使ってコンピュータに計算させよう。" : "× の行の「この入力でためす」を押して、「1命令すすむ」で、どこで思った動きとちがうか確かめよう。";
+      const notes = tooFew ? [] : r.notes || [];
+      resultBox.append(explain("もう少し", notes.length ? h("div", {}, h("p", {}, advice), h("ul", {}, notes.map((n) => h("li", {}, `${n.line}行目: ${n.message}`)))) : advice, "warn"));
+    }
+  }
+
+  const hintList = h("ol", { class: "hint-list" });
+  const hintBtn = h("button", { class: "btn secondary small", type: "button" }, "ヒントを見る");
+  // 答えの例は見られるが、プログラム欄に入れるボタンはない（自分で打ちこむ）。開いたことは記録に残る
+  const answerBox = h(
+    "details",
+    { class: "answer", hidden: true },
+    h("summary", {}, "答えの例を見る"),
+    h("p", { class: "answer-note" }, "答えの例を見たことは、記録に残ります。見ただけで終わりにせず、なぜこう書くのかを考えながら、自分でプログラム欄に打ちこもう。"),
+    h("pre", { class: "code-block" }, task.answer),
+  );
+  answerBox.addEventListener("toggle", () => {
+    if (answerBox.open) store.markAnswerViewed(task.id);
+  });
+  // 答え合わせをして、結果（またはエラーの赤い枠）が見えるところまで動かす
+  function checkAndShow() {
+    check();
+    if (!resultBox.querySelector(".explain.bad")) resultBox.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+  }
+  hintBtn.addEventListener("click", () => {
+    if (hintsShown < task.hints.length) hintList.append(h("li", {}, task.hints[hintsShown++]));
+    if (hintsShown >= task.hints.length) {
+      hintBtn.hidden = true;
+      answerBox.hidden = false;
+    } else hintBtn.textContent = `次のヒント（${hintsShown}/${task.hints.length}）`;
+  });
+
+  view.replaceChildren(
+    h("div", { class: "page-head" }, h("p", { class: "crumb" }, h("a", { href: "#/tasks" }, "課題"), ` ／ 課題 ${index + 1}　`, task.tier ? h("span", { class: `tier-badge ${task.tier}` }, tierLabel(task.tier)) : null, task.concept ? h("span", { class: "concept" }, `　考え方: ${task.concept}`) : null), h("h2", {}, task.title, " ", clearedBadge)),
+    h("div", { class: "card task-card" }, explain("めあて", task.goal), h("p", {}, task.story), h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: checkAndShow }, "答え合わせ"), hintBtn, h("button", { class: "btn secondary small", type: "button", onclick: () => confirm("はじめのプログラムにもどしますか？（いまのプログラムは消えます）") && (sim.setSource(task.starter), store.setDraft(task.id, null)) }, "はじめのプログラムにもどす")), hintList, answerBox),
+    // 答え合わせの結果は、プログラムのすぐ上に出す（直しながら見られるように）
+    h("div", { class: "card sim-card" }, h("div", { class: "check-bar" }, h("button", { class: "btn", type: "button", onclick: checkAndShow }, "答え合わせ"), h("p", { class: "hint" }, "結果はこのすぐ下に出ます。")), resultBox, sim.el),
+    readingCard(false),
+    isaTable(isa),
+    h("p", { class: "hint reflect-pointer" }, "③のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
+  );
+  return () => {
+    sim.stop();
+    clearTimeout(saveTimer);
+    store.setDraft(task.id, sim.source === task.starter ? null : sim.source);
+  };
+}
+
+return { TIERS, tierLabel, tierCount, tierSummary, renderTaskList, renderTask };
+})();
+
+// ---- js/auto.js ----
+const __m_js_auto_js = (() => {
+const { h, explain } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { assemble, createMachine, runToEnd } = __m_js_vm_js;
+// 処理の自動化: 手計算とプログラムをくらべる（クロックと実行時間の目安も）
+
+
+
+const N_MANUAL = 20;
+// hz: 1秒の合図（クロック）の回数、cpi: 1命令にかかる合図の回数（目安）
+const CLOCKS = [
+  { label: "人がボタンで1命令ずつ進める", hz: 1, cpi: 1, note: "1秒に1命令" },
+  { label: "昔のパソコン（1980年ごろ）", hz: 4e6, cpi: 4, note: "合図（クロック）が1秒に約400万回（4 MHz）。1命令に合図が4回以上かかる" },
+  { label: "いまのパソコンのCPU", hz: 3e9, cpi: 1, note: "合図（クロック）が1秒に約30億回（3 GHz）" },
+];
+// 命令の数 → かかる時間（秒）
+const runSeconds = (steps, c) => (steps * c.cpi) / c.hz;
+// これより大きい N は計算に時間がかかるので、先に「計算中…」を出す
+const SLOW_N = 100000;
+
+// 2けたに丸めて、指数（2.0e+2 など）を使わずに書く（例: 200、270、4.5、0.0012）
+const num2 = (x) => Number(x.toPrecision(2)).toLocaleString("ja-JP", { maximumFractionDigits: 20 });
+
+function formatSeconds(sec) {
+  if (sec >= 365 * 86400) return `約${(sec / (365 * 86400)).toFixed(1)}年`;
+  if (sec >= 86400) return `約${(sec / 86400).toFixed(1)}日`;
+  if (sec >= 3600) return `約${Math.floor(sec / 3600)}時間${Math.round((sec % 3600) / 60)}分`;
+  if (sec >= 60) return `約${Math.floor(sec / 60)}分${Math.round(sec % 60)}秒`;
+  if (sec >= 1) return `約${sec.toFixed(sec < 10 ? 1 : 0)}秒`;
+  if (sec >= 1e-3) return `約${num2(sec * 1e3)}ミリ秒（1000分の1秒が1ミリ秒）`;
+  if (sec >= 1e-6) return `約${num2(sec * 1e6)}マイクロ秒（100万分の1秒が1マイクロ秒）`;
+  return `約${num2(sec * 1e9)}ナノ秒（10億分の1秒が1ナノ秒）`;
+}
+
+function renderAuto(view, { tasks, isa }) {
+  store.markVisited("auto");
+  // ✓ は「手で計算して正解」と「N を 100 以上にしてくらべる」の両方をしたときにつける（開いただけではつけない）
+  const BIG_N = 100;
+  const doneRule = h("p", { class: "done-rule", "aria-live": "polite" });
+  const updateDone = () => {
+    const manualOk = Boolean(store.state.manual);
+    const bigOk = store.isDone("autoBigN");
+    if (manualOk && bigOk && !store.isDone("auto")) {
+      store.markDone("auto");
+      document.dispatchEvent(new CustomEvent("vcpu:progress"));
+    }
+    doneRule.textContent = store.isDone("auto")
+      ? "✓ このページはやり終えました。"
+      : `このページに ✓ がつく条件: ${manualOk ? "✓" : "□"} 1. 手で計算して正解する　${bigOk ? "✓" : "□"} 2. 「どこまでたす？」を ${BIG_N} 以上にしてくらべる`;
+  };
+  const program = tasks.find((t) => t.id === "sumN").answer;
+  const prog = assemble(program, isa);
+  let timer = null;
+  let startAt = 0;
+
+  // ---- 1. 手で計算 ----
+  const clock = h("div", { class: "big-number timer", "aria-live": "off" }, "0.0 秒");
+  const answer = h("input", { type: "text", inputmode: "numeric", "aria-label": "答え", placeholder: "答え", disabled: true });
+  const startBtn = h("button", { class: "btn", type: "button" }, "スタート");
+  const doneBtn = h("button", { class: "btn", type: "button", disabled: true }, "できた");
+  const manualMsg = h("div", { "aria-live": "polite" });
+  const prevRec = store.state.manual;
+  if (prevRec) manualMsg.append(explain("前回の記録", `${prevRec.seconds.toFixed(1)}秒で正解しました。`, "good"));
+
+  startBtn.addEventListener("click", () => {
+    startAt = performance.now();
+    clearInterval(timer);
+    timer = setInterval(() => (clock.textContent = `${((performance.now() - startAt) / 1000).toFixed(1)} 秒`), 100);
+    answer.disabled = false;
+    doneBtn.disabled = false;
+    answer.value = "";
+    answer.focus();
+    startBtn.textContent = "やり直す";
+    manualMsg.replaceChildren();
+  });
+  const finish = () => {
+    if (!timer) return;
+    const v = Number(answer.value.normalize("NFKC").trim());
+    const sec = (performance.now() - startAt) / 1000;
+    if (v === (N_MANUAL * (N_MANUAL + 1)) / 2) {
+      clearInterval(timer);
+      timer = null;
+      clock.textContent = `${sec.toFixed(1)} 秒`;
+      answer.disabled = true;
+      doneBtn.disabled = true;
+      store.setManual({ seconds: sec, at: new Date().toISOString() });
+      manualMsg.replaceChildren(explain("正解！", `${sec.toFixed(1)}秒かかりました。下で、同じ計算をプログラムにさせるとどうなるか見てみよう。`, "good"));
+      nSelect.value = String(N_MANUAL);
+      renderCompare();
+      updateDone();
+    } else {
+      manualMsg.replaceChildren(explain("おしい", "答えがちがうようです。計算を見直してもう一度入力しよう（時間は進んでいます）。", "warn"));
+    }
+  };
+  doneBtn.addEventListener("click", finish);
+  answer.addEventListener("keydown", (e) => e.key === "Enter" && finish());
+
+  // ---- 2. プログラムなら ----
+  const nSelect = h("select", { "aria-label": "N の大きさ" }, [20, 100, 1000, 10000, 100000, 1000000].map((n) => h("option", { value: n }, `1 から ${n.toLocaleString("ja-JP")} まで`)));
+  const compareBox = h("div", { "aria-live": "polite" });
+
+  function renderCompare() {
+    const n = Number(nSelect.value);
+    const m = runToEnd(createMachine(prog, { inputs: [n], maxSteps: 1e9 }));
+    const steps = m.steps;
+    const manual = store.state.manual;
+    compareBox.replaceChildren(
+      h(
+        "div",
+        { class: "result-box" },
+        h("p", {}, "プログラムが出した答え: ", h("strong", { class: "big-number" }, m.outputs[0]?.toLocaleString("ja-JP"))),
+        h("p", {}, `実行した命令の数: `, h("strong", {}, `${steps.toLocaleString("ja-JP")} 回`), h("span", { class: "hint" }, `（くり返し1回で8命令 × ${n.toLocaleString("ja-JP")}回 ＋ 最初と最後の数命令）`)),
+      ),
+      h(
+        "div",
+        { class: "table-wrap" },
+        h(
+          "table",
+          { class: "data" },
+          h("thead", {}, h("tr", {}, h("th", {}, "だれが実行する？"), h("th", {}, "速さの目安"), h("th", {}, "かかる時間"))),
+          h(
+            "tbody",
+            {},
+            n === N_MANUAL && manual ? h("tr", { class: "you" }, h("td", {}, "あなた（手計算）"), h("td", {}, "—"), h("td", {}, `${manual.seconds.toFixed(1)}秒`)) : null,
+            CLOCKS.map((c) => h("tr", {}, h("td", {}, c.label), h("td", {}, c.note), h("td", {}, formatSeconds(runSeconds(steps, c))))),
+          ),
+        ),
+      ),
+      h("p", { class: "hint" }, "※ おおよその目安です。昔のパソコンは1命令に合図を4回（命令によっては20回ほど）使ったので、ここでは4回として計算しました。いまのパソコンは1命令を1回の合図で進めるとしました（実際には1回の合図で何命令も同時に進めることもあります）。"),
+    );
+  }
+  let slowTimer = null;
+  nSelect.addEventListener("change", () => {
+    const after = () => {
+      renderCompare();
+      if (Number(nSelect.value) >= BIG_N) store.markDone("autoBigN");
+      updateDone();
+    };
+    clearTimeout(slowTimer);
+    if (Number(nSelect.value) >= SLOW_N) {
+      // 画面が止まって見えないように、先に「計算中…」を出してから実行する
+      compareBox.replaceChildren(h("p", { class: "status calc-busy" }, "計算中…（数がとても多いので、少し待ってね）"));
+      nSelect.disabled = true;
+      slowTimer = setTimeout(() => {
+        after();
+        nSelect.disabled = false;
+      }, 60);
+    } else after();
+  });
+
+  view.replaceChildren(
+    h("div", { class: "page-head" }, h("h2", {}, "処理の自動化: 手計算 vs プログラム"), h("p", { class: "muted" }, "同じ計算を、人とコンピュータでくらべてみよう。"), doneRule),
+    h(
+      "div",
+      { class: "card" },
+      h("h3", {}, `1. 手で計算: 1 + 2 + 3 + … + ${N_MANUAL} は？`),
+      h("p", {}, "電卓を使わずに、頭の中か紙で計算します。「スタート」を押すと時間をはかります。"),
+      h("div", { class: "manual-row" }, clock, h("div", { class: "btn-row" }, startBtn, answer, doneBtn)),
+      manualMsg,
+    ),
+    h(
+      "div",
+      { class: "card" },
+      h("h3", {}, "2. プログラムなら"),
+      h("p", {}, "課題「1からNまでの合計」のプログラムを、この仮想CPUで実行します。N を大きくしても、プログラムは1文字も変えずにそのまま使えます。"),
+      h("details", {}, h("summary", {}, "使うプログラムを見る（課題「1からNまでの合計」の答えの例です）"), h("pre", { class: "code-block small" }, program)),
+      h("div", { class: "field" }, h("label", {}, "どこまでたす？", nSelect)),
+      compareBox,
+    ),
+    h(
+      "div",
+      { class: "card" },
+      h("h3", {}, "3. まとめ"),
+      explain(
+        "処理の自動化",
+        h(
+          "ul",
+          {},
+          h("li", {}, "コンピュータは、決められた手順（プログラム）を、とても速く・正確に・何度でもくり返せます。人のようにつかれたり、計算をまちがえたりしません。"),
+          h("li", {}, "そのかわり、手順を考えてプログラムにするのは人の仕事です。手順がまちがっていれば、コンピュータはまちがった答えを速く出してしまいます。"),
+          h("li", {}, "CPU は「合図（クロック）」に合わせて命令を進めます。1秒間の合図の回数をクロック周波数といい、3 GHz なら1秒に約30億回です。"),
+        ),
+      ),
+      h("p", {}, "考えよう: 身のまわりで、コンピュータが「くり返し」を自動でしてくれている例はあるかな？（例: 自動ドア、信号機、エアコンの温度調節）"),
+    ),
+  );
+  renderCompare();
+  updateDone();
+  return () => {
+    clearInterval(timer);
+    clearTimeout(slowTimer);
+  };
+}
+
+return { CLOCKS, runSeconds, formatSeconds, renderAuto };
+})();
+
+// ---- js/records.js ----
+const __m_js_records_js = (() => {
+const { h, toast, takeReflectionFocus } = __m_js_ui_js;
+const { store } = __m_js_store_js;
+const { tierSummary, tierLabel } = __m_js_tasks_js;
+// ふりかえり・記録: 各ページのふりかえり欄と、名前・進み具合・ふりかえりの一覧、JSON/CSV の書き出し（端末内でファイルを作るだけ。送信はしない）
+
+
+
+// ふりかえりを書く場所（ページごと）
+const REFLECT = [
+  { id: "diagram", title: "① 図解: 5つの装置", prompt: "コンピュータの5つの装置は、それぞれどんな役割をしていた？ データはどの順に流れた？" },
+  { id: "sim", title: "② 仮想CPUを動かす", prompt: "CPUが命令を「取り出し → 解読 → 実行」するようすを見て、気づいたことは？" },
+  { id: "tasks", title: "③ 課題", prompt: "プログラムが思ったとおりに動かなかったとき、どこを見て、どう直した？" },
+  { id: "auto", title: "④ 手計算くらべ", prompt: "同じ計算を人とコンピュータでくらべて、処理を自動化するよさと注意することは何だと思う？" },
+];
+
+function downloadFile(filename, text, type = "application/json") {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = h("a", { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// いま画面にあるふりかえり欄の書きかけを保存する（ページを移るとき・pagehide のとき app.js がよぶ）
+let flushCurrent = null;
+function flushReflection() {
+  flushCurrent?.();
+}
+
+// ふりかえり（「なぜそうなるのか」を自分の言葉で書く）
+// 書いた文は、打って 400 ミリ秒後・ページを移るとき・pagehide のときに自動で保存する（保存ボタンと同じ保存場所）
+function reflectionBox(id) {
+  flushCurrent = null;
+  const r = REFLECT.find((x) => x.id === id);
+  if (!r) return null;
+  const tid = `reflect-${id}`;
+  const ta = h("textarea", { id: tid, maxlength: "400", placeholder: "例: 〇〇だから、△△になる" });
+  ta.value = store.getReflection(id);
+  const note = h("div", { class: "saved-note", "aria-live": "polite" });
+  let lastSaved = ta.value.trim();
+  let timer = null;
+  const autosave = () => {
+    clearTimeout(timer);
+    timer = null;
+    const text = ta.value.trim();
+    if (text === lastSaved) return;
+    store.setReflection(id, text);
+    lastSaved = text;
+    note.style.color = "";
+    note.textContent = "保存しました";
+  };
+  ta.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(autosave, 400);
+  });
+  flushCurrent = autosave;
+  const saveBtn = h("button", { class: "btn", type: "button" }, "ふりかえりを保存");
+  saveBtn.addEventListener("click", () => {
+    autosave();
+    const text = ta.value.trim();
+    if (text.length < 5) {
+      note.textContent = text ? "保存しました。もう少し書いてみよう（5文字以上）" : "もう少し書いてみよう（5文字以上）";
+      note.style.color = "var(--warn)";
+      return;
+    }
+    store.setReflection(id, text);
+    lastSaved = text;
+    note.style.color = "";
+    note.textContent = "この端末に保存しました";
+  });
+  const box = h(
+    "section",
+    { class: "card reflection" },
+    h("h2", {}, "ふりかえり"),
+    h("label", { for: tid }, r.prompt),
+    h("div", { class: "hint" }, "用語を覚えるだけでなく、「なぜそうなるのか」を自分の言葉で書こう。"),
+    ta,
+    h("p", { class: "hint" }, "書いた文は、自動でこの端末に保存されます。"),
+    h("div", { class: "btn-row" }, saveBtn),
+    note,
+  );
+  if (takeReflectionFocus()) {
+    // ページの表示（いちばん上へもどす）が終わってから、ふりかえり欄まで動かす
+    setTimeout(() => box.isConnected && box.scrollIntoView?.({ block: "center" }), 60);
+  }
+  return box;
+}
+
+// 進み具合: ✓ はやり終えたときだけ。開いただけのときは「開いた（とちゅう）」
+function progressText(id, tasks) {
+  const st = store.state;
+  if (id === "tasks") {
+    const seen = tasks.filter((t) => store.answerViewed(t.id)).length;
+    return `${tierSummary(tasks)}${seen ? `（答えの例を見た: ${seen}問）` : ""}`;
+  }
+  if (id === "diagram" || id === "auto") return store.isDone(id) ? "✓ やった" : st.visited[id] ? "開いた（とちゅう）" : "—";
+  return st.visited[id] ? "開いた" : "—";
+}
+
+// 書き出す JSON（先生に出すファイル）。各課題のクリア・答えの例を見たか・最後のプログラムを入れる
+function exportData(tasks) {
+  const st = store.state;
+  return {
+    app: "virtual-cpu",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    student: st.student,
+    visited: st.visited,
+    done: st.done,
+    cleared: st.cleared,
+    answerViewed: st.answerViewed,
+    tasks: tasks.map((t, i) => {
+      const draft = store.getDraft(t.id);
+      return {
+        no: i + 1,
+        id: t.id,
+        title: t.title,
+        tier: tierLabel(t.tier || "must"),
+        cleared: st.cleared[t.id] || null,
+        answerViewed: store.answerViewed(t.id),
+        edited: draft !== undefined && draft !== null,
+        program: draft ?? t.starter,
+      };
+    }),
+    simProgram: store.getDraft("_free") ?? null,
+    manual: st.manual,
+    reflections: st.reflections,
+  };
+}
+
+// 組と番号が入っていないと書き出さない（ほかの教材と同じ）
+function missingStudent(student) {
+  return !String(student?.cls ?? "").trim() || !String(student?.num ?? "").trim();
+}
+
+function renderRecords(view, { tasks }, rerender) {
+  const st = store.state;
+  const fields = [
+    ["cls", "組"],
+    ["num", "番号"],
+    ["name", "名前"],
+  ].map(([k, label]) => {
+    const input = h("input", { type: "text", id: `stu-${k}`, maxlength: "20", value: st.student[k] || "" });
+    input.addEventListener("change", () => store.setStudent({ [k]: input.value.trim() }));
+    return h("div", { class: "field" }, h("label", { for: `stu-${k}` }, label), input);
+  });
+  const rows = REFLECT.map((r) => h("tr", {}, h("td", {}, r.title), h("td", {}, progressText(r.id, tasks)), h("td", {}, store.getReflection(r.id) || "—")));
+  const who = () => [st.student.cls, st.student.num, st.student.name].filter(Boolean).join("-") || "記録";
+  const exportMsg = h("p", { class: "export-msg", role: "status", "aria-live": "polite" });
+  // 書き出す前に、入力中の組・番号・名前も保存する（change を待たない）
+  const readStudent = () => {
+    const info = {};
+    for (const k of ["cls", "num", "name"]) {
+      const el = view.querySelector(`#stu-${k}`);
+      if (el) info[k] = el.value.trim();
+    }
+    store.setStudent(info);
+    return store.state.student;
+  };
+  const tryExport = (make) => {
+    if (missingStudent(readStudent())) {
+      exportMsg.className = "export-msg warn";
+      exportMsg.textContent = "組と番号を入れてから書き出そう";
+      return;
+    }
+    const filename = make();
+    exportMsg.className = "export-msg good";
+    exportMsg.textContent = `ファイルを保存しました（ファイル名: ${filename}）。先生に言われた場所に出そう。`;
+  };
+  const exportBtn = h("button", { type: "button", class: "btn" }, "記録を書き出す（JSON）");
+  exportBtn.addEventListener("click", () =>
+    tryExport(() => {
+      const filename = `仮想CPU_${who()}.json`;
+      downloadFile(filename, JSON.stringify(exportData(tasks), null, 2));
+      return filename;
+    }),
+  );
+  const csvBtn = h("button", { type: "button", class: "btn secondary" }, "CSVで書き出す");
+  csvBtn.addEventListener("click", () =>
+    tryExport(() => {
+      const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const lines = [["組", "番号", "名前", "ページ", "進み具合", "ふりかえり"].map(q).join(",")];
+      for (const r of REFLECT) lines.push([st.student.cls, st.student.num, st.student.name, r.title, progressText(r.id, tasks), store.getReflection(r.id)].map(q).join(","));
+      const filename = `仮想CPU_${who()}.csv`;
+      downloadFile(filename, "\ufeff" + lines.join("\r\n"), "text/csv");
+      return filename;
+    }),
+  );
+  const resetBtn = h("button", { type: "button", class: "btn secondary" }, "この端末の記録をすべて消す");
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("進み具合・書いたプログラム・ふりかえりをすべて消します。よろしいですか？")) return;
+    store.reset();
+    toast("記録を消しました");
+    rerender();
+  });
+  view.replaceChildren(
+    h("div", { class: "page-head" }, h("h2", {}, "ふりかえり・記録"), h("p", { class: "muted" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, fields)),
+    h(
+      "section",
+      { class: "card" },
+      h("h2", {}, "進み具合とふりかえり"),
+      h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ページ"), h("th", {}, "進み具合"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows))),
+      h("p", { class: "hint" }, "ふりかえりは、それぞれのページのいちばん下で書けます。"),
+      h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "JSON には、課題ごとに書いたプログラムと、答えの例を見たかも入ります。CSV は表で見たいときに使います。"),
+      h("div", { class: "btn-row" }, exportBtn, csvBtn, exportMsg),
+    ),
+    h("section", { class: "card" }, h("h2", {}, "記録を消す"), h("p", { class: "hint" }, "次の人に端末をわたすときに使います。"), h("div", { class: "btn-row" }, resetBtn)),
+  );
+}
+
+return { REFLECT, downloadFile, flushReflection, reflectionBox, progressText, exportData, missingStudent, renderRecords };
+})();
+
+// ---- js/app.js ----
+const __m_js_app_js = (() => {
+const { h, explain } = __m_js_ui_js;
+const { loadData } = __m_js_data_js;
+const { store } = __m_js_store_js;
+const { renderDiagram } = __m_js_diagram_js;
+const { createSimulator, isaTable, readingCard } = __m_js_sim_js;
+const { renderTaskList, renderTask, tierCount } = __m_js_tasks_js;
+const { renderAuto } = __m_js_auto_js;
+const { reflectionBox, flushReflection, renderRecords } = __m_js_records_js;
+// 画面の切りかえ（#/ … トップ、#/diagram 図解、#/sim 仮想CPU、#/tasks 課題、#/task/ID、#/auto 手計算くらべ、#/records ふりかえり・記録）
+
+
+
+
+
+
+
+
+const SAMPLES = [
+  { name: "3 + 5 を表示する", inputs: [], source: "LOAD a     ; a の数（3）を ACC に読み込む\nADD b      ; b の数（5）をたす\nSTORE c    ; 答えを c にもしまっておく（OUT が出すのは ACC の値）\nOUT        ; 答えを出力\nHALT       ; 終わり\na: DATA 3\nb: DATA 5\nc: DATA 0" },
+  { name: "入力された数をそのまま表示（0で終わり）", inputs: [4, 7, 1, 0], source: "loop: IN        ; 入力\n      JZ end    ; 0 なら終わり\n      OUT       ; 出力\n      JUMP loop ; くり返す\nend:  HALT" },
+  { name: "終わらないプログラム（速さ「最速」で、自動で止まるか確認）", fastest: true, inputs: [], source: "      LOAD #0\nloop: ADD #1\n      OUT\n      JUMP loop   ; ずっとくり返す（HALT にたどりつかない）" },
+  { name: "まっさら", inputs: [], source: "" },
+];
+
+let cleanup = null;
+let data = null;
+
+// 左メニュー（ほかの教材と同じ形）
+function renderNav() {
+  const route = location.hash.replace(/^#/, "") || "/";
+  const current = route === "/" ? "/" : route.startsWith("/task/") ? "/tasks" : route;
+  const tasks = data?.tasks || [];
+  const link = (path, num, title, done) =>
+    h(
+      "li",
+      { class: done ? "done" : "" },
+      h("a", { href: `#${path}`, "aria-current": current === path ? "page" : null }, h("span", { class: "num", "aria-hidden": "true" }, done ? "✓" : num), h("span", {}, title, done ? h("span", { class: "visually-hidden" }, "（完了）") : null)),
+    );
+  const ol = h(
+    "ol",
+    {},
+    link("/", "⌂", "はじめに", false),
+    h("li", { class: "nav-group", "aria-hidden": "true" }, "体験する"),
+    // ✓ は「やり終えた」ときだけ（開いただけではつけない）。課題は必修（課題1〜4）を全部クリアしたとき
+    link("/diagram", "1", "図解: 5つの装置", store.isDone("diagram")),
+    link("/sim", "2", "仮想CPUを動かす", false),
+    link("/tasks", "3", "課題", (() => { const c = tierCount(tasks, "must"); return c.total > 0 && c.done === c.total; })()),
+    link("/auto", "4", "手計算くらべ", store.isDone("auto")),
+    h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"),
+    link("/records", "✎", "ふりかえり・記録", false),
+  );
+  document.getElementById("chapter-nav").replaceChildren(h("nav", { "aria-label": "ページ" }, ol));
+}
+
+function renderHome(view) {
+  const { tasks } = data;
+  const done = tasks.filter((t) => store.isCleared(t.id)).length;
+  const must = tierCount(tasks, "must");
+  const card = (num, href, title, desc, extra) => h("a", { class: "module-card", href }, h("span", { class: "mc-num" }, num), h("span", { class: "mc-title" }, title), h("span", { class: "mc-desc" }, desc), extra);
+  view.replaceChildren(
+    h(
+      "section",
+      { class: "hero" },
+      h("h1", {}, "仮想CPUラボ"),
+      h("p", { class: "lead" }, "プログラムがコンピュータの中でどのように処理されるのかを、小さな仮想コンピュータを動かしながら確かめる教材です。"),
+      h("p", { class: "author" }, "作成：技術 岡田"),
+    ),
+    h(
+      "div",
+      { class: "module-grid" },
+      card("①", "#/diagram", "図解: 5つの装置", "入力・記憶・演算・制御・出力。データがどう流れるかをアニメで見る。", store.isDone("diagram") ? h("span", { class: "status good small-status" }, "✓ やった") : null),
+      card("②", "#/sim", "仮想CPUを動かす", "10個の命令で動く小さなCPU。1段階ずつ進めて、レジスタ（CPUの中の小さな記憶の箱）と記憶装置の変化を見る。", null),
+      card("③", "#/tasks", "課題", "必修は課題1〜4。たし算、ひき算、くり返しをプログラムする。発展・チャレンジもある。", h("span", { class: `status ${must.done === must.total ? "good" : ""} small-status` }, `必修 ${must.done} / ${must.total}（全体 ${done} / ${tasks.length}）`)),
+      card("④", "#/auto", "手計算 vs プログラム", "同じ計算を人とコンピュータでくらべ、処理の自動化を考える。", store.isDone("auto") ? h("span", { class: "status good small-status" }, "✓ やった") : null),
+    ),
+    h(
+      "details",
+      { class: "card teacher" },
+      h("summary", {}, "先生へ（授業での使い方）"),
+      h("p", {}, "技術・家庭科（技術分野）D「情報の技術」の「コンピュータの仕組み」（入力・記憶・演算・制御・出力）に対応しています。インターネットに接続せず、このファイルだけで動きます。"),
+      h(
+        "ol",
+        {},
+        h("li", {}, "1時間目（前半 約20分）: ①図解で5つの装置とデータ・制御の流れを確認し、機器の仲間分けをする。"),
+        h("li", {}, "1時間目（後半 約30分）: ②仮想CPUで「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し→解読→実行をたしかめる。③課題1〜2（必修）。"),
+        h("li", {}, "2時間目（前半 約30分）: ③課題3〜4（必修。順次とくり返し）。終わった生徒は課題5〜7（発展）、課題8（チャレンジ）へ進む。"),
+        h("li", {}, "2時間目（後半 約20分）: 課題の途中でも、全員で④手計算くらべをして、処理の自動化をまとめる。ふりかえりを書き、記録（JSON）を書き出す。"),
+      ),
+      h("p", {}, "課題の区分: 課題1〜4 が必修、5〜7 が発展、8 がチャレンジです。時間の目安は、必修1問 5〜8分、発展1問 8〜12分です（クラスに合わせて調整してください）。"),
+      h("p", {}, "ヒントは「考え方 → 一部の答え」の順に出ます。最後のヒントも答えそのものではありません。ヒントを全部見ると「答えの例」を開けます。答えの例をプログラム欄に入れるボタンはなく、生徒が自分で打ちこみます。答えの例を開いたことは記録に残り、書き出した JSON に入ります（各課題のプログラムも入ります）。"),
+      h("p", {}, "✓ は、①は仲間分けの答え合わせ、③は必修（課題1〜4）のクリア、④は手計算と N を大きくしたくらべをしたときにつきます。開いただけではつきません。"),
+      h("p", {}, "進み具合と書いたプログラムは、この端末のブラウザの中だけに保存されます（外部には送りません）。"),
+      h("button", { class: "btn small secondary", type: "button", onclick: () => confirm("この端末に保存された進み具合とプログラムをすべて消しますか？") && (store.reset(), route()) }, "この端末の記録を消す"),
+    ),
+  );
+}
+
+function renderSim(view) {
+  store.markVisited("sim");
+  const sel = h("select", { "aria-label": "サンプルプログラム" }, SAMPLES.map((p, i) => h("option", { value: i }, p.name)));
+  // 前に選んだサンプルと入力の数をもどす（書いたプログラムは下書きとしてもどる）
+  const draft = store.getDraft("_free");
+  const meta = store.state.sim || {};
+  const sampleIndex = Number.isInteger(meta.sample) && SAMPLES[meta.sample] ? meta.sample : 0;
+  sel.value = String(sampleIndex);
+  const sim = createSimulator({
+    isa: data.isa,
+    source: draft ?? SAMPLES[sampleIndex].source,
+    inputs: Array.isArray(meta.inputs) ? meta.inputs : draft ? [] : SAMPLES[sampleIndex].inputs,
+    onSourceChange: (t) => store.setDraft("_free", t),
+    onInputsChange: (list) => store.setSimMeta({ inputs: list }),
+  });
+  let shownIndex = sampleIndex;
+  // 終わらないサンプルは、1万命令で自動で止まるのを見るために速さを「最速」にする
+  if (SAMPLES[sampleIndex].fastest) sim.setSpeed(sim.FASTEST);
+  sel.addEventListener("change", () => {
+    const p = SAMPLES[Number(sel.value)];
+    // 自分で書きかえたプログラムがあるときは、消してよいか先にたずねる
+    const cur = sim.source;
+    const edited = cur.trim() !== "" && !SAMPLES.some((x) => x.source === cur);
+    if (edited && !confirm("いまのプログラムは消えて、サンプルに書きかわります。よろしいですか？")) {
+      sel.value = String(shownIndex);
+      return;
+    }
+    shownIndex = Number(sel.value);
+    sim.setSource(p.source);
+    sim.setInputs(p.inputs);
+    if (p.fastest) sim.setSpeed(sim.FASTEST);
+    store.setSimMeta({ sample: shownIndex, inputs: p.inputs });
+  });
+  view.replaceChildren(
+    h("div", { class: "page-head" }, h("h2", {}, "仮想CPUを動かす"), h("p", { class: "muted" }, "プログラムは記憶装置に読み込まれ、制御装置が命令を1つずつ「取り出し → 解読 → 実行」します。まずは「1段階すすむ」を何回か押してみよう。"), h("div", { class: "sample-row" }, h("label", {}, "サンプルプログラム", sel))),
+    h("div", { class: "card sim-card" }, sim.el),
+    readingCard(true),
+    isaTable(data.isa, true),
+    explain("見るところ", h("ul", {}, h("li", {}, "記憶装置の青い枠が「次に取り出す番地（PC）」、色がついたマスが「いま実行している命令」です。マスを押すと、中身の意味が出ます。"), h("li", {}, "STORE で書きこまれたマスはオレンジ色に光ります。"), h("li", {}, "命令もデータも同じ記憶装置に入っていることに注目しよう。命令を記憶装置に入れておき、1つずつ取り出して実行するしくみを「プログラム内蔵方式」といいます。"), h("li", {}, "①図解とのちがい: この仮想CPUでは、IN で入った数はまず ACC に入ります。記憶装置にしまうには STORE を使います。OUT は ACC の値を表示します（記憶装置の数を出すときは、LOAD してから OUT）。"))),
+  );
+  return () => sim.stop();
+}
+
+function route() {
+  flushReflection(); // 前のページのふりかえりの書きかけを保存してから移る
+  cleanup?.();
+  cleanup = null;
+  const view = document.getElementById("view");
+  const path = location.hash.replace(/^#/, "") || "/";
+  if (path === "/diagram") cleanup = renderDiagram(view);
+  else if (path === "/sim") cleanup = renderSim(view);
+  else if (path === "/tasks") renderTaskList(view, data);
+  else if (path.startsWith("/task/")) cleanup = renderTask(view, data, decodeURIComponent(path.slice(6)));
+  else if (path === "/auto") cleanup = renderAuto(view, data);
+  else if (path === "/records") renderRecords(view, data, route);
+  else renderHome(view);
+  const box = reflectionBox(path.slice(1));
+  if (box) {
+    // 「次:」ボタン（.next-link）があるページでは、ふりかえり欄をその上に置く
+    const nextLink = view.querySelector(":scope > .next-link");
+    if (nextLink) nextLink.before(box);
+    else view.append(box);
+  }
+  renderNav();
+  window.scrollTo(0, 0);
+  view.focus({ preventScroll: true });
+}
+
+async function main() {
+  try {
+    const [isa, t] = await Promise.all([loadData("isa"), loadData("tasks")]);
+    data = { isa, tasks: t.tasks };
+  } catch (e) {
+    document.getElementById("view").replaceChildren(explain("読み込めませんでした", `${e.message}。単一HTML版（dist/virtual-cpu.html）を使うか、Webサーバー経由で開いてください。`, "bad"));
+    return;
+  }
+  window.addEventListener("hashchange", route);
+  document.addEventListener("vcpu:progress", renderNav); // ✓ がついたときに左メニューを書きなおす
+  window.addEventListener("pagehide", () => {
+    flushReflection();
+    cleanup?.();
+  });
+  route();
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http") && !globalThis.__VCPU_DATA) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+}
+
+main();
+
+return {  };
+})();
+</script>
+</body>
+</html>

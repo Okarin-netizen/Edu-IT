@@ -1,0 +1,24 @@
+{
+  "memorySize": 32,
+  "maxSteps": 10000,
+  "instructions": [
+    { "op": "LOAD",  "operand": "value", "unit": "mem",  "name": "読み込む",       "desc": "値を ACC（計算用の箱）に入れる", "example": "LOAD x ／ LOAD #5" },
+    { "op": "STORE", "operand": "addr",  "unit": "mem",  "name": "しまう",         "desc": "ACC の値を記憶装置の番地に書きこむ", "example": "STORE x" },
+    { "op": "ADD",   "operand": "value", "unit": "alu",  "name": "たす",           "desc": "ACC に値をたす（演算装置）", "example": "ADD x ／ ADD #1" },
+    { "op": "SUB",   "operand": "value", "unit": "alu",  "name": "ひく",           "desc": "ACC から値をひく（演算装置）", "example": "SUB x ／ SUB #1" },
+    { "op": "JUMP",  "operand": "addr",  "unit": "ctrl", "name": "とぶ",           "desc": "次に実行する番地を変える（くり返しに使う）", "example": "JUMP loop" },
+    { "op": "JZ",    "operand": "addr",  "unit": "ctrl", "name": "0ならとぶ",      "desc": "ACC が 0 のときだけ番地にとぶ（条件分岐）", "example": "JZ end" },
+    { "op": "JN",    "operand": "addr",  "unit": "ctrl", "name": "負ならとぶ",     "desc": "ACC がマイナスのときだけ番地にとぶ（大小くらべ）", "example": "JN skip" },
+    { "op": "IN",    "operand": "none",  "unit": "in",   "name": "入力",           "desc": "入力装置から数を1つ受け取って ACC に入れる", "example": "IN" },
+    { "op": "OUT",   "operand": "none",  "unit": "out",  "name": "出力",           "desc": "ACC の値を出力装置（画面）に表示する", "example": "OUT" },
+    { "op": "HALT",  "operand": "none",  "unit": "ctrl", "name": "止まる",         "desc": "プログラムを終わる", "example": "HALT" }
+  ],
+  "syntax": [
+    "1行に1命令。「;」から後ろはメモ（コメント）です。",
+    "x のような名前は「番地につけた名前（ラベル）」です。「x: DATA 0」で、0 の入った箱を用意します。",
+    "#5 のように # をつけると「5 という数そのもの」、x や 20 だけなら「その番地に入っている数」という意味です。",
+    "loop: のように行の先頭に名前と「:」を書くと、その番地に名前がつき、JUMP loop のように使えます。",
+    "DATA の行（数の箱）は HALT より後ろに書きます。前に書くと、CPU が数を命令として読もうとして止まります。",
+    "番地は 0 から数えます。エラーの「○行目」は 1 から数えます。名前は大文字と小文字を区別します（sum と Sum は別の箱）。"
+  ]
+}
