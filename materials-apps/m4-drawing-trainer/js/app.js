@@ -60,6 +60,42 @@
     return d.firstChild;
   }
   // 問題を選ぶ列(状態は記号 ✓ / × / ・ で示す)
+  /* 作図の判定。描いた線に合わせて正解の位置を決める。
+   * 何も描いていないときや、合わせた位置だとボードからはみ出すときは、基準線の位置(home)で比べる */
+  function gradeOn(board, exp, home) {
+    var d = board.getDrawn();
+    var g = M.grade(exp, d, { prefer: home });
+    if (!M.fitsBox(exp, g.offset, board.box)) g = M.grade(exp, d, { force: home });
+    return g;
+  }
+  /* まっすぐつながる線を1本と数える(画面の ○ × △ の数と合わせる) */
+  function runs(list) {
+    return ['v', 'h'].reduce(function (n, t) {
+      return n + M.mergeSegments(list.filter(function (it) { return it.type === t; }).map(function (it) { return it.key; })).length;
+    }, 0);
+  }
+  /* 基準線の SVG 部品 */
+  function gLine(board, a, b, cls) {
+    var p = board.toXY(a[0], a[1]), q = board.toXY(b[0], b[1]);
+    return SK.svgEl('line', { class: cls, x1: p[0], y1: p[1], x2: q[0], y2: q[1] });
+  }
+  function gText(board, at, dx, dy, str, anchor) {
+    var p = board.toXY(at[0], at[1]);
+    var t = SK.svgEl('text', { class: 'm4-g-text', x: p[0] + dx, y: p[1] + dy, 'text-anchor': anchor || 'middle' });
+    t.textContent = str;
+    return t;
+  }
+  function gStart(board, at) {
+    var p = board.toXY(at[0], at[1]);
+    return SK.svgEl('circle', { class: 'm4-g-start', cx: p[0], cy: p[1], r: 8 });
+  }
+  function guideToggle(state, onChange) {
+    var cb = h('input', { type: 'checkbox' });
+    cb.checked = state.guide;
+    cb.addEventListener('change', function () { state.guide = cb.checked; onChange(); });
+    return h('label', { class: 'm4-guide-toggle' }, cb, ' 基準線');
+  }
+
   function problemNav(list, getState, onPick, cur) {
     var nav = h('div', { class: 'm4-nav', role: 'group', 'aria-label': '問題を選ぶ' });
     list.forEach(function (p, i) {
@@ -160,6 +196,8 @@
         h('button', { class: 'btn', type: 'button', onclick: function () { v.setView('top'); } }, '上から見てみる'),
         h('button', { class: 'btn', type: 'button', onclick: function () { v.setView('right'); } }, '右から見てみる'),
         quizState.idx < list.length - 1 ? h('button', { class: 'btn primary', type: 'button', onclick: function () { quizState.idx++; renderQuiz(); } }, '次の問題 ▶') : null));
+      // 結果は選択肢の下に出るので、見える位置までスクロールする
+      if (result.scrollIntoView) result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       nav.replaceWith(nav = problemNav(list, function (x) {
         var rr = rec.data.quiz[x.id]; return rr ? (rr.first ? 'ok' : 'ng') : '';
       }, function (k) { quizState.idx = k; renderQuiz(); }, quizState.idx));
@@ -269,7 +307,7 @@
   }
 
   /* ================= 3. 三面図をかく ================= */
-  var drawState = { idx: 0, view: 'front', drawings: {}, hint: {} };
+  var drawState = { idx: 0, view: 'front', drawings: {}, hint: {}, guide: true };
   function renderDraw() {
     var root = G.$('[data-panel="draw"]');
     root.innerHTML = '';
@@ -296,12 +334,25 @@
       onChange: function (d) { drawState.drawings[key] = d; result.innerHTML = ''; } });
     if (drawState.drawings[key]) board.setDrawn(drawState.drawings[key]);
     var hintLevel = drawState.hint[key] || 0;
+    var home = M.centerOffset(exp, board.box, 'square');
+    var D0 = M.viewDims(s, view);
+    var AXIS = { front: ['横', '高さ'], top: ['横', '奥行き'], right: ['奥行き', '高さ'] }[view];
 
-    function offset() {
-      var d = board.getDrawn();
-      if (!Object.keys(d).length) return [1, 1];
-      return M.grade(exp, d).offset;
+    function offset() { return gradeOn(board, exp, home).offset; }
+    /* 基準線: 外形が入る範囲の左下の角(●)から、下の横線と左の縦線をかき始める */
+    function showGuide() {
+      if (!drawState.guide) { board.setGuide([]); return; }
+      var c = [home[0], home[1] + D0.V], r = [home[0] + D0.U, c[1]], t = [c[0], home[1]];
+      board.setGuide([
+        gLine(board, [c[0] - 0.6, c[1]], [r[0] + 0.6, r[1]], 'm4-g-base'),
+        gLine(board, c, t, 'm4-g-axis'),
+        gStart(board, c),
+        gText(board, [(c[0] + r[0]) / 2, c[1]], 0, 22, AXIS[0] + ' ' + D0.U + ' マス'),
+        gText(board, [c[0], (c[1] + t[1]) / 2], -12, 5, AXIS[1] + ' ' + D0.V, 'end'),
+        gText(board, c, -12, 24, 'ここから', 'end')
+      ]);
     }
+    board.el.firstChild.appendChild(guideToggle(drawState, showGuide));
     function showHint() {
       hintBox.innerHTML = '';
       var nodes = [];
@@ -323,18 +374,18 @@
           ' 本です(まっすぐつながった線を1本と数えます)。'));
       }
       if (hintLevel >= 3) {
-        var g = M.grade(exp, board.getDrawn());
+        var g = gradeOn(board, exp, home);
         var miss = g.missing.concat(g.wrongType);
         if (miss.length) {
           var pk = M.parseKey(miss[0].key), a3 = board.toXY(pk[0], pk[1]), b3 = board.toXY(pk[2], pk[3]);
           nodes.push(SK.svgEl('line', { class: 'm4-hint-line' + (miss[0].type === 'h' ? ' dash' : ''), x1: a3[0], y1: a3[1], x2: b3[0], y2: b3[1] }));
-          hintBox.appendChild(h('p', null, 'ヒント3: 足りない線を1つ、太い点線の枠で示しました(' + (miss[0].type === 'h' ? 'かくれ線' : '外形線') + ')。'));
+          hintBox.appendChild(h('p', null, 'ヒント3: 足りない線を1つ、太い緑の線で示しました(' + (miss[0].type === 'h' ? 'かくれ線' : '外形線') + ')。'));
         } else hintBox.appendChild(h('p', null, 'ヒント3: 足りない線はありません。余分な線がないか確かめましょう。'));
       }
       board.setHint(nodes);
     }
     function check() {
-      var g = M.grade(exp, board.getDrawn());
+      var g = gradeOn(board, exp, home);
       board.showFeedback(g);
       result.innerHTML = '';
       if (g.ok) {
@@ -346,9 +397,9 @@
       } else {
         result.appendChild(h('p', { class: 'm4-ng' }, '× まだちがうところがあります。'));
         var ul = h('ul', { class: 'm4-check-list' });
-        if (g.missing.length) ul.appendChild(h('li', null, '○ の線が足りません(' + g.missing.length + ' か所)'));
-        if (g.extra.length) ul.appendChild(h('li', null, '× の線は余分です(' + g.extra.length + ' か所)'));
-        if (g.wrongType.length) ul.appendChild(h('li', null, '△ の線は線の種類がちがいます。外形線とかくれ線を確かめましょう(' + g.wrongType.length + ' か所)'));
+        if (g.missing.length) ul.appendChild(h('li', null, '○ の線が足りません(' + runs(g.missing) + ' か所)'));
+        if (g.extra.length) ul.appendChild(h('li', null, '× の線は余分です(' + runs(g.extra) + ' か所)'));
+        if (g.wrongType.length) ul.appendChild(h('li', null, '△ の線は線の種類がちがいます。外形線とかくれ線を確かめましょう(' + runs(g.wrongType) + ' か所)'));
         result.appendChild(ul);
       }
     }
@@ -359,27 +410,28 @@
       nav));
     root.appendChild(h('div', { class: 'm4-cols' },
       h('div', { class: 'card' }, h('h3', null, '問題 ' + (drawState.idx + 1) + ' の立体'), v.el,
-        h('p', { class: 'g-muted' }, '第三角法: 平面図は正面図の上、右側面図は正面図の右に置きます。')),
+        h('p', { class: 'g-muted' }, '第三角法: 平面図は正面図の上、右側面図は正面図の右に置きます。'),
+        h('p', { class: 'm4-guide-note' }, 'かき始め: ボードの ● の点(外形が入る範囲の左下の角)から、下の線(基準線)を横に ' + D0.U + ' マス、左の線を縦に ' + D0.V + ' マス引きます。そのあと内側の線をかきます。')),
       h('div', { class: 'card' },
         h('h3', null, VIEW_NAME[view] + 'をかく(' + VIEW_DIR[view] + '見た図)'), viewTabs,
         board.el,
         h('div', { class: 'g-row' },
           h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
           h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () { hintLevel = Math.min(3, hintLevel + 1); drawState.hint[key] = hintLevel; showHint(); } }, 'ヒント'),
-          h('button', { class: 'btn', type: 'button', onclick: function () {
-            var g = M.grade(exp, board.getDrawn());
-            board.showFeedback({ missing: g.missing, extra: [], wrongType: g.wrongType });
+          h('button', { class: 'btn', type: 'button', 'data-act': 'answer', onclick: function () {
+            board.showAnswer(exp, gradeOn(board, exp, home).offset);
             result.innerHTML = '';
-            result.appendChild(h('p', null, '○ の線が正解の線です(太い点線の枠)。自分でかき直して、答え合わせしましょう。'));
+            result.appendChild(h('p', null, '太い緑の線が正解の図です(破線はかくれ線)。自分でかき直して、答え合わせしましょう。'));
           } }, '答えを見る')),
         h('p', { class: 'g-muted m4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線 / △ 線の種類ちがい'),
         hintBox, result)));
     v.setSolid(s);
+    showGuide();
     if (hintLevel) showHint();
   }
 
   /* ================= 4. 等角図をかく ================= */
-  var isoState = { idx: 0, drawings: {}, hint: {} };
+  var isoState = { idx: 0, drawings: {}, hint: {}, guide: true };
   function renderIso() {
     var root = G.$('[data-panel="iso"]');
     root.innerHTML = '';
@@ -394,13 +446,32 @@
     if (isoState.drawings[key]) board.setDrawn(isoState.drawings[key]);
     var hintLevel = isoState.hint[key] || 0;
     var v3wrap = h('div');
+    var home = M.centerOffset(exp, board.box, 'iso');
 
-    function offset() {
-      var d = board.getDrawn();
-      if (Object.keys(d).length) return M.grade(exp, d).offset;
-      var dj = s.d + 2 * s.h + 2; if (dj % 2) dj++;
-      return [2, dj];
+    function offset() { return gradeOn(board, exp, home).offset; }
+    function isoAt(x, y, z) { var q = M.isoPoint(x, y, z); return [q[0] + home[0], q[1] + home[1]]; }
+    /* 基準線: 箱の手前の下の角(●)を通る水平線。そこから左上に横、右上に奥行き、上に高さをとる */
+    function showGuide() {
+      if (!isoState.guide) { board.setGuide([]); return; }
+      var c = isoAt(s.w, 0, 0), L = isoAt(0, 0, 0), R = isoAt(s.w, s.d, 0), U = isoAt(s.w, 0, s.h);
+      var cx = board.toXY(c[0], c[1]), rr = 30;
+      function arc(sign) { // 水平線から 30° の角度の印
+        var x1 = cx[0] + sign * rr, y1 = cx[1], x2 = cx[0] + sign * rr * M.C30, y2 = cx[1] - rr / 2;
+        return SK.svgEl('path', { class: 'm4-g-arc', d: 'M' + x1 + ' ' + y1 + ' A' + rr + ' ' + rr + ' 0 0 ' + (sign > 0 ? 0 : 1) + ' ' + x2 + ' ' + y2 });
+      }
+      board.setGuide([
+        gLine(board, [L[0] - 1, c[1]], [R[0] + 1, c[1]], 'm4-g-base'),
+        gLine(board, c, L, 'm4-g-axis'), gLine(board, c, R, 'm4-g-axis'), gLine(board, c, U, 'm4-g-axis'),
+        arc(-1), arc(1),
+        gText(board, c, -40, 17, '30°', 'end'), gText(board, c, 40, 17, '30°', 'start'),
+        gStart(board, c),
+        gText(board, L, -10, 5, '横 ' + s.w, 'end'),
+        gText(board, R, 10, 5, '奥行き ' + s.d, 'start'),
+        gText(board, U, 0, -12, '高さ ' + s.h),
+        gText(board, c, 0, 32, 'ここから')
+      ]);
     }
+    board.el.firstChild.appendChild(guideToggle(isoState, showGuide));
     function showHint() {
       hintBox.innerHTML = ''; v3wrap.innerHTML = '';
       var nodes = [];
@@ -421,7 +492,7 @@
         v.setSolid(s);
       }
       if (hintLevel >= 3) {
-        var g = M.grade(exp, board.getDrawn());
+        var g = gradeOn(board, exp, home);
         if (g.missing.length) {
           var pk = M.parseKey(g.missing[0].key), a = board.toXY(pk[0], pk[1]), b = board.toXY(pk[2], pk[3]);
           nodes.push(SK.svgEl('line', { class: 'm4-hint-line', x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
@@ -431,7 +502,7 @@
       board.setHint(nodes);
     }
     function check() {
-      var g = M.grade(exp, board.getDrawn());
+      var g = gradeOn(board, exp, home);
       board.showFeedback(g);
       result.innerHTML = '';
       var r = rec.data.iso[p.id] || { tries: 0 };
@@ -443,8 +514,8 @@
       } else {
         result.appendChild(h('p', { class: 'm4-ng' }, '× まだちがうところがあります。'));
         var ul = h('ul', { class: 'm4-check-list' });
-        if (g.missing.length) ul.appendChild(h('li', null, '○ の線が足りません(' + g.missing.length + ' か所)'));
-        if (g.extra.length) ul.appendChild(h('li', null, '× の線は余分です。等角図では、見えない線はかきません(' + g.extra.length + ' か所)'));
+        if (g.missing.length) ul.appendChild(h('li', null, '○ の線が足りません(' + runs(g.missing) + ' か所)'));
+        if (g.extra.length) ul.appendChild(h('li', null, '× の線は余分です。等角図では、見えない線はかきません(' + runs(g.extra) + ' か所)'));
         result.appendChild(ul);
       }
       nav.replaceWith(nav = problemNav(ISO, function (x) { var rr = rec.data.iso[x.id]; return rr ? (rr.ok ? 'ok' : 'ng') : ''; },
@@ -459,20 +530,21 @@
       h('div', { class: 'card' }, h('h3', null, '問題 ' + (isoState.idx + 1) + ' の三面図'), legendLines(),
         svgNode(SV.threeView(M.threeViews(s), { cell: 28, guides: true, aria: '問題の三面図' })),
         h('p', { class: 'g-muted' }, '等角図は、右手前の上から見たようにかきます。正面は左下の面、右側面は右下の面になります。'),
+        h('p', { class: 'm4-guide-note' }, 'かき始め: ボードの ● の点(立体が入る箱の、手前の下の角)から始めます。水平な基準線から30°上がる線を左右に引き、左上に横 ' + s.w + '、右上に奥行き ' + s.d + '、真上に高さ ' + s.h + ' をとります。'),
         v3wrap),
       h('div', { class: 'card' }, h('h3', null, '等角図をかく'),
         board.el,
         h('div', { class: 'g-row' },
           h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
           h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () { hintLevel = Math.min(3, hintLevel + 1); isoState.hint[key] = hintLevel; showHint(); } }, 'ヒント'),
-          h('button', { class: 'btn', type: 'button', onclick: function () {
-            var g = M.grade(exp, board.getDrawn());
-            board.showFeedback({ missing: g.missing, extra: [], wrongType: [] });
+          h('button', { class: 'btn', type: 'button', 'data-act': 'answer', onclick: function () {
+            board.showAnswer(exp, gradeOn(board, exp, home).offset);
             result.innerHTML = '';
-            result.appendChild(h('p', null, '○ の線が正解の線です。自分でかき直して、答え合わせしましょう。'));
+            result.appendChild(h('p', null, '太い緑の線が正解の図です。自分でかき直して、答え合わせしましょう。'));
           } }, '答えを見る')),
         h('p', { class: 'g-muted m4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線'),
         hintBox, result)));
+    showGuide();
     if (hintLevel) showHint();
   }
 

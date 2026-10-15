@@ -274,7 +274,38 @@
 
   /* 描いた線(Map: key → 'v' 外形線 | 'h' かくれ線)と正解を比べる。
    * 書き順・線の分け方・描いた位置(平行移動)によらず判定する。 */
-  function grade(expected, drawn) {
+  /* 線分キーの集まりが入る範囲(格子点の最小・最大) */
+  function keyBounds(keys) {
+    var b = { iMin: Infinity, iMax: -Infinity, jMin: Infinity, jMax: -Infinity };
+    keys.forEach(function (k) {
+      var p = parseKey(k);
+      b.iMin = Math.min(b.iMin, p[0], p[2]); b.iMax = Math.max(b.iMax, p[0], p[2]);
+      b.jMin = Math.min(b.jMin, p[1], p[3]); b.jMax = Math.max(b.jMax, p[1], p[3]);
+    });
+    return b;
+  }
+  function allKeys(expected) { return expected.visible.concat(expected.hidden); }
+  /* 平行移動 off をしたとき、正解の線がボード(格子点の範囲 box)に収まるか */
+  function fitsBox(expected, off, box) {
+    var keys = allKeys(expected);
+    if (!keys.length) return true;
+    var b = keyBounds(keys);
+    return b.iMin + off[0] >= box.iMin && b.iMax + off[0] <= box.iMax && b.jMin + off[1] >= box.jMin && b.jMax + off[1] <= box.jMax;
+  }
+  /* 正解の線をボードのまん中に置く平行移動。等角図(iso)では三角格子の点に乗るよう di - dj を偶数にする */
+  function centerOffset(expected, box, mode) {
+    var keys = allKeys(expected);
+    if (!keys.length) return [0, 0];
+    var b = keyBounds(keys);
+    var di = Math.round((box.iMin + box.iMax - b.iMin - b.iMax) / 2);
+    var dj = Math.round((box.jMin + box.jMax - b.jMin - b.jMax) / 2);
+    if (mode === 'iso' && ((di - dj) % 2 + 2) % 2) dj += (b.jMax + dj + 1 <= box.jMax) ? 1 : -1;
+    return [di, dj];
+  }
+
+  /* opt.prefer: 描いた線がないとき・同点のときに使う位置 / opt.force: 必ずこの位置で比べる */
+  function grade(expected, drawn, opt) {
+    opt = opt || {};
     var exp = {};
     expected.visible.forEach(function (k) { exp[k] = 'v'; });
     expected.hidden.forEach(function (k) { if (!exp[k]) exp[k] = 'h'; });
@@ -291,7 +322,8 @@
       });
     });
     Object.keys(votes).forEach(function (s) { if (votes[s] > bestN) { bestN = votes[s]; best = s; } });
-    var off = best ? best.split(',').map(Number) : [0, 0];
+    if (opt.prefer && votes[opt.prefer.join(',')] === bestN) best = opt.prefer.join(',');
+    var off = opt.force ? opt.force.slice() : best ? best.split(',').map(Number) : (opt.prefer ? opt.prefer.slice() : [0, 0]);
     var res = { missing: [], extra: [], wrongType: [], offset: off };
     var shifted = {};
     ek.forEach(function (e) { shifted[shiftKey(e, off[0], off[1])] = exp[e]; });
@@ -447,6 +479,7 @@
     trim: trim, isConnected: isConnected, solidKey: solidKey,
     viewDims: viewDims, cellAt: cellAt, orthoLines: orthoLines, threeViews: threeViews, sameViews: sameViews,
     mirrorLines: mirrorLines, flipLines: flipLines, hasHidden: hasHidden,
+    keyBounds: keyBounds, fitsBox: fitsBox, centerOffset: centerOffset,
     isoPoint: isoPoint, isoScreen: isoScreen, isoPlaneAt: isoPlaneAt, isoLines: isoLines,
     segKey: segKey, parseKey: parseKey, decompose: decompose, grade: grade, mergeSegments: mergeSegments,
     randomSolid: randomSolid, problemSet: problemSet, mutate: mutate, makeQuiz: makeQuiz
