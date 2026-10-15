@@ -133,6 +133,8 @@ html.kz-embed #b3app .b3-nav{margin-top:0}
 #b3app table.b3-costtbl th:first-child,#b3app table.b3-costtbl td:first-child{text-align:left}
 #b3app table.b3-costtbl thead th{background:var(--b3-soft)}
 #b3app table.b3-costtbl tr.b3-tot td{font-weight:700;background:#fbfdfa}
+#b3app .b3-story{background:#fff;border:2px solid var(--b3-main);border-radius:12px;padding:10px 16px;margin:10px 0}
+#b3app .b3-story p{margin:.4em 0;line-height:1.8}
 #b3app .b3-costmsg{background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:8px 14px;margin:8px 0}
 /* クイズ */
 #b3app .b3-qcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
@@ -1452,6 +1454,41 @@ function summary(st){
   var causes=Object.keys(ps).filter(function(k){return HINT[k]&&ps[k]>=4}).sort(function(a,b){return ps[b]-ps[a]}).slice(0,2);
   return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:st.dead?0:starOf(avg,st.health,min),dead:!!st.dead,deadDay:st.deadDay||0,lost:st.lost||0,n:st.set.n,causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{},cost:normCost(st.cost),ref:costPlan(st.sp,Object.assign(defaultSet(st.sp),GOOD[st.sp]),false)};
 }
+/* 結果を文章でまとめる(画面・振り返りの書き出しで使う) */
+function storyOf(st){
+  var r=summary(st),sp=r.sp,un=unitOf(st.sp),c=r.cost,ps=[];
+  var days=r.dead?r.deadDay:st.day,n0=r.dead?r.lost:r.n+r.lost;
+  var sz=sp.size.dec?r.size.toFixed(sp.size.dec):Math.round(r.size);
+  var t='あなたは'+sp.name+'を'+n0+un+'、'+days+'日間育てました。';
+  if(r.dead)t+='しかし、合わない条件が続いたため、'+r.deadDay+'日目に死んでしまいました。';
+  else if(r.lost)t+='途中で'+r.lost+un+'が死んでしまい、最後は'+r.n+un+'になりました。';
+  else if(st.done)t+='30日間、すべての'+sp.name+'が元気に生きのびました。';
+  ps.push(t);
+  t='健康度の平均は'+Math.round(r.avg)+'で、いちばん低い日は'+Math.round(r.min)+'でした。';
+  t+=sp.adult?sp.size.label+'は'+sp.size.start+sp.size.unit+'から'+sz+sp.size.unit+'になりました(目安は'+sp.size.ideal+sp.size.unit+'前後)。':sp.size.label+'は'+sp.size.start+sp.size.unit+'から'+sz+sp.size.unit+'まで成長しました。';
+  if(sp.eggs&&r.eggs)t+='卵を'+r.eggs+'個産み、稚魚が'+r.fry+'匹かえりました。';
+  if(sp.eggRate&&r.eggs)t+='卵は全部で'+r.eggs+'個とれました。';
+  ps.push(t);
+  if(r.causes.length){
+    var k=r.causes[0];
+    t=(r.dead||r.lost?'命を落とすことにつながった':'健康度を下げた')+'いちばんの原因は「'+HINT_S[k]+'」で、'+(r.penDays[k]||0)+'日続きました。';
+    if(r.causes[1])t+='次に「'+HINT_S[r.causes[1]]+'」も影響していました。';
+    t+=plain(HINT[k]);
+  }else t='健康度を大きく下げる原因はなく、生き物に合った環境を保てました。';
+  ps.push(t);
+  var ref=r.ref.yen*Math.max(1,days),ratio=ref>0?c.yen/ref:1;
+  t='世話にかかったお金は約'+yenStr(c.yen)+'、時間は'+minStr(c.min)+'でした。同じ日数をお手本の世話で育てた場合(約'+yenStr(ref)+')と比べると、'+(ratio>=1.15?'約'+round(ratio,1)+'倍かかりました。':ratio<=0.85?'少なくすみました。':'ほぼ同じでした。');
+  if(c.y.med)t+='そのうち'+yenStr(c.y.med)+'は、弱ったときの治療・薬の費用です。';
+  if(c.waste>=10)t+='食べ残しで約'+yenStr(c.waste)+'のえさがむだになりました。';
+  if(c.eggVal)t+='とれた卵は、お店で買うと約'+yenStr(c.eggVal)+'分になります。';
+  ps.push(t);
+  if(r.dead)t='どの日から健康度が下がり始めたのかをグラフで確かめ、その原因をなくす世話を考えて、もう一度育ててみよう。';
+  else if(r.star===3&&ratio<1.4)t='健康もお金・手間もバランスのよい世話ができました。どの条件が大切だったのかを振り返ろう。';
+  else if(r.star===3)t='健康に育てられましたが、お金や手間は多めでした。健康を保ったまま、へらせる世話はないか考えてみよう。';
+  else t='上の原因を直すと、どれだけ健康度とコストが変わるか、条件を変えてためしてみよう。';
+  ps.push(t);
+  return ps;
+}
 function costJudge(r){
   var dd=r.dead?Math.max(1,r.deadDay):30,c=r.cost,ref=r.ref.yen*dd,refM=r.ref.min*dd,ratio=ref>0?c.yen/ref:1,t=[];
   t.push('<b>コストの振り返り</b>:お手本の世話を'+dd+'日続けた場合の目安は 約'+yenStr(ref)+'・'+minStr(refM)+'です。あなたの世話は'+(ratio>=1.15?'その約'+round(ratio,1)+'倍':ratio<=0.85?'その約'+Math.round(ratio*100)+'%':'ほぼ同じ')+'でした。');
@@ -1478,6 +1515,7 @@ function resultHTML(){
   else h+='<div class="b3-msg info">健康度を大きく下げた原因はありませんでした。</div>';
   h+='<p class="b3-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
   if(!r.dead)h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
+  h+='<div class="b3-story"><h3>📝 結果のまとめ</h3>'+storyOf(run).map(function(x){return '<p>'+x+'</p>'}).join('')+'</div>';
   h+='<div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-to-refl">振り返りを書く</button><button type="button" class="b3-btn" id="b3-to-plan">飼育計画書をつくる</button><button type="button" class="b3-btn" id="b3-again">条件を変えてもう一度</button></div></div>';
   return h;
 }
@@ -1789,6 +1827,7 @@ function reflText(){
   var d=getRefl(),t='【B3 動物飼育・水産ミニシミュレータ 振り返り】\n';
   t+='日付:'+today()+'\n'+whoLine()+'\n\n';
   t+='■学習の記録\n'+autoSummary()+'\n\n';
+  if(run&&run.done)t+='■飼育の結果のまとめ\n'+storyOf(run).join('\n')+'\n\n';
   RQ.forEach(function(q,i){t+='■'+(i+1)+'. '+q.t+'\n'+(d[q.k]||'')+'\n\n'});
   t+='■自己評価\n';EV.forEach(function(e){t+='・'+e.t+':'+(d.ev[e.k]!=null&&EVL[d.ev[e.k]]?EVL[d.ev[e.k]]:'未記入')+'\n'});
   return plain(t);

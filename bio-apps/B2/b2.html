@@ -91,6 +91,8 @@ html.kz-embed #b2-app .b2-head{ display:none; }
 #b2-app .b2-badge.warn{ color:#8a4b00; border-color:var(--b2-accent); background:var(--b2-accent-l); }
 #b2-app .b2-badge.bad{ color:var(--b2-red); border-color:var(--b2-red); background:var(--b2-red-l); }
 #b2-app .b2-stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; text-align:center; }
+#b2-app .b2-story{ border:2px solid var(--b2-green, #2e7d32); }
+#b2-app .b2-story p{ line-height:1.8; margin:.4em 0; }
 #b2-app .b2-costline{ background:#fff8e1; border:1px solid #ecd59c; border-radius:10px; padding:6px 10px; margin:8px 0; font-size:.95rem; }
 #b2-app .b2-costtop{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
 #b2-app .b2-costtop div{ flex:1 1 200px; background:#fff8e1; border:1px solid #ecd59c; border-radius:12px; padding:8px 12px; }
@@ -1443,6 +1445,32 @@ function actText(a, env, crop){
 }
 function yen(v){ v = Math.round(v); return (v.toLocaleString ? v.toLocaleString('ja-JP') : v) + '円'; }
 function mins(v){ v = Math.round(v); if (v < 60) return v + '分'; var h = Math.floor(v / 60), m = v % 60; return h + '時間' + (m ? m + '分' : ''); }
+/* 結果を文章でまとめる */
+function storyOf(r){
+  var cfg = r.cfg, crop = CROPS[cfg.crop], env = ENVS[cfg.env], st = r.st, a = E.analyze(r), gr = E.grade(r), c = E.costOf(r), ps = [], t;
+  var days = r.logs.length, over = isOver(r);
+  t = SEASONS[cfg.season].name + 'に、' + E.envName(cfg.env, cfg.crop) + 'で' + crop.name + 'を' + days + '日間育てました。';
+  if (st.dead) t += '残念ながら、' + days + '日目にかれてしまいました。';
+  else if (over) t += '結果は「' + gr.mark + ' ' + gr.label + '」でした。';
+  else t += 'まだ栽培の途中です。';
+  ps.push(t);
+  t = '草丈は' + r1(st.H) + 'cm、葉は' + Math.floor(st.lv) + '枚、健康度は' + Math.round(st.h) + '%' + (days >= crop.reproStart ? '、' + E.yieldText(r) : '') + 'でした。';
+  if (over && !st.dead) t += 'この天気で上手に育てたときの目安は、' + crop.yieldName + ' およそ' + gr.refYield + crop.yieldUnit + 'です。';
+  ps.push(t);
+  if (a.main) t = '成長をいちばんさまたげたのは、「' + causeText(a.main, a.mainDir) + '」ことでした。';
+  else t = '操作で変えられる条件(温度・遮光・水・養分)には、大きな問題はありませんでした。';
+  if (a.sickDays) t += '病気・害虫がついていた日が' + a.sickDays + '日ありました。';
+  if (a.weatherDays >= 2) t += 'くもり・雨で光が弱い日が' + a.weatherDays + '日あり、これは天気のせいです。';
+  ps.push(t);
+  var big = null; E.COST_KEYS.forEach(function(k){ if (k !== 'seed' && c.y[k] > 0 && (!big || c.y[k] > c.y[big])) big = k; });
+  t = 'かかったお金は約' + yen(c.yen) + '、作業の時間は' + mins(c.min) + 'でした。' + (big ? 'いちばんお金がかかったのは「' + E.COST_LABEL[big] + '」(' + yen(c.y[big]) + ')です。' : '');
+  if (st.dead) t += 'かれてしまうと、かけたお金と手間はむだになってしまいます。';
+  ps.push(t);
+  if (st.dead || gr.cls === 'bad' || gr.cls === 'mid') t = '「1日もどす」や「同じ条件で再挑戦」で、原因になった条件を直して、もう一度育ててみよう。';
+  else t = '「④ くらべる」で条件を1つだけ変えて、育ち方と費用がどう変わるかを確かめてみよう。';
+  ps.push(t);
+  return ps;
+}
 function costCard(r){
   var c = E.costOf(r), crop = CROPS[r.cfg.crop], env = ENVS[r.cfg.env], days = r.logs.length;
   var h = '<div class="b2-card"><h2>💰 コスト(お金と手間)</h2>';
@@ -1777,6 +1805,8 @@ function renderResult(){
   h += '</div></div></div>';
   h += quizHTML(r, a);
   h += costCard(r);
+  var qa = S.game.quiz && S.game.quiz.n === r.logs.length;
+  h += '<div class="b2-card b2-story"><h2>📝 結果のまとめ</h2>' + ((qa || r.logs.length < 5) ? storyOf(r).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('') : '<p class="b2-small">上の「原因さがし」に答えると、結果のまとめ(文章)が出ます。</p>') + '</div>';
   h += '<div class="b2-card"><h2>📈 グラフで見る</h2><p class="b2-small">緑の帯=ちょうどよい範囲。健康度の×は病気・害虫がいた日。温度の赤い線は操作したあとの温度、灰色の点線は外の気温。光の灰色の点線は、遮光しなかったときの光(天気だけで決まる光)。</p><div class="b2-charts">' +
     ['h','hl','t','l','w','n'].map(function(k){ return '<canvas class="b2-chart" id="b2-rc-' + k + '"></canvas>'; }).join('') + '</div></div>';
   h += '<details class="b2-card"><summary>📋 毎日の記録(ログ)を見る</summary><div class="b2-tablewrap"><table class="b2-log"><thead><tr><th>日</th><th>天気</th><th>温度</th><th>光</th><th>土の水分</th><th>養分</th><th>操作</th><th>草丈</th><th>健康度</th><th>いちばんの問題</th></tr></thead><tbody>' +
@@ -2067,6 +2097,7 @@ function rfText(){
   L.push('');
   L.push('■学習の記録(自動)');
   L.push(autoSummary());
+  var rr = run(); if (rr && isOver(rr)) { L.push(''); L.push('■いちばん新しい栽培の結果のまとめ'); storyOf(rr).forEach(function(x){ L.push(x); }); }
   return L.join('\r\n');
 }
 function rfExport(){
