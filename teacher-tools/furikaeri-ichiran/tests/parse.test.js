@@ -84,6 +84,12 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(val(load('計測制御_記録_215.json').entries[0], 'テスト(いちばんよい結果)'), '4 / 4');
   assert.strictEqual(val(load('制作スタジオ_2-15-山田花子.json').entries[0], 'ふりかえり'), '使う人を考えた');
   assert.strictEqual(val(load('生成AIのしくみラボ_2_15_山田花子.json').entries[0], '正解'), '4 / 5');
+  const hash = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0];
+  assert.strictEqual(hash.app, 'ハッシュ化体験ラボ');
+  assert.deepStrictEqual(hash.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
+  assert.strictEqual(val(hash, '正解'), '6 / 8');
+  assert.strictEqual(val(hash, 'パスワードを守るために、サービスを作る側と自分ができること'), 'サービスごとにちがう長いパスワードにする');
 });
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
