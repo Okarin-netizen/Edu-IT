@@ -92,3 +92,9 @@ test("クイズ: 正解の番号が選択肢の中にある", () => {
   D.quiz.forEach((q) => assert.ok(q.c >= 0 && q.c < q.a.length));
   D.guessGame.forEach((g) => assert.equal(g.options.length, 4));
 });
+
+test("クイズ: 正解の位置が全部同じではない(読まずに当てられない)", () => {
+  const pos = new Set(D.quiz.map((q) => q.c));
+  assert.ok(pos.size >= 3, `正解の位置 ${[...pos]}`);
+  D.quiz.forEach((q) => assert.equal(new Set(q.a).size, q.a.length));
+});
