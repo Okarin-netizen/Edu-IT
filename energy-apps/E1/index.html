@@ -128,6 +128,8 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:6px}
 .e1-reason.tip{background:#fff9e6;border-color:var(--warn)}
 .e1-table{border-collapse:collapse;width:100%;font-size:16px}
+.e1-axis.e1-price{grid-template-columns:minmax(0,260px) 1fr 76px}
+.e1-btn.e1-mini{min-height:44px;padding:4px 10px;font-size:14px;margin-top:4px}
 .e1-table td{border-bottom:1px solid #e3e9ef;padding:5px 8px}
 .e1-table td:last-child{text-align:right;font-weight:bold}
 .e1-sankey{width:100%;height:auto;background:#fafcff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
@@ -188,27 +190,27 @@ var FORMS = {
 
 /* ---------- 部品カタログ ----------
  kind: src(エネルギー源) / conv(変換・伝達) / goal(使う所)
- cap: 源の最大出力(1マス分) eff: 変換効率 cost: 費用 co2: 使った量1あたりのCO2
+ cap: 源の最大出力(1マス分) eff: 変換効率 cost: つくる費用(置くと1回かかる) fuel: 燃料代(燃料100を使うごとに) co2: 使った量1あたりのCO2
  数値は授業用に丸めた目安。 */
 var CAT = {
   kandenchi:{kind:'src',name:'乾電池',icon:'🔋',out:'elec',cap:10,cost:1,co2:0,
     desc:'中の薬品の化学変化で電気をつくる(化学エネルギー → 電気エネルギー)。このゲームでは、何本かを同じ部品につなぐと「直列」につないだことにして、電気が足されます(本当は、並列につないでも電圧は上がりません)。',tip:'使い終わったら、決められた回収に出そう。'},
   pedal:{kind:'src',name:'こぐ人',icon:'🚴',out:'motion',cap:20,cost:0,co2:0,
     desc:'食べ物の化学エネルギーを、筋肉でペダルを回す運動エネルギーに変える。'},
-  coal:{kind:'src',name:'石炭',icon:'🪨',out:'chem',cap:100,cost:3,co2:1.0,
-    desc:'大昔の植物からできた化石燃料(大昔の生物からできた燃料)。燃やすと熱が出るが、CO₂(二酸化炭素)を多く出す。',tip:'値段は安め。燃料はいつかなくなる。'},
-  gas:{kind:'src',name:'天然ガス',icon:'🔥',out:'chem',cap:100,cost:4,co2:0.55,
-    desc:'化石燃料。同じ量の熱を出すとき、CO₂は石炭の約半分。',tip:'燃料はいつかなくなる。'},
-  uran:{kind:'src',name:'ウラン',icon:'☢️',out:'nuc',cap:200,cost:10,co2:0,
-    desc:'原子力発電の燃料。核分裂(ウランの原子核が分かれること)で大量の熱を出す。運転中にCO₂をほとんど出さない。',tip:'放射性廃棄物(放射線を出すごみ)の処分や、事故を防ぐ安全対策が大きな課題。'},
+  coal:{kind:'src',name:'石炭',icon:'🪨',out:'chem',cap:100,cost:1,fuel:2,co2:1.0,
+    desc:'大昔の植物からできた化石燃料(大昔の生物からできた燃料)。燃やすと熱が出るが、CO₂(二酸化炭素)を多く出す。',tip:'燃料の値段は安め。燃料はいつかなくなる。'},
+  gas:{kind:'src',name:'天然ガス',icon:'🔥',out:'chem',cap:100,cost:1,fuel:3,co2:0.55,
+    desc:'化石燃料。同じ量の熱を出すとき、CO₂は石炭の約半分。',tip:'燃料の値段は石炭より高め。燃料はいつかなくなる。'},
+  uran:{kind:'src',name:'ウラン',icon:'☢️',out:'nuc',cap:200,cost:8,fuel:1,co2:0,
+    desc:'原子力発電の燃料。核分裂(ウランの原子核が分かれること)で大量の熱を出す。運転中にCO₂をほとんど出さない。',tip:'少しの燃料で大量の熱が出るので燃料代は安いが、安全対策にお金がかかる。放射性廃棄物(放射線を出すごみ)の処分や、事故を防ぐ安全対策が大きな課題。'},
   dam:{kind:'src',name:'ダムの水',icon:'🏞️',out:'pos',cap:40,cost:6,co2:0,
-    desc:'高い所にためた水がもつ位置エネルギー。その日の天気には左右されにくい再生可能エネルギー(使ってもなくならないエネルギー)。',tip:'ダムをつくれる場所は限られる。雨の少ない年は水が減る。'},
+    desc:'高い所にためた水がもつ位置エネルギー。その日の天気には左右されにくい再生可能エネルギー(使ってもなくならないエネルギー)。',tip:'つくる費用は高いが、燃料代は0。長く使える。ダムをつくれる場所は限られ、雨の少ない年は水が減る。'},
   wind:{kind:'src',name:'風',icon:'🍃',out:'motion',cap:60,cost:2,co2:0,renew:'wind',only:'windmill',onlyMsg:'風は、そのままでは機械を回せません。まず「風車」で受け止めよう。',
-    desc:'空気の流れがもつ運動エネルギー。日や時間によって強さが変わる。'},
+    desc:'空気の流れがもつ運動エネルギー。日や時間によって強さが変わる。',tip:'燃料代は0。お金のほとんどは風車をつくる費用。'},
   sun:{kind:'src',name:'太陽の光',icon:'☀️',out:'light',cap:100,cost:2,co2:0,renew:'sun',
-    desc:'光エネルギー。くもりの日は少なく、夜は0になる。'},
-  bio:{kind:'src',name:'バイオマス',icon:'🪵',out:'chem',cap:60,cost:4,co2:0.1,
-    desc:'木くずなど生物からできた燃料。燃やすとCO₂が出るが、植物が育つときに吸ったCO₂なので、全体では増えにくいと考えられている。'},
+    desc:'光エネルギー。くもりの日は少なく、夜は0になる。',tip:'燃料代は0。お金のほとんどはパネルをつくる費用。'},
+  bio:{kind:'src',name:'バイオマス',icon:'🪵',out:'chem',cap:60,cost:1,fuel:5,co2:0.1,
+    desc:'木くずなど生物からできた燃料。燃やすとCO₂が出るが、植物が育つときに吸ったCO₂なので、全体では増えにくいと考えられている。',tip:'木くずを集めて運ぶのにお金がかかり、燃料代が高め。'},
   outlet:{kind:'src',name:'コンセント',icon:'🔌',out:'elec',cap:15,cost:0,co2:0,hard:true,maxOut:2,
     desc:'かべのコンセント。差し込み口は2つ。1か所で合計1500Wまで(定格:安全に使える上限)。'},
 
@@ -435,12 +437,13 @@ function simulate(stage, board) {
 
 /* 結果の評価 */
 function evaluate(stage, board, R) {
-  var m = { count: {}, placed: 0, cost: 0, co2: 0, used: 0, useful: 0, loss: 0, eff: 0, kinds: 0, reasons: [], tips: [], clear: false, tapChain: false, maxOutlet: 0 };
+  var m = { count: {}, placed: 0, cost: 0, build: 0, fuel: 0, unitCost: 0, co2: 0, used: 0, useful: 0, loss: 0, eff: 0, kinds: 0, reasons: [], tips: [], clear: false, tapChain: false, maxOutlet: 0 };
   board.nodes.forEach(function (n) {
     m.count[n.type] = (m.count[n.type] || 0) + 1;
-    if (!n.fixed) { m.placed++; m.cost += CAT[n.type].cost; }
+    if (!n.fixed) { m.placed++; m.build += CAT[n.type].cost; }
   });
   for (var t in CAT) if (!m.count[t]) m.count[t] = 0;
+  m.cost = m.build;
   if (R.loop) { m.reasons.push('線がぐるっと輪になっている所があります。エネルギーは「エネルギー源 → 使う所」の一方向に流れるようにつなごう。'); return m; }
   var srcKinds = {};
   R.slots.forEach(function (s) {
@@ -449,6 +452,13 @@ function evaluate(stage, board, R) {
   });
   m.kinds = Object.keys(srcKinds).length;
   m.eff = m.used > EPS ? m.useful / m.used : 0;
+  // 燃料代 = 使った燃料の量 × 燃料の値段(時間・天気が何種類かあるときは、その平均)
+  R.slots.forEach(function (s) {
+    board.nodes.forEach(function (n) { var d = CAT[n.type]; if (d.fuel) m.fuel += (s.prod[n.id] || 0) / 100 * d.fuel / R.slots.length; });
+  });
+  m.fuel = r1(m.fuel); m.cost = m.build + m.fuel;
+  var dAvg = m.useful / R.slots.length;
+  m.unitCost = dAvg > EPS ? m.cost / dAvg * 100 : 0;
   board.nodes.forEach(function (n) {
     if (n.type === 'tap' && R.pa[n.id].some(function (e) { return R.byId[e.from].type === 'tap'; })) m.tapChain = true;
     if (n.type === 'outlet') R.slots.forEach(function (s) { var on = 0; R.ch[n.id].forEach(function (e) { on += s.flow[e.id] || 0; }); var o = Math.max(on, s.over[n.id] || 0); m.maxOutlet = Math.max(m.maxOutlet, o / CAT.outlet.cap); });
@@ -742,7 +752,7 @@ function renderPal() {
     if (d.kind === 'src') sub = pill(d.out, 1) + ' 最大' + (st.unit === 'W' ? d.cap * 100 + 'W' : d.cap);
     else sub = pill(d.in, 1) + '→' + pill(d.out, 1) + ' ' + Math.round(d.eff * 100) + '%';
     if (st.unit === 'W' && t === 'tap') sub = '定格1500W';
-    var foot = (st.free ? '' : 'あと' + left + 'こ') + (st.budget != null || st.free ? (st.free ? '' : ' ') + '費用' + d.cost : '');
+    var foot = (st.free ? '' : 'あと' + left + 'こ') + (st.budget != null || st.free ? (st.free ? '' : ' ') + '<span style="white-space:nowrap">💴' + d.cost + (d.fuel ? '+燃料' : '') + '</span>' : '');
     h += '<div class="e1-pi' + (S.pick === t ? ' sel' : '') + (left <= 0 ? ' empty' : '') + '" data-pal="' + t + '" role="button" tabindex="0" aria-label="' + d.name + '">' +
       '<span class="hd"><span class="ic">' + d.icon + '</span><span class="nm">' + d.name + '</span></span>' +
       '<span class="sb">' + sub + '</span>' + (foot ? '<span class="left">' + foot + '</span>' : '') + '</div>';
@@ -896,7 +906,10 @@ function renderSide() {
     h += '<div class="e1-card"><h2>メーター' + (st.slots.length > 1 ? '(すべての時間の合計)' : '') + '</h2>';
     var et = st.effStar;
     h += meter('総合効率', M.eff, 1, Math.round(M.eff * 100) + '%' + (et ? ' <small>(★は' + Math.round(et * 100) + '%以上)</small>' : ''), et ? (M.eff >= et - EPS ? true : 'mid') : 'neu');
-    if (st.budget != null || st.free) h += meter('費用', M.cost, st.budget || 60, r1(M.cost) + (st.budget != null ? ' / 予算 ' + st.budget : ''), st.budget != null && M.cost > st.budget ? false : true);
+    if (st.budget != null || st.free) {
+      h += meter('費用', M.cost, st.budget || 60, r1(M.cost) + (st.budget != null ? ' / 予算 ' + st.budget : ''), st.budget != null && M.cost > st.budget ? false : true);
+      h += '<div class="e1-note" style="font-size:14px">つくる費用 ' + r1(M.build) + ' + 燃料代 ' + r1(M.fuel) + (M.unitCost ? '<br>電気100を届ける費用 ' + r1(M.unitCost) : '') + '<br><button class="e1-btn e1-mini" data-act="price">💴 発電方法の値段くらべ</button></div>';
+    }
     var co2max = st.co2Max != null ? Math.max(st.co2Max, 1) : 300;
     h += meter('CO₂', M.co2, co2max, fmt(M.co2) + (st.co2Max != null ? ' / 上限 ' + st.co2Max : ''), st.co2Max != null && M.co2 > st.co2Max + EPS ? false : (M.co2 > 150 ? 'mid' : true));
     h += '<div class="e1-note" style="font-size:14px">使った資源 ' + fmt(M.used) + ' → 役に立った ' + fmt(M.useful) + '、熱などのロス ' + fmt(M.loss) + '</div>';
@@ -912,7 +925,7 @@ function renderSide() {
       if (n.type === 'tap') h += '<div>電気を分けるだけ(ロスはほぼ0)</div>';
       else if (d.kind === 'conv') h += '<div>' + furi('変換効率') + ' <b>' + Math.round(d.eff * 100) + '%</b>(' + Math.round((1 - d.eff) * 100) + '%はロス)</div>';
       if (d.kind === 'src' && n.type !== 'outlet') h += '<div>最大出力 <b>' + d.cap + '</b>' + (d.co2 ? '/CO₂ 1あたり ' + d.co2 : '/CO₂ 0') + '</div>';
-      if (d.cost && (st.budget != null || st.free)) h += '<div>費用 ' + d.cost + '</div>';
+      if ((d.cost || d.fuel) && (st.budget != null || st.free)) h += '<div>つくる費用 <b>' + d.cost + '</b>' + (d.kind === 'src' && n.type !== 'outlet' ? '/燃料代 ' + (d.fuel ? '燃料100を使うごとに <b>' + d.fuel + '</b>' : '<b>0</b>') : '') + '</div>';
       if (d.desc) h += '<div style="margin-top:4px">' + furi(d.desc) + '</div>';
       if (d.tip) h += '<div style="margin-top:4px;color:#7a5a00">🔧 ' + furi(d.tip) + '</div>';
       h += '<div class="e1-note" style="margin-top:4px">※数値は授業用の目安です。' + (d.tip && d.tip.indexOf('点検') >= 0 ? '点検のしかたは E4「保守点検ラボ」でくわしく学べます。' : '') + '</div>';
@@ -1059,7 +1072,7 @@ function showHowto(first) {
     '<div><b>↩ もどす</b><br>まちがえたら「↩ もどす」で1つ前にもどせる。「' + (stage().free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '」で、はじめの状態にもどる。</div>' +
     '<div><b>🎨 エネルギーの形</b><br>' + Object.keys(FORMS).map(function (f) { return pill(f); }).join(' ') + '<br>形が同じ所どうしだけつなげる。</div>' +
     '<div><b>📊 ' + furi('効率') + 'とは?</b><br>部品に入ったエネルギーのうち、目的の形になって出ていく割合。効率40%なら、100入ると40出て、60は熱などになって逃げる。</div>' +
-    '<div><b>💴 費用とは?</b><br>部品をつくったり、燃料を買ったりするのにかかるお金の目安。</div>' +
+    '<div><b>💴 費用とは?</b><br>「つくる費用」(部品を置くと1回かかる)+「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせてかかる)。太陽・風・水は燃料代が0。発電方法で値段が変わるよ。</div>' +
     '<div><b>🔊 効果音</b><br>右上の 🔇/🔊 で、音を出す・出さないを切りかえる(最初は音なし)。</div>' +
     '</div><p>部品の左右の丸は、入るエネルギー(左)と出るエネルギー(右)の形です。部品を通るたびに一部が熱になって逃げます(♨)。数値は授業用の目安です。</p>' +
     '<div class="acts">' + (first ? '<button class="e1-btn primary" data-act="howtostart">はじめる</button>' : '<button class="e1-btn primary" data-act="close">わかった</button>') + '</div>');
@@ -1112,6 +1125,35 @@ function axes(st, M) {
   return h + '<p style="font-size:16px">' + furi('どの発電方法にも長所と短所があり、4つすべてを高くするのはむずかしい。どれを大事にしたか、なぜその組み合わせにしたかを説明できるようにしよう。') +
     '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。たとえば原子力はCO₂が少なく安定していますが、放射性廃棄物(放射線を出すごみ)の処分や事故を防ぐ安全対策が大きな課題なので「安全・廃棄物」は低くなります。太陽光や風力は安全・環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
 }
+/* 本物の発電所の電気の値段(1kWhあたり)。国の発電コスト検証ワーキンググループ(2021年)が
+   2020年に新しく建てた場合として試算した値を、授業用に丸めた概算。f: お金のうち燃料代が大きいか */
+var PRICE = [
+  { t: 'gas', nm: '天然ガス火力', y: 11, f: 1, w: '燃料代が大部分。燃料の値段が上がると高くなる。' },
+  { t: 'dam', nm: '水力(中くらいのダム)', y: 11, f: 0, w: 'つくる費用が大部分。燃料代は0。つくれる場所が少ない。' },
+  { t: 'uran', nm: '原子力', y: 12, f: 0, more: 1, w: 'つくる費用・安全対策費が大きい。燃料代は小さい。事故の対応などでさらに高くなることがある。' },
+  { t: 'coal', nm: '石炭火力', y: 13, f: 1, w: '燃料は安めだが、CO₂を減らす対策の費用もかかる。' },
+  { t: 'sun', nm: '太陽光(大きな発電所)', y: 13, f: 0, w: 'パネルをつくる費用が大部分。燃料代は0。年々安くなっている。' },
+  { t: 'wind', nm: '風力(陸の上)', y: 20, f: 0, w: '風車をつくる費用が大部分。燃料代は0。' },
+  { t: 'bio', nm: 'バイオマス(木くず)', y: 30, f: 1, w: '燃料(木くず)を集めて運ぶ費用がかかる。' }
+];
+function showPrice() {
+  var h = '<h2>💴 発電方法の値段くらべ</h2><p style="font-size:16px">' + furi('本物の発電所で、電気1kWh(1000Wのドライヤーを1時間使うくらいの量)をつくる値段のおよその目安です。') + '</p>';
+  PRICE.forEach(function (p) {
+    var d = CAT[p.t];
+    h += '<div class="e1-axis e1-price"><span>' + d.icon + ' ' + p.nm + '<small>' + (p.f ? '🔥 燃料代が大きい' : '🏗 つくる費用が大きい') + '</small></span><div class="e1-bar"><i style="width:' + Math.round(p.y / 30 * 100) + '%;background:' + (p.f ? '#e07a2e' : '#3b82c4') + '"></i></div><b style="white-space:nowrap">約' + p.y + '円' + (p.more ? '〜' : '') + '</b></div>' +
+      '<div class="e1-note" style="font-size:14px;margin:-2px 0 8px">' + furi(p.w) + '</div>';
+  });
+  h += '<p style="font-size:16px">' + furi('燃料を使う発電は「燃料代」が毎日かかり、太陽・風・水は「つくる費用」が大部分です。安いだけでなく、CO₂・安定・安全もあわせて考えよう。') + '</p>' +
+    '<p class="e1-note" style="font-size:14px">※ 概算です。国の発電コスト検証(2021年)の、2020年に新しく発電所を建てた場合の試算(1kWhあたり)を丸めました。燃料の値段や建てる場所、年によって大きく変わります。太陽光・風力の天気による変化をおぎなう費用は入っていません。ゲームの中の費用の数字は、この値段とは別の、授業用の目安です。</p>' +
+    '<div class="acts"><button class="e1-btn primary" data-act="close">とじる</button></div>';
+  modal(h);
+}
+function costBox(M) {
+  var h = '<h3>💴 この組み合わせの費用</h3><table class="e1-table"><tr><td>つくる費用(部品を置くと1回)</td><td>' + r1(M.build) + '</td></tr><tr><td>燃料代(燃やした量に合わせて)</td><td>' + r1(M.fuel) + '</td></tr>' +
+    (M.unitCost ? '<tr><td>電気100を届ける費用</td><td>' + r1(M.unitCost) + '</td></tr>' : '') + '</table>';
+  var t = M.fuel > EPS ? (M.fuel >= M.build ? '燃料代の方が多い組み合わせ。燃料の値段が上がると、電気の値段も上がりやすい。' : 'つくる費用が多めで、燃料代もかかる組み合わせ。') : '燃料代0の組み合わせ。お金のほとんどは、はじめにつくる費用。';
+  return h + '<p style="font-size:16px">' + furi(t) + '</p>';
+}
 function run() {
   if (S.running) return;
   recalc();
@@ -1150,11 +1192,13 @@ function showResult(win) {
     h += '<div data-ref="qex"></div></div>';
   }
   if (win && (st.id === 's7' || st.free)) h += axes(st, M);
+  if (win && (st.budget != null || st.free)) h += costBox(M);
   var tbl = '';
   if (!u) {
     tbl = '<table class="e1-table"><tr><td>使った資源のエネルギー</td><td>' + fmt(M.used) + '</td></tr><tr><td>役に立ったエネルギー</td><td>' + fmt(M.useful) + '</td></tr>' +
       '<tr><td>♨ 熱などになって逃げたエネルギー</td><td>' + fmt(M.loss) + '</td></tr><tr><td>' + furi('総合効率') + '(役に立った ÷ 使った)</td><td>' + Math.round(M.eff * 100) + '%</td></tr>' +
-      '<tr><td>CO₂</td><td>' + fmt(M.co2) + '</td></tr>' + (st.budget != null || st.free ? '<tr><td>費用</td><td>' + r1(M.cost) + (st.budget != null ? ' / ' + st.budget : '') + '</td></tr>' : '') + '</table>';
+      '<tr><td>CO₂</td><td>' + fmt(M.co2) + '</td></tr>' + (st.budget != null || st.free ? '<tr><td>💴 つくる費用</td><td>' + r1(M.build) + '</td></tr><tr><td>💴 燃料代</td><td>' + r1(M.fuel) + '</td></tr><tr><td>費用の合計</td><td>' + r1(M.cost) + (st.budget != null ? ' / ' + st.budget : '') + '</td></tr>' +
+        (M.unitCost ? '<tr><td>電気100を届ける費用(費用 ÷ 届けた量 × 100)</td><td>' + r1(M.unitCost) + '</td></tr>' : '') : '') + '</table>';
   }
   var sk = S.R.loop ? '' : sankey(st, S.R);
   if (sk) tbl += '<h3>エネルギーの流れ図(線の太さ=' + (u === 'W' ? '消費電力(W)' : 'エネルギーの量') + ')</h3>' + sk;
@@ -1162,6 +1206,7 @@ function showResult(win) {
   h += '<div class="acts">';
   if (win) {
     h += '<button class="e1-btn" data-act="close">もう一度くふうする</button>';
+    if (st.budget != null || st.free) h += '<button class="e1-btn" data-act="price">💴 値段くらべ</button>';
     if (S.si < STAGES.length - 1) h += '<button class="e1-btn primary" data-act="next">次のステージへ ▶</button>';
   } else {
     h += '<button class="e1-btn" data-act="hint">💡 ヒント</button><button class="e1-btn primary" data-act="close">直してみる</button>';
@@ -1284,6 +1329,7 @@ function bindInput() {
     else if (act === 'howtostart') { closeModal(); showIntroModal(); }
     else if (act === 'hint') showHint();
     else if (act === 'howto') showHowto(false);
+    else if (act === 'price') showPrice();
     else if (act === 'intro') showIntroModal();
     else if (act === 'sound') { S.save.sound = !S.save.sound; persist(); renderTop(); }
     else if (act === 'slot') { S.view = i; render(); }
