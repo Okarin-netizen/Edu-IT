@@ -1,22 +1,23 @@
-/* 教材集の外わく（メニューと切りかえバー）。色の名前は各教材と同じ */
+/* 教材集の外わく（メニューと切りかえバー）。色の名前は各教材と同じ
+   4分野共通の枠（shared/eduit-frame.css）を先に読み、色・文字・ヘッダー・ボタン・カードの形はそちらに合わせる */
 :root {
   color-scheme: light;
-  --bg: #f6f5f1;
+  --bg: var(--ef-bg);
   --surface-1: #fcfcfb;
   --surface-2: #efeee9;
   --border: #d9d7cf;
   --text-primary: #1b1b1a;
   --text-secondary: #52514e;
   --text-muted: #6d6c67;
-  --accent: #256abf;
+  --accent: var(--ef-accent);
   --accent-ink: #ffffff;
-  --accent-soft: #e3eefb;
+  --accent-soft: var(--ef-accent-soft);
   --good: #1f7a3a;
   --good-soft: #e3f3e7;
-  --focus: #eda100;
+  --focus: var(--ef-focus);
   --radius: 12px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --font: "BIZ UDPGothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --font: var(--ef-font);
   --bar-h: 40px;
 }
 @media (prefers-color-scheme: dark) {
@@ -67,27 +68,27 @@ a { color: var(--accent); }
 .skip-link:focus { left: 8px; }
 
 /* 上のバー（KS-03: 教材を開いたとき、教材のバーと2本になるので細くする） */
-.shell-header {
-  display: flex; align-items: center; gap: 10px; height: var(--bar-h);
-  padding: 0 12px; background: var(--surface-1); border-bottom: 1px solid var(--border);
+/* 共通の枠のヘッダー（.ef-header: 白地・下に青い線3px）を、教材集では高さ40pxにする */
+.shell-header.ef-header {
+  gap: 10px; height: var(--bar-h); min-height: 0; padding: 0 12px; flex-wrap: nowrap;
   position: sticky; top: 0; z-index: 5; font-size: 15px; line-height: 1.3;
 }
-.brand { font-weight: 700; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 8px; white-space: nowrap; min-height: 36px; }
+.shell-header .ef-tools { flex-wrap: nowrap; flex: none; }
+.brand { font-size: 16px; text-decoration: none; white-space: nowrap; min-height: 34px; }
 .brand img { width: 24px; height: 24px; }
+/* 「◀ メニュー」は教材を開いているときだけ */
+#back-link { display: none; }
+.app-mode #back-link { display: inline-flex; }
+.shell-header .ef-btn { min-height: 32px; padding: 0 12px; font-size: 14px; }
 .now { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .now:not(:empty)::before { content: "›"; margin-right: 8px; color: var(--text-muted); }
-.spacer { flex: 1; }
 
 /* ふりがな・大きな文字（6つの教材とメニューにかかる） */
 .shell-toggles { display: flex; gap: 6px; flex: none; }
-.shell-toggle, .switch-btn {
-  font: inherit; font-size: 14px; font-weight: 700; height: 34px; padding: 0 10px; border-radius: 8px; cursor: pointer;
-  border: 1.5px solid #8c8a82; background: var(--surface-1); color: var(--text-primary); white-space: nowrap;
-}
+.shell-toggle, .switch-btn { font-weight: 700; border-color: #8c8a82; }
 .shell-toggle::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; border: 1.5px solid currentColor; vertical-align: 1px; }
-.shell-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .shell-toggle[aria-pressed="true"]::before { background: currentColor; }
-.shell-toggle:hover, .switch-btn:hover { filter: brightness(0.97); }
+.shell-toggle:hover, .switch-btn:hover { border-color: var(--accent); }
 
 /* 教材の切りかえ（KS-04: アイコンに短い名前を付ける。はばがせまいときは「教材をかえる ▾」で名前の一覧を出す） */
 .switch-wrap { position: relative; flex: none; }
@@ -129,18 +130,18 @@ a { color: var(--accent); }
 .group { margin-bottom: 26px; }
 .group h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+/* メニューのカード: 共通の枠の .ef-card（白・上に青い線4px・角丸12px）、.ef-card-tag、.ef-card-title、.ef-btn-primary */
 .mcard {
   display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 4px 14px; align-content: start;
-  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px 18px; text-decoration: none; color: var(--text-primary); box-shadow: var(--shadow);
+  text-decoration: none; color: var(--text-primary);
 }
 .mcard:hover { border-color: var(--accent); }
 .mcard img { width: 52px; height: 52px; grid-row: span 3; }
-.mcard .tag { font-size: 0.75rem; color: var(--text-muted); }
-.mcard .t { font-weight: 700; font-size: 1.1rem; line-height: 1.4; }
+.mcard .tag { margin: 0; }
+.mcard .t { margin: 0; line-height: 1.4; }
 .mcard .d { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
-.mcard .go { grid-column: 2; font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-top: 6px; }
-.mcard .order { font-weight: 700; color: var(--text-secondary); }
+.mcard .go { grid-column: 2; justify-self: start; margin-top: 8px; min-height: 38px; padding: 0 16px; font-size: 15px; }
+.mcard .order { font-weight: 700; }
 .mcard .seen-mark { grid-column: 2; font-size: 0.8rem; font-weight: 700; color: var(--good); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -177,8 +178,11 @@ a { color: var(--accent); }
 .stage { position: relative; height: calc(100vh - var(--bar-h)); height: calc(100dvh - var(--bar-h)); }
 .stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
 .stage iframe[hidden] { display: none; }
+/* 教材を開いているときは、教材の中の下に共通のフッターが出るので、教材集のフッターはかくす（二重にしない） */
 .app-mode .shell-footer { display: none; }
-.shell-footer { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 24px 16px 40px; }
+.shell-footer { margin-top: 24px; text-align: center; }
+.shell-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: 0.8rem; color: var(--text-muted); }
+.shell-footer .ef-footer { margin: 0; }
 
 @media (max-width: 860px) {
   .now { display: none; }
@@ -187,7 +191,7 @@ a { color: var(--accent); }
   html { font-size: 16px; }
   .brand span, .now { display: none; }
   .shell-header { gap: 6px; padding: 0 8px; }
-  .shell-toggle, .switch-btn { padding: 0 8px; font-size: 13px; }
+  .shell-header .shell-toggle, .shell-header .switch-btn { padding: 0 8px; font-size: 13px; }
   .shell-toggle::before { display: none; }
   #menu { padding: 20px 16px 8px; }
   .grid { grid-template-columns: minmax(0, 1fr); }
@@ -204,9 +208,7 @@ html.large-text { font-size: 20px; }
   .stage { height: auto; }
 }
 .note.reset p { margin: 0 0 0.8em; color: var(--text-secondary); }
-.reset-btn { font: inherit; font-weight: 700; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--text-muted); background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
-.reset-btn:hover { background: var(--surface-2); }
-.reset-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.reset-btn { border-color: var(--text-muted); }
 .note.reset .reset-msg { margin: 0.6em 0 0; color: var(--good); font-weight: 700; }
 .note.reset .reset-msg:empty { display: none; }
 
@@ -231,12 +233,8 @@ html.large-text { font-size: 20px; }
 .export-status .none .mark { color: var(--text-muted); }
 .export-which { font-weight: 700; color: var(--text-primary) !important; }
 .btn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.main-btn {
-  font: inherit; font-weight: 700; padding: 9px 16px; min-height: 42px; border-radius: 8px; cursor: pointer;
-  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
-}
-.main-btn.secondary { background: var(--surface-1); color: var(--accent); }
-.main-btn:hover { filter: brightness(1.06); }
+/* 「JSONで書き出す」は .ef-btn-primary、「CSVで書き出す」は .ef-btn（共通の枠） */
+.main-btn.secondary { min-height: 44px; border-color: var(--accent); color: var(--accent); }
 .note.export .export-msg { margin: 10px 0 0; font-weight: 700; color: var(--good); }
 .note.export .export-msg.warn { color: #b3261e; }
 .export-msg:empty { display: none; }
@@ -253,3 +251,15 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-
 
 /* CB-06（2026-10-15）: 11インチChromebookで小さく見えた「おすすめ ◯番」を 13.6px に */
 .mcard .order { font-size: 0.8rem; }
+
+/* 暗い画面の設定のときは、共通の枠の色も教材集の暗い色に合わせる（第1.5版） */
+@media (prefers-color-scheme: dark) {
+  :root[data-ef-domain]:not([data-theme="light"]) {
+    --ef-bg: #121211; --ef-surface: #1a1a19; --ef-surface-2: #242422; --ef-line: #3a3936;
+    --ef-text: #f0efec; --ef-muted: #c3c2b7; --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
+  }
+}
+:root[data-ef-domain][data-theme="dark"] {
+  --ef-bg: #121211; --ef-surface: #1a1a19; --ef-surface-2: #242422; --ef-line: #3a3936;
+  --ef-text: #f0efec; --ef-muted: #c3c2b7; --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
+}

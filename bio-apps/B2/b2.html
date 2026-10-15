@@ -4,15 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>B2 育成環境コントローラ体験</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B2 育成環境コントローラ体験' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 html,body{margin:0;padding:0;}
 html{font-size:16.94px;} /* 文字の大きさ(kzPrefs の fs × 16/17)。JS で変える */
-body{background:#f4f7f1;}
+body{background:var(--ef-bg);}
 #b2-app{
-  --b2-bg:#f4f7f1; --b2-card:#ffffff; --b2-ink:#1d2a1d; --b2-sub:#526152; --b2-line:#cfdac8;
-  --b2-green:#2e7d32; --b2-green-d:#1b5e20; --b2-green-l:#e3f1df; --b2-accent:#d9701a; --b2-accent-l:#fdf0e3;
+  /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
+  --b2-bg:var(--ef-bg); --b2-card:var(--ef-surface); --b2-ink:var(--ef-text); --b2-sub:var(--ef-muted); --b2-line:#cfdac8;
+  --b2-green:var(--ef-accent); --b2-green-d:#1b5e20; --b2-green-l:var(--ef-accent-soft); --b2-accent:#d9701a; --b2-accent-l:#fdf0e3;
   --b2-blue:#1565c0; --b2-blue-l:#e5effa; --b2-red:#c62828; --b2-red-l:#fdeaea; --b2-yellow-l:#fff7d6;
-  font-family: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-family: var(--ef-font);
   font-size:1.0625rem; line-height:1.6; color:var(--b2-ink); background:var(--b2-bg);
   min-height:100vh; -webkit-text-size-adjust:100%;
 }
@@ -26,20 +31,20 @@ body{background:#f4f7f1;}
 #b2-app p{ margin:.3rem 0 .6rem; }
 
 /* ヘッダーとタブ */
-#b2-app .b2-head{ display:flex; align-items:center; gap:10px 12px; flex-wrap:wrap; padding:10px 16px; background:var(--b2-green-d); color:#fff; }
-#b2-app .b2-head h1{ font-size:1.15rem; margin:0; flex:1 1 12em; line-height:1.35; min-width:0; }
-#b2-app .b2-head h1 small{ font-weight:normal; opacity:.85; font-size:.8rem; margin-left:.4em; white-space:nowrap; }
-#b2-app .b2-head rt{ color:#d8ecd5; }
-#b2-app .b2-hbtns{ display:flex; gap:8px; flex:0 0 auto; }
-#b2-app .b2-hbtn{ min-height:44px; min-width:48px; padding:4px 12px; border-radius:10px; border:2px solid #fff; background:transparent; color:#fff; font-weight:bold; font-size:.95rem; line-height:1.2; }
-#b2-app .b2-hbtn[aria-pressed="true"]{ background:#fff; color:var(--b2-green-d); }
+/* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
+#b2-app .b2-head h1{ flex:1 1 12em; min-width:0; }
+#b2-app .b2-head h1 small{ margin-left:.4em; white-space:nowrap; }
+#b2-app .b2-head rt{ color:var(--b2-sub); }
+#b2-app .b2-hbtns{ flex:0 0 auto; }
+#b2-app .ef-btn{ font:600 15px/1.2 var(--ef-font); color:var(--ef-text); }
+#b2-app .ef-btn[aria-pressed="true"]{ color:var(--ef-accent-ink); }
+#b2-app .b2-hbtn{ min-height:44px; min-width:48px; }
 #b2-app .b2-hbtn:disabled{ opacity:.4; cursor:not-allowed; }
-#b2-app .b2-hbtn:focus-visible{ outline:3px solid #ffd54f; outline-offset:2px; }
 html.kz-embed #b2-app .b2-head{ display:none; }
-#b2-app .b2-tabs{ display:flex; gap:4px; padding:8px 8px 0; background:#1b5e20; position:sticky; top:0; z-index:19; }
-#b2-app .b2-tab{ flex:1 1 0; min-width:0; min-height:52px; padding:6px 8px; border:0; border-radius:12px 12px 0 0; background:transparent; color:#e3f1e4; font-weight:bold; font-size:.98rem; line-height:1.3; white-space:normal; word-break:break-all; }
-#b2-app .b2-tab rt{ color:#c5e1c6; }
-#b2-app .b2-tab[aria-selected="true"]{ background:var(--b2-bg); color:#1b5e20; }
+#b2-app .b2-tabs{ display:flex; gap:4px; padding:8px 8px 0; background:var(--ef-accent); position:sticky; top:0; z-index:19; }
+#b2-app .b2-tab{ flex:1 1 0; min-width:0; min-height:52px; padding:6px 8px; border:0; border-radius:12px 12px 0 0; background:transparent; color:#fff; font-weight:bold; font-size:.98rem; line-height:1.3; white-space:normal; word-break:break-all; }
+#b2-app .b2-tab rt{ color:rgba(255,255,255,.85); }
+#b2-app .b2-tab[aria-selected="true"]{ background:var(--b2-bg); color:var(--b2-green-d); }
 #b2-app .b2-tab[aria-selected="true"] rt{ color:var(--b2-sub); }
 #b2-app .b2-tab:focus-visible{ outline:3px solid #ffd54f; outline-offset:-3px; }
 #b2-app .b2-tab .b2-tabmark{ display:inline-block; min-width:1.2em; }
@@ -234,6 +239,7 @@ html.kz-embed #b2-app .b2-head{ display:none; }
 @media screen and (min-width: 901px) and (max-height: 760px){
   #b2-app .b2-actions{ position:fixed; left:0; right:0; bottom:0; z-index:15; margin:0; border-radius:0; padding:8px max(16px, calc(50% - 420px)); box-shadow:0 -3px 10px rgba(0,0,0,.12); }
   #b2-app .b2-grow{ padding-bottom:130px; }
+  body:has(#b2-sec-grow.b2-on) > .ef-footer{ margin-bottom:130px; }
 }
 @media (max-width: 640px){
   #b2-app{ font-size:1rem; }
@@ -262,12 +268,13 @@ html.kz-embed #b2-app .b2-head{ display:none; }
 </head>
 <body>
 <div id="b2-app">
-<header class="b2-head">
-  <h1>🌱 育成環境コントローラ体験<small>技術分野 B 生物育成</small></h1>
-  <div class="b2-hbtns">
-    <button type="button" class="b2-hbtn" id="b2-rubybtn" aria-pressed="true">ふりがな</button>
-    <button type="button" class="b2-hbtn" id="b2-fsdec" aria-label="文字を小さく">A−</button>
-    <button type="button" class="b2-hbtn" id="b2-fsinc" aria-label="文字を大きく">A＋</button>
+<header class="b2-head ef-header">
+  <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+  <h1 class="ef-title"><span class="ef-icon" aria-hidden="true">🌡️</span><span>B2 育成環境コントローラ体験</span><small class="ef-sub">技術分野 B 生物育成</small></h1>
+  <div class="b2-hbtns ef-tools">
+    <button type="button" class="ef-btn b2-hbtn" id="b2-rubybtn" aria-pressed="true">ふりがな</button>
+    <button type="button" class="ef-btn b2-hbtn" id="b2-fsdec" aria-label="文字を小さく">A−</button>
+    <button type="button" class="ef-btn b2-hbtn" id="b2-fsinc" aria-label="文字を大きく">A＋</button>
   </div>
 </header>
 <nav class="b2-tabs" role="tablist" aria-label="画面の切りかえ">

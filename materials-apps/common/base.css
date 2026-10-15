@@ -1,13 +1,17 @@
 /* 技術分野アプリ 共通スタイル base.css(中学生向け・10インチ Chromebook 1280×800 / 1024×600 を基準)
  * 色はトークン(--xxx)で定義。色だけに頼らず、形・線種・文字でも区別すること。
- * さわる部分(ボタン・タブ・入力)は高さ 44px 以上。 */
+ * さわる部分(ボタン・タブ・入力)は高さ 44px 以上。
+ * 画面の枠(地の色・文字・線・ヘッダー・主なボタン・タブ・カード・フッター)は、4分野共通の
+ * ../../shared/eduit-frame.css の --ef-* に合わせる(先に読み込む)。--accent は図や強調に使う色で、各アプリの中身のまま。 */
 :root {
-  --bg: #f4f1ea;
-  --panel: #ffffff;
-  --panel-2: #faf8f3;
-  --ink: #23262b;
-  --muted: #5d6470;
-  --line: #d9d4c8;
+  --bg: var(--ef-bg, #f4f1ea);
+  --panel: var(--ef-surface, #ffffff);
+  --panel-2: var(--ef-surface-2, #faf8f3);
+  --ink: var(--ef-text, #23262b);
+  --muted: var(--ef-muted, #5d6470);
+  --line: var(--ef-line, #d9d4c8);
+  --frame: var(--ef-accent, #985a26);        /* 分野の色(材料と加工: 木の茶)。ヘッダーの線・主なボタン・タブ */
+  --frame-soft: var(--ef-accent-soft, #f5e9dc);
   --accent: #2d6aa8;
   --accent-ink: #ffffff;
   --accent-soft: #e5eef8;
@@ -21,8 +25,8 @@
   --wood-soft: #f1dfc5;
   --wood-dark: #8a5a2b;
   --focus: #f08c00;
-  --radius: 14px;
-  --radius-s: 10px;
+  --radius: var(--ef-radius, 12px);
+  --radius-s: var(--ef-radius-s, 8px);
   --shadow: 0 1px 2px rgba(60, 45, 20, .08), 0 2px 8px rgba(60, 45, 20, .05);
   --hdr-h: 52px;
   --tap: 44px;
@@ -36,11 +40,17 @@
   --bg: #ffffff; --panel-2: #ffffff; --ink: #000; --muted: #222; --line: #555; --accent: #0033cc;
   --ok: #005a1e; --ng: #a00000; --warn: #6b4500; --wood: #a86a2c;
 }
+/* くっきり: 共通の枠の色も強くする(分野の色は濃い茶) */
+:root.high-contrast, :root.high-contrast[data-ef-domain] {
+  --ef-bg: #ffffff; --ef-surface-2: #ffffff; --ef-text: #000; --ef-muted: #222; --ef-line: #555;
+  --ef-accent: #5c3210; --ef-accent-soft: #f0e2d2;
+}
+:root.high-contrast .ef-btn { border-color: #555; }
 * { box-sizing: border-box; }
 html { font-size: var(--fs); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
-  font-family: "BIZ UDPGothic", "BIZ UDゴシック", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif;
+  font-family: var(--ef-font, "BIZ UDPGothic", "BIZ UDゴシック", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif);
   line-height: 1.7;
   -webkit-tap-highlight-color: rgba(45, 106, 168, .15);
 }
@@ -53,16 +63,19 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 /* フォーカス表示(キーボード操作) */
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-/* ヘッダー(1行・高さ固定で画面を広く使う) */
-.g-header { position: sticky; top: 0; z-index: 30; background: var(--panel); border-bottom: 3px solid var(--wood); box-shadow: var(--shadow); }
-.g-header-inner { display: flex; align-items: center; gap: .4rem; padding: 0 .75rem; min-height: var(--hdr-h); max-width: 1280px; margin: 0 auto; }
-.g-title { font-size: 1.12rem; margin: 0 .4rem; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.9; }
-.g-header-tools { display: flex; gap: .2rem; flex: none; }
-.g-header .btn { min-height: var(--tap); padding: .1rem .6rem; font-size: .9rem; }
-.g-home { font-weight: bold; color: var(--wood-dark) !important; }
-[data-g-setting][aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+/* ヘッダー(4分野共通の .ef-header。1行・高さ固定で画面を広く使う)
+ * <header class="g-header ef-header"> ◀ メニュー(.ef-btn.ef-back) / アプリ名(.ef-title) / 道具(.ef-tools の .ef-btn) */
+.g-header { position: sticky; top: 0; z-index: 30; background: var(--ef-surface, #fff); border-bottom: 3px solid var(--frame); box-shadow: var(--shadow); }
+.g-header.ef-header { flex-wrap: nowrap; gap: .4rem; min-height: calc(var(--hdr-h) + 3px); padding: 0 .75rem; }
+.g-title { font-size: 1.12rem; margin: 0 .3rem; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.9; display: block; }
+.g-header .ef-title { font-size: 18px; }
+.g-header-tools { display: flex; gap: 6px; flex: none; flex-wrap: nowrap; margin-left: auto; }
+.g-header .ef-btn { min-height: 40px; padding: 0 12px; }
+.g-home { flex: none; }
+/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない) */
 [data-g-setting][aria-pressed="true"]::before { content: "✓ "; }
-@media (max-width: 760px) { .g-header-tools .btn { padding: .1rem .4rem; font-size: .82rem; } }
+.ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
+@media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
 
 main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
 
@@ -79,8 +92,8 @@ textarea { min-height: 5.5em; }
 }
 .btn:hover { border-color: var(--accent); }
 .btn:active { transform: translateY(1px); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: bold; box-shadow: 0 2px 0 rgba(20, 50, 90, .25); }
-.btn.primary:hover { background: #255a90; }
+.btn.primary { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
+.btn.primary:hover { border-color: var(--frame); filter: brightness(1.08); }
 .btn.primary rt, .badge rt, [aria-selected="true"] rt, .btn.primary.small rt { color: inherit; opacity: .9; }
 .btn.danger { color: var(--ng); border-color: var(--ng); }
 .btn.ghost { border-color: transparent; background: transparent; }
@@ -100,10 +113,10 @@ textarea { min-height: 5.5em; }
   border: 1.5px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink);
   display: inline-flex; align-items: center; gap: 0; touch-action: manipulation;
 }
-.g-tablist [role=tab]:hover { border-color: var(--accent); }
-.g-tablist [role=tab][aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: bold; box-shadow: 0 2px 0 rgba(20, 50, 90, .25); }
+.g-tablist [role=tab]:hover { border-color: var(--frame); }
+.g-tablist [role=tab][aria-selected="true"] { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
 .g-tablist [role=tab] .num { display: inline-block; min-width: 1.6em; height: 1.6em; line-height: 1.6em; text-align: center; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); font-size: .8em; font-weight: bold; margin-right: .35em; }
-.g-tablist [role=tab][aria-selected="true"] .num { background: #fff; color: var(--accent); border-color: #fff; }
+.g-tablist [role=tab][aria-selected="true"] .num { background: #fff; color: var(--frame); border-color: #fff; }
 @media (max-width: 1100px) { .g-tablist [role=tab] { padding: .2rem .7rem; font-size: .92rem; } }
 
 /* カード・レイアウト */
@@ -205,8 +218,11 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 
 .g-toast-item rt { color: #ddd; }
 
-/* フッター(クレジット・保存データの管理) */
+/* フッター: 4分野共通の .ef-footer(作成者・版・安全と個人情報・ライセンス・更新履歴)+ 保存データの管理ボタン
+ * 共通の枠が読めないときだけ、下の .g-footer(作成者・保存データの管理)を出す */
 .g-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
   max-width: 1280px; margin: 1.5rem auto 0; padding: .6rem 1rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+.g-footer.g-footer-ef { display: block; max-width: none; margin: 0; padding: 0; border: 0; }
 .g-footer .btn.small { min-height: var(--tap); }
+.ef-footer .g-data-btn { min-height: 36px; font-size: 13px; padding: 0 .6rem; }
 @media print { .g-footer .btn { display: none; } }

@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inlineEduitFrame } from "../../eduit-inline.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
@@ -48,6 +49,12 @@ html = html
     () => `<script>\nwindow.__SECLAB_DATA = ${safe(JSON.stringify(data))};\n</script>\n<script>\n"use strict";\n${safe(chunks.join("\n\n"))}\n</script>`,
   );
 
+// 4分野共通の枠と、版・更新履歴を中に入れる
+html = inlineEduitFrame(html);
+
 mkdirSync(join(root, "dist"), { recursive: true });
 writeFileSync(join(root, "dist/security-lab.html"), html);
+// 配布用の写し（release/）も同じものにする
+mkdirSync(join(root, "release"), { recursive: true });
+writeFileSync(join(root, "release/情報セキュリティ体験ラボ.html"), html);
 console.log(`dist/security-lab.html を作りました（${Math.round(html.length / 1024)} KB）`);

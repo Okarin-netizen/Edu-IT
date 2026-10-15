@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inlineEduitFrame } from "../../eduit-inline.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
@@ -46,6 +47,9 @@ html = html
     /<script type="module" src="js\/app.js"><\/script>/,
     () => `<script>\nwindow.__NETSIM_STANDALONE = true;\n</script>\n<script>\n"use strict";\n${safe(chunks.join("\n\n"))}\n</script>`,
   );
+
+// 4分野共通の枠と、版・更新履歴を中に入れる
+html = inlineEduitFrame(html);
 
 mkdirSync(join(root, "dist"), { recursive: true });
 writeFileSync(join(root, "dist/network-sim.html"), html);

@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E1 エネルギー変換ゲーム</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'E1 エネルギー変換ゲーム' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 html,body{margin:0;height:100%;background:#eef3f8;}
 .e1{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
@@ -13,7 +18,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1 *{box-sizing:border-box}
 .e1 button{font:inherit;touch-action:manipulation}
 .e1 rt{font-size:.55em;font-weight:normal}
-.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #1e6fd9}
+.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e1-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
 .e1-stitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
 .e1-stitle .t{font-size:17px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -21,7 +26,12 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e1-btn:active{transform:translateY(1px)}
 .e1-btn:disabled{opacity:.45;cursor:default;transform:none}
-.e1-top .e1-btn{background:#2f4f7a;color:#fff;white-space:nowrap;padding:0 12px;flex:none}
+.e1-top .e1-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;white-space:nowrap;padding:0 12px;flex:none}
+.e1-top .e1-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e1-top .e1-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e1-top h1{color:var(--ef-text,#1f2328)}
+.e1-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e1-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e1-btn.primary{background:var(--accent);color:#fff}
 .e1-btn.danger{background:#fde2e2;color:#a61e1e}
 .e1-btn.go{background:var(--accent);color:#fff;font-size:21px;min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
@@ -717,16 +727,20 @@ function formPath(d) {
 }
 function starStr(n, max) { var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
 
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   S.root.innerHTML =
     '<div class="e1-top">' +
       '<h1>⚡ エネルギー変換ゲーム</h1>' +
       '<button class="e1-btn" data-act="stages">☰ ステージ</button>' +
       '<div class="e1-stitle" data-ref="stitle"></div>' +
+      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
       '<button class="e1-btn" data-act="intro">🎯 目標</button>' +
       '<button class="e1-btn" data-act="hint">💡 ヒント</button>' +
-      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
       '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
+      efSlot() +
     '</div>' +
     '<div class="e1-main">' +
       '<div class="e1-palwrap"><div class="e1-pal" data-ref="pal"></div><div class="e1-palmore" data-ref="palmore" aria-hidden="true"></div></div>' +
@@ -736,6 +750,7 @@ function buildShell() {
     '</div>';
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  efMount();
 }
 function render() { renderTop(); renderPal(); renderBoard(); renderSide(); renderMsg(); }
 function stageLabel(i) { return STAGES[i].free ? '自由' : 'ステージ' + (i + 1); }
