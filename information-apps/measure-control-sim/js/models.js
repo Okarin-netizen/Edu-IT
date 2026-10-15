@@ -90,7 +90,7 @@ const door = {
   </g>
   <text x="${pos > 0 ? 250 : 250}" y="${(130 + py) / 2 + 5}" font-size="13" fill="#b33a22" font-weight="700">${sensors.距離} cm</text>` : ""}
   ${hit ? `<text x="320" y="${py + 5}" font-size="18" font-weight="800" fill="#d93a2f">ぶつかる！</text>` : ""}
-  <g font-size="12" fill="#33363b">
+  <g font-size="13" fill="#33363b">
     <text x="14" y="114">ドア: ${motion}（開き ${Math.round(state.open)}%）</text>
     <text x="14" y="156">● 距離センサ（ドアの上）</text>
   </g>
@@ -145,7 +145,7 @@ const streetlight = {
   <rect x="312" y="44" width="36" height="14" rx="5" fill="${on ? "#ffe680" : "#9aa0a6"}" stroke="#4b5056"/>
   ${on ? `<circle cx="330" cy="58" r="16" fill="#fff3b0" opacity="0.5"/>` : ""}
   <rect x="362" y="100" width="16" height="12" rx="3" fill="#33363b"/><circle cx="370" cy="106" r="3" fill="#7fd0ff"/>
-  <text x="384" y="110" font-size="12" fill="${b < 0.5 ? "#e8eef7" : "#1d2a3a"}">明るさセンサ</text>
+  <text x="384" y="110" font-size="13" fill="${b < 0.5 ? "#e8eef7" : "#1d2a3a"}">明るさセンサ</text>
   ${car}
   <g font-size="13" font-weight="700" fill="${b < 0.5 ? "#e8eef7" : "#1d2a3a"}"><text x="16" y="24">明るさ ${sensors.明るさ}</text><text x="16" y="44">街灯 ${on ? "オン" : "オフ"}</text></g>
 </svg>`;
@@ -212,11 +212,11 @@ function trafficModel(withButton) {
   <rect x="96" y="40" width="6" height="124" fill="#6b7078"/>
   <rect x="56" y="22" width="96" height="32" rx="8" fill="#26292e"/>
   ${lamp(76, 38, out.車の青, "#19c37d")}${lamp(104, 38, out.車の黄, "#ffbf1f")}${lamp(132, 38, out.車の赤, "#ff3b30")}
-  <text x="56" y="70" font-size="12" fill="#1d2a3a">車用</text>
+  <text x="56" y="70" font-size="13" fill="#1d2a3a">車用</text>
   <rect x="318" y="40" width="6" height="124" fill="#6b7078"/>
   <rect x="330" y="18" width="40" height="70" rx="6" fill="#26292e"/>
   ${lamp(350, 38, out.歩行者の赤, "#ff3b30")}${lamp(350, 68, out.歩行者の青, "#19c37d")}
-  <text x="378" y="42" font-size="12" fill="#1d2a3a">止まれ</text><text x="378" y="72" font-size="12" fill="#1d2a3a">進め</text>
+  <text x="378" y="42" font-size="13" fill="#1d2a3a">止まれ</text><text x="378" y="72" font-size="13" fill="#1d2a3a">進め</text>
   ${withButton ? `<rect x="324" y="100" width="34" height="30" rx="4" fill="#f3d23b" stroke="#6b5a00"/><circle cx="341" cy="115" r="8" fill="${sensors.ボタン ? "#ff8a3d" : "#c9a400"}" stroke="#6b5a00"/><text x="364" y="120" font-size="11" fill="#1d2a3a">押しボタン</text>` : ""}
   <g transform="translate(${state.carX} 186)"><rect x="0" y="0" width="56" height="26" rx="6" fill="#2a78d6"/><rect x="10" y="-10" width="30" height="12" rx="4" fill="#2a78d6"/><circle cx="12" cy="26" r="5" fill="#111"/><circle cx="44" cy="26" r="5" fill="#111"/></g>
   <g transform="translate(242 ${state.pedY})"><circle cy="-14" r="6" fill="#5a3b28"/><rect x="-6" y="-8" width="12" height="16" rx="4" fill="#e58a3a"/></g>
@@ -263,7 +263,7 @@ const sandbox = {
     const ax = 400 + Math.sin(ang) * 40;
     const ay = 190 - Math.cos(ang) * 40;
     const blades = [0, 120, 240].map((a) => `<ellipse cx="0" cy="-16" rx="7" ry="16" fill="#7fb0e0" transform="rotate(${a + state.fan})"/>`).join("");
-    const label = (x, y, t) => `<text x="${x}" y="${y}" font-size="12" fill="#1d2a3a" text-anchor="middle">${t}</text>`;
+    const label = (x, y, t) => `<text x="${x}" y="${y}" font-size="13" fill="#1d2a3a" text-anchor="middle">${t}</text>`;
     return `<svg viewBox="0 0 480 260" role="img" aria-label="仮想マイコンの図">
   <rect width="480" height="260" fill="#eef2ec"/>
   <rect x="150" y="70" width="180" height="120" rx="10" fill="#1f6b4a" stroke="#0e3d29" stroke-width="2"/>
@@ -284,7 +284,7 @@ const sandbox = {
   <rect x="380" y="186" width="40" height="22" rx="4" fill="#2a78d6"/>
   <line x1="400" y1="190" x2="${r1(ax)}" y2="${r1(ay)}" stroke="#eb6834" stroke-width="8" stroke-linecap="round"/>
   ${label(400, 228, `サーボ ${out.サーボ}°`)}
-  <g font-size="12" fill="#1d2a3a">
+  <g font-size="13" fill="#1d2a3a">
     <text x="150" y="214">明るさ ${sensors.明るさ}　温度 ${sensors.温度}℃　距離 ${sensors.距離}cm</text>
     <text x="150" y="232">ボタン ${sensors.ボタン ? "オン" : "オフ"}　人感 ${sensors.人感 ? "オン" : "オフ"}</text>
   </g>
