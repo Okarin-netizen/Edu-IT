@@ -7,9 +7,10 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.0.0';
-  G.CREDIT = '羽生市立南中学校　技術科　岡田';
-  G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術科|ぎじゅつか}　{岡田|おかだ}';
+  G.version = '2.1.0';  // materials-apps/eduit-info.js の version と合わせる
+  // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
+  G.CREDIT = '羽生市立南中学校　技術　岡田';
+  G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
   // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
   G.LS_PREFIX = {
     'material-navi': ['material-navi.'], 'wood-lab': ['m2.'], 'structure-lab': ['structure-lab.'],
@@ -510,34 +511,58 @@
     G.applySettings();
     var header = G.$('#g-header');
     if (!header) { header = G.h('header', { id: 'g-header' }); document.body.insertBefore(header, document.body.firstChild); }
-    header.classList.add('g-header');
+    // 4分野共通の枠(shared/eduit-frame.css の .ef-header / .ef-btn)
+    header.classList.add('g-header', 'ef-header');
     header.innerHTML = '';
     var sizes = { s: '小', m: '中', l: '大', xl: '特大' };
-    var sizeBtn = G.h('button', { class: 'btn ghost', type: 'button', 'data-g-setting': 'size', title: '文字の大きさを変える', onclick: function () {
+    var sizeBtn = G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'size', title: '文字の大きさを変える', onclick: function () {
       var order = ['s', 'm', 'l', 'xl'];
       var cur = G.settings.get('size', 'm');
       var next = order[(order.indexOf(cur) + 1) % order.length];
       G.settings.set('size', next);
       sizeBtn.lastChild.textContent = sizes[next];
     } }, '文字 ', G.h('span', { 'data-noruby': true }, sizes[G.settings.get('size', 'm')]));
-    header.appendChild(G.h('div', { class: 'g-header-inner' },
-      opt.home === false ? null : G.h('a', { class: 'btn ghost g-home', href: opt.home || '../index.html' }, '◀ メニュー'),
-      G.h('h1', { class: 'g-title' }, opt.title || document.title),
-      G.h('div', { class: 'g-header-tools' },
-        G.h('button', { class: 'btn ghost', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
-          G.settings.set('ruby', !G.settings.get('ruby', true));
-        } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
-        sizeBtn,
-        G.h('button', { class: 'btn ghost', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
-          G.settings.set('contrast', !G.settings.get('contrast', false));
-        } }, 'くっきり')
-      )));
+    // 道具の並び: ふりがな → 文字の大きさ → くっきり → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
+    var help = null;
+    if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
+    else if (typeof opt.help === 'string') help = G.h('a', { class: 'ef-btn', href: opt.help }, '使い方');
+    if (opt.home !== false) header.appendChild(G.h('a', { class: 'ef-btn ef-back g-home', href: opt.home || '../index.html' }, '◀ メニュー'));
+    header.appendChild(G.h('h1', { class: 'ef-title g-title' }, opt.title || document.title));
+    header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
+      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
+        G.settings.set('ruby', !G.settings.get('ruby', true));
+      } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
+      sizeBtn,
+      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
+        G.settings.set('contrast', !G.settings.get('contrast', false));
+      } }, 'くっきり'),
+      help,
+      opt.tools || null));
     G.applySettings();
+    // 作成者の読みがな(フッターと「このアプリについて」で使う)
+    G.ruby.add({ '羽生': 'はにゅう', '市立': 'しりつ', '南中学校': 'みなみちゅうがっこう', '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
     if (!G.$('.g-footer')) {
-      var foot = G.h('footer', { class: 'g-footer' },
-        G.h('span', { class: 'g-credit' }, G.h('span', { 'data-noruby': true }, '制作: '), G.h('span', { 'data-credit': true }, G.CREDIT_RUBY)),
-        opt.app && opt.app !== 'menu' && opt.data !== false ? G.h('button', { class: 'btn small ghost', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null);
-      var addFoot = function () { document.body.appendChild(foot); };
+      var dataBtn = opt.app && opt.app !== 'menu' && opt.data !== false
+        ? G.h('button', { class: 'btn small ghost g-data-btn', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null;
+      var foot;
+      if (window.EduitFrame) {
+        // 共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴)。保存データの管理ボタンはその右に
+        foot = G.h('div', { class: 'g-footer g-footer-ef', 'data-ef-footer': true });
+      } else {
+        foot = G.h('footer', { class: 'g-footer' },
+          G.h('span', { class: 'g-credit' }, G.h('span', { 'data-noruby': true }, '作成: '), G.h('span', { 'data-credit': true }, G.CREDIT_RUBY)),
+          dataBtn);
+      }
+      var addFoot = function () {
+        document.body.appendChild(foot);
+        if (window.EduitFrame) {
+          // 枠がもう body の最後にフッターを出していたら、こちらへ移す(2つ出さない)
+          var made = G.$('body > .ef-footer');
+          if (made) foot.appendChild(made); else window.EduitFrame.mount();
+          var ef = foot.querySelector('.ef-footer');
+          if (ef && dataBtn) ef.appendChild(dataBtn);
+        }
+      };
       if (document.body) addFoot(); else document.addEventListener('DOMContentLoaded', addFoot);
     }
     // 一つのHTML版(build-single.py)の中で開かれているか

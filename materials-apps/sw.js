@@ -4,7 +4,7 @@
  * - それ以外の同じオリジンのファイルも、一度開けばキャッシュされる(キャッシュ優先)
  * 内容を更新して配り直すときは VERSION を上げる。
  */
-var VERSION = 'gijutsu-v6';
+var VERSION = 'gijutsu-v7';
 var CORE = [
   './',
   './index.html',
@@ -18,11 +18,18 @@ var CORE = [
   './common/beam.js',
   './common/materials.js',
   './common/apps.js',
+  './eduit-info.js',
   './使い方_先生用.html'
 ];
+// 4分野共通の枠(materials-apps の1つ上の shared/)。置いていないときもインストールは止めない
+var SHARED = ['../shared/eduit-frame.css', '../shared/eduit-frame.js'];
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(VERSION).then(function (c) {
+    return c.addAll(CORE).then(function () {
+      return Promise.all(SHARED.map(function (u) { return c.add(u).catch(function () {}); }));
+    });
+  }).then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
