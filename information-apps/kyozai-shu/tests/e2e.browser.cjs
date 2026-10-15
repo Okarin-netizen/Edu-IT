@@ -28,8 +28,8 @@ const check = (ok, label) => {
 
   await page.goto(url);
   check((await page.locator(".mcard").count()) === 6, "メニューに教材カードが6枚ある");
-  check(/羽生市立南中学校 技術 岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
-  check(/羽生市立南中学校 技術 岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
+  check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
+  check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
 
   // 6つの教材を順に開く
   for (const id of IDS) {

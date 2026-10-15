@@ -79,7 +79,7 @@ app 名(メニューの並び順 M1→M6): `material-navi` / `wood-lab` / `struc
 
 | 機能 | 説明 |
 |---|---|
-| `G.initApp({app,title,files,home,data})` | ヘッダー(メニューへ戻る・ふりがな・文字サイズ・くっきり)、フッター(クレジット・保存データの管理。`data:false` で管理ボタンなし)、ルビ自動付与、Service Worker 登録 |
+| `G.initApp({app,title,files,home,data,help,tools})` | 4分野共通の枠のヘッダー(`.ef-header`: ◀ メニュー・ふりがな・文字サイズ・くっきり・使い方(`help` に関数か URL)・アプリだけのボタン(`tools` に要素))、共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴 + 保存データの管理。`data:false` で管理ボタンなし)、ルビ自動付与、Service Worker 登録 |
 | `G.h(tag, attrs, ...children)` | 要素を作る。`onclick` などはイベント、`class`、`style:{}`、`html` 可 |
 | `G.$(sel)` / `G.$$(sel)` | querySelector / querySelectorAll(配列) |
 | `G.num(v, def, lo, hi)` | 入力を安全な数値に(全角数字・空欄・範囲外に強い) |
@@ -162,3 +162,6 @@ app 名(メニューの並び順 M1→M6): `material-navi` / `wood-lab` / `struc
 
 - 2026-10-14(中学生目線レビューの改善): `G.psCycle` に「▶ = このアプリでとりくむ段階」の説明を追加(呼び出し方は同じ。スタイルは `.g-ps .g-ps-note`)。`rt` に小さな負の字間。
   メニュー: 先生用ビューアと使い方はページ下の折りたたみ「先生用」へ、全データの削除は「保存したデータ」内の折りたたみ「データの管理(削除)」へ移動。カード題名は「・」ごとにまとめて折り返す(1文字だけ次の行に落ちない)。ボタン名を「すべてファイルに書き出す」「ファイルから読み込む」に。
+- 2026-10-15(第2.1版 4分野共通の枠): 各ページで `../../shared/eduit-frame.css`(base.css より先)・`../eduit-info.js`・`EDUIT_INFO.app = {name}`・`../../shared/eduit-frame.js` を読む。
+  base.css の `--bg` `--panel` `--ink` `--muted` `--line` などは `--ef-*` に合わせ、ヘッダー・主なボタン(`.btn.primary`)・タブの選択中は分野の色 `--frame`(木の茶)。`--accent`(図や強調の青)は各アプリの中身のまま。
+  作成者の表示は共通のフッターに1つだけ(旧 `.g-footer` のクレジットは、共通の枠が読めないときの予備)。版と更新履歴は `materials-apps/eduit-info.js` に書く。

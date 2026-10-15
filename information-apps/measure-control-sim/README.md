@@ -84,7 +84,7 @@
 npm test        # 言語・インタプリタ・判定のテスト、全場面で模範プログラムが全テスト合格することの確認（Node.js 20以上）
 npm run build   # dist/計測制御シミュレータ.html を作り直す
 node tests/stage2.browser.cjs  # （build のあと・playwright があるとき）ブラウザでの画面の確認
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/measure-control-sim/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 ```
 
 構成: `js/lang.js`（テキスト⇔プログラムの木、式）、`js/interp.js`（インタプリタ）、`js/sim.js`（0.1秒きざみのシミュレーションと合否判定）、`js/models.js`（仮想世界）、`js/blocks.js`（ブロック）、`js/flow.js`（フローチャート）、`js/chart.js`（グラフ）、`js/app.js`（画面）、`js/store.js`（端末内保存）。

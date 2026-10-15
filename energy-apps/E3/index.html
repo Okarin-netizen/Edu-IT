@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E3 機構ラボ</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'E3 機構ラボ' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 html,body{margin:0;height:100%;background:#f1f3ee;}
 .e3{--ink:#22302a;--sub:#5e6b64;--line:#d8ded6;--accent:#2b7a4b;--accent2:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#e67700;--top:#1d3557;
@@ -12,7 +17,7 @@ html,body{margin:0;height:100%;background:#f1f3ee;}
   font-size:16px;overflow:hidden;position:relative;background:#f1f3ee;-webkit-tap-highlight-color:transparent;}
 .e3 *{box-sizing:border-box}
 .e3 button{font:inherit;touch-action:manipulation}
-.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--top);color:#fff;flex:none;border-bottom:4px solid #2b7a4b}
+.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e3-top .e3-btn{white-space:nowrap}
 .e3-top .sh{display:none}
 .e3-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
@@ -21,8 +26,12 @@ html,body{margin:0;height:100%;background:#f1f3ee;}
 .e3-btn:active{transform:translateY(1px)}
 .e3-btn:disabled{opacity:.4;cursor:default}
 .e3-btn:focus-visible,.e3-cv:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e3-top .e3-btn{background:#2f4a72;color:#fff;padding:0 12px}
-.e3-top .e3-btn.on{background:#fff;color:var(--top)}
+.e3-top .e3-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px}
+.e3-top .e3-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e3-top .e3-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e3-top h1{color:var(--ef-text,#1f2328)}
+.e3-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e3-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e3-btn.primary{background:var(--accent2);color:#fff}
 .e3-btn.blue{background:var(--accent2);color:#fff}
 .e3-btn.danger{background:#fde2e2;color:#a61e1e}
@@ -630,6 +639,9 @@ function say(text, cls) { S.msg = text; S.msgCls = cls || ''; if (S.el.msg) rend
 function renderMsg() { if (!S.el.msg) return; S.el.msg.className = 'e3-msg' + (S.msgCls ? ' ' + S.msgCls : ''); S.el.msg.innerHTML = S.msg; }
 
 /* ---------- 画面の骨組み ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function curTask() { return S.task ? taskById(S.task) : null; }
 function buildShell() {
   var v = S.view, tk = curTask();
@@ -640,9 +652,9 @@ function buildShell() {
     tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
     '<div class="e3-stitle" data-ref="stitle"></div>' +
-    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
     '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button></div>';
+    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
+    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button>' + efSlot() + '</div>';
   var main;
   if (v === 'tasks') main = '<div class="e3-page" data-ref="page"></div>';
   else main = '<div class="e3-main">' + (v === 'quiz' ? '' : '<div class="e3-pal" data-ref="pal"></div>') +
@@ -655,6 +667,7 @@ function buildShell() {
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   S.cw = 0; S.ch = 0;
   if (S.el.cv) bindCanvas();
+  efMount();
 }
 function render() {
   renderTop();

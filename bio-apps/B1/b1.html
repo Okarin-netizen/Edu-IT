@@ -5,14 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
 <title>B1 育成日誌＋成長予測</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B1 育成日誌＋成長予測' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 /* ===== B1 育成日誌＋成長予測 : すべて .b1 の中に閉じたスタイル ===== */
-html,body{margin:0;padding:0;background:#f4f7f1;}
+html,body{margin:0;padding:0;background:var(--ef-bg);}
 .b1{
-  --bg:#f4f7f1; --card:#ffffff; --ink:#172317; --sub:#475547; --line:#bfcbb9;
-  --pri:#2e7d32; --pri-d:#1b5e20; --pri-l:#e3f1e4; --acc:#d84315; --acc-l:#fbe9e7;
+  /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
+  --bg:var(--ef-bg); --card:var(--ef-surface); --ink:var(--ef-text); --sub:var(--ef-muted); --line:#bfcbb9;
+  --pri:var(--ef-accent); --pri-d:#1b5e20; --pri-l:var(--ef-accent-soft); --acc:#d84315; --acc-l:#fbe9e7;
   --warn:#b71c1c; --warn-l:#fdecea; --info:#0d47a1; --info-l:#e3edfb; --yel:#fff6d6;
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Meiryo","Noto Sans JP",system-ui,sans-serif;
+  font-family:var(--ef-font);
   font-size:18px; line-height:1.6; color:var(--ink); background:var(--bg);
   min-height:100vh; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.2);
 }
@@ -20,26 +25,27 @@ html,body{margin:0;padding:0;background:#f4f7f1;}
 .b1.noruby rt{display:none;}
 .b1 rt{font-size:.5em;color:var(--sub);letter-spacing:-.04em;}
 .b1 ruby{ruby-align:center;}
-.b1 .top rt{color:#d7ecd8;}
+.b1 .topbar rt{color:var(--sub);}
 .b1 h1,.b1 h2,.b1 h3{margin:.2em 0 .5em;line-height:1.4;}
 .b1 h2{font-size:1.3em;}
 .b1 h3{font-size:1.1em;}
 .b1 p{margin:.4em 0 .8em;}
 .b1 small,.b1 .small{font-size:.85em;color:var(--sub);}
-/* header + tabs */
-.b1 .top{position:sticky;top:0;z-index:20;background:#1b5e20;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);}
-.b1 .topbar{display:flex;align-items:center;gap:8px;padding:6px 12px;padding-top:max(6px,env(safe-area-inset-top));}
-.b1 .topbar .ttl{font-weight:700;font-size:1.05em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.b1 .topbar .who{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.6);color:#fff;border-radius:999px;padding:4px 14px;min-height:44px;min-width:44px;font-size:.85em;font-family:inherit;font-weight:700;max-width:40vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+/* header + tabs(見出しは共通の枠 .ef-header。タブの帯は分野の色) */
+.b1 .top{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.b1 .topbar{padding:6px 12px;padding-top:max(6px,env(safe-area-inset-top));flex-wrap:nowrap;}
+.b1 .topbar .ttl{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b1 .topbar .ef-btn{font:600 15px/1.2 var(--ef-font);}
+.b1 .topbar .who{display:inline-block;line-height:38px;min-height:44px;min-width:44px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
 .b1 .topbar .who .demo-b{display:inline-block;background:#ffd54f;color:#3e2b00;border-radius:999px;padding:0 8px;margin-left:6px;font-size:.85em;}
 /* K2: ふりがな・A−・A＋ */
 .b1 .pf{display:flex;gap:6px;flex:0 0 auto;}
-.b1 .pfb{min-width:44px;min-height:44px;padding:0 10px;border-radius:10px;border:2px solid rgba(255,255,255,.75);background:transparent;color:#fff;font-family:inherit;font-size:.8em;font-weight:700;cursor:pointer;white-space:nowrap;}
-.b1 .pfb[aria-pressed="true"]{background:#fff;color:#1b5e20;border-color:#fff;}
+.b1 .topbar .ef-tools{flex-wrap:nowrap;}
+.b1 .pfb{min-width:44px;min-height:44px;padding:0 12px;}
 .b1 .pfb[disabled]{opacity:.4;cursor:default;}
 /* K3: メニューの中では見出しをかくし、名前ボタンだけ細い行に */
-html.kz-embed .b1 .topbar .ttl,html.kz-embed .b1 .pf{display:none;}
-html.kz-embed .b1 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0;}
+html.kz-embed .b1 .topbar .ttl,html.kz-embed .b1 .pf,html.kz-embed .b1 .ef-back{display:none;}
+html.kz-embed .b1 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0;background:transparent;border-bottom:0;}
 /* 横に広い画面(Chromebook など)では名前ボタンをタブと同じ行に置き、縦の場所を空ける */
 @media (min-width:1000px){
   html.kz-embed .b1 .top{display:flex;align-items:center;}
@@ -52,9 +58,9 @@ html.kz-embed .b1 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
 .b1 .tabs.c5{grid-template-columns:repeat(5,minmax(0,1fr));}
 .b1 .tabs.c4{grid-template-columns:repeat(4,minmax(0,1fr));}
 .b1 .tabs.c3{grid-template-columns:repeat(3,minmax(0,1fr));}
-.b1 .tab{background:transparent;border:0;color:#e3f1e4;font-weight:700;padding:4px 4px 6px;min-height:52px;min-width:0;font-size:.88em;line-height:1.25;border-radius:12px 12px 0 0;font-family:inherit;white-space:nowrap;cursor:pointer;}
-.b1 .tab rt{color:#cfe6d0;}
-.b1 .tab.on{background:#f4f7f1;color:#1b5e20;}
+.b1 .tab{background:transparent;border:0;color:#fff;font-weight:700;padding:4px 4px 6px;min-height:52px;min-width:0;font-size:.88em;line-height:1.25;border-radius:12px 12px 0 0;font-family:inherit;white-space:nowrap;cursor:pointer;}
+.b1 .tab rt{color:rgba(255,255,255,.85);}
+.b1 .tab.on{background:var(--bg);color:var(--pri-d);}
 .b1 .tab.on rt{color:var(--sub);}
 .b1 .tab .ic{display:block;font-size:1.15em;line-height:1.2;}
 .b1 .demobar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:#fff3c4;border:2px solid #e6c84f;border-radius:12px;padding:8px 12px;margin:0 0 12px;}
@@ -219,14 +225,17 @@ html.kz-embed .b1 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
 <body>
 <div id="b1-app" class="b1">
   <header class="top">
-    <div class="topbar">
-      <div class="ttl">🌱 <ruby>育<rt>いく</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>日<rt>にっ</rt></ruby><ruby>誌<rt>し</rt></ruby>＋<ruby>成<rt>せい</rt></ruby><ruby>長<rt>ちょう</rt></ruby><ruby>予<rt>よ</rt></ruby><ruby>測<rt>そく</rt></ruby></div>
+    <div class="topbar ef-header">
+      <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+      <div class="ttl ef-title"><span class="ef-icon" aria-hidden="true">📒</span>B1 <ruby>育<rt>いく</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>日<rt>にっ</rt></ruby><ruby>誌<rt>し</rt></ruby>＋<ruby>成<rt>せい</rt></ruby><ruby>長<rt>ちょう</rt></ruby><ruby>予<rt>よ</rt></ruby><ruby>測<rt>そく</rt></ruby></div>
+      <div class="ef-tools">
       <div class="pf" role="group" aria-label="表示の設定">
-        <button type="button" class="pfb" id="b1-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
-        <button type="button" class="pfb" id="b1-pf-dec" aria-label="文字を小さくする" title="文字を小さく">A−</button>
-        <button type="button" class="pfb" id="b1-pf-inc" aria-label="文字を大きくする" title="文字を大きく">A＋</button>
+        <button type="button" class="ef-btn pfb" id="b1-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
+        <button type="button" class="ef-btn pfb" id="b1-pf-dec" aria-label="文字を小さくする" title="文字を小さく">A−</button>
+        <button type="button" class="ef-btn pfb" id="b1-pf-inc" aria-label="文字を大きくする" title="文字を大きく">A＋</button>
       </div>
-      <button type="button" class="who" data-act="who" id="b1-who">👤 ---</button>
+      <button type="button" class="ef-btn who" data-act="who" id="b1-who">👤 ---</button>
+      </div>
     </div>
     <nav class="tabs" id="b1-tabs" role="tablist"></nav>
   </header>

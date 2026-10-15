@@ -1,38 +1,352 @@
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>先生用ガイド | 生物育成の技術 教材集</title><style>
+<html lang="ja" data-ef-domain="B"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>先生用ガイド | 生物育成の技術 教材集</title>
+<style data-ef-css>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+</style>
+<script data-ef-info>
+/* 生物育成の技術 教材集: 版と更新履歴(shared/eduit-frame.js が読む)
+ * 新しい版を出すときは version・updated を変え、history のいちばん上に足す。
+ * dist を作り直すとき(review/build/rebuild.js)に、このファイルの中身が各HTMLに入る。
+ */
+window.EDUIT_INFO = {
+  domain: 'B',
+  domainName: '生物育成の技術',
+  suite: '生物育成の技術 教材集',
+  version: '1.1',
+  updated: '2026-10-15',
+  safety: [
+    'B1 の写真は、この端末のブラウザの中(IndexedDB)だけに保存されます。人の顔や名札が写らないように撮りましょう。',
+    '飼育した生き物を川や池に放さないでください(外来種・生態系への配慮)。農薬を使うときは使用基準を守ります。',
+    'B2・B3 のシミュレーションは授業用の簡単なモデルです。数値は目安なので、本物の作物や生き物の観察(B1)とくらべて考えましょう。'
+  ],
+  history: [
+    { version: '1.1', date: '2026-10-15', items: [
+      '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした',
+      '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(画面の下の「安全と個人情報・ライセンス・更新履歴」)',
+      'メニューにもどるボタンを「◀ メニュー」にし、上のバーに「使い方」ボタンを置いた'
+    ] },
+    { version: '1.0', date: '2026-10-15', items: [
+      'B1〜B4 の4つの教材と、メニュー・生徒用の使い方・先生用ガイドを1つのファイルにまとめた(2026-10-14)',
+      'ふりがな・文字の大きさを、教材集ぜんぶで1つの設定にした',
+      '振り返りの形(組・番号・名前、◎○△、自動保存)とタブの見た目を4教材でそろえた',
+      'B4: 「人がする作業」と「観察」を分け、休みに合わせて収穫を前に動かさないようにした',
+      'B3: ★の基準を見直し、世話のしかたで結果が変わるようにした',
+      'B2・B3・B4: お金と手間(コスト)の目安を表示するようにした',
+      'B3: 合わない条件が続くと、生き物が死んでしまうようにした',
+      'B2・B3: 結果を文章でまとめて表示し、振り返りの書き出しにも入れた',
+      'Chromebook(1366×768)で見やすいように表示を調整した'
+    ] }
+  ]
+};
+</script>
+<script>EDUIT_INFO.app = { name: '先生用ガイド(生物育成の技術 教材集)' };</script>
+<script data-ef-js>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ * }
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+</script>
+<style>
 html,body{margin:0;padding:0;height:100%;}
-body{background:#f4f7f1;}
+body{background:var(--ef-bg);}
 #hub{
-  --bg:#f4f7f1; --card:#fff; --ink:#1b2a1b; --sub:#4a5a4a; --line:#c9d5c3;
-  --pri:#2e7d32; --pri-d:#1b5e20; --pri-l:#e3f1e4; --warn:#a85b00; --warn-l:#fff4e0; --bad:#b3261e; --bad-l:#fdeceb;
+  /* 共通の枠(eduit-frame.css)の色にそろえる */
+  --bg:var(--ef-bg); --card:var(--ef-surface); --ink:var(--ef-text); --sub:var(--ef-muted); --line:var(--ef-line);
+  --pri:var(--ef-accent); --pri-d:#1b5e20; --pri-l:var(--ef-accent-soft); --warn:#a85b00; --warn-l:#fff4e0; --bad:#b3261e; --bad-l:#fdeceb;
   --bar:56px;
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;
+  font-family:var(--ef-font);
   font-size:18px; line-height:1.65; color:var(--ink); background:var(--bg);
   min-height:100%; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.15);
 }
 #hub *{box-sizing:border-box;}
 #hub button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;}
-#hub :focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+#hub :focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
 #hub rt{font-size:.5em;color:var(--sub);}
 #hub.noruby rt{display:none;}
-#hub .bar rt{color:#d7ecd8;}
-/* top bar */
-#hub .bar{position:fixed;top:0;left:0;right:0;height:var(--bar);z-index:50;display:flex;align-items:center;gap:8px;
+#hub .bar rt{color:var(--sub);}
+/* top bar(共通の枠 .ef-header: 白地・下に分野の色の線) */
+#hub .bar{position:fixed;top:0;left:0;right:0;height:var(--bar);z-index:50;flex-wrap:nowrap;gap:8px;
   padding:0 10px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));
-  background:#123d14;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
-#hub .bar .home{min-height:44px;padding:0 14px;border-radius:10px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;white-space:nowrap;}
-#hub .bar .home[aria-current="page"]{background:#fff;color:#123d14;}
-#hub .bar .ttl{flex:1 1 auto;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#hub .bar .sw{display:flex;gap:6px;}
-#hub .bar .sw button{min-width:52px;min-height:44px;border-radius:10px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;font-weight:700;}
-#hub .bar .sw button[aria-current="page"]{background:#fff;color:#123d14;border-color:#fff;}
+  box-shadow:0 2px 6px rgba(0,0,0,.08);}
+#hub .bar .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text);min-height:44px;}
+#hub .bar .ef-btn[aria-pressed="true"],#hub .bar .ef-btn[aria-current="page"]{background:var(--ef-accent);border-color:var(--ef-accent);color:var(--ef-accent-ink);}
+#hub .bar .ef-btn:disabled{opacity:.4;cursor:default;}
+#hub .bar .home{color:var(--ef-accent);}
+#hub .bar .home[aria-current="page"]{display:none;}
+#hub .bar .ttl{display:block;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#hub .bar .ef-tools{flex:0 0 auto;flex-wrap:nowrap;}
+#hub .bar .sw,#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
+#hub .bar .sw .ef-btn{min-width:52px;padding:0 10px;}
+#hub .bar .pf .ef-btn{min-width:48px;padding:0 12px;}
 #hub .bar{font-size:17px;line-height:1.4;}
-#hub .bar .sep{flex:0 0 2px;align-self:stretch;margin:12px 2px;background:rgba(255,255,255,.35);}
-#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
-#hub .bar .pf button{min-width:48px;min-height:44px;padding:0 10px;border-radius:10px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;font-weight:700;white-space:nowrap;}
-#hub .bar .pf button[aria-pressed="true"]{background:#fff;color:#123d14;border-color:#fff;}
-#hub .bar .pf button:disabled{opacity:.4;cursor:default;}
+#hub .bar .sep{flex:0 0 1px;align-self:stretch;margin:10px 2px;background:var(--ef-line);}
 #hub .page{padding:calc(var(--bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
 #hub .page[hidden]{display:none;}
 #hub h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
@@ -46,10 +360,11 @@ body{background:#f4f7f1;}
 #hub .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 #hub .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:14px 0 18px;}
 @media (max-width:700px){#hub .grid{grid-template-columns:1fr;}}
-#hub .card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;}
+#hub .card{display:flex;flex-direction:column;gap:6px;}
 #hub .card .hd{display:flex;align-items:center;gap:12px;}
 #hub .card .ic{font-size:2.2em;line-height:1;width:1.3em;text-align:center;}
-#hub .card .code{display:inline-block;font-weight:800;color:#fff;background:var(--pri);border-radius:8px;padding:0 8px;margin-right:6px;font-size:.9em;}
+#hub .card .hdt{flex:1 1 auto;min-width:0;}
+#hub .card .ef-card-tag{margin:0;font-size:.8em;line-height:1.3;}
 #hub .card h3{margin:0;}
 #hub .card .desc{flex:1 1 auto;margin:.2em 0;}
 #hub .card .meta{display:flex;flex-wrap:wrap;gap:8px;font-size:.88em;color:var(--sub);}
@@ -58,9 +373,10 @@ body{background:#f4f7f1;}
 #hub .chip.todo{border-color:var(--warn);background:var(--warn-l);color:#6b3a00;font-weight:700;}
 #hub .chip.part{border-color:#1565c0;background:#e8f0fb;color:#0d3c78;font-weight:700;}
 #hub .card .rec{margin-left:auto;align-self:flex-start;flex:0 0 auto;white-space:nowrap;font-size:.8em;font-weight:700;color:#6b3a00;background:var(--warn-l);border:1.5px solid var(--warn);border-radius:999px;padding:0 10px;}
-#hub .open{align-self:flex-end;min-height:52px;padding:0 26px;border:0;border-radius:12px;background:var(--pri);color:#fff;font-weight:700;font-size:1.05em;}
-#hub .open:active{background:var(--pri-d);}
-#hub .btn{min-height:48px;padding:0 18px;border-radius:12px;border:2px solid var(--pri);background:#fff;color:var(--pri-d);font-weight:700;}
+#hub .open{align-self:flex-end;min-height:52px;padding:0 26px;color:var(--ef-accent-ink);font-weight:700;font-size:1em;}
+/* ふつうのボタン: 共通の枠 .ef-btn と同じ形(白地・丸い枠)。文字の大きさは A−/A＋ に合わせる */
+#hub .btn{min-height:48px;padding:0 18px;border-radius:999px;border:1px solid var(--ef-line);background:var(--ef-surface);color:var(--ef-text);font-weight:700;}
+#hub .btn:hover{border-color:var(--ef-accent);}
 #hub .btn.danger{border-color:var(--bad);color:var(--bad);}
 #hub .flow{background:var(--card);border:2px dashed var(--line);border-radius:14px;padding:10px 16px;margin:0 0 18px;}
 #hub .flow ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 26px;margin:.3em 0;padding-left:.2em;list-style:none;}
@@ -88,9 +404,9 @@ body{background:#f4f7f1;}
 #hub .frame[hidden]{display:none;}
 #hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:12px;z-index:60;max-width:90vw;}
 #hub .toast[hidden]{display:none;}
-@media (max-width:760px){#hub .bar .home .lbl{display:none;} #hub .bar{gap:6px;}}
-@media (max-width:640px){#hub .bar .ttl{display:none;} #hub .bar .sw{flex:1;justify-content:flex-end;} #hub .bar .sw button{min-width:46px;}}
-@media (max-width:540px){#hub .bar .sep{display:none;} #hub .bar .sw,#hub .bar .pf{gap:4px;} #hub .bar .sw button,#hub .bar .pf button{min-width:44px;padding:0 6px;}}
+@media (max-width:900px){#hub .bar .lbl{display:none;} #hub .bar{gap:6px;}}
+@media (max-width:640px){#hub .bar .ttl{display:none;} #hub .bar .ef-tools{flex:1;justify-content:flex-end;} #hub .bar .sw .ef-btn{min-width:46px;}}
+@media (max-width:560px){#hub .bar .sep,#hub .bar .use{display:none;} #hub .bar{gap:4px;padding-left:6px;padding-right:6px;} #hub .bar .ef-tools,#hub .bar .sw,#hub .bar .pf{gap:4px;} #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-width:36px;padding:0 6px;}}
 @media print{
   #hub .bar,#hub .gtools,#hub .noprint{display:none !important;}
   #hub .page{padding:0;}
@@ -205,4 +521,4 @@ body{background:#f4f7f1;}
 <li>B1 の写真で、<b>カメラの起動・写真の選択</b>ができるか。</li>
 </ul>
 </section>
-</main></div></body></html>
+</main><div data-ef-footer></div></div></body></html>

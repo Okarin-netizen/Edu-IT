@@ -5,12 +5,12 @@ import json, pathlib, zipfile
 root = pathlib.Path(__file__).resolve().parent.parent
 projects = root.parent
 data = json.loads((root / "data/materials.json").read_text(encoding="utf-8"))
-top = "情報の技術_体験教材集_第1.4版"
+top = "情報の技術_体験教材集_第1.5版"
 out = root / "release" / f"{top}.zip"
 out.parent.mkdir(exist_ok=True)
 
-readme = """情報の技術 体験教材集（第1.4版 2026年10月）
-作成：羽生市立南中学校 技術 岡田
+readme = """情報の技術 体験教材集（第1.5版 2026年10月）
+作成：羽生市立南中学校　技術　岡田
 
 中学校技術・家庭科（技術分野）D「情報の技術」で使う6つの体験教材を、
 メニュー付きの1つのファイルにまとめたものです。
@@ -36,6 +36,8 @@ readme = """情報の技術 体験教材集（第1.4版 2026年10月）
     提出は、メニューの「記録をまとめて書き出す」で6教材分を1つのファイルにできます。
     端末を共有する場合は、提出したあと、メニューの「はじめからやり直す」で消してください。
   ・登場する会社名・アドレスはすべて架空です。
+  ・作成者・安全と個人情報・ライセンス（使ってよい条件）・更新履歴は、
+    メニューや各教材のいちばん下の「安全と個人情報・ライセンス・更新履歴」で見られます。
 """
 
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:

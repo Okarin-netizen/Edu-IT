@@ -1,30 +1,30 @@
 /* 仮想CPUラボ 共通スタイル（情報セキュリティ体験ラボと同じ色・部品） */
 :root {
   color-scheme: light;
-  --bg: #f6f5f1;
+  --bg: var(--ef-bg, #f5f4f0);
   --surface-1: #fcfcfb;
   --surface-2: #efeee9;
   --border: #d9d7cf;
   --text-primary: #1b1b1a;
   --text-secondary: #52514e;
   --text-muted: #6d6c67;
-  --accent: #256abf;
+  --accent: var(--ef-accent, #1a5fc8);
   --accent-ink: #ffffff;
-  --accent-soft: #e3eefb;
+  --accent-soft: var(--ef-accent-soft, #e6eefb);
   --good: #1f7a3a;
   --good-soft: #e3f3e7;
   --warn: #8a5a00;
   --warn-soft: #fbf0d9;
   --bad: #b3261e;
   --bad-soft: #fbe5e3;
-  --focus: #eda100;
+  --focus: var(--ef-focus, #f08c00);
   --series-1: #2a78d6;
   --series-2: #eb6834;
   --series-3: #1baf7a;
   --series-4: #eda100;
   --radius: 12px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --font: "BIZ UDPGothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --font: var(--ef-font, "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif);
   --mono: "BIZ UDGothic", "Consolas", "Menlo", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) {
@@ -488,3 +488,34 @@ svg.five-units { max-height: max(50vh, 360px); }
 /* CB-06 */
 .unit-sub, .cpu-label, .tier-badge, .phase-pills .pill { font-size: 0.8rem; }
 .cell-addr { font-size: 0.75rem; }
+
+/* ===== 4分野共通の枠に合わせる（第1.5版 2026-10-15） =====
+   shared/eduit-frame.css と同じ形: 白いヘッダーに分野の色（青）の線3px、丸いボタン、主なボタンの角、フッター。
+   教材の中の画面は変えない。共通の枠を読み込まない書き出し（スタジオの作品HTMLなど）でも崩れないように、予備の値を付ける。 */
+.app-header {
+  gap: 10px; min-height: var(--ef-header-h, 52px); padding: 6px 14px;
+  background: var(--ef-surface, #ffffff); border-bottom: 3px solid var(--accent);
+}
+.app-header .brand { font-size: 18px; line-height: 1.3; color: var(--ef-text, var(--text-primary)); }
+.app-header .ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.display-toggles .toggle.ef-btn {
+  min-height: var(--ef-tap, 40px); padding: 0 14px; border: 1px solid var(--ef-line, var(--border)); border-radius: 999px;
+  background: var(--ef-surface, var(--surface-1)); color: var(--ef-text, var(--text-primary)); font: 600 15px/1.2 var(--font);
+}
+.display-toggles .toggle.ef-btn:hover { border-color: var(--accent); }
+.display-toggles .toggle.ef-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.btn { border-radius: var(--ef-radius-s, 8px); }
+.app-footer { padding: 0; margin-top: 24px; }
+.app-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: 0.8rem; color: var(--text-muted); }
+.app-footer .ef-footer { margin: 0; }
+/* 暗い画面の設定のときは、共通の枠の色も教材の暗い色に合わせる */
+@media (prefers-color-scheme: dark) {
+  :root[data-ef-domain]:not([data-theme="light"]) {
+    --ef-bg: var(--bg); --ef-surface: var(--surface-1); --ef-surface-2: var(--surface-2); --ef-line: var(--border);
+    --ef-text: var(--text-primary); --ef-muted: var(--text-secondary); --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
+  }
+}
+:root[data-ef-domain][data-theme="dark"] {
+  --ef-bg: var(--bg); --ef-surface: var(--surface-1); --ef-surface-2: var(--surface-2); --ef-line: var(--border);
+  --ef-text: var(--text-primary); --ef-muted: var(--text-secondary); --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
+}

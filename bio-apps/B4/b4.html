@@ -4,12 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>B4 栽培暦ビルダー</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B4 栽培暦ビルダー' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<style>body{background:var(--ef-bg)}</style>
 <style>
 #b4-app{
-  --b4-bg:#f4f7f1; --b4-card:#ffffff; --b4-ink:#1f2a1f; --b4-sub:#55624f; --b4-line:#cdd6c6;
-  --b4-main:#2f7d32; --b4-main-d:#1b5e20; --b4-soft:#e6f2e2; --b4-warn:#a85b00; --b4-warn-bg:#fff4e0;
+  /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
+  --b4-bg:var(--ef-bg); --b4-card:var(--ef-surface); --b4-ink:var(--ef-text); --b4-sub:var(--ef-muted); --b4-line:#cdd6c6;
+  --b4-main:var(--ef-accent); --b4-main-d:#1b5e20; --b4-soft:var(--ef-accent-soft); --b4-warn:#a85b00; --b4-warn-bg:#fff4e0;
   --b4-bad:#b3261e; --b4-bad-bg:#fdeceb; --b4-hol:#eef0f6; --b4-fs:18px;
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif;
+  font-family:var(--ef-font);
   font-size:var(--b4-fs); line-height:1.6; color:var(--b4-ink); background:var(--b4-bg);
   min-height:100vh; box-sizing:border-box; -webkit-text-size-adjust:100%; overflow-wrap:anywhere;
 }
@@ -19,18 +25,18 @@
 #b4-app button,#b4-app input,#b4-app select,#b4-app textarea{font:inherit;color:inherit}
 #b4-app button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #b4-app :focus-visible{outline:3px solid #1565c0;outline-offset:2px}
-#b4-app .b4-head{display:flex;align-items:center;gap:.6em;flex-wrap:wrap;padding:.5em 1em;background:var(--b4-main);color:#fff}
-#b4-app .b4-head h1{font-size:1.25em;margin:0;flex:1 1 auto;line-height:1.5}
-#b4-app .b4-tools{display:flex;gap:.4em}
-#b4-app .b4-tools button{min-height:44px;min-width:48px;border:2px solid #fff;background:transparent;color:#fff;border-radius:10px;padding:0 .6em;font-weight:bold}
-#b4-app .b4-tools button[aria-pressed="true"]{background:#fff;color:var(--b4-main-d)}
+/* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
+#b4-app .b4-head h1{flex:1 1 auto}
+#b4-app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
+#b4-app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b4-app .b4-tools button{min-height:44px;min-width:48px}
 #b4-app .b4-tools button:disabled{opacity:.4;cursor:not-allowed}
 html.kz-embed #b4-app .b4-head{display:none}
 /* タブ(K4) */
-#b4-app .b4-tabs{display:flex;gap:4px;padding:6px 6px 0;background:#1b5e20;position:sticky;top:0;z-index:5}
-#b4-app .b4-tabs button{flex:1 1 0;min-width:0;min-height:52px;border:0;border-radius:12px 12px 0 0;background:transparent;color:#e3f1e4;padding:.25em .4em;font-weight:bold;white-space:normal;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+#b4-app .b4-tabs{display:flex;gap:4px;padding:6px 6px 0;background:var(--ef-accent);position:sticky;top:0;z-index:5}
+#b4-app .b4-tabs button{flex:1 1 0;min-width:0;min-height:52px;border:0;border-radius:12px 12px 0 0;background:transparent;color:#fff;padding:.25em .4em;font-weight:bold;white-space:normal;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
 #b4-app .b4-tabs button:hover{background:rgba(255,255,255,.12)}
-#b4-app .b4-tabs button[aria-selected="true"]{background:var(--b4-bg);color:#1b5e20}
+#b4-app .b4-tabs button[aria-selected="true"]{background:var(--b4-bg);color:var(--b4-main-d)}
 #b4-app.b4-big .b4-tabs .b4-tl{display:none}
 #b4-app .b4-tbl td:nth-child(3),#b4-app .b4-tbl td:nth-child(4){white-space:nowrap}
 #b4-app main{padding:1em;max-width:1200px;margin:0 auto}
@@ -179,12 +185,13 @@ html.kz-embed #b4-app .b4-head{display:none}
 </head>
 <body style="margin:0">
 <div id="b4-app">
-  <header class="b4-head">
-    <h1>B4 栽培暦ビルダー</h1>
-    <div class="b4-tools">
-      <button type="button" id="b4-ruby" aria-pressed="true" title="ふりがなの表示を切りかえ">ふりがな</button>
-      <button type="button" id="b4-dec" aria-label="文字を小さく">A−</button>
-      <button type="button" id="b4-inc" aria-label="文字を大きく">A＋</button>
+  <header class="b4-head ef-header">
+    <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+    <h1 class="ef-title"><span class="ef-icon" aria-hidden="true">🗓️</span><span>B4 栽培暦ビルダー</span></h1>
+    <div class="b4-tools ef-tools">
+      <button type="button" class="ef-btn" id="b4-ruby" aria-pressed="true" title="ふりがなの表示を切りかえ">ふりがな</button>
+      <button type="button" class="ef-btn" id="b4-dec" aria-label="文字を小さく">A−</button>
+      <button type="button" class="ef-btn" id="b4-inc" aria-label="文字を大きく">A＋</button>
     </div>
   </header>
   <nav class="b4-tabs" role="tablist" aria-label="ページ">

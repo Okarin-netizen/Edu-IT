@@ -4,19 +4,333 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>使い方 - エネルギー変換 学習アプリ(E1〜E5)</title>
+<!-- 4分野共通の枠(build.py が中身を入れる) -->
 <style>
-:root{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9}
-body{margin:0;background:#f6f8fb;color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;line-height:1.75;font-size:16.5px}
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+</style>
+<script>
+/* エネルギー変換 学習アプリ(E1〜E5)の版・更新履歴など。
+ * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
+ * 統合版(dist/energy-apps.html)では build.py がこのファイルを中に入れる。
+ * 版を上げたら version・updated と history の先頭を書きかえて、build.py で作り直す。
+ */
+window.EDUIT_INFO = {
+  domain: 'C',
+  domainName: 'エネルギー変換の技術',
+  suite: 'エネルギー変換 学習アプリ(E1〜E5)',
+  version: '1.2',
+  updated: '2026-10-15',
+  safety: [
+    'E2 電気回路ラボ・E5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
+    'E3・E4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
+    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。E1 の発電の値段は、国の試算を丸めた概算です。'
+  ],
+  history: [
+    { version: '1.2', date: '2026-10-15', items: [
+      '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
+      '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(トップ画面の下と、アプリ画面の「ⓘ このアプリについて」)。',
+      '各アプリの中の画面・操作・保存データの形は変えていない。これまでの学習記録はそのまま使える。'
+    ] },
+    { version: '1.1', date: '2026-10-15', items: [
+      'E1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
+      'E1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
+      'E3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(E4 も同じ)。',
+      '統合版: Chromebook(11インチ)向けに「🖥️ 全画面」ボタンと、Chromebook・パソコンでの使い方を追加。'
+    ] },
+    { version: '1.0', date: '2026-10-14', items: [
+      'E1〜E5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
+      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(E1 自由実験の評価、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・印刷、E4 点検表の記録のずれ・クイズの問題文、E5 LED の電圧不足の診断・製作手順の安全など)。',
+      'タブレットの縦向きに対応。操作の言葉(❓ 使い方・↩ もどす・🗑 ぜんぶ消す など)をそろえ、効果音は最初OFFにした。難しい用語に読みがなを付けた。',
+      'トップ画面のカードに進み具合と「▶ つづきから」を表示。'
+    ] }
+  ]
+};
+EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1〜E5)' };
+</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ * }
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+</script>
+<style>
+:root{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent)}
+body{margin:0;background:var(--ef-bg);color:var(--ink);font-family:var(--ef-font);line-height:1.75;font-size:16.5px}
 main{max-width:960px;margin:0 auto;padding:16px 20px 60px}
-h1{font-size:28px;margin:10px 0 4px}
 .lead{color:var(--sub);margin:0 0 10px}
-.start{background:#fff;border:2px solid var(--accent);border-radius:14px;padding:12px 18px;margin:14px 0}
+.start{background:var(--ef-surface);border:2px solid var(--accent);border-radius:14px;padding:12px 18px;margin:14px 0}
 .start b{font-size:18px}
 h2{font-size:23px;margin:34px 0 4px;padding:6px 12px;background:var(--accent);color:#fff;border-radius:10px}
 h3{font-size:19px;margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
 li{margin:3px 0}
 rt{font-size:12px}
-code{background:#e8eef5;padding:1px 6px;border-radius:5px;font-size:.92em}
+code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;break-inside:avoid}
 .ea-hcard h4{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
@@ -25,15 +339,15 @@ code{background:#e8eef5;padding:1px 6px;border-radius:5px;font-size:.92em}
 .ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
 .ea-tbl{border-collapse:collapse;background:#fff}
 .ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:15px}
-.ea-tbl th{background:#e8eef5}
+.ea-tbl th{background:var(--ef-surface-2)}
 nav a{margin-right:14px}
 @media (max-width:760px){.ea-hgrid{grid-template-columns:1fr}}
-@media print{body{background:#fff;font-size:13px}h2{break-before:page;background:none;color:#000;border-bottom:2px solid #000;border-radius:0}h2.first{break-before:auto}.start{border-color:#000}}
+@media print{.ef-header{border-bottom-color:#000}body{background:#fff;font-size:13px}h2{break-before:page;background:none;color:#000;border-bottom:2px solid #000;border-radius:0}h2.first{break-before:auto}.start{border-color:#000}}
 </style>
 </head>
 <body>
+<header class="ef-header"><h1 class="ef-title"><span class="ef-icon" aria-hidden="true">⚡</span>エネルギー変換 学習アプリ 使い方</h1></header>
 <main>
-<h1>⚡ エネルギー変換 学習アプリ 使い方</h1>
 <p class="lead">中学校 技術分野「エネルギー変換の技術」の学習用アプリ(E1〜E5)を1つにまとめたものです。インターネットなしで動きます。</p>
 <div class="start"><b>▶ はじめるには:</b> このフォルダの <code>energy-apps.html</code> をブラウザ(Chrome・Edge など)で開きます。</div>
 <nav><a href="#student">生徒向け</a><a href="#teacher">先生向け</a></nav>
@@ -61,6 +375,7 @@ nav a{margin-right:14px}
 <li><b>↩ もどす</b>:1つ前にもどす。<b>🗑 ぜんぶ消す</b>・<b>↺ 最初から</b>:消す前に確認が出ます(「やめる」でやめられます)。</li>
 <li><b>💾 ファイルに保存</b>・<b>📂 ファイルを読みこむ</b>・<b>🖨️ 印刷</b>:設計図や点検表などをファイルにしたり、印刷したりします。</li>
 <li><b>🔇 / 🔊</b>:効果音のオン・オフ。<b>はじめは音が出ません</b>(🔇)。音を出したいときは 🔇 をタップして 🔊 にします。</li>
+<li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・トップ画面のいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
 </ul>
 <h3>5つのアプリ</h3>
 <div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>E1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>E2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>E3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>E4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>E5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
@@ -107,6 +422,13 @@ nav a{margin-right:14px}
 <li><b>E3 設計図</b>、<b>E4 点検表</b>、<b>E5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
 <li>ファイル名は英数字(例: <code>E5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
 </ul>
+<h3>画面の枠の共通化(2026-10-15・第1.2版)</h3>
+<ul>
+<li>4分野(材料と加工・生物育成・エネルギー変換・情報)のアプリで、<b>画面の枠(ヘッダー・ボタン・カード・色)をそろえました</b>。ヘッダーは白地で、下に分野の色(エネルギー変換は<b>だいだい</b>)の線があります。トップ画面のカードと「▶ はじめる」も共通の形と色です(アイコンの色はアプリごと)。</li>
+<li><b>作成者・安全と個人情報・ライセンス・更新履歴</b>を、トップ画面のいちばん下と、アプリ画面の上のバーの「ⓘ このアプリについて」で見られるようにしました。</li>
+<li>上のバーのボタンは「❓ 使い方」を先にして、そのあとにアプリごとのボタン(🎯 目標・📄 設計図・🖨️ 印刷・🔇 音 など)を並べました。</li>
+<li>各アプリの中の画面・操作と、<b>保存データの形は変えていません</b>。これまでの学習記録はそのまま使えます。</li>
+</ul>
 <h3>追加内容(2026-10-15)</h3>
 <ul>
 <li><b>E1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
@@ -117,7 +439,7 @@ nav a{margin-right:14px}
 <ul>
 <li><b>内容の誤り・不具合を修正</b>:E1 自由実験の評価(原子力だけで3つとも100にならないように)、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・ブラックボックスの歯数・印刷の切れ、E4 点検項目を消したときの記録のずれとクイズの問題文、E5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
 <li><b>縦向きに対応</b>:作業エリア(盤面・図)を全幅にし、部品は上、説明は下に並べました。</li>
-<li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります。</li>
+<li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります(第1.2版で、4分野共通の白地+だいだいの線に変更)。</li>
 <li><b>効果音は最初OFF</b>、文字は本文15px以上、ボタンは高さ44px以上にしました。</li>
 <li>難しい用語(<ruby>軸受<rt>じくうけ</rt></ruby>・<ruby>潤滑<rt>じゅんかつ</rt></ruby>・<ruby>摩耗<rt>まもう</rt></ruby>・<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>など)に読みがなと短い言いかえを付けました。</li>
 <li>統合版:トップのカードに進み具合と「▶ つづきから」、上のアプリ切りかえに短い名前、縦向きでボタンが折れないようにしました。</li>

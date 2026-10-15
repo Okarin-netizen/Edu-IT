@@ -32,7 +32,7 @@
 ```
 npm test        # 経路（ダイクストラ・迂回・到達不能）、DNS、IPアドレス・サブネット、パケットの分割と組み立て、ドリル問題、外部通信がないことのテスト（Node.js 20以上）
 npm run build   # dist/network-sim.html を作り直す
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/network-sim/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 ```
 
 構成: `js/`（app.js=画面とルーティング, netlib.js=ネットワークの計算, netview.js=ネットワーク図とアニメ, drilllib.js=ドリル問題, store.js=端末内保存, ui.js=共通部品）、`modules/`（各画面）、`sw.js`（オフライン用キャッシュ）。見た目は「情報セキュリティ体験ラボ」と共通です。

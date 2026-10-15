@@ -80,13 +80,13 @@ function renderOverall() {
 async function renderToggles() {
   const items = [
     ["ruby", "ふりがな"],
-    ["easy", "やさしい日本語のまとめ"],
     ["largeText", "大きな文字"],
+    ["easy", "やさしい日本語のまとめ"],
   ];
   const buttons = await Promise.all(
     items.map(async ([key, label]) => {
       const on = Boolean(await pref(key));
-      const b = h("button", { type: "button", class: "toggle", "data-pref": key, "aria-pressed": on ? "true" : "false" }, label);
+      const b = h("button", { type: "button", class: "toggle ef-btn", "data-pref": key, "aria-pressed": on ? "true" : "false" }, label);
       b.addEventListener("click", () => setDisplay(key, b.getAttribute("aria-pressed") !== "true"));
       return b;
     }),

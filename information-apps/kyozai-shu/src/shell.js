@@ -108,12 +108,12 @@
     const card = (m) =>
       h(
         "a",
-        { class: "mcard" + (seen.opened.includes(m.id) ? " seen" : ""), href: `#/${m.id}` },
+        { class: "mcard ef-card" + (seen.opened.includes(m.id) ? " seen" : ""), href: `#/${m.id}` },
         h("img", { src: m.iconData, alt: "" }),
-        h("span", { class: "tag" }, h("span", { class: "order" }, `おすすめ ${order.indexOf(m.id) + 1}番`)),
-        h("span", { class: "t" }, m.title),
+        h("span", { class: "tag ef-card-tag" }, h("span", { class: "order" }, `おすすめ ${order.indexOf(m.id) + 1}番`)),
+        h("span", { class: "t ef-card-title" }, m.title),
         h("span", { class: "d" }, m.desc),
-        h("span", { class: "go", "aria-hidden": "true" }, "開く →"),
+        h("span", { class: "go ef-btn-primary", "aria-hidden": "true" }, "開く ▶"),
         seen.opened.includes(m.id) ? h("span", { class: "seen-mark" }, "✓ 開いたことがある") : null,
       );
     menu.replaceChildren(
@@ -143,7 +143,7 @@
         { class: "note reset", "aria-labelledby": "g-reset" },
         h("h2", { id: "g-reset" }, "はじめからやり直す"),
         h("p", {}, "次の人にパソコンをわたすときに使います。6つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品と、このメニューの「開いたことがある」の印・「記録をまとめて書き出す」の組・番号・名前を、すべて消します。ふりがな・文字の大きさなどの表示の設定と、先生用ページで差し替えた問題データは残ります。"),
-        h("button", { type: "button", class: "reset-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
+        h("button", { type: "button", class: "reset-btn ef-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
         h("p", { class: "reset-msg", id: "reset-msg", role: "status" }, resetMsg),
       ),
     );
@@ -363,8 +363,8 @@
       h(
         "div",
         { class: "btn-row" },
-        h("button", { type: "button", class: "main-btn", id: "export-json", onclick: () => run("json") }, "JSONで書き出す（先生に出す）"),
-        h("button", { type: "button", class: "main-btn secondary", id: "export-csv", onclick: () => run("csv") }, "CSVで書き出す（表計算ソフト用）"),
+        h("button", { type: "button", class: "main-btn ef-btn-primary", id: "export-json", onclick: () => run("json") }, "JSONで書き出す（先生に出す）"),
+        h("button", { type: "button", class: "main-btn secondary ef-btn", id: "export-csv", onclick: () => run("csv") }, "CSVで書き出す（表計算ソフト用）"),
       ),
       msg,
     );

@@ -53,7 +53,7 @@ function largeText() {
 function renderToggles() {
   const on = largeText();
   document.documentElement.classList.toggle("large-text", on);
-  const b = h("button", { type: "button", class: "toggle", "aria-pressed": on ? "true" : "false" }, "大きな文字");
+  const b = h("button", { type: "button", class: "toggle ef-btn", "aria-pressed": on ? "true" : "false" }, "大きな文字");
   b.addEventListener("click", () => {
     try {
       localStorage.setItem(PREF_KEY, on ? "0" : "1");

@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inlineEduitFrame } from "../../eduit-inline.mjs";
 import { ORDER, bundleSources, STRICT_CSP } from "../js/bundle.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -20,6 +21,12 @@ html = html
   .replace(/src="icons\/icon.svg"/g, `src="${icon}"`)
   .replace(/<script type="module" src="js\/app.js"><\/script>/, () => `<script id="studio-app">\n${js}\n</script>`);
 
+// 4分野共通の枠と、版・更新履歴を中に入れる
+html = inlineEduitFrame(html);
+
 mkdirSync(join(root, "dist"), { recursive: true });
 writeFileSync(join(root, "dist/interactive-studio.html"), html);
+// 配布用の写し（release/）も同じものにする
+mkdirSync(join(root, "release"), { recursive: true });
+writeFileSync(join(root, "release/双方向コンテンツ制作スタジオ.html"), html);
 console.log(`dist/interactive-studio.html を作りました（${Math.round(html.length / 1024)} KB）`);
