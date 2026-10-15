@@ -9,7 +9,7 @@
 | [`materials-apps/`](materials-apps/) | A 材料と加工の技術 | 材料ナビ・木材ラボ・構造ラボ・製図トレーナー・工具の安全・部品取り計画・先生用ビューア |
 | [`bio-apps/`](bio-apps/) | B 生物育成の技術 | B1〜B4（`dist/` に教材集と先生用ガイド、`review/` にレビューとビルド） |
 | [`energy-apps/`](energy-apps/) | C エネルギー変換の技術 | E1〜E5（`dist/` に配布用1ファイルと zip、`review/` にレビュー） |
-| [`information-apps/`](information-apps/) | D 情報の技術 | 体験教材集とデジタル化・仮想CPU・ネットワーク・セキュリティ・双方向・計測制御の各ラボ |
+| [`information-apps/`](information-apps/) | D 情報の技術 | 体験教材集とデジタル化・仮想CPU・ネットワーク・セキュリティ・双方向・計測制御・生成AIの各ラボ |
 
 ## クラスルームで配るときは → [`クラスルーム配布/`](クラスルーム配布/)
 
@@ -38,6 +38,7 @@
 | `security-lab/` | 情報セキュリティ体験ラボ |
 | `interactive-studio/` | 双方向コンテンツ制作スタジオ |
 | `measure-control-sim/` | 計測・制御シミュレータ |
+| `genai-lab/` | 生成AIのしくみラボ（文章AI・画像AI・ハルシネーション・個人情報） |
 | `reviews/` | 中学生目線レビュー（2026-10-13、指摘143件と画面例） |
 
 `kyozai-shu/` のビルドは兄弟フォルダ（`security-lab/` など）を読むため、`information-apps/` の中をまとめて動かしてください。

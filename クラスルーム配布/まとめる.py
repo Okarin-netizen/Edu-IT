@@ -35,6 +35,7 @@ copy(info / "kyozai-shu/release/情報の技術_体験教材集.html", student /
 data = json.loads((info / "kyozai-shu/data/materials.json").read_text(encoding="utf-8"))
 for i, m in enumerate(data["materials"], 1):
     copy(info / m["source"], student / "D_情報の技術_1つずつ配るとき" / f"D{i}_{m['title']}.html")
+copy(info / "genai-lab/dist/genai-lab.html", student / "D_生成AIのしくみラボ.html")
 
 # ---- 先生用 ----
 # 材料と加工の使い方は common/base.css や共通の枠(shared/)を読むので、1ファイル版と同じしかたで中に入れる
