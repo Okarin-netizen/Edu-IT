@@ -49,8 +49,8 @@
     var svg = svgEl('svg', { viewBox: '0 0 ' + W.toFixed(1) + ' ' + H.toFixed(1), class: 'm4-board', tabindex: '0', role: 'application',
       'aria-label': opt.label || '作図ボード。矢印キーで点を動かし、スペースキーで線の始めと終わりを決めます。' });
     var gGrid = svgEl('g', { class: 'm4-grid' }), gGuide = svgEl('g', { class: 'm4-guide-layer' }), gHint = svgEl('g', { class: 'm4-hint' }),
-      gLines = svgEl('g'), gFb = svgEl('g', { class: 'm4-fb' }), gUi = svgEl('g');
-    [gGrid, gGuide, gHint, gLines, gFb, gUi].forEach(function (g) { svg.appendChild(g); });
+      gAns = svgEl('g', { class: 'm4-ans-layer' }), gLines = svgEl('g'), gFb = svgEl('g', { class: 'm4-fb' }), gUi = svgEl('g');
+    [gGrid, gGuide, gHint, gAns, gLines, gFb, gUi].forEach(function (g) { svg.appendChild(g); });
     // 格子点の範囲(正解の線を置く位置を決めるときに使う)
     var box = mode === 'iso' ? { iMin: 0, iMax: iMax, jMin: jMin, jMax: jMax } : { iMin: 0, iMax: cols, jMin: 0, jMax: rows };
 
@@ -203,7 +203,12 @@
         return toolBtns[t];
       }),
       G.h('button', { class: 'btn small', type: 'button', onclick: function () { undo(); } }, '↶ もどす'),
-      G.h('button', { class: 'btn small danger', type: 'button', onclick: function () { if (Object.keys(drawn).length) { snapshot(); drawn = {}; changed(); } } }, 'ぜんぶ消す'));
+      G.h('button', { class: 'btn small danger', type: 'button', 'data-act': 'clear-all', onclick: function () {
+        // 線がなくても、答え・ヒント・答え合わせの表示は消す(以前は線がないと何も消えなかった)
+        if (Object.keys(drawn).length) { snapshot(); drawn = {}; changed(); }
+        clearFeedback(); hideAnswer(); setHint([]);
+        if (opt.onClearAll) opt.onClearAll();
+      } }, 'ぜんぶ消す'));
     setTool('v');
 
     function undo() {
@@ -232,16 +237,18 @@
       mark(res.extra, 'm4-extra', '×');
       mark(res.wrongType, 'm4-wrong', '△');
     }
-    /* 正解の図を、位置 off にずらして重ねて表示する(外形線は実線、かくれ線は破線) */
+    /* 正解の図を、位置 off にずらして重ねて表示する(外形線は実線、かくれ線は破線)。
+     * 答え合わせの表示とは別の層に置き、線をかいても消えない(答えを見ながらかき直せる)。hideAnswer で消す */
     function showAnswer(expected, off) {
-      clearFeedback();
+      clearFeedback(); hideAnswer();
       [['h', expected.hidden], ['v', expected.visible]].forEach(function (pair) {
         M.mergeSegments(pair[1]).forEach(function (p) {
           var a = toXY(p[0] + off[0], p[1] + off[1]), b = toXY(p[2] + off[0], p[3] + off[1]);
-          gFb.appendChild(svgEl('line', { class: 'm4-ans' + (pair[0] === 'h' ? ' dash' : ''), x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
+          gAns.appendChild(svgEl('line', { class: 'm4-ans' + (pair[0] === 'h' ? ' dash' : ''), x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
         });
       });
     }
+    function hideAnswer() { while (gAns.firstChild) gAns.removeChild(gAns.firstChild); }
     function clearFeedback() { while (gFb.firstChild) gFb.removeChild(gFb.firstChild); }
     function setGuide(nodes) {
       while (gGuide.firstChild) gGuide.removeChild(gGuide.firstChild);
@@ -259,7 +266,7 @@
       getDrawn: function () { return drawn; },
       setDrawn: function (d) { drawn = Object.assign({}, d || {}); history = []; changed(); },
       clear: function () { drawn = {}; history = []; changed(); },
-      showFeedback: showFeedback, showAnswer: showAnswer, clearFeedback: clearFeedback, setHint: setHint, setGuide: setGuide, say: say
+      showFeedback: showFeedback, showAnswer: showAnswer, hideAnswer: hideAnswer, clearFeedback: clearFeedback, setHint: setHint, setGuide: setGuide, say: say
     };
   }
 
