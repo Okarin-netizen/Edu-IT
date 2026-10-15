@@ -7,7 +7,8 @@
     { id: 'structure-lab', code: 'M3', dir: 'm3-structure-lab/', title: '構造強化ラボ', desc: '板の厚み・補強・筋かい・接合を変えて、丈夫な構造の工夫を確かめる。' },
     { id: 'drawing-trainer', code: 'M4', dir: 'm4-drawing-trainer/', title: '製図トレーナー', desc: '立体と等角図・第三角法の対応を、クイズと作図練習で身に付ける。' },
     { id: 'kidori', code: 'M5', dir: 'm5-kidori/', title: '木取り・構想シミュレータ', desc: '板から部品を無駄なく取る木取りを試し、製作図と強度の見通しを立てる。' },
-    { id: 'tool-safety', code: 'M6', dir: 'm6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の正しい使い方と作業前の安全確認を、手順として確かめる。' }
+    { id: 'tool-safety', code: 'M6', dir: 'm6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の正しい使い方と作業前の安全確認を、手順として確かめる。' },
+    { id: 'solid-maker', code: 'M7', dir: 'm7-solid-maker/', title: '第三角法 立体メーカー', desc: '第三角法で三面図をかくと、等角図・キャビネット図・3D の立体にする。図面の印刷・PDF、3Dプリンタ用の STL も作れる。' }
   ];
   // 先生用(メニューの下に別に並べる)
   root.G.TEACHER_APPS = [

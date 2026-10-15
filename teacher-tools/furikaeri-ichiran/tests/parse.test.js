@@ -111,3 +111,13 @@ test('組・番号の順に並ぶ(10番は2番のあと、組なしは最後)', 
   list.sort(FKR.compareStudent);
   assert.deepStrictEqual(list.map((s) => s.cls + '-' + s.num + s.name), ['1-30', '2-2', '2-10', '-z']);
 });
+
+test('A: M7 第三角法 立体メーカーの書き出し(組・番号・名前・自己評価・ふりかえり)', () => {
+  const r = load('立体メーカー_L形ブラケット.json');
+  const e = find(r, 'M7 第三角法 立体メーカー');
+  assert.deepStrictEqual(e.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e, '三面図で、幅・高さ・奥行きがそろう位置がわかった'), 'できた');
+  assert.strictEqual(val(e, 'わかったこと・できるようになったこと'), '正面図と平面図の幅がそろうことがわかった');
+  assert.strictEqual(val(e, 'むずかしかったこと・次にがんばりたいこと'), '斜めのマスの向きをそろえるのがむずかしかった');
+  assert.strictEqual(e.rows[0].part, 'L形ブラケット');
+});
