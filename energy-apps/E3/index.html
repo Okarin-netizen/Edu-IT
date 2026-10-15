@@ -1737,9 +1737,28 @@ function convSummaryTable() {
   if (S.mech === 'screw') rows = [['ピッチ', cp.p + 'mm'], ['条数', cp.n + '条'], ['リード', fmt(M.screwLead(cp.p, cp.n), 2) + 'mm'], ['10回転で', fmt(M.screwLead(cp.p, cp.n) * 10, 2) + 'mm']];
   return '<table class="e3-tbl">' + rows.map(function (r) { return '<tr><td class="l"><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>';
 }
+/* 先生用の振り返り一覧で、だれのファイルか分かるように、書き出すファイルに組・番号・名前を入れる。
+ * このアプリで前に入れたもの → E5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
+function whoForExport() {
+  var w = S.save.who;
+  if (!w || !(w.cls || w.name)) {
+    try { var e5 = JSON.parse(localStorage.getItem('energyApps.E5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
+  }
+  if (!w || !(w.cls || w.name)) {
+    var c = window.prompt('先生に出すファイルに入れる「組・番号」を書こう(例: 2組15番)', '');
+    if (c === null) return null;
+    var n = window.prompt('名前を書こう', '');
+    w = { cls: String(c).trim().slice(0, 20), name: String(n || '').trim().slice(0, 30) };
+    if (!(w.cls || w.name)) return null;
+  }
+  S.save.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
+  persist();
+  return S.save.who;
+}
 function saveJSON() {
   var nm = keepName();
   var obj = { schema: 'energyApps.artifact', version: 1, app: 'E3', type: 'mechanism', name: nm || '機構', savedAt: new Date().toISOString(), data: designData() };
+  var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   var d = new Date(), p2 = function (x) { return (x < 10 ? '0' : '') + x; };
