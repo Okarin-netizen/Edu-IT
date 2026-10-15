@@ -34,7 +34,7 @@
 ```
 npm test        # データ量・2進数・圧縮・ドリルの計算テスト（Node.js 20以上）
 npm run build   # dist/digitization-lab.html を作り直す
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/digitization-lab/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 ```
 
 構成: `js/`（app.js=画面とルーティング, catalog.js=モジュール一覧, store.js=端末内保存, ui.js=共通部品, records.js=記録, digilib.js=計算）、`modules/`（各モジュール）、`sw.js`（オフライン用キャッシュ）。見た目は情報セキュリティ体験ラボと共通です。

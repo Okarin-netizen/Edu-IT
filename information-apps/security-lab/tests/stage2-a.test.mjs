@@ -131,11 +131,13 @@ function loadPlaywright() {
   return null;
 }
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json" };
+// 共通の枠（../../shared/）も読めるように、リポジトリのいちばん上から配る
+const SERVE_ROOT = join(root, "../..");
 function serve() {
   const server = createServer((req, res) => {
     const path = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^([/\\])+/, "") || "index.html";
-    const file = join(root, path);
-    if (!file.startsWith(root) || !existsSync(file)) {
+    const file = join(SERVE_ROOT, path);
+    if (!file.startsWith(SERVE_ROOT) || !existsSync(file)) {
       res.writeHead(404).end();
       return;
     }
@@ -147,7 +149,7 @@ function serve() {
 const pw = loadPlaywright();
 test("SEC-08/09/10/13/18（ブラウザ・タブレット縦）: グラフを指で押すと数字が残る、やり直し、暗号ラボの区切り", { skip: pw ? false : "Playwright がないので省略" }, async () => {
   const server = await serve();
-  const base = `http://127.0.0.1:${server.address().port}/index.html`;
+  const base = `http://127.0.0.1:${server.address().port}/information-apps/security-lab/index.html`;
   let browser;
   try {
     browser = await pw.chromium.launch();

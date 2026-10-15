@@ -2,12 +2,12 @@
 
 6つの体験教材（デジタル化ラボ・仮想CPUラボ・ネットワーク通信シミュレータ・情報セキュリティ体験ラボ・双方向コンテンツ制作スタジオ・計測・制御シミュレータ）を、メニュー付きの1つのHTMLにまとめたもの。
 
-作成：技術 岡田
+作成：技術　岡田
 
 ## できあがったもの
 
 - `release/情報の技術_体験教材集.html` … 生徒に配る1ファイル版（ダブルクリックで開く。インターネット不要）
-- `release/情報の技術_体験教材集_第1.4版.zip` … 配布用。上のHTML、先生用の手引き2つ、個別の教材6ファイル、はじめにお読みください
+- `release/情報の技術_体験教材集_第1.5版.zip` … 配布用。上のHTML、先生用の手引き2つ、個別の教材6ファイル、はじめにお読みください
 - `docs/先生用の手引き.html` … 教材集の使い方、学習指導要領との対応、重なる単元の使い分け
 
 ## しくみ
@@ -43,13 +43,21 @@
 - 案内の文と行き先は `data/materials.json` の `bridges`
 - 案内を出すスクリプトは `src/bridge.js`（ビルド時にセキュリティラボの写しの末尾に足す。元のファイルは変えない）
 
+## 4分野共通の枠（第1.5版）
+
+- 色・ヘッダー・ボタン・カード・フッターは、4分野で共通の `../../shared/eduit-frame.css` に合わせている（情報の技術は青 `#1a5fc8`）。
+- 作成者・版・「安全と個人情報・ライセンス・更新履歴」のフッターとダイアログは `../../shared/eduit-frame.js`。版・更新履歴・この分野だけの安全の説明は `../eduit-info.js`（`window.EDUIT_INFO`）。
+- `tools/build.mjs` がこの3つを教材集の中に入れる。6教材の1ファイル版にも、それぞれの `tools/build-standalone.mjs` が入れている（`../eduit-inline.mjs`）。
+- メニューではいちばん下に共通のフッター、教材を開いているときは教材の中のいちばん下に同じフッターが出る（教材集のフッターはかくす）。
+- 版を上げるときは、`../eduit-info.js` の version・updated・history、`tools/make-zip.py` の版、`docs/先生用の手引き.html` を直し、6教材→教材集の順に作り直す。
+
 ## 作り直し方
 
 教材を直したら、先にその教材のフォルダで `npm run build` してから、このフォルダで:
 
 ```
 node tools/build.mjs        # dist/情報の技術_体験教材集.html を作る
-python3 tools/make-zip.py   # release/…_第1.4版.zip を作る（版は make-zip.py と src/shell.html の中）
+python3 tools/make-zip.py   # release/…_第1.5版.zip を作る（版は make-zip.py・../eduit-info.js・docs/先生用の手引き.html の中）
 cp dist/情報の技術_体験教材集.html release/
 node tests/e2e.browser.cjs  # ブラウザで確認（playwright が必要。94項目）
 ```

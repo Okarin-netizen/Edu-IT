@@ -1102,7 +1102,7 @@ function route() {
 function setupToggles() {
   const box = document.getElementById("display-toggles");
   const apply = () => document.documentElement.classList.toggle("large-text", Boolean(store.pref("largeText")));
-  const b = h("button", { type: "button", class: "toggle", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "大きな文字");
+  const b = h("button", { type: "button", class: "toggle ef-btn", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "大きな文字");
   b.addEventListener("click", () => {
     store.setPref("largeText", !store.pref("largeText"));
     b.setAttribute("aria-pressed", store.pref("largeText") ? "true" : "false");

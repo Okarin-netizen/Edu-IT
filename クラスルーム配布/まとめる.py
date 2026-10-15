@@ -44,8 +44,28 @@ guide = guide.replace('href="index.html"', 'href="../生徒に配る/A_材料と
 (teacher / "A_材料と加工_使い方(先生用).html").write_text(guide, encoding="utf-8")
 copy(repo / "bio-apps/dist/先生用ガイド.html", teacher / "B_生物育成_先生用ガイド.html")
 copy(repo / "energy-apps/dist/tsukaikata.html", teacher / "C_エネルギー変換_使い方(生徒向け・先生向け).html")
-copy(info / "kyozai-shu/docs/先生用の手引き.html", teacher / "D_情報の技術_先生用の手引き.html")
-copy(info / "security-lab/docs/先生用の手引き.html", teacher / "D_情報セキュリティ体験ラボ_先生用の手引き.html")
+
+
+def with_frame(src, dst, name):
+    """手引きに共通の枠(作成者・安全と個人情報・ライセンス・更新履歴のフッター)を中に入れてコピーする"""
+    def esc(code):
+        return code.replace("</script", "<\\/script")
+    frame = "\n".join([
+        "<style>\n" + (repo / "shared/eduit-frame.css").read_text(encoding="utf-8") + "\n</style>",
+        "<script>\n" + esc((info / "eduit-info.js").read_text(encoding="utf-8")) + "\n</script>",
+        "<script>EDUIT_INFO.app = { name: " + json.dumps(name, ensure_ascii=False) + " };</script>",
+        "<script>\n" + esc((repo / "shared/eduit-frame.js").read_text(encoding="utf-8")) + "\n</script>",
+    ])
+    html = src.read_text(encoding="utf-8")
+    if "</head>" not in html:
+        raise SystemExit(f"{src}: </head> がありません")
+    dst.write_text(html.replace("</head>", frame + "\n</head>", 1), encoding="utf-8")
+
+
+with_frame(info / "kyozai-shu/docs/先生用の手引き.html", teacher / "D_情報の技術_先生用の手引き.html",
+           "情報の技術 体験教材集 先生用の手引き")
+with_frame(info / "security-lab/docs/先生用の手引き.html", teacher / "D_情報セキュリティ体験ラボ_先生用の手引き.html",
+           "情報セキュリティ体験ラボ 先生用の手引き")
 
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):

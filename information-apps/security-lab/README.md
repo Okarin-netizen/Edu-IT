@@ -65,7 +65,7 @@
 ```
 npm test        # 暗号・パスワード計算の既知ベクタと、教材データの整合性のテスト（Node.js 20以上）
 npm run build   # dist/security-lab.html を作り直す
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/security-lab/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 ```
 
 構成: `js/`（app.js=画面とルーティング, catalog.js=モジュール一覧, store.js=端末内保存, ui.js / branch.js=共通部品, settings.js=設定とふりがな, check.js=理解度チェック, records.js=記録と先生用ページ, cryptolib.js / passwordlib.js=計算）、`modules/`（各モジュール）、`data/`（問題と設定）、`sw.js`（オフライン用キャッシュ）。

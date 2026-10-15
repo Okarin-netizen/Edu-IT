@@ -32,7 +32,7 @@
 ```
 npm test        # 各命令の動作・エラー・自動停止と、全課題の「答えの例が正解／はじめのプログラムは不正解」のテスト（Node.js 20以上）
 npm run build   # dist/virtual-cpu.html を作り直す
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/virtual-cpu/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 ```
 
 構成: `js/vm.js`（仮想CPU本体。画面に依存しない）、`js/sim.js`（シミュレーター画面）、`js/diagram.js`（図解）、`js/tasks.js`（課題）、`js/auto.js`（手計算くらべ）、`js/app.js`（画面の切りかえ）、`data/`（命令表と課題）、`sw.js`（オフライン用キャッシュ）。

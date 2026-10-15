@@ -1,20 +1,168 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<script>(function () {
+  var P; try { P = window.parent !== window && window.parent.GSingle; } catch (e) {}
+  if (!P) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+    var h = a.getAttribute('href');
+    if (/^(#|blob:|data:|https?:|javascript:)/.test(h)) return;
+    if (P.go(h)) e.preventDefault();
+  }, true);
+})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>使い方(先生用) 材料と加工 教材アプリ</title>
 <style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+<style>
 /* 技術分野アプリ 共通スタイル base.css(中学生向け・10インチ Chromebook 1280×800 / 1024×600 を基準)
  * 色はトークン(--xxx)で定義。色だけに頼らず、形・線種・文字でも区別すること。
- * さわる部分(ボタン・タブ・入力)は高さ 44px 以上。 */
+ * さわる部分(ボタン・タブ・入力)は高さ 44px 以上。
+ * 画面の枠(地の色・文字・線・ヘッダー・主なボタン・タブ・カード・フッター)は、4分野共通の
+ * ../../shared/eduit-frame.css の --ef-* に合わせる(先に読み込む)。--accent は図や強調に使う色で、各アプリの中身のまま。 */
 :root {
-  --bg: #f4f1ea;
-  --panel: #ffffff;
-  --panel-2: #faf8f3;
-  --ink: #23262b;
-  --muted: #5d6470;
-  --line: #d9d4c8;
+  --bg: var(--ef-bg, #f4f1ea);
+  --panel: var(--ef-surface, #ffffff);
+  --panel-2: var(--ef-surface-2, #faf8f3);
+  --ink: var(--ef-text, #23262b);
+  --muted: var(--ef-muted, #5d6470);
+  --line: var(--ef-line, #d9d4c8);
+  --frame: var(--ef-accent, #985a26);        /* 分野の色(材料と加工: 木の茶)。ヘッダーの線・主なボタン・タブ */
+  --frame-soft: var(--ef-accent-soft, #f5e9dc);
   --accent: #2d6aa8;
   --accent-ink: #ffffff;
   --accent-soft: #e5eef8;
@@ -28,8 +176,8 @@
   --wood-soft: #f1dfc5;
   --wood-dark: #8a5a2b;
   --focus: #f08c00;
-  --radius: 14px;
-  --radius-s: 10px;
+  --radius: var(--ef-radius, 12px);
+  --radius-s: var(--ef-radius-s, 8px);
   --shadow: 0 1px 2px rgba(60, 45, 20, .08), 0 2px 8px rgba(60, 45, 20, .05);
   --hdr-h: 52px;
   --tap: 44px;
@@ -43,11 +191,17 @@
   --bg: #ffffff; --panel-2: #ffffff; --ink: #000; --muted: #222; --line: #555; --accent: #0033cc;
   --ok: #005a1e; --ng: #a00000; --warn: #6b4500; --wood: #a86a2c;
 }
+/* くっきり: 共通の枠の色も強くする(分野の色は濃い茶) */
+:root.high-contrast, :root.high-contrast[data-ef-domain] {
+  --ef-bg: #ffffff; --ef-surface-2: #ffffff; --ef-text: #000; --ef-muted: #222; --ef-line: #555;
+  --ef-accent: #5c3210; --ef-accent-soft: #f0e2d2;
+}
+:root.high-contrast .ef-btn { border-color: #555; }
 * { box-sizing: border-box; }
 html { font-size: var(--fs); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
-  font-family: "BIZ UDPGothic", "BIZ UDゴシック", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif;
+  font-family: var(--ef-font, "BIZ UDPGothic", "BIZ UDゴシック", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif);
   line-height: 1.7;
   -webkit-tap-highlight-color: rgba(45, 106, 168, .15);
 }
@@ -60,16 +214,19 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 /* フォーカス表示(キーボード操作) */
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-/* ヘッダー(1行・高さ固定で画面を広く使う) */
-.g-header { position: sticky; top: 0; z-index: 30; background: var(--panel); border-bottom: 3px solid var(--wood); box-shadow: var(--shadow); }
-.g-header-inner { display: flex; align-items: center; gap: .4rem; padding: 0 .75rem; min-height: var(--hdr-h); max-width: 1280px; margin: 0 auto; }
-.g-title { font-size: 1.12rem; margin: 0 .4rem; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.9; }
-.g-header-tools { display: flex; gap: .2rem; flex: none; }
-.g-header .btn { min-height: var(--tap); padding: .1rem .6rem; font-size: .9rem; }
-.g-home { font-weight: bold; color: var(--wood-dark) !important; }
-[data-g-setting][aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+/* ヘッダー(4分野共通の .ef-header。1行・高さ固定で画面を広く使う)
+ * <header class="g-header ef-header"> ◀ メニュー(.ef-btn.ef-back) / アプリ名(.ef-title) / 道具(.ef-tools の .ef-btn) */
+.g-header { position: sticky; top: 0; z-index: 30; background: var(--ef-surface, #fff); border-bottom: 3px solid var(--frame); box-shadow: var(--shadow); }
+.g-header.ef-header { flex-wrap: nowrap; gap: .4rem; min-height: calc(var(--hdr-h) + 3px); padding: 0 .75rem; }
+.g-title { font-size: 1.12rem; margin: 0 .3rem; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.9; display: block; }
+.g-header .ef-title { font-size: 18px; }
+.g-header-tools { display: flex; gap: 6px; flex: none; flex-wrap: nowrap; margin-left: auto; }
+.g-header .ef-btn { min-height: 40px; padding: 0 12px; }
+.g-home { flex: none; }
+/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない) */
 [data-g-setting][aria-pressed="true"]::before { content: "✓ "; }
-@media (max-width: 760px) { .g-header-tools .btn { padding: .1rem .4rem; font-size: .82rem; } }
+.ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
+@media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
 
 main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
 
@@ -86,8 +243,8 @@ textarea { min-height: 5.5em; }
 }
 .btn:hover { border-color: var(--accent); }
 .btn:active { transform: translateY(1px); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: bold; box-shadow: 0 2px 0 rgba(20, 50, 90, .25); }
-.btn.primary:hover { background: #255a90; }
+.btn.primary { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
+.btn.primary:hover { border-color: var(--frame); filter: brightness(1.08); }
 .btn.primary rt, .badge rt, [aria-selected="true"] rt, .btn.primary.small rt { color: inherit; opacity: .9; }
 .btn.danger { color: var(--ng); border-color: var(--ng); }
 .btn.ghost { border-color: transparent; background: transparent; }
@@ -107,10 +264,10 @@ textarea { min-height: 5.5em; }
   border: 1.5px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink);
   display: inline-flex; align-items: center; gap: 0; touch-action: manipulation;
 }
-.g-tablist [role=tab]:hover { border-color: var(--accent); }
-.g-tablist [role=tab][aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: bold; box-shadow: 0 2px 0 rgba(20, 50, 90, .25); }
+.g-tablist [role=tab]:hover { border-color: var(--frame); }
+.g-tablist [role=tab][aria-selected="true"] { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
 .g-tablist [role=tab] .num { display: inline-block; min-width: 1.6em; height: 1.6em; line-height: 1.6em; text-align: center; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); font-size: .8em; font-weight: bold; margin-right: .35em; }
-.g-tablist [role=tab][aria-selected="true"] .num { background: #fff; color: var(--accent); border-color: #fff; }
+.g-tablist [role=tab][aria-selected="true"] .num { background: #fff; color: var(--frame); border-color: #fff; }
 @media (max-width: 1100px) { .g-tablist [role=tab] { padding: .2rem .7rem; font-size: .92rem; } }
 
 /* カード・レイアウト */
@@ -212,13 +369,202 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 
 .g-toast-item rt { color: #ddd; }
 
-/* フッター(クレジット・保存データの管理) */
+/* フッター: 4分野共通の .ef-footer(作成者・版・安全と個人情報・ライセンス・更新履歴)+ 保存データの管理ボタン
+ * 共通の枠が読めないときだけ、下の .g-footer(作成者・保存データの管理)を出す */
 .g-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
   max-width: 1280px; margin: 1.5rem auto 0; padding: .6rem 1rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+.g-footer.g-footer-ef { display: block; max-width: none; margin: 0; padding: 0; border: 0; }
 .g-footer .btn.small { min-height: var(--tap); }
+.ef-footer .g-data-btn { min-height: 36px; font-size: 13px; padding: 0 .6rem; }
 @media print { .g-footer .btn { display: none; } }
 
 </style>
+<script>
+/* 材料と加工の技術(A) の版・更新履歴・この分野だけの安全の説明
+ * 共通の枠 shared/eduit-frame.js が読む(classic script)。
+ * 各ページでは、このあとに EDUIT_INFO.app = { name: 'アプリ名' } を書く。
+ * 版を上げたら common/core.js の G.version と sw.js の VERSION も上げる。
+ */
+window.EDUIT_INFO = {
+  domain: 'A',
+  domainName: '材料と加工の技術',
+  suite: '材料と加工 教材アプリ',
+  version: '2.1',
+  updated: '2026-10-15',
+  safety: [
+    '「工具の使い方・安全トレーナー」は、作業前の確認と手順を覚えるためのものです。実際の工具の使い方は、必ず先生の説明と実技の指導を受けてから使ってください。',
+    '材料の強さ・たわみ・収縮などの数値は、文献の代表値を丸めた目安です。実物の観察や実験と合わせて考えてください。',
+    '作品や記録は IndexedDB(使えないときは localStorage)に保存されます。メニューの「保存したデータ」から、ファイルに書き出したり消したりできます。'
+  ],
+  history: [
+    {
+      version: '2.1', date: '2026-10-15',
+      items: [
+        '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした',
+        '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(画面の下の「安全と個人情報・ライセンス・更新履歴」)',
+        '製図トレーナー: 「答えを見る」で正解の線がボードの外に出る不具合を直し、等角図・三面図に基準線を表示した',
+        '11インチの Chromebook(1366×650)で、主な操作と結果が1画面に入るようにした(M2〜M6)'
+      ]
+    },
+    {
+      version: '2.0', date: '2026-10-14',
+      items: [
+        '材料選択ナビ・木材の繊維・収縮ラボ・構造強化ラボ・製図トレーナー・木取り・構想シミュレータ・工具の使い方・安全トレーナーの6つのアプリをまとめた',
+        '先生用の提出ファイル一覧ビューアと、使い方(先生用)を付けた',
+        'ふりがな・文字の大きさ・くっきり(色のコントラスト)の切りかえを全アプリ共通にした',
+        '作品をファイルに書き出す・読み込む、保存データを消す、を全アプリ共通にした',
+        'インターネットなしで動く1ファイル版を作れるようにした'
+      ]
+    }
+  ]
+};
+
+</script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '使い方(先生用) 材料と加工 教材アプリ' };</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ * }
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
 <style>
   main { max-width: 920px; }
   h1 { font-size: 1.5rem; margin: .6rem 0 .2rem; }
@@ -228,6 +574,10 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 </style>
 </head>
 <body>
+<header class="g-header ef-header">
+  <a class="ef-btn ef-back g-home" href="../生徒に配る/A_材料と加工_教材アプリ.html">◀ メニュー</a>
+  <p class="ef-title g-title">使い方(先生用)</p>
+</header>
 <main>
   <h1>材料と加工 教材アプリ 使い方(先生用)</h1>
   <p class="g-muted">技術分野「材料と加工の技術」の授業で使う、オフラインで動く6つの学習アプリと、先生用の提出ファイル一覧ビューアです。10インチの Chromebook(1280×800)で使いやすいように作っています。</p>
@@ -237,14 +587,14 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
     <h2>1. 開き方</h2>
     <h3>A. いちばん簡単な方法(Chromebook に置いて開く)</h3>
     <ol>
-      <li>zip ファイルを Chromebook の「ファイル」アプリでダブルクリックし、中のフォルダ <code>materials-apps</code> を「マイファイル」(ダウンロードなど)にコピーします。</li>
+      <li>zip ファイルを Chromebook の「ファイル」アプリでダブルクリックし、中のフォルダ <code>materials-apps</code> と <code>shared</code>(4分野共通の画面の枠)を、同じ場所の「マイファイル」(ダウンロードなど)にコピーします。</li>
       <li>フォルダの中の <code>index.html</code> をダブルクリックすると、Chrome でメニューが開きます。</li>
       <li>メニューから使うアプリを選びます。インターネットにつながっていなくても動きます。</li>
     </ol>
     <p class="g-muted">Google ドライブや Classroom で配るときは、zip のままではなくフォルダごと配り、生徒の端末にダウンロードしてから開かせてください(ドライブの画面の中では HTML は動きません)。</p>
     <h3>B. 学校の Web サーバーなどに置く方法(アプリとしてインストールできる)</h3>
     <ol>
-      <li>フォルダ <code>materials-apps</code> の中身を、https で見られる場所(学校のサーバー、GitHub Pages など)にそのまま置きます。</li>
+      <li>フォルダ <code>materials-apps</code> と <code>shared</code> を、https で見られる場所(学校のサーバー、GitHub Pages など)の同じ階層にそのまま置きます。</li>
       <li>生徒は一度だけネットにつないで、その URL の <code>index.html</code> を開きます。開いたアプリは自動で端末に保存され、そのあとは機内モードでも使えます。</li>
       <li>Chrome のアドレスバーの「インストール」から、アプリとしてホーム画面に追加することもできます。</li>
     </ol>
@@ -323,7 +673,7 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
       <li><strong>文字が画面に入りきらない</strong>: 画面の上の「文字」で小さくするか、Chrome の表示倍率(Ctrl と -)を変えてください。</li>
     </ul>
   </section>
-  <p class="g-muted">版: 2.0(2026年10月)　制作: 技術科　岡田</p>
+  <p class="g-muted">版・作成者・安全と個人情報・ライセンス・更新履歴は、このページのいちばん下から見られます。</p>
 </main>
 </body>
 </html>

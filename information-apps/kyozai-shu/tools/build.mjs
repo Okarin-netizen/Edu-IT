@@ -70,7 +70,10 @@ for (const m of data.materials) {
 const shellIcon = iconData(read(join(root, "icons/icon.svg")));
 const out = read(join(root, "src/shell.html"))
   .replace(/\{\{ICON\}\}/g, shellIcon)
-  .replace("{{AUTHOR}}", data.author)
+  // 4分野共通の枠と、情報の技術の版・更新履歴（各教材の1ファイル版にも、それぞれのビルドで入っている）
+  .replace("{{EDUIT_CSS}}", () => read(join(projects, "../shared/eduit-frame.css")))
+  .replace("{{EDUIT_INFO}}", () => read(join(projects, "eduit-info.js")).replace(/<\/(script)/gi, "<\\/$1"))
+  .replace("{{EDUIT_JS}}", () => read(join(projects, "../shared/eduit-frame.js")).replace(/<\/(script)/gi, "<\\/$1"))
   .replace("{{CSS}}", () => read(join(root, "src/shell.css")))
   .replace("{{DATA}}", () => jsonForScript(menuData))
   .replace("{{PAYLOADS}}", () => payloads.join("\n"))

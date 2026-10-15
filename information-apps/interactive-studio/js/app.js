@@ -37,7 +37,7 @@ function renderToggles() {
   document.documentElement.classList.toggle("large-text", Boolean(prefs.largeText));
   const box = document.getElementById("display-toggles");
   if (!box) return;
-  const b = h("button", { type: "button", class: "toggle", "aria-pressed": prefs.largeText ? "true" : "false" }, "大きな文字");
+  const b = h("button", { type: "button", class: "toggle ef-btn", "aria-pressed": prefs.largeText ? "true" : "false" }, "大きな文字");
   b.addEventListener("click", () => {
     prefs.largeText = !prefs.largeText;
     savePrefs();
