@@ -56,6 +56,7 @@ body{overflow:hidden}
 /* --- アプリ画面 --- */
 .ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:#0f1d2c;color:#fff}
 .ea-bar .ea-btn{min-height:44px;background:#24384d;color:#fff;font-size:15px;padding:0 12px}
+.ea-btn[hidden]{display:none}
 .ea-bar .home{background:#ffb703;color:#1d2b3a;font-weight:bold}
 .ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .ea-chips::-webkit-scrollbar{display:none}
@@ -102,6 +103,7 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+@media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
   .ea-card,.ea-card:nth-child(4){grid-column:auto}
@@ -127,6 +129,7 @@ body{overflow:hidden}
         <div class="s">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</div>
       </div>
       <div class="bt">
+        <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
         <button class="ea-btn" data-ea="help">❓ 使い方</button>
         <button class="ea-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
       </div>
@@ -141,6 +144,7 @@ body{overflow:hidden}
     <div class="ea-bar">
       <button class="ea-btn home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
+      <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
     </div>
     <div class="ea-panes" data-ref="panes"></div>
   </section>
@@ -325,10 +329,34 @@ root.addEventListener('click', function (ev) {
   else if (act === 'help' || act === 'help-t') { helpPushed = true; setHash(act, true); }
   else if (act === 'back') { if (helpPushed) { helpPushed = false; history.back(); } else setHash(lastView === 'home' ? '' : lastView, false); }
   else if (act === 'tab-s' || act === 'tab-t') { setHash(act === 'tab-t' ? 'help-t' : 'help', false); }
+  else if (act === 'fs') toggleFull();
   else if (act === 'export') exportAll();
   else if (act === 'import') $('[data-ea-file]').click();
 });
 window.addEventListener('hashchange', route);
+
+// 全画面(Chromebook やパソコンでは、ブラウザのタブやアドレスバーの分だけ作業する場所が広くなる)
+var D = document, fsOK = !!(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+function toggleFull() {
+  var el = D.documentElement;
+  try {
+    if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+    else { var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(function () {}); }
+  } catch (e) {}
+}
+function updFull() {
+  var on = isFull();
+  root.querySelectorAll('[data-ea="fs"]').forEach(function (b) {
+    b.hidden = !fsOK;
+    b.innerHTML = '🖥️<span class="t"> ' + (on ? '全画面をやめる' : '全画面') + '</span>';
+    b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面にする');
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+D.addEventListener('fullscreenchange', updFull);
+D.addEventListener('webkitfullscreenchange', updFull);
+updFull();
 
 /* ---- 学習記録の書き出し・読み込み・消去(先生向け) ---- */
 function toast(msg) {
