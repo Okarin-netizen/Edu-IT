@@ -1,0 +1,113 @@
+// 実行: node --test teacher-tools/furikaeri-ichiran/tests/parse.test.js
+const test = require('node:test');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
+const FKR = require('../parse.js');
+
+const dir = path.join(__dirname, 'samples');
+function load(name) {
+  const t = fs.readFileSync(path.join(dir, name), 'utf8');
+  return FKR.parse(JSON.parse(t), name);
+}
+const find = (r, app) => r.entries.find((e) => e.app === app);
+const val = (e, label) => (e.rows.find((x) => x.label === label) || {}).value;
+
+test('サンプルはすべて読める(こわれたもの以外)', () => {
+  for (const name of fs.readdirSync(dir)) {
+    if (/こわれた|壊れた/.test(name)) continue;
+    const r = load(name);
+    assert.ok(r.ok, name + ': ' + r.error);
+  }
+});
+
+test('A: まとめて書き出し(組・番号は全角でも半角にそろう、途中の記録は入れない)', () => {
+  const r = load('技術_材料と加工_2組15番山田花子_20261015.json');
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['M1 材料選択ナビ', 'M4 製図トレーナー', 'M6 工具の使い方・安全トレーナー']);
+  assert.deepStrictEqual(r.entries[0].student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(r.entries[0], '選んだ理由'), '軽くて加工しやすいから');
+  assert.strictEqual(val(r.entries[1], '三面図を見て、立体の形を思いうかべることができた'), 'できた');
+  assert.strictEqual(val(r.entries[2], '姿勢・安全・精度'), '姿勢 A / 安全 B / 精度 B');
+});
+
+test('A: M4 だけの書き出しは中の名前を使う', () => {
+  const r = load('drawing-trainer-佐藤-2026-10-15.json');
+  assert.strictEqual(r.entries[0].student.name, '佐藤');
+  assert.strictEqual(val(r.entries[0], '線の種類(外形線・かくれ線・中心線など)を使い分けられた'), 'もう少し');
+});
+
+test('A: 名前のない書き出しは「名前なし」になる', () => {
+  const r = load('wood-lab-2026-10-15.json');
+  assert.ok(!r.entries[0].fromFile);
+  assert.deepStrictEqual(r.entries[0].student, { cls: '', num: '', name: '' });
+  assert.strictEqual(val(r.entries[0], '反りの予測'), '1 / 2 回 正解');
+});
+
+test('A: 1つずつ書き出したファイルの組・番号・名前(メニューで入れたもの)を使う', () => {
+  const a = { schema: 'gijutsu-artifact/1', app: 'kidori', kind: 'work', title: '本立て', data: { review: { good: '強い' } }, student: { class: '1', no: '３', name: '北' } };
+  assert.deepStrictEqual(FKR.parse(a, 'x.json').entries[0].student, { cls: '1', num: '3', name: '北' });
+});
+
+test('B: 自己評価の数値・記号を言葉にする', () => {
+  const b1 = load('B1_育成日誌_1班_20261015-1405.json').entries[0];
+  assert.deepStrictEqual(b1.student, { cls: '2', num: '3', name: '鈴木一郎' });
+  assert.strictEqual(val(b1, '毎日の観察・記録を続けられた'), '◎');
+  assert.strictEqual(b1.rows.find((x) => x.part === '評価: ミニトマト').value, '毎日水やり');
+  const b3 = load('B3_データ_2026-10-15.json').entries[0];
+  assert.deepStrictEqual(b3.student, { cls: '2', num: '3', name: '鈴木一郎' });
+  assert.strictEqual(val(b3, '動物・水産生物に合った環境の条件が分かった'), '◎ よくできた');  // 0 が ◎
+  assert.strictEqual(val(b3, '命を大切にし、実際の飼育や社会に生かそうと考えた'), '△ もう少し');
+  const b4 = load('b4_バックアップ_20261015.json').entries[0];
+  assert.strictEqual(b4.student.cls, '2年2');
+  assert.strictEqual(val(b4, '作物の性質をもとに、作業日を逆算して計画を立てられた'), '◎ よくできた');  // 3 が ◎
+  assert.strictEqual(b4.rows.filter((x) => x.type === '自己評価').length, 2);  // 0 は未記入
+});
+
+test('C: E5 は「組・番号」1つの欄を分ける、E3 は振り返りなし', () => {
+  const e5 = load('E5-sekkei-flash-20261015-1405.json').entries[0];
+  assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e5, '改善案'), '抵抗を大きく');
+  const e3 = load('E3-kikou-20261015-1405.json');
+  assert.ok(e3.ok);
+  assert.strictEqual(e3.entries[0].rows.length, 0);
+});
+
+test('D: 各教材の振り返りと成績', () => {
+  assert.strictEqual(val(load('仮想CPU_2-15-山田花子.json').entries[0], 'クリアした課題'), '1 / 2');
+  assert.strictEqual(load('デジタル化ラボ_2_15_山田花子.json').entries[0].rows.length, 2);
+  const net = load('ネットワーク_2-15-山田花子.json').entries[0];
+  assert.strictEqual(net.rows.filter((x) => x.type === 'ふりかえり').length, 1);  // 空の振り返りは入れない
+  assert.strictEqual(net.rows.find((x) => x.type === 'ふりかえり').part, '4 のぞき見と暗号化');
+  const sec = load('seclab-2年3組-12-2026-10-13.json').entries[0];
+  assert.deepStrictEqual(sec.student, { cls: '2年3', num: '12', name: '' });
+  assert.strictEqual(val(sec, '事前テスト'), '7/11');
+  assert.strictEqual(val(load('計測制御_記録_215.json').entries[0], 'テスト(いちばんよい結果)'), '4 / 4');
+  assert.strictEqual(val(load('制作スタジオ_2-15-山田花子.json').entries[0], 'ふりかえり'), '使う人を考えた');
+  assert.strictEqual(val(load('生成AIのしくみラボ_2_15_山田花子.json').entries[0], '正解'), '4 / 5');
+});
+
+test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
+  const r = load('情報の技術_記録まとめ_2組15番_2026-10-15.json');
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['仮想CPUラボ']);
+});
+
+test('読めないファイルは理由を返す', () => {
+  assert.strictEqual(load('こわれた.json').ok, false);
+  assert.strictEqual(FKR.parse('x', 'a.json').ok, false);
+});
+
+test('ファイル名から組・番号を拾う', () => {
+  const r = FKR.parse({ app: 'seclab', student: {}, reflections: [{ title: 'x', text: 'y' }] }, '情報_2組7番_山田.json');
+  assert.deepStrictEqual(r.entries[0].student, { cls: '2', num: '7', name: '山田' });
+});
+
+test('CSV は数式にならず、改行やカンマを囲む', () => {
+  const s = FKR.csv([['=1+1', 'a,b', 'x\ny']]);
+  assert.strictEqual(s, '﻿\'=1+1,"a,b","x\ny"\r\n');
+});
+
+test('組・番号の順に並ぶ(10番は2番のあと、組なしは最後)', () => {
+  const list = [FKR.student('', '', 'z'), FKR.student('2', '10', ''), FKR.student('2', '2', ''), FKR.student('1', '30', '')];
+  list.sort(FKR.compareStudent);
+  assert.deepStrictEqual(list.map((s) => s.cls + '-' + s.num + s.name), ['1-30', '2-2', '2-10', '-z']);
+});

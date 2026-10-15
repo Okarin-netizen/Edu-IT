@@ -65,6 +65,10 @@ def with_frame(src, dst, name):
     dst.write_text(html.replace("</head>", frame + "\n</head>", 1), encoding="utf-8")
 
 
+# 4分野共通: 生徒が書き出した振り返りの JSON をまとめて一覧にする
+subprocess.run([sys.executable, str(repo / "teacher-tools/furikaeri-ichiran/build.py")], check=True)
+copy(repo / "teacher-tools/furikaeri-ichiran/dist/振り返り一覧.html", teacher / "全分野_振り返り一覧(先生用).html")
+
 with_frame(info / "kyozai-shu/docs/先生用の手引き.html", teacher / "D_情報の技術_先生用の手引き.html",
            "情報の技術 体験教材集 先生用の手引き")
 with_frame(info / "security-lab/docs/先生用の手引き.html", teacher / "D_情報セキュリティ体験ラボ_先生用の手引き.html",

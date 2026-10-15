@@ -2049,9 +2049,28 @@ function printList() {
   setTimeout(function () { window.print(); }, 50);
 }
 function listData(L) { return { target: L.target, created: L.created, items: L.items.map(function (it) { return { t: it.t, m: it.m, c: it.c, key: it.key, src: it.src }; }), records: L.records }; }
+/* 先生用の振り返り一覧で、だれのファイルか分かるように、書き出すファイルに組・番号・名前を入れる。
+ * このアプリで前に入れたもの → E5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
+function whoForExport() {
+  var w = S.save.who;
+  if (!w || !(w.cls || w.name)) {
+    try { var e5 = JSON.parse(localStorage.getItem('energyApps.E5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
+  }
+  if (!w || !(w.cls || w.name)) {
+    var c = window.prompt('先生に出すファイルに入れる「組・番号」を書こう(例: 2組15番)', '');
+    if (c === null) return null;
+    var n = window.prompt('名前を書こう', '');
+    w = { cls: String(c).trim().slice(0, 20), name: String(n || '').trim().slice(0, 30) };
+    if (!(w.cls || w.name)) return null;
+  }
+  S.save.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
+  persist();
+  return S.save.who;
+}
 function saveJSON() {
   var L = curList(); if (!L) { beep('err'); return; }
   var obj = { schema: 'energyApps.artifact', version: 1, app: 'E4', type: 'checklist', name: L.name, savedAt: new Date().toISOString(), data: listData(L) };
+  var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   var d = new Date();

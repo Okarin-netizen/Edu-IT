@@ -603,10 +603,12 @@
     if (!list.length && state.sheet.chosen) list = [toArtifact(state.sheet)];
     if (!list.length) { toast('書き出すワークシートがありません'); return; }
     const payload = { schema: 'gijutsu-bundle/1', app: APP_ID, exportedAt: new Date().toISOString(), artifacts: list };
+    const name = 'material-navi-' + new Date().toISOString().slice(0, 10) + '.json';
+    if (window.G && G.exportJSON) { G.exportJSON(payload, name); return; }  // 組・番号・名前も入る
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'material-navi-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
