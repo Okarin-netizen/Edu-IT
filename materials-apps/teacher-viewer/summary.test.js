@@ -10,6 +10,10 @@ test('まとめファイルは組・番号・名前で名前を付ける', () =>
   assert.strictEqual(r.label, '2組5番 南 花子');
   assert.strictEqual(r.artifacts.length, 1);
 });
+test('1つずつ書き出したファイルの組・番号・名前も使う', () => {
+  const r = TV.parseFile('wood-lab.json', JSON.stringify(art('wood-lab', {}, { student: { class: '1', no: '3', name: '北 一郎' } })));
+  assert.strictEqual(r.label, '1組3番 北 一郎');
+});
 test('名前がないときは M4 の名前、なければファイル名', () => {
   assert.strictEqual(TV.parseFile('x.json', JSON.stringify(art('drawing-trainer', { name: '太郎' }))).label, '太郎');
   const r = TV.parseFile('dir/山田.json', JSON.stringify([art('kidori', {})]));

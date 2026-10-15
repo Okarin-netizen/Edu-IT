@@ -30,7 +30,7 @@
     if (obj && obj.schema === 'gijutsu-bundle/1' && Array.isArray(obj.artifacts)) { list = obj.artifacts; student = obj.student || null; }
     else if (Array.isArray(obj)) list = obj;
     else if (obj && Array.isArray(obj.artifacts)) { list = obj.artifacts; student = obj.student || null; }
-    else list = [obj];
+    else { list = [obj]; student = (obj && obj.student) || null; }  // 1つずつ書き出したファイルにも組・番号・名前が入る
     list = list.filter(isArtifact);
     if (!list.length) return { file: name, error: 'この教材アプリの作品・記録が入っていませんでした' };
     var label = TV.studentLabel(student);

@@ -300,8 +300,19 @@
     };
   })();
 
-  // JSON をファイルとして書き出す
+  // メニューで入れた組・番号・名前(先生用の振り返り一覧で、だれのファイルか分かるように書き出しに入れる)
+  G.profile = function () {
+    try {
+      var p = JSON.parse(localStorage.getItem('gijutsu.profile')) || {};
+      return { class: String(p.class || ''), no: String(p.no || ''), name: String(p.name || '') };
+    } catch (e) { return { class: '', no: '', name: '' }; }
+  };
+  // JSON をファイルとして書き出す(作品・記録には、組・番号・名前が入っていればそれも入れる)
   G.exportJSON = function (obj, filename) {
+    var st = G.profile();
+    if (obj && typeof obj === 'object' && !Array.isArray(obj) && !obj.student && (st.class || st.no || st.name)) {
+      obj = Object.assign({}, obj, { student: st });  // 保存している作品そのものは変えない
+    }
     var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
     G.download(blob, filename || 'gijutsu.json');
   };

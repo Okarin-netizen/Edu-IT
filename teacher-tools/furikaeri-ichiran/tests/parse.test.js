@@ -43,6 +43,11 @@ test('A: 名前のない書き出しは「名前なし」になる', () => {
   assert.strictEqual(val(r.entries[0], '反りの予測'), '1 / 2 回 正解');
 });
 
+test('A: 1つずつ書き出したファイルの組・番号・名前(メニューで入れたもの)を使う', () => {
+  const a = { schema: 'gijutsu-artifact/1', app: 'kidori', kind: 'work', title: '本立て', data: { review: { good: '強い' } }, student: { class: '1', no: '３', name: '北' } };
+  assert.deepStrictEqual(FKR.parse(a, 'x.json').entries[0].student, { cls: '1', num: '3', name: '北' });
+});
+
 test('B: 自己評価の数値・記号を言葉にする', () => {
   const b1 = load('B1_育成日誌_1班_20261015-1405.json').entries[0];
   assert.deepStrictEqual(b1.student, { cls: '2', num: '3', name: '鈴木一郎' });
