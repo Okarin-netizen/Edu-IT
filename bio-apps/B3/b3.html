@@ -4,13 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>B3 動物飼育・水産ミニシミュレータ</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B3 動物飼育・水産ミニシミュレータ' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
-body{margin:0;background:#f4f7f1}
+body{margin:0;background:var(--ef-bg)}
 #b3app{
-  --b3-bg:#f4f7f1;--b3-card:#ffffff;--b3-ink:#1b2a1b;--b3-sub:#4d5e4f;--b3-line:#cfdccc;
-  --b3-main:#2e7d32;--b3-main-d:#1b5e20;--b3-soft:#e8f5e9;--b3-ok:#2e7d32;--b3-warn:#a86400;--b3-bad:#b23b3b;
+  /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
+  --b3-bg:var(--ef-bg);--b3-card:var(--ef-surface);--b3-ink:var(--ef-text);--b3-sub:var(--ef-muted);--b3-line:#cfdccc;
+  --b3-main:var(--ef-accent);--b3-main-d:#1b5e20;--b3-soft:#e8f5e9;--b3-ok:#2e7d32;--b3-warn:#a86400;--b3-bad:#b23b3b;
   --b3-fs:18px;--b3-headh:120px;--b3-barh:0px;
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Meiryo","Noto Sans JP",sans-serif;
+  font-family:var(--ef-font);
   font-size:var(--b3-fs);line-height:1.65;color:var(--b3-ink);background:var(--b3-bg);
   min-height:100vh;-webkit-text-size-adjust:100%;
 }
@@ -24,23 +29,24 @@ body{margin:0;background:#f4f7f1}
 #b3app p{margin:.4em 0}
 #b3app button,#b3app select,#b3app input,#b3app textarea{font:inherit;color:inherit}
 #b3app button{cursor:pointer;touch-action:manipulation}
-#b3app .b3-head{position:sticky;top:0;z-index:20;background:#1b5e20;color:#fff;padding:8px 14px 0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-#b3app .b3-head-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-#b3app .b3-title{font-weight:700;font-size:min(1.05em,20px);flex:1 1 auto;min-width:200px;line-height:1.4}
-#b3app .b3-title small{font-weight:400;opacity:.85;font-size:.8em;display:block}
+/* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
+#b3app .b3-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+#b3app .b3-head-row{flex-wrap:wrap}
+#b3app .b3-title{flex:1 1 auto;min-width:200px}
+#b3app .b3-title small{margin-left:.4em}
 @media (max-height:800px){#b3app .b3-title small{display:none}}
-#b3app .b3-tools{display:flex;gap:6px;font-size:min(1em,20px)}
-#b3app .b3-tools button{background:transparent;border:2px solid rgba(255,255,255,.75);color:#fff;border-radius:10px;min-height:44px;min-width:48px;padding:4px 10px;font-size:.85em;font-weight:700}
-#b3app .b3-tools button[aria-pressed="true"]{background:#fff;color:#1b5e20;border-color:#fff}
+#b3app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
+#b3app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b3app .b3-tools button{min-height:44px;min-width:48px}
 #b3app .b3-tools button:disabled{opacity:.4;cursor:not-allowed}
 /* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする(K3) */
 html.kz-embed #b3app .b3-head-row{display:none}
 html.kz-embed #b3app .b3-head{padding-top:6px}
 html.kz-embed #b3app .b3-nav{margin-top:0}
-#b3app .b3-nav{display:flex;gap:4px;margin-top:8px}
-#b3app .b3-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#e3f1e4;padding:8px 8px;min-height:52px;border-radius:12px 12px 0 0;font-weight:700;font-size:min(.92em,20px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+#b3app .b3-nav{display:flex;gap:4px;margin-top:8px;padding:0 14px}
+#b3app .b3-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#fff;padding:8px 8px;min-height:52px;border-radius:12px 12px 0 0;font-weight:700;font-size:min(.92em,20px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
 #b3app .b3-nav button[data-tab="sim"]{flex-grow:1.7}
-#b3app .b3-nav button[aria-selected="true"]{background:var(--b3-bg);color:#1b5e20}
+#b3app .b3-nav button[aria-selected="true"]{background:var(--b3-bg);color:var(--b3-main-d)}
 #b3app .b3-nav rt{color:inherit;opacity:.85}
 #b3app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
 #b3app section[hidden]{display:none!important}
@@ -204,12 +210,13 @@ html.kz-embed #b3app .b3-nav{margin-top:0}
 <body>
 <div id="b3app">
   <header class="b3-head" id="b3-head">
-    <div class="b3-head-row">
-      <div class="b3-title">B3 動物飼育・水産ミニシミュレータ<small>生物育成の技術|動物・水産生物を育てる</small></div>
-      <div class="b3-tools">
-        <button type="button" id="b3-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" id="b3-fminus" aria-label="文字を小さく">A−</button>
-        <button type="button" id="b3-fplus" aria-label="文字を大きく">A＋</button>
+    <div class="b3-head-row ef-header">
+      <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+      <div class="b3-title ef-title"><span class="ef-icon" aria-hidden="true">🐟</span><span>B3 動物飼育・水産ミニシミュレータ</span><small class="ef-sub">生物育成の技術|動物・水産生物を育てる</small></div>
+      <div class="b3-tools ef-tools">
+        <button type="button" class="ef-btn" id="b3-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn" id="b3-fminus" aria-label="文字を小さく">A−</button>
+        <button type="button" class="ef-btn" id="b3-fplus" aria-label="文字を大きく">A＋</button>
       </div>
     </div>
     <nav class="b3-nav" role="tablist" aria-label="画面の切りかえ">
