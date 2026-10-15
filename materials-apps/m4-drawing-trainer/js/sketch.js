@@ -48,9 +48,11 @@
 
     var svg = svgEl('svg', { viewBox: '0 0 ' + W.toFixed(1) + ' ' + H.toFixed(1), class: 'm4-board', tabindex: '0', role: 'application',
       'aria-label': opt.label || '作図ボード。矢印キーで点を動かし、スペースキーで線の始めと終わりを決めます。' });
-    var gGrid = svgEl('g', { class: 'm4-grid' }), gHint = svgEl('g', { class: 'm4-hint' }), gLines = svgEl('g'),
-      gFb = svgEl('g', { class: 'm4-fb' }), gUi = svgEl('g');
-    [gGrid, gHint, gLines, gFb, gUi].forEach(function (g) { svg.appendChild(g); });
+    var gGrid = svgEl('g', { class: 'm4-grid' }), gGuide = svgEl('g', { class: 'm4-guide-layer' }), gHint = svgEl('g', { class: 'm4-hint' }),
+      gLines = svgEl('g'), gFb = svgEl('g', { class: 'm4-fb' }), gUi = svgEl('g');
+    [gGrid, gGuide, gHint, gLines, gFb, gUi].forEach(function (g) { svg.appendChild(g); });
+    // 格子点の範囲(正解の線を置く位置を決めるときに使う)
+    var box = mode === 'iso' ? { iMin: 0, iMax: iMax, jMin: jMin, jMax: jMax } : { iMin: 0, iMax: cols, jMin: 0, jMax: rows };
 
     // 格子
     if (mode === 'iso') {
@@ -210,23 +212,41 @@
       changed();
     }
 
-    /* 判定結果を重ねて表示する。色だけに頼らず、記号(○ 足りない / × 余分 / △ 線の種類ちがい)も付ける */
+    /* 判定結果を重ねて表示する。色だけに頼らず、記号(○ 足りない / × 余分 / △ 線の種類ちがい)も付ける。
+     * まっすぐつながる線は1本にまとめ、記号も1本に1つだけ付ける(短い線ごとに付けると重なって読めないため) */
     function showFeedback(res) {
       clearFeedback();
       function mark(list, cls, sym) {
-        list.forEach(function (it) {
-          var p = M.parseKey(it.key), a = toXY(p[0], p[1]), b = toXY(p[2], p[3]);
-          gFb.appendChild(svgEl('line', { class: cls + (it.type === 'h' ? ' dash' : ''), x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
-          var t = svgEl('text', { class: cls + '-sym', x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 + 5, 'text-anchor': 'middle' });
-          t.textContent = sym;
-          gFb.appendChild(t);
+        ['v', 'h'].forEach(function (type) {
+          var keys = list.filter(function (it) { return it.type === type; }).map(function (it) { return it.key; });
+          M.mergeSegments(keys).forEach(function (p) {
+            var a = toXY(p[0], p[1]), b = toXY(p[2], p[3]);
+            gFb.appendChild(svgEl('line', { class: cls + (type === 'h' ? ' dash' : ''), x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
+            var t = svgEl('text', { class: cls + '-sym', x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 + 6, 'text-anchor': 'middle' });
+            t.textContent = sym;
+            gFb.appendChild(t);
+          });
         });
       }
       mark(res.missing, 'm4-miss', '○');
       mark(res.extra, 'm4-extra', '×');
       mark(res.wrongType, 'm4-wrong', '△');
     }
+    /* 正解の図を、位置 off にずらして重ねて表示する(外形線は実線、かくれ線は破線) */
+    function showAnswer(expected, off) {
+      clearFeedback();
+      [['h', expected.hidden], ['v', expected.visible]].forEach(function (pair) {
+        M.mergeSegments(pair[1]).forEach(function (p) {
+          var a = toXY(p[0] + off[0], p[1] + off[1]), b = toXY(p[2] + off[0], p[3] + off[1]);
+          gFb.appendChild(svgEl('line', { class: 'm4-ans' + (pair[0] === 'h' ? ' dash' : ''), x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
+        });
+      });
+    }
     function clearFeedback() { while (gFb.firstChild) gFb.removeChild(gFb.firstChild); }
+    function setGuide(nodes) {
+      while (gGuide.firstChild) gGuide.removeChild(gGuide.firstChild);
+      (nodes || []).forEach(function (n) { gGuide.appendChild(n); });
+    }
     function setHint(nodes) {
       while (gHint.firstChild) gHint.removeChild(gHint.firstChild);
       (nodes || []).forEach(function (n) { gHint.appendChild(n); });
@@ -235,11 +255,11 @@
     var el = G.h('div', { class: 'm4-board-wrap' }, toolbar, svg, msgEl);
     render();
     return {
-      el: el, svg: svg, toXY: toXY, svgEl: svgEl,
+      el: el, svg: svg, toXY: toXY, svgEl: svgEl, box: box, mode: mode,
       getDrawn: function () { return drawn; },
       setDrawn: function (d) { drawn = Object.assign({}, d || {}); history = []; changed(); },
       clear: function () { drawn = {}; history = []; changed(); },
-      showFeedback: showFeedback, clearFeedback: clearFeedback, setHint: setHint, say: say
+      showFeedback: showFeedback, showAnswer: showAnswer, clearFeedback: clearFeedback, setHint: setHint, setGuide: setGuide, say: say
     };
   }
 
