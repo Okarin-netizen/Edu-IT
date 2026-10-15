@@ -62,7 +62,7 @@
     return m;
   }
   function snapshot() { return JSON.stringify(encode(M)); }
-  function restore(s) { var o = JSON.parse(s); M = decodeInto(o, o); P.size.W = M.W; P.size.D = M.D; P.size.H = M.H; }
+  function restore(s) { var o = JSON.parse(s); M = decodeInto(o, o); P.size.W = M.W; P.size.D = M.D; P.size.H = M.H; cursor = { front: 0, top: 0, side: 0 }; }
   function pushUndo() { undoStack.push(snapshot()); if (undoStack.length > 60) undoStack.shift(); redoStack = []; }
 
   function setProject(a) {
@@ -118,6 +118,9 @@
     drawCache = {};
     if (!quiet) changed();
   }
+  // まだかいていない図(空の図)。1つでもあるうちは、合わないマスを知らせない
+  function emptyViews() { return ['front', 'top', 'side'].filter(function (k) { return SG.isEmptyView(M[k]); }); }
+  function misCount() { return emptyViews().length ? 0 : mis.count; }
   function drawing(name) { return drawCache[name] || (drawCache[name] = SG.lineDrawing(solid, name)); }
   function cellMM() { return G.clamp(+P.size.cell || 10, 1, 200); }
   function title() { return (G.$('#pname').value || '').trim() || '立体'; }
@@ -134,7 +137,9 @@
           SHAPE[t.v].map(function (p) { return (2 + p[0] * 20) + ',' + (22 - p[1] * 20); }).join(' ') + '" fill="currentColor"/>';
       var b = G.h('button', { type: 'button', role: 'radio', class: 'm7-tool', 'data-v': t.v, title: t.name, 'aria-label': t.name, onclick: function () { setTool(t.v); } },
         G.h('span', { html: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">' + icon + '</svg>' }), t.label ? G.h('span', null, t.label) : null);
+      if (t.v === 2) box.appendChild(G.h('span', { class: 'g-muted m7-tool-sep' }, 'ななめ半分:'));
       box.appendChild(b);
+      if (t.v === 5) box.appendChild(G.h('span', { class: 'm7-tool-sep' }));
     });
     setTool(1);
   }
@@ -146,9 +151,11 @@
   function layout() {
     var wrap = G.$('#editor-wrap');
     var W = M.W, D = M.D, H = M.H;
-    var L = 34, T = 30, B = 52, R = 14, gap = 34;
+    var L = 34, T = 40, B = 60, R = 14, gap = 34;
     var aw = Math.max(280, wrap.clientWidth - 4);
-    var ah = Math.max(300, window.innerHeight - 250);
+    // 開いたときに、3つの図が画面の中に入る高さにする
+    var top = wrap.getBoundingClientRect().top + (window.scrollY || 0);
+    var ah = Math.max(300, Math.min(window.innerHeight - 250, window.innerHeight - top - 12));
     var px = Math.floor(Math.min((aw - L - gap - R) / (W + D), (ah - T - gap - B) / (D + H)));
     px = G.clamp(px, 12, 56);
     var o = { px: px, gap: gap, L: L, T: T, W: W, D: D, H: H };
@@ -177,7 +184,7 @@
     var px = ed.px, s = [];
     var bands = bandsFor(hover || (focusView ? { view: focusView, u: cursor[focusView] % ed[focusView].U, v: Math.floor(cursor[focusView] / ed[focusView].U) } : null));
     var misSet = { front: {}, top: {}, side: {} };
-    ['front', 'top', 'side'].forEach(function (k) { mis[k].forEach(function (i) { misSet[k][i] = true; }); });
+    if (misCount() && !stroke) ['front', 'top', 'side'].forEach(function (k) { mis[k].forEach(function (i) { misSet[k][i] = true; }); });
     // 平面図と右側面図をつなぐ 45° の線
     var X0 = ed.side.x, Y0 = ed.top.y + ed.D * px;
     s.push('<line x1="' + X0 + '" y1="' + Y0 + '" x2="' + (X0 + ed.D * px) + '" y2="' + (Y0 - ed.D * px) + '" class="m7-miter"/>');
@@ -218,11 +225,12 @@
     });
     // 図の名前と向き
     var fx = ed.front, tx = ed.top, sx = ed.side;
-    s.push(txt(fx.x + ed.W * px / 2, fx.y + ed.H * px + 20, '正面図', 'm7-name'));
-    s.push(txt(fx.x + ed.W * px / 2, fx.y + ed.H * px + 42, '← 幅 →', 'm7-axis'));
-    s.push(txt(tx.x + ed.W * px / 2, tx.y - 10, '平面図(上から見た図)', 'm7-name'));
-    s.push(txt(sx.x + ed.D * px / 2, sx.y + ed.H * px + 20, '右側面図', 'm7-name'));
-    s.push(txt(sx.x + ed.D * px / 2, sx.y + ed.H * px + 42, '手前 ← 奥行き → おく', 'm7-axis'));
+    s.push(rubyName(fx.x + ed.W * px / 2, fx.y + ed.H * px + 29, '正面図', 'しょうめんず'));
+    s.push(txt(fx.x + ed.W * px / 2, fx.y + ed.H * px + 50, '← 幅 →', 'm7-axis'));
+    s.push(rubyName(tx.x + ed.W * px / 2 - 34, tx.y - 10, '平面図', 'へいめんず'));
+    s.push(txt(tx.x + ed.W * px / 2 - 8, tx.y - 10, '(上から見た図)', 'm7-axis', 'start'));
+    s.push(rubyName(sx.x + ed.D * px / 2, sx.y + ed.H * px + 29, '右側面図', 'みぎそくめんず'));
+    s.push(txt(sx.x + ed.D * px / 2, sx.y + ed.H * px + 50, '手前 ← 奥行き → おく', 'm7-axis'));
     s.push(txtV(fx.x - 12, fx.y + ed.H * px / 2, '高さ'));
     s.push(txtV(tx.x - 12, tx.y + ed.D * px / 2, '奥行き'));
     s.push(txt(tx.x + ed.W * px + 6, tx.y + 12, 'おく', 'm7-axis', 'start'));
@@ -236,6 +244,8 @@
     G.$('#undo').disabled = !undoStack.length;
     G.$('#redo').disabled = !redoStack.length;
   }
+  // ふりがな付きの図の名前(ふりがなを消す設定では .ruby-off で隠れる)
+  function rubyName(x, y, s, yomi) { return txt(x, y - 15, yomi, 'm7-rt') + txt(x, y, s, 'm7-name'); }
   function txt(x, y, s, cls, anchor) { return '<text x="' + x + '" y="' + y + '" class="' + cls + '" text-anchor="' + (anchor || 'middle') + '">' + G.esc(s) + '</text>'; }
   function txtV(x, y, s) { return '<text x="' + x + '" y="' + y + '" class="m7-axis" text-anchor="middle" transform="rotate(-90 ' + x + ' ' + y + ')">' + G.esc(s) + '</text>'; }
 
@@ -252,11 +262,13 @@
     M[view][i] = val;
     return true;
   }
+  // ドラッグ中はマスだけを描き直し、指をはなしたときに立体を作り直す(大きな図でも重くならないように)
   var raf = 0;
   function afterEdit() {
     if (raf) return;
     raf = requestAnimationFrame(function () {
       raf = 0;
+      if (stroke) { renderEditor(); return; }
       modelChanged();
       renderEditor(); renderPreview(); renderCheck();
     });
@@ -284,7 +296,7 @@
       var h = c ? { view: c.view, u: c.i % ed[c.view].U, v: Math.floor(c.i / ed[c.view].U) } : null;
       if (JSON.stringify(h) !== JSON.stringify(hover)) { hover = h; renderEditor(); }
     });
-    function end() { stroke = null; }
+    function end() { if (stroke) { stroke = null; afterEdit(); } }
     window.addEventListener('pointerup', end);
     window.addEventListener('pointercancel', end);
     wrap.addEventListener('pointerleave', function () { if (hover) { hover = null; renderEditor(); } });
@@ -336,7 +348,9 @@
   function bindSize() {
     [['#sz-w', 'W'], ['#sz-d', 'D'], ['#sz-h', 'H']].forEach(function (f) {
       G.$(f[0]).addEventListener('change', function () {
+        var raw = +String(this.value).replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
         var v = Math.round(G.num(this.value, M[f[1]], 1, 16));
+        if (!(raw >= 1 && raw <= 16)) G.toast('マスの数は 1〜16 にしてください(' + v + ' にしました)');
         this.value = v;
         if (v === M[f[1]]) return;
         pushUndo();
@@ -386,11 +400,16 @@
   function renderCheck() {
     var box = G.$('#check');
     box.innerHTML = '';
-    if (solid.empty) {
-      box.appendChild(G.h('p', { class: 'g-note' }, 'まだ立体になりません。正面図・平面図・右側面図の3つすべてにマスをぬりましょう。'));
+    var ev = emptyViews();
+    if (ev.length) {
+      box.appendChild(G.h('p', { class: 'g-note' }, ev.length === 3 ? '3つの図にマスをぬると、立体ができます。どの図からかいてもかまいません。'
+        : 'つぎは' + ev.map(function (k) { return '「' + VIEW_NAME[k] + '」'; }).join('と') + 'をかきましょう。3つそろうと立体ができます。'));
+    } else if (solid.empty) {
+      box.appendChild(G.h('p', { class: 'm7-warn' }, G.h('strong', null, '! まだ立体になりません。'), ' 3つの図で、ぬったマスの位置がそろっていません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。'));
     } else if (mis.count) {
-      box.appendChild(G.h('p', { class: 'm7-warn' }, G.h('strong', null, '! 合わないマスが ' + mis.count + ' こあります。'),
-        ' 赤い点線のマスは、ほかの図と位置がそろっていないので立体になりません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。'));
+      var where = ['front', 'top', 'side'].filter(function (k) { return mis[k].length; }).map(function (k) { return VIEW_NAME[k] + ' ' + mis[k].length + ' こ'; }).join('・');
+      box.appendChild(G.h('p', { class: 'm7-warn' }, G.h('strong', null, '! 合わないマスがあります(' + where + ')。'),
+        ' 赤い点線のマスは、ほかの図と位置がそろっていないので立体になりません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。かいている途中なら、3つともかき終えてから確かめましょう。'));
     } else {
       box.appendChild(G.h('p', { class: 'm7-ok' }, '✓ 3つの図の位置がそろっています。'));
     }
@@ -504,7 +523,7 @@
     note.innerHTML = '';
     note.appendChild(G.h('p', { class: 'g-muted' }, NOTES[mode]));
     if (mode !== '3d' && hid) note.appendChild(G.h('p', { class: 'g-muted' }, '太い実線 = 見える線(外形線)、細い破線 = かくれ線(見えない線)'));
-    if (mis.count) note.appendChild(G.h('p', { class: 'm7-warn' }, '! 三面図に合わないマスがあります(「三面図をかく」で赤い点線のマス)。'));
+    if (misCount()) note.appendChild(G.h('p', { class: 'm7-warn' }, '! 三面図に合わないマスがあります(「三面図をかく」で赤い点線のマス)。'));
   }
   function bindView() {
     G.$$('.m7-seg [data-mode]').forEach(function (b) {
@@ -581,7 +600,7 @@
     if (solid.empty) msg.appendChild(G.h('p', { class: 'g-note' }, 'まだ立体になっていません。「三面図をかく」で図をかきましょう。'));
     else {
       msg.appendChild(G.h('p', { class: 'g-muted' }, '尺度 ' + SS.scaleLabel(lastSheet.scale) + '(' + (lastSheet.scale === 1 ? '実物と同じ大きさ' : lastSheet.scale > 1 ? '実物の ' + lastSheet.scale + ' 倍' : '実物の 1/' + Math.round(1 / lastSheet.scale)) + ')でかいています。'));
-      if (mis.count) msg.appendChild(G.h('p', { class: 'm7-warn' }, '! 三面図に合わないマスがあります。図面は、立体になった部分からかいています。'));
+      if (misCount()) msg.appendChild(G.h('p', { class: 'm7-warn' }, '! 三面図に合わないマスがあります。図面は、立体になった部分からかいています。'));
     }
   }
   function bindSheet() {
@@ -629,6 +648,7 @@
       });
       box.appendChild(fs);
     });
+    G.$('#rf-cls').value = P.sheet.cls || ''; G.$('#rf-no').value = P.sheet.no || ''; G.$('#rf-name').value = P.sheet.name || '';
     G.$('#rf-learned').value = P.reflect.learned || '';
     G.$('#rf-hard').value = P.reflect.hard || '';
     G.$('#rf-use').value = P.reflect.use || '';
@@ -636,7 +656,7 @@
     var rows = [
       ['三面図の大きさ', M.W + ' × ' + M.D + ' × ' + M.H + ' マス(1マス ' + c + ' mm)'],
       ['できた立体', solid.empty ? 'まだ' : '幅 ' + G.fmt((mx[0] - mn[0]) * c, 1) + ' × 奥行き ' + G.fmt((mx[1] - mn[1]) * c, 1) + ' × 高さ ' + G.fmt((mx[2] - mn[2]) * c, 1) + ' mm'],
-      ['合わないマス', mis.count ? mis.count + ' こ' : 'なし'],
+      ['合わないマス', misCount() ? misCount() + ' こ' : 'なし'],
       ['図面', (d.print ? '印刷 ' + d.print + ' 回 ' : '') + (d.pdf ? 'PDF ' + d.pdf + ' 回' : '') || 'まだ'],
       ['STL', d.stl ? d.stl + ' 回 保存' : 'まだ']
     ];
@@ -646,9 +666,19 @@
     G.$('#record').appendChild(tb);
   }
   function bindReview() {
+    [['#rf-cls', 'cls'], ['#rf-no', 'no'], ['#rf-name', 'name']].forEach(function (f) {
+      G.$(f[0]).addEventListener('input', function () { P.sheet[f[1]] = this.value; changed(); });
+    });
     [['#rf-learned', 'learned'], ['#rf-hard', 'hard'], ['#rf-use', 'use']].forEach(function (f) {
       G.$(f[0]).addEventListener('input', function () { P.reflect[f[1]] = this.value; changed(); });
     });
+  }
+
+  // メニューで組・番号・名前を入れていないとき(単体版など)は、このアプリで入れたものを書き出しに入れる
+  function withStudent() {
+    var pf = G.profile(), s = P.sheet;
+    if (pf.class || pf.no || pf.name || !(s.cls || s.no || s.name)) return art;
+    return Object.assign({}, art, { student: { class: String(s.cls || ''), no: String(s.no || ''), name: String(s.name || '') } });
   }
 
   /* ---------- 使い方 ---------- */
@@ -716,7 +746,7 @@
     save().then(function () { return G.openDialog(APP); }).then(function (a) { if (a) { setProject(a); G.toast('「' + a.title + '」を開きました'); } });
   });
   G.$('#b-export').addEventListener('click', function () {
-    save().then(function () { G.exportJSON(art, '立体メーカー_' + (art.title || '無題') + '.json'); });
+    save().then(function () { G.exportJSON(withStudent(), '立体メーカー_' + (art.title || '無題') + '.json'); });
   });
   G.$('#b-import').addEventListener('click', function () {
     G.pickJSON().then(function (obj) {
