@@ -128,6 +128,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:6px}
 .e1-reason.tip{background:#fff9e6;border-color:var(--warn)}
 .e1-table{border-collapse:collapse;width:100%;font-size:16px}
+.e1-social{background:#f6f0fb;border:2px solid #d9c3ea;border-radius:12px;padding:4px 14px 8px;margin:12px 0}
 .e1-axis.e1-price{grid-template-columns:minmax(0,260px) 1fr 76px}
 .e1-btn.e1-mini{min-height:44px;padding:4px 10px;font-size:14px;margin-top:4px}
 .e1-table td{border-bottom:1px solid #e3e9ef;padding:5px 8px}
@@ -1058,6 +1059,7 @@ function showIntroModal() {
   if (st.stars.length) { h += '<h3>★ をねらおう</h3><ul class="e1-checks">'; st.stars.forEach(function (s) { h += '<li>★ ' + furi(s[0]) + '</li>'; }); h += '</ul>'; }
   if (st.slots.length > 1) h += '<p>⏰ このステージは「' + st.slots.map(function (s) { return s.icon + s.name; }).join('」「') + '」のすべてで足りるようにします。「時間・天気」のボタンで切りかえて確認できます。</p>';
   if (st.preset) h += '<p>🗼 送電線と、家・工場への線は、はじめからつないであります。</p>';
+  if (st.budget != null || st.free) h += '<p>🕵 このステージには、見えない「かくれポイント」(安全性・住民の理解)があります。クリアすると結果がわかるよ。</p>';
   if (st.unit === 'W') h += '<p>数字は' + furi('消費電力') + '(W:ワット)です。</p>'; else h += '<p style="font-size:15px;color:#5b6b7c">数字はエネルギーの量の目安です(単位はありません)。</p>';
   h += '<div class="acts">' + (S.si === 0 ? '<button class="e1-btn" data-act="howto">❓ 使い方を見る</button>' : '') + '<button class="e1-btn primary" data-act="close">はじめる</button></div>';
   modal(h);
@@ -1096,34 +1098,58 @@ function showHint() {
   modal(h);
 }
 /* 電源の評価(授業用の目安)。どの組み合わせにも長所と短所があり、すべてが100になる組み合わせはない。
-   stab: 天気・時間・つかれに左右されにくい / safe: 事故や処分のむずかしいごみの心配の少なさ / fuel: 燃料代の高さ */
+   stab: 天気・時間・つかれに左右されにくい / safe: 事故や処分のむずかしいごみの心配の少なさ / fuel: 燃料代の高さ
+   acc: 住民の理解の得やすさ(かくれポイント。クリアするまで見せない) */
 var AX = {
-  coal: { stab: 1, safe: 0.6, fuel: 0.3 }, gas: { stab: 1, safe: 0.7, fuel: 0.4 }, uran: { stab: 1, safe: 0.2, fuel: 0.3 },
-  bio: { stab: 0.9, safe: 0.8, fuel: 0.4 }, dam: { stab: 0.8, safe: 0.7, fuel: 0 }, wind: { stab: 0.3, safe: 0.9, fuel: 0 },
-  sun: { stab: 0.2, safe: 0.9, fuel: 0 }, kandenchi: { stab: 0.3, safe: 0.7, fuel: 1 }, pedal: { stab: 0.2, safe: 1, fuel: 0 },
-  outlet: { stab: 1, safe: 1, fuel: 0.5 }
+  coal: { stab: 1, safe: 0.6, fuel: 0.3, acc: 0.5 }, gas: { stab: 1, safe: 0.7, fuel: 0.4, acc: 0.7 }, uran: { stab: 1, safe: 0.2, fuel: 0.3, acc: 0.3 },
+  bio: { stab: 0.9, safe: 0.8, fuel: 0.4, acc: 0.7 }, dam: { stab: 0.8, safe: 0.7, fuel: 0, acc: 0.5 }, wind: { stab: 0.3, safe: 0.9, fuel: 0, acc: 0.6 },
+  sun: { stab: 0.2, safe: 0.9, fuel: 0, acc: 0.8 }, kandenchi: { stab: 0.3, safe: 0.7, fuel: 1, acc: 0.8 }, pedal: { stab: 0.2, safe: 1, fuel: 0, acc: 1 },
+  outlet: { stab: 1, safe: 1, fuel: 0.5, acc: 1 }
+};
+/* 社会からの声(かくれポイントの説明) */
+var SOC = {
+  coal: '🪨 石炭:「煙やCO₂が心配」という声。燃料は安く、昔から使われてきた。',
+  gas: '🔥 天然ガス:石炭より煙やCO₂が少なく、受け入れられやすい。燃料のほとんどを外国から輸入している。',
+  uran: '☢️ 原子力:「事故が起きたら」という不安が大きい。放射性廃棄物(放射線を出すごみ)をどこで処分するかが決まりにくい。',
+  bio: '🪵 バイオマス:地元の木を使うと仕事が生まれ、喜ばれることも。燃料を運ぶトラックの音やにおいの心配も。',
+  dam: '🏞️ ダム:大きなダムでは村が水の底に沈み、住む場所を移った人もいた。川の生き物への影響も。',
+  wind: '🍃 風力:風車の音や景色、鳥がぶつかる心配で、反対の声が出ることがある。',
+  sun: '☀️ 太陽光:多くの人に受け入れられやすい。ただし山を切り開いて並べると、土砂くずれや景色の心配の声も。'
 };
 function axesScores(st, board, R, M) {
-  var tot = 0, stab = 0, safe = 0, fuel = 0;
+  var tot = 0, stab = 0, safe = 0, fuel = 0, acc = 0, used = {};
   R.slots.forEach(function (s) {
     board.nodes.forEach(function (n) {
       var d = CAT[n.type]; if (d.kind !== 'src') return;
-      var p = s.prod[n.id] || 0, a = AX[n.type] || { stab: 1, safe: 1, fuel: 0 };
-      tot += p; stab += p * a.stab; safe += p * a.safe; fuel += p * a.fuel;
+      var p = s.prod[n.id] || 0, a = AX[n.type] || { stab: 1, safe: 1, fuel: 0, acc: 1 };
+      tot += p; stab += p * a.stab; safe += p * a.safe; fuel += p * a.fuel; acc += p * a.acc;
+      if (p > EPS) used[n.type] = 1;
     });
   });
   var ref = M.useful / 0.346, env = ref > 0 ? Math.max(0, 1 - M.co2 / ref) : 1;
   var econ = Math.max(0, Math.min(1, 1 - 0.6 * M.cost / (st.budget || 60) - 0.5 * (tot ? fuel / tot : 0)));
-  return { env: env, econ: econ, stab: tot ? stab / tot : 0, safe: tot ? safe / tot : 1 };
+  return { env: env, econ: econ, stab: tot ? stab / tot : 0, safe: tot ? safe / tot : 1, acc: tot ? acc / tot : 1, used: Object.keys(used) };
 }
 function axes(st, M) {
   var a = axesScores(st, S.board, S.R, M);
-  var rows = [['🌏 環境', 'CO₂の少なさ', a.env], ['💴 経済', 'つくる費用・燃料代の安さ', a.econ], ['🔌 安定', '天気や時間に左右されにくい', a.stab],
-    ['🛡 安全・廃棄物', '事故や、処分のむずかしいごみの心配の少なさ', a.safe]];
+  var rows = [['🌏 環境', 'CO₂の少なさ', a.env], ['💴 経済', 'つくる費用・燃料代の安さ', a.econ], ['🔌 安定', '天気や時間に左右されにくい', a.stab]];
   var h = '<h3>' + (st.free ? 'この組み合わせの評価' : 'この町の電源の評価') + '</h3>';
   rows.forEach(function (r) { h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#3b82c4"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>'; });
-  return h + '<p style="font-size:16px">' + furi('どの発電方法にも長所と短所があり、4つすべてを高くするのはむずかしい。どれを大事にしたか、なぜその組み合わせにしたかを説明できるようにしよう。') +
-    '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。たとえば原子力はCO₂が少なく安定していますが、放射性廃棄物(放射線を出すごみ)の処分や事故を防ぐ安全対策が大きな課題なので「安全・廃棄物」は低くなります。太陽光や風力は安全・環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
+  return h + '<p style="font-size:16px">' + furi('どの発電方法にも長所と短所があり、すべてを高くするのはむずかしい。下の「社会からの評価」もあわせて、どれを大事にしたか、なぜその組み合わせにしたかを説明できるようにしよう。') +
+    '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。太陽光や風力は環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
+}
+function social(st, M) {
+  var a = axesScores(st, S.board, S.R, M), avg = (a.safe + a.acc) / 2;
+  var h = '<div class="e1-social"><h3>🕵 かくれポイント:社会からの評価</h3><p style="font-size:16px;margin:4px 0 8px">' + furi('じつは、プレイ中には見えない点数がありました。発電所は、安全で、近くに住む人たちに理解されていないと、つくることも続けることもできません。') + '</p>';
+  [['🛡 安全性', '事故や、処分のむずかしいごみの心配の少なさ', a.safe], ['🏘 住民の理解', '近くに住む人や市民に受け入れられやすいか', a.acc]].forEach(function (r) {
+    h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#8e44ad"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>';
+  });
+  var v = avg >= 0.75 ? ['😊', '多くの市民に受け入れられやすい組み合わせです。'] : avg >= 0.5 ? ['🤔', '賛成の人も反対の人もいそうです。ていねいな説明が必要です。'] : ['😟', '反対や不安の声が多く出そうです。安全対策や説明に、時間とお金がかかります。'];
+  h += '<p style="font-size:17px"><b>' + v[0] + ' ' + furi(v[1]) + '</b></p>';
+  var cs = a.used.filter(function (t) { return SOC[t]; });
+  if (cs.length) { h += '<ul style="font-size:15px;margin:4px 0">'; cs.forEach(function (t) { h += '<li>' + furi(SOC[t]) + '</li>'; }); h += '</ul>'; }
+  return h + '<p style="font-size:15px">' + furi('住民の理解を得るには、説明会で安全対策や情報を公開し、地元の人と話し合うことが大切です。技術は「つくれるか」だけでなく、社会に受け入れられるかも考えて選びます。') +
+    '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。同じ発電方法でも、場所や安全対策、説明のしかたによって、住民の受けとめ方は変わります。') + '</p></div>';
 }
 /* 本物の発電所の電気の値段(1kWhあたり)。国の発電コスト検証ワーキンググループ(2021年)が
    2020年に新しく建てた場合として試算した値を、授業用に丸めた概算。f: お金のうち燃料代が大きいか */
@@ -1192,6 +1218,7 @@ function showResult(win) {
     h += '<div data-ref="qex"></div></div>';
   }
   if (win && (st.id === 's7' || st.free)) h += axes(st, M);
+  if (win && (st.budget != null || st.free)) h += social(st, M);
   if (win && (st.budget != null || st.free)) h += costBox(M);
   var tbl = '';
   if (!u) {
