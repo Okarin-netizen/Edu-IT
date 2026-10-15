@@ -4,7 +4,7 @@
  * - それ以外の同じオリジンのファイルも、一度開けばキャッシュされる(キャッシュ優先)
  * 内容を更新して配り直すときは VERSION を上げる。
  */
-var VERSION = 'gijutsu-v4';
+var VERSION = 'gijutsu-v5';
 var CORE = [
   './',
   './index.html',
