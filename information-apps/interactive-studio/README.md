@@ -60,7 +60,7 @@ server.addScore("ランキング", name, score);  server.ranking("ランキン�
 ```
 npm test        # 言語・ブロック変換・インタプリタ・作品データのテスト（Node.js 20以上）
 npm run build   # dist/interactive-studio.html を作り直す
-npm run serve   # http://localhost:8080 で確認
+npm run serve   # http://localhost:8080/information-apps/interactive-studio/ で確認（共通の枠 ../../shared/ を読むため、リポジトリのいちばん上から配る）
 node tests/e2e.browser.cjs   # ブラウザでの自動テスト（Playwright が必要）
 ```
 

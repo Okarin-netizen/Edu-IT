@@ -42,7 +42,7 @@ const ok = (c, m) => {
     await page.waitForTimeout(150);
   };
 
-  ok((await page.textContent(".author")).includes("第1.3版 2026年10月"), "フッターの版が 第1.3版");
+  ok((await page.textContent(".ef-footer")).includes("第1.5版") && (await page.textContent(".ef-footer")).includes("羽生市立南中学校"), "フッターに作成者と版（第1.5版）が出る（共通の枠）");
 
   // ---- MC-17: 速さ×0.5で短く押しても気づく ----
   await go("#/s/traffic-button");
