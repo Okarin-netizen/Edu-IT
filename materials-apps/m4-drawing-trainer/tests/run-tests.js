@@ -225,6 +225,36 @@ function silhouetteOK(s, view, lines) {
   console.log('等角図: 完了');
 })();
 
+/* ---- 3b) 答え・ヒントの位置(ボードの外にはみ出さない) ---- */
+(function () {
+  var ISO_BOX = { iMin: 0, iMax: 12, jMin: 0, jMax: 16 }, SQ_BOX = { iMin: 0, iMax: 8, jMin: 0, jMax: 6 };
+  var r = M.rng(11);
+  for (var n = 0; n < 60; n++) {
+    var s = M.randomSolid(r, 1 + (n % 3));
+    var exp = M.isoLines(s), home = M.centerOffset(exp, ISO_BOX, 'iso');
+    check(M.fitsBox(exp, home, ISO_BOX), '等角図の答えがボードに入る ' + n);
+    check(((home[0] - home[1]) % 2 + 2) % 2 === 0, '等角図の答えの位置が三角格子に乗る ' + n);
+    // 何も描いていないとき: 基準線の位置で比べる(以前は [0,0] でボードの上にはみ出していた)
+    var g0 = M.grade(exp, {}, { prefer: home });
+    check(g0.offset[0] === home[0] && g0.offset[1] === home[1], '何も描いていないときは基準線の位置 ' + n);
+    // 基準線の位置にかけば正解
+    var drawn = {};
+    exp.visible.forEach(function (k) { var p = M.parseKey(k); drawn[M.segKey(p[0] + home[0], p[1] + home[1], p[2] + home[0], p[3] + home[1])] = 'v'; });
+    check(M.grade(exp, drawn, { prefer: home }).ok, '基準線の位置にかいた等角図は正解 ' + n);
+    // force で比べると、ずれた位置の線は足りない線・余分な線になる
+    var gf = M.grade(exp, drawn, { force: [home[0] + 2, home[1]] });
+    check(!gf.ok && gf.offset[0] === home[0] + 2, 'force の位置で比べる ' + n);
+    M.VIEWS.forEach(function (vw) {
+      var e2 = M.orthoLines(s, vw), h2 = M.centerOffset(e2, SQ_BOX, 'square');
+      check(M.fitsBox(e2, h2, SQ_BOX), '三面図の答えがボードに入る ' + vw + ' ' + n);
+    });
+  }
+  // はみ出す位置は fitsBox が false になる
+  var s1 = M.randomSolid(M.rng(3), 2), e1 = M.isoLines(s1);
+  check(!M.fitsBox(e1, [0, 0], ISO_BOX), '等角図を [0,0] に置くとボードの上にはみ出す');
+  console.log('答えの位置: 完了');
+})();
+
 /* ---- 4) クイズ30問 ---- */
 (function () {
   var total = 0;
