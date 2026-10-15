@@ -52,6 +52,49 @@ const check = (ok, label) => {
   await p.click("text=💡 ヒント");
   check((await p.locator(".hint-text").count()) === 1, "ヒントが出る");
 
+  // 中学生目線レビュー(2026-10-16)で直した所
+  // SL-01: 画面が変わったら、新しい画面の上まで動く(前は1つあとの操作で動いていた)
+  await go("prize");
+  await p.click("text=体験をはじめる");
+  await p.evaluate(() => window.scrollTo(0, 400));
+  await p.locator(".act-list").getByRole("button", { name: "当選のメールを開く", exact: true }).click();
+  await p.waitForTimeout(150);
+  const topAfter = await p.evaluate(() => document.getElementById("scene-top").getBoundingClientRect().top);
+  check(topAfter >= 0 && topAfter < 140, `画面が変わると、場面の上が見える (top ${Math.round(topAfter)})`);
+  const yKeep = await p.evaluate(() => window.scrollY);
+  await p.locator(".act-list").getByRole("button", { name: /このお店のプレゼントに自分で応募したか/ }).click();
+  await p.waitForTimeout(150);
+  check(Math.abs((await p.evaluate(() => window.scrollY)) - yKeep) < 120, "同じ画面の中の行動では、あとから勝手にスクロールしない");
+  // SL-02: 行動の順番が「よい行動がいつも上」になっていない
+  const firstIsGood = await p.evaluate(() => ScamData.scenarios.map((sc) => Object.keys(sc.nodes).filter((n) => ScamEngine.acts(sc, n).filter((a) => a.panel !== false).length >= 4)).flat().length);
+  check(firstIsGood >= 5, "行動が4つ以上ある画面がある(順番をまぜる対象)");
+  await go("support");
+  await p.click("text=体験をはじめる");
+  await p.click(".device >> text=つぎのページ");
+  const order = await p.locator(".act-list .act").allInnerTexts();
+  check(!/パソコンの中を調べられる/.test(order[0]), "にせの警告で、いちばん上がいつも「よい行動」ではない: " + order[0]);
+  // SL-03: 行動しても、カウントダウンが最初にもどらない
+  await p.waitForTimeout(2300);
+  const before = await p.textContent(".sb-timer-v");
+  await p.locator(".act-list").getByRole("button", { name: /パソコンの中を調べられるのか/ }).click();
+  await p.waitForTimeout(150);
+  const after = await p.textContent(".sb-timer-v");
+  check(after <= before, `行動してもカウントダウンがもどらない (${before} → ${after})`);
+  // SL-04: 本物の Esc キーで全画面を終わらせられる
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(150);
+  check((await p.locator(".steps li.is-done").count()) === 2, "本物の Esc キーでも「全画面を終わらせる」に ✓ が付く");
+  await p.locator(".act-list").getByRole("button", { name: "タブ(ブラウザ)を閉じる", exact: true }).click();
+  check((await p.locator(".device >> text=ブラウザを閉じました").count()) === 1, "Esc のあと、タブを閉じられる");
+  // SL-05: 差出人の ▼ ボタンが指で押せる大きさ
+  await go("virus");
+  await p.click("text=体験をはじめる");
+  await p.click(".device >> text=Re: 文化祭の写真");
+  const more = await p.evaluate(() => { const r = document.querySelector(".sb-more").getBoundingClientRect(); return Math.min(r.width, r.height); });
+  check(more >= 44, `差出人の ▼ ボタンが 44px 以上 (${more})`);
+  await p.click(".sb-more");
+  check((await p.locator(".sb-addr.flagged").count()) === 1, "▼ を押すとアドレスが出る");
+
   // 5つの場面を、しくみの中で見つけた道すじどおりに押してクリアする
   const ids = await p.evaluate(() => ScamData.scenarios.map((s) => s.id));
   for (const id of ids) {
@@ -133,6 +176,20 @@ const check = (ok, label) => {
       check(sw <= w, `幅 ${w} で ${id} が横にはみ出さない (${sw})`);
     }
   }
+
+  // SL-06: たてにならぶ画面では、「いまの状況」と知らせがスマホの画面より上に出る
+  await p.setViewportSize({ width: 390, height: 800 });
+  await go("prize");
+  if (await p.locator("text=体験をはじめる").count()) await p.click("text=体験をはじめる");
+  const pos = await p.evaluate(() => ["situation", "device"].map((c) => document.querySelector("." + c).getBoundingClientRect().top));
+  check(pos[0] < pos[1], "スマホ幅で「いまの状況」がスマホの画面より上");
+  await p.click("text=大きな文字");
+  for (const id of ["oneclick", "support", "shop"]) {
+    await go(id);
+    const sw = await p.evaluate(() => document.documentElement.scrollWidth);
+    check(sw <= 390, `大きな文字でもスマホ幅で ${id} がはみ出さない (${sw})`);
+  }
+  await p.click("text=大きな文字");
 
   check(errors.length === 0, "エラーが出ない" + (errors.length ? ": " + errors.join(" / ") : ""));
   check(external.length === 0, "外部への通信が0件" + (external.length ? ": " + external.join(" ") : ""));

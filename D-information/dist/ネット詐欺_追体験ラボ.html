@@ -435,7 +435,7 @@ button.sb-mail:hover { background: #eef3fb; }
 .sb-mail-head { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; border-bottom: 1px solid #e3e6ea; padding-bottom: 8px; }
 .sb-addr { font-size: .8rem; color: #555; overflow-wrap: anywhere; }
 .sb-addr.flagged { background: #fff1c2; border-radius: 4px; padding: 0 4px; color: #7a3a06; font-weight: 700; }
-.sb-more { border: 1px solid #c7ccd3; background: #fff; border-radius: 6px; min-width: 32px; min-height: 30px; padding: 0 6px; }
+.sb-more { border: 1px solid #c7ccd3; background: #fff; border-radius: 6px; min-width: 44px; min-height: 44px; padding: 0 8px; font-size: 1rem; }
 .sb-mail-body { display: grid; gap: 6px; }
 .sb-attach { display: flex; gap: 4px; align-items: center; text-align: left; border: 1px solid #c7ccd3; border-radius: 8px; background: #f7f8fa; padding: 8px 12px; min-height: 44px; font-weight: 700; }
 .sb-attach:hover { background: #eef3fb; }
@@ -462,6 +462,13 @@ button.sb-mail:hover { background: #eef3fb; }
 
 @media (max-width: 1000px) {
   .scene-grid { grid-template-columns: minmax(0, 1fr); }
+  /* たてにならぶときは「いまの状況」と「よい判断！」などの知らせを、スマホの画面より上に出す(押したあとに見落とさない) */
+  .scene-side { display: contents; }
+  .scene-grid .situation { order: 1; }
+  .scene-grid #scene-msg { order: 2; }
+  .scene-grid .device { order: 3; }
+  .scene-grid .actions { order: 4; }
+  .scene-grid .checklist { order: 5; }
   .device-screen { min-height: 360px; }
 }
 .bar { display: block; height: 14px; background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 999px; overflow: hidden; min-width: 60px; }
@@ -920,8 +927,8 @@ var ScamData = (function () {
           ] },
           acts: [
             'look', 'nopay',
-            { id: 'pay', label: 'あわてて、家の人のカードを借りてはらう', to: 'bad_pay' },
-            { id: 'contact', label: '「まちがえて登録した方」から、まちがいだと連絡する', to: 'bad_contact' },
+            { id: 'pay', label: '「法的手続き」になると困るので、今のうちにはらっておく', to: 'bad_pay' },
+            { id: 'contact', label: 'まちがえて押しただけなので、問い合わせから連絡して取り消してもらう', to: 'bad_contact' },
             { id: 'close', label: 'ページ(タブ)を閉じる', step: 'close', to: 'home',
               say: '請求の画面を閉じた。お金をはらうボタンも、問い合わせのボタンも押していない。' }
           ]
@@ -934,7 +941,7 @@ var ScamData = (function () {
               say: '通知を押すと、また請求の画面にもどされてしまった。通知は押さないで止めよう。' },
             { id: 'block', label: 'ブラウザの設定で、このサイトの通知を「ブロック」にして、閲覧履歴を消す', step: 'block', to: 'home2',
               say: '通知は、サイトに「許可」したときに出るしくみ。ブロックしたら止まった。履歴を消したので、うっかり開き直すこともない。' },
-            { id: 'pay2', label: '通知が止まらないので、言われたとおりにはらう', to: 'bad_pay' },
+            { id: 'pay2', label: '通知が止まらないので、はらって終わりにする', to: 'bad_pay' },
             'look', 'nopay', 'alone', 'consult'
           ]
         },
@@ -1002,8 +1009,8 @@ var ScamData = (function () {
           acts: [
             'apply', 'official',
             { id: 'entry', label: '「受け取り手続きへ」を押す', to: 'form' },
-            { id: 'reply', label: '本物か聞くために、このメールに返信する', to: 'bad_reply' },
-            { id: 'unsub', label: 'もう届かないように「配信停止はこちら」を押す', to: 'bad_reply' },
+            { id: 'reply', label: '本当に当たったのか、このメールに返信して聞いてみる', to: 'bad_reply' },
+            { id: 'unsub', label: 'もう届かないように「配信停止はこちら」を押しておく', to: 'bad_reply' },
             { id: 'forward', label: '友達も当たっているかもしれないので、メールを転送して教える', tone: 'meh',
               say: '転送すると、友達がうっかり手続きしてしまうかもしれない。にせもののメールは広げないでおこう。' },
             'report'
@@ -1019,7 +1026,7 @@ var ScamData = (function () {
             { t: 'btn', text: '登録して送料をはらう', act: 'card', cls: 'big' }
           ] },
           acts: [
-            { id: 'card', label: '家の人のカードを借りて入力し、登録する', to: 'bad_card' },
+            { id: 'card', label: '送料500円だけなので、家の人のカードで登録する', to: 'bad_card' },
             { id: 'backMail', label: '何も入力しないで、メールの画面にもどる', to: 'mail', tone: 'meh',
               say: 'もどれてよかった。でも、メールのリンクを開くだけでも、ウイルスのあるページに飛ばされることがある。リンクは押さずに確かめよう。' }
           ]
@@ -1102,7 +1109,7 @@ var ScamData = (function () {
             body: [{ t: 'h', text: '文化祭 写真一覧' }, { t: 'p', text: '写真を表示するには、上の黄色い帯の「コンテンツの有効化」を押してください。' },
               { t: 'thumbs', items: [{ emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }] }] },
           acts: [
-            { id: 'enable', label: '写真が見たいので「コンテンツの有効化」を押す', to: 'bad_infect' },
+            { id: 'enable', label: '書いてあるとおり「コンテンツの有効化」を押して、写真を見る', to: 'bad_infect' },
             { id: 'closeDoc', label: '有効化しないで、ファイルを閉じる', to: 'mail', tone: 'meh',
               say: 'セーフ！ 有効化しなかったので、かくれたプログラムは動いていない。でも、開いたことも先生に伝えよう。思いがけない添付ファイルは、開く前に確かめるのがいちばん。' }
           ]
@@ -1126,7 +1133,7 @@ var ScamData = (function () {
       goal: '電話もソフトのインストールもしないで、警告の画面から安全にぬけ出そう。',
       steps: [
         { id: 'calm', label: 'Webページに、パソコンの中は調べられないと気づく', hint: 'これはパソコンの中のソフト？ それともブラウザに出ているWebページ？' },
-        { id: 'esc', label: 'Esc キーで、全画面の表示を終わらせる', hint: '画面いっぱいの表示で、タブや × ボタンが見えない。キーボードのどのキーで全画面を終わらせる？' },
+        { id: 'esc', label: 'Esc キーで、全画面の表示を終わらせる', hint: '画面いっぱいの表示で、タブや × ボタンが見えない。キーボードの左上にあるキーで、全画面を終わらせられるよ(本物のキーを押してもいい)。' },
         { id: 'close', label: 'タブ(ブラウザ)を閉じる', hint: '全画面が終わったら、どうやってこのページから離れる？' },
         { id: 'consult', label: '家の人(学校の端末なら先生)に伝える', hint: '何があったか、だれに伝える？' }
       ],
@@ -1167,13 +1174,13 @@ var ScamData = (function () {
           acts: [
             'calm',
             { id: 'ok', label: '小さな画面の「OK」を押す', panel: false, tone: 'meh', say: '「OK」を押しても、また同じ表示が出てくる。押しても消えないようにしてあるんだ。' },
-            { id: 'esc', label: 'キーボードの Esc キーを長押しして、全画面の表示を終わらせる', step: 'esc',
+            { id: 'esc', label: 'キーボードの Esc キーを押して、全画面の表示を終わらせる', step: 'esc',
               say: '全画面が終わって、ブラウザのタブや × ボタンが見えるようになった。' },
             { id: 'close', label: 'タブ(ブラウザ)を閉じる', step: 'close', need: ['esc'], to: 'closed',
               needMsg: '画面いっぱいに表示されていて、タブも × ボタンも見えない…。まず全画面の表示を終わらせよう。',
               say: 'ブラウザを閉じたら、警告も音も消えた。「閉じるとデータが消える」はうそだった。' },
-            { id: 'call', label: '表示された番号に電話する', to: 'bad_call' },
-            { id: 'scan', label: '「ウイルスを除去する」を押して、ソフトを入れる', to: 'bad_scan' }
+            { id: 'call', label: 'データが消える前に、表示された番号に電話して聞く', to: 'bad_call' },
+            { id: 'scan', label: 'まずは無料スキャンで、ウイルスを消してもらう', to: 'bad_scan' }
           ]
         },
         closed: {
@@ -1251,7 +1258,7 @@ var ScamData = (function () {
           ] },
           acts: [
             'price', 'info', 'search',
-            { id: 'buy', label: '残り2足なので、すぐに「購入する」を押す', to: 'pay' },
+            { id: 'buy', label: '売り切れる前に、「購入する」を押しておく', to: 'pay' },
             'leave'
           ]
         },
@@ -1264,7 +1271,7 @@ var ScamData = (function () {
             { t: 'btn', text: '振り込みました', act: 'paid', cls: 'big' }
           ] },
           acts: [
-            { id: 'paid', label: '家の人にたのんで、すぐに振り込んでもらう', to: 'bad_pay' },
+            { id: 'paid', label: '注文が取り消される前に、家の人にたのんで振り込んでもらう', to: 'bad_pay' },
             { id: 'backPay', label: '振り込まずに、お店のページにもどる', to: 'shop', tone: 'meh',
               say: 'お店なのに、振込先が個人の名前…これもおかしなところ。買う前に、もっと確かめよう。' }
           ]
@@ -1515,6 +1522,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     var s = SECTIONS.filter(function (x) { return x.id === id; })[0] || SECTIONS[0];
     clearTimers();
     current = s;
+    escAct = null;
     draw(s);
     save('last', s.id);
     if (s.no) save('lastStep', s.id);
@@ -1523,6 +1531,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     document.title = (s.id === 'intro' ? 'はじめに' : s.title) + ' | ' + APP;
   }
   function draw(s) {
+    escAct = null;
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
       if (a.getAttribute('data-id') === s.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
@@ -1565,7 +1574,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
           h('li', { text: '左の画面は、あなたのスマホやパソコン。画面の中のボタンも押せます(押すと、だまされることもあります)。' }),
           h('li', { text: '右の「あなたの行動」から、つぎにどうするかをえらびます。' }),
           h('li', { text: '「やることリスト」の「？」を全部うめて、最後の行動までやりきるとクリア。こまったら「ヒント」を押そう。' }),
-          h('li', { text: 'だまされたら、どうなったかを読んで、その前の場面からやり直せます。' })),
+          h('li', { text: 'だまされたら、どうなったかを読んで、その前の場面からやり直せます。だまされても本当には何も起きません。「押したらどうなるか」を確かめるのも学習です。' })),
         point('安心して体験できます',
           h('p', { text: 'この教材はブラウザの中だけで動き、インターネットには一切つながりません。出てくる会社・サイト・アドレス・電話番号・口座はすべて架空で、押してもどこにも連絡しません。入力欄は見た目だけで、何も入力できません。' }))),
       h('section', { class: 'module-group' },
@@ -1598,7 +1607,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     function set(n) { setScState(sc, n); markNav(); rerender(); }
     function doAct(a) {
       var n = E.apply(sc, st, a, new Date().toISOString());
-      set(n);
+      // スクロールの動きは描き直す前に決めておく(描き直しのすぐあとに動く)
       if (n.end || n.node !== st.node) {
         afterDraw = function () {
           var t = document.getElementById('scene-top');
@@ -1607,6 +1616,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
       } else if (n.msg) {
         afterDraw = function () { var m = document.getElementById('scene-msg'); if (m) m.scrollIntoView({ block: 'nearest' }); };
       }
+      set(n);
     }
 
     // はじめる前: 状況とめあて
@@ -1632,7 +1642,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     var byId = {};
     list.forEach(function (a) { if (a.id) byId[a.id] = a; });
     var screenAct = function (id) { return function () { if (byId[id]) doAct(byId[id]); }; };
+    escAct = byId.esc && !(byId.esc.step && st.done[byId.esc.step]) ? function () { doAct(byId.esc); } : null;
 
+    timerKey = sc.id + ':' + st.node;
     var device = renderDevice(sc, node.screen, st, screenAct);
     var side = h('div', { class: 'scene-side' },
       h('section', { class: 'card situation' }, h('h2', { class: 'panel-title', text: 'いまの状況' }), h('p', { text: node.say })),
@@ -1640,7 +1652,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
         h('span', { class: 'msg-label', text: { good: 'よい判断！ ', meh: 'うーん… ', need: 'ちょっと待って ', info: '' }[st.msg.tone] || '' }), st.msg.text) : null,
       h('section', { class: 'card actions' },
         h('h2', { class: 'panel-title', text: 'あなたの行動' }),
-        h('div', { class: 'act-list' }, list.filter(function (a) { return a.panel !== false; }).map(function (a) {
+        h('div', { class: 'act-list' }, mix(list.filter(function (a) { return a.panel !== false; }), sc.id + ':' + st.node).map(function (a) {
           var did = a.step && st.done[a.step] && !a.to;
           return h('button', { type: 'button', class: 'act' + (did ? ' did' : ''), disabled: did, on: { click: function () { doAct(a); } } },
             did ? h('span', { class: 'act-mark', text: '✓ ' }) : null, a.label);
@@ -1654,7 +1666,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
       }));
     wrap.appendChild(h('div', { class: 'scene-grid' }, device, side));
     wrap.appendChild(h('div', { class: 'btn-row scene-tools' },
-      btn('この場面をはじめから', function () { set(E.restart(sc, st)); }, 'ef-btn small')));
+      btn('この場面をはじめから', function () { resetTimers(sc); set(E.restart(sc, st)); }, 'ef-btn small')));
   }
 
   function renderChecklist(sc, st, onHint) {
@@ -1682,7 +1694,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
         h('p', { class: 'muted', text: '※ これは体験です。本当には何も起きていません。' }),
         h('div', { class: 'btn-row' },
           btn('その前の場面にもどって、やり直す', function () { set(E.back(sc, st)); }, 'ef-btn-primary'),
-          btn('この場面をはじめから', function () { set(E.restart(sc, st)); })));
+          btn('この場面をはじめから', function () { resetTimers(sc); set(E.restart(sc, st)); })));
     }
     var idx = D.scenarios.indexOf(sc);
     var nextSc = D.scenarios[idx + 1];
@@ -1698,10 +1710,30 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
       h('div', { class: 'btn-row' },
         nextSc ? h('a', { class: 'ef-btn-primary', href: '#' + nextSc.id, text: 'つぎの場面：' + nextSc.title + ' →' })
           : h('a', { class: 'ef-btn-primary', href: '#matome', text: 'まとめとふりかえりへ →' }),
-        btn('この場面をもう一度', function () { set(E.restart(sc, st)); })));
+        btn('この場面をもう一度', function () { resetTimers(sc); set(E.restart(sc, st)); })));
   }
 
   // ---- スマホ・パソコンの画面 ----
+  // カウントダウンは、はじめて出した時から数える(行動して描き直しても、もどらない)
+  var timerStart = {};
+  var timerKey = '';
+  function resetTimers(sc) { Object.keys(timerStart).forEach(function (k) { if (k.indexOf(sc.id + ':') === 0) delete timerStart[k]; }); }
+  // いつも同じ順にまぜる(画面ごとに決まった順。描き直しても変わらない)
+  function mix(list, seed) {
+    var x = 0;
+    for (var i = 0; i < seed.length; i++) x = (x * 31 + seed.charCodeAt(i)) >>> 0;
+    var a = list.slice();
+    for (var j = a.length - 1; j > 0; j--) {
+      x = (x * 1103515245 + 12345) >>> 0;
+      var k = x % (j + 1), t = a[j];
+      a[j] = a[k]; a[k] = t;
+    }
+    return a;
+  }
+  var escAct = null;
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && escAct && current && current.sc) { var f = escAct; escAct = null; f(); }
+  });
   function fmtTime(sec) {
     var d = Math.floor(sec / 86400), hh = Math.floor(sec % 86400 / 3600), mm = Math.floor(sec % 3600 / 60), ss = sec % 60;
     var p = function (x) { return (x < 10 ? '0' : '') + x; };
@@ -1724,9 +1756,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
           return h('div', { class: 'sb-thumb' }, h('span', { class: 'sb-emoji', 'aria-hidden': 'true', text: it.emoji }), h('span', { text: it.text }));
         }));
         case 'timer': {
-          var left = b.sec;
+          var key = timerKey + ':' + b.label;
+          if (!timerStart[key]) timerStart[key] = Date.now();
+          var since = function () { return Math.floor((Date.now() - timerStart[key]) / 1000); };
+          var left = Math.max(0, b.sec - since());
           var out = h('b', { class: 'sb-timer-v', text: fmtTime(left) });
-          timers.push(setInterval(function () { left = Math.max(0, left - 1); out.textContent = fmtTime(left); }, 1000));
+          timers.push(setInterval(function () { left = Math.max(0, b.sec - since()); out.textContent = fmtTime(left); }, 1000));
           return h('p', { class: 'sb-timer' }, b.label + ' ', out);
         }
         case 'field': return h('div', { class: 'sb-field' }, h('span', { text: b.label }), h('span', { class: 'sb-input', 'aria-hidden': 'true' }));
