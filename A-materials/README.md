@@ -21,7 +21,8 @@ A-materials/
 ├─ teacher-viewer/       先生用 提出ファイル一覧ビューア
 ├─ dist/                 配布用の完成ファイル(1ファイル版 材料と加工_教材アプリ.html)
 ├─ docs/                 先生用の文書(使い方_先生用.html)
-└─ build/                作る道具(build-single.py・build-ruby-dict.py)
+├─ build/                作る道具(build-single.py・build-ruby-dict.py)
+└─ review/               中学生目線レビューの記録(M7)
 ```
 
 ## 作り方(A-materials で実行)
@@ -37,6 +38,7 @@ A-materials/
 node --test common/beam.test.js m3-structure-lab/app.test.js m5-kidori/packing.test.js m6-tool-safety/tests/m6.test.js teacher-viewer/summary.test.js
 node m4-drawing-trainer/tests/run-tests.js
 node --test m7-solid-maker/tests/geom.test.js
+NODE_PATH=… node m7-solid-maker/tests/e2e.browser.cjs   # build-single.py のあと。playwright が必要
 ```
 
 ## 注意(保存データ)

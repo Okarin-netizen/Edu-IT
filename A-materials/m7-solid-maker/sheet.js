@@ -30,6 +30,15 @@
           (dash ? ' stroke-dasharray="' + dash + '"' : ' stroke-linecap="round"') + '/>');
       },
       rect: function (x, y, w, h, lw) { out.push('<rect x="' + r2(x) + '" y="' + r2(y) + '" width="' + r2(w) + '" height="' + r2(h) + '" fill="none" stroke="#000" stroke-width="' + lw + '"/>'); },
+      // 欄の幅 maxW(mm)に入るように、文字を小さくする(それでも入らないときは … で切る)
+      fit: function (x, y, s, size, anchor, maxW) {
+        s = String(s == null ? '' : s);
+        function w(t, z) { var n = 0; for (var i = 0; i < t.length; i++) n += t.charCodeAt(i) < 0x80 ? 0.55 : 1; return n * z; }
+        var z = size;
+        if (w(s, z) > maxW) z = Math.max(2.2, size * maxW / w(s, size));
+        while (s.length > 1 && w(s, z) > maxW) s = s.slice(0, -2) + '…';
+        this.text(x, y, s, r2(z), anchor);
+      },
       text: function (x, y, s, size, anchor, rot, bold) {
         out.push('<text x="' + r2(x) + '" y="' + r2(y) + '" font-size="' + size + '" text-anchor="' + (anchor || 'start') + '"' +
           (bold ? ' font-weight="bold"' : '') + (rot ? ' transform="rotate(' + rot + ' ' + r2(x) + ' ' + r2(y) + ')"' : '') + '>' + esc(s) + '</text>');
@@ -95,7 +104,7 @@
     function cellBox(x, y, w, label, value, size) {
       pen.rect(x, y, w, RH, LW.table);
       if (label) pen.text(x + 1.5, y + 3.2, label, 2.3);
-      if (value != null) pen.text(x + (label ? w / 2 + 3 : w / 2), y + 6, value, size || 3.6, 'middle');
+      if (value != null) pen.fit(x + (label ? w / 2 + 3 : w / 2), y + 6, value, size || 3.6, 'middle', w - (label ? 14 : 3));
     }
     // 尺度はあとで決まるので、表は最後に描く
     function titleBlock() {
@@ -113,7 +122,7 @@
       cols.forEach(function (c, i) {
         pen.rect(x, PY, c[1], 7, LW.table); pen.text(x + c[1] / 2, PY + 4.9, c[0], 3, 'middle');
         var v = [1, opt.title || '', opt.material || '', 1, ''][i];
-        pen.rect(x, PY + 7, c[1], 7, LW.table); pen.text(x + c[1] / 2, PY + 11.9, v, 3.2, 'middle');
+        pen.rect(x, PY + 7, c[1], 7, LW.table); pen.fit(x + c[1] / 2, PY + 11.9, v, 3.2, 'middle', c[1] - 2);
         x += c[1];
       });
       pen.rect(TX, PY, TW, 14, LW.frame);

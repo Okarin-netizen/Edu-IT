@@ -27,7 +27,10 @@
 
 ```
 node --test m7-solid-maker/tests/geom.test.js
+NODE_PATH=… node m7-solid-maker/tests/e2e.browser.cjs   # 1ファイル版(build-single.py)をブラウザで操作して確かめる
 ```
+
+中学生目線レビューの記録: [`../review/2026-10-15_第三角法立体メーカー_中学生目線レビュー/`](../review/2026-10-15_第三角法立体メーカー_中学生目線レビュー/README.md)
 
 ## 保存データ
 
