@@ -961,6 +961,7 @@ body{overflow:hidden}
 /* --- アプリ画面 --- */
 .ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:#0f1d2c;color:#fff}
 .ea-bar .ea-btn{min-height:44px;background:#24384d;color:#fff;font-size:15px;padding:0 12px}
+.ea-btn[hidden]{display:none}
 .ea-bar .home{background:#ffb703;color:#1d2b3a;font-weight:bold}
 .ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .ea-chips::-webkit-scrollbar{display:none}
@@ -1007,6 +1008,7 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+@media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
   .ea-card,.ea-card:nth-child(4){grid-column:auto}
@@ -1032,6 +1034,7 @@ body{overflow:hidden}
         <div class="s">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</div>
       </div>
       <div class="bt">
+        <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
         <button class="ea-btn" data-ea="help">❓ 使い方</button>
         <button class="ea-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
       </div>
@@ -1046,6 +1049,7 @@ body{overflow:hidden}
     <div class="ea-bar">
       <button class="ea-btn home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
+      <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
     </div>
     <div class="ea-panes" data-ref="panes"></div>
   </section>
@@ -1070,6 +1074,13 @@ body{overflow:hidden}
 <li>トップ画面のカードには、<b>進み具合</b>(クリアしたステージや課題の数)が出ます。1つでも進んだアプリは「▶ つづきから」になります。</li>
 <li>タブレットは<b>横向きでも縦向きでも</b>使えます。縦向きでは、作業する場所(盤面・図)が横いっぱいに広がり、部品やボタンは上、説明は下に並びます。</li>
 </ol>
+<h3>Chromebook・パソコンで使うとき</h3>
+<ul>
+<li>説明の「<b>タップ</b>」は、マウスやタッチパッドの<b>クリック</b>と同じです。「<b>指でなぞる</b>」「<b>引っぱる</b>」は、<b>ドラッグ</b>(おしたまま動かして、はなす)でできます。タッチ画面のChromebookなら、指でもそのまま使えます。</li>
+<li>トップ画面や上のバーの <b>🖥️ 全画面</b> をおすと、ブラウザのタブやアドレスバーが消えて、作業する場所が広くなります。もとにもどすときは <b>🖥️ 全画面をやめる</b>(または <b>Esc</b> キー)。</li>
+<li>部品の一覧や説明が画面に入りきらないときは、その部分をマウスのホイールやタッチパッドの<b>2本指で上下</b>に動かすと、続きが見えます。</li>
+<li>画面の大きさは <b>Ctrl</b> と <b>+</b> / <b>−</b> で変えられます(<b>Ctrl</b> と <b>0</b> でもとの大きさ)。</li>
+</ul>
 <h3>どのアプリでも同じボタン</h3>
 <ul>
 <li><b>❓ 使い方</b>:そのアプリの説明を見る。</li>
@@ -1092,7 +1103,7 @@ body{overflow:hidden}
 <li><b>画面が動かない・おかしい</b>:🏠 トップにもどってから開き直す。それでもだめなら、ページを再読み込みします(記録は残ります)。</li>
 <li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。E5 は音を使いません)。</li>
 <li><b>まちがえて消した</b>:「↩ もどす」で1つ前にもどせます。</li>
-<li><b>字が小さい</b>:ブラウザの拡大(2本指で広げる)を使えます。</li>
+<li><b>字が小さい</b>:ブラウザの拡大(タブレットは2本指で広げる、Chromebook・パソコンは <b>Ctrl</b> と <b>+</b>)を使えます。</li>
 <li>計算は「理想的な部品」での目安です。本物の部品では、電池の古さや部品のばらつきで値が変わります。</li>
 </ul>
 </div>
@@ -8931,10 +8942,34 @@ root.addEventListener('click', function (ev) {
   else if (act === 'help' || act === 'help-t') { helpPushed = true; setHash(act, true); }
   else if (act === 'back') { if (helpPushed) { helpPushed = false; history.back(); } else setHash(lastView === 'home' ? '' : lastView, false); }
   else if (act === 'tab-s' || act === 'tab-t') { setHash(act === 'tab-t' ? 'help-t' : 'help', false); }
+  else if (act === 'fs') toggleFull();
   else if (act === 'export') exportAll();
   else if (act === 'import') $('[data-ea-file]').click();
 });
 window.addEventListener('hashchange', route);
+
+// 全画面(Chromebook やパソコンでは、ブラウザのタブやアドレスバーの分だけ作業する場所が広くなる)
+var D = document, fsOK = !!(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+function toggleFull() {
+  var el = D.documentElement;
+  try {
+    if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+    else { var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(function () {}); }
+  } catch (e) {}
+}
+function updFull() {
+  var on = isFull();
+  root.querySelectorAll('[data-ea="fs"]').forEach(function (b) {
+    b.hidden = !fsOK;
+    b.innerHTML = '🖥️<span class="t"> ' + (on ? '全画面をやめる' : '全画面') + '</span>';
+    b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面にする');
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+D.addEventListener('fullscreenchange', updFull);
+D.addEventListener('webkitfullscreenchange', updFull);
+updFull();
 
 /* ---- 学習記録の書き出し・読み込み・消去(先生向け) ---- */
 function toast(msg) {
