@@ -2,6 +2,7 @@
 """一つのHTML版を作る: python3 build-single.py 出力ファイル.html
 
 メニュー・6つのアプリ・先生用ビューア・使い方を、CSS と JS を中に入れた形で1つのファイルにまとめる。
+4分野共通の枠(../shared/eduit-frame.css・eduit-frame.js)と eduit-info.js も各ページの中に入れる。
 各ページは iframe(srcdoc)で開き、メニューへ戻るなどのリンクは親ページ(window.GSingle)が受け持つ。
 """
 import base64, json, os, re, sys
@@ -57,6 +58,10 @@ def inline(page_path):
     html, n2 = re.subn(r'<script src="([^"]+)"></script>', js, html)
     if n1 + n2 != want:
         raise SystemExit(page_path + ': 埋め込めなかったファイルがあります')
+    # 共通の枠(作成者・安全と個人情報・ライセンス・更新履歴のフッター)が入っているか
+    for mark in ('Edu-IT 共通の枠', 'window.EDUIT_INFO = {', 'EDUIT_INFO.app = {', 'window.EduitFrame'):
+        if mark not in html:
+            raise SystemExit(page_path + ': 共通の枠(shared/eduit-frame.*・eduit-info.js)が読み込まれていません')
     html = html.replace('<head>', '<head>\n' + CHILD, 1)
     return html
 
@@ -73,10 +78,10 @@ def main(out):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>材料と加工 教材アプリ(1ファイル版)</title>
-<meta name="theme-color" content="#8a5a2b">
+<meta name="theme-color" content="#985a26">
 <link rel="icon" href="data:image/svg+xml;base64,%(icon)s">
 <style>
-  html, body { margin: 0; height: 100%%; background: #f4f1ea; }
+  html, body { margin: 0; height: 100%%; background: #f5f4f0; }
   #view { position: fixed; inset: 0; width: 100%%; height: 100%%; border: 0; display: block; }
   noscript p { font: 18px sans-serif; padding: 1rem; }
 </style>
@@ -85,7 +90,7 @@ def main(out):
 <noscript><p>JavaScript を有効にしてください。</p></noscript>
 <iframe id="view" title="教材アプリ"></iframe>
 <script>
-/* 材料と加工 教材アプリ 1ファイル版(制作: 技術科 岡田) */
+/* 材料と加工 教材アプリ 1ファイル版(作成: 技術 岡田) */
 (function () {
   'use strict';
   var DATA = %(data)s;
