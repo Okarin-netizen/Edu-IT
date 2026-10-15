@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>振り返り一覧(先生用)</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script src="../../shared/eduit-frame.js"></script>
+<script src="parse.js"></script>
+<style>
+  body { margin: 0; }
+  main { max-width: 1280px; margin: 0 auto; padding: 14px 16px 8px; font: 15px/1.6 var(--ef-font); }
+  h2 { font-size: 17px; margin: 0 0 8px; }
+  .muted { color: var(--ef-muted); font-size: 13px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .drop { margin-top: 10px; border: 2px dashed var(--ef-line); border-radius: var(--ef-radius-s); padding: 14px; text-align: center; color: var(--ef-muted); }
+  .drop.is-over { border-color: var(--ef-accent); background: var(--ef-accent-soft); color: var(--ef-text); }
+  input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .card-gap { margin-top: 12px; }
+  .files { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13px; max-height: 140px; overflow: auto; }
+  .files li { padding: 3px 0; border-bottom: 1px solid var(--ef-surface-2); }
+  .files .ng { color: #b42318; }
+  .files .who { font-weight: 700; }
+  .tabs { display: flex; gap: 6px; margin: 14px 0 0; flex-wrap: wrap; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 10px 0; }
+  .filters label { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; }
+  select, input[type=search] { font: 15px var(--ef-font); min-height: 36px; padding: 0 8px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: #fff; }
+  input[type=search] { min-width: 14em; }
+  .table-wrap { overflow: auto; max-height: calc(100vh - 230px); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: #fff; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border-bottom: 1px solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  thead th { position: sticky; top: 0; background: var(--ef-surface-2); z-index: 1; white-space: nowrap; }
+  td.v { white-space: pre-wrap; min-width: 18em; }
+  td.nw, th.nw { white-space: nowrap; }
+  tr.first td { border-top: 2px solid var(--ef-line); }
+  .tag { display: inline-block; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .tag-ふりかえり { background: var(--ef-accent-soft); color: var(--ef-accent); }
+  .tag-自己評価 { background: #e4f2e5; color: #1b5e20; }
+  .tag-成績 { background: #fbeedd; color: #8a4a00; }
+  .dom { font-weight: 700; }
+  .matrix td { text-align: center; }
+  .matrix td:first-child, .matrix th:first-child { text-align: left; white-space: nowrap; }
+  .matrix .none { color: #b42318; }
+  .empty { padding: 24px; text-align: center; color: var(--ef-muted); }
+  mark { background: #fff3a3; }
+  @media print { .ef-header .ef-tools, .no-print { display: none !important; } .table-wrap { max-height: none; overflow: visible; } }
+</style>
+</head>
+<body class="ef-page">
+<header class="ef-header">
+  <h1 class="ef-title"><span class="ef-icon">📋</span>振り返り一覧 <span class="ef-sub">先生用・4分野の教材の提出ファイルをまとめて見る</span></h1>
+  <div class="ef-tools"><span data-ef-about></span></div>
+</header>
+<main>
+  <section class="ef-card no-print">
+    <h2>1. 生徒が書き出した JSON ファイルを読み込む</h2>
+    <div class="row">
+      <label class="ef-btn-primary" for="pick-files">📄 ファイルを選ぶ(いくつでも)</label>
+      <input id="pick-files" type="file" accept=".json,application/json" multiple>
+      <label class="ef-btn" for="pick-folder">📁 フォルダごと読み込む</label>
+      <input id="pick-folder" type="file" webkitdirectory multiple>
+      <button type="button" class="ef-btn" id="clear">すべて消す</button>
+    </div>
+    <div class="drop" id="drop">ここにファイルやフォルダをドラッグしても読み込めます</div>
+    <p class="muted">読み込んだ内容はこの画面の中だけで使います。どこにも送らず、保存もしません(画面を閉じると消えます)。
+      同じファイル名をもう一度読み込むと、新しいほうに入れかわります。</p>
+    <details id="file-box" hidden>
+      <summary id="file-sum"></summary>
+      <ul class="files" id="files"></ul>
+    </details>
+  </section>
+
+  <div class="tabs no-print" role="tablist">
+    <button type="button" class="ef-btn" role="tab" aria-pressed="true" data-tab="list">振り返り一覧</button>
+    <button type="button" class="ef-btn" role="tab" aria-pressed="false" data-tab="matrix">提出状況(生徒 × 教材)</button>
+  </div>
+
+  <div class="filters no-print">
+    <label>分野 <select id="f-domain"></select></label>
+    <label>教材 <select id="f-app"></select></label>
+    <label>組 <select id="f-cls"></select></label>
+    <span id="f-types">
+      <label><input type="checkbox" value="ふりかえり" checked> ふりかえり</label>
+      <label><input type="checkbox" value="自己評価" checked> 自己評価</label>
+      <label><input type="checkbox" value="成績" checked> 成績</label>
+    </span>
+    <label>さがす <input type="search" id="f-q" placeholder="名前・ことば"></label>
+    <button type="button" class="ef-btn" id="csv">⬇ 表を CSV で保存</button>
+    <button type="button" class="ef-btn" id="print">🖨 印刷</button>
+  </div>
+  <p class="muted" id="count" aria-live="polite"></p>
+  <div class="table-wrap" id="view"></div>
+  <div data-ef-footer></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var DOMAINS = { A: 'A 材料と加工', B: 'B 生物育成', C: 'C エネルギー変換', D: 'D 情報' };
+  var files = [];   // { name, ok, format, error, entries }
+  var tab = 'list';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    for (var k in attrs || {}) { if (k === 'text') e.textContent = attrs[k]; else if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c != null) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function fmtAt(s) {
+    if (!/^\d{4}-\d\d-\d\dT/.test(s)) return s;
+    var d = new Date(s); if (isNaN(d)) return s;
+    var p = function (n) { return ('0' + n).slice(-2); };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function who(s) { return [s.cls ? s.cls + '組' : '', s.num ? s.num + '番' : '', s.name ? ' ' + s.name : ''].join('').trim(); }
+
+  /* ---------- 読み込み ---------- */
+  function readFiles(list) {
+    list = Array.prototype.filter.call(list, function (f) { return /\.json$/i.test(f.name); });
+    if (!list.length) return;
+    Promise.all(list.map(function (f) {
+      return f.text().then(function (t) {
+        var name = f.webkitRelativePath || f.name;
+        var r;
+        try { r = FKR.parse(JSON.parse(t.replace(/^﻿/, '')), f.name); }
+        catch (e) { r = { ok: false, error: 'JSON として読めませんでした' }; }
+        r.name = name;
+        files = files.filter(function (x) { return x.name !== name; });
+        files.push(r);
+      });
+    })).then(refresh);
+  }
+  $('pick-files').addEventListener('change', function (e) { readFiles(e.target.files); e.target.value = ''; });
+  $('pick-folder').addEventListener('change', function (e) { readFiles(e.target.files); e.target.value = ''; });
+  $('clear').addEventListener('click', function () { if (!files.length || confirm('読み込んだファイルを画面から消します。')) { files = []; refresh(); } });
+  var drop = $('drop');
+  ['dragenter', 'dragover'].forEach(function (ev) { document.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { document.addEventListener(ev, function (e) { e.preventDefault(); if (ev === 'drop' || !e.relatedTarget) drop.classList.remove('is-over'); }); });
+  document.addEventListener('drop', function (e) {
+    var items = e.dataTransfer.items, out = [], wait = [];
+    function walk(entry) {
+      if (!entry) return;
+      if (entry.isFile) wait.push(new Promise(function (ok) { entry.file(function (f) { out.push(f); ok(); }, ok); }));
+      else if (entry.isDirectory) {
+        var rd = entry.createReader();
+        wait.push(new Promise(function (ok) {
+          (function more() { rd.readEntries(function (es) { if (!es.length) return ok(); es.forEach(walk); more(); }, ok); })();
+        }));
+      }
+    }
+    if (items && items.length && items[0].webkitGetAsEntry) {
+      Array.prototype.forEach.call(items, function (it) { walk(it.webkitGetAsEntry()); });
+      (function settle(n) { Promise.all(wait).then(function () { if (wait.length > n) settle(wait.length); else readFiles(out); }); })(0);
+    } else readFiles(e.dataTransfer.files);
+  });
+
+  /* ---------- データをそろえる ---------- */
+  /* 組と番号が同じなら同じ生徒とみなす(名前を書かなかったファイルも、名前のあるファイルとまとめる) */
+  var canon = function (s) { return s; };
+  function makeCanon() {
+    var named = {};
+    files.forEach(function (f) {
+      (f.entries || []).forEach(function (e) {
+        var s = e.student, k = s.cls + '\u0001' + s.num;
+        if (s.cls && s.num && s.name && !named[k]) named[k] = s;
+      });
+    });
+    canon = function (s) { return s.cls && s.num && !s.name && named[s.cls + '\u0001' + s.num] || s; };
+  }
+  function allRows() {
+    var rows = [], seen = {};
+    files.forEach(function (f) {
+      (f.entries || []).forEach(function (e) {
+        e = { student: canon(e.student), domain: e.domain, app: e.app, rows: e.rows };
+        e.rows.forEach(function (r) {
+          // 教材集の「記録まとめ」と1つずつの書き出しを両方出したとき、同じ行は1つにする
+          var key = [FKR.studentKey(e.student), e.domain, e.app, r.part, r.type, r.value].join('\u0002');
+          if (seen[key]) return; seen[key] = 1;
+          rows.push({ s: e.student, domain: e.domain, app: e.app, part: r.part, type: r.type, label: r.label, value: r.value, at: r.at, file: f.name });
+        });
+      });
+    });
+    return rows;
+  }
+  function allEntries() {
+    var out = [];
+    files.forEach(function (f) { (f.entries || []).forEach(function (e) { out.push({ s: canon(e.student), domain: e.domain, app: e.app, n: e.rows.filter(function (r) { return r.type === 'ふりかえり'; }).length }); }); });
+    return out;
+  }
+  function appOrder(a, b) { return a.domain < b.domain ? -1 : a.domain > b.domain ? 1 : FKR.natural(a.app, b.app); }
+
+  /* ---------- 絞りこみ ---------- */
+  function fillSelect(sel, values, all) {
+    var cur = sel.value;
+    sel.textContent = '';
+    sel.appendChild(el('option', { value: '', text: all }));
+    values.forEach(function (v) { sel.appendChild(el('option', { value: v[0], text: v[1] })); });
+    sel.value = values.some(function (v) { return v[0] === cur; }) ? cur : '';
+  }
+  function updateFilters() {
+    var ents = allEntries(), doms = {}, apps = {}, clss = {};
+    ents.forEach(function (e) { doms[e.domain] = 1; clss[e.s.cls] = 1; });
+    fillSelect($('f-domain'), Object.keys(doms).sort().map(function (d) { return [d, DOMAINS[d]]; }), 'すべて');
+    var dom = $('f-domain').value;
+    ents.forEach(function (e) { if (!dom || e.domain === dom) apps[e.domain + '\u0001' + e.app] = e; });
+    fillSelect($('f-app'), Object.keys(apps).map(function (k) { return apps[k]; }).sort(appOrder).map(function (e) { return [e.app, e.app]; }), 'すべて');
+    fillSelect($('f-cls'), Object.keys(clss).sort(FKR.natural).map(function (c) { return [c, c ? c + '組' : '(組なし)']; }), 'すべて');
+  }
+  function filters() {
+    var types = {};
+    Array.prototype.forEach.call(document.querySelectorAll('#f-types input'), function (c) { if (c.checked) types[c.value] = 1; });
+    return { domain: $('f-domain').value, app: $('f-app').value, cls: $('f-cls').value, hasCls: $('f-cls').selectedIndex > 0, types: types, q: $('f-q').value.trim().normalize('NFKC').toLowerCase() };
+  }
+  function passStudent(s, f) { return !f.hasCls || s.cls === f.cls; }
+  function filteredRows() {
+    var f = filters();
+    return allRows().filter(function (r) {
+      if (f.domain && r.domain !== f.domain) return false;
+      if (f.app && r.app !== f.app) return false;
+      if (!passStudent(r.s, f) || !f.types[r.type]) return false;
+      if (f.q) {
+        var hay = [who(r.s), r.app, r.part, r.label, r.value].join(' ').normalize('NFKC').toLowerCase();
+        if (hay.indexOf(f.q) < 0) return false;
+      }
+      return true;
+    }).sort(function (a, b) {
+      return FKR.compareStudent(a.s, b.s) || appOrder(a, b);
+    });
+  }
+
+  /* ---------- 表 ---------- */
+  var LIST_HEAD = ['組', '番号', '名前', '分野', '教材', '場面', '種類', '問い・項目', '内容', '日時', 'ファイル'];
+  function listTable() {
+    var rows = filteredRows(), f = filters();
+    var tb = el('tbody'), prev = '';
+    rows.forEach(function (r) {
+      var k = FKR.studentKey(r.s), first = k !== prev; prev = k;
+      var v = el('td', { class: 'v' });
+      if (f.q) {
+        var low = r.value.normalize('NFKC').toLowerCase(), i = low.indexOf(f.q);
+        if (i >= 0 && r.value.length === low.length) v.append(r.value.slice(0, i), el('mark', { text: r.value.slice(i, i + f.q.length) }), r.value.slice(i + f.q.length));
+        else v.textContent = r.value;
+      } else v.textContent = r.value;
+      tb.appendChild(el('tr', first ? { class: 'first' } : null, [
+        el('td', { class: 'nw', text: r.s.cls }), el('td', { class: 'nw', text: r.s.num }), el('td', { class: 'nw', text: r.s.name }),
+        el('td', { class: 'nw dom', text: r.domain }), el('td', { text: r.app }), el('td', { text: r.part }),
+        el('td', null, [el('span', { class: 'tag tag-' + r.type, text: r.type })]), el('td', { text: r.label }), v,
+        el('td', { class: 'nw', text: fmtAt(r.at) }), el('td', { class: 'muted', text: r.file })
+      ]));
+    });
+    $('count').textContent = rows.length + ' 行(' + new Set(rows.map(function (r) { return FKR.studentKey(r.s); })).size + ' 人)';
+    if (!rows.length) return el('div', { class: 'empty', text: files.length ? '条件に合う行がありません。' : 'まだファイルを読み込んでいません。' });
+    return el('table', null, [el('thead', null, [el('tr', null, LIST_HEAD.map(function (h) { return el('th', { class: 'nw', text: h }); }))]), tb]);
+  }
+  function listCsv() {
+    return [LIST_HEAD].concat(filteredRows().map(function (r) {
+      return [r.s.cls, r.s.num, r.s.name, DOMAINS[r.domain], r.app, r.part, r.type, r.label, r.value, fmtAt(r.at), r.file];
+    }));
+  }
+
+  /* 提出状況: 生徒 × 教材(数字はふりかえりの件数、○ は提出はあるがふりかえりの文がない、空らんは未提出) */
+  function matrixData() {
+    var f = filters(), students = {}, apps = {}, cell = {};
+    allEntries().forEach(function (e) {
+      if (f.domain && e.domain !== f.domain) return;
+      if (f.app && e.app !== f.app) return;
+      if (!passStudent(e.s, f)) return;
+      if (f.q && who(e.s).normalize('NFKC').toLowerCase().indexOf(f.q) < 0) return;
+      var sk = FKR.studentKey(e.s), ak = e.domain + '\u0001' + e.app;
+      students[sk] = e.s; apps[ak] = e;
+      var c = cell[sk + '\u0003' + ak] || (cell[sk + '\u0003' + ak] = { files: 0, n: 0 });
+      c.files++; c.n = Math.max(c.n, e.n);
+    });
+    var sl = Object.keys(students).map(function (k) { return students[k]; }).sort(FKR.compareStudent);
+    var al = Object.keys(apps).map(function (k) { return apps[k]; }).sort(appOrder);
+    return { sl: sl, al: al, get: function (s, a) { return cell[FKR.studentKey(s) + '\u0003' + a.domain + '\u0001' + a.app]; } };
+  }
+  function matrixTable() {
+    var m = matrixData();
+    $('count').textContent = m.sl.length + ' 人 × ' + m.al.length + ' 教材 ・ 数字はふりかえりの文の数、○ は提出あり(ふりかえりの文なし)、－ は未提出';
+    if (!m.sl.length) return el('div', { class: 'empty', text: files.length ? '条件に合う生徒がいません。' : 'まだファイルを読み込んでいません。' });
+    var head = el('tr', null, [el('th', { text: '組・番号・名前' })].concat(m.al.map(function (a) { return el('th', { title: DOMAINS[a.domain], text: a.domain + ' ' + a.app }); })));
+    var tb = el('tbody');
+    m.sl.forEach(function (s) {
+      tb.appendChild(el('tr', null, [el('td', { text: who(s) || '(名前なし)' })].concat(m.al.map(function (a) {
+        var c = m.get(s, a);
+        return el('td', c ? { text: c.n ? String(c.n) : '○' } : { class: 'none', text: '－' });
+      }))));
+    });
+    return el('table', { class: 'matrix' }, [el('thead', null, [head]), tb]);
+  }
+  function matrixCsv() {
+    var m = matrixData();
+    return [['組', '番号', '名前'].concat(m.al.map(function (a) { return a.domain + ' ' + a.app; }))].concat(m.sl.map(function (s) {
+      return [s.cls, s.num, s.name].concat(m.al.map(function (a) { var c = m.get(s, a); return c ? (c.n ? c.n : '○') : ''; }));
+    }));
+  }
+
+  /* ---------- 画面 ---------- */
+  function renderFiles() {
+    var ok = files.filter(function (f) { return f.ok; }).length, ng = files.length - ok;
+    $('file-box').hidden = !files.length;
+    $('file-sum').textContent = '読み込んだファイル ' + files.length + ' 個(読めた ' + ok + ' 個' + (ng ? '・読めなかった ' + ng + ' 個' : '') + ')';
+    if (ng) $('file-box').open = true;
+    var ul = $('files'); ul.textContent = '';
+    files.slice().sort(function (a, b) { return (a.ok === b.ok ? 0 : a.ok ? 1 : -1) || FKR.natural(a.name, b.name); }).forEach(function (f) {
+      if (!f.ok) { ul.appendChild(el('li', { class: 'ng', text: '✕ ' + f.name + ' … ' + f.error + (f.format ? '(' + f.format + ')' : '') })); return; }
+      var names = f.entries.map(function (e) { return who(e.student) || '名前なし'; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+      var nrow = f.entries.reduce(function (n, e) { return n + e.rows.length; }, 0);
+      ul.appendChild(el('li', null, ['✓ ' + f.name + ' … ', el('span', { class: 'who', text: names.join('、') }),
+        '・' + f.entries.map(function (e) { return e.app; }).join('、') + '(' + nrow + ' 行)' +
+        (f.entries.some(function (e) { return e.fromFile; }) ? '・組・番号はファイル名から読み取り' : '') +
+        (f.entries.some(function (e) { return !who(e.student); }) ? '・ファイルの中に名前がありません' : '')]));
+    });
+  }
+  function render() {
+    var v = $('view'); v.textContent = '';
+    v.appendChild(tab === 'list' ? listTable() : matrixTable());
+    document.querySelector('#f-types').style.display = tab === 'list' ? '' : 'none';
+  }
+  function refresh() { makeCanon(); renderFiles(); updateFilters(); render(); }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) {
+    b.addEventListener('click', function () {
+      tab = b.getAttribute('data-tab');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  $('f-domain').addEventListener('change', function () { updateFilters(); render(); });
+  ['f-app', 'f-cls'].forEach(function (id) { $(id).addEventListener('change', render); });
+  $('f-types').addEventListener('change', render);
+  $('f-q').addEventListener('input', render);
+  $('print').addEventListener('click', function () { window.print(); });
+  $('csv').addEventListener('click', function () {
+    var d = new Date(), stamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+    var blob = new Blob([FKR.csv(tab === 'list' ? listCsv() : matrixCsv())], { type: 'text/csv' });
+    var a = el('a', { href: URL.createObjectURL(blob), download: (tab === 'list' ? '振り返り一覧_' : '提出状況_') + stamp + '.csv' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
