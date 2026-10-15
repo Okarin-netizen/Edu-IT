@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E2 電気回路ラボ</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'E2 電気回路ラボ' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 html,body{margin:0;height:100%;background:#eef3f8;}
 .e2{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
@@ -12,7 +17,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   font-size:16px;overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e2 *{box-sizing:border-box}
 .e2 button{font:inherit;touch-action:manipulation}
-.e2-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #d9480f}
+.e2-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e2-top .e2-btn{white-space:nowrap}
 .e2-top .sh{display:none}
 .e2-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
@@ -20,8 +25,12 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e2-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e2-btn:active{transform:translateY(1px)}
 .e2-btn:disabled{opacity:.4;cursor:default}
-.e2-top .e2-btn{background:#2f4f7a;color:#fff;padding:0 12px}
-.e2-top .e2-btn.on{background:#fff;color:#1d3557}
+.e2-top .e2-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px}
+.e2-top .e2-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e2-top .e2-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e2-top h1{color:var(--ef-text,#1f2328)}
+.e2-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e2-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e2-btn.primary{background:var(--accent);color:#fff}
 .e2-btn.danger{background:#fde2e2;color:#a61e1e}
 .e2-btn.good{background:#d3f5e1;color:#0d6b3a}
@@ -890,6 +899,9 @@ function openMode(mode) {
 }
 
 /* ---------- 画面の骨組み ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   var v = S.view, ch = chal();
   var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
@@ -899,7 +911,7 @@ function buildShell() {
     '<button class="e2-btn' + (v === 'cost' ? ' on' : '') + '" data-act="cost">💴 <span class="lg">電気</span>料金</button>' +
     '<div class="e2-stitle" data-ref="stitle"></div>' +
     '<button class="e2-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button></div>';
+    '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' + efSlot() + '</div>';
   var main;
   if (v === 'lab') {
     main = '<div class="e2-main"><div class="e2-pal" data-ref="pal"></div>' +
@@ -912,6 +924,7 @@ function buildShell() {
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (v === 'lab') bindBoard();
+  efMount();
   void ch;
 }
 function render() {
