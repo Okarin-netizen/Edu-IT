@@ -28,7 +28,7 @@ const check = (ok, label) => {
   const scrollY = () => p.evaluate(() => window.scrollY);
 
   // 全ページが開ける
-  for (const id of ["intro", "guess", "token", "textgen", "halluc", "noise", "imggen", "privacy", "quiz"]) {
+  for (const id of ["intro", "guess", "token", "textgen", "halluc", "noise", "imggen", "privacy", "quiz", "records"]) {
     await go(id);
     check((await p.locator(".sec-title").count()) === 1, `${id} が開ける`);
   }
@@ -99,8 +99,10 @@ const check = (ok, label) => {
   await p.click("text=ふりがな");
   check((await p.locator("#view ruby").count()) === 0, "もう一度おすとふりがなが消える");
 
-  // GL-08: 記録を書き出す
   await go("quiz");
+  await p.fill("#refl-r1", "つぎの言葉を予想してつなげていた");
+  // GL-08: 記録を書き出す(ほかの教材と同じ「ふりかえり・記録」のページ)
+  await go("records");
   await p.click("text=記録を書き出す");
   check((await p.locator("text=組と番号を入れてから").count()) === 1, "組と番号がないと書き出さない");
   await p.fill("#rec-cls", "2");
@@ -109,13 +111,43 @@ const check = (ok, label) => {
   const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 5000 }).catch(() => null), p.click("text=記録を書き出す")]);
   check(Boolean(dl), "記録のファイルができる");
   check((await p.locator("text=生成AIのしくみラボ_2_5.json").count()) === 1, "知らせにファイル名が出る");
+  check((await p.locator("text=つぎの言葉を予想してつなげていた").count()) === 1, "記録のページにふりかえりが出る");
 
   // GL-23・GL-24: 読みこみ直しても残る
   await p.reload();
   await p.waitForTimeout(200);
   check((await p.locator(".nav-link.is-visited").count()) >= 5, "メニューに「やった」印がつく");
+  check((await p.locator(".chapter-nav li.done .num", { hasText: "✓" }).count()) >= 5, "やったステップの番号が ✓ になる");
+  check(/[1-9]\d*%/.test(await p.locator("#overall-progress").innerText()), "上のバーに進み具合が出る");
   await go("quiz");
   check((await p.locator(".quiz-opts .choice.right").count()) >= 1, "読みこみ直してもクイズの答えが残る");
+
+  // ほかの教材と同じ枠: 上のバーの道具の順番・ページの移動
+  const tools = await p.locator("#display-toggles button").allInnerTexts();
+  check(tools.join(",") === "ふりがな,大きな文字", `上のバーの道具の順番 (${tools.join(",")})`);
+  check((await p.locator(".pager a", { hasText: "次へ：ふりかえり・記録 →" }).count()) === 1, "クイズのつぎは「ふりかえり・記録」");
+
+  // はじめから(データリセット)
+  await p.click("text=大きな文字");
+  await go("records");
+  await p.click("text=この端末の記録をすべて消す");
+  check((await p.locator(".reset-confirm").count()) === 1, "消す前に画面の中で確かめる");
+  await p.click("text=やめる");
+  check((await p.locator(".reset-confirm").count()) === 0 && (await p.inputValue("#rec-cls")) === "2", "「やめる」なら何も消えない");
+  await p.click("text=この端末の記録をすべて消す");
+  await p.click("text=消す(はじめからやり直す)");
+  await p.waitForTimeout(100);
+  check((await p.locator("text=記録をすべて消しました").count()) === 1, "消したことが知らされる");
+  check((await p.inputValue("#rec-cls")) === "" && (await p.inputValue("#rec-num")) === "", "組・番号が消える");
+  check((await p.locator(".nav-link.is-visited").count()) === 0, "メニューの「やった」印が消える");
+  await go("quiz");
+  check((await p.locator(".quiz-opts .choice.right, .quiz-opts .choice.wrong").count()) === 0, "クイズの答えが消える");
+  check((await p.inputValue("#refl-r1")) === "", "ふりかえりが消える");
+  check(await p.evaluate(() => document.documentElement.classList.contains("big-text")), "文字の大きさの設定は残る");
+  await p.reload();
+  await p.waitForTimeout(200);
+  check((await p.locator(".quiz-opts .choice.right, .quiz-opts .choice.wrong").count()) === 0, "読みこみ直しても消えたまま");
+  await p.click("text=大きな文字");
 
   // GL-22: タブレット縦で、メニューの8ステップが全部見える
   await p.setViewportSize({ width: 810, height: 1080 });

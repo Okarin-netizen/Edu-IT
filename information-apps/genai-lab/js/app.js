@@ -88,11 +88,11 @@
   function pct(x) { return Math.round(x * 100) + '%'; }
   function point(title) {
     var kids = Array.prototype.slice.call(arguments, 1);
-    return h('div', { class: 'point' }, h('p', { class: 'point-title', text: title }), kids);
+    return h('div', { class: 'point explain' }, h('p', { class: 'point-title explain-label', text: title }), kids);
   }
   function card(title) {
     var kids = Array.prototype.slice.call(arguments, 1);
-    return h('section', { class: 'panel' }, title ? h('h3', { class: 'panel-title' }, title) : null, kids);
+    return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
   }
   function segmented(options, value, onChange, label) {
     return h('div', { class: 'seg', role: 'group', 'aria-label': label },
@@ -142,35 +142,50 @@
   function clearTimers() { timers.forEach(clearInterval); timers = []; }
 
   var SECTIONS = [
-    { id: 'intro', group: '', no: '', title: 'はじめに', render: renderIntro },
-    { id: 'guess', group: '文章をつくるAI', no: '1', title: 'つぎの言葉あて', render: renderGuess },
-    { id: 'token', group: '文章をつくるAI', no: '2', title: '言葉のかけら(トークン)', render: renderToken },
-    { id: 'textgen', group: '文章をつくるAI', no: '3', title: 'ミニ文章AIを動かす', render: renderTextgen },
-    { id: 'halluc', group: '文章をつくるAI', no: '4', title: 'もっともらしいまちがい', render: renderHalluc },
-    { id: 'noise', group: '画像をつくるAI', no: '5', title: 'ノイズをまぜる(学習)', render: renderNoise },
-    { id: 'imggen', group: '画像をつくるAI', no: '6', title: 'ノイズから絵をつくる', render: renderImggen },
-    { id: 'privacy', group: '安全に使う', no: '7', title: '個人情報が出てしまう？', render: renderPrivacy },
-    { id: 'quiz', group: '安全に使う', no: '8', title: 'クイズとふりかえり', render: renderQuiz }
+    { id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro },
+    { id: 'guess', group: '文章をつくるAI', no: '1', min: '10分', title: 'つぎの言葉あて', desc: '文のつづきに来る言葉を予想して、AIの予想とくらべる', render: renderGuess },
+    { id: 'token', group: '文章をつくるAI', no: '2', min: '5分', title: '言葉のかけら(トークン)', desc: 'AIが文を小さなかけらに分けて、番号にするようすを見る', render: renderToken },
+    { id: 'textgen', group: '文章をつくるAI', no: '3', min: '15分', title: 'ミニ文章AIを動かす', desc: 'つぎの言葉を1つずつえらんで文を作る、小さなAIを動かす', render: renderTextgen },
+    { id: 'halluc', group: '文章をつくるAI', no: '4', min: '15分', title: 'もっともらしいまちがい', desc: 'AIがすらすらとまちがえる(ハルシネーション)しくみをたしかめる', render: renderHalluc },
+    { id: 'noise', group: '画像をつくるAI', no: '5', min: '10分', title: 'ノイズをまぜる(学習)', desc: '絵にノイズをまぜて、AIが学習するときの問題を体験する', render: renderNoise },
+    { id: 'imggen', group: '画像をつくるAI', no: '6', min: '15分', title: 'ノイズから絵をつくる', desc: 'ノイズを少しずつ取りのぞいて、言葉から絵をつくる', render: renderImggen },
+    { id: 'privacy', group: '安全に使う', no: '7', min: '15分', title: '個人情報が出てしまう？', desc: '入れた個人情報が、ほかの人への答えに出てしまうしくみを見る', render: renderPrivacy },
+    { id: 'quiz', group: '安全に使う', no: '8', min: '10分', title: 'クイズとふりかえり', desc: 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
   ];
+  var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
   var current = null;
 
+  // 左のメニュー(ほかの情報の教材と同じ形: 番号の丸・まとまりの見出し・やったら ✓)
   function buildNav() {
-    nav.textContent = '';
+    var ol = h('ol');
     var group = null;
-    var ul = null;
     SECTIONS.forEach(function (s) {
       if (s.group !== group) {
         group = s.group;
-        if (group) nav.appendChild(h('p', { class: 'nav-group', text: group }));
-        ul = h('ul', { class: 'nav-list' });
-        nav.appendChild(ul);
+        if (group) ol.appendChild(h('li', { class: 'nav-group', 'aria-hidden': 'true', text: group }));
       }
-      ul.appendChild(h('li', null, h('a', { href: '#' + s.id, class: 'nav-link', 'data-id': s.id },
-        s.no ? h('span', { class: 'nav-no', text: s.no }) : null, h('span', { text: s.title }),
-        h('span', { class: 'nav-done', hidden: true, 'aria-label': 'やった', text: '✓' }))));
+      ol.appendChild(h('li', { 'data-li': s.id }, h('a', { href: '#' + s.id, class: 'nav-link', 'data-id': s.id },
+        h('span', { class: 'num', 'aria-hidden': 'true', text: s.no || s.icon }),
+        h('span', null, s.title, s.no ? h('span', { class: 'visually-hidden nav-done', hidden: true, text: '(やった)' }) : null))));
     });
+    nav.textContent = '';
+    nav.appendChild(h('nav', { 'aria-label': 'ステップ' }, ol));
+  }
+  // 上のバーの「進み具合」: 8つのステップのうち、ひらいたステップの割合
+  function renderOverall() {
+    var visited = saved.visited || {};
+    var done = STEP_SECTIONS.filter(function (x) { return visited[x.id]; }).length;
+    var p = Math.round(done / STEP_SECTIONS.length * 100);
+    var el = document.getElementById('overall-progress');
+    if (!el) return;
+    el.textContent = '';
+    append(el, [h('span', { text: '進み具合' }),
+      h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(p), 'aria-label': '全体の進み具合' },
+        h('span', { class: 'bar-fill', style: 'width:' + p + '%' })),
+      h('span', { text: p + '%' })]);
   }
 
   // 同じページの中の操作(ボタンなど)では、スクロールの位置とキーボードの位置を保ったまま描き直す。
@@ -182,12 +197,9 @@
   }
   function rerender() {
     var y = window.scrollY;
-    var main = document.getElementById('main');
-    var my = main ? main.scrollTop : 0;
     var fi = focusables().indexOf(document.activeElement);
     draw(current);
     window.scrollTo(0, y);
-    if (main) main.scrollTop = my;
     if (fi >= 0) {
       // 押したボタンが使えなくなったとき(答えたあとなど)は、そのつぎの使える所へ
       var list = focusables();
@@ -204,22 +216,27 @@
     current = s;
     draw(s);
     save('last', s.id);
+    if (s.no) save('lastStep', s.id);
     var visited = saved.visited || {};
     visited[s.id] = true;
     save('visited', visited);
     markNav();
     window.scrollTo(0, 0);
-    var main = document.getElementById('main');
-    if (main) main.scrollTop = 0;
+    document.title = (s.id === 'intro' ? 'はじめに' : s.title) + ' | 生成AIのしくみラボ';
   }
   function markNav() {
     var visited = saved.visited || {};
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
       var id = a.getAttribute('data-id');
-      a.classList.toggle('is-visited', !!visited[id] && id !== current.id);
-      var no = a.querySelector('.nav-done');
-      if (no) no.hidden = !(visited[id] && id !== current.id);
+      var sec = SECTIONS.filter(function (x) { return x.id === id; })[0];
+      var done = !!(sec && sec.no && visited[id]);
+      a.classList.toggle('is-visited', done);
+      a.parentNode.classList.toggle('done', done);
+      a.querySelector('.num').textContent = done ? '✓' : (sec.no || sec.icon);
+      var hid = a.querySelector('.nav-done');
+      if (hid) hid.hidden = !done;
     });
+    renderOverall();
   }
   function draw(s) {
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
@@ -227,17 +244,21 @@
     });
     view.textContent = '';
     var idx = SECTIONS.indexOf(s);
-    view.appendChild(h('header', { class: 'sec-head' },
-      s.group ? h('p', { class: 'sec-group', text: s.group + (s.no ? '　ステップ ' + s.no : '') }) : null,
-      h('h2', { class: 'sec-title', text: s.title })));
+    if (s.no) {
+      view.appendChild(h('header', { class: 'module-head sec-head' },
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.no + '・目安 ' + s.min }),
+        h('h1', { class: 'sec-title', text: s.title })));
+    }
     var body = h('div', { class: 'sec-body' });
     view.appendChild(body);
     s.render(body);
     var prev = SECTIONS[idx - 1];
     var next = SECTIONS[idx + 1];
-    view.appendChild(h('nav', { class: 'pager', 'aria-label': 'ページの移動' },
-      prev ? h('a', { class: 'ef-btn', href: '#' + prev.id }, '◀ ' + prev.title) : h('span'),
-      next ? h('a', { class: 'ef-btn-primary', href: '#' + next.id }, 'つぎへ: ' + next.title + ' ▶') : null));
+    if (s.id !== 'intro') {
+      view.appendChild(h('nav', { class: 'pager btn-row', 'aria-label': 'ページの移動' },
+        prev ? h('a', { class: 'ef-btn', href: '#' + prev.id }, prev.no ? '← 前のステップ' : '← ' + prev.title) : null,
+        next ? h('a', { class: 'ef-btn-primary', href: '#' + next.id }, '次へ：' + next.title + ' →') : null));
+    }
     applyRuby(view);
     persist();
   }
@@ -249,35 +270,56 @@
 
   // ================= はじめに =================
   function renderIntro(el) {
+    var visited = saved.visited || {};
+    var last = SECTIONS.filter(function (x) { return x.no && x.id === saved.lastStep; })[0];
     append(el, [
-      h('p', { class: 'lead' }, rb('生成', 'せいせい'), 'AIは、文章や絵などを「新しく作る」AIです。このラボでは、ブラウザの中で動く小さな', rb('模型', 'もけい'),
-        'のAIを自分で動かして、しくみをたしかめます。インターネットにはつながりません。'),
-      h('div', { class: 'flow', role: 'img', 'aria-label': '学習データ、学習、生成の流れ' },
-        h('div', { class: 'flow-box' }, h('b', { text: '学習データ' }), h('span', { text: 'たくさんの文章や絵' })),
-        h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
-        h('div', { class: 'flow-box' }, h('b', { text: '学習' }), h('span', { text: 'よく出てくる「きまり」を見つけて覚える' })),
-        h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
-        h('div', { class: 'flow-box accent' }, h('b', { text: '生成' }), h('span', { text: '覚えたきまりを使って、新しく作る' }))),
-      h('div', { class: 'two' },
-        card('文章をつくるAI',
-          h('p', { text: '「つぎに来そうな言葉」を予想して、1つずつつなげて文を作ります。' }),
-          h('p', { class: 'muted', text: 'ステップ1〜4' }),
-          h('a', { class: 'ef-btn-primary', href: '#guess' }, 'はじめる ▶')),
-        card('画像をつくるAI',
-          h('p', { text: 'ざらざらのノイズから、少しずつノイズを取りのぞいて絵にしていきます。' }),
-          h('p', { class: 'muted', text: 'ステップ5・6' }),
-          h('a', { class: 'ef-btn-primary', href: '#noise' }, 'はじめる ▶'))),
-      card('安全に使うために',
-        h('p', { text: 'もっともらしいまちがい(ハルシネーション)と、個人情報が出てしまうしくみも体験します。ステップ4・7・8。' })),
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: '生成AIのしくみラボ' }),
+        h('p', { class: 'meta' }, '生成AIは、文章や絵などを「新しく作る」AIです。ブラウザの中で動く小さな模型のAIを自分で動かして、どうやって作っているのか、使うときに何に気をつけるのかを確かめよう。'),
+        h('p', { class: 'muted author', text: '作成：技術 岡田' })),
+      h('section', { class: 'card' },
+        h('h2', { text: '生成AIが作るまでの3つの手順' }),
+        h('p', { text: '文章をつくるAIも、画像をつくるAIも、次の3つの手順で作ります。どのステップでも、この手順が出てきます。' }),
+        h('div', { class: 'flow', role: 'img', 'aria-label': '学習データ、学習、生成の流れ' },
+          h('div', { class: 'flow-box' }, h('b', { text: '1. 学習データ' }), h('span', { text: 'たくさんの文章や絵を集める' })),
+          h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
+          h('div', { class: 'flow-box' }, h('b', { text: '2. 学習' }), h('span', { text: 'よく出てくる「きまり」を見つけて覚える' })),
+          h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
+          h('div', { class: 'flow-box' }, h('b', { text: '3. 生成' }), h('span', { text: '覚えたきまりを使って、新しく作る' }))),
+        point('安心して体験できます',
+          h('p', { text: 'このラボはすべてこのブラウザの中だけで動き、インターネットには一切つながりません。本物の生成AIのサービスにもつながらず、入力した文はどこにも送りません。出てくる名前・学校・電話番号・住所は、すべて架空のものです。' }))),
+      h('section', { class: 'card' },
+        h('h2', { text: 'すすめ方' }),
+        h('ol', null,
+          h('li', { text: '1〜4で文章をつくるAI、5・6で画像をつくるAIのしくみを体験する' }),
+          h('li', { text: '7で個人情報の注意を体験し、8のクイズとふりかえりを書く' }),
+          h('li', null, h('a', { href: '#records', text: 'ふりかえり・記録' }), 'からファイルを書き出して提出する')),
+        h('div', { class: 'lesson-plan' },
+          h('h3', { text: '2時間で行うときの例' }),
+          h('ul', null,
+            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・1 つぎの言葉あて・2 トークン・3 ミニ文章AI・4 もっともらしいまちがい」'),
+            h('li', null, h('strong', { text: '2時間目' }), '「5 ノイズをまぜる・6 ノイズから絵をつくる・7 個人情報・8 クイズとふりかえり」'),
+            h('li', null, h('strong', { text: '1時間で行うとき' }), 'は、1・3・4・6・7 を中心にする')),
+          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「ふりかえり・記録」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
+      h('section', { class: 'module-group' },
+        h('h2', { text: 'ステップ' }),
+        h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
+          return h('a', { class: 'module-card', href: '#' + x.id },
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.no + '・目安 ' + x.min }),
+            h('span', { class: 'mc-title', text: x.title }),
+            h('span', { class: 'mc-desc', text: x.desc }),
+            h('span', { class: 'mc-state' + (visited[x.id] ? ' is-done' : ''), text: visited[x.id] ? '✓ やった' : 'まだ' }));
+        }))),
+      h('div', { class: 'btn-row home-start' },
+        h('a', { class: 'ef-btn-primary', href: '#guess', text: 'ステップ1 つぎの言葉あてからはじめよう →' }),
+        last && last.id !== 'guess' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
       h('details', { class: 'teacher' },
-        h('summary', { text: '先生へ(授業の進め方の例)' }),
+        h('summary', { text: '先生へ' }),
         h('ul', null,
-          h('li', { text: '1時間目(50分): はじめに 5分 → 1 つぎの言葉あて 10分 → 2 トークン 5分 → 3 ミニ文章AI 15分 → 4 もっともらしいまちがい 15分' }),
-          h('li', { text: '2時間目(50分): 5 ノイズをまぜる 10分 → 6 ノイズから絵をつくる 15分 → 7 個人情報 15分 → 8 クイズとふりかえり 10分' }),
-          h('li', { text: '1時間で行うときは、1・3・4・6・7 を中心にします。' }),
           h('li', { text: 'この教材の文章AIは、前の1〜2語だけを見て続きを選ぶ「n-gram(エヌグラム)」という小さな模型です。本物の生成AIは何十億もの文から学び、ずっと長い前の文を見て予想しますが、「つぎの言葉を確率で選ぶ」という考え方は同じです。' }),
           h('li', { text: '画像AIは、拡散モデルの考え方(ノイズを少しずつ取りのぞく)を、学習した絵6枚だけでまねた模型です。学習データが少ないので、学習した絵とほぼ同じ絵が出やすく、それを「似すぎ・著作権」の話につなげられます。' }),
-          h('li', { text: 'つぎの言葉あての割合は、説明のための例です。人名・学校名・住所・電話番号はすべて架空です。' })))
+          h('li', { text: 'つぎの言葉あての割合は、説明のための例です。人名・学校名・住所・電話番号はすべて架空です。' }),
+          h('li', { text: '進み具合・ふりかえり・名前などは、この端末のブラウザの中にだけ保存されます。「ふりかえり・記録」から JSON・CSV で書き出せます。ふりがな・文字の大きさの設定は「はじめからやり直す」でも残ります。' })))
     ]);
   }
 
@@ -888,7 +930,7 @@
       return h('label', { class: 'refl' }, h('span', { class: 'ctl-label', text: r[1] }), ta);
     }), status));
 
-    el.appendChild(renderRecords());
+    el.appendChild(h('p', { class: 'hint' }, '書きおわったら、', h('a', { href: '#records', text: 'ふりかえり・記録' }), 'でファイルに書き出して先生に出そう。'));
   }
 
   // ---- 記録の書き出し(端末の中でファイルを作るだけ。送信はしない) ----
@@ -915,14 +957,14 @@
       r.reflection.r1, r.reflection.r2, r.reflection.r3];
     return '\ufeff' + head.map(cell).join(',') + '\r\n' + row.map(cell).join(',');
   }
-  function renderRecords() {
+  function renderRecordsPage(el) {
     var st = saved.student || {};
     var note = h('p', { class: 'export-note', role: 'status', 'aria-live': 'polite' });
     function field(id, label, key, size) {
       var inp = h('input', { id: id, type: 'text', class: 'input', maxlength: '40', size: size });
       inp.value = st[key] || '';
       inp.addEventListener('input', function () { st[key] = inp.value.trim(); save('student', st); });
-      return h('label', { class: 'ctl' }, h('span', { class: 'ctl-label', text: label }), inp);
+      return h('div', { class: 'field' }, h('label', { for: id, text: label }), inp);
     }
     function fileName(ext) {
       var who = [st.cls, st.num, st.name].filter(Boolean).join('_') || '記録';
@@ -971,14 +1013,91 @@
       };
       try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
     }
-    return card('記録を出す',
-      h('p', { text: 'クイズの結果とふりかえりを、ファイルにして先生に出せます。名前は、先生の指示がないときは入れなくてかまいません。' }),
-      h('div', { class: 'pi-grid' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12)),
-      h('div', { class: 'row' },
-        btn('記録を書き出す(JSON・提出用)', function () { download('json'); }, 'ef-btn-primary'),
-        btn('CSVで書き出す(表計算用)', function () { download('csv'); }),
-        btn('記録をコピーする', copy)),
-      note);
+    var visited = saved.visited || {};
+    var r = buildRecord();
+    var refl = saved.refl || {};
+    var score = { guess: r.guess.answered ? 'AIと同じ予想 ' + r.guess.sameAsAI + ' / ' + D.guessGame.length + '(答えた ' + r.guess.answered + '問)' : '',
+      quiz: r.quiz.answered ? r.quiz.correct + ' / ' + r.quiz.total + ' 問正解' : '' };
+    append(el, [
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
+        h('p', { class: 'meta', text: '進み具合とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+      card('名前',
+        h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
+        h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
+      card('進み具合とふりかえり',
+        h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
+          h('thead', null, h('tr', null, h('th', { text: 'ステップ' }), h('th', { text: 'ひらいた' }), h('th', { text: '記録' }))),
+          h('tbody', null, STEP_SECTIONS.map(function (x) {
+            return h('tr', null, h('td', { text: x.no + '. ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: score[x.id] || '' }));
+          })))),
+        h('ul', { class: 'refl-list' }, [['r1', 'ふりかえり1(しくみ)'], ['r2', 'ふりかえり2(気をつけたいこと)'], ['r3', 'ふりかえり3(使ってみたい場面)']].map(function (q) {
+          return h('li', null, h('b', { text: q[1] + ': ' }), refl[q[0]] ? h('span', { text: refl[q[0]] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
+        })),
+        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '8 クイズとふりかえり' }), '」で書きます。')),
+      card('書き出す',
+        h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
+        h('div', { class: 'btn-row' },
+          btn('記録を書き出す(JSON・提出用)', function () { download('json'); }, 'ef-btn-primary'),
+          btn('CSVで書き出す(表計算用)', function () { download('csv'); }),
+          btn('記録をコピーする', copy)),
+        note,
+        point('書き出す中身', h('p', { text: '組・番号・名前、ひらいたステップ、つぎの言葉あてとクイズの結果、ふりかえりの文章だけです。ミニ文章AIで作った文などは入りません。' }))),
+      renderReset()
+    ]);
+  }
+
+  // ---- はじめからやり直す(データリセット) ----
+  // 確認は画面の中で行う(ブラウザの確認ダイアログが出ない環境でも使えるように)。
+  // ふりがな・文字の大きさは表示の設定なので消さない(体験教材集の「はじめからやり直す」と同じ)。
+  var resetAsk = false;
+  var resetMsg = '';
+  function renderReset() {
+    var box = card('はじめからやり直す',
+      h('p', { text: '次の人に端末をわたすときや、最初からやり直したいときに使います。この端末に保存した組・番号・名前、進み具合、ふりかえり、クイズの答え、作った文などを、すべて消します。ふりがな・文字の大きさの設定は残ります。' }));
+    box.id = 'reset';
+    box.classList.add('reset-card');
+    if (!resetAsk) {
+      box.appendChild(h('div', { class: 'btn-row' }, btn('この端末の記録をすべて消す', function () { resetAsk = true; resetMsg = ''; go(current.id); }, 'ef-btn reset-btn')));
+    } else {
+      box.appendChild(h('div', { class: 'reset-confirm', role: 'alert' },
+        h('p', null, h('strong', { text: '本当に消しますか？' }), '消した記録は元にもどせません。提出がまだなら、先に「書き出す」でファイルにしておこう。'),
+        h('div', { class: 'btn-row' },
+          btn('消す(はじめからやり直す)', function () { resetAll(); }, 'ef-btn-primary danger'),
+          btn('やめる', function () { resetAsk = false; go(current.id); }))));
+    }
+    if (resetMsg) box.appendChild(h('p', { class: 'export-note good', role: 'status', text: resetMsg }));
+    return box;
+  }
+  function resetAll() {
+    clearTimers();
+    var keep = { furigana: saved.furigana, big: saved.big };
+    saved = {};
+    try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
+    if (keep.furigana) save('furigana', true);
+    if (keep.big) save('big', true);
+    var init = JSON.parse(INITIAL);
+    [[guessState, 'guessState'], [tokenState, 'tokenState'], [tg, 'tg'], [hs, 'hs'], [ns, 'ns'], [gs, 'gs'], [ps, 'ps'], [qs, 'qs']].forEach(function (o) {
+      Object.keys(o[0]).forEach(function (k) { delete o[0][k]; });
+      Object.assign(o[0], init[o[1]]);
+    });
+    resetAsk = false;
+    resetMsg = '記録をすべて消しました。はじめから使えます。';
+    current = null;
+    show('records');
+    resetMsg = '';
+    markNav();
+    toast('記録を消しました');
+    var b = document.querySelector('.reset-btn');
+    if (b) try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); }
+    var r = document.getElementById('reset');
+    if (r) r.scrollIntoView({ block: 'center' });
+  }
+  function toast(msg) {
+    var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2500);
   }
 
   // ---- 表示の切りかえ(ふりがな・大きな文字) ----
@@ -987,7 +1106,7 @@
     [['furigana', 'ふりがな', 'show-ruby'], ['big', '大きな文字', 'big-text']].forEach(function (t) {
       var on = !!saved[t[0]];
       document.documentElement.classList.toggle(t[2], on);
-      var b = h('button', { type: 'button', class: 'ef-btn', 'aria-pressed': String(on) }, t[1]);
+      var b = h('button', { type: 'button', class: 'toggle ef-btn', 'aria-pressed': String(on) }, t[1]);
       b.addEventListener('click', function () {
         on = !on;
         save(t[0], on);
@@ -1006,6 +1125,7 @@
       quiz: qs.ans, send: ps.sendJudge
     });
   }
+  var INITIAL = JSON.stringify({ guessState: guessState, tokenState: tokenState, tg: tg, hs: hs, ns: ns, gs: gs, ps: ps, qs: qs });
   (function restore() {
     var st = saved.state;
     if (!st) return;
