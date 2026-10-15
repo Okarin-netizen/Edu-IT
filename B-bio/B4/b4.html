@@ -174,7 +174,24 @@ html.kz-embed #b4-app .b4-head{display:none}
 #b4-app .b4-cost td:last-child{text-align:right;white-space:nowrap}
 #b4-app .b4-cost tr.b4-tot td{font-weight:bold;border-bottom:0}
 #b4-app .b4-bottomnav{display:flex;justify-content:space-between;gap:.6em;margin-top:1em;flex-wrap:wrap}
+/* 栽培計画書(PDF・Googleドキュメント用に書き出す画面) */
+#b4-app .b4-docov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;background:rgba(0,0,0,.5);display:flex;justify-content:center;padding:10px;box-sizing:border-box}
+#b4-app .b4-docbox{background:var(--b4-bg);border-radius:14px;width:100%;max-width:980px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+#b4-app .b4-docbar{flex:0 0 auto;padding:.5em .8em;border-bottom:1px solid var(--b4-line);background:var(--b4-card)}
+#b4-app .b4-docbar h2{margin:0 0 .3em;font-size:1.1em}
+#b4-app .b4-docbar .b4-row{gap:.4em}
+#b4-app .b4-docbar .b4-btn{min-height:44px;padding:.2em .8em}
+#b4-app .b4-dochint{margin:.3em 0 0}
+#b4-app .b4-docscroll{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;background:#d9ded5}
+#b4-app .b4-doc{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:28px 32px;font-size:15px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 @media print{
+  html.b4-printdoc body>:not(#b4-app),#b4-app.b4-printdoc>:not(.b4-docov){display:none!important}
+  #b4-app.b4-printdoc .b4-docov{position:static;display:block;background:none;padding:0}
+  #b4-app.b4-printdoc .b4-docbox{display:block;border-radius:0;max-width:none;box-shadow:none;background:#fff}
+  #b4-app.b4-printdoc .b4-docbar{display:none!important}
+  #b4-app.b4-printdoc .b4-docscroll{overflow:visible;padding:0;background:#fff}
+  #b4-app.b4-printdoc .b4-doc{max-width:none;padding:0;box-shadow:none;font-size:11pt}
+  #b4-app .b4-doc tr{break-inside:avoid}
   #b4-app .b4-head,#b4-app .b4-tabs,#b4-app .b4-noprint,#b4-app .b4-toast,#b4-app .b4-sumbar,#b4-app .b4-gq{display:none!important}
   #b4-app{background:#fff;min-height:0}
   #b4-app .b4-card{break-inside:auto;border-color:#999}
@@ -1028,7 +1045,8 @@ function rPlan(){ensureDraftDates();var d=S.draft,c=CROP[S.cropId];
     '<label class="b4-field"><span>その場所で前に育てた作物</span><select data-draft="prev">'+Object.keys(FAM).map(function(k){return '<option value="'+k+'"'+(d.prev===k?' selected':'')+'>'+FAM[k].name+'</option>'}).join('')+'</select></label></div>'+
   '</div><div><div class="b4-card" id="b4-preview"></div></div></div>'+
   '<div class="b4-sumbar b4-noprint" id="b4-sumbar"></div>'+
-  '<div class="b4-card"><h3 style="margin-top:0">保存した計画('+S.plans.length+')</h3>'+plansHtml()+'</div>'+
+  '<div class="b4-card"><h3 style="margin-top:0">保存した計画('+S.plans.length+')</h3>'+plansHtml()+
+  (S.plans.length?'<div class="b4-row b4-noprint" style="margin-top:.6em"><button type="button" class="b4-btn" data-act="doc" data-s="all">📄 計画書にする(PDF・Googleドキュメント)</button></div>':'')+'</div>'+
   nav(['crop','作物をえらぶ'],['cal','カレンダーで見る']));
   rPreview();
 }
@@ -1096,8 +1114,9 @@ function rCal(){
    '<span><i class="b4-sw" style="background:repeating-linear-gradient(135deg,#eef0f6 0 4px,#fff 4px 8px)"></i>しま模様=休業日</span><span><i class="b4-sw" style="box-shadow:inset 0 0 0 3px #f9a825"></i>今日</span><span><i class="b4-sw" style="border:1.5px dashed #7986cb"></i>点線=観察(〜ごろ)</span><span>線つき=完了</span></div>'+
    '<div class="b4-card b4-daypanel" id="b4-daypanel">'+dayPanel()+'</div>'+
    '<div class="b4-card b4-noprint"><h3 style="margin-top:0">書き出し</h3><div class="b4-row">'+
+   '<button type="button" class="b4-btn b4-primary" data-act="doc" data-s="vis"'+(S.plans.length?'':' disabled')+'>📄 計画書(PDF・Googleドキュメント)</button>'+
    '<button type="button" class="b4-btn" data-act="csv"'+(S.plans.length?'':' disabled')+'>CSV(表計算用)</button><button type="button" class="b4-btn" data-act="ics"'+(S.plans.length?'':' disabled')+'>ICS(カレンダーアプリ用)</button></div>'+
-   '<p class="b4-muted">「すべての計画/えらんだ計画」の表示中のものを書き出します。ICSはカレンダーアプリに読みこめます。</p></div>'+
+   '<p class="b4-muted">「すべての計画/えらんだ計画」の表示中のものを書き出します。計画書は、PDFに保存したり、Googleドキュメントで開いたりできます。ICSはカレンダーアプリに読みこめます。</p></div>'+
    nav(['plan','計画をつくる'],['eval','記録と評価']));
 }
 function dayPanel(){var d=S.cal.sel;if(!isDate(d))return '<p class="b4-muted" style="margin:0">日にちをタップしてください。</p>';
@@ -1122,7 +1141,7 @@ function gap(t){if(!t.done||!isDate(t.actual)||!isDate(t.orig))return '<span cla
 function rEval(){var p=curPlan();if(!p&&S.plans.length){p=S.plans[0];S.cur=p.id}
   var head='<h2>④ 記録と評価</h2><p class="b4-lead">実際に作業した日を記録し、<b>計画とのずれ</b>をくらべます。育ちがおくれたときは「再計算」で残りの作業日を直そう。最後に原因と改善案を書きます。</p>';
   var resetCard='<div class="b4-card b4-noprint"><h3 style="margin-top:0">書き出し・バックアップ</h3>'+(p?'<div class="b4-row">'+
-  '<button type="button" class="b4-btn" data-act="csv1">この計画をCSVで書き出す</button><button type="button" class="b4-btn" data-act="ics1">この計画をICSで書き出す</button></div>':'')+
+  '<button type="button" class="b4-btn b4-primary" data-act="doc" data-s="cur">📄 この計画の計画書(PDF・Googleドキュメント)</button><button type="button" class="b4-btn" data-act="csv1">この計画をCSVで書き出す</button><button type="button" class="b4-btn" data-act="ics1">この計画をICSで書き出す</button></div>':'')+
   '<div class="b4-row" style="margin-top:.5em"><button type="button" class="b4-btn" data-act="backup">バックアップを書き出す</button><button type="button" class="b4-btn" data-act="restore">バックアップを読みこむ</button></div>'+
   '<p class="b4-muted">端末を変えるときや、データが消えたときのために、バックアップ(JSONファイル)をとっておこう。</p>'+
   '<div class="b4-row"><button type="button" class="b4-btn b4-danger" data-act="resetall">すべてのデータを消して最初から</button></div></div>';
@@ -1182,6 +1201,112 @@ function ics(plans){var st=new Date().toISOString().replace(/[-:]/g,'').replace(
       fold('SUMMARY:'+icsEsc(cropPlain(p.cropId)+' '+plain(t.label)+(t.kind==='obs'&&!t.done?'ごろ(観察)':'')+(t.done?'(済)':''))),fold('DESCRIPTION:'+icsEsc('栽培暦ビルダーで作成。日にちは目安です。'+(p.plot?'区画:'+p.plot:''))),'END:VEVENT')})});
   L.push('END:VCALENDAR');return L.join('\r\n')+'\r\n'}
 function fname(base,ext){return base+'_'+today().replace(/-/g,'')+'.'+ext}
+/* 栽培計画書:PDF(印刷)・Googleドキュメント(.docx/コピー)用に書き出す。
+   中身は docModel で1回だけ作り、画面・印刷(docHtml)と .docx(docxBytes)の両方に使う */
+function docWho(){return [R.kumi,R.ban?R.ban+'番':'',R.name].filter(function(x){return x}).join(' ')}
+function docModel(plans){var B=[],hs=S.hol.filter(function(h){return !h.draft&&isDate(h.s)&&isDate(h.e)&&h.e>=h.s});
+  B.push({t:'title',x:'栽培計画書'});
+  B.push({t:'kv',rows:[['組・番号・名前',docWho()||''],['作成した日',jdy(today())],['休業日',(S.set.wk?'土曜・日曜':'')+(S.set.wk&&hs.length?'、':'')+hs.map(function(h){return (h.l||'休み')+'('+md(h.s)+'〜'+md(h.e)+(h.rep?'・毎年':'')+')'}).join('、')||'なし']]});
+  plans.forEach(function(p,i){var c=CROP[p.cropId],h=hTask(p),n=p.tasks.length,done=p.tasks.filter(function(t){return t.done}).length,e=costEst(p.cropId,p.tasks,p.qty);
+    B.push({t:'h2',x:(plans.length>1?(i+1)+'. ':'')+cropPlain(p.cropId)+'の栽培計画'});
+    B.push({t:'kv',rows:[['地域',REG[p.region].name],['育てる場所',(p.plot||'(書いていない)')+'・'+e.q+'つ分'],['前に育てた作物',plain(FAM[p.prev]?FAM[p.prev].name:'')],
+      [c.start+'の日',jdy(sowDate(p))],['収穫の予定',jdy(effDate(h))+(p.mode==='harvest'&&isDate(p.input)?'(目標 '+jdy(p.input)+')':'')],['作業の進み',done+'/'+n+' 完了']]});
+    B.push({t:'h3',x:'作業の予定'});
+    B.push({t:'table',w:[1400,3700,800,1300,2438],head:['予定日','作業','種類','実際にした日','メモ'],rows:p.tasks.map(function(t){var obs=t.kind==='obs',m=[];
+      if(!t.done&&t.moved&&!obs)m.push('休みのため '+md(t.base)+' から移動');
+      if(t.done&&isDate(t.actual)&&isDate(t.orig)){var g=diff(t.actual,t.orig);m.push(g>0?g+'日おくれ':g<0?(-g)+'日早い':'予定どおり')}
+      return [md(t.done&&isDate(t.orig)?t.orig:t.date)+(obs?'ごろ':''),plain(t.label),obs?'観察':'作業',t.done?(isDate(t.actual)?md(t.actual):'')+' 済':'',m.join('、')]})});
+    var ws=warnings(p,false).filter(function(w){return w.lv!=='info'});
+    if(ws.length){B.push({t:'h3',x:'注意'});ws.forEach(function(w){B.push({t:'li',x:plain(w.html).replace(/^⚠\s*/,'')})})}
+    B.push({t:'h3',x:'費用と手間の目安'});
+    B.push({t:'table',w:[6638,3000],rows:e.items.map(function(x){return [plain(x[0]),yenS(x[1])]}).concat([['お金の合計','約'+yenS(e.yen)],['手間(作業'+e.work+'回＋毎日の水やり・見回り'+e.days+'日)','約'+minS(e.min)],['とれる量の目安',plain(e.amt)+(e.q>1?'×'+e.q:'')]])});
+    var er=[['計画と実際のずれ・育ちのようす',p.ev.result],['ずれの原因',p.ev.cause],['次に計画を立てるときの改善案',p.ev.improve]].filter(function(r){return String(r[1]||'').replace(/\s+/g,'')});
+    if(er.length){B.push({t:'h3',x:'記録と評価'});B.push({t:'kv',rows:er})}
+  });
+  B.push({t:'note',x:'日にちは目安です。天気や作物の育ち方を見て、計画を直しましょう。(B4 栽培暦ビルダーで作成)'});
+  return B}
+/* 画面・印刷・コピー用の HTML(コピーしても見た目が残るよう、書式はタグに直接書く) */
+function docHtml(B){var bd='border:1px solid #888;padding:4px 6px;vertical-align:top;text-align:left;';
+  function br(s){return esc(s).replace(/\n/g,'<br>')}
+  return B.map(function(b){
+    if(b.t==='title')return '<h1 style="font-size:1.6em;margin:0 0 .4em;text-align:center">'+esc(b.x)+'</h1>';
+    if(b.t==='h2')return '<h2 style="font-size:1.3em;margin:1.2em 0 .4em;border-bottom:2px solid #2e7d32;padding-bottom:2px">'+esc(b.x)+'</h2>';
+    if(b.t==='h3')return '<h3 style="font-size:1.08em;margin:.9em 0 .3em">'+esc(b.x)+'</h3>';
+    if(b.t==='li')return '<p style="margin:.15em 0 .15em 1em">・'+br(b.x)+'</p>';
+    if(b.t==='note')return '<p style="margin:1.2em 0 0;font-size:.85em;color:#444">'+esc(b.x)+'</p>';
+    if(b.t==='kv')return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+b.rows.map(function(r){return '<tr><th style="'+bd+'width:26%;background:#eef5ea">'+esc(r[0])+'</th><td style="'+bd+'">'+(r[1]?br(r[1]):'&nbsp;')+'</td></tr>'}).join('')+'</table>';
+    if(b.t==='table'){var tot=b.w.reduce(function(a,x){return a+x},0);
+      return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+(b.head?'<thead><tr>'+b.head.map(function(x,i){return '<th style="'+bd+'background:#eef5ea;width:'+Math.round(b.w[i]/tot*100)+'%">'+esc(x)+'</th>'}).join('')+'</tr></thead>':'')+
+        '<tbody>'+b.rows.map(function(r){return '<tr>'+r.map(function(x){return '<td style="'+bd+'">'+(x?br(x):'&nbsp;')+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>'}
+    return ''}).join('')}
+/* .docx(Word 形式。Googleドキュメントで開ける)をその場で作る。外部の部品は使わない */
+function utf8(s){if(window.TextEncoder)return new TextEncoder().encode(s);var b=unescape(encodeURIComponent(s)),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+var CRCT=null;
+function crc32(u){if(!CRCT){CRCT=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CRCT[n]=c>>>0}}
+  var r=-1;for(var i=0;i<u.length;i++)r=CRCT[(r^u[i])&255]^(r>>>8);return (r^-1)>>>0}
+function zipStore(files){var now=new Date(),tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1),dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+  var parts=[],cen=[],off=0,cenSize=0;
+  files.forEach(function(f){var nm=utf8(f.n),d=utf8(f.d),cr=crc32(d);
+    var h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,tm,true);h.setUint16(12,dt,true);
+    h.setUint32(14,cr,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+    var c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,tm,true);c.setUint16(14,dt,true);
+    c.setUint32(16,cr,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    parts.push(new Uint8Array(h.buffer),nm,d);cen.push(new Uint8Array(c.buffer),nm);off+=30+nm.length+d.length;cenSize+=46+nm.length});
+  var e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cenSize,true);e.setUint32(16,off,true);
+  var all=parts.concat(cen,[new Uint8Array(e.buffer)]),len=0;all.forEach(function(a){len+=a.length});
+  var out=new Uint8Array(len),p=0;all.forEach(function(a){out.set(a,p);p+=a.length});return out}
+function xesc(s){return String(s==null?'':s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function docxBytes(B){
+  function run(x,o){o=o||{};var pr=(o.b?'<w:b/>':'')+(o.c?'<w:color w:val="'+o.c+'"/>':'')+(o.sz?'<w:sz w:val="'+o.sz+'"/><w:szCs w:val="'+o.sz+'"/>':'');
+    return String(x==null?'':x).split('\n').map(function(l,i){return '<w:r>'+(pr?'<w:rPr>'+pr+'</w:rPr>':'')+(i?'<w:br/>':'')+'<w:t xml:space="preserve">'+xesc(l)+'</w:t></w:r>'}).join('')}
+  function para(x,o,pp){return '<w:p>'+(pp?'<w:pPr>'+pp+'</w:pPr>':'')+run(x,o)+'</w:p>'}
+  var bdr='<w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(function(s){return '<w:'+s+' w:val="single" w:sz="4" w:space="0" w:color="888888"/>'}).join('')+'</w:tblBorders>';
+  function cell(x,w,head){return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+(head?'<w:shd w:val="clear" w:color="auto" w:fill="EEF5EA"/>':'')+'</w:tcPr>'+para(x,head?{b:1}:null,'<w:spacing w:before="0" w:after="0"/>')+'</w:tc>'}
+  function table(w,head,rows,firstHead){var t='<w:tbl><w:tblPr><w:tblW w:w="'+w.reduce(function(a,x){return a+x},0)+'" w:type="dxa"/><w:tblLayout w:type="fixed"/>'+bdr+
+      '<w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+w.map(function(x){return '<w:gridCol w:w="'+x+'"/>'}).join('')+'</w:tblGrid>';
+    if(head)t+='<w:tr><w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>'+head.map(function(x,i){return cell(x,w[i],true)}).join('')+'</w:tr>';
+    rows.forEach(function(r){t+='<w:tr><w:trPr><w:cantSplit/></w:trPr>'+r.map(function(x,i){return cell(x,w[i],firstHead&&i===0)}).join('')+'</w:tr>'});
+    return t+'</w:tbl>'+para('',null,'<w:spacing w:before="0" w:after="0"/>')}
+  var body=B.map(function(b){
+    if(b.t==='title')return para(b.x,{b:1,sz:36},'<w:jc w:val="center"/><w:spacing w:after="160"/>');
+    if(b.t==='h2')return para(b.x,{b:1,sz:28,c:'1B5E20'},'<w:keepNext/><w:spacing w:before="320" w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="12" w:space="1" w:color="2E7D32"/></w:pBdr>');
+    if(b.t==='h3')return para(b.x,{b:1,sz:23},'<w:keepNext/><w:spacing w:before="200" w:after="80"/>');
+    if(b.t==='li')return para('・'+b.x,null,'<w:ind w:left="240"/><w:spacing w:after="40"/>');
+    if(b.t==='note')return para(b.x,{sz:18,c:'444444'},'<w:spacing w:before="240"/>');
+    if(b.t==='kv')return table([2500,7138],null,b.rows,true);
+    if(b.t==='table')return table(b.w,b.head,b.rows,false);
+    return ''}).join('');
+  var W='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"',X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  return zipStore([
+    {n:'[Content_Types].xml',d:X+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>'},
+    {n:'_rels/.rels',d:X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'},
+    {n:'word/_rels/document.xml.rels',d:X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {n:'word/styles.xml',d:X+'<w:styles '+W+'><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Noto Sans JP" w:cs="Arial"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:lang w:val="en-US" w:eastAsia="ja-JP"/></w:rPr></w:rPrDefault>'+
+      '<w:pPrDefault><w:pPr><w:spacing w:after="60" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>'},
+    {n:'word/document.xml',d:X+'<w:document '+W+'><w:body>'+body+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>'}])}
+var docPlans=null,docPrev=null;
+function docName(ext){var w=docWho().replace(/[\\\/:*?"<>|\s]+/g,'');return fname('栽培計画書'+(w?'_'+w:''),ext)}
+function openDoc(plans){if(!plans||!plans.length){toast('まだ計画がありません。②で計画をつくって保存しよう');return}
+  closeDoc();docPlans=plans;docPrev=document.activeElement;
+  var ov=document.createElement('div');ov.className='b4-docov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-labelledby','b4-doctitle');
+  ov.innerHTML='<div class="b4-docbox"><div class="b4-docbar"><h2 id="b4-doctitle">栽培計画書(PDF・Googleドキュメント)</h2><div class="b4-row">'+
+    '<button type="button" class="b4-btn b4-primary" data-act="docpdf">PDFで保存・印刷</button>'+
+    '<button type="button" class="b4-btn" data-act="docx">Googleドキュメント用(.docx)</button>'+
+    '<button type="button" class="b4-btn" data-act="doccopy">コピーして貼りつける</button>'+
+    '<button type="button" class="b4-btn" data-act="docclose">とじる</button></div>'+
+    '<p class="b4-muted b4-dochint">PDF:印刷の画面で、送信先(プリンター)を「PDFに保存」にします。Googleドキュメント:.docx をGoogleドライブに入れて開くか、「コピー」してGoogleドキュメントに貼りつけます。名前は⑤振り返りの組・番号・名前が入ります。</p></div>'+
+    '<div class="b4-docscroll"><div class="b4-doc kz-norb" id="b4-doc" lang="ja">'+docHtml(docModel(plans))+'</div></div></div>';
+  root.appendChild(ov);if(window.kzRuby){kzRuby(ov.querySelector('.b4-docbar'));fitRuby(ov.querySelector('.b4-docbar'))}
+  document.documentElement.classList.add('b4-printdoc');root.classList.add('b4-printdoc');
+  ov.querySelector('[data-act=docpdf]').focus({preventScroll:true})}
+function closeDoc(){var ov=root.querySelector('.b4-docov');if(!ov)return;ov.remove();docPlans=null;
+  document.documentElement.classList.remove('b4-printdoc');root.classList.remove('b4-printdoc');
+  try{if(docPrev&&docPrev.focus)docPrev.focus({preventScroll:true})}catch(e){}docPrev=null}
+function copyDoc(){var el=root.querySelector('#b4-doc');if(!el)return;var ok=false,sel=window.getSelection(),r=document.createRange();
+  try{r.selectNodeContents(el);sel.removeAllRanges();sel.addRange(r);ok=document.execCommand('copy')}catch(e){}sel.removeAllRanges();
+  toast(ok?'コピーしました。Googleドキュメントを開いて貼りつけ(Ctrl＋V)しよう':'コピーできませんでした。「.docx」の方を使ってください',4000)}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&root.querySelector('.b4-docov')&&!document.querySelector('.kzd-back')){e.preventDefault();closeDoc()}});
 function visiblePlans(){return S.cal.filter==='all'?S.plans:S.plans.filter(function(p){return p.id===S.cal.filter})}
 
 /* 振り返り */
@@ -1290,6 +1415,11 @@ root.addEventListener('click',function(e){var b=e.target.closest('[data-act]');i
   case 'rsave':saveR();setSaved();toast('保存しました');break;
   case 'rtxt':saveR();setSaved();download(fname('B4振り返り'+(who()?'_'+who().replace(/[\\\/:*?"<>|\s]+/g,''):''),'txt'),'\ufeff'+reflText().replace(/\n/g,'\r\n'),'text/plain');break;
   case 'rcopy':copyText(reflText());break;
+  case 'doc':(function(){var sc=b.getAttribute('data-s'),c1=curPlan();openDoc(sc==='cur'?(c1?[c1]:[]):sc==='vis'?visiblePlans():S.plans)})();break;
+  case 'docpdf':window.print();break;
+  case 'docx':if(docPlans)download(docName('docx'),docxBytes(docModel(docPlans)),'application/vnd.openxmlformats-officedocument.wordprocessingml.document');break;
+  case 'doccopy':copyDoc();break;
+  case 'docclose':closeDoc();break;
   case 'rprint':saveR();setSaved();if(window.kzPrintText)kzPrintText.sync();window.print();break;
   }
 });
