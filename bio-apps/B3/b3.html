@@ -787,7 +787,7 @@ function defaultSet(key){
 function newRun(key,plainStart){
   var sp=SP[key];
   var st={sp:key,day:0,health:80,size:sp.size.start,dirt:6,no3:8,ph:7.2,bio:1,water:100,eggAcc:0,eggs:0,eggsToday:0,fry:0,pending:[],
-    hist:[],log:[],done:false,acted:{},pen:{},look:null,doNow:0,app:1,left:0,streak:{},penSum:{},penDays:{},lastT:null,archive:{},cost:freshCost(),
+    hist:[],log:[],done:false,acted:{},pen:{},look:null,doNow:0,app:1,left:0,streak:{},penSum:{},penDays:{},lastT:null,archive:{},cost:freshCost(),dead:false,deadDay:0,lost:0,low:0,
     set:defaultSet(key)};
   if(!plainStart&&sp.issue)Object.keys(sp.issue).forEach(function(k){st.set[k]=sp.issue[k]});
   st.lastT=st.set.temp;
@@ -798,6 +798,7 @@ function newRun(key,plainStart){
   if(!plainStart&&sp.issue)addLog(st,'最初の環境には、見直したほうがよいところがあります。様子・メーター・💡ヒントを手がかりに、さがしてみよう。');
   return st;
 }
+function unitOf(key){return SP[key].kind==='water'||key==='rabbit'?'匹':'羽'}
 function addLog(st,t,cls){st.log.unshift(cls?{d:st.day,t:t,c:cls}:{d:st.day,t:t});if(st.log.length>120)st.log.length=120}
 function loadOf(st){var sp=SP[st.sp];return sp.kind==='water'?st.set.n*sp.capPer/sp.tankL:st.set.n/sp.cap}
 function tempFactor(sp,T){ // 活動・食欲(0〜1)
@@ -927,13 +928,25 @@ function stepDay(st){
     if(k!=='shock'){st.streak[k]=(st.streak[k]||0)+1;pen[k]*=Math.min(2,1+(st.streak[k]-1)/10);}
     total+=pen[k];st.penSum[k]=(st.penSum[k]||0)+pen[k];if(pen[k]>0.25)st.penDays[k]=(st.penDays[k]||0)+1;
   });
-  st.health=clamp(st.health+(total<0.5?2.5:0.5)-total,5,100);
+  st.health=clamp(st.health+(total<0.5?2.5:0.5)-total,0,100);
+  // とても弱った状態(健康度20未満)が続くと、命を落としてしまう。一度死んだ命はもどらない
+  var un=unitOf(st.sp);
+  st.low=st.health<20?(st.low||0)+1:0;
+  if(st.health>0&&st.low>=2&&s.n>1&&st.low%2===0){
+    var k=Math.max(1,Math.round(s.n*0.25));k=Math.min(k,s.n-1);s.n-=k;st.lost=(st.lost||0)+k;
+    msgs.push('とても弱った状態が続き、'+sp.name+'が'+k+un+'死んでしまいました。残りは'+s.n+un+'です。死んでしまった命はもどりません。原因を見直そう。');
+  }
+  if(st.health<=0||(st.low>=3&&s.n<=1)){
+    st.dead=true;st.deadDay=st.day;st.lost=(st.lost||0)+s.n;st.health=0;
+    msgs.push(sp.name+'が死んでしまいました('+st.day+'日目)。結果で、どんな条件が続いたのかを確かめよう。');
+  }
   st.pen=pen;
   st.look=look(st);
   st.hist.push(snap(st));
   if(st.eggsToday>0&&sp.kind==='water'&&st.eggs===st.eggsToday)msgs.push('メダカがはじめて卵を産みました'+(s.move?'(別の容器へ移しました)。':'(親といっしょなので、多くは食べられてしまうかも)。'));
   if(st.day%7===0&&(sp.eggs||sp.eggRate))msgs.push('この日までの記録:卵 '+st.eggs+'個'+(sp.eggs?'・稚魚 '+st.fry+'匹':'')+'。');
-  if(st.health<30&&prevH>=30)msgs.push('とても弱っています。実際の飼育なら命にかかわる状態です。すぐに環境を見直そう。');
+  if(st.dead){}
+  else if(st.health<30&&prevH>=30)msgs.push('とても弱っています。実際の飼育なら命にかかわる状態です。すぐに環境を見直そう。');
   else if(st.health<50&&prevH>=50)msgs.push('元気がなくなってきています。様子をよく観察しよう。');
   else if(st.health>=70&&prevH<70&&st.day>1)msgs.push('健康度が回復してきました。');
   msgs.forEach(function(m){addLog(st,m)});
@@ -946,7 +959,8 @@ function stepDay(st){
   var top=Object.keys(pen).filter(function(k){return pen[k]>0.25}).sort(function(a,b){return pen[b]-pen[a]})[0];
   if(top)line+='。気になること:'+HINT_S[top];
   addLog(st,line,'sum');
-  if(st.day>=30){st.done=true;addLog(st,'30日間の飼育が終わりました。結果を確かめよう。');}
+  if(st.dead){st.done=true;}
+  else if(st.day>=30){st.done=true;addLog(st,'30日間の飼育が終わりました。結果を確かめよう。');}
 }
 function snap(st){var sp=SP[st.sp];var g=sp.adult?clamp(100-Math.abs(st.size-sp.size.ideal)/sp.size.ideal*400,0,100):(st.size-sp.size.start)/(sp.size.max-sp.size.start)*100;
   return {d:st.day,h:round(st.health,1),dirt:round(st.dirt,1),g:round(clamp(g,0,100),1),size:round(st.size,2)}}
@@ -967,7 +981,7 @@ function normRun(o){
   var ds=defaultSet(o.sp);st.set=ds;
   if(isObj(o.set))Object.keys(ds).forEach(function(k){var v=o.set[k];if(typeof v===typeof ds[k]&&(typeof v!=='number'||isFinite(v)))ds[k]=v});
   st.set.n=clamp(Math.round(st.set.n),1,SP[o.sp].maxN);
-  st.day=clamp(Math.floor(st.day),0,30);st.done=st.day>=30;
+  st.day=clamp(Math.floor(st.day),0,30);st.done=st.day>=30||st.dead===true;
   st.hist=st.hist.filter(function(x){return isObj(x)&&typeof x.d==='number'&&typeof x.h==='number'});
   st.log=st.log.filter(function(x){return isObj(x)&&typeof x.t==='string'});
   st.pending=st.pending.filter(function(x){return isObj(x)&&typeof x.d==='number'&&typeof x.c==='number'});
@@ -985,6 +999,7 @@ function normRun(o){
 function look(st){
   var sp=SP[st.sp],s=st.set,T=s.temp,signs=[],h=st.health,app=st.app==null?1:st.app;
   var L={};
+  if(st.dead)return {appetite:'−',move:'動かない',color:'−',signs:['動かなくなってしまった。もう世話をすることはできません']};
   L.appetite=app>0.8&&h>60?'よい':app>0.45?'ふつう':'少ない';
   var act=tempFactor(sp,T)*(0.4+h/160);
   L.move=act>0.8?'活発':act>0.45?'ふつう':'にぶい';
@@ -1127,7 +1142,7 @@ function viewOf(st){
   var sr=sp.adult?0.6:(st.size-sp.size.start)/(sp.size.max-sp.size.start);
   if(sp.kind==='water')sr=(st.size-sp.size.start)/(sp.size.max-sp.size.start);
   var speed=tempFactor(sp,T)*(0.4+st.health/160);
-  return {sp:st.sp,n:s.n,dirt:st.dirt,plants:s.plants,air:s.air,left:st.left||0,water:st.water,temp:T,fry:st.fry,
+  return {sp:st.sp,n:st.dead?0:s.n,dirt:st.dirt,plants:s.plants,air:s.air,left:st.left||0,water:st.water,temp:T,fry:st.fry,
     vivid:clamp((st.health-30)/60,0,1),sizeRate:sr,speed:speed,
     pose:sp.kind==='water'?(st.doNow<4?'top':T<sp.temp.min?'bottom':'mid'):'',
     hot:T>sp.temp.max,cold:T<sp.temp.min,aria:sp.name+'の様子。'+(st.look?st.look.signs.join('。'):'')};
@@ -1187,14 +1202,14 @@ function starStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(n)}
 function renderHome(){
   var el=$('#b3-sec-home'),h='',arch=run?run.archive:{};
   h+='<div class="b3-card"><h1>生き物を育てる技術を体験しよう</h1>';
-  h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。世話にかかる<b>お金と手間(コスト)</b>も計算されるので、健康とコストのバランスも考えよう。</p>';
+  h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。世話にかかる<b>お金と手間(コスト)</b>も計算されるので、健康とコストのバランスも考えよう。合わない環境が長く続くと、生き物は<b>死んでしまう</b>こともあります。</p>';
   h+='<div class="b3-note">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
   h+='<h2>① 育てる生き物を選ぼう</h2><div class="b3-species">';
   Object.keys(SP).forEach(function(k){var sp=SP[k],a=arch[k];
     h+='<button type="button" class="b3-sp'+(run&&run.sp===k?' b3-cur':'')+'" data-sp="'+k+'">'+iconSVG(k)+'<b>'+sp.name+'</b><span class="b3-tag">'+(sp.kind==='water'?'水産生物':'陸の動物')+'</span>'+
-      (a?'<span class="b3-done">30日の記録あり '+starStr(a.star)+'</span>':'')+'<span>'+sp.info+'</span></button>';});
+      (a?'<span class="b3-done">'+(a.dead?'前回は死んでしまった':'30日の記録あり '+starStr(a.star))+'</span>':'')+'<span>'+sp.info+'</span></button>';});
   h+='</div>';
-  if(run)h+='<p class="b3-msg info">いま <b>'+SP[run.sp].name+'</b> を育てています('+run.day+'日目'+(run.done?'・30日やり終えました':'')+')。<button type="button" class="b3-btn b3-pri" id="b3-go-sim" style="margin-left:8px">'+(run.done?'結果を見る':'続きから育てる')+'</button></p>';
+  if(run)h+='<p class="b3-msg info">いま <b>'+SP[run.sp].name+'</b> を育てています('+run.day+'日目'+(run.dead?'・死んでしまいました':run.done?'・30日やり終えました':'')+')。<button type="button" class="b3-btn b3-pri" id="b3-go-sim" style="margin-left:8px">'+(run.done?'結果を見る':'続きから育てる')+'</button></p>';
   h+='</div>';
   h+='<div class="b3-card"><h2>使い方</h2>';
   h+='<details open><summary>学習の流れ(約2〜3時間)</summary><ol>'+
@@ -1244,7 +1259,7 @@ function archiveRun(st){
   var r=summary(st);
   if(!isObj(st.archive))st.archive={};
   st.archive[st.sp]={star:r.star,avg:Math.round(r.avg),final:Math.round(r.final),min:Math.round(r.min),causes:r.causes,date:today(),
-    size:round(r.size,2),eggs:r.eggs,fry:r.fry,yen:Math.round(r.cost.yen),min:Math.round(r.cost.min)};
+    size:round(r.size,2),eggs:r.eggs,fry:r.fry,dead:r.dead,deadDay:r.deadDay,lost:r.lost,yen:Math.round(r.cost.yen),min:Math.round(r.cost.min)};
 }
 
 /* ================= ② 飼育シミュレーション ================= */
@@ -1273,7 +1288,7 @@ function renderSim(){
     h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの量<small>'+sp.feedNote+'</small></div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">エアレーション<small>空気を送って酸素をとかす/電気代 弱1円・強2円(1日)</small></div>'+seg('air',[[0,'なし'],[1,'弱'],[2,'強']],s.air)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">水草</div>'+seg('plants',[[0,'入れない'],[1,'入れる']],s.plants)+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)<small>'+sp.tankL+'Lの水そう</small></div>'+rangeCtl('n',1,sp.maxN,1,s.n,'匹','数')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)<small>'+sp.tankL+'Lの水そう'+(run.lost?'/死んだ分はふやせません':'')+'</small></div>'+rangeCtl('n',1,run.lost?s.n:sp.maxN,1,s.n,'匹','数')+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">水替えの習慣<small>くみ置きの水で、1回に3分の1ずつ/1回 約'+yenStr(COST[run.sp].water)+'・'+(run.sp==='kingyo'?30:20)+'分</small></div>'+seg('routine',[['none','しない'],['w2','2週に1回'],['w1','週1回'],['d3','3日に1回']],s.routine)+'</div>';
     if(sp.eggs)h+='<div class="b3-ctl"><div class="b3-ctl-label">産んだ卵を<small>メダカは卵を食べてしまうことがある</small></div>'+seg('move',[[0,'そのままにする'],[1,'別の容器に移す']],s.move)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">pH調整剤<small>今の水に少しだけ入れる</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="phm">酸性側へ(−0.2)</button><button type="button" class="b3-btn" data-act="php">アルカリ性側へ(＋0.2)</button></div></div>';
@@ -1286,7 +1301,7 @@ function renderSim(){
     h+='<div class="b3-ctl"><div class="b3-ctl-label">飲み水の交換</div>'+seg('waterR',[['daily','毎日'],['2d','2日に1回'],['none','しない']],s.waterR)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">床のそうじ<small>フンや汚れた床材をとりかえる/1回 約'+yenStr(COST[run.sp].bed)+'・15分</small></div>'+seg('clean',[['daily','毎日'],['3d','3日に1回'],['weekly','週1回'],['none','しない']],s.clean)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">運動<small>'+(bird?'広い場所で歩かせる':'ケージの外で遊ばせる')+'/少し10分・たっぷり30分(1日)</small></div>'+seg('ex',[[0,'なし'],[1,'少し'],[2,'たっぷり']],s.ex)+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)</div>'+rangeCtl('n',1,sp.maxN,1,s.n,bird?'羽':'匹','数')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)'+(run.lost?'<small>死んだ分はふやせません</small>':'')+'</div>'+rangeCtl('n',1,run.lost?s.n:sp.maxN,1,s.n,bird?'羽':'匹','数')+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="water">水をとりかえる</button><button type="button" class="b3-btn" data-act="clean">床をそうじする</button></div></div>';
   }
   h+='</div></div>';
@@ -1324,7 +1339,7 @@ function refreshNow(){ // 設定を変えたとき、その場で見える変化
 }
 function doAction(a){
   var key=a==='phm'||a==='php'?'ph':a;
-  if(run.done){toast('30日間の飼育は終わりました');return}
+  if(run.done){toast(run.dead?'生き物が死んでしまったので、世話はもうできません':'30日間の飼育は終わりました');return}
   if(run.acted[key]===run.day){toast('今日はもうしました。1日すすめてからにしよう');return}
   run.acted[key]=run.day;
   var cc=COST[run.sp];
@@ -1336,13 +1351,14 @@ function doAction(a){
   refreshNow();toast(plain(run.log[0].t).split('。')[0]+'。');
 }
 function advance(n){
-  if(run.done){toast('30日間の飼育は終わりました。「最初からやり直す」でもう一度できます');return}
-  var h0=Math.round(run.health),d0=run.day;
+  if(run.done){toast((run.dead?'生き物が死んでしまいました':'30日間の飼育は終わりました')+'。「最初からやり直す」でもう一度できます');return}
+  var h0=Math.round(run.health),d0=run.day,l0=run.lost||0;
   for(var i=0;i<n&&!run.done;i++)stepDay(run);
+  if((run.lost||0)!==l0)simBuiltFor=null; // 数が減ったので設定欄を作り直す
   if(run.done)archiveRun(run);
   saveRun();updateSim(true);$('#b3-hintbox').innerHTML='';
   var h1=Math.round(run.health);
-  toast((run.day-d0>1?(d0+1)+'〜':'')+run.day+'日目:健康度 '+h0+'→'+h1+(h1>h0?'(▲'+(h1-h0)+')':h1<h0?'(▼'+(h0-h1)+')':''));
+  if(run.dead)toast(SP[run.sp].name+'が'+run.deadDay+'日目に死んでしまいました');else toast((run.day-d0>1?(d0+1)+'〜':'')+run.day+'日目:健康度 '+h0+'→'+h1+(h1>h0?'(▲'+(h1-h0)+')':h1<h0?'(▼'+(h0-h1)+')':''));
   if(run.done){var r=$('#b3-result .b3-result');if(r)r.scrollIntoView({behavior:'smooth',block:'start'})}
 }
 function level(v,good,warn,rev){ // rev: 小さいほど良い
@@ -1355,10 +1371,10 @@ function meter(key,label,valText,pct,lv,color){
 function updateSim(flash){
   if(!run||simBuiltFor!==run.sp){renderSim();return}
   var sp=SP[run.sp],s=run.set,el=$('#b3-sec-sim');
-  $('#b3-day').textContent=run.day+'日目 / 30日';
+  $('#b3-day').textContent=run.day+'日目 / 30日'+(run.dead?'(死んでしまった)':'');
   $('#b3-daybar').style.width=(run.day/30*100)+'%';
   $('#b3-step1').disabled=run.done;$('#b3-step7').disabled=run.done;
-  $('#b3-vis').innerHTML=visSVG(viewOf(run));
+  $('#b3-vis').innerHTML=(run.dead?'<div class="b3-msg warn">🕊 '+sp.name+'は'+run.deadDay+'日目に死んでしまいました。上の結果で原因を確かめよう。</div>':run.lost?'<div class="b3-msg warn">これまでに'+run.lost+unitOf(run.sp)+'が死んでしまいました。</div>':'')+visSVG(viewOf(run));
   var L=run.look||look(run);
   $('#b3-look').innerHTML='<div>食欲<b>'+L.appetite+'</b></div><div>動き<b>'+L.move+'</b></div><div>'+(sp.kind==='water'?'体の色':'毛・羽のつや')+'<b>'+L.color+'</b></div>';
   $('#b3-signs').innerHTML=L.signs.map(function(x){return '<li>'+x+'</li>'}).join('');
@@ -1382,8 +1398,8 @@ function updateSim(flash){
     if(sp.eggRate)m+=meter('egg','産んだ卵','合計 '+run.eggs+'個(今日 '+run.eggsToday+'個)',Math.min(100,run.eggsToday/Math.max(1,s.n)*100),['ok','記録'],'#d08a2a');
   }
   var box=$('#b3-meters');box.innerHTML=m;
-  var cp=costPlan(run.sp,s,run.health<50);
-  $('#b3-costchip').textContent='💰 今の世話:1日 約'+yenStr(cp.yen)+'・⏱ '+minStr(cp.min);
+  var cp=run.dead?costPlan(run.sp,Object.assign({},s,{n:0,feed:0,temp:AMB,air:0,routine:'none',waterR:'none',clean:'none',ex:0}),false):costPlan(run.sp,s,run.health<50);
+  $('#b3-costchip').textContent=run.dead?'💰 これまで '+yenStr(run.cost.yen)+'・⏱ '+minStr(run.cost.min):'💰 今の世話:1日 約'+yenStr(cp.yen)+'・⏱ '+minStr(cp.min);
   $('#b3-cost').innerHTML=costHTML(cp);
   var prev=updateSim._prev||{},cur={};
   $$('.b3-meter',box).forEach(function(x){cur[x.dataset.m]=x.dataset.val;if(flash&&prev[x.dataset.m]!=null&&prev[x.dataset.m]!==x.dataset.val)x.classList.add('b3-chg')});
@@ -1434,11 +1450,11 @@ function summary(st){
   avg=hs.length?avg/hs.length:st.health;avgD=hs.length?avgD/hs.length:st.dirt;
   var ps=isObj(st.penSum)?st.penSum:{};
   var causes=Object.keys(ps).filter(function(k){return HINT[k]&&ps[k]>=4}).sort(function(a,b){return ps[b]-ps[a]}).slice(0,2);
-  return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:starOf(avg,st.health,min),causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{},cost:normCost(st.cost),ref:costPlan(st.sp,Object.assign(defaultSet(st.sp),GOOD[st.sp]),false)};
+  return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:st.dead?0:starOf(avg,st.health,min),dead:!!st.dead,deadDay:st.deadDay||0,lost:st.lost||0,n:st.set.n,causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{},cost:normCost(st.cost),ref:costPlan(st.sp,Object.assign(defaultSet(st.sp),GOOD[st.sp]),false)};
 }
 function costJudge(r){
-  var c=r.cost,ref=r.ref.yen*30,refM=r.ref.min*30,ratio=ref>0?c.yen/ref:1,t=[];
-  t.push('<b>コストの振り返り</b>:お手本の世話を30日続けた場合の目安は 約'+yenStr(ref)+'・'+minStr(refM)+'です。あなたの世話は'+(ratio>=1.15?'その約'+round(ratio,1)+'倍':ratio<=0.85?'その約'+Math.round(ratio*100)+'%':'ほぼ同じ')+'でした。');
+  var dd=r.dead?Math.max(1,r.deadDay):30,c=r.cost,ref=r.ref.yen*dd,refM=r.ref.min*dd,ratio=ref>0?c.yen/ref:1,t=[];
+  t.push('<b>コストの振り返り</b>:お手本の世話を'+dd+'日続けた場合の目安は 約'+yenStr(ref)+'・'+minStr(refM)+'です。あなたの世話は'+(ratio>=1.15?'その約'+round(ratio,1)+'倍':ratio<=0.85?'その約'+Math.round(ratio*100)+'%':'ほぼ同じ')+'でした。');
   if(c.y.med)t.push('弱った'+c.medDays+'日間に、治療・薬の費用が '+yenStr(c.y.med)+' かかりました。ふだんの世話を減らして節約しても、生き物が弱ると、かえってお金も手間もかかります。');
   if(c.waste>=Math.max(10,c.y.feed*0.15))t.push('食べ残しで 約'+yenStr(c.waste)+' のえさがむだになりました。えさは多ければよいわけではありません。');
   if(ratio>=1.4&&!c.y.med)t.push('お手本よりかなり多くかかりました。えさの量・温度・水替えやそうじの回数など、健康を保ったまま減らせるところはないか考えよう。');
@@ -1448,7 +1464,8 @@ function costJudge(r){
 }
 function resultHTML(){
   var r=summary(run),sp=r.sp,star=r.star,h='';
-  h+='<div class="b3-card b3-result"><h2>30日間の飼育の結果</h2><div class="b3-stars" aria-label="星'+star+'つ">'+'★★★'.slice(0,star)+'<span style="color:#ccc">'+'★★★'.slice(star)+'</span></div>';
+  h+='<div class="b3-card b3-result"><h2>'+(r.dead?'飼育の結果('+r.deadDay+'日目に死んでしまいました)':'30日間の飼育の結果')+'</h2>'+(r.dead?'<div class="b3-msg warn">🕊 世話の条件が合わない状態が続き、'+sp.name+'が死んでしまいました。本物の生き物も、合わない環境が続くと命を落とします。下の「おもな原因」と、グラフ・日誌で健康度が下がり始めた日を確かめ、どうすれば防げたかを考えよう。</div>':'')+'<div class="b3-stars" aria-label="星'+star+'つ">'+'★★★'.slice(0,star)+'<span style="color:#ccc">'+'★★★'.slice(star)+'</span></div>';
+  if(!r.dead&&r.lost)h+='<p class="b3-msg warn">30日のあいだに '+r.lost+unitOf(run.sp)+'が死んでしまいました(残り '+r.n+unitOf(run.sp)+')。</p>';
   h+='<ul><li>健康度の平均:<b>'+Math.round(r.avg)+'</b>(最後の日 '+Math.round(r.final)+'・いちばん低い日 '+Math.round(r.min)+')</li>';
   h+='<li>'+sp.size.label+':'+sp.size.start+sp.size.unit+' → <b>'+(sp.size.dec?r.size.toFixed(sp.size.dec):Math.round(r.size))+sp.size.unit+'</b></li>';
   h+='<li>'+(sp.kind==='water'?'水':'床')+'の汚れの平均:<b>'+Math.round(r.avgD)+'</b></li>';
@@ -1457,10 +1474,10 @@ function resultHTML(){
   h+='<li>かかったお金:<b>'+yenStr(r.cost.yen)+'</b>/世話の時間:<b>'+minStr(r.cost.min)+'</b></li>';
   h+='</ul>';
   h+=costJudge(r);
-  if(r.causes.length)h+='<div class="b3-cause"><b>健康度を下げたおもな原因</b><ol>'+r.causes.map(function(k){return '<li><b>'+HINT_S[k]+'</b>'+(r.penDays[k]?'(30日のうち '+r.penDays[k]+'日)':'')+':'+HINT[k]+'</li>'}).join('')+'</ol></div>';
+  if(r.causes.length)h+='<div class="b3-cause"><b>'+(r.dead||r.lost?'命を落とすことにつながったおもな原因':'健康度を下げたおもな原因')+'</b><ol>'+r.causes.map(function(k){return '<li><b>'+HINT_S[k]+'</b>'+(r.penDays[k]?'('+(r.dead?r.deadDay:30)+'日のうち '+r.penDays[k]+'日)':'')+':'+HINT[k]+'</li>'}).join('')+'</ol></div>';
   else h+='<div class="b3-msg info">健康度を大きく下げた原因はありませんでした。</div>';
   h+='<p class="b3-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
-  h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
+  if(!r.dead)h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
   h+='<div class="b3-btns"><button type="button" class="b3-btn b3-pri" id="b3-to-refl">振り返りを書く</button><button type="button" class="b3-btn" id="b3-to-plan">飼育計画書をつくる</button><button type="button" class="b3-btn" id="b3-again">条件を変えてもう一度</button></div></div>';
   return h;
 }
@@ -1718,7 +1735,7 @@ function planText(){
 /* ================= ⑤ 振り返り ================= */
 var RQ=[
  {k:'q1',t:'シミュレーションで分かった、生き物を健康に育てるために大切な条件は何ですか。',ph:'例:えさは多ければよいのではなく、食べ残しが水を汚して…'},
- {k:'q2',t:'うまくいかなかったこと(健康度が下がった・汚れた など)と、その原因・改善した方法を書きましょう。',ph:'例:7日目に水が汚れた。原因は…なので、…にしたら回復した。'},
+ {k:'q2',t:'うまくいかなかったこと(健康度が下がった・汚れた・死んでしまった など)と、その原因・改善した方法を書きましょう。',ph:'例:7日目に水が汚れた。原因は…なので、…にしたら回復した。'},
  {k:'q3',t:'生き物の「様子」(食欲・動き・体の色など)から状態を読み取るとき、大切だと思ったことは何ですか。',ph:''},
  {k:'q4',t:'実際の飼育や観察で、生かしたいことは何ですか。',ph:''},
  {k:'q6',t:'世話の回数や量を変えると、お金や手間(コスト)はどう変わりましたか。生き物の健康とコストのバランスについて考えたことを書きましょう。',ph:'例:水替えをへらすと手間は少なくなったが、水が汚れて弱り、治療費がかかった。だから…'},
@@ -1751,14 +1768,14 @@ function renderRefl(){
   $('#b3-r-json',el).addEventListener('click',exportAll);
 }
 function archLine(k,a){
-  var sp=SP[k],t='・'+sp.name+':30日やり終えた '+starStr(a.star)+'/健康度の平均 '+a.avg+'(最後の日 '+a.final+')';
+  var sp=SP[k],t='・'+sp.name+':'+(a.dead?(a.deadDay||'')+'日目に死んでしまった':'30日やり終えた '+starStr(a.star))+'/健康度の平均 '+a.avg+'(最後の日 '+a.final+')'+(!a.dead&&a.lost?'/'+a.lost+unitOf(k)+'が死んでしまった':'');
   if(typeof a.yen==='number')t+='/費用 '+yenStr(a.yen)+'・世話 '+minStr(a.min||0);
   if(a.causes&&a.causes.length)t+='/おもな原因:'+a.causes.map(function(c){return HINT_S[c]||c}).join('、');
   return t;
 }
 function autoSummary(){
   var t='';
-  if(run){var r=summary(run);t+='飼育シミュレーション(いま):'+r.sp.name+' '+run.day+'日目まで'+(run.done?'(30日やり終えた '+starStr(r.star)+')':'')+'/健康度の平均 '+Math.round(r.avg)+'/'+r.sp.size.label+' '+(r.sp.size.dec?r.size.toFixed(r.sp.size.dec):Math.round(r.size))+r.sp.size.unit;
+  if(run){var r=summary(run);t+='飼育シミュレーション(いま):'+r.sp.name+' '+run.day+'日目まで'+(run.dead?'('+run.deadDay+'日目に死んでしまった)':run.done?'(30日やり終えた '+starStr(r.star)+')':'')+(!run.dead&&run.lost?'/'+run.lost+unitOf(run.sp)+'が死んでしまった':'')+'/健康度の平均 '+Math.round(r.avg)+'/'+r.sp.size.label+' '+(r.sp.size.dec?r.size.toFixed(r.sp.size.dec):Math.round(r.size))+r.sp.size.unit;
     if(r.sp.eggs)t+='/稚魚 '+r.fry+'匹';if(r.sp.eggRate)t+='/卵 '+r.eggs+'個';t+='/費用 '+yenStr(r.cost.yen)+'・世話 '+minStr(r.cost.min)+'\n';
     var ks=Object.keys(run.archive||{}).filter(function(k){return !(run.done&&k===run.sp)});
     if(ks.length)t+='これまでに30日やり終えた記録:\n'+ks.map(function(k){return archLine(k,run.archive[k])}).join('\n')+'\n';}
