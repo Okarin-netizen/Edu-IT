@@ -255,6 +255,83 @@ function silhouetteOK(s, view, lines) {
   console.log('答えの位置: 完了');
 })();
 
+/* ---- 3c) 等角図の正解を別の方法で確かめる ----
+ * 画面の点から視線を少しずつ進めて(アプリの計算とは別の方法)最初に当たる面を調べ、
+ * 線の両側で面がちがうところを「線がある」とする。アプリの isoLines と一致するか比べる。 */
+function marchLabel(s, X, Y) {
+  var A = X / M.C30, B = 2 * Y, x0 = (A + B) / 2, y0 = (A - B) / 2;
+  var prev = null;
+  for (var t = s.h + 0.5; t > -0.5; t -= 0.003) {
+    var x = x0 + t, y = y0 - t, z = t;
+    var c = [Math.floor(x), Math.floor(y), Math.floor(z)];
+    if (prev && M.get(s, c[0], c[1], c[2])) {
+      if (c[0] !== prev[0]) return 'x' + (c[0] + 1);
+      if (c[1] !== prev[1]) return 'y' + c[1];
+      if (c[2] !== prev[2]) return 'z' + (c[2] + 1);
+    }
+    prev = c;
+  }
+  return 'bg';
+}
+function referenceIso(s) {
+  var out = [];
+  for (var i = -2; i <= s.w + s.d + 2; i++) for (var j = -s.d - 2 * s.h - 3; j <= s.w + 3; j++) {
+    if (((i - j) % 2 + 2) % 2) continue;
+    M.ISO_DIRS.forEach(function (dd) {
+      var a = M.isoScreen(i, j), b = M.isoScreen(i + dd[0], j + dd[1]);
+      var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = -dy / L * 0.15, ny = dx / L * 0.15;
+      var diff = [0.3, 0.5, 0.7].filter(function (f) {
+        var mx = a[0] + dx * f, my = a[1] + dy * f;
+        return marchLabel(s, mx + nx, my + ny) !== marchLabel(s, mx - nx, my - ny);
+      }).length;
+      if (diff >= 2) out.push(M.segKey(i, j, i + dd[0], j + dd[1]));
+    });
+  }
+  return out.sort();
+}
+(function () {
+  var ISO_BOX = { iMin: 0, iMax: 12, jMin: 0, jMax: 16 }, SQ_BOX = { iMin: 0, iMax: 8, jMin: 0, jMax: 6 };
+  // アプリと同じ種で作った「等角図をかく」8問と「三面図をかく」10問
+  var iso = [], draw = [];
+  [[4001, 1, 3], [4002, 2, 3], [4003, 3, 2]].forEach(function (p) { iso = iso.concat(M.problemSet(p[0], p[1], p[2])); });
+  [[3001, 1, 3], [3002, 2, 4], [3003, 3, 3]].forEach(function (p) { draw = draw.concat(M.problemSet(p[0], p[1], p[2])); });
+  check(iso.length === 8 && draw.length === 10, '問題の数(等角図8・三面図10)');
+  iso.forEach(function (s, n) {
+    var exp = M.isoLines(s), ref = referenceIso(s);
+    check(JSON.stringify(exp.visible) === JSON.stringify(ref), '等角図 ' + (n + 1) + ' 問目の正解が別の方法と一致');
+    check(M.isConnected(s) && M.count(s) > 0, '等角図 ' + (n + 1) + ' 問目の立体がつながっている');
+    check(M.fitsBox(exp, M.centerOffset(exp, ISO_BOX, 'iso'), ISO_BOX), '等角図 ' + (n + 1) + ' 問目がボードに入る');
+    var g = M.grade(exp, exp.visible.reduce(function (o, k) { o[k] = 'v'; return o; }, {}));
+    check(g.ok, '等角図 ' + (n + 1) + ' 問目: 正解どおりにかくと正解');
+  });
+  // 等角図の問題は三面図だけを見てかくので、三面図から立体が1つに決まることを確かめる(箱の中のブロックの置き方を全部ためす)
+  iso.forEach(function (s, n) {
+    var tv = M.threeViews(s), N = s.w * s.d * s.h, found = 0;
+    for (var m = 1; m < (1 << N); m++) {
+      var t = M.makeSolid(s.w, s.d, s.h);
+      for (var k = 0; k < N; k++) t.cells[k] = (m >> k) & 1;
+      if (M.sameViews(M.threeViews(t), tv)) found++;
+    }
+    check(found === 1, '等角図 ' + (n + 1) + ' 問目: 三面図から立体が1つに決まる(' + found + ' 通り)');
+  });
+  var r = M.rng(21);
+  for (var n = 0; n < 40; n++) {
+    var s = M.randomSolid(r, 1 + (n % 3));
+    check(JSON.stringify(M.isoLines(s).visible) === JSON.stringify(referenceIso(s)), 'ランダム立体の等角図が別の方法と一致 ' + n);
+  }
+  draw.forEach(function (s, n) {
+    check(M.isConnected(s), '三面図 ' + (n + 1) + ' 問目の立体がつながっている');
+    M.VIEWS.forEach(function (vw) {
+      var exp = M.orthoLines(s, vw), ref = referenceLines(s, vw);
+      check(JSON.stringify(exp.visible) === JSON.stringify(ref.visible) && JSON.stringify(exp.hidden) === JSON.stringify(ref.hidden),
+        '三面図 ' + (n + 1) + ' 問目 ' + vw + ' の正解が別の方法と一致');
+      check(M.fitsBox(exp, M.centerOffset(exp, SQ_BOX, 'square'), SQ_BOX), '三面図 ' + (n + 1) + ' 問目 ' + vw + ' がボードに入る');
+      check(!exp.hidden.some(function (k) { return exp.visible.indexOf(k) >= 0; }), '三面図 ' + (n + 1) + ' 問目 ' + vw + ': 外形線とかくれ線が重ならない');
+    });
+  });
+  console.log('製図の問題と正解: 完了');
+})();
+
 /* ---- 4) クイズ30問 ---- */
 (function () {
   var total = 0;
