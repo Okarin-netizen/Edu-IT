@@ -145,12 +145,15 @@ function layoutTrain(t) {
 
 /* ---------- 四節リンク ----------
    固定節 d: 原点O2=(0,0) 〜 O4=(d,0)。クランク(入力) a、連結棒 b、てこ(出力) c。
-   座標は数学の向き(上が+y)。theta はクランクの角度 */
+   座標は数学の向き(上が+y)。theta はクランクの角度。
+   prevB: 前のBの位置(いちばん近い方を選ぶ)、または組み立ての向き mode(+1/-1。A→O4 の左側が +1)。
+   棒が一直線にそろう所(変化点)では2つの答えが重なるので、近さで選ぶとたまに反対側へ飛ぶ。
+   向きを決めておけば、てこは同じ側のまま動き続ける */
 function fourBar(a, b, c, d, theta, prevB) {
   var A = { x: a * Math.cos(theta), y: a * Math.sin(theta) };
   if (Math.abs(a - c) < 1e-9 && Math.abs(b - d) < 1e-9) {
     var Bp = { x: A.x + d, y: A.y };         // 平行クランク: 平行四辺形のまま
-    return { ok: true, A: A, B: Bp, phi: Math.atan2(Bp.y, Bp.x - d) };
+    return { ok: true, A: A, B: Bp, phi: Math.atan2(Bp.y, Bp.x - d), mode: 0 };
   }
   var dx = d - A.x, dy = -A.y, e = Math.hypot(dx, dy);
   if (e > b + c + 1e-9 || e < Math.abs(b - c) - 1e-9 || e < 1e-9) return { ok: false, A: A };
@@ -158,9 +161,10 @@ function fourBar(a, b, c, d, theta, prevB) {
   var mx = A.x + dx * k / e, my = A.y + dy * k / e;
   var B1 = { x: mx - dy * h / e, y: my + dx * h / e }, B2 = { x: mx + dy * h / e, y: my - dx * h / e };
   var B;
-  if (prevB) B = Math.hypot(B1.x - prevB.x, B1.y - prevB.y) <= Math.hypot(B2.x - prevB.x, B2.y - prevB.y) ? B1 : B2;
+  if (prevB === 1 || prevB === -1) B = prevB > 0 ? B1 : B2;
+  else if (prevB) B = Math.hypot(B1.x - prevB.x, B1.y - prevB.y) <= Math.hypot(B2.x - prevB.x, B2.y - prevB.y) ? B1 : B2;
   else B = B1.y >= B2.y ? B1 : B2;           // はじめは上側(開いた形)
-  return { ok: true, A: A, B: B, phi: Math.atan2(B.y, B.x - d) };
+  return { ok: true, A: A, B: B, phi: Math.atan2(B.y, B.x - d), mode: B === B1 ? 1 : -1 };
 }
 /* グラスホフの条件で種類を判定
    a: クランク(入力) b: 連結棒 c: てこ(出力) d: 固定リンク
@@ -186,13 +190,24 @@ function fourBarSweep(a, b, c, d) {
   var okN = valid.filter(Boolean).length;
   if (!okN) return { full: false, okDeg: 0, swing: 0, outFull: false, tmin: null, tmax: null };
   if (okN < 360) { for (i = 0; i < 360; i++) if (valid[i] && !valid[(i + 359) % 360]) { st = i; break; } }
-  var prev = null, last = null, unwrap = 0, mn = 0, mx = 0, n = 0;
+  var prev = null, last = null, unwrap = 0, mn = 0, mx = 0, n = 0, mode = 0;
   for (i = 0; i <= 360; i++) {
-    var deg = st + i, r = fourBar(a, b, c, d, deg * Math.PI / 180, prev);
+    var deg = st + i, r = fourBar(a, b, c, d, deg * Math.PI / 180, mode || prev);
     if (!r.ok) break;
-    n++; prev = r.B;
+    n++; prev = r.B; mode = r.mode;
     if (last !== null) { var dp = r.phi - last; if (dp > Math.PI) dp -= 2 * Math.PI; if (dp < -Math.PI) dp += 2 * Math.PI; unwrap += dp; mn = Math.min(mn, unwrap); mx = Math.max(mx, unwrap); }
+    if (last === null) var phi0 = r.phi;
     last = r.phi;
+  }
+  if (okN < 360 && n) {
+    // 動けるはしは1°きざみの間にあるので、はしまで細かく近づけて振れ角に入れる(はしの近くは てこが速く動く)
+    var edge = function (tIn, tOut, ref, base) {
+      for (var k = 0; k < 40; k++) { var md = (tIn + tOut) / 2; if (fourBar(a, b, c, d, md * Math.PI / 180, mode).ok) tIn = md; else tOut = md; }
+      var re = fourBar(a, b, c, d, tIn * Math.PI / 180, mode), de = re.phi - ref;
+      if (de > Math.PI) de -= 2 * Math.PI; if (de < -Math.PI) de += 2 * Math.PI;
+      mn = Math.min(mn, base + de); mx = Math.max(mx, base + de);
+    };
+    edge(st, st - 1, phi0, 0); edge(st + n - 1, st + n, last, unwrap);
   }
   var sw = mx - mn, lt = linkType(a, b, c, d);
   // 出力側がいちばん短い(てこクランクを逆に使う形)ときは、入力が往復するあいだに出力側が1回転する
