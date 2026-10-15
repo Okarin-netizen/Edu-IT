@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>先生用ガイド | 生物育成の技術 教材集</title><style>
+html,body{margin:0;padding:0;height:100%;}
+body{background:#f4f7f1;}
+#hub{
+  --bg:#f4f7f1; --card:#fff; --ink:#1b2a1b; --sub:#4a5a4a; --line:#c9d5c3;
+  --pri:#2e7d32; --pri-d:#1b5e20; --pri-l:#e3f1e4; --warn:#a85b00; --warn-l:#fff4e0; --bad:#b3261e; --bad-l:#fdeceb;
+  --bar:56px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;
+  font-size:18px; line-height:1.65; color:var(--ink); background:var(--bg);
+  min-height:100%; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.15);
+}
+#hub *{box-sizing:border-box;}
+#hub button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;}
+#hub :focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+#hub rt{font-size:.5em;color:var(--sub);}
+#hub.noruby rt{display:none;}
+#hub .bar rt{color:#d7ecd8;}
+/* top bar */
+#hub .bar{position:fixed;top:0;left:0;right:0;height:var(--bar);z-index:50;display:flex;align-items:center;gap:8px;
+  padding:0 10px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));
+  background:#123d14;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+#hub .bar .home{min-height:44px;padding:0 14px;border-radius:10px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;white-space:nowrap;}
+#hub .bar .home[aria-current="page"]{background:#fff;color:#123d14;}
+#hub .bar .ttl{flex:1 1 auto;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#hub .bar .sw{display:flex;gap:6px;}
+#hub .bar .sw button{min-width:52px;min-height:44px;border-radius:10px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;font-weight:700;}
+#hub .bar .sw button[aria-current="page"]{background:#fff;color:#123d14;border-color:#fff;}
+#hub .bar{font-size:17px;line-height:1.4;}
+#hub .bar .sep{flex:0 0 2px;align-self:stretch;margin:12px 2px;background:rgba(255,255,255,.35);}
+#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
+#hub .bar .pf button{min-width:48px;min-height:44px;padding:0 10px;border-radius:10px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;font-weight:700;white-space:nowrap;}
+#hub .bar .pf button[aria-pressed="true"]{background:#fff;color:#123d14;border-color:#fff;}
+#hub .bar .pf button:disabled{opacity:.4;cursor:default;}
+#hub .page{padding:calc(var(--bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
+#hub .page[hidden]{display:none;}
+#hub h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
+#hub h2{font-size:1.3em;margin:.3em 0 .4em;color:var(--pri-d);line-height:1.5;}
+#hub h3{font-size:1.1em;margin:.2em 0 .5em;line-height:1.5;}
+#hub h4{margin:.1em 0 .3em;font-size:1em;}
+#hub p{margin:.3em 0 .7em;}
+#hub .lead{color:var(--sub);}
+#hub .status{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:2px solid var(--pri);background:var(--pri-l);font-weight:700;font-size:.9em;}
+#hub .status.bad{border-color:var(--bad);background:var(--bad-l);color:var(--bad);}
+#hub .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+#hub .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:14px 0 18px;}
+@media (max-width:700px){#hub .grid{grid-template-columns:1fr;}}
+#hub .card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;}
+#hub .card .hd{display:flex;align-items:center;gap:12px;}
+#hub .card .ic{font-size:2.2em;line-height:1;width:1.3em;text-align:center;}
+#hub .card .code{display:inline-block;font-weight:800;color:#fff;background:var(--pri);border-radius:8px;padding:0 8px;margin-right:6px;font-size:.9em;}
+#hub .card h3{margin:0;}
+#hub .card .desc{flex:1 1 auto;margin:.2em 0;}
+#hub .card .meta{display:flex;flex-wrap:wrap;gap:8px;font-size:.88em;color:var(--sub);}
+#hub .chip{display:inline-block;padding:2px 10px;border-radius:999px;border:1.5px solid var(--line);background:#fafcf9;}
+#hub .chip.done{border-color:var(--pri);background:var(--pri-l);color:var(--pri-d);font-weight:700;}
+#hub .chip.todo{border-color:var(--warn);background:var(--warn-l);color:#6b3a00;font-weight:700;}
+#hub .chip.part{border-color:#1565c0;background:#e8f0fb;color:#0d3c78;font-weight:700;}
+#hub .card .rec{margin-left:auto;align-self:flex-start;flex:0 0 auto;white-space:nowrap;font-size:.8em;font-weight:700;color:#6b3a00;background:var(--warn-l);border:1.5px solid var(--warn);border-radius:999px;padding:0 10px;}
+#hub .open{align-self:flex-end;min-height:52px;padding:0 26px;border:0;border-radius:12px;background:var(--pri);color:#fff;font-weight:700;font-size:1.05em;}
+#hub .open:active{background:var(--pri-d);}
+#hub .btn{min-height:48px;padding:0 18px;border-radius:12px;border:2px solid var(--pri);background:#fff;color:var(--pri-d);font-weight:700;}
+#hub .btn.danger{border-color:var(--bad);color:var(--bad);}
+#hub .flow{background:var(--card);border:2px dashed var(--line);border-radius:14px;padding:10px 16px;margin:0 0 18px;}
+#hub .flow ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 26px;margin:.3em 0;padding-left:.2em;list-style:none;}
+@media (max-width:700px){#hub .flow ol{grid-template-columns:1fr;}}
+#hub details.teacher{margin-top:22px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:6px 16px;}
+#hub details.teacher summary{min-height:44px;display:flex;align-items:center;font-weight:700;cursor:pointer;}
+#hub .small{font-size:.85em;color:var(--sub);}
+/* guide pages */
+#hub .gsec{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 18px;margin:0 0 14px;}
+#hub .gtable{width:100%;border-collapse:collapse;margin:.3em 0 .6em;font-size:.95em;}
+#hub .gtable th,#hub .gtable td{border:1.5px solid var(--line);padding:6px 10px;vertical-align:top;text-align:left;}
+#hub .gtable th{background:var(--pri-l);}
+#hub .tip{background:var(--warn-l);border-left:6px solid var(--warn);padding:8px 12px;border-radius:8px;}
+#hub .gsteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+@media (max-width:700px){#hub .gsteps{grid-template-columns:1fr;}}
+#hub .gstep{border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;background:#fafcf9;}
+#hub .gstep ol{margin:.2em 0;padding-left:1.4em;}
+#hub ol li,#hub ul li{margin:.2em 0;}
+#hub .faq dt{font-weight:700;margin-top:.5em;}
+#hub .faq dd{margin:.1em 0 .4em 1.2em;}
+#hub .gtools{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px;}
+/* material frames */
+#hub .frame{position:fixed;left:0;right:0;bottom:0;top:var(--bar);width:100%;height:calc(100% - var(--bar));border:0;background:#fff;z-index:10;}
+#hub .frame:focus{outline:none;}
+#hub .frame[hidden]{display:none;}
+#hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:12px;z-index:60;max-width:90vw;}
+#hub .toast[hidden]{display:none;}
+@media (max-width:760px){#hub .bar .home .lbl{display:none;} #hub .bar{gap:6px;}}
+@media (max-width:640px){#hub .bar .ttl{display:none;} #hub .bar .sw{flex:1;justify-content:flex-end;} #hub .bar .sw button{min-width:46px;}}
+@media (max-width:540px){#hub .bar .sep{display:none;} #hub .bar .sw,#hub .bar .pf{gap:4px;} #hub .bar .sw button,#hub .bar .pf button{min-width:44px;padding:0 6px;}}
+@media print{
+  #hub .bar,#hub .gtools,#hub .noprint{display:none !important;}
+  #hub .page{padding:0;}
+  #hub .gsec{break-inside:avoid;}
+}
+
+#hub .page{padding:20px 16px 40px;}</style></head>
+<body><div id="hub"><main class="page">
+<p class="small">生物育成の技術 教材集(生物育成教材集.html)の先生用ガイドです。教材集のメニュー下「先生用」からも同じ内容を見られます。</p>
+<h2>👩‍🏫 先生用ガイド</h2>
+<p class="lead">中学校 技術・家庭(技術分野)「B 生物育成の技術」で使う、4つのオフライン教材をまとめたファイルです。インターネット接続・アカウント・インストールは不要です。</p>
+
+<section class="gsec">
+<h3>1. 配布と動作環境</h3>
+<ol>
+<li>zip を展開(すべて展開)し、<b>生物育成教材集.html</b> を各端末に配布します(Google ドライブ・Classroom・USB など)。</li>
+<li>生徒は端末に保存したファイルをブラウザで開きます。以後はオフラインで動きます。</li>
+<li>初回に、メニュー上部が「✅ このタブレットに保存できます」になっていることを確認してください。</li>
+</ol>
+<table class="gtable">
+<tr><th>端末</th><th>開き方と注意</th></tr>
+<tr><td>Chromebook</td><td>「ファイル」アプリでダウンロード済みの HTML をダブルタップ → Chrome で開く。推奨環境です。</td></tr>
+<tr><td>Windows タブレット</td><td>エクスプローラーで HTML を開く(Edge / Chrome)。</td></tr>
+<tr><td>Android タブレット</td><td>「Files」アプリで zip を展開し、HTML を Chrome で開く。端末によっては保存が残らない開き方があるため、下の「保存テスト」を必ず行ってください。</td></tr>
+<tr><td>iPad</td><td>「ファイル」アプリのプレビューではプログラムが動きません。校内 Web サーバーなどに置いて Safari で開くか、HTML を実行できるアプリを使ってください。</td></tr>
+</table>
+<p class="tip"><b>保存テスト(授業前に1台で):</b> B2 で数日育てる → ブラウザを閉じる → もう一度ファイルを開き、「つづきから」で続きが出れば OK です。</p>
+</section>
+
+<section class="gsec">
+<h3>2. 各教材のねらいと時間の目安</h3>
+<table class="gtable">
+<tr><th>教材</th><th>指導要領・教科書との対応</th><th>ねらい</th><th>目安</th></tr>
+<tr><td><b>B1</b> 育成日誌＋成長予測</td><td>B(2)ア・イ 育成計画・育成・評価</td><td>実際の栽培・飼育の観察記録をデータ化し、グラフ・積算温度・成長曲線で読み取り、評価・改善につなげる。作物・動物・水産生物を記録できる。</td><td>栽培期間中の毎回5〜10分＋まとめ1時間</td></tr>
+<tr><td><b>B2</b> 育成環境コントローラ体験</td><td>B(1)ア 育成環境の調節方法</td><td>温度・光・水・養分を調節すると成長が変わることを、30日の仮想栽培と条件比較(1条件だけ変える)で理解する。</td><td>2〜3時間</td></tr>
+<tr><td><b>B3</b> 動物飼育・水産ミニシミュレータ</td><td>B(1)ア 動物・水産生物の育成環境</td><td>水温・水質・えさ・密度・清潔さの調節と、様子(食欲・動き・体色)からの状態判断。生態系への配慮。</td><td>2〜3時間</td></tr>
+<tr><td><b>B4</b> 栽培暦ビルダー</td><td>B(2)イ 育成計画を立てる</td><td>収穫日からの逆算、地域の気温帯・休業日による補正で計画を立て、実績とのずれを評価する。</td><td>1〜2時間</td></tr>
+</table>
+</section>
+
+<section class="gsec">
+<h3>3. 単元での使い方の例</h3>
+<ol>
+<li><b>導入・知識</b>(B2・B3):育成環境と成長の関係をシミュレーションで体験する。B2 の「天気の番号」をクラスで同じにすると、全員同じ条件で比較・発表ができます。</li>
+<li><b>計画</b>(B4):育てる作物を決め、収穫日から逆算して作業日を決める。学校の休業日を入れておきます。</li>
+<li><b>育成・記録</b>(B1):実際の栽培中、観察のたびに記録する。B4 の計画を参考に、B1 の計画にも同じ作物と開始日を入れます。</li>
+<li><b>評価・改善</b>(B1・B4):計画と実際のずれ、予測と実際の違いから改善案を考える。</li>
+<li><b>まとめ</b>:各教材の振り返りを提出させる。</li>
+</ol>
+<p class="small">生徒用の「おすすめの順番」(メニュー・使い方)も、この順(① B2・B3 → ② B4 → ③ B1 → ④ 振り返り)にそろえ、メニューのカードに「おすすめ①〜③」の印を付けています。</p>
+<p class="tip"><b>コスト(お金と手間)</b>:B3 はえさ・水替え・そうじ・温度などの世話の回数や量に応じて、えさ代・電気代・治療費と世話の時間を毎日計算し、結果でお手本の世話と比べます(世話を減らして弱らせると治療費がかかる仕組み)。B2 は操作ごとの費用と作業時間を集計し、「くらべる」で A・B の費用も比べます。B4 は計画の下書きに、種苗費・肥料代・資材費と作業時間、収穫の価値の目安を出します。金額はすべて学習用のおおよその目安です。</p>
+<p class="tip"><b>生き物が死んでしまう場合</b>:B3 では、健康度が20未満の「とても弱った状態」が続くと、数が少しずつ減り(死んだ分はふやせません)、健康度が0になるか1匹だけで弱った状態が3日続くと死んでしまい、飼育はそこで終わります。結果画面に「命を落とすことにつながったおもな原因」が出るので、グラフ・日誌と合わせて振り返らせてください。最初の設定のまま何も見直さないと、金魚は12日目ごろに死んでしまいます。命を扱う内容なので、事前に声かけをお願いします。</p>
+<p class="tip">シミュレーション(B2・B3)は簡易モデルです。本物の作物や生き物の観察・記録(B1)と比べて考えるよう声をかけてください。</p>
+</section>
+
+<section class="gsec">
+<h3>4. 振り返りの回収と評価</h3>
+<ul>
+<li>どの教材にも「振り返り」タブがあり、先頭に組・番号・名前、記述の問い、自己評価(◎ よくできた/○ できた/△ もう少し)があります。本文は自動保存され、「最後に保存 hh:mm」が出ます(B1 で以前に付けた★は ◎○△ に変換されます)。</li>
+<li>提出方法は「テキストで書き出す(.txt)」「コピー(Classroom の回答欄に貼る)」「印刷・PDF」から指示してください。</li>
+<li>メニューのカードに、振り返りの書きぐあい(✅ 書いた=記述欄すべて記入 / 📝 書きかけ / ✏️ まだ)が出るので、机間指導で確認できます。</li>
+<li>印刷・PDF では、記述欄の文章は枠で切れずに全文が出ます(例文は印刷されません。空欄は「(未記入)」)。</li>
+<li>観点別評価との対応の目安:自己評価や問いのうち「関係を理解できた」→知識・技能、「原因を考え改善できた」→思考・判断・表現、「すすんで試した・生活や社会に生かそうとした」→主体的に学習に取り組む態度。</li>
+</ul>
+</section>
+
+<section class="gsec">
+<h3>5. データの保存と共用端末</h3>
+<ul>
+<li>記録は端末のブラウザ内(localStorage、B1 の写真は IndexedDB)に保存され、外部には送信されません。保存名は教材ごとに b1_〜b4_ で始まり、互いに上書きしません。</li>
+<li>同じ端末でも、別のブラウザ・シークレットモード・別のファイルの場所から開くと記録は引き継がれません。</li>
+<li>端末を複数の生徒で使う場合、B1 は「名前(班名)」ごとに記録を分けられます。B2〜B4 は端末につき1人分なので、班で1台にするか、使い終わったら下の「すべて消す」を使ってください。</li>
+<li>ふりがな・文字の大きさは、4教材とメニューで共通の設定です(保存名 hub_ruby・hub_fs)。上のバーの「ふりがな」「A−」「A＋」で変えると、開いているすべての教材にすぐ反映されます。「すべて消す」をしても、この2つの設定は残ります。</li>
+<li>メニュー下の「先生用」から、4教材の記録をまとめて書き出し(バックアップ)・読み込み・削除できます。B1 の写真はまとめた書き出しに入らないため、B1 の「❓使い方」タブの「すべて書き出す(写真つき)」を使ってください。</li>
+</ul>
+</section>
+
+<section class="gsec">
+<h3>6. 安全・倫理への配慮</h3>
+<ul>
+<li>B3 は、生き物の命を軽く扱わないよう淡い表現にしています。実際の飼育・観察とつなげて扱ってください。</li>
+<li>飼育した生き物を川や池に放さない(外来種・生態系への配慮)、農薬は使用基準を守る、について B1・B3 の中でも注意を表示しています。</li>
+<li>教科書の図や文章は転載していません。数値は授業用の目安です。</li>
+</ul>
+</section>
+
+<section class="gsec">
+<h3>7. よくあるトラブル</h3>
+<dl class="faq">
+<dt>「⚠️ 保存できません」と出る</dt><dd>シークレットモード、または保存を許可しない開き方です。通常のブラウザでファイルを開き直してください。</dd>
+<dt>記録が消えた</dt><dd>別のブラウザ・別の場所のファイルで開いていないか確認してください。ブラウザのデータ削除や端末の初期化でも消えるため、学期の区切りでバックアップを取ることをすすめます。</dd>
+<dt>書き出したファイルが見つからない</dt><dd>端末の「ダウンロード」フォルダに保存されます。</dd>
+<dt>印刷すると教材全体が出る</dt><dd>振り返りタブの「印刷」ボタンを使うと、振り返りだけが印刷されます。</dd>
+</dl>
+</section>
+
+<section class="gsec">
+<h3>8. この版での主な変更点</h3>
+<ul>
+<li><b>設定の共通化</b>:ふりがな・文字の大きさを教材集全体で1つの設定にしました。メニューの中で教材を開いたときは、教材側の見出しを省き、設定ボタンは上のバーに集めています(教材の表示範囲が広がります)。</li>
+<li><b>B4</b>:作業を「人がする作業」と「観察(開花・発芽の確認・出穂など)」に分けました。観察は休業日に合わせて動かしません。休みに合わせた調整で<b>収穫を前に動かすことはありません</b>。目標の収穫日に間に合わないときは警告を出します。</li>
+<li><b>B3</b>:★の基準をきびしくしました。手本どおりに世話をすると★3、水替えなし・そうじなし・えさのかたより・過密のどれかを続けると★2以下、何もしないと★1〜2になります。</li>
+<li>振り返りの形(組・番号・名前、◎○△、自動保存)と、タブの見た目を4教材でそろえました。</li>
+</ul>
+</section>
+
+<section class="gsec">
+<h3>9. 実機で確認してほしいこと(授業前に1台で)</h3>
+<ul>
+<li>テキストやバックアップを書き出したとき、<b>ファイル名が日本語のまま保存されるか</b>(テスト用ブラウザでは「download」という名前になることがありました)。</li>
+<li>メニューの中で開いた教材で、<b>「コピー」ボタン</b>が使えるか(Classroom などに貼りつけられるか)。</li>
+<li>B1 の写真で、<b>カメラの起動・写真の選択</b>ができるか。</li>
+</ul>
+</section>
+</main></div></body></html>
