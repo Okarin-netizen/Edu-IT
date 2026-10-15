@@ -170,7 +170,7 @@
       h('p', null, '左の立体を第三角法でかいた三面図はどれですか。立体はドラッグや矢印キーで回せます。'),
       levelBar, nav));
     root.appendChild(h('div', { class: 'm4-cols' },
-      h('div', { class: 'card' }, h('h3', null, '問題 ' + (quizState.idx + 1) + '(' + LEVEL_NAME[quizState.level] + ')'), v.el),
+      h('div', { class: 'card m4-sticky' }, h('h3', null, '問題 ' + (quizState.idx + 1) + '(' + LEVEL_NAME[quizState.level] + ')'), v.el),
       h('div', { class: 'card' }, h('h3', null, '正しい三面図をえらぶ'), legendLines(), opts, result)));
     v.setSolid(p.solid);
     if (answered && done.last !== undefined) mark(done.last);

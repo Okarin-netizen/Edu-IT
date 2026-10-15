@@ -1,9 +1,11 @@
 /* 構造強化ラボ 固有のスタイル(共通は ../common/base.css) */
 :root { --beam: #c8955b; --beam-line: #8a5a2b; --before: #5b636d; --load: #c62828; --brace: #1f6feb; }
 .lead { margin: .25rem 0 .75rem; }
-.savebar { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: flex-end; }
-.savebar-name { margin: 0; flex: 1 1 14rem; }
-.savebar-name input { width: 100%; }
+/* 名前の見出しを入力らんの左に置き、1行で表示する(11インチChromebook で図と条件を広く見せるため) */
+.savebar { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; padding-top: .4rem; padding-bottom: .4rem; }
+.savebar-name { margin: 0; flex: 1 1 14rem; flex-direction: row; align-items: center; gap: .5rem; }
+.savebar-name > span:first-child { white-space: nowrap; }
+.savebar-name input { flex: 1 1 auto; width: auto; min-width: 6rem; }
 .savebar-status { flex-basis: 100%; margin: 0; }
 .savebar-status:empty { display: none; }
 .card:has(> .savebar) { padding-top: .5rem; padding-bottom: .5rem; }
@@ -76,6 +78,15 @@ table.cmp td.num, table.cmp th.num { text-align: right; }
 #c-log td.num { text-align: right; }
 #c-log th { white-space: nowrap; }
 
+/* タブレット縦向き(幅 900px 以下)では梁の図を1列にして大きく描く(2列だと図の文字が 8px ほどになる)。
+   図 → 条件 → 結果 の順に並べ、条件を変えながら図を見られるようにする */
+@media (max-width: 900px) {
+  [data-panel=beam] > .g-cols { grid-template-columns: 1fr; }
+  [data-panel=beam] > .g-cols > div:first-child { display: contents; }
+  [data-panel=beam] > .g-cols > div:first-child > .card { order: 3; }
+  [data-panel=beam] > .g-cols > div:first-child > .card:first-child { order: 1; }
+  #beam-form { order: 2; }
+}
 @media (max-width: 520px) {
   .section-row { grid-template-columns: 1fr; }
   .section-row svg { width: 120px; }

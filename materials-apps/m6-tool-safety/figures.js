@@ -53,7 +53,7 @@
       var t = 'translate(' + n(o.x, 160) + ' ' + n(o.y, 110) + ') rotate(' + n(o.a, 0) + ')';
       return '<g transform="' + t + '"><rect class="f-wood-dark" x="-55" y="-26" width="110" height="26" rx="3"/>' +
         '<path class="f-metal" d="M-14 -44 L-4 -44 L8 0 L-1 0 Z"/>' +
-        (o.nolabel ? '' : '<text class="f-small" x="-50" y="-31">だいがしら</text><text class="f-small" x="22" y="-31">だいじり</text>') + '</g>';
+        (o.nolabel ? '' : '<text class="f-small" x="-64" y="-49">だいがしら</text><text class="f-small" x="64" y="-49" text-anchor="end">だいじり</text>') + '</g>';
     },
     // げんのう。(x,y)=打撃面の中心、柄は右へ伸びる
     hammer: function (o) {
