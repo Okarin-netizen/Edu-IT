@@ -162,6 +162,11 @@ html.kz-embed #b4-app .b4-head{display:none}
 #b4-app .b4-toast.b4-show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 #b4-app .b4-hidden{display:none!important}
 #b4-app .b4-muted{color:var(--b4-sub);font-size:.88em}
+#b4-app .b4-cost{background:#fff8e1;border:2px solid #ecd59c;border-radius:10px;padding:.6em .8em;margin:.5em 0}
+#b4-app .b4-cost table{border-collapse:collapse;width:100%;font-size:.92em;margin:.3em 0}
+#b4-app .b4-cost td{border-bottom:1px dashed #e3cf95;padding:.2em .3em}
+#b4-app .b4-cost td:last-child{text-align:right;white-space:nowrap}
+#b4-app .b4-cost tr.b4-tot td{font-weight:bold;border-bottom:0}
 #b4-app .b4-bottomnav{display:flex;justify-content:space-between;gap:.6em;margin-top:1em;flex-wrap:wrap}
 @media print{
   #b4-app .b4-head,#b4-app .b4-tabs,#b4-app .b4-noprint,#b4-app .b4-toast,#b4-app .b4-sumbar,#b4-app .b4-gq{display:none!important}
@@ -682,6 +687,39 @@ var CROP={
 };
 var ORDER=['radish','komatsuna','spinach','edamame','tomato','potato','rice'];
 var ICON={prep:'⛏️',sow:'🌱',check:'👀',thin:'✂️',plant:'🌿',support:'🎋',bud:'✂️',fert:'🟫',top:'✂️',flower:'🌸',dry:'☀️',harvest:'🧺',end:'🏁'};
+/* 費用と手間の目安(プランター1つ、または畑1m²あたり)。金額は学習用のおおよその目安。土・プランター・道具は入れない */
+var CCOST={
+  radish:{seed:[50,'種'],val:300,amt:'約20本'},
+  komatsuna:{seed:[50,'種'],mat:[100,'防虫ネット'],val:400,amt:'約15株'},
+  spinach:{seed:[60,'種'],val:400,amt:'約15株'},
+  edamame:{seed:[80,'種'],mat:[100,'鳥よけネット'],val:400,amt:'約300g'},
+  tomato:{seed:[200,'苗(2株)'],mat:[150,'支柱'],val:1500,amt:'約150個'},
+  potato:{seed:[150,'種いも'],val:500,amt:'約2kg'},
+  rice:{seed:[20,'種もみ'],val:30,amt:'茶わん約半分(玄米 約60g)'}
+};
+function costEst(cid,tasks,qty){var c=CCOST[cid],q=Math.max(1,Math.min(20,+qty||1)),it=[];
+  it.push([c.seed[1],c.seed[0]*q]);
+  var lime=tasks.some(function(t){return /石灰をまいて/.test(t.label)}),moto=tasks.some(function(t){return /元肥/.test(t.label)});
+  var tsui=tasks.filter(function(t){return t.k==='fert'&&/追肥/.test(t.label)&&!/ときだけ/.test(t.label)}).length;
+  if(lime)it.push(['石灰',10*q]);
+  if(moto)it.push(['元肥(肥料)',30*q]);
+  if(tsui)it.push(['追肥(肥料)'+tsui+'回',20*tsui*q]);
+  if(c.mat)it.push([c.mat[1],c.mat[0]*q]);
+  var yen=0;it.forEach(function(x){yen+=x[1]});
+  var work=tasks.filter(function(t){return t.kind!=='obs'}).length,per=20+5*(q-1);
+  var a='',e='';tasks.forEach(function(t){if(t.k==='sow'||t.k==='plant'){if(!a)a=t.date||t.ideal}if(t.k==='end'||t.k==='harvest')e=t.date||t.ideal});
+  var days=isDate(a)&&isDate(e)?Math.max(0,diff(e,a)):0;
+  var min=work*per+days*(5+2*(q-1));
+  return {q:q,items:it,yen:yen,work:work,workMin:work*per,days:days,dailyMin:days*(5+2*(q-1)),min:min,val:c.val*q,amt:c.amt}}
+function yenS(v){v=Math.round(v);return (v.toLocaleString?v.toLocaleString('ja-JP'):v)+'円'}
+function minS(v){v=Math.round(v);if(v<60)return v+'分';var h=Math.floor(v/60),m=v%60;return h+'時間'+(m?m+'分':'')}
+function costHtml(p){var e=costEst(p.cropId,p.tasks,p.qty);
+  return '<div class="b4-cost"><b>💰 費用と手間の目安</b>(プランター・区画 '+e.q+'つ分)<table>'+
+   e.items.map(function(x){return '<tr><td>'+esc(x[0])+'</td><td>'+yenS(x[1])+'</td></tr>'}).join('')+
+   '<tr class="b4-tot"><td>お金の合計</td><td>約'+yenS(e.yen)+'</td></tr></table>'+
+   '<div>⏱ 手間:作業 '+e.work+'回(約'+minS(e.workMin)+')＋毎日の水やり・見回り '+e.days+'日(約'+minS(e.dailyMin)+')= <b>約'+minS(e.min)+'</b></div>'+
+   '<div>🧺 とれる量の目安:'+esc(e.amt)+(e.q>1?'×'+e.q:'')+'(お店で買うとしたら 約'+yenS(e.val)+')</div>'+
+   '<div class="b4-muted">金額は学習用のおおよその目安です。土・プランター・道具はくり返し使えるので入れていません。お金や手間に見合う収穫があるか、へらせる作業はないか考えてみよう。</div></div>'}
 var PCOL=['#2e7d32','#c62828','#1565c0','#6a1b9a','#ef6c00','#00838f','#5d4037','#ad1457'];
 var PRESETS=[['春休み','03-25','04-07'],['大型連休','05-03','05-06'],['夏休み','07-20','08-31'],['冬休み','12-25','01-07']];
 /* むずかしい作業用語の短い説明(B4-15) */
@@ -719,7 +757,7 @@ if(window.kzRuby&&kzRuby.add)kzRuby.add([['作物','さくもつ'],['計画','�
 
 /* ---------- 状態と保存 ---------- */
 function fresh(){return {v:1,set:{ruby:true,fs:18,wk:true,tab:'crop'},cropId:'radish',
-  draft:{region:'mid',mode:'harvest',harvest:'',start:'',plot:'',prev:'none',early:0},
+  draft:{region:'mid',mode:'harvest',harvest:'',start:'',plot:'',prev:'none',early:0,qty:1},
   hol:[],plans:[],cur:null,cal:{view:'month',anchor:'',filter:'all',sel:''}}}
 function freshR(){return {kumi:'',ban:'',name:'',q1:'',q2:'',q3:'',q4:'',self:{a:0,b:0,c:0},saved:''}}
 var storageOK=true;
@@ -832,7 +870,7 @@ function buildPlan(d,cid){
   else{start=d.start;slow=slowFac(cid,reg,start)}
   var T=cropTasks(cid,reg,slow);
   var p={id:uid(),v2:true,cropId:cid,region:reg,mode:d.mode,input:d.mode==='harvest'?d.harvest:d.start,startCalc:start,early:early,slow:slow,
-    plot:d.plot||'',prev:d.prev||'none',created:today(),color:'',lastRef:'',undo:null,
+    plot:d.plot||'',prev:d.prev||'none',qty:Math.max(1,Math.min(20,+d.qty||1)),created:today(),color:'',lastRef:'',undo:null,
     ev:{cause:'',improve:'',result:''},
     tasks:T.map(function(t,i){return {id:'t'+i,k:t.k,kind:t.kind,label:t.label,short:t.short,off:t.off,ideal:add(start,t.off),base:'',date:'',orig:'',moved:0,done:false,actual:'',note:''}})};
   layout(p);p.tasks.forEach(function(t){t.orig=t.date});return p}
@@ -963,7 +1001,7 @@ function holHtml(){
   '<div class="b4-row" style="margin-top:.4em">'+PRESETS.map(function(p,i){return '<button type="button" class="b4-chipbtn" data-act="holpre" data-i="'+i+'">＋'+p[0]+'</button>'}).join('')+
   '<button type="button" class="b4-chipbtn" data-act="holadd">＋自分で入力</button></div>'}
 var regionNote='', lastSavedSig='';
-function draftSig(){var d=S.draft;return JSON.stringify([S.cropId,d.region,d.mode,d.mode==='harvest'?d.harvest:d.start,d.plot,d.prev,d.early||0,S.hol,S.set.wk])}
+function draftSig(){var d=S.draft;return JSON.stringify([S.cropId,d.region,d.mode,d.mode==='harvest'?d.harvest:d.start,d.plot,d.prev,d.early||0,+d.qty||1,S.hol,S.set.wk])}
 function rPlan(){ensureDraftDates();var d=S.draft,c=CROP[S.cropId];
   fill(main,'<h2>② '+cropName(S.cropId)+'の栽培計画をつくろう</h2>'+
   '<p class="b4-lead">地域・収穫したい日・休みの日を入れると、作業日が自動で計算されます。入れかえると「計画の下書き」(横向きの画面では右、縦向きでは下と、画面の下の要約バー)がすぐ変わるので、いろいろためしてみよう。<button type="button" class="b4-btn b4-small" data-act="tab" data-t="crop">作物を変える</button></p>'+
@@ -979,6 +1017,7 @@ function rPlan(){ensureDraftDates();var d=S.draft,c=CROP[S.cropId];
     '<div id="b4-hol">'+holHtml()+'</div><p class="b4-muted">休みと重なった人の作業は、いちばん近い登校日に動きます。収穫は早めず、休み明けに動きます。発芽・開花などの「観察」は自然に進むので動きません。「毎年」にチェックすると、どの年の計画にも同じ日付で入ります。休業日はすべての計画で共通です。</p></div>'+
    '<div class="b4-card"><h3 style="margin-top:0">4. 育てる場所</h3>'+
     '<label class="b4-field"><span>畑の区画・プランター名(なくてもよい)</span><input type="text" data-draft="plot" value="'+esc(d.plot)+'" placeholder="例:A区画、2班のプランター"></label>'+
+    '<label class="b4-field"><span>数(プランター、または畑1m²の区画がいくつ分)</span><select data-draft="qty">'+[1,2,3,4,5,6,8,10].map(function(n){return '<option value="'+n+'"'+((+d.qty||1)===n?' selected':'')+'>'+n+'つ</option>'}).join('')+'</select></label>'+
     '<label class="b4-field"><span>その場所で前に育てた作物</span><select data-draft="prev">'+Object.keys(FAM).map(function(k){return '<option value="'+k+'"'+(d.prev===k?' selected':'')+'>'+FAM[k].name+'</option>'}).join('')+'</select></label></div>'+
   '</div><div><div class="b4-card" id="b4-preview"></div></div></div>'+
   '<div class="b4-sumbar b4-noprint" id="b4-sumbar"></div>'+
@@ -999,7 +1038,7 @@ function rPreview(){var box=$('#b4-preview'),bar=$('#b4-sumbar');if(!box)return;
    (regionNote?'<div class="b4-msg b4-info">'+regionNote+'</div>':'')+
    '<div class="b4-msg b4-ok">'+(d.mode==='harvest'?'収穫したい日 '+jd(d.harvest)+' から、育つ日数(約'+diff(h.ideal,a.ideal)+'日)をさかのぼって計算しました。<br>':'')+
    '<b>'+c.start+':'+jdy(a.date)+'</b><br><b>収穫:'+jdy(h.date)+'</b>'+(tg?' <span class="b4-muted">'+tg+'</span>':'')+'</div>'+
-   msgHtml(ws,true)+timeline(p,false)+
+   msgHtml(ws,true)+timeline(p,false)+costHtml(p)+
    '<div class="b4-row" style="margin-top:.6em">'+saveBtn()+'</div>');
   if(bar)fill(bar,'<span class="b4-sumtxt"><b>'+c.start+' '+md(a.date)+'</b> → <b>収穫 '+md(h.date)+'</b>'+(nb?' <span class="b4-late">⚠ 注意'+nb+'件</span>':'')+'</span>'+
     '<button type="button" class="b4-btn b4-small" data-act="toprev">くわしく見る</button>'+saveBtn());
@@ -1010,7 +1049,7 @@ function timeline(p,showDone){var c=CROP[p.cropId];return '<ol class="b4-flow">'
 function plansHtml(){if(!S.plans.length)return '<p class="b4-muted">まだありません。上で計画をつくって「この計画を保存する」を押そう。いくつでも保存できます(例:春と秋、ちがう作物)。</p>';
   return '<div class="b4-plans">'+S.plans.map(function(p){var done=p.tasks.filter(function(t){return t.done}).length;
     return '<div class="b4-plan'+(p.id===S.cur?' b4-cur':'')+'" style="border-left-color:'+planColor(p)+'"><div class="b4-row">'+badge(CROP[p.cropId])+'<b>'+cropName(p.cropId)+'</b>'+(p.id===S.cur?'<span class="b4-muted">(えらんでいる計画)</span>':'')+'</div>'+
-    '<div class="b4-muted">'+REG[p.region].name+(p.plot?'・'+esc(p.plot):'')+'</div><div>'+CROP[p.cropId].start+' '+md(sowDate(p))+' 〜 収穫 '+md(effDate(hTask(p)))+'</div><div class="b4-muted">作業 '+done+'/'+p.tasks.length+' 完了</div>'+
+    '<div class="b4-muted">'+REG[p.region].name+(p.plot?'・'+esc(p.plot):'')+'</div><div>'+CROP[p.cropId].start+' '+md(sowDate(p))+' 〜 収穫 '+md(effDate(hTask(p)))+'</div><div class="b4-muted">作業 '+done+'/'+p.tasks.length+' 完了・費用の目安 約'+yenS(costEst(p.cropId,p.tasks,p.qty).yen)+'</div>'+
     '<div class="b4-row"><button type="button" class="b4-btn b4-small" data-act="opencal" data-id="'+p.id+'">カレンダー</button><button type="button" class="b4-btn b4-small" data-act="openeval" data-id="'+p.id+'">記録・評価</button><button type="button" class="b4-btn b4-small b4-danger" data-act="delplan" data-id="'+p.id+'">削除</button></div></div>'}).join('')+'</div>'}
 
 /* カレンダー */
@@ -1142,7 +1181,7 @@ function visiblePlans(){return S.cal.filter==='all'?S.plans:S.plans.filter(funct
 var Q=[['q1','収穫したい日から逆算して計画を立ててみて、気づいたこと・わかったことは?'],
   ['q2','地域(気温)や休業日を入れると、計画はどう変わった?なぜ、それらを考えて計画するとよいのだろう?'],
   ['q3','計画と実際をくらべて、ずれとその原因、次の改善案は?(まだ育てていない場合は、予想されるずれとその対策)'],
-  ['q4','育成計画を立てる技術は、農業や社会、自分の生活でどのように役立つと思う?']];
+  ['q4','育成計画を立てる技術は、農業や社会、自分の生活でどのように役立つと思う?(費用や手間の目安を見て考えたことも書こう)']];
 var SELF=[['a','作物の性質をもとに、作業日を逆算して計画を立てられた'],['b','地域・休業日・連作などの条件を考えて計画を直せた'],['c','計画と実際をくらべて、原因と改善案を考えられた']];
 var LV=[[3,'◎ よくできた'],[2,'○ できた'],[1,'△ もう少し']];
 function rRefl(){

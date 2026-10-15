@@ -91,6 +91,17 @@ html.kz-embed #b2-app .b2-head{ display:none; }
 #b2-app .b2-badge.warn{ color:#8a4b00; border-color:var(--b2-accent); background:var(--b2-accent-l); }
 #b2-app .b2-badge.bad{ color:var(--b2-red); border-color:var(--b2-red); background:var(--b2-red-l); }
 #b2-app .b2-stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; text-align:center; }
+#b2-app .b2-story{ border:2px solid var(--b2-green, #2e7d32); }
+#b2-app .b2-story p{ line-height:1.8; margin:.4em 0; }
+#b2-app .b2-costline{ background:#fff8e1; border:1px solid #ecd59c; border-radius:10px; padding:6px 10px; margin:8px 0; font-size:.95rem; }
+#b2-app .b2-costtop{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+#b2-app .b2-costtop div{ flex:1 1 200px; background:#fff8e1; border:1px solid #ecd59c; border-radius:12px; padding:8px 12px; }
+#b2-app .b2-costtop b{ font-size:1.25em; }
+#b2-app table.b2-costtbl{ border-collapse:collapse; width:100%; font-size:.92rem; margin:6px 0; }
+#b2-app table.b2-costtbl th, #b2-app table.b2-costtbl td{ border:1px solid var(--b2-line); padding:4px 8px; text-align:right; }
+#b2-app table.b2-costtbl th:first-child, #b2-app table.b2-costtbl td:first-child{ text-align:left; }
+#b2-app table.b2-costtbl thead th{ background:var(--b2-green-l); }
+#b2-app table.b2-costtbl tr.b2-tot td{ font-weight:bold; }
 #b2-app .b2-stat{ background:#f7faf5; border:1px solid var(--b2-line); border-radius:10px; padding:4px 2px; }
 #b2-app .b2-stat small{ display:block; font-size:.76rem; color:var(--b2-sub); }
 #b2-app .b2-stat b{ font-size:1.12rem; }
@@ -218,6 +229,11 @@ html.kz-embed #b2-app .b2-head{ display:none; }
   #b2-app .b2-grow > div:first-child{ order:2; }
   #b2-app .b2-plantwrap svg{ max-height:240px; }
   #b2-app .b2-tab{ padding:6px 6px; font-size:.92rem; }
+}
+/* 横長で高さが低い画面(Chromebook など):「次の日へ」が最初から見えるよう、操作ボタンを画面の下に固定 */
+@media screen and (min-width: 901px) and (max-height: 760px){
+  #b2-app .b2-actions{ position:fixed; left:0; right:0; bottom:0; z-index:15; margin:0; border-radius:0; padding:8px max(16px, calc(50% - 420px)); box-shadow:0 -3px 10px rgba(0,0,0,.12); }
+  #b2-app .b2-grow{ padding-bottom:130px; }
 }
 @media (max-width: 640px){
   #b2-app{ font-size:1rem; }
@@ -707,6 +723,36 @@ var WEATHER = {
 };
 var DAYS = 30;
 
+/* コスト(お金と手間)。金額は学習用のおおよその目安(円)、手間は作業の時間(分)。土・プランター・道具の代金は入れない */
+var SEED_COST = { tomato:{ yen:100, name:'苗(1株)' }, radish:{ yen:20, name:'種' }, soy:{ yen:20, name:'種' }, rice:{ yen:30, name:'苗' } };
+var OP_COST = {
+  heat:  { field:[5, 5], planter:[5, 5], house:[60, 2] },   /* トンネル(ビニルの消耗)/温室の暖房(燃料・電気) */
+  cool:  { field:[0, 5], planter:[0, 5], house:[0, 5] },    /* 風通し・換気(窓を開ける) */
+  shade: [3, 2], little:[1, 3], lots:[2, 5], fert:[15, 5], guard:[0, 10]
+};
+var COST_KEYS = ['seed','temp','shade','water','fert','guard'];
+var COST_LABEL = { seed:'種・苗', temp:'温度の調節(保温・加温・換気)', shade:'遮光(ネット)', water:'水やり(水道代)', fert:'追肥(肥料)', guard:'見回り(防除)' };
+function actCost(a, cfg){
+  var o = { yen:0, min:0, y:{}, m:{} };
+  function add(k, v){ o.y[k] = (o.y[k] || 0) + v[0]; o.m[k] = (o.m[k] || 0) + v[1]; o.yen += v[0]; o.min += v[1]; }
+  if (a.temp === 'heat') add('temp', OP_COST.heat[cfg.env]);
+  else if (a.temp === 'cool') add('temp', OP_COST.cool[cfg.env]);
+  if (a.shade) add('shade', OP_COST.shade);
+  if (a.water === 'little') add('water', OP_COST.little);
+  else if (a.water === 'lots') add('water', OP_COST.lots);
+  if (a.fert) add('fert', OP_COST.fert);
+  if (a.guard) add('guard', OP_COST.guard);
+  return o;
+}
+function costOf(run){
+  var o = { yen:0, min:0, y:{}, m:{} };
+  COST_KEYS.forEach(function(k){ o.y[k] = 0; o.m[k] = 0; });
+  var sd = SEED_COST[run.cfg.crop]; o.y.seed = sd.yen; o.m.seed = 10; o.yen = sd.yen; o.min = 10;
+  run.logs.forEach(function(d){ var c = actCost(d.act || {}, run.cfg);
+    Object.keys(c.y).forEach(function(k){ o.y[k] += c.y[k]; o.m[k] += c.m[k]; }); o.yen += c.yen; o.min += c.min; });
+  return o;
+}
+
 function makeWeather(seed, seasonId){
   var s = SEASONS[seasonId];
   var r = rng(hash(seed, 7, s.idx));
@@ -979,7 +1025,8 @@ function analyze(run){
 
 return { hash:hash, rng:rng, trap:trap, CROPS:CROPS, ENVS:ENVS, SEASONS:SEASONS, WEATHER:WEATHER, DAYS:DAYS, envName:envName,
          makeWeather:makeWeather, initState:initState, conditions:conditions, step:step, replay:replay, ACTS:ACTS, refBest:refBest,
-         policyAction:policyAction, simulatePolicy:simulatePolicy, grade:grade, yieldText:yieldText, analyze:analyze, MAIN_MIN:MAIN_MIN };
+         policyAction:policyAction, simulatePolicy:simulatePolicy, grade:grade, yieldText:yieldText, analyze:analyze, MAIN_MIN:MAIN_MIN,
+         SEED_COST:SEED_COST, OP_COST:OP_COST, COST_KEYS:COST_KEYS, COST_LABEL:COST_LABEL, actCost:actCost, costOf:costOf };
 })();
 /* ===== B2 画面 ===== */
 (function(){
@@ -1401,6 +1448,52 @@ function actText(a, env, crop){
   if (a.guard) p.push('見回り');
   return p.length ? p.join('・') : '何もしない';
 }
+function yen(v){ v = Math.round(v); return (v.toLocaleString ? v.toLocaleString('ja-JP') : v) + '円'; }
+function mins(v){ v = Math.round(v); if (v < 60) return v + '分'; var h = Math.floor(v / 60), m = v % 60; return h + '時間' + (m ? m + '分' : ''); }
+/* 結果を文章でまとめる */
+function storyOf(r){
+  var cfg = r.cfg, crop = CROPS[cfg.crop], env = ENVS[cfg.env], st = r.st, a = E.analyze(r), gr = E.grade(r), c = E.costOf(r), ps = [], t;
+  var days = r.logs.length, over = isOver(r);
+  t = SEASONS[cfg.season].name + 'に、' + E.envName(cfg.env, cfg.crop) + 'で' + crop.name + 'を' + days + '日間育てました。';
+  if (st.dead) t += '残念ながら、' + days + '日目にかれてしまいました。';
+  else if (over) t += '結果は「' + gr.mark + ' ' + gr.label + '」でした。';
+  else t += 'まだ栽培の途中です。';
+  ps.push(t);
+  t = '草丈は' + r1(st.H) + 'cm、葉は' + Math.floor(st.lv) + '枚、健康度は' + Math.round(st.h) + '%' + (days >= crop.reproStart ? '、' + E.yieldText(r) : '') + 'でした。';
+  if (over && !st.dead) t += 'この天気で上手に育てたときの目安は、' + crop.yieldName + ' およそ' + gr.refYield + crop.yieldUnit + 'です。';
+  ps.push(t);
+  if (a.main) t = '成長をいちばんさまたげたのは、「' + causeText(a.main, a.mainDir) + '」ことでした。';
+  else t = '操作で変えられる条件(温度・遮光・水・養分)には、大きな問題はありませんでした。';
+  if (a.sickDays) t += '病気・害虫がついていた日が' + a.sickDays + '日ありました。';
+  if (a.weatherDays >= 2) t += 'くもり・雨で光が弱い日が' + a.weatherDays + '日あり、これは天気のせいです。';
+  ps.push(t);
+  var big = null; E.COST_KEYS.forEach(function(k){ if (k !== 'seed' && c.y[k] > 0 && (!big || c.y[k] > c.y[big])) big = k; });
+  t = 'かかったお金は約' + yen(c.yen) + '、作業の時間は' + mins(c.min) + 'でした。' + (big ? 'いちばんお金がかかったのは「' + E.COST_LABEL[big] + '」(' + yen(c.y[big]) + ')です。' : '');
+  if (st.dead) t += 'かれてしまうと、かけたお金と手間はむだになってしまいます。';
+  ps.push(t);
+  if (st.dead || gr.cls === 'bad' || gr.cls === 'mid') t = '「1日もどす」や「同じ条件で再挑戦」で、原因になった条件を直して、もう一度育ててみよう。';
+  else t = '「④ くらべる」で条件を1つだけ変えて、育ち方と費用がどう変わるかを確かめてみよう。';
+  ps.push(t);
+  return ps;
+}
+function costCard(r){
+  var c = E.costOf(r), crop = CROPS[r.cfg.crop], env = ENVS[r.cfg.env], days = r.logs.length;
+  var h = '<div class="b2-card"><h2>💰 コスト(お金と手間)</h2>';
+  h += '<p class="b2-small">作物を育てるには、種・苗や肥料、温度の調節などの<b>お金</b>と、作業をする<b>時間(手間)</b>がかかります。同じ育ち方なら、コストが少ないほうが育て方として上手です。</p>';
+  h += '<div class="b2-costtop"><div>かかったお金(' + days + '日間)<br><b>' + yen(c.yen) + '</b></div><div>作業の時間<br><b>' + mins(c.min) + '</b></div></div>';
+  h += '<table class="b2-costtbl"><thead><tr><th>項目</th><th>お金</th><th>時間</th></tr></thead><tbody>';
+  E.COST_KEYS.forEach(function(k){ if (k !== 'seed' && !c.y[k] && !c.m[k]) return;
+    h += '<tr><td>' + (k === 'seed' ? E.SEED_COST[r.cfg.crop].name : k === 'temp' ? '温度の調節(' + env.heatName + '・' + env.coolName + ')' : E.COST_LABEL[k]) + '</td><td>' + yen(c.y[k]) + '</td><td>' + mins(c.m[k]) + '</td></tr>'; });
+  h += '<tr class="b2-tot"><td>合計</td><td>' + yen(c.yen) + '</td><td>' + mins(c.min) + '</td></tr></tbody></table>';
+  var t = [];
+  if (env.house && c.y.temp >= 300) t.push('温室の暖房は温度を大きく上げられますが、燃料代・電気代が多くかかります(1日 約' + E.OP_COST.heat.house[0] + '円)。本当に必要な日だけにできないか考えよう。');
+  if (c.y.water >= 45 && !crop.noDrain) t.push('毎日のように水やりをしています。水のやりすぎは根ぐされの原因にもなります。「土の表面がかわいてから」にすると、手間もお金もへらせます。');
+  if (c.y.fert >= 15 * 8) t.push('追肥が多めです。肥料代がかかるうえ、多すぎると肥料やけや病害虫の原因になります。');
+  if (r.st.dead) t.push('作物がかれてしまうと、かけたお金と手間はむだになってしまいます。');
+  if (t.length) h += '<ul class="b2-hints">' + t.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
+  h += '<p class="b2-small">金額は学習用のおおよその目安です。土・プランター・道具の代金は入れていません。「④ くらべる」で、育ち方とコストを同時にくらべられます。</p></div>';
+  return h;
+}
 function badgesFor(cfg, st, last){
   var crop = CROPS[cfg.crop], b = [];
   if (!last) return [['ok', '🌱 スタート']];
@@ -1560,11 +1653,12 @@ function renderGrow(){
   var guardChip = over ? '' : (st.sick ? chipHTML((st.sick === 'aphid' ? '🐛 虫がいる' : '🍂 病気が出ている'), 'high') : chipHTML('今は病気・虫なし', 'ok'));
   var waterLabel = cfg.crop === 'rice' ? '💧 水を足す' : '💧 水やり';
   $('b2-ops').innerHTML =
-    opGroup('temp', '🌡 温度', [['heat', '🔥 ' + env.heatName + '<br><small>+' + env.heat + '℃</small>'], ['none', 'そのまま'], ['cool', '💨 ' + env.coolName + '<br><small>' + env.cool + '℃</small>']], chip('T', c ? c.T + '℃' : '')) +
-    opGroup('shade', '☀ 光', [['false', '日光をそのまま'], ['true', '⛱ 遮光する<br><small>光を半分に</small>']], chip('L', c ? c.L : '')) +
-    opGroup('water', waterLabel, [['none', 'やらない'], ['little', '少し'], ['lots', 'たっぷり']], chip('W', c ? Math.round(c.m) + '%' : '')) +
-    opGroup('fert', '🧪 肥料', [['false', 'やらない'], ['true', '追肥する']], chip('N', c ? Math.round(c.n) + '%' : '')) +
-    opGroup('guard', '🔍 見回り(防除)', [['false', 'しない'], ['true', 'する<br><small>病気の葉・虫を取る</small>']], guardChip) +
+    opGroup('temp', '🌡 温度', [['heat', '🔥 ' + env.heatName + '<br><small>+' + env.heat + '℃・' + E.OP_COST.heat[cfg.env][0] + '円</small>'], ['none', 'そのまま'], ['cool', '💨 ' + env.coolName + '<br><small>' + env.cool + '℃・' + E.OP_COST.cool[cfg.env][0] + '円</small>']], chip('T', c ? c.T + '℃' : '')) +
+    opGroup('shade', '☀ 光', [['false', '日光をそのまま'], ['true', '⛱ 遮光する<br><small>光を半分に・' + E.OP_COST.shade[0] + '円</small>']], chip('L', c ? c.L : '')) +
+    opGroup('water', waterLabel, [['none', 'やらない'], ['little', '少し<br><small>' + E.OP_COST.little[0] + '円</small>'], ['lots', 'たっぷり<br><small>' + E.OP_COST.lots[0] + '円</small>']], chip('W', c ? Math.round(c.m) + '%' : '')) +
+    opGroup('fert', '🧪 肥料', [['false', 'やらない'], ['true', '追肥する<br><small>' + E.OP_COST.fert[0] + '円</small>']], chip('N', c ? Math.round(c.n) + '%' : '')) +
+    opGroup('guard', '🔍 見回り(防除)', [['false', 'しない'], ['true', 'する<br><small>病気の葉・虫を取る・' + E.OP_COST.guard[1] + '分</small>']], guardChip) +
+    (over ? '' : (function(){ var tc = E.actCost(S.cur, cfg), sc = E.costOf(r); return '<div class="b2-costline">💰 今日の操作のコスト:<b>' + yen(tc.yen) + '・' + mins(tc.min) + '</b><span class="b2-small">(これまでの合計 ' + yen(sc.yen) + '・' + mins(sc.min) + ')</span></div>'; })()) +
     '<p class="b2-small">温度と光の操作はそのまま続きます。水やり・肥料・見回りは毎日えらび直します。「同じ操作で5日」では、水やりと肥料は1日目だけ行います。</p>';
   /* 「次の日へ」の上の1行: その日のようすと、ほかの操作への案内(B2-02・B2-03) */
   var sb = '';
@@ -1637,7 +1731,7 @@ function recordHistory(r){
   var gr = E.grade(r), cfg = r.cfg;
   var a = E.analyze(r);
   var entry = { id:S.game.id, at:new Date().toISOString(), crop:cfg.crop, env:cfg.env, season:cfg.season, seed:cfg.seed, v:2,
-    mark:gr.mark, label:gr.label, yield:E.yieldText(r), days:r.logs.length, dead:r.st.dead, main:a.main, mainDir:a.mainDir };
+    mark:gr.mark, label:gr.label, yield:E.yieldText(r), days:r.logs.length, dead:r.st.dead, main:a.main, mainDir:a.mainDir, yen:Math.round(E.costOf(r).yen) };
   hist = hist.filter(function(h){ return h.id !== entry.id; });
   hist.push(entry);
   if (hist.length > 40) hist = hist.slice(-40);
@@ -1701,7 +1795,7 @@ function renderResult(){
   var r = run(), box = $('b2-result');
   var hist = store.get('history', []);
   var histHTML = hist.length ? '<details class="b2-card"><summary>これまでの栽培の記録(' + hist.length + '回)</summary><ol class="b2-hist">' + hist.slice().reverse().map(function(h){
-    return '<li>' + esc(fmtDate(h.at)) + ' ' + esc(CROPS[h.crop].name) + '/' + esc(E.envName(h.env, h.crop)) + '/' + esc(SEASONS[h.season].name) + '/番号' + h.seed + ' → <b>' + esc(h.mark) + '</b> ' + esc(h.yield) + (h.dead ? '(' + h.days + '日目にかれた)' : '') + '</li>';
+    return '<li>' + esc(fmtDate(h.at)) + ' ' + esc(CROPS[h.crop].name) + '/' + esc(E.envName(h.env, h.crop)) + '/' + esc(SEASONS[h.season].name) + '/番号' + h.seed + ' → <b>' + esc(h.mark) + '</b> ' + esc(h.yield) + (h.dead ? '(' + h.days + '日目にかれた)' : '') + (typeof h.yen === 'number' ? '・費用 ' + yen(h.yen) : '') + '</li>';
   }).join('') + '</ol></details>' : '';
   if (!r) { box.innerHTML = '<div class="b2-card"><p>まだ育てていません。</p><button type="button" class="b2-btn b2-primary" data-goto="start">① はじめに へ</button></div>' + histHTML; applyRuby(box); return; }
   var cfg = r.cfg, crop = CROPS[cfg.crop], env = ENVS[cfg.env], st = r.st, over = isOver(r), a = E.analyze(r);
@@ -1715,6 +1809,9 @@ function renderResult(){
   if (over) h += '<div class="b2-small">この天気(番号' + cfg.seed + ')で、上手に育てたときの目安:' + esc(crop.yieldName) + ' およそ' + gr.refYield + crop.yieldUnit + '。評価(◎○△)は、この目安とくらべて決めています。</div>';
   h += '</div></div></div>';
   h += quizHTML(r, a);
+  h += costCard(r);
+  var qa = S.game.quiz && S.game.quiz.n === r.logs.length;
+  h += '<div class="b2-card b2-story"><h2>📝 結果のまとめ</h2>' + ((qa || r.logs.length < 5) ? storyOf(r).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('') : '<p class="b2-small">上の「原因さがし」に答えると、結果のまとめ(文章)が出ます。</p>') + '</div>';
   h += '<div class="b2-card"><h2>📈 グラフで見る</h2><p class="b2-small">緑の帯=ちょうどよい範囲。健康度の×は病気・害虫がいた日。温度の赤い線は操作したあとの温度、灰色の点線は外の気温。光の灰色の点線は、遮光しなかったときの光(天気だけで決まる光)。</p><div class="b2-charts">' +
     ['h','hl','t','l','w','n'].map(function(k){ return '<canvas class="b2-chart" id="b2-rc-' + k + '"></canvas>'; }).join('') + '</div></div>';
   h += '<details class="b2-card"><summary>📋 毎日の記録(ログ)を見る</summary><div class="b2-tablewrap"><table class="b2-log"><thead><tr><th>日</th><th>天気</th><th>温度</th><th>光</th><th>土の水分</th><th>養分</th><th>操作</th><th>草丈</th><th>健康度</th><th>いちばんの問題</th></tr></thead><tbody>' +
@@ -1861,6 +1958,7 @@ function drawCompareOut(fresh){
     return '<div class="b2-cmpbox b2-' + side.toLowerCase() + '"><h3><span class="b2-tag">' + side + '</span>' + gr.mark + ' ' + esc(gr.label) + '</h3>' +
       plantSVG(r.cfg, st, r.logs[r.logs.length - 1], { shade:o[side].light === 'shade', caption:side }) +
       '<div>草丈 <b>' + r1(st.H) + '</b>cm・健康度 <b>' + Math.round(st.h) + '</b>%</div><div>' + esc(E.yieldText(r)) + (st.dead ? '(' + r.logs.length + '日目にかれた)' : '') + '</div>' +
+      '<div class="b2-costline">💰 費用 <b>' + yen(E.costOf(r).yen) + '</b>・作業 <b>' + mins(E.costOf(r).min) + '</b></div>' +
       '<div class="b2-small">' + esc(polText(o[side], o.crop)) + '</div></div>';
   }
   var diff = cmpDiff(o);
@@ -1871,6 +1969,8 @@ function drawCompareOut(fresh){
   if (!ra.st.dead && !rb.st.dead && big > 0 && Math.abs(ya - yb) / big < 0.1) {
     h += '<p class="b2-note">AとBの差は小さめでした(10%未満)。今回の天気(雨の多さなど)では差が出にくかったのかもしれません。環境(プランターなど)や天気の番号を変えて、もう一度ためしてみよう。</p>';
   }
+  var ca = E.costOf(ra).yen, cb = E.costOf(rb).yen;
+  if (Math.abs(ca - cb) >= 30) h += '<p class="b2-note">💰 費用は ' + (ca < cb ? 'A' : 'B') + ' のほうが ' + yen(Math.abs(ca - cb)) + ' 少なくすみました。育ち方の差とくらべて、その費用をかける価値があったか考えてみよう。</p>';
   h += legendHTML([{ label:'A', color:'#2e7d32', marker:'circle' }, { label:'B', color:'#d9701a', dash:true, marker:'square' }]);
   if (diff.length) h += '<p class="b2-small">オレンジのわくのグラフは、AとBでちがう条件に関係するグラフです。</p>';
   h += '<div class="b2-charts" id="b2-cc-wrap"></div>';
@@ -1884,7 +1984,7 @@ function drawCompareOut(fresh){
   if (fresh) {
     var ch = store.get('cmphist', []);
     ch.push({ at:new Date().toISOString(), crop:o.crop, season:o.season, seed:o.seed,
-      A:polText(o.A, o.crop) + ' → ' + E.grade(ra).mark + ' ' + E.yieldText(ra), B:polText(o.B, o.crop) + ' → ' + E.grade(rb).mark + ' ' + E.yieldText(rb) });
+      A:polText(o.A, o.crop) + ' → ' + E.grade(ra).mark + ' ' + E.yieldText(ra) + '・費用' + yen(E.costOf(ra).yen), B:polText(o.B, o.crop) + ' → ' + E.grade(rb).mark + ' ' + E.yieldText(rb) + '・費用' + yen(E.costOf(rb).yen) });
     if (ch.length > 20) ch = ch.slice(-20);
     store.set('cmphist', ch);
     out.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -1923,7 +2023,7 @@ function drawCompareCharts(){
 var RQ = [
   { k:'q1', t:'1. 育成環境(温度・光・水・養分)を調節すると、作物の育ち方はどう変わりましたか。', h:'グラフや記録の数字を使って書こう。' },
   { k:'q2', t:'2. うまくいかなかったとき、その原因は何でしたか。どのように改善しましたか。', h:'「③ 結果・原因さがし」のヒントやログを参考にしよう。' },
-  { k:'q3', t:'3.「くらべる」で、条件を1つだけ変えてわかったことは何ですか。', h:'AとBのちがいと、その理由を書こう。' },
+  { k:'q3', t:'3.「くらべる」で、条件を1つだけ変えてわかったことは何ですか。', h:'AとBのちがい(育ち方と費用・手間)と、その理由を書こう。' },
   { k:'q4', t:'4. このシミュレーション(簡易モデル)と本物の栽培とでは、どんなちがいがあると思いますか。実際の栽培で生かしたいことも書こう。', h:'土・品種・風・病害虫など、モデルに入っていないことも考えよう。' }
 ];
 var SELF = [
@@ -1938,7 +2038,7 @@ function autoSummary(){
   lines.push('◆ そだてた記録(' + hist.length + '回)');
   if (!hist.length) lines.push('  まだありません');
   hist.slice(-8).forEach(function(h){
-    lines.push('  ' + fmtDate(h.at) + ' ' + CROPS[h.crop].name + '/' + E.envName(h.env, h.crop) + '/' + SEASONS[h.season].name + '/番号' + h.seed + ' → ' + h.mark + ' ' + h.label + '(' + h.yield + (h.dead ? '・' + h.days + '日目にかれた' : '') + ')' +
+    lines.push('  ' + fmtDate(h.at) + ' ' + CROPS[h.crop].name + '/' + E.envName(h.env, h.crop) + '/' + SEASONS[h.season].name + '/番号' + h.seed + ' → ' + h.mark + ' ' + h.label + '(' + h.yield + (h.dead ? '・' + h.days + '日目にかれた' : '') + ')' + (typeof h.yen === 'number' ? ' 費用' + yen(h.yen) : '') +
       (h.main ? ' 主な原因:' + causeText(h.main, h.mainDir) : (h.v ? ' 主な原因:大きな問題なし' : '')));
   });
   lines.push('◆ くらべた記録(' + ch.length + '回)');
@@ -2002,6 +2102,7 @@ function rfText(){
   L.push('');
   L.push('■学習の記録(自動)');
   L.push(autoSummary());
+  var rr = run(); if (rr && isOver(rr)) { L.push(''); L.push('■いちばん新しい栽培の結果のまとめ'); storyOf(rr).forEach(function(x){ L.push(x); }); }
   return L.join('\r\n');
 }
 function rfExport(){
