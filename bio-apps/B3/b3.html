@@ -123,6 +123,17 @@ html.kz-embed #b3app .b3-nav{margin-top:0}
 #b3app .b3-cause{background:#fff6e5;border:1px solid #efcf8b;border-radius:12px;padding:8px 14px;margin:8px 0}
 #b3app .b3-small{font-size:.85em;color:var(--b3-sub)}
 #b3app .b3-cause ol{margin:4px 0;padding-left:1.4em}
+#b3app .b3-costchip{display:inline-flex;flex-wrap:wrap;gap:2px 8px;align-items:center;background:#fff8e6;border:1px solid #ecd59c;border-radius:99px;padding:4px 12px;font-size:.9em;font-weight:700}
+#b3app .b3-costtop{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#b3app .b3-costtop div{flex:1 1 200px;background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:8px 12px}
+#b3app .b3-costtop b{font-size:1.25em}
+#b3app .b3-tablewrap{overflow-x:auto}
+#b3app table.b3-costtbl{border-collapse:collapse;width:100%;font-size:.92em;margin:6px 0}
+#b3app table.b3-costtbl th,#b3app table.b3-costtbl td{border:1px solid var(--b3-line);padding:4px 8px;text-align:right}
+#b3app table.b3-costtbl th:first-child,#b3app table.b3-costtbl td:first-child{text-align:left}
+#b3app table.b3-costtbl thead th{background:var(--b3-soft)}
+#b3app table.b3-costtbl tr.b3-tot td{font-weight:700;background:#fbfdfa}
+#b3app .b3-costmsg{background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:8px 14px;margin:8px 0}
 /* クイズ */
 #b3app .b3-qcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 #b3app .b3-qcat>div{display:flex;flex-direction:column;gap:6px}
@@ -722,6 +733,51 @@ var GOOD={
   rabbit:{temp:20,feed:2,diet:0,waterR:'daily',clean:'3d',ex:1,n:1}
 };
 
+/* ================= コスト(お金と手間) =================
+   金額は学習用のおおよその目安(円)。手間は世話にかかる時間(分)。
+   まわりの温度を AMB℃ として、それより温めたり冷やしたりするのに電気代がかかる。水そう・小屋などの道具代は入れない */
+var AMB=20;
+var COST={
+  medaka:{feed:0.3,water:10,wall:25,med:30,heat:1,cool:1.5},
+  kingyo:{feed:2,water:20,wall:50,med:50,heat:2,cool:3},
+  chicken:{feed:12,dietMul:[1,0.7],drink:1,bed:40,med:150,heat:4,cool:4,eggVal:25},
+  quail:{feed:2,dietMul:[1,0.7],drink:1,bed:20,med:60,heat:2,cool:2,eggVal:8},
+  rabbit:{feed:45,dietMul:[1,1.3],drink:1,bed:30,med:500,heat:3,cool:3}
+};
+var CK=['feed','water','clean','elec','ex','med'];
+var CK_LABEL={feed:'えさ代',water:'水の手入れ',clean:'床のそうじ(床材)',elec:'電気代(温度・空気)',ex:'運動',med:'治療・薬'};
+var CK_WATER={water:'水替え(水道・カルキ抜き)',land:'飲み水の交換'};
+function ckLabel(sp,k){return k==='water'?CK_WATER[sp.kind]:CK_LABEL[k]}
+function freshCost(){var c={yen:0,min:0,waste:0,eggVal:0,medDays:0,y:{},m:{}};CK.forEach(function(k){c.y[k]=0;c.m[k]=0});return c}
+function normCost(o){var c=freshCost();if(!isObj(o))return c;
+  ['yen','min','waste','eggVal','medDays'].forEach(function(k){if(typeof o[k]==='number'&&isFinite(o[k]))c[k]=o[k]});
+  ['y','m'].forEach(function(g){if(isObj(o[g]))CK.forEach(function(k){var v=o[g][k];if(typeof v==='number'&&isFinite(v))c[g][k]=v})});
+  return c}
+function addCost(st,k,yen,min){if(!isObj(st.cost))st.cost=freshCost();var c=st.cost;c.y[k]=(c.y[k]||0)+yen;c.m[k]=(c.m[k]||0)+min;c.yen+=yen;c.min+=min}
+function feedYen(key,s){var c=COST[key];return c.feed*s.n*FEED_AMT[s.feed]*(c.dietMul?c.dietMul[s.diet]||1:1)}
+function tempYen(key,T){var c=COST[key];return T>AMB?(T-AMB)*c.heat:(AMB-T)*c.cool}
+function airYen(s){return [0,1,2][s.air]||0}
+/* 今の設定を続けたときの、1日あたりの見込み(水替え・そうじは回数をならす)。sick:弱っているときの治療費も入れる */
+function costPlan(key,s,sick){
+  var sp=SP[key],c=COST[key],y={},m={};CK.forEach(function(k){y[k]=0;m[k]=0});
+  y.feed=feedYen(key,s);m.feed=s.feed>0?5:0;
+  y.elec=tempYen(key,s.temp);
+  if(sp.kind==='water'){
+    y.elec+=airYen(s);
+    var per={none:0,w2:14,w1:7,d3:3}[s.routine]||0;
+    if(per){y.water=c.water/per;m.water=(key==='kingyo'?30:20)/per}
+  }else{
+    var wp={daily:1,'2d':2}[s.waterR]||0;if(wp){y.water=c.drink/wp;m.water=3/wp}
+    var cp={daily:1,'3d':3,weekly:7}[s.clean]||0;if(cp){y.clean=c.bed/cp;m.clean=15/cp}
+    m.ex=[0,10,30][s.ex]||0;
+  }
+  if(sick){y.med=c.med;m.med=15}
+  var t={y:y,m:m,yen:0,min:0};CK.forEach(function(k){t.yen+=y[k];t.min+=m[k]});
+  return t;
+}
+function yenStr(v){v=Math.round(v);return v.toLocaleString?v.toLocaleString('ja-JP')+'円':v+'円'}
+function minStr(v){v=Math.round(v);if(v<60)return v+'分';var h=Math.floor(v/60),mm=v%60;return h+'時間'+(mm?mm+'分':'')}
+
 /* ================= シミュレーションの計算 ================= */
 function defaultSet(key){
   var sp=SP[key];
@@ -731,7 +787,7 @@ function defaultSet(key){
 function newRun(key,plainStart){
   var sp=SP[key];
   var st={sp:key,day:0,health:80,size:sp.size.start,dirt:6,no3:8,ph:7.2,bio:1,water:100,eggAcc:0,eggs:0,eggsToday:0,fry:0,pending:[],
-    hist:[],log:[],done:false,acted:{},pen:{},look:null,doNow:0,app:1,left:0,streak:{},penSum:{},penDays:{},lastT:null,archive:{},
+    hist:[],log:[],done:false,acted:{},pen:{},look:null,doNow:0,app:1,left:0,streak:{},penSum:{},penDays:{},lastT:null,archive:{},cost:freshCost(),
     set:defaultSet(key)};
   if(!plainStart&&sp.issue)Object.keys(sp.issue).forEach(function(k){st.set[k]=sp.issue[k]});
   st.lastT=st.set.temp;
@@ -771,10 +827,11 @@ function stepDay(st){
   if(st.lastT==null)st.lastT=T;
   if(sp.kind==='water'){
     var r=s.routine,due=(r==='w2'&&st.day%14===0)||(r==='w1'&&st.day%7===0)||(r==='d3'&&st.day%3===0);
-    if(due){changeWater(st,1/3,false);msgs.push('習慣にしている水替え(くみ置きの水で3分の1)をしました。');}
+    if(due){changeWater(st,1/3,false);addCost(st,'water',COST[st.sp].water,st.sp==='kingyo'?30:20);msgs.push('習慣にしている水替え(くみ置きの水で3分の1)をしました。');}
     var app=tempFactor(sp,T)*(st.doNow<3?0.5:st.doNow<5?0.8:1)*(st.dirt>60?0.7:1)*(0.55+st.health/220)*(st.ph<6.2?0.8:1);
     var fa=FEED_AMT[s.feed],eaten=Math.min(fa,1.05*app),left=Math.max(0,fa-eaten);
     st.app=app;st.left=left;st.eaten=eaten;
+    if(fa>0)st.cost.waste+=feedYen(st.sp,s)*left/fa;
     var add=ld*(1.6+2.8*eaten)+left*ld*12;
     var decay=0.045*st.bio+(s.plants?0.03:0)+(s.air>0?0.01:0);
     var broken=st.dirt*decay;
@@ -814,13 +871,15 @@ function stepDay(st){
     if(hatched>0&&st.fry===0)msgs.push('はじめて卵から稚魚がかえりました!(かえるまでの日数の目安:水温×日数がおよそ250℃・日)');
     st.fry+=hatched;
   }else{
-    if(s.waterR==='daily'||(s.waterR==='2d'&&st.day%2===0)){st.water=100;}
+    if(s.waterR==='daily'||(s.waterR==='2d'&&st.day%2===0)){st.water=100;addCost(st,'water',COST[st.sp].drink,3);}
     var appL=tempFactor(sp,T)*(st.water<30?0.6:1)*(0.55+st.health/220);
     var faL=FEED_AMT[s.feed],eatenL=Math.min(faL,1.05*appL),leftL=Math.max(0,faL-eatenL);
     st.app=appL;st.left=leftL;st.eaten=eatenL;
+    if(faL>0)st.cost.waste+=feedYen(st.sp,s)*leftL/faL;
     st.dirt=clamp(st.dirt+ld*(3+3*eatenL)+leftL*3*ld,0,100);
     var cl=s.clean,cdue=cl==='daily'||(cl==='3d'&&st.day%3===0)||(cl==='weekly'&&st.day%7===0);
-    if(cdue){st.dirt*=0.12;}
+    if(cdue){st.dirt*=0.12;addCost(st,'clean',COST[st.sp].bed,15);}
+    if(s.ex)addCost(st,'ex',0,[0,10,30][s.ex]);
     st.water=Math.max(0,st.water-(T>sp.temp.max?55:T>22?42:32));
     var tl=sp.temp;
     if(T<tl.min)pen.temp_low=(T<tl.stop?(tl.stop-T)*1.2+1.5:(tl.min-T)*0.3);
@@ -850,6 +909,14 @@ function stepDay(st){
     }
   }
   st.lastT=T;
+  // その日のコスト(えさ代・電気代・治療費)と、とれた卵の価値
+  var yen0=st.cost.yen;
+  addCost(st,'feed',feedYen(st.sp,s),s.feed>0?5:0);
+  addCost(st,'elec',tempYen(st.sp,T)+(sp.kind==='water'?airYen(s):0),0);
+  if(prevH<50){if(!st.cost.medDays)msgs.push('弱っているので、薬や手当て(治療)にお金と時間がかかり始めました(1日 約'+yenStr(COST[st.sp].med)+')。');
+    addCost(st,'med',COST[st.sp].med,15);st.cost.medDays++;}
+  if(st.eggsToday>0&&COST[st.sp].eggVal)st.cost.eggVal+=st.eggsToday*COST[st.sp].eggVal;
+  st.costToday=st.cost.yen-yen0;
   // 同じ問題が続くほど、体への負担が大きくなる(連続日数)
   if(!isObj(st.streak))st.streak={};
   if(!isObj(st.penSum))st.penSum={};
@@ -875,6 +942,7 @@ function stepDay(st){
   var line='健康度 '+hP+'→'+hN+(dh>0?'(▲'+dh+')':dh<0?'(▼'+(-dh)+')':'(±0)')+'・'+(sp.kind==='water'?'水':'床')+'の汚れ '+Math.round(st.dirt);
   if(st.left>0.3)line+='・食べ残しあり';
   if(sp.kind!=='water'&&st.water<30)line+='・水入れが空';
+  line+='・費用 '+yenStr(st.costToday||0);
   var top=Object.keys(pen).filter(function(k){return pen[k]>0.25}).sort(function(a,b){return pen[b]-pen[a]})[0];
   if(top)line+='。気になること:'+HINT_S[top];
   addLog(st,line,'sum');
@@ -907,6 +975,7 @@ function normRun(o){
   if(st.lastT==null)st.lastT=st.set.temp;
   if(SP[o.sp].kind==='water')st.doNow=calcDO(st);
   st.look=look(st);
+  st.cost=normCost(o.cost);
   if(!isObj(st.archive))st.archive={};
   Object.keys(st.archive).forEach(function(k){if(!SP[k]||!isObj(st.archive[k]))delete st.archive[k]});
   return st;
@@ -1118,7 +1187,7 @@ function starStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(n)}
 function renderHome(){
   var el=$('#b3-sec-home'),h='',arch=run?run.archive:{};
   h+='<div class="b3-card"><h1>生き物を育てる技術を体験しよう</h1>';
-  h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。</p>';
+  h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。世話にかかる<b>お金と手間(コスト)</b>も計算されるので、健康とコストのバランスも考えよう。</p>';
   h+='<div class="b3-note">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
   h+='<h2>① 育てる生き物を選ぼう</h2><div class="b3-species">';
   Object.keys(SP).forEach(function(k){var sp=SP[k],a=arch[k];
@@ -1130,7 +1199,7 @@ function renderHome(){
   h+='<div class="b3-card"><h2>使い方</h2>';
   h+='<details open><summary>学習の流れ(約2〜3時間)</summary><ol>'+
     '<li><b>はじめに</b>:育てる生き物を選ぶ。</li>'+
-    '<li><b>飼育シミュレーション</b>:温度・えさ・水替え・数などを決めて「1日すすめる」。様子・グラフ・日誌を見ながら30日間育てる。最初の環境には、見直したほうがよいところがあります。うまくいかないときは「ヒント」。</li>'+
+    '<li><b>飼育シミュレーション</b>:温度・えさ・水替え・数などを決めて「1日すすめる」。世話にかかるお金と手間(コスト)も記録されます。様子・グラフ・日誌を見ながら30日間育てる。最初の環境には、見直したほうがよいところがあります。うまくいかないときは「ヒント」。</li>'+
     '<li><b>診断クイズ</b>:生き物の様子から、原因と対策を考える。</li>'+
     '<li><b>飼育計画書</b>:えさやり・水替え・観察・衛生の計画を立てる。</li>'+
     '<li><b>振り返り</b>:分かったこと・考えたことを書いて保存・書き出しする。</li></ol></details>';
@@ -1139,7 +1208,8 @@ function renderHome(){
     '<li>水替えを「しない」にすると、pHや「水の古さ」はどうなるか。</li>'+
     '<li>水温を上げると、溶存酸素(水にとけている酸素)はどうなるか。</li>'+
     '<li>ウサギの室温を30℃にすると、様子はどう変わるか。</li>'+
-    '<li>メダカの卵を「別の容器に移す」と「移さない」で、稚魚の数をくらべる。</li></ul></details>';
+    '<li>メダカの卵を「別の容器に移す」と「移さない」で、稚魚の数をくらべる。</li>'+
+    '<li>水替えやそうじの回数を減らすと、コスト(お金と手間)はへるか。健康度はどうなるか。</li></ul></details>';
   h+='<details><summary>保存とデータ</summary><p>入力したことは、このタブレットのブラウザに自動で保存されます(インターネットは使いません)。別の端末に移すときや先生に提出するときは、下のボタンでファイルに書き出してください。</p>'+
     '<div class="b3-btns"><button type="button" class="b3-btn" id="b3-exp-all">すべてのデータを書き出す(.json)</button>'+
     '<label class="b3-btn" for="b3-imp-all" style="cursor:pointer">データを読み込む</label><input type="file" id="b3-imp-all" accept=".json,application/json" hidden>'+
@@ -1174,7 +1244,7 @@ function archiveRun(st){
   var r=summary(st);
   if(!isObj(st.archive))st.archive={};
   st.archive[st.sp]={star:r.star,avg:Math.round(r.avg),final:Math.round(r.final),min:Math.round(r.min),causes:r.causes,date:today(),
-    size:round(r.size,2),eggs:r.eggs,fry:r.fry};
+    size:round(r.size,2),eggs:r.eggs,fry:r.fry,yen:Math.round(r.cost.yen),min:Math.round(r.cost.min)};
 }
 
 /* ================= ② 飼育シミュレーション ================= */
@@ -1191,7 +1261,7 @@ function renderSim(){
   var sp=SP[run.sp],s=run.set,h='';
   h+='<div class="b3-simbar" id="b3-simbar"><span class="b3-day" id="b3-day"></span><div class="b3-daybar" aria-hidden="true"><i id="b3-daybar"></i></div>'+
      '<button type="button" class="b3-btn b3-pri" id="b3-step1">1日すすめる</button><button type="button" class="b3-btn" id="b3-step7">7日すすめる</button>'+
-     '<button type="button" class="b3-btn" id="b3-hint">💡 ヒント</button></div>';
+     '<button type="button" class="b3-btn" id="b3-hint">💡 ヒント</button><span class="b3-costchip" id="b3-costchip"></span></div>';
   h+='<div id="b3-result"></div><div id="b3-hintbox"></div>';
   h+='<div class="b3-simgrid">';
   h+='<div class="b3-card b3-g-vis"><h2>'+sp.name+'の様子</h2><div id="b3-vis"></div>';
@@ -1199,27 +1269,28 @@ function renderSim(){
   h+='<div class="b3-card b3-g-met"><h2>はかってみよう</h2><div class="b3-meters" id="b3-meters"></div></div>';
   h+='<div class="b3-card b3-g-set"><h2>環境と世話の設定</h2><p style="font-size:.88em;color:var(--b3-sub)">設定は「1日すすめる」を押したときから毎日続きます。目安:'+sp.rule+'。</p>';
   if(sp.kind==='water'){
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">水温<small>ヒーター・置き場所で調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/1日2〜3℃ずつ</small></div>'+rangeCtl('temp',4,34,1,s.temp,'℃','水温')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">水温<small>ヒーター・置き場所で調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/1日2〜3℃ずつ/'+AMB+'℃からはなれるほど電気代がかかる</small></div>'+rangeCtl('temp',4,34,1,s.temp,'℃','水温')+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの量<small>'+sp.feedNote+'</small></div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">エアレーション<small>空気を送って酸素をとかす</small></div>'+seg('air',[[0,'なし'],[1,'弱'],[2,'強']],s.air)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">エアレーション<small>空気を送って酸素をとかす/電気代 弱1円・強2円(1日)</small></div>'+seg('air',[[0,'なし'],[1,'弱'],[2,'強']],s.air)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">水草</div>'+seg('plants',[[0,'入れない'],[1,'入れる']],s.plants)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)<small>'+sp.tankL+'Lの水そう</small></div>'+rangeCtl('n',1,sp.maxN,1,s.n,'匹','数')+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">水替えの習慣<small>くみ置きの水で、1回に3分の1ずつ</small></div>'+seg('routine',[['none','しない'],['w2','2週に1回'],['w1','週1回'],['d3','3日に1回']],s.routine)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">水替えの習慣<small>くみ置きの水で、1回に3分の1ずつ/1回 約'+yenStr(COST[run.sp].water)+'・'+(run.sp==='kingyo'?30:20)+'分</small></div>'+seg('routine',[['none','しない'],['w2','2週に1回'],['w1','週1回'],['d3','3日に1回']],s.routine)+'</div>';
     if(sp.eggs)h+='<div class="b3-ctl"><div class="b3-ctl-label">産んだ卵を<small>メダカは卵を食べてしまうことがある</small></div>'+seg('move',[[0,'そのままにする'],[1,'別の容器に移す']],s.move)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">pH調整剤<small>今の水に少しだけ入れる</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="phm">酸性側へ(−0.2)</button><button type="button" class="b3-btn" data-act="php">アルカリ性側へ(＋0.2)</button></div></div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="w13">くみ置きの水で3分の1かえる</button><button type="button" class="b3-btn" data-act="wall">水を全部かえる</button></div></div>';
   }else{
     var bird=run.sp!=='rabbit';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">室温<small>保温・換気・日よけで調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃</small></div>'+rangeCtl('temp',0,36,1,s.temp,'℃','室温')+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">室温<small>保温・換気・日よけで調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/'+AMB+'℃からはなれるほど電気代がかかる</small></div>'+rangeCtl('temp',0,36,1,s.temp,'℃','室温')+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの量</div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">えさの内容</div>'+seg('diet',[[0,sp.dietLabel[0]],[1,sp.dietLabel[1]]],s.diet)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">飲み水の交換</div>'+seg('waterR',[['daily','毎日'],['2d','2日に1回'],['none','しない']],s.waterR)+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">床のそうじ<small>フンや汚れた床材をとりかえる</small></div>'+seg('clean',[['daily','毎日'],['3d','3日に1回'],['weekly','週1回'],['none','しない']],s.clean)+'</div>';
-    h+='<div class="b3-ctl"><div class="b3-ctl-label">運動<small>'+(bird?'広い場所で歩かせる':'ケージの外で遊ばせる')+'</small></div>'+seg('ex',[[0,'なし'],[1,'少し'],[2,'たっぷり']],s.ex)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">床のそうじ<small>フンや汚れた床材をとりかえる/1回 約'+yenStr(COST[run.sp].bed)+'・15分</small></div>'+seg('clean',[['daily','毎日'],['3d','3日に1回'],['weekly','週1回'],['none','しない']],s.clean)+'</div>';
+    h+='<div class="b3-ctl"><div class="b3-ctl-label">運動<small>'+(bird?'広い場所で歩かせる':'ケージの外で遊ばせる')+'/少し10分・たっぷり30分(1日)</small></div>'+seg('ex',[[0,'なし'],[1,'少し'],[2,'たっぷり']],s.ex)+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">数(飼育密度)</div>'+rangeCtl('n',1,sp.maxN,1,s.n,bird?'羽':'匹','数')+'</div>';
     h+='<div class="b3-ctl"><div class="b3-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b3-act"><button type="button" class="b3-btn" data-act="water">水をとりかえる</button><button type="button" class="b3-btn" data-act="clean">床をそうじする</button></div></div>';
   }
   h+='</div></div>';
+  h+='<div class="b3-card" id="b3-cost"></div>';
   h+='<div class="b3-card"><h2>記録グラフ</h2><div class="b3-legend"><span class="l1">健康度</span><span class="l2">'+(sp.kind==='water'?'水の汚れ':'床の汚れ')+'</span><span class="l3">'+(sp.adult?'体重の良さ':'成長')+'(%)</span></div><canvas id="b3-chart" height="220" aria-label="健康度と汚れと成長のグラフ" role="img"></canvas></div>';
   h+='<div class="b3-card"><h2>飼育日誌</h2><ul class="b3-log" id="b3-log"></ul>'+
      '<div class="b3-btns" style="margin-top:12px"><button type="button" class="b3-btn" id="b3-reset">最初からやり直す</button></div></div>';
@@ -1256,11 +1327,12 @@ function doAction(a){
   if(run.done){toast('30日間の飼育は終わりました');return}
   if(run.acted[key]===run.day){toast('今日はもうしました。1日すすめてからにしよう');return}
   run.acted[key]=run.day;
-  if(a==='w13'){changeWater(run,1/3,false);addLog(run,'くみ置きの水で、水を3分の1かえました。');}
-  if(a==='wall'){changeWater(run,0.97,true);addLog(run,'水を全部かえました。水がきれいになったけれど、急な変化で生き物がおどろき、水をきれいにする微生物も減ってしまいました。');}
-  if(a==='phm'||a==='php'){run.ph=clamp(run.ph+(a==='php'?0.2:-0.2),5,9);addLog(run,'pH調整剤を入れました(pH '+run.ph.toFixed(1)+')。');}
-  if(a==='water'){run.water=100;addLog(run,'飲み水を新しくしました。');}
-  if(a==='clean'){run.dirt*=0.12;addLog(run,'床をそうじして、床材をとりかえました。');}
+  var cc=COST[run.sp];
+  if(a==='w13'){changeWater(run,1/3,false);addCost(run,'water',cc.water,run.sp==='kingyo'?30:20);addLog(run,'くみ置きの水で、水を3分の1かえました。');}
+  if(a==='wall'){changeWater(run,0.97,true);addCost(run,'water',cc.wall,40);addLog(run,'水を全部かえました。水がきれいになったけれど、急な変化で生き物がおどろき、水をきれいにする微生物も減ってしまいました。');}
+  if(a==='phm'||a==='php'){run.ph=clamp(run.ph+(a==='php'?0.2:-0.2),5,9);addCost(run,'water',20,5);addLog(run,'pH調整剤を入れました(pH '+run.ph.toFixed(1)+')。');}
+  if(a==='water'){run.water=100;addCost(run,'water',cc.drink,3);addLog(run,'飲み水を新しくしました。');}
+  if(a==='clean'){run.dirt*=0.12;addCost(run,'clean',cc.bed,15);addLog(run,'床をそうじして、床材をとりかえました。');}
   refreshNow();toast(plain(run.log[0].t).split('。')[0]+'。');
 }
 function advance(n){
@@ -1310,6 +1382,9 @@ function updateSim(flash){
     if(sp.eggRate)m+=meter('egg','産んだ卵','合計 '+run.eggs+'個(今日 '+run.eggsToday+'個)',Math.min(100,run.eggsToday/Math.max(1,s.n)*100),['ok','記録'],'#d08a2a');
   }
   var box=$('#b3-meters');box.innerHTML=m;
+  var cp=costPlan(run.sp,s,run.health<50);
+  $('#b3-costchip').textContent='💰 今の世話:1日 約'+yenStr(cp.yen)+'・⏱ '+minStr(cp.min);
+  $('#b3-cost').innerHTML=costHTML(cp);
   var prev=updateSim._prev||{},cur={};
   $$('.b3-meter',box).forEach(function(x){cur[x.dataset.m]=x.dataset.val;if(flash&&prev[x.dataset.m]!=null&&prev[x.dataset.m]!==x.dataset.val)x.classList.add('b3-chg')});
   updateSim._prev=cur;
@@ -1320,6 +1395,28 @@ function updateSim(flash){
     var b3=$('#b3-to-plan');if(b3)b3.addEventListener('click',function(){showTab('plan')})}
   rb(el);measure();
   drawChart();
+}
+function costHTML(cp){
+  var sp=SP[run.sp],c=run.cost||freshCost(),d=run.day,h='';
+  h+='<h2>💰 コスト(お金と手間)</h2>';
+  h+='<p style="font-size:.88em;color:var(--b3-sub)">生き物を育てるには、えさ代や電気代などの<b>お金</b>と、世話をする<b>時間(手間)</b>がかかります。世話の回数や量を変えると、コストも変わります。</p>';
+  h+='<div class="b3-costtop"><div>今の世話を続けると(1日あたり)<br><b>約'+yenStr(cp.yen)+'</b>・'+minStr(cp.min)+'<br><span class="b3-small">30日なら 約'+yenStr(cp.yen*30)+'・'+minStr(cp.min*30)+'</span></div>';
+  h+='<div>これまでの合計('+d+'日間)<br><b>'+yenStr(c.yen)+'</b>・'+minStr(c.min)+'<br><span class="b3-small">1'+(sp.kind==='water'||run.sp==='rabbit'?'匹':'羽')+'あたり 約'+yenStr(c.yen/Math.max(1,run.set.n))+'</span></div></div>';
+  h+='<div class="b3-tablewrap"><table class="b3-costtbl"><thead><tr><th>項目</th><th>1日の見込み</th><th>これまでの合計</th></tr></thead><tbody>';
+  CK.forEach(function(k){
+    if(sp.kind==='water'&&(k==='clean'||k==='ex'))return;
+    if(k==='med'&&!cp.y.med&&!c.y.med)return;
+    h+='<tr><td>'+ckLabel(sp,k)+'</td><td>'+(cp.y[k]||cp.m[k]?yenStr(cp.y[k])+(cp.m[k]?'・'+minStr(cp.m[k]):''):'−')+'</td><td>'+(c.y[k]||c.m[k]?yenStr(c.y[k])+(c.m[k]?'・'+minStr(c.m[k]):''):'−')+'</td></tr>';
+  });
+  h+='<tr class="b3-tot"><td>合計</td><td>'+yenStr(cp.yen)+'・'+minStr(cp.min)+'</td><td>'+yenStr(c.yen)+'・'+minStr(c.min)+'</td></tr></tbody></table></div>';
+  var notes=[];
+  if(c.waste>=1)notes.push('食べ残しで、むだになったえさ代:約'+yenStr(c.waste)+'(食べ残しは汚れのもとにもなります)');
+  if(c.y.med)notes.push('弱っていた'+c.medDays+'日間に、治療・薬の費用が '+yenStr(c.y.med)+' かかりました');
+  if(COST[run.sp].eggVal)notes.push('とれた卵の価値(お店で買うとしたら 1個 約'+COST[run.sp].eggVal+'円):約'+yenStr(c.eggVal));
+  if(cp.y.elec>=5)notes.push('温度を'+AMB+'℃から大きく変えているので、電気代が多めです');
+  if(notes.length)h+='<ul class="b3-signs">'+notes.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>';
+  h+='<p class="b3-small">金額は学習用のおおよその目安です。まわりの温度を'+AMB+'℃として、ヒーター・冷房などの電気代を計算しています。水そう・小屋・道具の代金は入れていません。</p>';
+  return h;
 }
 function showHint(){
   var keys=Object.keys(run.pen||{}).filter(function(k){return run.pen[k]>0.25}).sort(function(a,b){return run.pen[b]-run.pen[a]}).slice(0,2);
@@ -1337,7 +1434,17 @@ function summary(st){
   avg=hs.length?avg/hs.length:st.health;avgD=hs.length?avgD/hs.length:st.dirt;
   var ps=isObj(st.penSum)?st.penSum:{};
   var causes=Object.keys(ps).filter(function(k){return HINT[k]&&ps[k]>=4}).sort(function(a,b){return ps[b]-ps[a]}).slice(0,2);
-  return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:starOf(avg,st.health,min),causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{}};
+  return {avg:avg,avgD:avgD,final:st.health,min:min,size:st.size,eggs:st.eggs,fry:st.fry,sp:sp,star:starOf(avg,st.health,min),causes:causes,penSum:ps,penDays:isObj(st.penDays)?st.penDays:{},cost:normCost(st.cost),ref:costPlan(st.sp,Object.assign(defaultSet(st.sp),GOOD[st.sp]),false)};
+}
+function costJudge(r){
+  var c=r.cost,ref=r.ref.yen*30,refM=r.ref.min*30,ratio=ref>0?c.yen/ref:1,t=[];
+  t.push('<b>コストの振り返り</b>:お手本の世話を30日続けた場合の目安は 約'+yenStr(ref)+'・'+minStr(refM)+'です。あなたの世話は'+(ratio>=1.15?'その約'+round(ratio,1)+'倍':ratio<=0.85?'その約'+Math.round(ratio*100)+'%':'ほぼ同じ')+'でした。');
+  if(c.y.med)t.push('弱った'+c.medDays+'日間に、治療・薬の費用が '+yenStr(c.y.med)+' かかりました。ふだんの世話を減らして節約しても、生き物が弱ると、かえってお金も手間もかかります。');
+  if(c.waste>=Math.max(10,c.y.feed*0.15))t.push('食べ残しで 約'+yenStr(c.waste)+' のえさがむだになりました。えさは多ければよいわけではありません。');
+  if(ratio>=1.4&&!c.y.med)t.push('お手本よりかなり多くかかりました。えさの量・温度・水替えやそうじの回数など、健康を保ったまま減らせるところはないか考えよう。');
+  else if(ratio<=0.8&&r.star<3)t.push('お手本よりお金は少なくすみましたが、健康度が下がりました。節約しすぎていないか、どの世話は減らせないかを考えよう。');
+  else if(r.star===3&&ratio<1.4)t.push('生き物の健康と、お金・手間のバランスがとれた世話ができました。');
+  return '<div class="b3-costmsg">'+t.join('<br>')+'</div>';
 }
 function resultHTML(){
   var r=summary(run),sp=r.sp,star=r.star,h='';
@@ -1346,8 +1453,10 @@ function resultHTML(){
   h+='<li>'+sp.size.label+':'+sp.size.start+sp.size.unit+' → <b>'+(sp.size.dec?r.size.toFixed(sp.size.dec):Math.round(r.size))+sp.size.unit+'</b></li>';
   h+='<li>'+(sp.kind==='water'?'水':'床')+'の汚れの平均:<b>'+Math.round(r.avgD)+'</b></li>';
   if(sp.eggs)h+='<li>産んだ卵:'+r.eggs+'個/かえった稚魚:<b>'+r.fry+'匹</b>'+(run.set.move?'(別の容器で育てている)':'')+'</li>';
-  if(sp.eggRate)h+='<li>産んだ卵:<b>'+r.eggs+'個</b></li>';
+  if(sp.eggRate)h+='<li>産んだ卵:<b>'+r.eggs+'個</b>(お店で買うとしたら 約'+yenStr(r.cost.eggVal)+')</li>';
+  h+='<li>かかったお金:<b>'+yenStr(r.cost.yen)+'</b>/世話の時間:<b>'+minStr(r.cost.min)+'</b></li>';
   h+='</ul>';
+  h+=costJudge(r);
   if(r.causes.length)h+='<div class="b3-cause"><b>健康度を下げたおもな原因</b><ol>'+r.causes.map(function(k){return '<li><b>'+HINT_S[k]+'</b>'+(r.penDays[k]?'(30日のうち '+r.penDays[k]+'日)':'')+':'+HINT[k]+'</li>'}).join('')+'</ol></div>';
   else h+='<div class="b3-msg info">健康度を大きく下げた原因はありませんでした。</div>';
   h+='<p class="b3-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
@@ -1531,11 +1640,11 @@ function writeReflStat(d){
 /* ================= ④ 飼育計画書 ================= */
 var DAYS=['月','火','水','木','金','土','日'];
 var planData=null;
-function defaultPlan(){return {sp:run?run.sp:'',other:'',place:'',size:'',num:'',food:'',amount:'',feed:{},water:'',waterHow:'',obs:{},obsOther:'',hyg:{},holiday:'',future:'',date:today()}}
+function defaultPlan(){return {sp:run?run.sp:'',other:'',place:'',size:'',num:'',food:'',amount:'',feed:{},water:'',waterHow:'',obs:{},obsOther:'',hyg:{},holiday:'',future:'',costMonth:'',timeWeek:'',costIdea:'',date:today()}}
 function getPlan(){
   if(!planData){var o=store.get('plan',{});planData=Object.assign(defaultPlan(),isObj(o)?o:{});
     ['feed','obs','hyg'].forEach(function(k){if(!isObj(planData[k]))planData[k]={}});
-    ['sp','other','place','size','num','food','amount','water','waterHow','obsOther','holiday','future'].forEach(function(k){if(typeof planData[k]!=='string')planData[k]=planData[k]==null?'':String(planData[k])});}
+    ['sp','other','place','size','num','food','amount','water','waterHow','obsOther','holiday','future','costMonth','timeWeek','costIdea'].forEach(function(k){if(typeof planData[k]!=='string')planData[k]=planData[k]==null?'':String(planData[k])});}
   return planData;
 }
 var OBS=['食欲(えさをよく食べるか)','動き(元気に動くか)','体の色・毛や羽のつや','フンの形・量','水温・室温','水や床のにごり・におい','数(いなくなっていないか)'];
@@ -1548,6 +1657,7 @@ function simPlanValues(){
   else{var cm={daily:'毎日','3d':'2〜3日に1回',weekly:'週1回',none:''};if(cm[s.clean])v.water=cm[s.clean];
     v.waterHow='飲み水は'+(s.waterR==='daily'?'毎日':'こまめに')+'とりかえる。床材をとりかえ、換気をする。室温の目安は'+sp.temp.min+'〜'+sp.temp.max+'℃。';
     v.food=sp.dietLabel[s.diet]||sp.dietLabel[0];v.amount='食べきれる量(食べ残しが出ない量)';}
+  var cp=costPlan(run.sp,s,false);v.costMonth='約'+yenStr(cp.yen*30)+'(シミュレーションの設定から)';v.timeWeek='約'+minStr(cp.min*7);
   return v;
 }
 function renderPlan(){
@@ -1571,6 +1681,9 @@ function renderPlan(){
   h+='<label class="b3-f" for="b3-pl-obsOther">その他に観察すること</label><input type="text" id="b3-pl-obsOther" data-p="obsOther" value="'+esc(p.obsOther)+'"></div>';
   h+='<div class="b3-card"><h2>5 衛生と安全</h2><div class="b3-checks">'+HYG.map(function(o,i){return '<label><input type="checkbox" data-hyg="'+i+'"'+(p.hyg[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div></div>';
   h+='<div class="b3-card"><h2>6 休日・長期休みの世話</h2><textarea data-p="holiday" aria-label="休日・長期休みの世話" placeholder="例:土日は自動給餌器を使う。夏休みは当番を決める。">'+esc(p.holiday)+'</textarea></div>';
+  h+='<div class="b3-card"><h2>8 費用と手間の見つもり</h2><div class="b3-row"><div><label class="b3-f" for="b3-pl-costMonth">1か月にかかるお金</label><input type="text" id="b3-pl-costMonth" data-p="costMonth" value="'+esc(p.costMonth)+'" placeholder="例:約600円(えさ代・電気代など)"></div>';
+  h+='<div><label class="b3-f" for="b3-pl-timeWeek">1週間の世話の時間</label><input type="text" id="b3-pl-timeWeek" data-p="timeWeek" value="'+esc(p.timeWeek)+'" placeholder="例:約1時間30分"></div></div>';
+  h+='<label class="b3-f" for="b3-pl-costIdea">健康を保ちながら、お金や手間をへらすくふう</label><textarea id="b3-pl-costIdea" data-p="costIdea" placeholder="例:えさは食べきる量にして、むだをなくす。水替えは週1回にして、当番で分担する。">'+esc(p.costIdea)+'</textarea></div>';
   h+='<div class="b3-card"><h2>7 命と生態系への配慮</h2><textarea data-p="future" aria-label="命と生態系への配慮" placeholder="例:最後まで責任をもって飼う。飼えなくなったら、川には放さず、飼ってくれる人をさがす。">'+esc(p.future)+'</textarea></div>';
   el.innerHTML=h;rb(el);printSync(el);
   function save(){p.date=today();p.saved=nowStamp();var ok=store.set('plan',p);$('#b3-pl-saved',el).textContent=ok?savedLabel(p.saved):'保存できませんでした';}
@@ -1598,6 +1711,7 @@ function planText(){
   t+='\n■観察ポイント\n'+OBS.filter(function(_,i){return p.obs[i]}).map(function(o){return '・'+o}).join('\n')+(p.obsOther?'\n・'+p.obsOther:'')+'\n';
   t+='\n■衛生と安全\n'+HYG.filter(function(_,i){return p.hyg[i]}).map(function(o){return '・'+o}).join('\n')+'\n';
   t+='\n■休日・長期休みの世話\n'+p.holiday+'\n\n■命と生態系への配慮\n'+p.future+'\n';
+  t+='\n■費用と手間の見つもり\n1か月にかかるお金:'+p.costMonth+'\n1週間の世話の時間:'+p.timeWeek+'\nくふう:'+p.costIdea+'\n';
   return plain(t);
 }
 
@@ -1607,6 +1721,7 @@ var RQ=[
  {k:'q2',t:'うまくいかなかったこと(健康度が下がった・汚れた など)と、その原因・改善した方法を書きましょう。',ph:'例:7日目に水が汚れた。原因は…なので、…にしたら回復した。'},
  {k:'q3',t:'生き物の「様子」(食欲・動き・体の色など)から状態を読み取るとき、大切だと思ったことは何ですか。',ph:''},
  {k:'q4',t:'実際の飼育や観察で、生かしたいことは何ですか。',ph:''},
+ {k:'q6',t:'世話の回数や量を変えると、お金や手間(コスト)はどう変わりましたか。生き物の健康とコストのバランスについて考えたことを書きましょう。',ph:'例:水替えをへらすと手間は少なくなったが、水が汚れて弱り、治療費がかかった。だから…'},
  {k:'q5',t:'生き物の命や生態系、水産業・畜産業について考えたことを書きましょう。',ph:'例:飼えなくなっても川に放してはいけない理由は…'}
 ];
 var EV=[
@@ -1637,13 +1752,14 @@ function renderRefl(){
 }
 function archLine(k,a){
   var sp=SP[k],t='・'+sp.name+':30日やり終えた '+starStr(a.star)+'/健康度の平均 '+a.avg+'(最後の日 '+a.final+')';
+  if(typeof a.yen==='number')t+='/費用 '+yenStr(a.yen)+'・世話 '+minStr(a.min||0);
   if(a.causes&&a.causes.length)t+='/おもな原因:'+a.causes.map(function(c){return HINT_S[c]||c}).join('、');
   return t;
 }
 function autoSummary(){
   var t='';
   if(run){var r=summary(run);t+='飼育シミュレーション(いま):'+r.sp.name+' '+run.day+'日目まで'+(run.done?'(30日やり終えた '+starStr(r.star)+')':'')+'/健康度の平均 '+Math.round(r.avg)+'/'+r.sp.size.label+' '+(r.sp.size.dec?r.size.toFixed(r.sp.size.dec):Math.round(r.size))+r.sp.size.unit;
-    if(r.sp.eggs)t+='/稚魚 '+r.fry+'匹';if(r.sp.eggRate)t+='/卵 '+r.eggs+'個';t+='\n';
+    if(r.sp.eggs)t+='/稚魚 '+r.fry+'匹';if(r.sp.eggRate)t+='/卵 '+r.eggs+'個';t+='/費用 '+yenStr(r.cost.yen)+'・世話 '+minStr(r.cost.min)+'\n';
     var ks=Object.keys(run.archive||{}).filter(function(k){return !(run.done&&k===run.sp)});
     if(ks.length)t+='これまでに30日やり終えた記録:\n'+ks.map(function(k){return archLine(k,run.archive[k])}).join('\n')+'\n';}
   else t+='飼育シミュレーション:まだ行っていません\n';
@@ -1692,7 +1808,7 @@ applySettings();
 showTab(settings.tab&&$('[data-sec="'+settings.tab+'"]')?settings.tab:'home');
 rb($('.b3-nav'));measure();
 // テスト用に計算部分を公開(画面には影響しません)
-window.B3SIM={SP:SP,GOOD:GOOD,newRun:newRun,stepDay:stepDay,summary:summary,starOf:starOf,calcDO:calcDO,satDO:satDO,normRun:normRun};
+window.B3SIM={COST:COST,costPlan:costPlan,SP:SP,GOOD:GOOD,newRun:newRun,stepDay:stepDay,summary:summary,starOf:starOf,calcDO:calcDO,satDO:satDO,normRun:normRun};
 })();
 </script>
 </body>
