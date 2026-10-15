@@ -7,7 +7,7 @@
 ## できあがったもの
 
 - `release/情報の技術_体験教材集.html` … 生徒に配る1ファイル版（ダブルクリックで開く。インターネット不要）
-- `release/情報の技術_体験教材集_第1.3版.zip` … 配布用。上のHTML、先生用の手引き2つ、個別の教材6ファイル、はじめにお読みください
+- `release/情報の技術_体験教材集_第1.4版.zip` … 配布用。上のHTML、先生用の手引き2つ、個別の教材6ファイル、はじめにお読みください
 - `docs/先生用の手引き.html` … 教材集の使い方、学習指導要領との対応、重なる単元の使い分け
 
 ## しくみ
@@ -49,7 +49,7 @@
 
 ```
 node tools/build.mjs        # dist/情報の技術_体験教材集.html を作る
-python3 tools/make-zip.py   # release/…_第1.3版.zip を作る（版は make-zip.py と src/shell.html の中）
+python3 tools/make-zip.py   # release/…_第1.4版.zip を作る（版は make-zip.py と src/shell.html の中）
 cp dist/情報の技術_体験教材集.html release/
 node tests/e2e.browser.cjs  # ブラウザで確認（playwright が必要。94項目）
 ```

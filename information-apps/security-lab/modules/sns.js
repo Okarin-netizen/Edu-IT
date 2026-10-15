@@ -13,7 +13,7 @@ const STEPS = [
 // 写真の中の手がかり（x, y, w, h は 0〜100 の％）
 const PHOTO_CLUES = [
   { id: "sign", x: 52, y: 8, w: 40, h: 13, suspicious: true, label: "駅の看板", explain: "駅名から、よく行く場所や家の近くの駅が分かります。" },
-  { id: "pole", x: 6, y: 34, w: 13, h: 16, suspicious: true, label: "電柱の住所表示", explain: "電柱や塀の住所表示から、町名や番地まで分かることがあります。" },
+  { id: "pole", x: 3, y: 32, w: 18, h: 20, suspicious: true, label: "電柱の住所表示", explain: "電柱や塀の住所表示から、町名や番地まで分かることがあります。" },
   { id: "emblem", x: 41, y: 49, w: 11, h: 11, suspicious: true, label: "制服の校章", explain: "制服や校章、ジャージから学校が特定されます。" },
   { id: "shadow", x: 50, y: 85, w: 43, h: 11, suspicious: true, label: "長い影", explain: "影の長さや向きから、だいたいの時刻や方角が推測できます。投稿の時刻と合わせると、毎日の行動が分かってしまいます。" },
   { id: "sky", x: 4, y: 4, w: 30, h: 22, suspicious: false, label: "空と雲", explain: "空や雲だけでは、場所はほとんど分かりません。" },
@@ -55,12 +55,12 @@ function photoSvg(blurred = new Set()) {
   <rect x="200" y="120" width="40" height="80" fill="#8e8778"/><rect x="330" y="120" width="40" height="80" fill="#8e8778"/>
   <g${b("sign")}><rect x="210" y="24" width="160" height="38" rx="4" fill="#1d5b9e"/><text x="290" y="50" text-anchor="middle" font-size="20" font-weight="700" fill="#fff" font-family="sans-serif">ほしぞら台駅</text></g>
   <rect x="40" y="40" width="10" height="210" fill="#7a7468"/>
-  <g${b("pole")}><rect x="26" y="104" width="46" height="44" fill="#2f6f3e"/><text x="49" y="122" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif">ほしぞら台</text><text x="49" y="138" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif">3丁目5</text></g>
+  <g${b("pole")}><rect x="14" y="100" width="70" height="52" fill="#2f6f3e"/><text x="49" y="121" text-anchor="middle" font-size="13" fill="#fff" font-family="sans-serif">ほしぞら台</text><text x="49" y="142" text-anchor="middle" font-size="14" fill="#fff" font-family="sans-serif">3丁目5</text></g>
   <rect y="230" width="400" height="70" fill="#a9a59b"/>
   <g${b("shadow")}><polygon points="200,262 370,270 370,282 200,272" fill="#6d6a62" opacity="0.6"/></g>
   <circle cx="190" cy="120" r="22" fill="#f1c9a5"/><path d="M168 112 q22 -30 44 0" fill="#2b2b2b"/>
   <rect x="164" y="142" width="52" height="80" rx="10" fill="#22324f"/>
-  <g${b("emblem")}><circle cx="186" cy="166" r="9" fill="#e9c347"/><text x="186" y="170" text-anchor="middle" font-size="9" font-weight="700" fill="#22324f" font-family="sans-serif">星</text></g>
+  <g${b("emblem")}><circle cx="186" cy="166" r="10" fill="#e9c347"/><text x="186" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#22324f" font-family="sans-serif">星</text></g>
   <rect x="170" y="222" width="14" height="40" fill="#22324f"/><rect x="196" y="222" width="14" height="40" fill="#22324f"/>
 </svg>`;
 }
