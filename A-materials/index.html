@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>材料と加工 教材アプリ</title>
+<meta name="theme-color" content="#985a26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/eduit-frame.css">
+<link rel="stylesheet" href="common/base.css">
+<script src="eduit-info.js"></script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '材料と加工 教材アプリ(メニュー)' };</script>
+<script src="../shared/eduit-frame.js"></script>
+<style>
+  .apps { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: .75rem; }
+  /* メニューのカードは4分野共通の .ef-card(白・上に分野の色の線・角丸) */
+  .app-card { display: flex; flex-direction: column; gap: .2rem; text-decoration: none; color: inherit; min-height: 9rem; padding: .75rem 1rem; transition: transform .1s, box-shadow .1s; }
+  .app-card:hover { border-color: var(--frame); box-shadow: 0 2px 10px rgba(60, 35, 10, .14); }
+  .app-card:active { transform: translateY(2px); }
+  .app-card .go { margin-top: auto; align-self: flex-end; min-height: 40px; font-size: .95rem; }
+  .app-card .ef-card-tag { margin: 0; font-size: .85rem; }
+  .app-card h3.ef-card-title { margin: 0; font-size: 1.08rem; line-height: 1.45; text-wrap: balance; }
+  /* 題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
+  .app-card h3 .seg { display: inline-block; max-width: 100%; }
+  .fold { margin: .6rem 0; }
+  .fold > summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .92rem; list-style: none; }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary::before { content: "▸"; display: inline-block; width: 1em; text-align: center; }
+  .fold[open] > summary::before { content: "▾"; }
+  .fold > summary:hover { color: var(--ink); }
+  .fold.teacher { margin-top: 1.5rem; padding-top: .3rem; border-top: 1px solid var(--line); }
+  .fold.teacher[open] > summary { font-weight: bold; color: var(--ink); }
+  .app-card p { margin: 0; font-size: .92rem; }
+  .app-card .state { margin-top: auto; }
+  .app-card[aria-disabled="true"] { opacity: .6; }
+  #tapps .app-card { min-height: 7rem; }
+  .profile .g-field input { width: 6em; }
+  .profile .pf-name input { width: 14em; }
+</style>
+</head>
+<body>
+<header id="g-header"></header>
+<main>
+  <section class="card">
+    <h2>材料と加工の技術</h2>
+    <p>使いたいアプリを選びましょう。一度開いたアプリは、インターネットにつながっていなくても使えます。作ったものはこの端末の中に保存されます。</p>
+  </section>
+  <section aria-labelledby="apps-h">
+    <h2 id="apps-h">アプリ</h2>
+    <div class="apps" id="apps"></div>
+  </section>
+  <section class="card" aria-labelledby="data-h">
+    <h2 id="data-h">保存したデータ</h2>
+    <p>すべてのアプリの作品・記録を1つのファイルに書き出して、提出やバックアップに使えます。書き出す前に、組・番号・名前を入れましょう。ここに入れた組・番号・名前は、各アプリで書き出すファイルにも入ります。</p>
+    <div class="g-row profile">
+      <label class="g-field"><span>組</span><input id="pf-class" type="text" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+      <label class="g-field"><span>番号</span><input id="pf-no" type="text" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+      <label class="g-field pf-name"><span>名前</span><input id="pf-name" type="text" maxlength="30" autocomplete="off"></label>
+    </div>
+    <div class="g-row">
+      <button class="btn primary" id="exp" type="button">すべてファイルに書き出す</button>
+      <button class="btn" id="imp" type="button">ファイルから読み込む</button>
+      <span class="g-muted" id="count"></span>
+    </div>
+    <details class="fold" id="data-manage">
+      <summary>データの管理(削除)</summary>
+      <p class="g-muted">この端末に保存した、すべてのアプリの作品・記録を消します。消したデータはもとに戻せません。先生の指示があるときだけ使いましょう。</p>
+      <p><button class="btn danger" id="del" type="button">データの削除</button></p>
+    </details>
+  </section>
+  <details class="fold teacher" id="teacher">
+    <summary>先生用</summary>
+    <div class="apps" id="tapps"></div>
+    <p><a class="btn" href="docs/使い方_先生用.html">使い方(先生用)を読む</a></p>
+  </details>
+  <p class="g-muted" id="offline"></p>
+</main>
+<script src="common/ruby-dict.js"></script>
+<script src="common/core.js"></script>
+<script src="common/apps.js"></script>
+<script>
+  G.basePath = './';
+  G.initApp({ app: 'menu', title: '材料と加工 教材アプリ', home: false, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
+  function addCards(box, list) {
+    list.forEach(function (a) {
+      var state = G.h('span', { class: 'state badge' }, '');
+      var card = G.h('a', { class: 'ef-card app-card', href: a.dir + 'index.html' },
+        G.h('span', { class: 'ef-card-tag code' }, a.code),
+        G.h.apply(null, ['h3', { class: 'ef-card-title' }].concat(a.title.split(/(?<=・)/).map(function (s) { return G.h('span', { class: 'seg' }, s); }))),
+        G.h('p', null, a.desc),
+        state, G.h('span', { class: 'ef-btn-primary go', 'aria-hidden': 'true' }, 'ひらく ▶'));
+      box.appendChild(card);
+      if (/^https?:$/.test(location.protocol) && !G.single) {
+        fetch(a.dir + 'index.html', { method: 'HEAD' }).then(function (r) {
+          if (!r.ok) throw 0;
+          state.remove();
+        }).catch(function () {
+          state.textContent = '準備中'; card.setAttribute('aria-disabled', 'true');
+        });
+      } else state.remove();
+    });
+  }
+  addCards(G.$('#apps'), G.APPS);
+  addCards(G.$('#tapps'), G.TEACHER_APPS);
+  // 組・番号・名前(書き出すファイルに入る)
+  var PKEY = 'gijutsu.profile';
+  function getProfile() { try { return JSON.parse(localStorage.getItem(PKEY)) || {}; } catch (e) { return {}; } }
+  var prof = getProfile();
+  [['class', '#pf-class'], ['no', '#pf-no'], ['name', '#pf-name']].forEach(function (f) {
+    var el = G.$(f[1]);
+    el.value = prof[f[0]] || '';
+    el.addEventListener('input', function () {
+      prof[f[0]] = el.value.trim();
+      try { localStorage.setItem(PKEY, JSON.stringify(prof)); } catch (e) {}
+    });
+  });
+  function refreshCount() {
+    G.store.list().then(function (l) { G.$('#count').textContent = '保存されている作品: ' + l.length + ' 件'; });
+  }
+  refreshCount();
+  G.$('#exp').onclick = function () {
+    G.store.list().then(function (list) {
+      var d = new Date(), stamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+      if (!prof.name) G.toast('名前が入っていません。先生に出すときは名前を入れてから書き出そう');
+      var who = [prof.class ? prof.class + '組' : '', prof.no ? prof.no + '番' : '', prof.name || ''].join('');
+      G.exportJSON({ schema: 'gijutsu-bundle/1', exportedAt: d.toISOString(), student: { class: prof.class || '', no: prof.no || '', name: prof.name || '' }, artifacts: list },
+        '技術_材料と加工_' + (who ? who + '_' : '') + stamp + '.json');
+    });
+  };
+  G.$('#imp').onclick = function () {
+    G.pickJSON().then(function (obj) {
+      var list = G.normalizeImport(obj);
+      if (!list.length) { G.toast('読み込める作品がありませんでした'); return; }
+      return Promise.all(list.map(function (a) { return G.store.put(a); })).then(function () {
+        G.toast(list.length + ' 件の作品を読み込みました'); refreshCount();
+      });
+    }).catch(function (e) { G.toast(e.message); });
+  };
+  G.$('#del').onclick = function () { G.dataDialog(undefined); };
+  G.$('#offline').textContent = G.single ? 'この1つのファイルの中に、すべてのアプリが入っています。インターネットにつながっていなくても使えます。' : location.protocol === 'file:'
+    ? 'ファイルを直接開いているため、オフライン用の保存(キャッシュ)は使われません。そのままでも動きます。'
+    : ('serviceWorker' in navigator ? 'オフラインで使う準備ができています。' : 'このブラウザはオフライン機能に対応していません。');
+</script>
+</body>
+</html>
