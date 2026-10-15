@@ -96,6 +96,39 @@
     return h('label', { class: 'm4-guide-toggle' }, cb, ' 基準線');
   }
 
+  /* 「答えを見る」ボタン。押すたびに 表示 ⇔ かくす を切りかえる(以前は一度出すと消す方法がなかった) */
+  function answerToggle(board, show, msg, result) {
+    var on = false;
+    var btn = h('button', { class: 'btn', type: 'button', 'data-act': 'answer', 'aria-pressed': 'false', onclick: function () { set(!on); } }, '答えを見る');
+    function set(v) {
+      on = v;
+      if (on) {
+        show();
+        result.innerHTML = '';
+        result.appendChild(h('p', null, msg));
+      } else {
+        board.hideAnswer();
+        result.innerHTML = '';
+      }
+      btn.setAttribute('aria-pressed', String(on));
+      btn.textContent = on ? '答えをかくす' : '答えを見る';
+    }
+    return { el: btn, isOn: function () { return on; },
+      off: function () { if (on) { on = false; btn.setAttribute('aria-pressed', 'false'); btn.textContent = '答えを見る'; } } };
+  }
+  /* 「ヒント」ボタン。3段階まで出したあとは「ヒントを消す」になる */
+  function hintButton(getLevel, setLevel) {
+    var btn = h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () {
+      setLevel(getLevel() >= 3 ? 0 : getLevel() + 1); label();
+    } });
+    function label() {
+      var lv = getLevel();
+      btn.textContent = lv >= 3 ? 'ヒントを消す' : (lv ? 'ヒント(' + lv + '/3)' : 'ヒント');
+    }
+    label();
+    return { el: btn, label: label };
+  }
+
   function problemNav(list, getState, onPick, cur) {
     var nav = h('div', { class: 'm4-nav', role: 'group', 'aria-label': '問題を選ぶ' });
     list.forEach(function (p, i) {
@@ -331,7 +364,8 @@
     var hintBox = h('div', { class: 'm4-hintbox', 'aria-live': 'polite' });
     var board = SK.create({ mode: 'square', cols: 8, rows: 6, cell: 44, tools: ['v', 'h', 'erase'],
       label: VIEW_NAME[view] + 'をかくボード。矢印キーで点を動かし、スペースキーで線の始めと終わりを決めます。1 外形線、2 かくれ線、3 消しゴム。',
-      onChange: function (d) { drawState.drawings[key] = d; result.innerHTML = ''; } });
+      onChange: function (d) { drawState.drawings[key] = d; if (!answer || !answer.isOn()) result.innerHTML = ''; },
+      onClearAll: function () { answer.off(); result.innerHTML = ''; setHintLevel(0); } });
     if (drawState.drawings[key]) board.setDrawn(drawState.drawings[key]);
     var hintLevel = drawState.hint[key] || 0;
     var home = M.centerOffset(exp, board.box, 'square');
@@ -339,6 +373,10 @@
     var AXIS = { front: ['横', '高さ'], top: ['横', '奥行き'], right: ['奥行き', '高さ'] }[view];
 
     function offset() { return gradeOn(board, exp, home).offset; }
+    var answer = answerToggle(board, function () { board.showAnswer(exp, offset()); },
+      '太い緑の線が正解の図です(破線はかくれ線)。答えを見ながらかき直して、答え合わせしましょう。「答えをかくす」で消せます。', result);
+    function setHintLevel(lv) { hintLevel = lv; drawState.hint[key] = lv; showHint(); hintBtn.label(); }
+    var hintBtn = hintButton(function () { return hintLevel; }, setHintLevel);
     /* 基準線: 外形が入る範囲の左下の角(●)から、下の横線と左の縦線をかき始める */
     function showGuide() {
       if (!drawState.guide) { board.setGuide([]); return; }
@@ -385,6 +423,7 @@
       board.setHint(nodes);
     }
     function check() {
+      answer.off(); board.hideAnswer();
       var g = gradeOn(board, exp, home);
       board.showFeedback(g);
       result.innerHTML = '';
@@ -417,12 +456,7 @@
         board.el,
         h('div', { class: 'g-row' },
           h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
-          h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () { hintLevel = Math.min(3, hintLevel + 1); drawState.hint[key] = hintLevel; showHint(); } }, 'ヒント'),
-          h('button', { class: 'btn', type: 'button', 'data-act': 'answer', onclick: function () {
-            board.showAnswer(exp, gradeOn(board, exp, home).offset);
-            result.innerHTML = '';
-            result.appendChild(h('p', null, '太い緑の線が正解の図です(破線はかくれ線)。自分でかき直して、答え合わせしましょう。'));
-          } }, '答えを見る')),
+          hintBtn.el, answer.el),
         h('p', { class: 'g-muted m4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線 / △ 線の種類ちがい'),
         hintBox, result)));
     v.setSolid(s);
@@ -442,13 +476,18 @@
     var hintBox = h('div', { class: 'm4-hintbox', 'aria-live': 'polite' });
     var board = SK.create({ mode: 'iso', iMax: 12, jMax: 16, cell: 34, tools: ['v', 'erase'],
       label: '等角図をかくボード。矢印キーで点を動かし(Q E Z C でななめ)、スペースキーで線の始めと終わりを決めます。',
-      onChange: function (d) { isoState.drawings[key] = d; result.innerHTML = ''; } });
+      onChange: function (d) { isoState.drawings[key] = d; if (!answer || !answer.isOn()) result.innerHTML = ''; },
+      onClearAll: function () { answer.off(); result.innerHTML = ''; setHintLevel(0); } });
     if (isoState.drawings[key]) board.setDrawn(isoState.drawings[key]);
     var hintLevel = isoState.hint[key] || 0;
     var v3wrap = h('div');
     var home = M.centerOffset(exp, board.box, 'iso');
 
     function offset() { return gradeOn(board, exp, home).offset; }
+    var answer = answerToggle(board, function () { board.showAnswer(exp, offset()); },
+      '太い緑の線が正解の図です。答えを見ながらかき直して、答え合わせしましょう。「答えをかくす」で消せます。', result);
+    function setHintLevel(lv) { hintLevel = lv; isoState.hint[key] = lv; showHint(); hintBtn.label(); }
+    var hintBtn = hintButton(function () { return hintLevel; }, setHintLevel);
     function isoAt(x, y, z) { var q = M.isoPoint(x, y, z); return [q[0] + home[0], q[1] + home[1]]; }
     /* 基準線: 箱の手前の下の角(●)を通る水平線。そこから左上に横、右上に奥行き、上に高さをとる */
     function showGuide() {
@@ -502,6 +541,7 @@
       board.setHint(nodes);
     }
     function check() {
+      answer.off(); board.hideAnswer();
       var g = gradeOn(board, exp, home);
       board.showFeedback(g);
       result.innerHTML = '';
@@ -536,12 +576,7 @@
         board.el,
         h('div', { class: 'g-row' },
           h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
-          h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () { hintLevel = Math.min(3, hintLevel + 1); isoState.hint[key] = hintLevel; showHint(); } }, 'ヒント'),
-          h('button', { class: 'btn', type: 'button', 'data-act': 'answer', onclick: function () {
-            board.showAnswer(exp, gradeOn(board, exp, home).offset);
-            result.innerHTML = '';
-            result.appendChild(h('p', null, '太い緑の線が正解の図です。自分でかき直して、答え合わせしましょう。'));
-          } }, '答えを見る')),
+          hintBtn.el, answer.el),
         h('p', { class: 'g-muted m4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線'),
         hintBox, result)));
     showGuide();
