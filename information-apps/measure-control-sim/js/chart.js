@@ -41,12 +41,12 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
       g.fillRect(0, top, width, LANE_H);
     }
     g.fillStyle = text;
-    g.font = `12px ${font}`;
+    g.font = `13px ${font}`;
     g.textBaseline = "middle";
     g.fillText(s.label || s.name, 6, top + LANE_H / 2 - 7, LEFT - 10);
     const last = vis.length ? vis[vis.length - 1][s.name] : undefined;
     g.fillStyle = muted;
-    g.font = `11px ${font}`;
+    g.font = `12px ${font}`;
     g.fillText(last === undefined ? "" : s.show ? s.show(last) : String(Math.round(last * 10) / 10), 6, top + LANE_H / 2 + 9, LEFT - 10);
     // 値の範囲
     let lo = s.min;
@@ -58,7 +58,7 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
     }
     if (hi === lo) hi = lo + 1;
     const y = (v) => top + LANE_H - 6 - ((v - lo) / (hi - lo)) * (LANE_H - 12);
-    g.font = `10px ${font}`;
+    g.font = `12px ${font}`;
     // 縦の目もり（いちばん下と上の数）と、しきい値（プログラムの中の数）の線
     if (s.scale) {
       g.fillStyle = muted;
@@ -108,7 +108,7 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
   g.strokeStyle = grid;
   g.lineWidth = 1;
   g.fillStyle = muted;
-  g.font = `11px ${font}`;
+  g.font = `12px ${font}`;
   g.textBaseline = "top";
   const stepT = t1 - t0 > 60 ? 10 : 5;
   for (let t = Math.ceil(t0 / stepT) * stepT; t <= t1 + 1e-9; t += stepT) {
@@ -122,7 +122,7 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
   if (markT !== null && markT >= t0) {
     const bad = css("--bad", "#b3261e");
     // 不合格になった時刻の印（線の上に「× 9.7秒」）
-    g.font = `bold 11px ${font}`;
+    g.font = `bold 12px ${font}`;
     g.textBaseline = "top";
     const lab = `× ${Math.round(markT * 10) / 10}秒 不合格`;
     const lw = g.measureText(lab).width;
