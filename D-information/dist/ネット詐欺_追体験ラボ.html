@@ -1,0 +1,2029 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ネット詐欺 追体験ラボ</title>
+  <meta name="description" content="中学校技術科「情報の技術」向け。ワンクリック詐欺・当選メール・ウイルス付きメール・にせのウイルス警告・にせの通販サイトを、スマホやパソコンの画面を操作して追体験し、正しい手順を最後までやりきる教材。">
+  <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="author" content="羽生市立南中学校　技術　岡田">
+  <meta name="eduit-app" content="ネット詐欺 追体験ラボ">
+  <meta name="theme-color" content="#1a5fc8">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cmVjdCB4PSIxNyIgeT0iOCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjQ4IiByeD0iNiIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjIxIiB5PSIxNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjMwIiByeD0iMiIgZmlsbD0iI2RjZThmYiIvPjxwYXRoIGQ9Ik0zMiAxOGwxMSAxOUgyMXoiIGZpbGw9IiNmN2Q2NWMiIHN0cm9rZT0iI2I0NTMwOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cmVjdCB4PSIzMSIgeT0iMjQiIHdpZHRoPSIyLjQiIGhlaWdodD0iNyIgcng9IjEuMiIgZmlsbD0iIzdhM2EwNiIvPjxjaXJjbGUgY3g9IjMyLjIiIGN5PSIzNCIgcj0iMS40IiBmaWxsPSIjN2EzYTA2Ii8+PGNpcmNsZSBjeD0iMzIiIGN5PSI1MCIgcj0iMi41IiBmaWxsPSIjMWE1ZmM4Ii8+PC9zdmc+Cg==" type="image/svg+xml">
+  <!-- 4分野共通の枠（色・ヘッダー・ボタン・フッター・このアプリについて）。1ファイル版では中に入れる -->
+  <style id="eduit-frame-css">
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+  <style>
+/* ネット詐欺 追体験ラボ。色・文字・ボタンは共通の枠(shared/eduit-frame.css)の --ef-* を使う */
+:root {
+  --gl-ok: #1a7f4b;
+  --gl-ok-soft: #e3f4ea;
+  --gl-ng: #c0362c;
+  --gl-ng-soft: #fde7e4;
+  --gl-warn: #b45309;
+  --gl-warn-soft: #fdf0dc;
+  --gl-info-soft: #eef3fb;
+  --gl-chip-0: #dce8fb;
+  --gl-chip-1: #fbe3c8;
+  --gl-chip-2: #dff1d8;
+  --gl-chip-3: #f1dcf3;
+  --gl-nav-w: 262px;
+}
+/* 画面の枠は、ほかの情報の教材(デジタル化ラボ・情報セキュリティ体験ラボ・ネットワーク通信シミュレータ)と同じ形にそろえる */
+html { font-size: 17px; }
+html.big-text { font-size: 20px; }
+body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.75; -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; }
+h1, h2, h3 { line-height: 1.4; margin: 0 0 .5em; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+a { color: var(--ef-accent); }
+rt { font-size: .6em; font-weight: 400; }
+button, input, select, textarea { font: inherit; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: -999px; top: 0; }
+.skip-link:focus { left: 8px; z-index: 10; background: var(--ef-surface); padding: 6px 10px; }
+.ef-title { text-decoration: none; }
+.ef-btn, .ef-btn-primary { font-size: 1rem; }
+
+/* 上のバー: 表示の切りかえ・進み具合 */
+.app-header { position: sticky; top: 0; z-index: 5; flex-wrap: wrap; }
+.display-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+.overall-progress { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ef-muted); white-space: nowrap; }
+.overall-progress .bar { width: 120px; height: 10px; }
+.overall-progress .bar-fill { background: var(--gl-ok); }
+
+/* レイアウト: 左に章のメニュー、右に本文 */
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; gap: 24px; padding: 20px; }
+.chapter-nav { position: sticky; top: 72px; align-self: start; min-width: 0; }
+.chapter-nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.nav-link { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ef-text); font-size: .92rem; line-height: 1.45; }
+.nav-link:hover { background: var(--ef-surface-2); }
+.nav-link[aria-current="page"] { background: var(--ef-accent-soft); font-weight: 700; }
+.chapter-nav .num { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .8rem; border: 1.5px solid var(--ef-line); background: var(--ef-surface); }
+.chapter-nav .done .num { background: var(--gl-ok); border-color: var(--gl-ok); color: #fff; }
+.chapter-nav .nav-group { font-size: .8rem; color: var(--ef-muted); margin: 14px 10px 4px; letter-spacing: .05em; }
+main { min-width: 0; }
+#view { outline: none; }
+.app-footer { text-align: center; font-size: .85rem; color: var(--ef-muted); padding: 24px 16px 40px; }
+.app-note { margin: 0 0 8px; }
+
+.module-head { margin-bottom: 18px; }
+.module-head .meta { color: var(--ef-muted); font-size: .9rem; margin: 0 0 4px; }
+.module-head p.meta:not(:first-child) { font-size: 1rem; }
+.module-head .author { margin-top: 6px; }
+.sec-title { margin: 0 0 6px; font-size: 1.6rem; line-height: 1.4; text-wrap: balance; }
+.sec-body { display: grid; gap: 18px; }
+.lead { margin: 0; font-size: 1rem; max-width: 50em; }
+.muted { color: var(--ef-muted); font-size: .9rem; margin: 0; }
+.small-title { margin: 8px 0 4px; font-weight: 700; font-size: .95rem; }
+
+/* カード(ほかの教材の .card と同じ) */
+.panel, .card { background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 20px 22px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--ef-shadow); }
+.sec-body > .card, .sec-body > section { margin: 0; }
+.panel-title, .card > h2 { margin: 0; font-size: 1.3rem; }
+.panel p, .card p { margin: 0; }
+.card ol, .card ul { margin: 0; padding-left: 1.4em; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.row, .btn-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 14px 18px; box-shadow: var(--ef-shadow); }
+.ctl { display: grid; gap: 4px; min-width: 0; max-width: 100%; }
+select.input { width: 100%; text-overflow: ellipsis; }
+.ctl-label { font-size: .875rem; font-weight: 700; color: var(--ef-muted); }
+.input { border: 1.5px solid var(--ef-line); border-radius: 8px; padding: 8px 10px; background: var(--ef-surface); color: var(--ef-text); min-height: 44px; max-width: 100%; }
+textarea.input { width: 100%; resize: vertical; }
+input[type="text"].input { flex: 1 1 260px; }
+.range { display: flex; align-items: center; gap: 10px; }
+.range input { width: 180px; accent-color: var(--ef-accent); }
+.range output { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 6.5em; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+
+/* 本文のボタン: ほかの教材の .btn(青でぬる)と .btn.secondary(青のわく)と同じ見た目 */
+#view .ef-btn, #view .ef-btn-primary { font: inherit; font-size: .95rem; font-weight: 700; border-radius: 10px; min-height: 44px; padding: 8px 16px; border: 1.5px solid var(--ef-accent); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; line-height: 1.45; }
+#view .ef-btn { background: transparent; color: var(--ef-accent); }
+#view .ef-btn-primary { background: var(--ef-accent); color: var(--ef-accent-ink); }
+#view .ef-btn:hover:not(:disabled) { background: var(--ef-accent-soft); }
+#view .ef-btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+#view .ef-btn[aria-pressed="true"] { background: var(--ef-accent); color: var(--ef-accent-ink); }
+#view .ef-btn:disabled, #view .ef-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+#view .ef-btn.star { background: var(--ef-accent-soft); }
+#view .judge .ef-btn { min-height: 38px; padding: 4px 12px; }
+
+/* はじめに */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.flow-box { flex: 1 1 180px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 12px 14px; display: grid; gap: 2px; }
+.flow-box b { color: var(--ef-accent); font-size: 1.05rem; }
+.flow-box span { font-size: .92rem; }
+.flow-box.accent { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.flow-arrow { align-self: center; font-size: 1.4rem; color: var(--ef-muted); }
+.teacher { background: var(--ef-surface-2); border: 1px dashed var(--ef-line); border-radius: var(--ef-radius); padding: 10px 16px; }
+.teacher summary { font-weight: 700; cursor: pointer; }
+.teacher ul { margin: 8px 0 0; padding-left: 1.2em; font-size: .92rem; }
+
+/* ポイント・結果 */
+.point { border-left: 5px solid var(--ef-accent); background: var(--ef-accent-soft); border-radius: 8px; padding: 12px 16px; }
+.point-title { margin: 0 0 2px; font-weight: 700; font-size: .9rem; color: var(--ef-accent); }
+.point p, .point ul { margin: 4px 0 0; }
+.point ul { padding-left: 1.2em; }
+.result { border-radius: var(--ef-radius-s); padding: 10px 14px; font-weight: 600; }
+.result.ok { background: var(--gl-ok-soft); color: #11552f; }
+.result.ng { background: var(--gl-ng-soft); color: #8a1f17; }
+.result.warn { background: var(--gl-warn-soft); color: #7a3a06; }
+.result.info { background: var(--gl-info-soft); color: #173f7a; }
+.badge { display: inline-block; flex: none; padding: 1px 8px; margin-right: 6px; border-radius: 999px; font-size: .875rem; font-weight: 700; white-space: nowrap; }
+.badge.gray { background: var(--ef-surface-2); border: 1px solid var(--ef-line); color: var(--ef-muted); }
+.badge.orange { background: var(--gl-warn-soft); color: #7a3a06; border: 1px solid #f0c48a; }
+
+.pager { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 8px; }
+.pager .ef-btn, .pager .ef-btn-primary { white-space: normal; text-align: center; }
+
+@media (max-width: 860px) {
+  html { font-size: 16px; }
+  html.big-text { font-size: 18px; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; gap: 12px; }
+  .chapter-nav { position: static; }
+  .chapter-nav ol { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chapter-nav .nav-group { display: none; }
+  .nav-link { padding: 6px 8px; }
+  .overall-progress .bar { width: 70px; }
+  .display-toggles { order: 3; }
+  .sec-title { font-size: 1.35rem; }
+  .big-sentence { font-size: 1.25rem; }
+  .range input { width: 140px; }
+}
+
+/* 小さな部品 */
+.note-example { margin: 0; font-size: .95rem; font-weight: 700; color: var(--gl-warn); }
+.how { margin: 0 0 4px; font-size: .9rem; }
+.how .arrow { color: var(--ef-accent); font-weight: 700; }
+.hint { margin: 0; font-weight: 700; color: var(--ef-accent); }
+.start-row { display: grid; gap: 6px; }
+.ef-btn.star { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+.anchor { display: block; scroll-margin-top: 12px; }
+.export-note { margin: 0; font-weight: 700; display: grid; gap: 6px; }
+.export-note.good { color: var(--gl-ok); }
+.export-note.warn { color: var(--gl-ng); }
+.pi-grid input.input { width: 100%; }
+/* はじめに: ステップのカード(ほかの教材のモジュールのカードと同じ) */
+.module-group h2 { margin: 6px 0 12px; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.module-card { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ef-text); background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 16px; box-shadow: var(--ef-shadow); }
+.module-card:hover { border-color: var(--ef-accent); }
+.mc-num { font-size: .85rem; color: var(--ef-muted); }
+.mc-title { font-weight: 700; font-size: 1.05rem; }
+.mc-desc { font-size: .9rem; color: var(--ef-muted); flex: 1; }
+.module-card .mc-state { color: var(--ef-muted); }
+.module-card .mc-state.is-done { color: var(--gl-ok); }
+.lesson-plan { background: var(--ef-surface-2); border-radius: 10px; padding: 12px 16px; }
+.lesson-plan ul { padding-left: 1.2em; }
+.home-start { margin-top: 4px; }
+
+/* ふりかえり・記録 */
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 700; font-size: .92rem; }
+.field .input { width: 100%; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.table-wrap { overflow-x: auto; }
+table.data { border-collapse: collapse; width: 100%; font-size: .92rem; }
+table.data th, table.data td { border-bottom: 1px solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.data th { color: var(--ef-muted); }
+.refl-list { list-style: none; padding: 0 !important; display: grid; gap: 6px; }
+.reset-card { border-color: #e6c3bf; }
+#view .reset-btn { color: var(--gl-ng); border-color: var(--gl-ng); }
+#view .reset-btn:hover { background: var(--gl-ng-soft); }
+.reset-confirm { background: var(--gl-ng-soft); border-left: 5px solid var(--gl-ng); border-radius: 8px; padding: 12px 16px; display: grid; gap: 8px; }
+#view .ef-btn-primary.danger { background: var(--gl-ng); border-color: var(--gl-ng); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-text); color: #fff; padding: 10px 18px; border-radius: 99px; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+/* ===== 場面: 左にスマホ・パソコン、右に状況・行動・やることリスト ===== */
+.scene { display: grid; gap: 14px; scroll-margin-top: 80px; }
+.scene-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.scene-side { display: grid; gap: 12px; min-width: 0; }
+.scene-side .card { padding: 14px 16px; gap: 8px; }
+.scene-side .panel-title { font-size: 1.1rem; }
+.situation p { font-weight: 600; }
+.msg-label { font-weight: 800; }
+.act-list { display: grid; gap: 8px; }
+.act { text-align: left; min-height: 48px; padding: 8px 14px; border: 2px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface); color: var(--ef-text); font-weight: 600; cursor: pointer; line-height: 1.5; }
+.act:hover:not(:disabled) { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+.act.did { border-color: var(--gl-ok); background: var(--gl-ok-soft); color: #11552f; cursor: default; }
+.act-mark { font-weight: 800; }
+.steps { list-style: none; padding: 0 !important; display: grid; gap: 6px; }
+.steps li { display: flex; gap: 8px; align-items: baseline; color: var(--ef-muted); font-weight: 600; }
+.steps li.is-done { color: #11552f; }
+.step-mark { flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .8rem; border: 1.5px dashed var(--ef-muted); }
+.steps li.is-done .step-mark { border: 0; background: var(--gl-ok); color: #fff; }
+.hint-text { background: var(--gl-warn-soft); color: #7a3a06; border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+#view .ef-btn.small { min-height: 38px; padding: 4px 12px; font-size: .9rem; }
+.scene-tools { justify-content: flex-end; }
+
+/* おわり */
+.end-card { border-radius: var(--ef-radius); padding: 22px 24px; display: grid; gap: 12px; box-shadow: var(--ef-shadow); border: 2px solid; }
+.end-card.bad { background: #fff8f7; border-color: var(--gl-ng); }
+.end-card.clear { background: #f5fbf7; border-color: var(--gl-ok); }
+.end-card p, .end-card h2, .end-card h3 { margin: 0; }
+.end-badge { font-weight: 800; font-size: 1rem; }
+.end-card.bad .end-badge { color: var(--gl-ng); }
+.end-card.clear .end-badge { color: var(--gl-ok); font-size: 1.2rem; }
+.end-title { font-size: 1.4rem; outline: none; }
+.end-block { display: grid; gap: 4px; }
+.end-block h3 { font-size: 1rem; color: var(--ef-muted); }
+.end-block ol, .end-block ul { margin: 0; padding-left: 1.4em; }
+.consult { list-style: none; padding: 0 !important; display: grid; gap: 6px; }
+.consult .tel { font-size: 1.2rem; font-weight: 800; color: var(--ef-accent); }
+
+/* ===== スマホ・パソコンの画面(模型) ===== */
+.device { background: #23272e; border-radius: 28px; padding: 14px 10px 22px; box-shadow: 0 4px 16px rgba(0, 0, 0, .18); min-width: 0; }
+.device.phone { max-width: 380px; width: 100%; justify-self: center; }
+.device.pc { border-radius: 14px; padding: 10px 10px 18px; }
+.device-screen { background: #fff; border-radius: 16px; overflow: hidden; min-height: 460px; display: flex; flex-direction: column; position: relative; font-size: .92rem; line-height: 1.6; }
+.device.pc .device-screen { border-radius: 6px; min-height: 420px; }
+.device button { font: inherit; cursor: pointer; }
+.sb-urlbar, .sb-appbar { background: #eef0f3; border-bottom: 1px solid #d5d9df; padding: 6px 12px; font-size: .82rem; color: #333; display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+.sb-appbar { font-weight: 700; }
+.sb-page { padding: 14px; display: grid; gap: 10px; align-content: start; flex: 1; }
+.sb-page p { margin: 0; }
+.sb-h { font-weight: 800; font-size: 1.1rem; }
+.sb-h.site-logo { color: #b0157a; letter-spacing: .04em; }
+.sb-h.alert { color: #c0362c; font-size: 1.25rem; }
+.sb-h.big { font-size: 1.3rem; }
+.sb-p.tiny { font-size: .75rem; color: #666; }
+.sb-p.alert-text { color: #c0362c; font-weight: 700; }
+.sb-p.strong { font-weight: 800; }
+.sb-p.strike { text-decoration: line-through; color: #777; }
+.sb-p.price { color: #c0362c; font-size: 1.4rem; font-weight: 800; }
+.sb-btn { border: 0; border-radius: 8px; background: #ff7a00; color: #fff; font-weight: 800; padding: 10px 14px; min-height: 44px; }
+.sb-btn.big { font-size: 1.05rem; background: #e0245e; }
+.sb-btn:hover { filter: brightness(1.08); }
+.sb-link { border: 0; background: none; color: #1a5fc8; text-decoration: underline; padding: 4px 0; text-align: left; min-height: 36px; }
+.sb-link.small { font-size: .8rem; color: #777; }
+.sb-box { display: grid; gap: 2px; text-align: left; border: 1px solid #d5d9df; border-radius: 8px; padding: 10px 12px; background: #f7f8fa; color: #222; }
+.sb-box.money { background: #fff1f0; border-color: #f2b8b3; font-weight: 800; font-size: 1.1rem; color: #8a1f17; }
+.sb-box.notice { background: #fff8e1; border-color: #f0c48a; }
+.sb-box.ad { background: #fffbe6; border: 2px dashed #e0b400; font-weight: 700; }
+.sb-box-title { margin-bottom: 2px; }
+.sb-thumbs { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+.sb-thumb { display: grid; justify-items: center; gap: 2px; background: #f1f2f5; border-radius: 8px; padding: 8px 4px; font-size: .78rem; text-align: center; }
+.sb-emoji { font-size: 2rem; line-height: 1.2; }
+.sb-timer { font-size: .9rem; color: #c0362c; font-weight: 700; }
+.sb-timer-v { font-variant-numeric: tabular-nums; font-size: 1.15rem; }
+.sb-field { display: grid; gap: 2px; font-size: .82rem; font-weight: 700; }
+.sb-input { display: block; height: 30px; border: 1px solid #c7ccd3; border-radius: 6px; background: #fff; }
+.sb-table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+.sb-table th, .sb-table td { border: 1px solid #d5d9df; padding: 6px 8px; text-align: left; vertical-align: top; }
+.sb-table th { background: #f1f2f5; white-space: nowrap; }
+.sb-table td { overflow-wrap: anywhere; }
+/* にせの警告(画面いっぱい) */
+.sb-page.theme-alert { background: #b3141b; color: #fff; text-align: center; justify-items: center; }
+.theme-alert .sb-p.tiny { color: #ffd9d9; }
+.theme-alert .sb-timer { color: #ffe680; }
+.theme-alert .sb-btn { background: #fff; color: #b3141b; }
+.theme-alert .sb-btn.big { background: #ffe680; color: #5a0000; }
+.device.full .device-screen { animation: blink 1s steps(2, start) 3; }
+@keyframes blink { 50% { filter: brightness(1.25); } }
+@media (prefers-reduced-motion: reduce) { .device.full .device-screen { animation: none; } }
+.sb-dialog { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); width: min(300px, 88%); background: #fff; color: #222; border-radius: 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, .35); padding: 12px 14px; display: grid; gap: 6px; text-align: left; font-size: .85rem; }
+.sb-dialog p { margin: 0; }
+.sb-dialog-btns { display: flex; justify-content: flex-end; }
+.sb-dialog .sb-btn { background: #1a5fc8; min-height: 36px; padding: 4px 18px; }
+/* メール */
+.sb-mails { list-style: none; margin: 0; padding: 0; }
+.sb-mails li { border-bottom: 1px solid #e3e6ea; }
+.sb-mail { display: grid; gap: 2px; width: 100%; text-align: left; border: 0; background: #fff; padding: 10px 14px; color: #333; }
+button.sb-mail:hover { background: #eef3fb; }
+.unread .sb-mail { font-weight: 800; color: #111; }
+.unread .sb-mail-from::before { content: '● '; color: #1a5fc8; }
+.sb-mail-from { display: flex; gap: 4px; align-items: baseline; }
+.sb-mail-time { margin-left: auto; font-size: .75rem; color: #888; font-weight: 400; padding-left: 8px; }
+.sb-mail-subj { font-size: .85rem; overflow-wrap: anywhere; }
+.sb-mail-subject { font-weight: 800; font-size: 1.02rem; }
+.sb-mail-head { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; border-bottom: 1px solid #e3e6ea; padding-bottom: 8px; }
+.sb-addr { font-size: .8rem; color: #555; overflow-wrap: anywhere; }
+.sb-addr.flagged { background: #fff1c2; border-radius: 4px; padding: 0 4px; color: #7a3a06; font-weight: 700; }
+.sb-more { border: 1px solid #c7ccd3; background: #fff; border-radius: 6px; min-width: 32px; min-height: 30px; padding: 0 6px; }
+.sb-mail-body { display: grid; gap: 6px; }
+.sb-attach { display: flex; gap: 4px; align-items: center; text-align: left; border: 1px solid #c7ccd3; border-radius: 8px; background: #f7f8fa; padding: 8px 12px; min-height: 44px; font-weight: 700; }
+.sb-attach:hover { background: #eef3fb; }
+/* ホーム画面・通知 */
+.sb-home { flex: 1; background: linear-gradient(160deg, #3a6fd8, #7b4fc9); color: #fff; padding: 18px 14px; display: grid; gap: 16px; align-content: start; }
+.sb-clock { margin: 0; text-align: center; font-size: 2.4rem; font-weight: 300; }
+.sb-notice { display: grid; gap: 2px; text-align: left; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .95); color: #222; padding: 10px 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
+.sb-notice-app { font-size: .75rem; color: #666; font-weight: 700; }
+.sb-apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; justify-items: center; margin-top: 18px; }
+.sb-app { width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, .25); display: grid; place-items: center; font-size: 1.5rem; }
+/* SNS */
+.sb-feed { background: #f1f2f5; }
+.sb-post { background: #fff; border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
+.sb-post-name { font-weight: 800; display: flex; gap: 6px; align-items: center; }
+.sb-ad { font-size: .7rem; font-weight: 700; color: #666; border: 1px solid #aaa; border-radius: 4px; padding: 0 4px; }
+.sb-post-img { font-size: 3rem; text-align: center; background: #fdf0dc; border-radius: 8px; line-height: 1.6; }
+/* 文書・検索・デスクトップ */
+.sb-docbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #fff4c2; border-bottom: 1px solid #e0c96a; padding: 8px 12px; font-size: .85rem; font-weight: 700; color: #5a4300; }
+.sb-docbar .sb-btn { background: #fff; color: #333; border: 1px solid #b9a24a; min-height: 34px; padding: 2px 12px; }
+.sb-result { display: grid; gap: 1px; font-size: .85rem; }
+.sb-result-url { color: #1a7f4b; font-size: .75rem; }
+.sb-result-title { color: #1a3fa8; font-size: .98rem; }
+.sb-desktop { flex: 1; background: linear-gradient(160deg, #2f6b8f, #3d8b7a); color: #fff; display: grid; place-items: center; font-size: 1.1rem; font-weight: 700; }
+
+@media (max-width: 1000px) {
+  .scene-grid { grid-template-columns: minmax(0, 1fr); }
+  .device-screen { min-height: 360px; }
+}
+.bar { display: block; height: 14px; background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 999px; overflow: hidden; min-width: 60px; }
+.bar-fill { display: block; height: 100%; background: var(--ef-accent); border-radius: 999px; transition: width .2s; }
+@media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
+
+</style>
+  <script id="eduit-info">
+// 情報の技術(D)の版・更新履歴・この分野だけの安全の説明(4分野共通の枠 shared/eduit-frame.js が読む)
+// アプリの名前は、各ページの <meta name="eduit-app" content="…"> から取る(なければ教材集の名前)。
+// 版を上げたら: version・updated と history の先頭を書きかえ、各教材と教材集を作り直す(kyozai-shu/README.md)。
+(function () {
+  var meta = document.querySelector('meta[name="eduit-app"]');
+  window.EDUIT_INFO = {
+    domain: 'D',
+    domainName: '情報の技術',
+    suite: '情報の技術 体験教材集',
+    version: '1.5',
+    updated: '2026-10-15',
+    app: meta && meta.content ? { name: meta.content } : undefined,
+    safety: [
+      '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
+      'フィッシングのメールやページ、SNS投稿チェックの写真は、学習のために作った模型です。会社名・アドレス・地名・学校名はすべて架空で、リンクやボタンを押してもどこにも移動しません。',
+      'デジタル化ラボで読み込んだ写真や録音した声は、その画面の中だけで使い、保存も送信もしません。マイクは「3秒録音する」を押したときだけ使い、録音が終わると止めます。',
+      'ネットワーク通信シミュレータは、ブラウザの中の模型のネットワークです。本物のネットワークにはつながりません。サイト名・IPアドレスは説明用の架空のものです。',
+      '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
+    ],
+    history: [
+      { version: '1.5', date: '2026-10-15', items: [
+        '画面の枠(ヘッダー・ボタン・カード・色)を、4つの分野(材料と加工・生物育成・エネルギー変換・情報)で共通にしました。教材の中身や記録には変わりはありません。',
+        'どの教材からも、作成者・安全と個人情報・ライセンス・更新履歴を見られるようにしました(画面の下の「安全と個人情報・ライセンス・更新履歴」)。'
+      ] },
+      { version: '1.4', date: '2026-10-15', items: [
+        '11インチのChromebook(1366×768・タッチ)で使いやすいように見た目を調整しました。',
+        '6教材のスライダーのつまみを大きくし、小さかった見出しや札の文字を大きくしました。',
+        'ネットワーク図・CPUの図解・SNS投稿の写真の文字を大きくし、仮想CPUのプログラム欄を広げました。',
+        '計測・制御シミュレータで、プログラムを下へたどっても仮想世界と実行ボタンが画面に残るようにしました。'
+      ] },
+      { version: '1.3', date: '2026-10-13', items: [
+        'レビューで「直すともっとよくなる」とした所(30件)を直しました。',
+        '教材集で、再読みこみしてもさいごに開いていたページから始まるようにしました。学習指導要領の記号は「先生へ」にまとめました。',
+        '仮想CPUラボの手計算くらべの時間の計算、計測・制御シミュレータの不合格の時刻の表示などを直しました。'
+      ] },
+      { version: '1.2', date: '2026-10-13', items: [
+        '教材集の上のバーに「ふりがな」「大きな文字」を付け、6教材にまとめてかかるようにしました。',
+        '6教材の記録を1つのファイルで出せる「記録をまとめて書き出す」を足しました。',
+        '多くの生徒がつまずく・迷う所(ヒント、クイズのやり直し、ブロックを入れる場所など)を直しました。'
+      ] },
+      { version: '1.1', date: '2026-10-13', items: [
+        'ふりかえりを書いている途中で自動で保存するようにしました。',
+        'まちがった答えが合格になる判定や、全角で入れた答えの判定を直しました。',
+        '双方向コンテンツ制作スタジオで作品が消える問題を直しました。'
+      ] },
+      { version: '1.0', date: '', items: [
+        '6つの体験教材(デジタル化ラボ・仮想CPUラボ・ネットワーク通信シミュレータ・情報セキュリティ体験ラボ・双方向コンテンツ制作スタジオ・計測・制御シミュレータ)と、メニュー付きの教材集を作りました。'
+      ] }
+    ]
+  };
+})();
+
+</script>
+  <script id="eduit-frame">
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ * }
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
+</head>
+<body class="ef-page">
+  <a class="skip-link" href="#view">本文へ移動</a>
+  <header class="app-header ef-header">
+    <a class="brand ef-title" href="#intro"><img class="ef-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cmVjdCB4PSIxNyIgeT0iOCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjQ4IiByeD0iNiIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjIxIiB5PSIxNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjMwIiByeD0iMiIgZmlsbD0iI2RjZThmYiIvPjxwYXRoIGQ9Ik0zMiAxOGwxMSAxOUgyMXoiIGZpbGw9IiNmN2Q2NWMiIHN0cm9rZT0iI2I0NTMwOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cmVjdCB4PSIzMSIgeT0iMjQiIHdpZHRoPSIyLjQiIGhlaWdodD0iNyIgcng9IjEuMiIgZmlsbD0iIzdhM2EwNiIvPjxjaXJjbGUgY3g9IjMyLjIiIGN5PSIzNCIgcj0iMS40IiBmaWxsPSIjN2EzYTA2Ii8+PGNpcmNsZSBjeD0iMzIiIGN5PSI1MCIgcj0iMi41IiBmaWxsPSIjMWE1ZmM4Ii8+PC9zdmc+Cg==" alt="" width="28" height="28">ネット詐欺 追体験ラボ</a>
+    <div class="ef-tools">
+      <div class="display-toggles" id="display-toggles" role="group" aria-label="表示の切りかえ"></div>
+      <div class="overall-progress" id="overall-progress"></div>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="chapter-nav" id="nav"></aside>
+    <main id="main">
+      <div id="view" tabindex="-1"></div>
+    </main>
+  </div>
+  <div class="app-footer" data-ef-footer>
+    <p class="app-note">この教材はブラウザの中だけで動き、外部のサイトには接続しません。画面の中のサイト・メールはすべて架空で、押してもどこにも連絡しません。</p>
+  </div>
+  <script>
+// ネット詐欺 追体験ラボ: 場面を進めるしくみ(画面を使わない計算だけ。tests/unit.test.mjs から Node でも読める)。
+//
+// 場面(scenario)は「画面(node)」と「おわり(end)」のつながりでできている。
+//   node.acts … その画面でできること。画面の中のボタン(screen の act: 'id' で指す)と、右の「あなたの行動」。
+//     { id, label, to, step, need, needMsg, say, tone, panel }
+//       to    … つぎの画面か、おわり(ends)の id
+//       step  … やると「やることリスト」の1つが ✓ になる
+//       need  … これをやる前に ✓ になっていないといけない step(なければ needMsg を出してその画面のまま)
+//       say   … 押したあとに出す説明。tone は good(よい判断)・meh(それだけでは足りない)・info
+//       panel … false なら「あなたの行動」には出さない(画面の中のボタンだけ)
+//     acts に文字を書くと、scenario.shared の同じ名前の行動を使う(どの画面でも出したい行動)。
+//   end.type … 'bad'(だまされた: その前の画面からやり直せる)・'clear'(クリア)
+var ScamEngine = (function () {
+  'use strict';
+
+  function acts(sc, nodeId) {
+    var node = sc.nodes[nodeId];
+    if (!node) return [];
+    return (node.acts || []).map(function (a) {
+      if (typeof a === 'string') {
+        var s = (sc.shared || {})[a];
+        if (!s) throw new Error(sc.id + ': shared に ' + a + ' がありません');
+        return Object.assign({ id: a }, s);
+      }
+      return a;
+    });
+  }
+  function findAct(sc, nodeId, actId) {
+    return acts(sc, nodeId).filter(function (a) { return a.id === actId; })[0] || null;
+  }
+
+  function init(sc) {
+    return { started: false, node: sc.start, done: {}, misses: 0, hints: 0, hint: '', cleared: false, clearedAt: '', end: null, back: null, msg: null, log: [] };
+  }
+  function clone(st) { return JSON.parse(JSON.stringify(st)); }
+  function missing(st, need) { return (need || []).filter(function (s) { return !st.done[s]; }); }
+
+  // 行動を1つ行う。st は書きかえずに、新しい状態を返す。
+  function apply(sc, st, act, now) {
+    var n = clone(st);
+    n.hint = '';
+    if (n.end) return n;
+    if (missing(n, act.need).length) {
+      n.msg = { tone: 'need', text: act.needMsg || 'その前に、まだやることがあるよ。「やることリスト」の「？」を見てみよう。' };
+      return n;
+    }
+    if (act.step) n.done[act.step] = true;
+    n.msg = act.say ? { tone: act.tone || 'good', text: act.say } : null;
+    n.log.push(n.node + ':' + (act.id || act.label));
+    if (n.log.length > 60) n.log = n.log.slice(-60);
+    if (act.to) {
+      var e = sc.ends[act.to];
+      if (e) {
+        n.end = act.to;
+        n.back = n.node;
+        if (e.type === 'bad') n.misses += 1;
+        else { n.cleared = true; n.clearedAt = n.clearedAt || now || ''; }
+      } else {
+        n.node = act.to;
+      }
+    }
+    return n;
+  }
+  // だまされたあと、その前の画面にもどる(やったことの ✓ は残す)
+  function back(sc, st) {
+    var n = clone(st);
+    n.node = n.back || sc.start;
+    n.end = null;
+    n.back = null;
+    n.msg = null;
+    return n;
+  }
+  // 場面をはじめから(クリアの記録・失敗の数・ヒントの数は残す)
+  function restart(sc, st) {
+    var n = init(sc);
+    n.started = true;
+    n.misses = st.misses;
+    n.hints = st.hints;
+    n.cleared = st.cleared;
+    n.clearedAt = st.clearedAt;
+    return n;
+  }
+  // つぎにやること(まだ ✓ になっていない、いちばん上の step)
+  function nextStep(sc, st) {
+    return sc.steps.filter(function (s) { return !st.done[s.id]; })[0] || null;
+  }
+  function useHint(sc, st) {
+    var n = clone(st);
+    var s = nextStep(sc, n);
+    if (!s) return n;
+    n.hints += 1;
+    n.hint = s.hint;
+    return n;
+  }
+
+  // データの点検(テスト用): 行き先があるか、クリアの前に全部の step が要るか
+  function validate(sc) {
+    var errs = [];
+    var stepIds = sc.steps.map(function (s) { return s.id; });
+    if (!sc.nodes[sc.start]) errs.push('start がない');
+    Object.keys(sc.nodes).forEach(function (nid) {
+      var node = sc.nodes[nid];
+      var list;
+      try { list = acts(sc, nid); } catch (e) { errs.push(e.message); return; }
+      var ids = list.map(function (a) { return a.id; }).filter(Boolean);
+      screenRefs(node.screen).forEach(function (r) {
+        if (ids.indexOf(r) < 0) errs.push(nid + ': 画面のボタン ' + r + ' の行動がない');
+      });
+      list.forEach(function (a) {
+        if (a.to && !sc.nodes[a.to] && !sc.ends[a.to]) errs.push(nid + ': 行き先 ' + a.to + ' がない');
+        if (a.step && stepIds.indexOf(a.step) < 0) errs.push(nid + ': step ' + a.step + ' がない');
+        (a.need || []).forEach(function (s) { if (stepIds.indexOf(s) < 0) errs.push(nid + ': need ' + s + ' がない'); });
+        if (a.to && sc.ends[a.to] && sc.ends[a.to].type === 'clear') {
+          var have = (a.need || []).concat(a.step ? [a.step] : []);
+          stepIds.forEach(function (s) { if (have.indexOf(s) < 0) errs.push(nid + ': クリアの前に ' + s + ' が要らない'); });
+        }
+        if (!a.label && a.panel !== false) errs.push(nid + ': 行動の文がない');
+      });
+    });
+    return errs;
+  }
+  // 画面のデータから act: 'id' を全部ひろう
+  function screenRefs(x) {
+    var out = [];
+    (function walk(v) {
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === 'object') Object.keys(v).forEach(function (k) { if (k === 'act' && typeof v[k] === 'string') out.push(v[k]); else walk(v[k]); });
+    })(x);
+    return out;
+  }
+  // クリアまでの行動の順番を1つさがす(テスト用。状態 = 画面 + ✓ の組み合わせ)
+  function solve(sc) {
+    var start = init(sc);
+    var key = function (st) { return st.node + '|' + Object.keys(st.done).sort().join(','); };
+    var queue = [{ st: start, path: [] }];
+    var seen = {};
+    seen[key(start)] = true;
+    while (queue.length) {
+      var cur = queue.shift();
+      var list = acts(sc, cur.st.node);
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        var n = apply(sc, cur.st, a, 'test');
+        if (n.end && sc.ends[n.end].type === 'clear') return cur.path.concat([a.id || a.label]);
+        if (n.end) continue;
+        var k = key(n);
+        if (seen[k]) continue;
+        seen[k] = true;
+        queue.push({ st: n, path: cur.path.concat([a.id || a.label]) });
+      }
+    }
+    return null;
+  }
+
+  return { acts: acts, findAct: findAct, init: init, apply: apply, back: back, restart: restart, nextStep: nextStep, useHint: useHint, validate: validate, screenRefs: screenRefs, solve: solve };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = ScamEngine;
+
+</script>
+  <script>
+// ネット詐欺 追体験ラボの場面。しくみは js/engine.js の説明を見る。
+// 会社名・サイト名・アドレスはすべて架空(アドレスは例示用に予約された .example だけ)。
+// IPアドレスは説明用に予約された 203.0.113.x、電話番号は実在しない 0000 をふくむ番号、口座番号も架空。
+// 情報セキュリティ体験ラボ(フィッシング見分け・判断ロールプレイ)とは、場面も学ぶことも重ならないようにしている:
+//   あちらは「メールのどこが怪しいか見つける」「DM・アプリの権限・パスワードを聞かれたときの判断」。
+//   こちらは、だまされる画面を自分で操作して「正しい手順を最後までやりきる」体験。
+var ScamData = (function () {
+  'use strict';
+
+  var consult = {
+    title: 'こまったとき・お金をはらってしまったときの相談先',
+    lines: [
+      { name: '消費者ホットライン', tel: '188', note: '「いやや！」と覚える。近くの消費生活センターにつながる(通話料がかかります)' },
+      { name: '警察相談専用電話', tel: '#9110', note: 'いそがない相談。受付時間は都道府県によってちがいます' },
+      { name: '24時間こどもSOSダイヤル', tel: '0120-0-78310', note: 'いつでも・電話代はかかりません(文部科学省)' }
+    ],
+    first: 'まずは家の人や先生に話そう。学校の端末で起きたことは、すぐに先生へ。'
+  };
+
+  var scenarios = [
+    // ================= 1 ワンクリック詐欺 =================
+    {
+      id: 'oneclick', no: '1', min: '10分', device: 'phone', title: 'ワンクリック詐欺',
+      desc: '動画の再生ボタンを押しただけで「登録完了・99,800円」と出た！',
+      story: 'SNSで「無料で見られる」と話題になっていた動画サイトを、自分のスマホで開いてみた。',
+      goal: 'お金をはらわず、相手に連絡もせずに、この「請求」から安全にぬけ出そう。',
+      steps: [
+        { id: 'look', label: '「お客様の情報」で、名前や住所は知られていないと気づく', hint: '画面に出ている「お客様の情報」は、本当にあなたがだれかわかる情報？「あなたの行動」から考えてみよう。' },
+        { id: 'nopay', label: 'ボタンを1回押しただけでは契約していない(はらわない)と気づく', hint: '料金の説明もなく、ボタンを1回押しただけ。これで本当に「契約」したことになるのか考えよう。' },
+        { id: 'close', label: '連絡も支払いもしないで、画面を閉じる', hint: 'お金をはらうボタンも、問い合わせのボタンも押さずに、その画面から離れよう。' },
+        { id: 'block', label: 'しつこい通知を止めて、閲覧履歴を消す', hint: '閉じたのに出てくるのは「通知」のしくみ。ブラウザの設定で止められるよ。' },
+        { id: 'consult', label: '家の人に話す', hint: 'ひとりでかかえこまないで、だれかに話そう。' }
+      ],
+      start: 'site',
+      shared: {
+        look: { label: '「お客様の情報」で、自分のことがどこまで知られたのか考える', step: 'look',
+          say: 'IPアドレス・端末の種類・だいたいの地域は、どのサイトを見ても相手に伝わる情報。ここから名前・住所・電話番号・学校はわからない。「画面を撮影しました」もうそ。こわがらせるための演出だよ。' },
+        nopay: { label: '料金の説明もなく1回押しただけで、契約になるのか考える', step: 'nopay',
+          say: '申しこむ前に料金がはっきり示され、確認の画面で自分で申しこんだのでなければ、契約は成り立たない。はらう必要も、連絡する必要もない。' },
+        alone: { label: 'だれにも言わず、ひとりで心配しつづける', tone: 'meh',
+          say: 'ひとりでかかえこむと、不安になって、はらってしまうことがある。話すのははずかしいことじゃないよ。' },
+        consult: { label: '家の人に話して、一緒に確かめてもらう', step: 'consult', need: ['look', 'nopay', 'close', 'block'], to: 'clear',
+          needMsg: '家の人に話すのはとてもよい判断！ でもその前に、自分でできることがまだ残っているよ。「やることリスト」の「？」を見てみよう。' }
+      },
+      nodes: {
+        site: {
+          say: 'おもしろそうな動画がたくさんある。見たかった動画の「▶ 再生する」を押してみよう。',
+          screen: { kind: 'browser', url: 'https://muryou-douga.example/top', body: [
+            { t: 'h', text: '無料どうが まとめ', cls: 'site-logo' },
+            { t: 'thumbs', items: [{ emoji: '🐱', text: 'おもしろ動物 20連発' }, { emoji: '⚽', text: 'スーパープレー集' }, { emoji: '🎮', text: 'ゲーム実況 神回' }] },
+            { t: 'btn', text: '▶ 再生する', act: 'play', cls: 'big' },
+            { t: 'p', text: '※ 当サイトは18才以上の方のみご利用いただけます。再生した時点で利用規約に同意したものとみなします。', cls: 'tiny' }
+          ] },
+          acts: [
+            { id: 'play', label: '「▶ 再生する」を押す', to: 'bill' },
+            { id: 'leave0', label: 'このサイトを見るのをやめる', tone: 'info',
+              say: 'それも安全な判断！ でもこの体験では、押してしまったあとにどうするかを練習するよ。「▶ 再生する」を押してみよう。' }
+          ]
+        },
+        bill: {
+          say: '動画ではなく、「登録完了」の画面が出た！ 期限のカウントダウンが進んでいる…。',
+          screen: { kind: 'browser', url: 'https://muryou-douga.example/touroku-kanryou', body: [
+            { t: 'h', text: '会員登録が完了しました', cls: 'alert' },
+            { t: 'p', text: 'このたびは「無料どうが まとめ」プレミアム会員にご登録いただき、ありがとうございます。' },
+            { t: 'box', cls: 'money', lines: ['登録料金　99,800円', 'お支払い期限　3日以内'] },
+            { t: 'timer', label: 'お支払い期限まで あと', sec: 3 * 24 * 3600 - 1 },
+            { t: 'box', title: 'お客様の情報(記録しました)', lines: ['IPアドレス: 203.0.113.45', '端末: Android スマートフォン', 'ブラウザ: Chrome', 'お住まいの地域: 埼玉県 周辺', '📸 本人確認のため、画面を撮影しました'] },
+            { t: 'p', text: '※ 期限を過ぎた場合、延滞料金を加え、法的手続きに入らせていただきます。', cls: 'alert-text' },
+            { t: 'btn', text: 'お支払い手続きへ', act: 'pay', cls: 'big' },
+            { t: 'link', text: 'まちがえて登録した方・退会はこちら(お問い合わせ)', act: 'contact' }
+          ] },
+          acts: [
+            'look', 'nopay',
+            { id: 'pay', label: 'あわてて、家の人のカードを借りてはらう', to: 'bad_pay' },
+            { id: 'contact', label: '「まちがえて登録した方」から、まちがいだと連絡する', to: 'bad_contact' },
+            { id: 'close', label: 'ページ(タブ)を閉じる', step: 'close', to: 'home',
+              say: '請求の画面を閉じた。お金をはらうボタンも、問い合わせのボタンも押していない。' }
+          ]
+        },
+        home: {
+          say: '画面を閉じたのに、さっきのサイトからの通知が何度も出てくる…。',
+          screen: { kind: 'home', notice: { app: 'muryou-douga.example', text: '【未払い】お支払いが確認できません。本日中にお手続きください。', act: 'tapNotice' } },
+          acts: [
+            { id: 'tapNotice', label: '通知を押して、中身を確かめる', to: 'bill', tone: 'meh',
+              say: '通知を押すと、また請求の画面にもどされてしまった。通知は押さないで止めよう。' },
+            { id: 'block', label: 'ブラウザの設定で、このサイトの通知を「ブロック」にして、閲覧履歴を消す', step: 'block', to: 'home2',
+              say: '通知は、サイトに「許可」したときに出るしくみ。ブロックしたら止まった。履歴を消したので、うっかり開き直すこともない。' },
+            { id: 'pay2', label: '通知が止まらないので、言われたとおりにはらう', to: 'bad_pay' },
+            'look', 'nopay', 'alone', 'consult'
+          ]
+        },
+        home2: {
+          say: '通知が止まって、いつものホーム画面にもどった。',
+          screen: { kind: 'home' },
+          acts: [
+            { id: 'recheck', label: 'もう一度サイトを開いて、請求がまだあるか見に行く', tone: 'meh',
+              say: '見に行く必要はない。開けばまた請求の画面が出て、不安になるだけ。' },
+            'look', 'nopay', 'alone', 'consult'
+          ]
+        }
+      },
+      ends: {
+        bad_pay: { type: 'bad', title: 'お金をはらってしまった…',
+          text: 'はらった99,800円は、ほとんど取りもどせません。しかも「この人ははらう人だ」と記録され、「別の料金も未払いです」と、つぎつぎに請求が来るようになりました。',
+          lesson: 'ボタンを1回押しただけでは、契約は成り立っていません。はらう必要はありませんでした。' },
+        bad_contact: { type: 'bad', title: '自分から連絡してしまった…',
+          text: '「まちがいです」と送ったメールで、あなたのメールアドレスと名前が相手に知られてしまいました。「本人確認ができました。今すぐはらわないと…」と、電話やメールでしつこく請求されるようになります。',
+          lesson: '相手はあなたがだれか知りません。自分から連絡すると、個人情報を教えることになります。' },
+        clear: { type: 'clear' }
+      },
+      tricks: ['「3日以内」「カウントダウン」で、考える時間をうばう', 'IPアドレスや「撮影しました」で、だれか知られたと思わせる', '「法的手続き」「延滞料金」という言葉でこわがらせる', '「退会はこちら」で、自分から連絡させて個人情報を聞き出す'],
+      ifDone: 'はらってしまった・連絡してしまったときは、それ以上やりとりせず、すぐ家の人に話して、消費者ホットライン「188」に相談しよう。'
+    },
+
+    // ================= 2 当選メール(偽メール) =================
+    {
+      id: 'prize', no: '2', min: '10分', device: 'phone', title: '「当選しました」メール',
+      desc: '「最新ゲーム機が当たった！ 送料500円だけ」というメールが届いた。',
+      story: 'スマホのメールに、うれしい知らせが届いた。',
+      goal: '本物かどうか、正しい方法で確かめよう。個人情報やカード番号は入れないこと。',
+      steps: [
+        { id: 'apply', label: '自分で応募したかどうか思い出す', hint: 'そもそも、このお店のプレゼントに応募したことはある？' },
+        { id: 'official', label: 'メールのリンクは使わず、公式アプリで確かめる', hint: '本物かどうかは、メールの中のリンクではなく、別の方法で確かめよう。' },
+        { id: 'report', label: '迷惑メールとして報告して、削除する', hint: 'にせものとわかったメールは、どうしておく？' }
+      ],
+      start: 'inbox',
+      shared: {
+        apply: { label: '最近、このお店のプレゼントに自分で応募したか思い出す', step: 'apply',
+          say: '応募した覚えはない。応募していない抽選に当たることはない。「当選」は、だますための入り口。' },
+        official: { label: 'メールのリンクは使わず、自分で「ゲームショップ ポップ」の公式アプリを開く', step: 'official', to: 'app',
+          say: '公式アプリのお知らせに、このメールのことが出ていた！' },
+        report: { label: '迷惑メールとして報告して、削除する', step: 'report', need: ['apply', 'official'], to: 'clear',
+          needMsg: '消す前に、本当ににせものか確かめておこう。「やることリスト」の「？」を見てみよう。' }
+      },
+      nodes: {
+        inbox: {
+          say: 'メールが届いている。いちばん上のメールを開いてみよう。',
+          screen: { kind: 'mail-list', items: [
+            { from: 'ゲームショップ ポップ', subject: '【当選のお知らせ】最新ゲーム機プレゼントに当選しました🎉', time: '7:58', unread: true, act: 'open' },
+            { from: '南中 図書委員会', subject: '今月のおすすめの本', time: '昨日' },
+            { from: 'お母さん', subject: '帰りに牛乳をおねがい', time: '昨日' }
+          ] },
+          acts: [{ id: 'open', label: '当選のメールを開く', to: 'mail' }]
+        },
+        mail: {
+          say: 'ほしかったゲーム機が当たったらしい。本日中に手続きしないと無効になると書いてある…。',
+          screen: { kind: 'mail', from: 'ゲームショップ ポップ', addr: 'campaign@pop-game-present.example', time: '7:58',
+            subject: '【当選のお知らせ】最新ゲーム機プレゼントに当選しました🎉',
+            body: ['おめでとうございます！', '日ごろのご愛顧に感謝して行った抽選で、あなたが「最新ゲーム機」に当選しました。',
+              '受け取りには、本日23:59までに、お届け先の登録と送料500円のお支払いが必要です。', '期限を過ぎると、当選は無効になります。'],
+            buttons: [{ text: '受け取り手続きへ(お届け先を登録)', act: 'entry' }],
+            links: [{ text: '配信停止はこちら', act: 'unsub' }] },
+          acts: [
+            'apply', 'official',
+            { id: 'entry', label: '「受け取り手続きへ」を押す', to: 'form' },
+            { id: 'reply', label: '本物か聞くために、このメールに返信する', to: 'bad_reply' },
+            { id: 'unsub', label: 'もう届かないように「配信停止はこちら」を押す', to: 'bad_reply' },
+            { id: 'forward', label: '友達も当たっているかもしれないので、メールを転送して教える', tone: 'meh',
+              say: '転送すると、友達がうっかり手続きしてしまうかもしれない。にせもののメールは広げないでおこう。' },
+            'report'
+          ]
+        },
+        form: {
+          say: '送料500円のために、名前や住所だけでなく、カード番号まで入れるように書いてある…。',
+          screen: { kind: 'browser', url: 'https://pop-game-present.example/entry', body: [
+            { t: 'h', text: '🎁 当選品のお受け取り手続き' },
+            { t: 'p', text: '本日23:59までにご入力ください。', cls: 'alert-text' },
+            { t: 'field', label: 'お名前' }, { t: 'field', label: 'ご住所' }, { t: 'field', label: '電話番号' },
+            { t: 'field', label: 'クレジットカード番号(送料500円のお支払い)' }, { t: 'field', label: '有効期限・セキュリティコード' },
+            { t: 'btn', text: '登録して送料をはらう', act: 'card', cls: 'big' }
+          ] },
+          acts: [
+            { id: 'card', label: '家の人のカードを借りて入力し、登録する', to: 'bad_card' },
+            { id: 'backMail', label: '何も入力しないで、メールの画面にもどる', to: 'mail', tone: 'meh',
+              say: 'もどれてよかった。でも、メールのリンクを開くだけでも、ウイルスのあるページに飛ばされることがある。リンクは押さずに確かめよう。' }
+          ]
+        },
+        app: {
+          say: '自分でいつもの公式アプリを開いた。',
+          screen: { kind: 'browser', app: 'ゲームショップ ポップ 公式アプリ', body: [
+            { t: 'h', text: 'ゲームショップ ポップ', cls: 'site-logo' },
+            { t: 'box', title: '📢 お知らせ', cls: 'notice', lines: ['【ご注意】当社をかたる「当選しました」というメールが送られています。',
+              '当社のプレゼントは、応募した方だけが対象です。メールで送料やカード番号の入力をお願いすることはありません。',
+              'このようなメールのリンクは開かず、削除してください。'] }
+          ] },
+          acts: [
+            'apply',
+            { id: 'backMail2', label: 'メールの画面にもどる', to: 'mail' }
+          ]
+        }
+      },
+      ends: {
+        bad_card: { type: 'bad', title: 'カード番号を入れてしまった…',
+          text: '送料500円のはずが、数日後、家のカードで知らない買い物が何万円分も…。入れた名前・住所・電話番号も「だまされやすい人の名簿」として売られ、別の詐欺の電話やメールが来るようになりました。',
+          lesson: 'プレゼントを受け取るのに、カード番号は必要ありません。応募していないのに「当選」はありえません。' },
+        bad_reply: { type: 'bad', title: '返事をしてしまった…',
+          text: '返信や「配信停止」を押したことで、「このアドレスは使われていて、読む人がいる」と相手に伝わりました。つぎの日から、にせもののメールが何倍も届くようになりました。',
+          lesson: 'あやしいメールには、返信も「配信停止」もしないのが安全です。' },
+        clear: { type: 'clear' }
+      },
+      tricks: ['「当選」「プレゼント」で、うれしい気持ちにさせる', '「本日中」「無効になります」で、あわてさせる', '「送料500円だけ」と小さな金額にして、カード番号を入れさせる', '本物のお店の名前を勝手に使う'],
+      ifDone: 'カード番号を入れてしまったときは、すぐ家の人に話して、カード会社に連絡してカードを止めてもらおう。消費者ホットライン「188」にも相談できる。'
+    },
+
+    // ================= 3 ウイルス付きメール =================
+    {
+      id: 'virus', no: '3', min: '10分', device: 'pc', title: 'ウイルス付きメール',
+      desc: '友達の名前で「文化祭の写真」というメールと、添付ファイルが届いた。',
+      story: 'パソコンでメールを見ていたら、友達の「さくら」さんから、文化祭の写真のメールが届いた。',
+      goal: '添付ファイルを開く前に、本当にさくらさんからのメールか確かめよう。',
+      steps: [
+        { id: 'addr', label: '名前だけで信じず、差出人のメールアドレスを確かめる', hint: '「さくら」という名前は、だれでも名乗れる。名前の横を見てみよう。' },
+        { id: 'ask', label: 'メール以外の方法で、本人に送ったか聞く', hint: '本当にさくらさんが送ったのか、さくらさん本人に聞くには？ このメールに返信するのはだめ。' },
+        { id: 'report', label: '添付を開かずに、先生に知らせる', hint: 'あやしいメールが来たことを、だれに知らせる？' }
+      ],
+      start: 'inbox',
+      shared: {
+        addr: { label: '差出人の名前の横の「▼」を押して、メールアドレスを確かめる', step: 'addr',
+          say: 'いつものさくらさんのアドレス(sakura@minami-chu.example)とちがう！ 名前(表示名)は、だれでも自由に名乗れる。' },
+        ask: { label: 'さくらさんに、学校で会ったとき(または家の電話で)「写真送った？」と聞く', step: 'ask',
+          say: 'さくらさん「え、送ってないよ！ そんなメール知らない…」。さくらさんのふりをした、にせもののメールだった。' },
+        report: { label: '先生に知らせて、添付を開かずにメールを削除する', step: 'report', need: ['addr', 'ask'], to: 'clear',
+          needMsg: '先生に知らせるのはとてもよい判断！ でもその前に、本当にあやしいか自分でも確かめておこう。「やることリスト」の「？」を見てみよう。' }
+      },
+      nodes: {
+        inbox: {
+          say: 'さくらさんからのメールに、クリップの印(添付ファイル)が付いている。開いてみよう。',
+          screen: { kind: 'mail-list', app: 'メール', items: [
+            { from: 'さくら', subject: 'Re: 文化祭の写真', time: '16:42', unread: true, clip: true, act: 'open' },
+            { from: '技術科', subject: '来週の授業で使うもの', time: '9:10' },
+            { from: '南中 生徒会', subject: '文化祭アンケートのおねがい', time: '昨日' }
+          ] },
+          acts: [{ id: 'open', label: 'さくらさんのメールを開く', to: 'mail' }]
+        },
+        mail: {
+          say: '文化祭の写真が見られるらしい。添付ファイルとパスワードが書いてある。',
+          screen: { kind: 'mail', from: 'さくら', addr: 'sakura.t2@photo-share-mail.example', addrStep: 'addr', addrAct: 'addr', time: '16:42',
+            subject: 'Re: 文化祭の写真',
+            body: ['お疲れさまです。', '文化祭の写真をまとめました。添付ファイルを確認してください。', 'パスワード: 7731',
+              '※ ファイルを開いたら、上に出る「コンテンツの有効化」を押さないと写真が表示されません。'],
+            attach: [{ name: '文化祭の写真.zip', size: '2.1 MB', act: 'attach' }] },
+          acts: [
+            'addr', 'ask',
+            { id: 'attach', label: '添付ファイルを開いて、写真か確かめる', to: 'doc' },
+            { id: 'reply', label: 'このメールに返信して「本当にさくら？」と聞く', tone: 'meh',
+              say: '返信は、にせもののさくらさん(送った相手)に届くだけ。「本物だよ、早く開いて」と返ってきても、何の確認にもならない。' },
+            'report'
+          ]
+        },
+        doc: {
+          say: '写真ではなく、文書のファイルが開いた。「コンテンツの有効化」を押すように書いてある…。',
+          screen: { kind: 'doc', file: '写真_一覧.docm', bar: { text: 'セキュリティの警告　マクロが無効にされました。', btn: { text: 'コンテンツの有効化', act: 'enable' } },
+            body: [{ t: 'h', text: '文化祭 写真一覧' }, { t: 'p', text: '写真を表示するには、上の黄色い帯の「コンテンツの有効化」を押してください。' },
+              { t: 'thumbs', items: [{ emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }] }] },
+          acts: [
+            { id: 'enable', label: '写真が見たいので「コンテンツの有効化」を押す', to: 'bad_infect' },
+            { id: 'closeDoc', label: '有効化しないで、ファイルを閉じる', to: 'mail', tone: 'meh',
+              say: 'セーフ！ 有効化しなかったので、かくれたプログラムは動いていない。でも、開いたことも先生に伝えよう。思いがけない添付ファイルは、開く前に確かめるのがいちばん。' }
+          ]
+        }
+      },
+      ends: {
+        bad_infect: { type: 'bad', title: 'ウイルスに感染した…',
+          text: '有効化したとたん、ファイルにかくれていたプログラム(マクロ)が動き、パソコンがウイルスに感染しました。ウイルスはあなたのアドレス帳を読み取り、クラスのみんなに、あなたの名前で「Re: 文化祭の写真」というメールを送りはじめました。さくらさんのふりをしたメールも、同じしくみで送られてきたものです。',
+          lesson: '知り合いの名前でも、思いがけない添付ファイルは開かない。開いてしまったら、ネットから切りはなして、すぐに先生や家の人に知らせよう。' },
+        clear: { type: 'clear' }
+      },
+      tricks: ['友達や学校など、知っている人の名前を名乗る', '「Re:」を付けて、前からのやりとりの続きに見せる', 'パスワード付きのファイルにして、ウイルス対策ソフトに見つかりにくくする', '「有効化しないと見られない」と、自分でプログラムを動かさせる'],
+      ifDone: '有効化してしまったら、すぐにWi-Fiを切る(LANケーブルをぬく)などして、ネットから切りはなす。そのまま使い続けず、先生や家の人に知らせよう。'
+    },
+
+    // ================= 4 偽のウイルス警告(サポート詐欺) =================
+    {
+      id: 'support', no: '4', min: '10分', device: 'pc', title: 'にせのウイルス警告',
+      desc: '調べものの途中、画面いっぱいに「ウイルスに感染しています！」と出た。',
+      story: 'パソコンで、自由研究のための調べものをしている。',
+      goal: '電話もソフトのインストールもしないで、警告の画面から安全にぬけ出そう。',
+      steps: [
+        { id: 'calm', label: 'Webページに、パソコンの中は調べられないと気づく', hint: 'これはパソコンの中のソフト？ それともブラウザに出ているWebページ？' },
+        { id: 'esc', label: 'Esc キーで、全画面の表示を終わらせる', hint: '画面いっぱいの表示で、タブや × ボタンが見えない。キーボードのどのキーで全画面を終わらせる？' },
+        { id: 'close', label: 'タブ(ブラウザ)を閉じる', hint: '全画面が終わったら、どうやってこのページから離れる？' },
+        { id: 'consult', label: '家の人(学校の端末なら先生)に伝える', hint: '何があったか、だれに伝える？' }
+      ],
+      start: 'browse',
+      shared: {
+        calm: { label: 'ブラウザの中に出ている表示が、パソコンの中を調べられるのか考える', step: 'calm',
+          say: 'これはただのWebページ。Webページは、あなたのパソコンの中のファイルを調べられない。本物のウイルス対策ソフトが、電話をかけさせることもない。警告音も赤い画面も、あわてさせるための演出。' },
+        consult: { label: '家の人(学校の端末なら先生)に、何があったか伝える', step: 'consult', need: ['calm', 'esc', 'close'], to: 'clear',
+          needMsg: '伝えるのはとてもよい判断！ でもその前に、まず警告の画面からぬけ出そう。「やることリスト」の「？」を見てみよう。' }
+      },
+      nodes: {
+        browse: {
+          say: '調べもののページを読んでいる。つぎのページを見よう。',
+          screen: { kind: 'browser', url: 'https://kenkyu-matome.example/rekishi/2', body: [
+            { t: 'h', text: '自由研究まとめ　日本の城の歴史' },
+            { t: 'p', text: '城は、はじめは山の上につくられ、戦いのための「とりで」でした。やがて平地にも…' },
+            { t: 'box', cls: 'ad', lines: ['広告　🎁 スマホが当たる！ 今すぐクリック'], act: 'ad' },
+            { t: 'link', text: 'つぎのページ ▶', act: 'next' }
+          ] },
+          acts: [
+            { id: 'next', label: '「つぎのページ ▶」を押す', to: 'alert' },
+            { id: 'ad', label: '広告を押す', panel: false, to: 'alert' }
+          ]
+        },
+        alert: {
+          say: 'とつぜん画面いっぱいに真っ赤な警告が出て、「ピー！ピー！」と大きな音が鳴りはじめた！',
+          screen: { kind: 'browser', full: true, theme: 'alert', body: [
+            { t: 'h', text: '⚠ セキュリティ センター 警告', cls: 'big' },
+            { t: 'p', text: 'お使いのパソコンは、ウイルスに感染しています(5件)。', cls: 'strong' },
+            { t: 'p', text: 'このまま放置すると、写真・パスワード・カード情報が流出します。' },
+            { t: 'timer', label: 'データ消去まで あと', sec: 299 },
+            { t: 'p', text: '今すぐサポートセンターにお電話ください　☎ 0120-000-000(無料)', cls: 'strong' },
+            { t: 'btn', text: '☎ 今すぐ電話する', act: 'call', cls: 'big' },
+            { t: 'btn', text: 'ウイルスを除去する(無料スキャン)', act: 'scan' },
+            { t: 'p', text: '🔊 ピー！ピー！ピー！(大きな警告音が鳴っている)', cls: 'tiny' },
+            { t: 'p', text: '※ このページを閉じると、パソコンのデータがすべて消えます。', cls: 'tiny' }
+          ], dialog: { title: 'kenkyu-matome.example の表示', text: 'ウイルスが検出されました。OKを押してサポートに連絡してください。', buttons: [{ text: 'OK', act: 'ok' }] } },
+          acts: [
+            'calm',
+            { id: 'ok', label: '小さな画面の「OK」を押す', panel: false, tone: 'meh', say: '「OK」を押しても、また同じ表示が出てくる。押しても消えないようにしてあるんだ。' },
+            { id: 'esc', label: 'キーボードの Esc キーを長押しして、全画面の表示を終わらせる', step: 'esc',
+              say: '全画面が終わって、ブラウザのタブや × ボタンが見えるようになった。' },
+            { id: 'close', label: 'タブ(ブラウザ)を閉じる', step: 'close', need: ['esc'], to: 'closed',
+              needMsg: '画面いっぱいに表示されていて、タブも × ボタンも見えない…。まず全画面の表示を終わらせよう。',
+              say: 'ブラウザを閉じたら、警告も音も消えた。「閉じるとデータが消える」はうそだった。' },
+            { id: 'call', label: '表示された番号に電話する', to: 'bad_call' },
+            { id: 'scan', label: '「ウイルスを除去する」を押して、ソフトを入れる', to: 'bad_scan' }
+          ]
+        },
+        closed: {
+          say: '警告は消えて、いつもの画面にもどった。',
+          screen: { kind: 'desktop', text: 'ブラウザを閉じました' },
+          acts: [
+            'calm',
+            { id: 'reopen', label: '念のため、さっきのページをもう一度開いて確かめる', tone: 'meh',
+              say: '開けばまた警告が出るだけ。確かめに行く必要はない。' },
+            { id: 'restart', label: 'もしまた出て閉じられなかったときのために、再起動のしかたを確かめる', tone: 'info',
+              say: 'それでも閉じられないときは、パソコンを再起動すればよい。学校の端末なら、先生にたのもう。' },
+            'consult'
+          ]
+        }
+      },
+      ends: {
+        bad_call: { type: 'bad', title: '電話してしまった…',
+          text: '「サポート担当」を名のる人が出て、「遠隔操作ソフト」を入れるように言われました。パソコンを外から自由に動かされ、「修理代3万円を、コンビニで買える電子マネーではらってください」と求められました。中の写真やパスワードを見られたおそれもあります。',
+          lesson: '本物のウイルス対策ソフトは、画面に電話番号を出して電話をかけさせたりしません。' },
+        bad_scan: { type: 'bad', title: '「除去ソフト」を入れてしまった…',
+          text: 'ダウンロードしたのは、ウイルス対策ソフトではなく、ウイルスそのものでした。「有料版を買わないと直りません」という表示が出つづけ、パソコンが思うように使えなくなりました。',
+          lesson: 'Webページに出てきたソフトを、あわててインストールしない。' },
+        clear: { type: 'clear' }
+      },
+      tricks: ['赤い画面・警告音・カウントダウンで、あわてさせる', '「データが消える」「情報が流出する」と、こわがらせる', '全画面表示や、何度も出る小さな画面で、閉じられないように見せる', '電話をかけさせ、遠隔操作ソフトや電子マネーでお金をとる'],
+      ifDone: '電話してしまった・ソフトを入れてしまったときは、ネットから切りはなし、すぐに家の人や先生に知らせよう。お金を求められても、はらわずに「188」に相談しよう。'
+    },
+
+    // ================= 5 にせの通販サイト =================
+    {
+      id: 'shop', no: '5', min: '10分', device: 'phone', title: 'にせの通販サイト',
+      desc: 'ほしかったスニーカーが84%OFF！ 残り2足と書いてある。',
+      story: 'SNSを見ていたら、前からほしかったスニーカーの広告が出てきた。',
+      goal: 'このお店で買ってよいか、正しい方法で確かめよう。',
+      steps: [
+        { id: 'price', label: 'ほかのお店の値段とくらべる', hint: 'この値段は、ふつうのお店とくらべてどう？' },
+        { id: 'info', label: 'お店の情報(特定商取引法に基づく表記)を確かめる', hint: '通販サイトには、お店の住所や電話番号をのせるきまりがある。どこに書いてある？' },
+        { id: 'search', label: 'お店の名前で検索して、評判を調べる', hint: 'ほかの人がこのお店について何と言っているか、調べてみよう。' },
+        { id: 'leave', label: '買わずにページを閉じて、家の人に話す', hint: 'あやしいとわかったら、どうする？' }
+      ],
+      start: 'sns',
+      shared: {
+        price: { label: 'ほかのお店の値段とくらべる', step: 'price',
+          say: 'ほかのお店では、どこも1万5千円以上。8割引きは安すぎる。人気の商品が大はばに安いのは、にせの通販サイトによくある特徴。' },
+        info: { label: '「会社概要(特定商取引法に基づく表記)」を見る', step: 'info', to: 'info',
+          say: '住所に番地がない、電話番号がない、メールはだれでも作れるフリーメール…。本物のお店なら、連絡先がきちんと書いてある。' },
+        search: { label: 'お店の名前と「評判」で検索して調べる', step: 'search', to: 'search',
+          say: '「届かない」「にせのサイトに注意」という書きこみが見つかった！' },
+        leave: { label: '買わずにページを閉じて、家の人に話す', step: 'leave', need: ['price', 'info', 'search'], to: 'clear',
+          needMsg: '買わないのは安全な判断！ でもこの体験では、にせのサイトの見分け方も確かめておこう。「やることリスト」の「？」を見てみよう。' },
+        backShop: { label: 'お店のページにもどる', to: 'shop' }
+      },
+      nodes: {
+        sns: {
+          say: 'ほしかったスニーカーが、すごく安くなっているらしい。ショップを見てみよう。',
+          screen: { kind: 'sns', posts: [
+            { name: 'ゆうと', text: '今日の部活、きつかった〜🏃' },
+            { name: 'SHOES OUTLET', ad: true, emoji: '👟', text: '人気スニーカー 最大85%OFF！ 在庫一掃セールは本日まで', btn: { text: 'ショップを見る', act: 'go' } },
+            { name: 'みお', text: '新しいノート買った📒' }
+          ] },
+          acts: [{ id: 'go', label: '「ショップを見る」を押す', to: 'shop' }]
+        },
+        shop: {
+          say: 'ほしかったスニーカーが、とても安い。「残り2足」「あと15分」と出ている…。',
+          screen: { kind: 'browser', url: 'https://shoes-outlet-sale.example/item/hightop', body: [
+            { t: 'h', text: 'SHOES OUTLET', cls: 'site-logo' },
+            { t: 'thumbs', items: [{ emoji: '👟', text: '人気モデル ハイカット' }] },
+            { t: 'p', text: '定価 18,700円', cls: 'strike' },
+            { t: 'p', text: '2,980円(84%OFF)', cls: 'price' },
+            { t: 'p', text: '🔥 残り 2足！', cls: 'alert-text' },
+            { t: 'timer', label: 'セール終了まで', sec: 899 },
+            { t: 'p', text: 'お支払い方法: 銀行振込のみ', cls: 'tiny' },
+            { t: 'btn', text: 'カートに入れて購入する', act: 'buy', cls: 'big' },
+            { t: 'link', text: '会社概要(特定商取引法に基づく表記)', act: 'info' }
+          ] },
+          acts: [
+            'price', 'info', 'search',
+            { id: 'buy', label: '残り2足なので、すぐに「購入する」を押す', to: 'pay' },
+            'leave'
+          ]
+        },
+        pay: {
+          say: '振込先が書いてある。30分以内に振り込むように言われている。',
+          screen: { kind: 'browser', url: 'https://shoes-outlet-sale.example/order', body: [
+            { t: 'h', text: 'ご注文ありがとうございます' },
+            { t: 'p', text: '下記の口座に、30分以内にお振込みください。お振込みが確認できない場合、ご注文は取り消しになります。' },
+            { t: 'box', lines: ['振込先: ミドリ銀行 さくら支店', '普通 0000000', '名義: ヤマダ タロウ', '金額: 2,980円'] },
+            { t: 'btn', text: '振り込みました', act: 'paid', cls: 'big' }
+          ] },
+          acts: [
+            { id: 'paid', label: '家の人にたのんで、すぐに振り込んでもらう', to: 'bad_pay' },
+            { id: 'backPay', label: '振り込まずに、お店のページにもどる', to: 'shop', tone: 'meh',
+              say: 'お店なのに、振込先が個人の名前…これもおかしなところ。買う前に、もっと確かめよう。' }
+          ]
+        },
+        info: {
+          say: '「会社概要(特定商取引法に基づく表記)」のページを開いた。',
+          screen: { kind: 'browser', url: 'https://shoes-outlet-sale.example/company', body: [
+            { t: 'h', text: '特定商取引法に基づく表記' },
+            { t: 'table', rows: [['販売業者', 'シューズアウトレット'], ['所在地', '東京都中央区'], ['電話番号', '(記載なし)'],
+              ['メール', 'shoesoutlet2026@free-mail.example'], ['返品', 'ご注文後のキャンセル・返品は一切お受けできません']] }
+          ] },
+          acts: ['price', 'search', 'backShop', 'leave']
+        },
+        search: {
+          say: '検索した結果が出た。',
+          screen: { kind: 'search', query: 'シューズアウトレット 評判', results: [
+            { title: '【注意】スニーカーのにせ通販サイトがふえています', url: 'consumer-center.example', text: '有名な商品を大はばに安く見せ、銀行振込だけを受け付けるサイトに注意してください…' },
+            { title: 'シューズアウトレットで買ったのに届かない', url: 'kuchikomi.example', text: '振り込んで2週間たっても届きません。メールも返ってきません…' },
+            { title: 'SNSの広告から買ったスニーカーが届かない、という相談', url: 'shitsumon.example', text: 'それは、にせの通販サイトかもしれません。すぐに消費者ホットライン188に…' }
+          ] },
+          acts: ['price', 'info', 'backShop', 'leave']
+        }
+      },
+      ends: {
+        bad_pay: { type: 'bad', title: '振り込んでしまった…',
+          text: '何日待ってもスニーカーは届きません。メールを送っても返事はなく、サイトはいつの間にか消えていました。振り込んだお金は、ほとんど取りもどせません。',
+          lesson: '安すぎる値段・「残りわずか」・振込先が個人の名前は、にせの通販サイトのサインです。' },
+        clear: { type: 'clear' }
+      },
+      tricks: ['人気の商品を、ありえないほど安く見せる', '「残り2足」「あと15分」で、あわてさせる', '支払いを銀行振込だけにして、取りもどしにくくする', 'SNSの広告で、本物のお店のように見せる'],
+      ifDone: '振り込んでしまったときは、すぐ家の人に話して、振り込んだ銀行と警察(#9110)、消費者ホットライン「188」に相談しよう。'
+    }
+  ];
+
+  // まとめ: どの詐欺にも共通すること
+  var common = [
+    { title: 'あわてさせる', text: '「3日以内」「本日中」「残り2足」「データ消去まであと5分」。考える時間をうばって、言いなりにさせる。' },
+    { title: '気持ちをゆさぶる', text: '「請求」「ウイルス感染」でこわがらせたり、「当選」「84%OFF」でよろこばせたりして、落ち着いて考えられなくする。' },
+    { title: 'お金・情報・操作を求める', text: 'はらわせる、連絡させる、カード番号を入れさせる、ファイルを開かせる、電話をかけさせる。最後は必ず「あなたに何かさせる」。' }
+  ];
+  var rule = [
+    { title: 'とまる', text: 'あわてて押さない。期限やカウントダウンはうそが多い。' },
+    { title: 'たしかめる', text: 'メールのリンクではなく、公式アプリ・本人・検索で確かめる。' },
+    { title: 'そうだんする', text: 'ひとりで決めない。家の人・先生、こまったら「188」。' }
+  ];
+  var reflQ = [
+    { id: 'r1', label: 'ふりかえり1: 体験した詐欺で、だます人はどんな手口を使っていたか(共通していたこと)' },
+    { id: 'r2', label: 'ふりかえり2: あやしいと思ったとき、自分はどんな手順で行動するか' },
+    { id: 'r3', label: 'ふりかえり3: 家族や友達に伝えたいこと' }
+  ];
+
+  return { scenarios: scenarios, consult: consult, common: common, rule: rule, reflQ: reflQ };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
+
+</script>
+  <script>
+// ネット詐欺 追体験ラボ: 画面
+(function () {
+  'use strict';
+  var D = ScamData, E = ScamEngine;
+  var APP = 'ネット詐欺 追体験ラボ';
+
+  if (window.EDUIT_INFO) {
+    EDUIT_INFO.app = EDUIT_INFO.app || { name: APP };
+    EDUIT_INFO.app.safety = [
+      'ネット詐欺 追体験ラボのサイト・メール・SNSの画面は、学習のために作った模型です。会社名・サイト名・アドレス・電話番号・口座番号はすべて架空で、押してもどこにも移動せず、どこにも連絡しません。',
+      '名前やカード番号などを入力する場所はありません(入力欄は見た目だけです)。'
+    ];
+  }
+
+  // ---- 端末の中だけの保存(使えなくても動く) ----
+  var KEY = 'eduit-scam-lab';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  function save(k, v) {
+    saved[k] = v;
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
+  }
+
+  // ---- 小さな部品 ----
+  function h(tag, props) {
+    var e = document.createElement(tag);
+    props = props || {};
+    Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v == null || v === false) return;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'on') Object.keys(v).forEach(function (ev) { e.addEventListener(ev, v[ev]); });
+      else if (k === 'style') e.setAttribute('style', v);
+      else if (k in e && typeof v !== 'string') e[k] = v;
+      else e.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) append(e, arguments[i]);
+    return e;
+  }
+  function append(e, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { append(e, x); }); return; }
+    e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+  }
+  function btn(label, onClick, cls) { return h('button', { type: 'button', class: cls || 'ef-btn', on: { click: onClick } }, label); }
+  function point(title) {
+    var kids = Array.prototype.slice.call(arguments, 1);
+    return h('div', { class: 'point' }, h('p', { class: 'point-title', text: title }), kids);
+  }
+  function card(title) {
+    var kids = Array.prototype.slice.call(arguments, 1);
+    return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
+  }
+
+  // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
+  var RUBY = {
+    '詐欺': 'さぎ', '請求': 'せいきゅう', '契約': 'けいやく', '登録': 'とうろく', '料金': 'りょうきん', '振込': 'ふりこみ', '振り込': 'ふりこ',
+    '相談': 'そうだん', '個人情報': 'こじんじょうほう', '確認': 'かくにん', '削除': 'さくじょ', '添付': 'てんぷ', '感染': 'かんせん',
+    '警告': 'けいこく', '当選': 'とうせん', '公式': 'こうしき', '差出人': 'さしだしにん', '履歴': 'りれき', '閲覧': 'えつらん', '通知': 'つうち',
+    '遠隔操作': 'えんかくそうさ', '被害': 'ひがい', '架空': 'かくう', '端末': 'たんまつ', '記録': 'きろく', '保存': 'ほぞん', '番号': 'ばんごう',
+    '手順': 'てじゅん', '判断': 'はんだん', '返信': 'へんしん', '転送': 'てんそう', '応募': 'おうぼ', '抽選': 'ちゅうせん', '送料': 'そうりょう',
+    '商品': 'しょうひん', '特定商取引法': 'とくていしょうとりひきほう', '評判': 'ひょうばん', '検索': 'けんさく', '口座': 'こうざ',
+    '解除': 'かいじょ', '再起動': 'さいきどう', '有効化': 'ゆうこうか', '消費者': 'しょうひしゃ', '手口': 'てぐち', '体験': 'たいけん',
+    '入力': 'にゅうりょく', '画面': 'がめん', '情報': 'じょうほう', '支払': 'しはら', '退会': 'たいかい', '延滞': 'えんたい', '法的': 'ほうてき',
+    '期限': 'きげん', '演出': 'えんしゅつ', '撮影': 'さつえい', '提出': 'ていしゅつ', '授業': 'じゅぎょう', '設定': 'せってい',
+    '迷惑': 'めいわく', '報告': 'ほうこく', '表示': 'ひょうじ', '全画面': 'ぜんがめん', '電子': 'でんし', '流出': 'りゅうしゅつ',
+    '販売業者': 'はんばいぎょうしゃ', '所在地': 'しょざいち', '特徴': 'とくちょう', '連絡': 'れんらく', '名義': 'めいぎ', '在庫': 'ざいこ',
+    '書き出': 'かきだ', '組': 'くみ', '状況': 'じょうきょう', '確': 'たし', '押': 'お'
+  };
+  var RUBY_KEYS = Object.keys(RUBY).filter(function (k) { return k.length > 1; }).sort(function (a, b) { return b.length - a.length; });
+  var RUBY_RE = new RegExp(RUBY_KEYS.join('|'), 'g');
+  function applyRuby(root) {
+    if (!saved.furigana) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var p = n.parentNode;
+        if (!p || p.closest('ruby, textarea, select, option, script, style, .no-ruby, .ef-footer')) return NodeFilter.FILTER_REJECT;
+        RUBY_RE.lastIndex = 0;
+        return RUBY_RE.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      var text = n.nodeValue, frag = document.createDocumentFragment(), last = 0, m;
+      RUBY_RE.lastIndex = 0;
+      while ((m = RUBY_RE.exec(text))) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        frag.appendChild(h('ruby', null, m[0], h('rt', { text: RUBY[m[0]] })));
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  // ---- 場面ごとの状態 ----
+  function scState(sc) {
+    var all = saved.sc || {};
+    var st = all[sc.id];
+    if (!st || !sc.nodes[st.node]) st = E.init(sc);
+    return st;
+  }
+  function setScState(sc, st) {
+    var all = saved.sc || {};
+    all[sc.id] = st;
+    save('sc', all);
+  }
+
+  // ---- ページ ----
+  var timers = [];
+  function clearTimers() { timers.forEach(clearInterval); timers = []; }
+
+  var SECTIONS = [{ id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro }]
+    .concat(D.scenarios.map(function (sc) {
+      return { id: sc.id, group: '詐欺を体験する', no: sc.no, min: sc.min, title: sc.title, desc: sc.desc, sc: sc, render: renderScenario };
+    }))
+    .concat([
+      { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
+      { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
+    ]);
+  var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
+  var view = document.getElementById('view');
+  var nav = document.getElementById('nav');
+  var current = null;
+
+  function isDone(s) {
+    if (s.sc) return !!scState(s.sc).cleared;
+    if (s.id === 'matome') { var r = saved.refl || {}; return D.reflQ.some(function (q) { return String(r[q.id] || '').trim(); }); }
+    return false;
+  }
+  function buildNav() {
+    var ol = h('ol');
+    var group = null;
+    SECTIONS.forEach(function (s) {
+      if (s.group !== group) {
+        group = s.group;
+        if (group) ol.appendChild(h('li', { class: 'nav-group', 'aria-hidden': 'true', text: group }));
+      }
+      ol.appendChild(h('li', { 'data-li': s.id }, h('a', { href: '#' + s.id, class: 'nav-link', 'data-id': s.id },
+        h('span', { class: 'num', 'aria-hidden': 'true', text: s.no || s.icon }),
+        h('span', null, s.title, s.no ? h('span', { class: 'visually-hidden nav-done', hidden: true, text: '(できた)' }) : null))));
+    });
+    nav.textContent = '';
+    nav.appendChild(h('nav', { 'aria-label': 'ステップ' }, ol));
+  }
+  // 上のバーの「進み具合」: クリアした場面と、まとめ(ふりかえり)の割合
+  function renderOverall() {
+    var done = STEP_SECTIONS.filter(isDone).length;
+    var p = Math.round(done / STEP_SECTIONS.length * 100);
+    var el = document.getElementById('overall-progress');
+    if (!el) return;
+    el.textContent = '';
+    append(el, [h('span', { text: '進み具合' }),
+      h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(p), 'aria-label': '全体の進み具合' },
+        h('span', { class: 'bar-fill', style: 'width:' + p + '%' })),
+      h('span', { text: p + '%' })]);
+  }
+  function markNav() {
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
+      var sec = SECTIONS.filter(function (x) { return x.id === a.getAttribute('data-id'); })[0];
+      var done = !!(sec && sec.no && isDone(sec));
+      a.classList.toggle('is-done', done);
+      a.parentNode.classList.toggle('done', done);
+      a.querySelector('.num').textContent = done ? '✓' : (sec.no || sec.icon);
+      var hid = a.querySelector('.nav-done');
+      if (hid) hid.hidden = !done;
+    });
+    renderOverall();
+  }
+
+  // 同じページの中の操作では、スクロールの位置とキーボードの位置を保ったまま描き直す
+  function focusables() { return Array.prototype.slice.call(view.querySelectorAll('button, input, select, textarea, a[href]')); }
+  var afterDraw = null;
+  function rerender() {
+    var y = window.scrollY;
+    var fi = focusables().indexOf(document.activeElement);
+    clearTimers();
+    draw(current);
+    window.scrollTo(0, y);
+    if (afterDraw) { var f = afterDraw; afterDraw = null; f(); return; }
+    if (fi >= 0) {
+      var list = focusables();
+      var el = null;
+      for (var i = Math.min(fi, list.length - 1); i < list.length && !el; i++) if (!list[i].disabled) el = list[i];
+      if (el) try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    }
+  }
+  function show(id) {
+    var s = SECTIONS.filter(function (x) { return x.id === id; })[0] || SECTIONS[0];
+    clearTimers();
+    current = s;
+    draw(s);
+    save('last', s.id);
+    if (s.no) save('lastStep', s.id);
+    markNav();
+    window.scrollTo(0, 0);
+    document.title = (s.id === 'intro' ? 'はじめに' : s.title) + ' | ' + APP;
+  }
+  function draw(s) {
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
+      if (a.getAttribute('data-id') === s.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    view.textContent = '';
+    var idx = SECTIONS.indexOf(s);
+    if (s.no) {
+      view.appendChild(h('header', { class: 'module-head sec-head' },
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.no + '・目安 ' + s.min }),
+        h('h1', { class: 'sec-title', text: s.title })));
+    }
+    var body = h('div', { class: 'sec-body' });
+    view.appendChild(body);
+    s.render(body, s);
+    var prev = SECTIONS[idx - 1];
+    var next = SECTIONS[idx + 1];
+    if (s.id !== 'intro') {
+      view.appendChild(h('nav', { class: 'pager btn-row', 'aria-label': 'ページの移動' },
+        prev ? h('a', { class: 'ef-btn', href: '#' + prev.id }, prev.no ? '← 前のステップ' : '← ' + prev.title) : null,
+        next ? h('a', { class: 'ef-btn-primary', href: '#' + next.id }, '次へ：' + next.title + ' →') : null));
+    }
+    applyRuby(view);
+  }
+  function route() {
+    var id = (location.hash || '').replace('#', '');
+    if (!id) id = saved.last || 'intro';
+    show(id);
+  }
+
+  // ================= はじめに =================
+  function renderIntro(el) {
+    var last = SECTIONS.filter(function (x) { return x.no && x.id === saved.lastStep; })[0];
+    append(el, [
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: APP }),
+        h('p', { class: 'meta' }, 'インターネットの詐欺を、スマホやパソコンの画面を自分で操作して「追体験」します。だまされそうになったとき、正しい手順を最後までやりきれたらクリアです。'),
+        h('p', { class: 'muted author', text: '作成：羽生市立南中学校 技術 岡田' })),
+      h('section', { class: 'card' },
+        h('h2', { text: '遊び方' }),
+        h('ol', null,
+          h('li', { text: '左の画面は、あなたのスマホやパソコン。画面の中のボタンも押せます(押すと、だまされることもあります)。' }),
+          h('li', { text: '右の「あなたの行動」から、つぎにどうするかをえらびます。' }),
+          h('li', { text: '「やることリスト」の「？」を全部うめて、最後の行動までやりきるとクリア。こまったら「ヒント」を押そう。' }),
+          h('li', { text: 'だまされたら、どうなったかを読んで、その前の場面からやり直せます。' })),
+        point('安心して体験できます',
+          h('p', { text: 'この教材はブラウザの中だけで動き、インターネットには一切つながりません。出てくる会社・サイト・アドレス・電話番号・口座はすべて架空で、押してもどこにも連絡しません。入力欄は見た目だけで、何も入力できません。' }))),
+      h('section', { class: 'module-group' },
+        h('h2', { text: 'ステップ' }),
+        h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
+          var done = isDone(x);
+          return h('a', { class: 'module-card', href: '#' + x.id },
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.no + '・目安 ' + x.min }),
+            h('span', { class: 'mc-title', text: x.title }),
+            h('span', { class: 'mc-desc', text: x.desc }),
+            h('span', { class: 'mc-state' + (done ? ' is-done' : ''), text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
+        }))),
+      h('div', { class: 'btn-row home-start' },
+        h('a', { class: 'ef-btn-primary', href: '#oneclick', text: 'ステップ1 ワンクリック詐欺からはじめよう →' }),
+        last && last.id !== 'oneclick' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
+      h('details', { class: 'teacher' },
+        h('summary', { text: '先生へ' }),
+        h('ul', null,
+          h('li', { text: '1時間(50分)で、5つの場面(各10分程度)とまとめを行う想定です。時間がないときは、1・3・4 を中心にし、2・5 は家庭学習にできます。' }),
+          h('li', { text: '情報セキュリティ体験ラボの「フィッシング見分け」(メールのどこが怪しいかを見つける)・「判断ロールプレイ」(DM・アプリの権限・パスワード)とは場面が重なりません。こちらは、だまされる画面を自分で操作し、正しい手順を最後までやりきる体験です。続けて使うと、「見分ける → 行動する」の流れになります。' }),
+          h('li', { text: 'クリアした場面・だまされた回数・ヒントを使った回数・ふりかえりは、この端末のブラウザの中にだけ保存されます。「ふりかえり・記録」から JSON で書き出し、振り返り一覧(先生用)で読み込めます。' }),
+          h('li', { text: '次の人に端末をわたすときは、「ふりかえり・記録」のいちばん下の「はじめからやり直す」で記録を消せます。ふりがな・文字の大きさの設定は残ります。' })))
+    ]);
+  }
+
+  // ================= 場面 =================
+  function renderScenario(el, s) {
+    var sc = s.sc;
+    var st = scState(sc);
+    function set(n) { setScState(sc, n); markNav(); rerender(); }
+    function doAct(a) {
+      var n = E.apply(sc, st, a, new Date().toISOString());
+      set(n);
+      if (n.end || n.node !== st.node) {
+        afterDraw = function () {
+          var t = document.getElementById('scene-top');
+          if (t) { t.scrollIntoView({ block: 'start' }); var f = t.querySelector('h2, .end-title'); if (f) { f.setAttribute('tabindex', '-1'); f.focus({ preventScroll: true }); } }
+        };
+      } else if (n.msg) {
+        afterDraw = function () { var m = document.getElementById('scene-msg'); if (m) m.scrollIntoView({ block: 'nearest' }); };
+      }
+    }
+
+    // はじめる前: 状況とめあて
+    if (!st.started) {
+      append(el, [
+        card('状況', h('p', { class: 'lead', text: sc.story }),
+          point('めあて', h('p', { text: sc.goal })),
+          h('p', { class: 'muted', text: (sc.device === 'pc' ? 'パソコン' : 'スマホ') + 'の画面を操作します。やることは ' + sc.steps.length + ' つ。全部やりきるとクリアです。' }),
+          h('div', { class: 'btn-row' }, btn('体験をはじめる', function () { var n = Object.assign({}, st, { started: true }); set(n); }, 'ef-btn-primary'))),
+        st.cleared ? h('p', { class: 'result ok', text: '✓ この場面はクリアしています。もう一度体験できます。' }) : null
+      ]);
+      return;
+    }
+
+    var wrap = h('div', { class: 'scene', id: 'scene-top' });
+    el.appendChild(wrap);
+    if (st.end) {
+      wrap.appendChild(renderEnd(sc, st, set));
+      return;
+    }
+    var node = sc.nodes[st.node];
+    var list = E.acts(sc, st.node);
+    var byId = {};
+    list.forEach(function (a) { if (a.id) byId[a.id] = a; });
+    var screenAct = function (id) { return function () { if (byId[id]) doAct(byId[id]); }; };
+
+    var device = renderDevice(sc, node.screen, st, screenAct);
+    var side = h('div', { class: 'scene-side' },
+      h('section', { class: 'card situation' }, h('h2', { class: 'panel-title', text: 'いまの状況' }), h('p', { text: node.say })),
+      st.msg ? h('div', { id: 'scene-msg', class: 'result ' + ({ good: 'ok', meh: 'warn', need: 'warn', info: 'info' }[st.msg.tone] || 'info'), role: 'status' },
+        h('span', { class: 'msg-label', text: { good: 'よい判断！ ', meh: 'うーん… ', need: 'ちょっと待って ', info: '' }[st.msg.tone] || '' }), st.msg.text) : null,
+      h('section', { class: 'card actions' },
+        h('h2', { class: 'panel-title', text: 'あなたの行動' }),
+        h('div', { class: 'act-list' }, list.filter(function (a) { return a.panel !== false; }).map(function (a) {
+          var did = a.step && st.done[a.step] && !a.to;
+          return h('button', { type: 'button', class: 'act' + (did ? ' did' : ''), disabled: did, on: { click: function () { doAct(a); } } },
+            did ? h('span', { class: 'act-mark', text: '✓ ' }) : null, a.label);
+        }))),
+      renderChecklist(sc, st, function () {
+        var n = E.useHint(sc, st);
+        // いまの画面でできることがないときは、状況の文を手がかりにする
+        var ns = E.nextStep(sc, st);
+        if (ns && !list.some(function (a) { return a.step === ns.id; })) n.hint = node.say + '(「あなたの行動」か画面の中から、つぎに進もう)';
+        set(n);
+      }));
+    wrap.appendChild(h('div', { class: 'scene-grid' }, device, side));
+    wrap.appendChild(h('div', { class: 'btn-row scene-tools' },
+      btn('この場面をはじめから', function () { set(E.restart(sc, st)); }, 'ef-btn small')));
+  }
+
+  function renderChecklist(sc, st, onHint) {
+    var left = sc.steps.filter(function (x) { return !st.done[x.id]; }).length;
+    return h('section', { class: 'card checklist' },
+      h('h2', { class: 'panel-title', text: 'やることリスト' }),
+      h('p', { class: 'muted', text: left ? 'あと ' + left + ' つ。「？」は、やると中身がわかります。' : '全部できた！' }),
+      h('ol', { class: 'steps' }, sc.steps.map(function (x) {
+        var done = !!st.done[x.id];
+        return h('li', { class: done ? 'is-done' : '' }, h('span', { class: 'step-mark', 'aria-hidden': 'true', text: done ? '✓' : '？' }),
+          h('span', { text: done ? x.label : '？？？' }), done ? null : h('span', { class: 'visually-hidden', text: '(まだ)' }));
+      })),
+      left ? h('div', { class: 'btn-row' }, btn('💡 ヒント', onHint, 'ef-btn small')) : null,
+      st.hint ? h('p', { class: 'hint-text', role: 'status', text: 'ヒント: ' + st.hint }) : null);
+  }
+
+  function renderEnd(sc, st, set) {
+    var e = sc.ends[st.end];
+    if (e.type === 'bad') {
+      return h('section', { class: 'end-card bad' },
+        h('p', { class: 'end-badge', text: '✗ だまされてしまった' }),
+        h('h2', { class: 'end-title', text: e.title }),
+        h('div', { class: 'end-block' }, h('h3', { text: 'どうなった？' }), h('p', { text: e.text })),
+        point('どうすればよかった？', h('p', { text: e.lesson })),
+        h('p', { class: 'muted', text: '※ これは体験です。本当には何も起きていません。' }),
+        h('div', { class: 'btn-row' },
+          btn('その前の場面にもどって、やり直す', function () { set(E.back(sc, st)); }, 'ef-btn-primary'),
+          btn('この場面をはじめから', function () { set(E.restart(sc, st)); })));
+    }
+    var idx = D.scenarios.indexOf(sc);
+    var nextSc = D.scenarios[idx + 1];
+    return h('section', { class: 'end-card clear' },
+      h('p', { class: 'end-badge', text: '★ クリア！' }),
+      h('h2', { class: 'end-title', text: sc.title + 'から、安全にぬけ出せた！' }),
+      h('p', { class: 'muted', text: 'だまされた回数: ' + st.misses + ' 回 ・ ヒント: ' + st.hints + ' 回' }),
+      h('div', { class: 'end-block' }, h('h3', { text: '正しい手順' }),
+        h('ol', null, sc.steps.map(function (x) { return h('li', { text: x.label }); }))),
+      h('div', { class: 'end-block' }, h('h3', { text: 'だます人の手口' }),
+        h('ul', null, sc.tricks.map(function (t) { return h('li', { text: t }); }))),
+      point('もし、だまされてしまったら', h('p', { text: sc.ifDone })),
+      h('div', { class: 'btn-row' },
+        nextSc ? h('a', { class: 'ef-btn-primary', href: '#' + nextSc.id, text: 'つぎの場面：' + nextSc.title + ' →' })
+          : h('a', { class: 'ef-btn-primary', href: '#matome', text: 'まとめとふりかえりへ →' }),
+        btn('この場面をもう一度', function () { set(E.restart(sc, st)); })));
+  }
+
+  // ---- スマホ・パソコンの画面 ----
+  function fmtTime(sec) {
+    var d = Math.floor(sec / 86400), hh = Math.floor(sec % 86400 / 3600), mm = Math.floor(sec % 3600 / 60), ss = sec % 60;
+    var p = function (x) { return (x < 10 ? '0' : '') + x; };
+    return (d ? d + '日 ' : '') + (d || hh ? p(hh) + ':' : '') + p(mm) + ':' + p(ss);
+  }
+  function blocks(list, onAct) {
+    return (list || []).map(function (b) {
+      switch (b.t) {
+        case 'h': return h('p', { class: 'sb-h ' + (b.cls || ''), text: b.text });
+        case 'p': return h('p', { class: 'sb-p ' + (b.cls || ''), text: b.text });
+        case 'btn': return h('button', { type: 'button', class: 'sb-btn ' + (b.cls || ''), on: { click: onAct(b.act) } }, b.text);
+        case 'link': return h('button', { type: 'button', class: 'sb-link', on: { click: onAct(b.act) } }, b.text);
+        case 'box': {
+          var box = h(b.act ? 'button' : 'div', { type: b.act ? 'button' : null, class: 'sb-box ' + (b.cls || ''), on: b.act ? { click: onAct(b.act) } : null },
+            b.title ? h('b', { class: 'sb-box-title', text: b.title }) : null,
+            b.lines.map(function (l) { return h('span', { class: 'sb-line', text: l }); }));
+          return box;
+        }
+        case 'thumbs': return h('div', { class: 'sb-thumbs' }, b.items.map(function (it) {
+          return h('div', { class: 'sb-thumb' }, h('span', { class: 'sb-emoji', 'aria-hidden': 'true', text: it.emoji }), h('span', { text: it.text }));
+        }));
+        case 'timer': {
+          var left = b.sec;
+          var out = h('b', { class: 'sb-timer-v', text: fmtTime(left) });
+          timers.push(setInterval(function () { left = Math.max(0, left - 1); out.textContent = fmtTime(left); }, 1000));
+          return h('p', { class: 'sb-timer' }, b.label + ' ', out);
+        }
+        case 'field': return h('div', { class: 'sb-field' }, h('span', { text: b.label }), h('span', { class: 'sb-input', 'aria-hidden': 'true' }));
+        case 'table': return h('table', { class: 'sb-table' }, h('tbody', null, b.rows.map(function (r) { return h('tr', null, h('th', { text: r[0] }), h('td', { text: r[1] })); })));
+      }
+      return null;
+    });
+  }
+  function renderDevice(sc, scr, st, onAct) {
+    var inner;
+    switch (scr.kind) {
+      case 'browser':
+        inner = [
+          scr.full ? null : scr.app ? h('div', { class: 'sb-appbar', text: scr.app })
+            : h('div', { class: 'sb-urlbar no-ruby' }, h('span', { class: 'sb-lock', 'aria-hidden': 'true', text: '🔒' }), h('span', { text: scr.url })),
+          h('div', { class: 'sb-page' + (scr.theme ? ' theme-' + scr.theme : '') }, blocks(scr.body, onAct)),
+          scr.dialog ? h('div', { class: 'sb-dialog', role: 'group', 'aria-label': scr.dialog.title },
+            h('b', { class: 'no-ruby', text: scr.dialog.title }), h('p', { text: scr.dialog.text }),
+            h('div', { class: 'sb-dialog-btns' }, scr.dialog.buttons.map(function (x) { return h('button', { type: 'button', class: 'sb-btn', on: { click: onAct(x.act) } }, x.text); }))) : null
+        ];
+        break;
+      case 'mail-list':
+        inner = [h('div', { class: 'sb-appbar', text: scr.app || 'メール' }), h('ul', { class: 'sb-mails' }, scr.items.map(function (m) {
+          var content = [h('span', { class: 'sb-mail-from' }, m.from, m.clip ? h('span', { class: 'sb-clip', 'aria-label': '添付ファイルあり', text: ' 📎' }) : null, h('span', { class: 'sb-mail-time', text: m.time })),
+            h('span', { class: 'sb-mail-subj', text: m.subject })];
+          return h('li', { class: m.unread ? 'unread' : '' }, m.act ? h('button', { type: 'button', class: 'sb-mail', on: { click: onAct(m.act) } }, content) : h('div', { class: 'sb-mail' }, content));
+        }))];
+        break;
+      case 'mail': {
+        var showAddr = !scr.addrStep || st.done[scr.addrStep];
+        inner = [h('div', { class: 'sb-appbar', text: 'メール' }), h('div', { class: 'sb-page sb-mailview' },
+          h('p', { class: 'sb-mail-subject', text: scr.subject }),
+          h('p', { class: 'sb-mail-head' }, h('b', { text: scr.from }),
+            showAddr ? h('span', { class: 'sb-addr no-ruby' + (scr.addrStep ? ' flagged' : ''), text: ' <' + scr.addr + '>' })
+              : h('button', { type: 'button', class: 'sb-more', 'aria-label': '差出人のくわしい情報を見る', on: { click: onAct(scr.addrAct) } }, '▼'),
+            h('span', { class: 'sb-mail-time', text: scr.time })),
+          h('div', { class: 'sb-mail-body' }, scr.body.map(function (l) { return h('p', { text: l }); })),
+          (scr.attach || []).map(function (a) {
+            return h('button', { type: 'button', class: 'sb-attach', on: { click: onAct(a.act) } }, h('span', { 'aria-hidden': 'true', text: '📎 ' }), a.name, h('span', { class: 'sb-mail-time', text: a.size }));
+          }),
+          (scr.buttons || []).map(function (b) { return h('button', { type: 'button', class: 'sb-btn big', on: { click: onAct(b.act) } }, b.text); }),
+          (scr.links || []).map(function (b) { return h('button', { type: 'button', class: 'sb-link small', on: { click: onAct(b.act) } }, b.text); }))];
+        break;
+      }
+      case 'home':
+        inner = [h('div', { class: 'sb-home' },
+          h('p', { class: 'sb-clock', text: '19:24' }),
+          scr.notice ? h('button', { type: 'button', class: 'sb-notice', on: { click: onAct(scr.notice.act) } },
+            h('span', { class: 'sb-notice-app no-ruby', text: '🔔 ' + scr.notice.app }), h('span', { text: scr.notice.text })) : null,
+          h('div', { class: 'sb-apps', 'aria-hidden': 'true' }, ['📞', '✉️', '🌐', '📷', '🎵', '⚙️', '🗓️', '🗺️'].map(function (x) { return h('span', { class: 'sb-app', text: x }); })))];
+        break;
+      case 'sns':
+        inner = [h('div', { class: 'sb-appbar', text: 'SNS' }), h('div', { class: 'sb-page sb-feed' }, scr.posts.map(function (p) {
+          return h('div', { class: 'sb-post' + (p.ad ? ' ad' : '') },
+            h('p', { class: 'sb-post-name' }, p.name, p.ad ? h('span', { class: 'sb-ad', text: '広告' }) : null),
+            p.emoji ? h('p', { class: 'sb-post-img', 'aria-hidden': 'true', text: p.emoji }) : null,
+            h('p', { text: p.text }),
+            p.btn ? h('button', { type: 'button', class: 'sb-btn', on: { click: onAct(p.btn.act) } }, p.btn.text) : null);
+        }))];
+        break;
+      case 'doc':
+        inner = [h('div', { class: 'sb-appbar no-ruby', text: '📄 ' + scr.file }),
+          h('div', { class: 'sb-docbar' }, h('span', { text: '⚠ ' + scr.bar.text }), h('button', { type: 'button', class: 'sb-btn', on: { click: onAct(scr.bar.btn.act) } }, scr.bar.btn.text)),
+          h('div', { class: 'sb-page' }, blocks(scr.body, onAct))];
+        break;
+      case 'search':
+        inner = [h('div', { class: 'sb-urlbar' }, h('span', { 'aria-hidden': 'true', text: '🔍 ' }), h('span', { text: scr.query })),
+          h('div', { class: 'sb-page' }, scr.results.map(function (r) {
+            return h('div', { class: 'sb-result' }, h('span', { class: 'sb-result-url no-ruby', text: r.url }), h('b', { class: 'sb-result-title', text: r.title }), h('span', { text: r.text }));
+          }))];
+        break;
+      case 'desktop':
+        inner = [h('div', { class: 'sb-desktop' }, h('p', { text: '🖥 ' + scr.text }))];
+        break;
+    }
+    return h('div', { class: 'device ' + sc.device + (scr.full ? ' full' : '') },
+      h('p', { class: 'visually-hidden', text: (sc.device === 'pc' ? 'パソコン' : 'スマホ') + 'の画面' }),
+      h('div', { class: 'device-screen' }, inner));
+  }
+
+  // ================= まとめとふりかえり =================
+  function renderMatome(el) {
+    var refl = saved.refl || {};
+    var cleared = D.scenarios.filter(function (sc) { return scState(sc).cleared; }).length;
+    append(el, [
+      card('どの詐欺にも共通すること',
+        h('p', { text: 'ワンクリック詐欺・当選メール・ウイルス付きメール・にせのウイルス警告・にせの通販サイト。見た目はちがっても、だます人のやり方は同じです。' }),
+        h('div', { class: 'flow' }, D.common.map(function (c, i) {
+          return h('div', { class: 'flow-box' }, h('b', { text: (i + 1) + '. ' + c.title }), h('span', { text: c.text }));
+        }))),
+      card('あやしいと思ったら、この3つ',
+        h('div', { class: 'flow' }, D.rule.map(function (c, i) {
+          return [i ? h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }) : null,
+            h('div', { class: 'flow-box accent' }, h('b', { text: c.title }), h('span', { text: c.text }))];
+        })),
+        h('p', { class: 'muted', text: '情報セキュリティ体験ラボの「立ち止まる → 確認する → 相談する」と同じ考え方です。' })),
+      card(D.consult.title,
+        h('p', { text: D.consult.first }),
+        h('ul', { class: 'consult' }, D.consult.lines.map(function (l) {
+          return h('li', null, h('b', { text: l.name + '　' }), h('span', { class: 'tel', text: l.tel }), h('span', { class: 'muted', text: '　' + l.note }));
+        }))),
+      card('ふりかえり',
+        h('p', { class: 'muted', text: 'クリアした場面: ' + cleared + ' / ' + D.scenarios.length + '。書いた文は、この端末の中だけに保存されます。' }),
+        D.reflQ.map(function (q) {
+          var ta = h('textarea', { id: 'refl-' + q.id, class: 'input', rows: 3, maxlength: '600' });
+          ta.value = refl[q.id] || '';
+          ta.addEventListener('input', function () { var r = saved.refl || {}; r[q.id] = ta.value; save('refl', r); markNav(); });
+          return h('div', { class: 'field' }, h('label', { for: 'refl-' + q.id, text: q.label }), ta);
+        }))
+    ]);
+  }
+
+  // ================= ふりかえり・記録 =================
+  function buildRecord() {
+    var st = saved.student || {};
+    var refl = saved.refl || {};
+    return {
+      app: APP,
+      exportedAt: new Date().toISOString(),
+      student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
+      scenarios: D.scenarios.map(function (sc) {
+        var s = scState(sc);
+        return { id: sc.id, no: sc.no, title: sc.title, cleared: !!s.cleared, clearedAt: s.clearedAt || '', misses: s.misses || 0, hints: s.hints || 0,
+          steps: sc.steps.filter(function (x) { return s.done[x.id]; }).length + ' / ' + sc.steps.length };
+      }),
+      reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
+    };
+  }
+  function recordCsv(r) {
+    var cell = function (v) {
+      var s = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
+    var head = ['組', '番号', '名前', 'クリアした場面'].concat(r.scenarios.map(function (x) { return x.no + ' ' + x.title; })).concat(['ふりかえり1', 'ふりかえり2', 'ふりかえり3']);
+    var row = [r.student.cls, r.student.num, r.student.name, r.scenarios.filter(function (x) { return x.cleared; }).length + ' / ' + r.scenarios.length]
+      .concat(r.scenarios.map(function (x) { return (x.cleared ? 'クリア' : 'まだ') + '(だまされた ' + x.misses + '・ヒント ' + x.hints + ')'; }))
+      .concat([r.reflection.r1, r.reflection.r2, r.reflection.r3]);
+    return '﻿' + head.map(cell).join(',') + '\r\n' + row.map(cell).join(',');
+  }
+  function renderRecordsPage(el) {
+    var st = saved.student || {};
+    var note = h('p', { class: 'export-note', role: 'status', 'aria-live': 'polite' });
+    function field(id, label, key, size) {
+      var inp = h('input', { id: id, type: 'text', class: 'input', maxlength: '40', size: size });
+      inp.value = st[key] || '';
+      inp.addEventListener('input', function () { st[key] = inp.value.trim(); save('student', st); });
+      return h('div', { class: 'field' }, h('label', { for: id, text: label }), inp);
+    }
+    function fileName(ext) {
+      var who = [st.cls, st.num, st.name].filter(Boolean).join('_') || '記録';
+      return (APP.replace(/\s/g, '_') + '_' + who + '.' + ext).replace(/[\\/:*?"<>|]/g, '_');
+    }
+    function ready() {
+      if (!String(st.cls || '').trim() || !String(st.num || '').trim()) {
+        note.className = 'export-note warn';
+        note.textContent = '組と番号を入れてから書き出そう';
+        document.getElementById(String(st.cls || '').trim() ? 'rec-num' : 'rec-cls').focus();
+        return false;
+      }
+      return true;
+    }
+    function download(ext) {
+      if (!ready()) return;
+      var r = buildRecord();
+      var text = ext === 'json' ? JSON.stringify(r, null, 2) : recordCsv(r);
+      var name = fileName(ext);
+      try {
+        var url = URL.createObjectURL(new Blob([text], { type: ext === 'json' ? 'application/json' : 'text/csv' }));
+        var a = h('a', { href: url, download: name });
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        note.className = 'export-note good';
+        note.textContent = 'ファイルを保存しました(ファイル名: ' + name + ')。先生に言われた場所に出そう。ファイルができないときは「記録をコピーする」を使います。';
+      } catch (e) {
+        note.className = 'export-note warn';
+        note.textContent = 'ファイルを作れませんでした。「記録をコピーする」を使ってください。';
+      }
+    }
+    function copy() {
+      if (!ready()) return;
+      var r = buildRecord();
+      var text = [r.app, '組: ' + r.student.cls + '　番号: ' + r.student.num + '　名前: ' + r.student.name]
+        .concat(r.scenarios.map(function (x) { return x.no + ' ' + x.title + ': ' + (x.cleared ? 'クリア' : 'まだ') + '(だまされた ' + x.misses + '回・ヒント ' + x.hints + '回)'; }))
+        .concat(['ふりかえり1: ' + r.reflection.r1, 'ふりかえり2: ' + r.reflection.r2, 'ふりかえり3: ' + r.reflection.r3]).join('\n');
+      var done = function () { note.className = 'export-note good'; note.textContent = 'コピーしました。先生に言われた場所(Classroom など)にはりつけよう。'; };
+      var fallback = function () {
+        var ta = h('textarea', { class: 'input', rows: 6, readonly: true });
+        ta.value = text;
+        note.textContent = 'コピーできなかったので、下の文を全部えらんでコピーしてください。';
+        note.className = 'export-note warn';
+        note.appendChild(ta);
+        ta.select();
+      };
+      try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+    }
+    var r = buildRecord();
+    var refl = saved.refl || {};
+    append(el, [
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
+        h('p', { class: 'meta', text: 'クリアした場面とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+      card('名前',
+        h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
+        h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
+      card('進み具合とふりかえり',
+        h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
+          h('thead', null, h('tr', null, h('th', { text: '場面' }), h('th', { text: 'クリア' }), h('th', { text: 'だまされた' }), h('th', { text: 'ヒント' }))),
+          h('tbody', null, r.scenarios.map(function (x) {
+            return h('tr', null, h('td', { text: x.no + '. ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
+          })))),
+        h('ul', { class: 'refl-list' }, D.reflQ.map(function (q, i) {
+          return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + ': ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
+        })),
+        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#matome', text: '6 まとめとふりかえり' }), '」で書きます。')),
+      card('書き出す',
+        h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
+        h('div', { class: 'btn-row' },
+          btn('記録を書き出す(JSON・提出用)', function () { download('json'); }, 'ef-btn-primary'),
+          btn('CSVで書き出す(表計算用)', function () { download('csv'); }),
+          btn('記録をコピーする', copy)),
+        note,
+        point('書き出す中身', h('p', { text: '組・番号・名前、場面ごとのクリア・だまされた回数・ヒントの回数、ふりかえりの文章だけです。' }))),
+      renderReset()
+    ]);
+  }
+
+  // ---- はじめからやり直す(データリセット) ----
+  // 確認は画面の中で行う。ふりがな・文字の大きさは表示の設定なので消さない(ほかの情報の教材と同じ)。
+  var resetAsk = false;
+  var resetMsg = '';
+  function renderReset() {
+    var box = card('はじめからやり直す',
+      h('p', { text: '次の人に端末をわたすときや、最初からやり直したいときに使います。この端末に保存した組・番号・名前、クリアした場面、だまされた回数、ふりかえりを、すべて消します。ふりがな・文字の大きさの設定は残ります。' }));
+    box.id = 'reset';
+    box.classList.add('reset-card');
+    if (!resetAsk) {
+      box.appendChild(h('div', { class: 'btn-row' }, btn('この端末の記録をすべて消す', function () { resetAsk = true; resetMsg = ''; rerender(); }, 'ef-btn reset-btn')));
+    } else {
+      box.appendChild(h('div', { class: 'reset-confirm', role: 'alert' },
+        h('p', null, h('strong', { text: '本当に消しますか？' }), '消した記録は元にもどせません。提出がまだなら、先に「書き出す」でファイルにしておこう。'),
+        h('div', { class: 'btn-row' },
+          btn('消す(はじめからやり直す)', function () { resetAll(); }, 'ef-btn-primary danger'),
+          btn('やめる', function () { resetAsk = false; rerender(); }))));
+    }
+    if (resetMsg) box.appendChild(h('p', { class: 'export-note good', role: 'status', text: resetMsg }));
+    return box;
+  }
+  function resetAll() {
+    clearTimers();
+    var keep = { furigana: saved.furigana, big: saved.big };
+    saved = {};
+    try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
+    if (keep.furigana) save('furigana', true);
+    if (keep.big) save('big', true);
+    resetAsk = false;
+    resetMsg = '記録をすべて消しました。はじめから使えます。';
+    current = null;
+    show('records');
+    resetMsg = '';
+    toast('記録を消しました');
+    var b = document.querySelector('.reset-btn');
+    if (b) try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); }
+    var r = document.getElementById('reset');
+    if (r) r.scrollIntoView({ block: 'center' });
+  }
+  function toast(msg) {
+    var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2500);
+  }
+
+  // ---- 表示の切りかえ(ふりがな・大きな文字) ----
+  function setupToggles() {
+    var tools = document.getElementById('display-toggles');
+    [['furigana', 'ふりがな', 'show-ruby'], ['big', '大きな文字', 'big-text']].forEach(function (t) {
+      var on = !!saved[t[0]];
+      document.documentElement.classList.toggle(t[2], on);
+      var b = h('button', { type: 'button', class: 'toggle ef-btn', 'aria-pressed': String(on) }, t[1]);
+      b.addEventListener('click', function () {
+        on = !on;
+        save(t[0], on);
+        b.setAttribute('aria-pressed', String(on));
+        document.documentElement.classList.toggle(t[2], on);
+        if (t[0] === 'furigana' && current) rerender();
+      });
+      tools.appendChild(b);
+    });
+  }
+
+  buildNav();
+  setupToggles();
+  window.addEventListener('hashchange', route);
+  route();
+})();
+
+</script>
+</body>
+</html>
