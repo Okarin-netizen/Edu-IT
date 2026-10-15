@@ -1168,6 +1168,25 @@ function convAdvance(dth, manual) {
   if (S.mech === 'link') {
     var lt = M.fourBarSweep(cp.a, cp.b, cp.c, cp.d), step = manual ? dth : dth * C.dir, n = Math.max(1, Math.ceil(Math.abs(step) / 0.02)), i;
     var pass = M.linkType(cp.a, cp.b, cp.c, cp.d).id === 'rockercrank';   // 出力側が回る形: はしで止まらず、出力は同じ向きに回り続ける
+    if (pass && !manual) {
+      if (!dth) return;
+      // 足踏みミシンと同じ: 回り続けるのは出力側(はずみ車)。出力を一定の速さで回し、入力の角度を逆算する。
+      // 入力を一定の速さで動かすと、はしで急に折り返し、出力が一瞬で大きく飛ぶ(現実にはそうならない)
+      if (!C.prevB) { var r0 = M.fourBar(cp.a, cp.b, cp.c, cp.d, C.th, null); if (!r0.ok) return; C.prevB = r0.B; }
+      var sg = C.dPhi < 0 ? -1 : 1, m = Math.max(1, Math.ceil(Math.abs(dth) / 0.02));
+      for (i = 0; i < m; i++) {
+        var ps = Math.atan2(C.prevB.y, C.prevB.x - cp.d) + sg * dth / m;
+        var Bn = { x: cp.d + cp.c * Math.cos(ps), y: cp.c * Math.sin(ps) }, e = Math.hypot(Bn.x, Bn.y);
+        if (e > cp.a + cp.b || e < Math.abs(cp.a - cp.b) || e < 1e-9) break;
+        var k = (cp.a * cp.a - cp.b * cp.b + e * e) / (2 * e), h = Math.sqrt(Math.max(0, cp.a * cp.a - k * k)), ux = Bn.x / e, uy = Bn.y / e;
+        var A1 = { x: ux * k - uy * h, y: uy * k + ux * h }, A2 = { x: ux * k + uy * h, y: uy * k - ux * h };
+        var Ao = { x: cp.a * Math.cos(C.th), y: cp.a * Math.sin(C.th) };
+        var An = Math.hypot(A1.x - Ao.x, A1.y - Ao.y) <= Math.hypot(A2.x - Ao.x, A2.y - Ao.y) ? A1 : A2;
+        var dt2 = Math.atan2(An.y, An.x) - C.th; dt2 -= TAU * Math.round(dt2 / TAU);
+        C.th += dt2; C.turns += dt2 / TAU; C.prevB = Bn; C.prevPhi = ps; C.dPhi = sg * dth / m;
+      }
+      return;
+    }
     for (i = 0; i < n; i++) {
       var guess = C.prevB;
       if (pass && C.prevB && C.prevPhi != null && C.dPhi) { var ph = Math.atan2(C.prevB.y, C.prevB.x - cp.d) + C.dPhi; guess = { x: cp.d + cp.c * Math.cos(ph), y: cp.c * Math.sin(ph) }; }
