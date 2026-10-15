@@ -6,6 +6,8 @@
 """
 import importlib.util, json, pathlib, re, shutil, subprocess, sys
 
+sys.dont_write_bytecode = True  # build-single.py を読んでも __pycache__ を作らない
+
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent
 info = repo / "information-apps"
