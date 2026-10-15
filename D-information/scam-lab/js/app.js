@@ -191,6 +191,7 @@
     var s = SECTIONS.filter(function (x) { return x.id === id; })[0] || SECTIONS[0];
     clearTimers();
     current = s;
+    escAct = null;
     draw(s);
     save('last', s.id);
     if (s.no) save('lastStep', s.id);
@@ -199,6 +200,7 @@
     document.title = (s.id === 'intro' ? 'はじめに' : s.title) + ' | ' + APP;
   }
   function draw(s) {
+    escAct = null;
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
       if (a.getAttribute('data-id') === s.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
@@ -241,7 +243,7 @@
           h('li', { text: '左の画面は、あなたのスマホやパソコン。画面の中のボタンも押せます(押すと、だまされることもあります)。' }),
           h('li', { text: '右の「あなたの行動」から、つぎにどうするかをえらびます。' }),
           h('li', { text: '「やることリスト」の「？」を全部うめて、最後の行動までやりきるとクリア。こまったら「ヒント」を押そう。' }),
-          h('li', { text: 'だまされたら、どうなったかを読んで、その前の場面からやり直せます。' })),
+          h('li', { text: 'だまされたら、どうなったかを読んで、その前の場面からやり直せます。だまされても本当には何も起きません。「押したらどうなるか」を確かめるのも学習です。' })),
         point('安心して体験できます',
           h('p', { text: 'この教材はブラウザの中だけで動き、インターネットには一切つながりません。出てくる会社・サイト・アドレス・電話番号・口座はすべて架空で、押してもどこにも連絡しません。入力欄は見た目だけで、何も入力できません。' }))),
       h('section', { class: 'module-group' },
@@ -274,7 +276,7 @@
     function set(n) { setScState(sc, n); markNav(); rerender(); }
     function doAct(a) {
       var n = E.apply(sc, st, a, new Date().toISOString());
-      set(n);
+      // スクロールの動きは描き直す前に決めておく(描き直しのすぐあとに動く)
       if (n.end || n.node !== st.node) {
         afterDraw = function () {
           var t = document.getElementById('scene-top');
@@ -283,6 +285,7 @@
       } else if (n.msg) {
         afterDraw = function () { var m = document.getElementById('scene-msg'); if (m) m.scrollIntoView({ block: 'nearest' }); };
       }
+      set(n);
     }
 
     // はじめる前: 状況とめあて
@@ -308,7 +311,9 @@
     var byId = {};
     list.forEach(function (a) { if (a.id) byId[a.id] = a; });
     var screenAct = function (id) { return function () { if (byId[id]) doAct(byId[id]); }; };
+    escAct = byId.esc && !(byId.esc.step && st.done[byId.esc.step]) ? function () { doAct(byId.esc); } : null;
 
+    timerKey = sc.id + ':' + st.node;
     var device = renderDevice(sc, node.screen, st, screenAct);
     var side = h('div', { class: 'scene-side' },
       h('section', { class: 'card situation' }, h('h2', { class: 'panel-title', text: 'いまの状況' }), h('p', { text: node.say })),
@@ -316,7 +321,7 @@
         h('span', { class: 'msg-label', text: { good: 'よい判断！ ', meh: 'うーん… ', need: 'ちょっと待って ', info: '' }[st.msg.tone] || '' }), st.msg.text) : null,
       h('section', { class: 'card actions' },
         h('h2', { class: 'panel-title', text: 'あなたの行動' }),
-        h('div', { class: 'act-list' }, list.filter(function (a) { return a.panel !== false; }).map(function (a) {
+        h('div', { class: 'act-list' }, mix(list.filter(function (a) { return a.panel !== false; }), sc.id + ':' + st.node).map(function (a) {
           var did = a.step && st.done[a.step] && !a.to;
           return h('button', { type: 'button', class: 'act' + (did ? ' did' : ''), disabled: did, on: { click: function () { doAct(a); } } },
             did ? h('span', { class: 'act-mark', text: '✓ ' }) : null, a.label);
@@ -330,7 +335,7 @@
       }));
     wrap.appendChild(h('div', { class: 'scene-grid' }, device, side));
     wrap.appendChild(h('div', { class: 'btn-row scene-tools' },
-      btn('この場面をはじめから', function () { set(E.restart(sc, st)); }, 'ef-btn small')));
+      btn('この場面をはじめから', function () { resetTimers(sc); set(E.restart(sc, st)); }, 'ef-btn small')));
   }
 
   function renderChecklist(sc, st, onHint) {
@@ -358,7 +363,7 @@
         h('p', { class: 'muted', text: '※ これは体験です。本当には何も起きていません。' }),
         h('div', { class: 'btn-row' },
           btn('その前の場面にもどって、やり直す', function () { set(E.back(sc, st)); }, 'ef-btn-primary'),
-          btn('この場面をはじめから', function () { set(E.restart(sc, st)); })));
+          btn('この場面をはじめから', function () { resetTimers(sc); set(E.restart(sc, st)); })));
     }
     var idx = D.scenarios.indexOf(sc);
     var nextSc = D.scenarios[idx + 1];
@@ -374,10 +379,30 @@
       h('div', { class: 'btn-row' },
         nextSc ? h('a', { class: 'ef-btn-primary', href: '#' + nextSc.id, text: 'つぎの場面：' + nextSc.title + ' →' })
           : h('a', { class: 'ef-btn-primary', href: '#matome', text: 'まとめとふりかえりへ →' }),
-        btn('この場面をもう一度', function () { set(E.restart(sc, st)); })));
+        btn('この場面をもう一度', function () { resetTimers(sc); set(E.restart(sc, st)); })));
   }
 
   // ---- スマホ・パソコンの画面 ----
+  // カウントダウンは、はじめて出した時から数える(行動して描き直しても、もどらない)
+  var timerStart = {};
+  var timerKey = '';
+  function resetTimers(sc) { Object.keys(timerStart).forEach(function (k) { if (k.indexOf(sc.id + ':') === 0) delete timerStart[k]; }); }
+  // いつも同じ順にまぜる(画面ごとに決まった順。描き直しても変わらない)
+  function mix(list, seed) {
+    var x = 0;
+    for (var i = 0; i < seed.length; i++) x = (x * 31 + seed.charCodeAt(i)) >>> 0;
+    var a = list.slice();
+    for (var j = a.length - 1; j > 0; j--) {
+      x = (x * 1103515245 + 12345) >>> 0;
+      var k = x % (j + 1), t = a[j];
+      a[j] = a[k]; a[k] = t;
+    }
+    return a;
+  }
+  var escAct = null;
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && escAct && current && current.sc) { var f = escAct; escAct = null; f(); }
+  });
   function fmtTime(sec) {
     var d = Math.floor(sec / 86400), hh = Math.floor(sec % 86400 / 3600), mm = Math.floor(sec % 3600 / 60), ss = sec % 60;
     var p = function (x) { return (x < 10 ? '0' : '') + x; };
@@ -400,9 +425,12 @@
           return h('div', { class: 'sb-thumb' }, h('span', { class: 'sb-emoji', 'aria-hidden': 'true', text: it.emoji }), h('span', { text: it.text }));
         }));
         case 'timer': {
-          var left = b.sec;
+          var key = timerKey + ':' + b.label;
+          if (!timerStart[key]) timerStart[key] = Date.now();
+          var since = function () { return Math.floor((Date.now() - timerStart[key]) / 1000); };
+          var left = Math.max(0, b.sec - since());
           var out = h('b', { class: 'sb-timer-v', text: fmtTime(left) });
-          timers.push(setInterval(function () { left = Math.max(0, left - 1); out.textContent = fmtTime(left); }, 1000));
+          timers.push(setInterval(function () { left = Math.max(0, b.sec - since()); out.textContent = fmtTime(left); }, 1000));
           return h('p', { class: 'sb-timer' }, b.label + ' ', out);
         }
         case 'field': return h('div', { class: 'sb-field' }, h('span', { text: b.label }), h('span', { class: 'sb-input', 'aria-hidden': 'true' }));

@@ -71,8 +71,8 @@ var ScamData = (function () {
           ] },
           acts: [
             'look', 'nopay',
-            { id: 'pay', label: 'あわてて、家の人のカードを借りてはらう', to: 'bad_pay' },
-            { id: 'contact', label: '「まちがえて登録した方」から、まちがいだと連絡する', to: 'bad_contact' },
+            { id: 'pay', label: '「法的手続き」になると困るので、今のうちにはらっておく', to: 'bad_pay' },
+            { id: 'contact', label: 'まちがえて押しただけなので、問い合わせから連絡して取り消してもらう', to: 'bad_contact' },
             { id: 'close', label: 'ページ(タブ)を閉じる', step: 'close', to: 'home',
               say: '請求の画面を閉じた。お金をはらうボタンも、問い合わせのボタンも押していない。' }
           ]
@@ -85,7 +85,7 @@ var ScamData = (function () {
               say: '通知を押すと、また請求の画面にもどされてしまった。通知は押さないで止めよう。' },
             { id: 'block', label: 'ブラウザの設定で、このサイトの通知を「ブロック」にして、閲覧履歴を消す', step: 'block', to: 'home2',
               say: '通知は、サイトに「許可」したときに出るしくみ。ブロックしたら止まった。履歴を消したので、うっかり開き直すこともない。' },
-            { id: 'pay2', label: '通知が止まらないので、言われたとおりにはらう', to: 'bad_pay' },
+            { id: 'pay2', label: '通知が止まらないので、はらって終わりにする', to: 'bad_pay' },
             'look', 'nopay', 'alone', 'consult'
           ]
         },
@@ -153,8 +153,8 @@ var ScamData = (function () {
           acts: [
             'apply', 'official',
             { id: 'entry', label: '「受け取り手続きへ」を押す', to: 'form' },
-            { id: 'reply', label: '本物か聞くために、このメールに返信する', to: 'bad_reply' },
-            { id: 'unsub', label: 'もう届かないように「配信停止はこちら」を押す', to: 'bad_reply' },
+            { id: 'reply', label: '本当に当たったのか、このメールに返信して聞いてみる', to: 'bad_reply' },
+            { id: 'unsub', label: 'もう届かないように「配信停止はこちら」を押しておく', to: 'bad_reply' },
             { id: 'forward', label: '友達も当たっているかもしれないので、メールを転送して教える', tone: 'meh',
               say: '転送すると、友達がうっかり手続きしてしまうかもしれない。にせもののメールは広げないでおこう。' },
             'report'
@@ -170,7 +170,7 @@ var ScamData = (function () {
             { t: 'btn', text: '登録して送料をはらう', act: 'card', cls: 'big' }
           ] },
           acts: [
-            { id: 'card', label: '家の人のカードを借りて入力し、登録する', to: 'bad_card' },
+            { id: 'card', label: '送料500円だけなので、家の人のカードで登録する', to: 'bad_card' },
             { id: 'backMail', label: '何も入力しないで、メールの画面にもどる', to: 'mail', tone: 'meh',
               say: 'もどれてよかった。でも、メールのリンクを開くだけでも、ウイルスのあるページに飛ばされることがある。リンクは押さずに確かめよう。' }
           ]
@@ -253,7 +253,7 @@ var ScamData = (function () {
             body: [{ t: 'h', text: '文化祭 写真一覧' }, { t: 'p', text: '写真を表示するには、上の黄色い帯の「コンテンツの有効化」を押してください。' },
               { t: 'thumbs', items: [{ emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }, { emoji: '▒', text: '(表示できません)' }] }] },
           acts: [
-            { id: 'enable', label: '写真が見たいので「コンテンツの有効化」を押す', to: 'bad_infect' },
+            { id: 'enable', label: '書いてあるとおり「コンテンツの有効化」を押して、写真を見る', to: 'bad_infect' },
             { id: 'closeDoc', label: '有効化しないで、ファイルを閉じる', to: 'mail', tone: 'meh',
               say: 'セーフ！ 有効化しなかったので、かくれたプログラムは動いていない。でも、開いたことも先生に伝えよう。思いがけない添付ファイルは、開く前に確かめるのがいちばん。' }
           ]
@@ -277,7 +277,7 @@ var ScamData = (function () {
       goal: '電話もソフトのインストールもしないで、警告の画面から安全にぬけ出そう。',
       steps: [
         { id: 'calm', label: 'Webページに、パソコンの中は調べられないと気づく', hint: 'これはパソコンの中のソフト？ それともブラウザに出ているWebページ？' },
-        { id: 'esc', label: 'Esc キーで、全画面の表示を終わらせる', hint: '画面いっぱいの表示で、タブや × ボタンが見えない。キーボードのどのキーで全画面を終わらせる？' },
+        { id: 'esc', label: 'Esc キーで、全画面の表示を終わらせる', hint: '画面いっぱいの表示で、タブや × ボタンが見えない。キーボードの左上にあるキーで、全画面を終わらせられるよ(本物のキーを押してもいい)。' },
         { id: 'close', label: 'タブ(ブラウザ)を閉じる', hint: '全画面が終わったら、どうやってこのページから離れる？' },
         { id: 'consult', label: '家の人(学校の端末なら先生)に伝える', hint: '何があったか、だれに伝える？' }
       ],
@@ -318,13 +318,13 @@ var ScamData = (function () {
           acts: [
             'calm',
             { id: 'ok', label: '小さな画面の「OK」を押す', panel: false, tone: 'meh', say: '「OK」を押しても、また同じ表示が出てくる。押しても消えないようにしてあるんだ。' },
-            { id: 'esc', label: 'キーボードの Esc キーを長押しして、全画面の表示を終わらせる', step: 'esc',
+            { id: 'esc', label: 'キーボードの Esc キーを押して、全画面の表示を終わらせる', step: 'esc',
               say: '全画面が終わって、ブラウザのタブや × ボタンが見えるようになった。' },
             { id: 'close', label: 'タブ(ブラウザ)を閉じる', step: 'close', need: ['esc'], to: 'closed',
               needMsg: '画面いっぱいに表示されていて、タブも × ボタンも見えない…。まず全画面の表示を終わらせよう。',
               say: 'ブラウザを閉じたら、警告も音も消えた。「閉じるとデータが消える」はうそだった。' },
-            { id: 'call', label: '表示された番号に電話する', to: 'bad_call' },
-            { id: 'scan', label: '「ウイルスを除去する」を押して、ソフトを入れる', to: 'bad_scan' }
+            { id: 'call', label: 'データが消える前に、表示された番号に電話して聞く', to: 'bad_call' },
+            { id: 'scan', label: 'まずは無料スキャンで、ウイルスを消してもらう', to: 'bad_scan' }
           ]
         },
         closed: {
@@ -402,7 +402,7 @@ var ScamData = (function () {
           ] },
           acts: [
             'price', 'info', 'search',
-            { id: 'buy', label: '残り2足なので、すぐに「購入する」を押す', to: 'pay' },
+            { id: 'buy', label: '売り切れる前に、「購入する」を押しておく', to: 'pay' },
             'leave'
           ]
         },
@@ -415,7 +415,7 @@ var ScamData = (function () {
             { t: 'btn', text: '振り込みました', act: 'paid', cls: 'big' }
           ] },
           acts: [
-            { id: 'paid', label: '家の人にたのんで、すぐに振り込んでもらう', to: 'bad_pay' },
+            { id: 'paid', label: '注文が取り消される前に、家の人にたのんで振り込んでもらう', to: 'bad_pay' },
             { id: 'backPay', label: '振り込まずに、お店のページにもどる', to: 'shop', tone: 'meh',
               say: 'お店なのに、振込先が個人の名前…これもおかしなところ。買う前に、もっと確かめよう。' }
           ]
