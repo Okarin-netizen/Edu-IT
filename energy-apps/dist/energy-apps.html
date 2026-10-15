@@ -5,6 +5,321 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>エネルギー変換 学習アプリ(E1〜E5)</title>
 <!-- E1〜E5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.E{n}.mount() で起動する。 -->
+<!-- ===== 4分野共通の枠(shared/eduit-frame.css・energy-apps/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+</style>
+<script>
+/* エネルギー変換 学習アプリ(E1〜E5)の版・更新履歴など。
+ * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
+ * 統合版(dist/energy-apps.html)では build.py がこのファイルを中に入れる。
+ * 版を上げたら version・updated と history の先頭を書きかえて、build.py で作り直す。
+ */
+window.EDUIT_INFO = {
+  domain: 'C',
+  domainName: 'エネルギー変換の技術',
+  suite: 'エネルギー変換 学習アプリ(E1〜E5)',
+  version: '1.2',
+  updated: '2026-10-15',
+  safety: [
+    'E2 電気回路ラボ・E5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
+    'E3・E4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
+    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。E1 の発電の値段は、国の試算を丸めた概算です。'
+  ],
+  history: [
+    { version: '1.2', date: '2026-10-15', items: [
+      '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
+      '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(トップ画面の下と、アプリ画面の「ⓘ このアプリについて」)。',
+      '各アプリの中の画面・操作・保存データの形は変えていない。これまでの学習記録はそのまま使える。'
+    ] },
+    { version: '1.1', date: '2026-10-15', items: [
+      'E1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
+      'E1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
+      'E3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(E4 も同じ)。',
+      '統合版: Chromebook(11インチ)向けに「🖥️ 全画面」ボタンと、Chromebook・パソコンでの使い方を追加。'
+    ] },
+    { version: '1.0', date: '2026-10-14', items: [
+      'E1〜E5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
+      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(E1 自由実験の評価、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・印刷、E4 点検表の記録のずれ・クイズの問題文、E5 LED の電圧不足の診断・製作手順の安全など)。',
+      'タブレットの縦向きに対応。操作の言葉(❓ 使い方・↩ もどす・🗑 ぜんぶ消す など)をそろえ、効果音は最初OFFにした。難しい用語に読みがなを付けた。',
+      'トップ画面のカードに進み具合と「▶ つづきから」を表示。'
+    ] }
+  ]
+};
+EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
+</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ * }
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+</script>
 <style>
 /* ===== 各アプリのCSS(.e1〜.e5 接頭辞) ===== */
 /* ---------- E1 ---------- */
@@ -15,7 +330,7 @@
 .e1 *{box-sizing:border-box}
 .e1 button{font:inherit;touch-action:manipulation}
 .e1 rt{font-size:.55em;font-weight:normal}
-.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #1e6fd9}
+.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e1-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
 .e1-stitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
 .e1-stitle .t{font-size:17px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -23,7 +338,12 @@
 .e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e1-btn:active{transform:translateY(1px)}
 .e1-btn:disabled{opacity:.45;cursor:default;transform:none}
-.e1-top .e1-btn{background:#2f4f7a;color:#fff;white-space:nowrap;padding:0 12px;flex:none}
+.e1-top .e1-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;white-space:nowrap;padding:0 12px;flex:none}
+.e1-top .e1-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e1-top .e1-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e1-top h1{color:var(--ef-text,#1f2328)}
+.e1-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e1-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e1-btn.primary{background:var(--accent);color:#fff}
 .e1-btn.danger{background:#fde2e2;color:#a61e1e}
 .e1-btn.go{background:var(--accent);color:#fff;font-size:21px;min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
@@ -176,7 +496,7 @@
   font-size:16px;overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e2 *{box-sizing:border-box}
 .e2 button{font:inherit;touch-action:manipulation}
-.e2-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #d9480f}
+.e2-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e2-top .e2-btn{white-space:nowrap}
 .e2-top .sh{display:none}
 .e2-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
@@ -184,8 +504,12 @@
 .e2-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e2-btn:active{transform:translateY(1px)}
 .e2-btn:disabled{opacity:.4;cursor:default}
-.e2-top .e2-btn{background:#2f4f7a;color:#fff;padding:0 12px}
-.e2-top .e2-btn.on{background:#fff;color:#1d3557}
+.e2-top .e2-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px}
+.e2-top .e2-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e2-top .e2-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e2-top h1{color:var(--ef-text,#1f2328)}
+.e2-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e2-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e2-btn.primary{background:var(--accent);color:#fff}
 .e2-btn.danger{background:#fde2e2;color:#a61e1e}
 .e2-btn.good{background:#d3f5e1;color:#0d6b3a}
@@ -359,7 +683,7 @@
   font-size:16px;overflow:hidden;position:relative;background:#f1f3ee;-webkit-tap-highlight-color:transparent;}
 .e3 *{box-sizing:border-box}
 .e3 button{font:inherit;touch-action:manipulation}
-.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--top);color:#fff;flex:none;border-bottom:4px solid #2b7a4b}
+.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e3-top .e3-btn{white-space:nowrap}
 .e3-top .sh{display:none}
 .e3-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
@@ -368,8 +692,12 @@
 .e3-btn:active{transform:translateY(1px)}
 .e3-btn:disabled{opacity:.4;cursor:default}
 .e3-btn:focus-visible,.e3-cv:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e3-top .e3-btn{background:#2f4a72;color:#fff;padding:0 12px}
-.e3-top .e3-btn.on{background:#fff;color:var(--top)}
+.e3-top .e3-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px}
+.e3-top .e3-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e3-top .e3-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e3-top h1{color:var(--ef-text,#1f2328)}
+.e3-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e3-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e3-btn.primary{background:var(--accent2);color:#fff}
 .e3-btn.blue{background:var(--accent2);color:#fff}
 .e3-btn.danger{background:#fde2e2;color:#a61e1e}
@@ -515,16 +843,20 @@
   font-size:16px;overflow:hidden;position:relative;background:#f2f1ec;-webkit-tap-highlight-color:transparent;}
 .e4 *{box-sizing:border-box}
 .e4 button{font:inherit;touch-action:manipulation}
-.e4-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--top);color:#fff;flex:none;border-bottom:4px solid var(--app);white-space:nowrap}
+.e4-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309);white-space:nowrap}
 .e4-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
 .e4-top .sp{flex:1}
 .e4-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e7e9e4;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e4-btn:active{transform:translateY(1px)}
 .e4-btn:disabled{opacity:.4;cursor:default}
 .e4-btn:focus-visible,.e4-cv:focus-visible,.e4-hot:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e4-top .e4-btn{background:#2f4b70;color:#fff;padding:0 12px;min-height:44px;white-space:nowrap}
+.e4-top .e4-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px;min-height:44px;white-space:nowrap}
 .e4-top .e4-sh{display:none}
-.e4-top .e4-btn.on{background:#fff;color:var(--top)}
+.e4-top .e4-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e4-top .e4-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e4-top h1{color:var(--ef-text,#1f2328)}
+.e4-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e4-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e4-btn.primary{background:var(--accent2);color:#fff}
 .e4-btn.blue{background:#e3eefc;color:#1450a8;border-color:#9cc3ff}
 .e4-btn.danger{background:#fde2e2;color:#a61e1e}
@@ -711,15 +1043,19 @@
 .e5 *{box-sizing:border-box}
 .e5 button{font:inherit;touch-action:manipulation}
 .e5 input,.e5 textarea,.e5 select{font:inherit;user-select:text;-webkit-user-select:text}
-.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #5f3dc4}
+.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e5-top .sh{display:none}
 .e5-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
 .e5-stitle{flex:1;font-size:15px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
 .e5-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e5-btn:active{transform:translateY(1px)}
 .e5-btn:disabled{opacity:.4;cursor:default}
-.e5-top .e5-btn{background:#2f4f7a;color:#fff;padding:0 11px;white-space:nowrap}
-.e5-top .e5-btn.on{background:#fff;color:#1d3557}
+.e5-top .e5-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 11px;white-space:nowrap}
+.e5-top .e5-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e5-top .e5-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e5-top h1{color:var(--ef-text,#1f2328)}
+.e5-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e5-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e5-btn.primary{background:var(--accent);color:#fff}
 .e5-btn.danger{background:#fde2e2;color:#a61e1e}
 .e5-btn.good{background:#d3f5e1;color:#0d6b3a}
@@ -917,59 +1253,61 @@
   .e5-bar{padding:4px 8px}
 }
 /* ===== 統合シェル(.ea- 接頭辞) ===== */
-html,body{margin:0;height:100%;background:#eef3f8;}
+html,body{margin:0;height:100%;background:var(--ef-bg);}
 body{overflow:hidden}
-.ea{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;
-  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+.ea{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent);
+  font-family:var(--ef-font);
   color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:16px}
 .ea *{box-sizing:border-box}
 .ea-view{flex:1;min-height:0;display:none;flex-direction:column}
 .ea-view.on{display:flex}
-.ea-btn{font:inherit;font-size:15px;color:var(--ink);background:#e3ebf4;border:none;border-radius:10px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
+.ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
-.ea-btn:focus-visible,.ea-card:focus-visible,.ea-chip:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.ea-btn.danger{background:#fde2e2;color:#a61e1e}
-.ea-btn.primary{background:var(--accent);color:#fff;font-weight:bold}
+.ea-btn:hover:not([disabled]){border-color:var(--accent)}
+.ea-btn:focus-visible,.ea-card:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+.ea-btn.danger{background:#fde2e2;border-color:#f3b7b7;color:#a61e1e}
+.ea-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
+.ea-back{color:var(--accent);background:var(--ef-accent-soft);border-color:transparent;font-weight:bold}
 
 /* --- トップ画面 --- */
-.ea-home{overflow:auto;background:linear-gradient(160deg,#eef3f8 0%,#e6eef7 100%)}
-.ea-hd{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;padding:22px 32px 6px}
-.ea-hd .tt{min-width:0;flex:1 1 420px}
-.ea-hd .bt{display:flex;gap:10px;flex-wrap:wrap}
-.ea-hd h1{margin:0;font-size:30px;letter-spacing:.02em}
-.ea-hd .s{color:var(--sub);font-size:15px;margin-top:4px}
-.ea-flow{padding:4px 32px 10px;color:var(--sub);font-size:15px}
+.ea-home{overflow:auto;background:var(--ef-bg)}
+.ea-hd{padding:6px 32px;flex:none}
+.ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
+.ea-hd .ef-sub{font-size:14px}
+.ea-flow{padding:12px 32px 10px;color:var(--sub);font-size:15px}
 .ea-flow b{color:var(--ink)}
 .ea-flow rt,.ea-hbody rt{font-size:12px}
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
-.ea-card{grid-column:span 2;font:inherit;color:inherit;text-align:left;background:#fff;border:2px solid var(--line);border-radius:18px;padding:18px 18px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:236px;box-shadow:0 2px 6px rgba(29,43,58,.06);touch-action:manipulation;position:relative}
+.ea-card{grid-column:span 2;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:236px;touch-action:manipulation;position:relative}
+.ea-card:hover{border-color:var(--accent)}
 .ea-card:nth-child(4){grid-column:2 / span 2}
 .ea-card:active{transform:translateY(2px)}
 .ea-card .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff}
-.ea-card .no{font-size:14px;font-weight:bold;color:var(--sub)}
-.ea-card .nm{font-size:23px;font-weight:bold}
+.ea-card .no{margin:0;font-size:14px}
+.ea-card .nm{margin:0;font-size:22px}
 .ea-card .ds{font-size:15px;color:var(--sub);line-height:1.5}
 .ea-card .tg{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-top:2px}
-.ea-card .tg span{font-size:13px;background:#eef3f8;border-radius:999px;padding:3px 10px;color:#33475b}
-.ea-card .go{align-self:flex-end;font-weight:bold;font-size:16px;padding:8px 16px;border-radius:10px;color:#fff}
+.ea-card .tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-card .go{align-self:flex-end;min-height:40px}
 .ea-card .top{display:flex;gap:14px;align-items:center}
-.ea-card .pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:#33475b}
+.ea-card .pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
 .ea-card .pg b{font-size:15px;color:var(--ink)}
-.ea-card .pg .bar{height:8px;border-radius:999px;background:#e3ebf4;overflow:hidden}
+.ea-card .pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .ea-card .pg .bar i{display:block;height:100%;border-radius:999px}
 .ea-card .pg .s2{font-size:13px;color:var(--sub)}
-.ea-foot{padding:0 32px 22px;color:var(--sub);font-size:13px}
+.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:13px}
+.ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
-.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:#0f1d2c;color:#fff}
-.ea-bar .ea-btn{min-height:44px;background:#24384d;color:#fff;font-size:15px;padding:0 12px}
+.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:var(--ef-surface);color:var(--ink);border-bottom:3px solid var(--accent)}
+.ea-bar .ea-btn{min-height:42px;font-size:15px;padding:0 12px}
 .ea-btn[hidden]{display:none}
-.ea-bar .home{background:#ffb703;color:#1d2b3a;font-weight:bold}
 .ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .ea-chips::-webkit-scrollbar{display:none}
-.ea-chip{font:inherit;font-size:15px;color:#dbe5ef;background:transparent;border:none;border-radius:10px;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
-.ea-chip.cur{background:#fff;color:#0f1d2c;font-weight:bold}
+.ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:10px 10px 0 0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
+.ea-chip:hover{color:var(--ink)}
+.ea-chip.cur{background:var(--ef-accent-soft);color:var(--ink);font-weight:bold}
 .ea-chip .no{opacity:.8;font-size:14px}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
@@ -978,15 +1316,15 @@ body{overflow:hidden}
 .ea-err{padding:30px;font-size:18px}
 
 /* --- 使い方 --- */
-.ea-help{background:#f6f8fb}
-.ea-help .bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:10px 20px;border-bottom:1px solid var(--line);background:#fff}
-.ea-help .bar h2{margin:0;font-size:22px;flex:1;white-space:nowrap}
+.ea-help{background:var(--ef-bg)}
+.ea-help .bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:6px 20px;border-bottom:3px solid var(--accent);background:var(--ef-surface)}
+.ea-help .bar h2{margin:0;font-size:20px;flex:1;white-space:nowrap}
 .ea-tabs{display:flex;gap:6px;flex-wrap:wrap}
-.ea-tabs .ea-btn.on{background:var(--accent);color:#fff;font-weight:bold}
+.ea-tabs .ea-btn.on{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
 .ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:16.5px;-webkit-overflow-scrolling:touch}
 .ea-hbody h3{font-size:19px;margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
 .ea-hbody li{margin:3px 0}
-.ea-hbody code{background:#e8eef5;padding:1px 6px;border-radius:5px;font-size:.92em}
+.ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
 .ea-hcard h4{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
@@ -995,14 +1333,14 @@ body{overflow:hidden}
 .ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
 .ea-tbl{border-collapse:collapse;background:#fff}
 .ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:15px;vertical-align:top}
-.ea-tbl th{background:#e8eef5}
+.ea-tbl th{background:var(--ef-surface-2)}
 .ea-tools{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .ea-note{color:var(--sub);font-size:14px}
 .ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;display:none}
 
 @media (max-width:900px){
-  .ea-hd{padding:16px 16px 6px}
-  .ea-hd h1{font-size:26px}
+  .ea-hd{padding:6px 16px}
+  .ea-hd .ef-title{font-size:20px}
   .ea-flow{padding:4px 16px 10px}
   .ea-cards{gap:12px;padding:6px 16px 20px}
   .ea-foot{padding:0 16px 20px}
@@ -1012,12 +1350,13 @@ body{overflow:hidden}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
+@media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
   .ea-card,.ea-card:nth-child(4){grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
-@media (max-height:720px){ .ea-card{min-height:200px} .ea-hd{padding-top:14px} }
+@media (max-height:720px){ .ea-card{min-height:200px} }
 @media print{
   html,body{height:auto;overflow:visible}
   .ea{height:auto;display:block}
@@ -1031,28 +1370,27 @@ body{overflow:hidden}
 <div class="ea" id="ea">
   <!-- トップ画面 -->
   <section class="ea-view ea-home" data-view="home" aria-label="トップ画面">
-    <div class="ea-hd">
-      <div class="tt">
-        <h1>⚡ エネルギー変換 学習アプリ</h1>
-        <div class="s">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</div>
+    <header class="ef-header ea-hd">
+      <h1 class="ef-title"><span class="ef-icon" aria-hidden="true">⚡</span>エネルギー変換 学習アプリ<span class="ef-sub">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</span></h1>
+      <div class="ef-tools">
+        <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
+        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
+        <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       </div>
-      <div class="bt">
-        <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
-        <button class="ea-btn" data-ea="help">❓ 使い方</button>
-        <button class="ea-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
-      </div>
-    </div>
+    </header>
     <div class="ea-flow">おすすめの順番:<b>E1</b> エネルギー変換 → <b>E2</b> 電気回路 → <b>E3</b> <ruby>機構<rt>きこう</rt></ruby> → <b>E4</b> 保守点検 → <b>E5</b> 回路の設計</div>
     <div class="ea-cards" data-ref="cards"></div>
     <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「🏠 トップ」でここにもどれます。</div>
+    <div data-ef-footer></div>
   </section>
 
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
     <div class="ea-bar">
-      <button class="ea-btn home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
+      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
-      <button class="ea-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+      <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+      <span data-ref="about"></span>
     </div>
     <div class="ea-panes" data-ref="panes"></div>
   </section>
@@ -1060,7 +1398,7 @@ body{overflow:hidden}
   <!-- 使い方 -->
   <section class="ea-view ea-help" data-view="help" aria-label="使い方">
     <div class="bar">
-      <button class="ea-btn" data-ea="back">◀ もどる</button>
+      <button class="ea-btn ef-btn ef-back ea-back" data-ea="back">◀ もどる</button>
       <h2>使い方</h2>
       <div class="ea-tabs">
         <button class="ea-btn" data-ea="tab-s">🧑‍🎓 生徒向け</button>
@@ -1090,6 +1428,7 @@ body{overflow:hidden}
 <li><b>↩ もどす</b>:1つ前にもどす。<b>🗑 ぜんぶ消す</b>・<b>↺ 最初から</b>:消す前に確認が出ます(「やめる」でやめられます)。</li>
 <li><b>💾 ファイルに保存</b>・<b>📂 ファイルを読みこむ</b>・<b>🖨️ 印刷</b>:設計図や点検表などをファイルにしたり、印刷したりします。</li>
 <li><b>🔇 / 🔊</b>:効果音のオン・オフ。<b>はじめは音が出ません</b>(🔇)。音を出したいときは 🔇 をタップして 🔊 にします。</li>
+<li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・トップ画面のいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
 </ul>
 <h3>5つのアプリ</h3>
 <div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>E1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>E2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>E3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>E4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>E5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
@@ -1135,6 +1474,13 @@ body{overflow:hidden}
 <li><b>E3 設計図</b>、<b>E4 点検表</b>、<b>E5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
 <li>ファイル名は英数字(例: <code>E5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
 </ul>
+<h3>画面の枠の共通化(2026-10-15・第1.2版)</h3>
+<ul>
+<li>4分野(材料と加工・生物育成・エネルギー変換・情報)のアプリで、<b>画面の枠(ヘッダー・ボタン・カード・色)をそろえました</b>。ヘッダーは白地で、下に分野の色(エネルギー変換は<b>だいだい</b>)の線があります。トップ画面のカードと「▶ はじめる」も共通の形と色です(アイコンの色はアプリごと)。</li>
+<li><b>作成者・安全と個人情報・ライセンス・更新履歴</b>を、トップ画面のいちばん下と、アプリ画面の上のバーの「ⓘ このアプリについて」で見られるようにしました。</li>
+<li>上のバーのボタンは「❓ 使い方」を先にして、そのあとにアプリごとのボタン(🎯 目標・📄 設計図・🖨️ 印刷・🔇 音 など)を並べました。</li>
+<li>各アプリの中の画面・操作と、<b>保存データの形は変えていません</b>。これまでの学習記録はそのまま使えます。</li>
+</ul>
 <h3>追加内容(2026-10-15)</h3>
 <ul>
 <li><b>E1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
@@ -1145,7 +1491,7 @@ body{overflow:hidden}
 <ul>
 <li><b>内容の誤り・不具合を修正</b>:E1 自由実験の評価(原子力だけで3つとも100にならないように)、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・ブラックボックスの歯数・印刷の切れ、E4 点検項目を消したときの記録のずれとクイズの問題文、E5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
 <li><b>縦向きに対応</b>:作業エリア(盤面・図)を全幅にし、部品は上、説明は下に並べました。</li>
-<li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります。</li>
+<li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります(第1.2版で、4分野共通の白地+だいだいの線に変更)。</li>
 <li><b>効果音は最初OFF</b>、文字は本文15px以上、ボタンは高さ44px以上にしました。</li>
 <li>難しい用語(<ruby>軸受<rt>じくうけ</rt></ruby>・<ruby>潤滑<rt>じゅんかつ</rt></ruby>・<ruby>摩耗<rt>まもう</rt></ruby>・<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>など)に読みがなと短い言いかえを付けました。</li>
 <li>統合版:トップのカードに進み具合と「▶ つづきから」、上のアプリ切りかえに短い名前、縦向きでボタンが折れないようにしました。</li>
@@ -1721,16 +2067,20 @@ function formPath(d) {
 }
 function starStr(n, max) { var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
 
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   S.root.innerHTML =
     '<div class="e1-top">' +
       '<h1>⚡ エネルギー変換ゲーム</h1>' +
       '<button class="e1-btn" data-act="stages">☰ ステージ</button>' +
       '<div class="e1-stitle" data-ref="stitle"></div>' +
+      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
       '<button class="e1-btn" data-act="intro">🎯 目標</button>' +
       '<button class="e1-btn" data-act="hint">💡 ヒント</button>' +
-      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
       '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
+      efSlot() +
     '</div>' +
     '<div class="e1-main">' +
       '<div class="e1-palwrap"><div class="e1-pal" data-ref="pal"></div><div class="e1-palmore" data-ref="palmore" aria-hidden="true"></div></div>' +
@@ -1740,6 +2090,7 @@ function buildShell() {
     '</div>';
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  efMount();
 }
 function render() { renderTop(); renderPal(); renderBoard(); renderSide(); renderMsg(); }
 function stageLabel(i) { return STAGES[i].free ? '自由' : 'ステージ' + (i + 1); }
@@ -3134,6 +3485,9 @@ function openMode(mode) {
 }
 
 /* ---------- 画面の骨組み ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   var v = S.view, ch = chal();
   var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
@@ -3143,7 +3497,7 @@ function buildShell() {
     '<button class="e2-btn' + (v === 'cost' ? ' on' : '') + '" data-act="cost">💴 <span class="lg">電気</span>料金</button>' +
     '<div class="e2-stitle" data-ref="stitle"></div>' +
     '<button class="e2-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button></div>';
+    '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' + efSlot() + '</div>';
   var main;
   if (v === 'lab') {
     main = '<div class="e2-main"><div class="e2-pal" data-ref="pal"></div>' +
@@ -3156,6 +3510,7 @@ function buildShell() {
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (v === 'lab') bindBoard();
+  efMount();
   void ch;
 }
 function render() {
@@ -4377,6 +4732,9 @@ function say(text, cls) { S.msg = text; S.msgCls = cls || ''; if (S.el.msg) rend
 function renderMsg() { if (!S.el.msg) return; S.el.msg.className = 'e3-msg' + (S.msgCls ? ' ' + S.msgCls : ''); S.el.msg.innerHTML = S.msg; }
 
 /* ---------- 画面の骨組み ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function curTask() { return S.task ? taskById(S.task) : null; }
 function buildShell() {
   var v = S.view, tk = curTask();
@@ -4387,9 +4745,9 @@ function buildShell() {
     tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
     '<div class="e3-stitle" data-ref="stitle"></div>' +
-    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
     '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button></div>';
+    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
+    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button>' + efSlot() + '</div>';
   var main;
   if (v === 'tasks') main = '<div class="e3-page" data-ref="page"></div>';
   else main = '<div class="e3-main">' + (v === 'quiz' ? '' : '<div class="e3-pal" data-ref="pal"></div>') +
@@ -4402,6 +4760,7 @@ function buildShell() {
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   S.cw = 0; S.ch = 0;
   if (S.el.cv) bindCanvas();
+  efMount();
 }
 function render() {
   renderTop();
@@ -6443,14 +6802,18 @@ var VIEWS = [
   { id: 'book', ic: '📖', label: '部品図鑑', sh: '図鑑' }, { id: 'mach', ic: '🔍', label: '機械を見る', sh: '機械' }, { id: 'quiz', ic: '🎯', label: 'クイズ', sh: 'クイズ' },
   { id: 'sim', ic: '🎞️', label: 'ゆるみ・摩耗', sh: 'ゆるみ' }, { id: 'check', ic: '📋', label: '点検表づくり', sh: '点検表' }
 ];
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   var top = '<div class="e4-top"><h1 class="e4-noruby">🔧 保守点検ラボ</h1>' +
     VIEWS.map(function (v) { return '<button class="e4-btn' + (S.view === v.id ? ' on' : '') + '" data-act="view" data-v="' + v.id + '"' + (S.view === v.id ? ' aria-current="page"' : '') + ' aria-label="' + v.label + '">' + v.ic + ' <span class="e4-lg">' + v.label + '</span><span class="e4-sh">' + v.sh + '</span></button>'; }).join('') +
     '<div class="sp"></div>' +
     '<button class="e4-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e4-btn" data-act="sound" aria-label="効果音 ' + (S.save.sound ? 'オン' : 'オフ') + '">' + (S.save.sound ? '🔊' : '🔇') + '</button></div>';
+    '<button class="e4-btn" data-act="sound" aria-label="効果音 ' + (S.save.sound ? 'オン' : 'オフ') + '">' + (S.save.sound ? '🔊' : '🔇') + '</button>' + efSlot() + '</div>';
   S.root.innerHTML = top + '<div class="e4-main" data-ref="body"></div><div class="e4-printarea" data-ref="print"></div>';
   refs();
+  efMount();
 }
 function refs() {
   S.el = {};
@@ -8255,6 +8618,9 @@ function runSim() {
 }
 
 /* ---------- 画面 ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function topHtml() {
   var v = S.view, a = A(), ng = a.nNG, wn = a.nWarn;
   var badge = ng ? '<span class="e5-badge">' + ng + '</span>' : (wn ? '<span class="e5-badge y">' + wn + '</span>' : (a.hasSrc && D().parts.length ? '<span class="e5-badge g">✓</span>' : ''));
@@ -8262,9 +8628,9 @@ function topHtml() {
   return '<div class="e5-top"><h1>📐 <span class="lg">回路設計シート</span></h1>' +
     tab('brief', '📝', '① 課題・構想', '①課題') + tab('edit', '✏️', '② 回路図', '②回路図', badge) + tab('bom', '📦', '③ 部品表・手順', '③部品表') + tab('eval', '📏', '④ 評価', '④評価') +
     '<div class="e5-stitle">' + task().icon + ' ' + esc(task().title) + '</div>' +
+    '<button class="e5-btn" data-act="howto">❓ 使い方</button>' +
     '<button class="e5-btn" data-act="print">🖨️ 印刷</button>' +
-    '<button class="e5-btn" data-act="file">💾 保存</button>' +
-    '<button class="e5-btn" data-act="howto">❓ 使い方</button></div>';
+    '<button class="e5-btn" data-act="file">💾 保存</button>' + efSlot() + '</div>';
 }
 function build() {
   closeModal();
@@ -8285,6 +8651,7 @@ function build() {
 function render() {
   S.el.top.outerHTML = topHtml();
   S.el.top = S.root.firstElementChild;
+  efMount();
   if (S.view === 'edit') { renderPal(); renderBar(); renderBoard(); renderSide(); renderMsg(); }
   else if (S.view === 'brief') renderBrief();
   else if (S.view === 'bom') renderBom();
@@ -8899,9 +9266,17 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
 'use strict';
 var APPS = [{"id": "E1", "icon": "⚡", "name": "エネルギー変換ゲーム", "short": "エネルギー", "color": "#1e6fd9", "sub": "部品をつないで、エネルギーの変わり方と効率を体験", "tags": ["ステージ1〜8", "自由実験", "効率・CO₂・費用・社会"]}, {"id": "E2", "icon": "🔌", "name": "電気回路ラボ", "short": "電気回路", "color": "#d9480f", "sub": "回路をつくって、電流・電圧・安全を確かめる", "tags": ["課題11", "安全体験", "電気料金"]}, {"id": "E3", "icon": "⚙️", "name": "機構ラボ", "short": "機構", "color": "#2b7a4b", "sub": "歯車・ベルト・リンクで、動きと速さの変わり方を調べる", "tags": ["回転を伝える", "運動を変える", "設計課題12", "設計図"]}, {"id": "E4", "icon": "🔧", "name": "保守点検ラボ", "short": "保守点検", "color": "#c8620e", "sub": "共通部品と、点検・手入れのしかたを学ぶ", "tags": ["部品図鑑", "故障クイズ", "ゆるみ・摩耗", "点検表"]}, {"id": "E5", "icon": "📐", "name": "回路設計シート", "short": "回路設計", "color": "#5f3dc4", "sub": "目的に合った回路を設計し、製作と評価まで記録する", "tags": ["回路図", "自動チェック", "部品表・手順", "評価"]}];
 var EA = window.EnergyApps || {};
+EA.embedded = true; // 各アプリは自分の上のバーに「このアプリについて」を出さない(このシェルのバーに出す)
 var root = document.getElementById('ea');
 var $ = function (s) { return root.querySelector(s); };
 var refs = { cards: $('[data-ref="cards"]'), chips: $('[data-ref="chips"]'), panes: $('[data-ref="panes"]'), toast: $('[data-ref="toast"]') };
+// 共通の枠: アプリ画面の上のバーに「ⓘ このアプリについて」(作った人・安全と個人情報・ライセンス・更新履歴)
+if (window.EduitFrame) {
+  var ab = window.EduitFrame.aboutButton('ea-btn ef-btn ef-about-btn');
+  ab.innerHTML = 'ⓘ<span class="t"> このアプリについて</span>';
+  ab.setAttribute('aria-label', 'このアプリについて(作った人・安全と個人情報・ライセンス・更新履歴)');
+  $('[data-ref="about"]').appendChild(ab);
+}
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
 var mounted = {}, cur = null, fromHome = false, helpPushed = false, lastView = 'home';
 
@@ -8975,13 +9350,13 @@ function progressHtml(a, p) {
 function renderCards() {
   refs.cards.innerHTML = APPS.map(function (a) {
     var p = progressOf(a.id);
-    return '<button class="ea-card" data-open="' + a.id + '" style="border-top:6px solid ' + a.color + '">' +
+    return '<button class="ea-card ef-card" data-open="' + a.id + '">' +
       '<div class="top"><span class="ic" style="background:' + a.color + '">' + a.icon + '</span>' +
-      '<div><div class="no">' + a.id + '</div><div class="nm">' + esc(a.name) + '</div></div></div>' +
+      '<div><div class="no ef-card-tag">' + a.id + '</div><div class="nm ef-card-title">' + esc(a.name) + '</div></div></div>' +
       '<div class="ds">' + esc(a.sub) + '</div>' +
       '<div class="tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
       progressHtml(a, p) +
-      '<span class="go" style="background:' + a.color + '">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
+      '<span class="go ef-btn-primary">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
   }).join('');
 }
 refs.chips.innerHTML = APPS.map(function (a) {

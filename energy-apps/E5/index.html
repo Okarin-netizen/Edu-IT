@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E5 回路設計シート</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'E5 回路設計シート' };</script>
+<script src="../../shared/eduit-frame.js"></script>
 <style>
 html,body{margin:0;height:100%;background:#eef3f8;}
 .e5{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
@@ -13,15 +18,19 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e5 *{box-sizing:border-box}
 .e5 button{font:inherit;touch-action:manipulation}
 .e5 input,.e5 textarea,.e5 select{font:inherit;user-select:text;-webkit-user-select:text}
-.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#1d3557;color:#fff;flex:none;border-bottom:4px solid #5f3dc4}
+.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
 .e5-top .sh{display:none}
 .e5-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
 .e5-stitle{flex:1;font-size:15px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
 .e5-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
 .e5-btn:active{transform:translateY(1px)}
 .e5-btn:disabled{opacity:.4;cursor:default}
-.e5-top .e5-btn{background:#2f4f7a;color:#fff;padding:0 11px;white-space:nowrap}
-.e5-top .e5-btn.on{background:#fff;color:#1d3557}
+.e5-top .e5-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 11px;white-space:nowrap}
+.e5-top .e5-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e5-top .e5-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e5-top h1{color:var(--ef-text,#1f2328)}
+.e5-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e5-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
 .e5-btn.primary{background:var(--accent);color:#fff}
 .e5-btn.danger{background:#fde2e2;color:#a61e1e}
 .e5-btn.good{background:#d3f5e1;color:#0d6b3a}
@@ -1214,6 +1223,9 @@ function runSim() {
 }
 
 /* ---------- 画面 ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function topHtml() {
   var v = S.view, a = A(), ng = a.nNG, wn = a.nWarn;
   var badge = ng ? '<span class="e5-badge">' + ng + '</span>' : (wn ? '<span class="e5-badge y">' + wn + '</span>' : (a.hasSrc && D().parts.length ? '<span class="e5-badge g">✓</span>' : ''));
@@ -1221,9 +1233,9 @@ function topHtml() {
   return '<div class="e5-top"><h1>📐 <span class="lg">回路設計シート</span></h1>' +
     tab('brief', '📝', '① 課題・構想', '①課題') + tab('edit', '✏️', '② 回路図', '②回路図', badge) + tab('bom', '📦', '③ 部品表・手順', '③部品表') + tab('eval', '📏', '④ 評価', '④評価') +
     '<div class="e5-stitle">' + task().icon + ' ' + esc(task().title) + '</div>' +
+    '<button class="e5-btn" data-act="howto">❓ 使い方</button>' +
     '<button class="e5-btn" data-act="print">🖨️ 印刷</button>' +
-    '<button class="e5-btn" data-act="file">💾 保存</button>' +
-    '<button class="e5-btn" data-act="howto">❓ 使い方</button></div>';
+    '<button class="e5-btn" data-act="file">💾 保存</button>' + efSlot() + '</div>';
 }
 function build() {
   closeModal();
@@ -1244,6 +1256,7 @@ function build() {
 function render() {
   S.el.top.outerHTML = topHtml();
   S.el.top = S.root.firstElementChild;
+  efMount();
   if (S.view === 'edit') { renderPal(); renderBar(); renderBoard(); renderSide(); renderMsg(); }
   else if (S.view === 'brief') renderBrief();
   else if (S.view === 'bom') renderBom();
