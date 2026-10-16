@@ -3,7 +3,8 @@
 
 入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ の4つの統一版。
 先生用ガイド(クラスルーム配布/先生用/)と teacher-tools/ は入れない。
-アドレスに日本語が入らないように、統一版は a.html・b.html・c.html・d.html という名前で置く。
+アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html という名前で置き、
+a.html〜d.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
 先に python3 クラスルーム配布/まとめる.py で 生徒に配る/ を新しくしておく(.github/workflows/pages.yml は今あるファイルをそのまま使う)。
 """
 import pathlib, re, shutil
@@ -40,15 +41,61 @@ html, n2 = re.subn(r'<script src="([^"]+)"></script>', js, html)
 if (n1, n2) != (1, 1):
     raise SystemExit("site/index.html: 共通の枠(eduit-frame.css・eduit-frame.js)を中に入れられませんでした")
 
+# 統一版は apps/ に置き、a.html〜d.html は「入口へもどる」の細いバーの下に統一版を画面いっぱいに出すページにする。
+# 統一版の中(上のバーが固定のものもある)には手を入れないので、見た目や動きは配るファイルと同じ(配るファイルそのものも変えない)。
+FRAME = """<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>
+  html, body {{ margin: 0; height: 100%; }}
+  body {{ display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: #33373d; }}
+  #site-topbar {{ flex: 0 0 auto; display: flex; align-items: center; min-height: 34px; padding: 2px 10px; box-sizing: border-box;
+    font: 600 14px/1.4 "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif; }}
+  #site-topbar a {{ color: #fff; text-decoration: none; padding: 4px 10px; border-radius: 6px; }}
+  #site-topbar a:hover, #site-topbar a:focus-visible {{ background: rgba(255, 255, 255, .2); outline: 2px solid #f08c00; outline-offset: 0; }}
+  iframe {{ flex: 1 1 auto; width: 100%; border: 0; background: #fff; }}
+</style>
+</head>
+<body>
+<nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 分野をえらぶ(技術分野 教材集)</a></nav>
+<iframe src="apps/{file}" title="{title}" allow="fullscreen; microphone; camera; clipboard-write" allowfullscreen></iframe>
+<script>
+  // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
+  var f = document.querySelector('iframe');
+  if (location.hash) f.src = 'apps/{file}' + location.hash;
+  f.addEventListener('load', function () {{
+    try {{
+      document.title = f.contentDocument.title || document.title;
+      f.contentWindow.addEventListener('hashchange', function () {{ history.replaceState(null, '', f.contentWindow.location.hash || location.pathname); }});
+    }} catch (e) {{}}
+  }});
+</script>
+</body>
+</html>
+"""
+TITLES = {"a.html": "材料と加工の技術 教材集", "b.html": "生物育成の技術 教材集", "c.html": "エネルギー変換の技術 教材集", "d.html": "情報の技術 教材集"}
+
+(out / "apps").mkdir()
 for src, dst in PAGES.items():
     old = "../クラスルーム配布/生徒に配る/" + src
     if old not in html:
         raise SystemExit(f"site/index.html: {old} へのリンクがありません")
     html = html.replace(old, dst)
-    shutil.copyfile(student / src, out / dst)
+    page = (student / src).read_text(encoding="utf-8")
+    if dst == "b.html":
+        # 生物育成の教材は「ほかのページの枠の中」だと見出し(◀ メニューなど)をかくす。ここの枠では見出しを出したままにする
+        page, n = re.subn(r"embed = window\.self !== window\.top;", "embed = false;", page)
+        if n == 0:
+            raise SystemExit(f"{src}: 枠の中かどうかを調べるところが見つかりません(site/build.py を直してください)")
+    (out / "apps" / dst).write_text(page, encoding="utf-8")
+    (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
 
 (out / "index.html").write_text(html, encoding="utf-8")
 (out / ".nojekyll").write_text("", encoding="utf-8")
 
-for p in sorted(out.iterdir()):
-    print(f"_site/{p.name}  ({p.stat().st_size // 1024} KB)")
+for p in sorted(out.rglob("*")):
+    if p.is_file():
+        print(f"{p.relative_to(repo)}  ({p.stat().st_size // 1024} KB)")
