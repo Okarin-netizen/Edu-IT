@@ -58,8 +58,8 @@ export function renderTaskList(view, { tasks }) {
       ];
     }),
     h("p", { class: "hint concept-note" }, "考え方: 「順次」は上から順に1つずつ、「反復」はくり返し、「分岐」は条件によって進む道を変えることです（教科書の「順次・分岐・反復」）。"),
-    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、下のふりかえりを書いて④へ進もう。"),
-    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/auto" }, "次: ④手計算とくらべてみよう →")),
+    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、下のふりかえりを書いて、記録を書き出そう。"),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, "次: ふりかえり・記録へ →")),
   );
 }
 
@@ -174,7 +174,7 @@ export function renderTask(view, { tasks, isa }, id) {
     h("div", { class: "card sim-card" }, h("div", { class: "check-bar" }, h("button", { class: "btn", type: "button", onclick: checkAndShow }, "答え合わせ"), h("p", { class: "hint" }, "結果はこのすぐ下に出ます。")), resultBox, sim.el),
     readingCard(false),
     isaTable(isa),
-    h("p", { class: "hint reflect-pointer" }, "③のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
+    h("p", { class: "hint reflect-pointer" }, "④のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
   );
   return () => {
     sim.stop();

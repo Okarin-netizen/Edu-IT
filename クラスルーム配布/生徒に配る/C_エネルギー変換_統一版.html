@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>エネルギー変換 学習アプリ(E1〜E5)</title>
-<!-- E1〜E5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.E{n}.mount() で起動する。 -->
+<title>エネルギー変換の技術 教材集</title>
+<!-- C1〜C5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
 <!-- ===== 4分野共通の枠(shared/eduit-frame.css・C-energy/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
 <style>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
@@ -37,11 +37,12 @@
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 
 /* ---- ヘッダー ----
- * <header class="ef-header">
- *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
- *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
- * </header>
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -88,7 +89,8 @@
 }
 
 /* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
  */
 .ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
 .ef-card {
@@ -97,6 +99,29 @@
 }
 .ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
 
 /* ---- フッター(作成者・このアプリについて) ---- */
 .ef-footer {
@@ -164,7 +189,7 @@
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <script>
-/* エネルギー変換 学習アプリ(E1〜E5)の版・更新履歴など。
+/* エネルギー変換の技術 教材集(C1〜C5)の版・更新履歴など。
  * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
  * 統合版(dist/energy-apps.html)では build.py がこのファイルを中に入れる。
  * 版を上げたら version・updated と history の先頭を書きかえて、build.py で作り直す。
@@ -172,35 +197,42 @@
 window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
-  suite: 'エネルギー変換 学習アプリ(E1〜E5)',
-  version: '1.3',
+  suite: 'エネルギー変換の技術 教材集',
+  version: '1.4',
   updated: '2026-10-16',
   safety: [
-    'E2 電気回路ラボ・E5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
-    'E3・E4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
-    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。E1 の発電の値段は、国の試算を丸めた概算です。'
+    'C2 電気回路ラボ・C5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
+    'C3・C4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
+    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。C1 の発電の値段は、国の試算を丸めた概算です。'
   ],
   history: [
+    { version: '1.4', date: '2026-10-16', items: [
+      'アプリの記号を、分野の文字にそろえて E1〜E5 から C1〜C5 にした(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)。番号の順がおすすめの順。',
+      'メニューの形を4分野でそろえた。上のバーは「C エネルギー変換の技術 教材集」と「使い方」「先生用」。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の順で、基本編の上に「おすすめの順番: C1 → C2 → …」を出す。',
+      'アプリの上のバーの「🏠 トップ」を「◀ メニュー」にし、アプリを切りかえるボタンに記号の印を付けた(「C2 電気回路」など)。',
+      'アプリの中の並びを「基本編 → 発展編」の順にした。C1 は蓄電池のステージを8に(町の電源が6・たこ足配線が7)、C2 は課題1〜7 が基本編・8〜11 が発展編、C3 は設計課題1〜9 が基本編・10〜12 が発展編で、ブラックボックスのタブを最後に、C5 は LEDライト・LED常夜灯の課題を後ろにした。',
+      '記号を変えたので、保存の名前(energyApps.C1.v1 など)と、ファイルに保存したときの名前・中の記号(C3・C4・C5)も変わった。前の版の記録やファイルは読みこめない。'
+    ] },
     { version: '1.3', date: '2026-10-16', items: [
-      'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(E2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
+      'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(C2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
       'カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにした(記録の保存のしかたは変わらない)。',
       '先生用ガイドの名前・章立て・見た目を4分野でそろえた'
     ] },
     { version: '1.2', date: '2026-10-15', items: [
       '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
       '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(トップ画面の下と、アプリ画面の「ⓘ このアプリについて」)。',
-      'E3・E4: ファイルに保存するとき、組・番号・名前も入れるようにした(E5 で書いた名前を使う。なければたずねる)。先生用の振り返り一覧で、だれのファイルか分かる。',
+      'C3・C4: ファイルに保存するとき、組・番号・名前も入れるようにした(C5 で書いた名前を使う。なければたずねる)。先生用の振り返り一覧で、だれのファイルか分かる。',
       'そのほかの画面・操作・保存データの形は変えていない。これまでの学習記録はそのまま使える。'
     ] },
     { version: '1.1', date: '2026-10-15', items: [
-      'E1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
-      'E1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
-      'E3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(E4 も同じ)。',
+      'C1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
+      'C1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
+      'C3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(C4 も同じ)。',
       '統合版: Chromebook(11インチ)向けに「🖥️ 全画面」ボタンと、Chromebook・パソコンでの使い方を追加。'
     ] },
     { version: '1.0', date: '2026-10-14', items: [
-      'E1〜E5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
-      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(E1 自由実験の評価、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・印刷、E4 点検表の記録のずれ・クイズの問題文、E5 LED の電圧不足の診断・製作手順の安全など)。',
+      'C1〜C5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
+      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(C1 自由実験の評価、C2 電池どうしのショートの警告と並列回路の電流表示、C3 回転カウンター・印刷、C4 点検表の記録のずれ・クイズの問題文、C5 LED の電圧不足の診断・製作手順の安全など)。',
       'タブレットの縦向きに対応。操作の言葉(❓ 使い方・↩ もどす・🗑 ぜんぶ消す など)をそろえ、効果音は最初OFFにした。難しい用語に読みがなを付けた。',
       'トップ画面のカードに進み具合と「▶ つづきから」を表示。'
     ] }
@@ -208,7 +240,7 @@ window.EDUIT_INFO = {
 };
 
 /* 基本編・発展編(学習指導要領 技術分野「C エネルギー変換の技術」と教科書の内容から分けたもの)
- * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は E1〜E5。
+ * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は C1〜C5。
  * parts は生徒の画面のステージ・課題・タブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
  */
 window.EDUIT_INFO.levels = {
@@ -216,25 +248,25 @@ window.EDUIT_INFO.levels = {
     title: '基本編',
     lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
     items: [
-      { id: 'E1', parts: ['ステージ1 懐中電灯', 'ステージ2 自転車のライト', 'ステージ3 クレーン', 'ステージ4 火力発電所', 'ステージ5 再生可能エネルギー', 'ステージ7 町の電源', 'ステージ8 たこ足配線'], curr: 'C(1)ア・C(3)イ', why: 'エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容' },
-      { id: 'E2', parts: ['課題 豆電球・スイッチ・直列・並列', '課題 モーターを逆に回そう', '課題 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
-      { id: 'E3', parts: ['回転を伝える', '運動を変える', '設計課題(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
-      { id: 'E4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
-      { id: 'E5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
+      { id: 'C1', parts: ['ステージ1 懐中電灯', 'ステージ2 自転車のライト', 'ステージ3 クレーン', 'ステージ4 火力発電所', 'ステージ5 再生可能エネルギー', 'ステージ6 町の電源', 'ステージ7 たこ足配線'], curr: 'C(1)ア・C(3)イ', why: 'エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容' },
+      { id: 'C2', parts: ['課題1〜4 豆電球・スイッチ・直列・並列', '課題5 モーターを逆に回そう', '課題6・7 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
+      { id: 'C3', parts: ['回転を伝える', '運動を変える', '設計課題1〜9(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
+      { id: 'C4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
+      { id: 'C5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
     ]
   },
   advanced: {
     title: '発展編',
     lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、理科とつながる測定・計算をくわしく行う内容です。先生の指示があったら取り組みましょう。',
     items: [
-      { id: 'E1', parts: ['ステージ6 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
-      { id: 'E2', parts: ['課題 電流計・電圧計ではかろう', '課題 電池の持ちを比べる', '課題 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
-      { id: 'E3', parts: ['ブラックボックス', '設計課題(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
-      { id: 'E5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
+      { id: 'C1', parts: ['ステージ8 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
+      { id: 'C2', parts: ['課題8・9 電流計・電圧計ではかろう', '課題10 電池の持ちを比べる', '課題11 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
+      { id: 'C3', parts: ['設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)', 'ブラックボックス'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
+      { id: 'C5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
     ]
   }
 };
-EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
+EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 </script>
 <script>
 /* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
@@ -258,7 +290,14 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
  *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
@@ -428,6 +467,10 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
       panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
@@ -445,13 +488,54 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
     return { render: render, select: select, current: function () { return cur; } };
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
 <style>
 /* ===== 各アプリのCSS(.e1〜.e5 接頭辞) ===== */
-/* ---------- E1 ---------- */
+/* ---------- C1 ---------- */
 .e1{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
@@ -618,7 +702,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
   .e1-modal{padding:16px 18px 0}
   .e1-axis{grid-template-columns:minmax(0,230px) 1fr 40px}
 }
-/* ---------- E2 ---------- */
+/* ---------- C2 ---------- */
 .e2{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
@@ -805,7 +889,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
   .e2-stgrid{grid-template-columns:repeat(2,1fr)}
   .e2-steps{grid-template-columns:1fr}
 }
-/* ---------- E3 ---------- */
+/* ---------- C3 ---------- */
 .e3{--ink:#22302a;--sub:#5e6b64;--line:#d8ded6;--accent:#2b7a4b;--accent2:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#e67700;--top:#1d3557;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
@@ -953,8 +1037,8 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
 }
 @media print{
   html,body{height:auto;background:#fff}
-  body.ea-on-E3 *{visibility:hidden}
-  body.ea-on-E3 .e3-printarea,body.ea-on-E3 .e3-printarea *{visibility:visible}
+  body.ea-on-C3 *{visibility:hidden}
+  body.ea-on-C3 .e3-printarea,body.ea-on-C3 .e3-printarea *{visibility:visible}
   .e3-printarea{position:static;width:100%}
   .e3{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
   .e3-top,.e3-main,.e3-page{display:none!important}
@@ -965,7 +1049,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
   .e3-printarea table,.e3-printarea tr,.e3-printarea img{break-inside:avoid}
   .e3-noprint{display:none!important}
 }
-/* ---------- E4 ---------- */
+/* ---------- C4 ---------- */
 .e4{--ink:#262a30;--sub:#5f6670;--line:#dcdad2;--accent:#c8620e;--accent2:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#e67700;--top:#1d3557;--app:#c8620e;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
@@ -1153,8 +1237,8 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
 @media (max-width:820px){.e4-pgrid{grid-template-columns:repeat(2,1fr)}.e4-modes{grid-template-columns:1fr}}
 @media print{
   html,body{height:auto;background:#fff}
-  body.ea-on-E4 *{visibility:hidden}
-  body.ea-on-E4 .e4-printarea,body.ea-on-E4 .e4-printarea *{visibility:visible}
+  body.ea-on-C4 *{visibility:hidden}
+  body.ea-on-C4 .e4-printarea,body.ea-on-C4 .e4-printarea *{visibility:visible}
   .e4-printarea{display:block;position:absolute;left:0;top:0;width:100%;font-size:14px;color:#000}
   .e4-printarea h1{font-size:20px;margin:0 0 6px}
   .e4-printarea h2{font-size:16px;margin:12px 0 4px}
@@ -1164,7 +1248,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
   .e4>*:not(.e4-printarea){display:none!important}
   .e4-printarea{position:static}
 }
-/* ---------- E5 ---------- */
+/* ---------- C5 ---------- */
 .e5{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
@@ -1394,7 +1478,7 @@ body{overflow:hidden}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
 .ea-btn:hover:not([disabled]){border-color:var(--accent)}
-.ea-btn:focus-visible,.ea-card:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+.ea-btn:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 .ea-btn.danger{background:#fde2e2;border-color:#f3b7b7;color:#a61e1e}
 .ea-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
 .ea-back{color:var(--accent);background:var(--ef-accent-soft);border-color:transparent;font-weight:bold}
@@ -1404,31 +1488,25 @@ body{overflow:hidden}
 .ea-hd{padding:6px 32px;flex:none}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
-.ea-flow{padding:12px 32px 10px;color:var(--sub);font-size:15px}
-.ea-flow b{color:var(--ink)}
-.ea-flow rt,.ea-hbody rt{font-size:12px}
+.ea-hbody rt{font-size:12px}
+/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
-.ea-card{grid-column:span 2;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:236px;touch-action:manipulation;position:relative}
-.ea-card:hover{border-color:var(--accent)}
-.ea-card:nth-child(4){grid-column:2 / span 2}
-.ea-card:nth-child(4):last-child{grid-column:3 / span 2}
-.ea-card .ef-level-parts{display:block;font-size:14px}
+.ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
+.ea-cards>.ef-mcard:hover{border-color:var(--accent)}
+.ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
+.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
+.ea-cards .ef-level-parts{display:block;font-size:14px}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
-.ea-card:active{transform:translateY(2px)}
-.ea-card .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff}
-.ea-card .no{margin:0;font-size:14px}
-.ea-card .nm{margin:0;font-size:22px}
-.ea-card .ds{font-size:15px;color:var(--sub);line-height:1.5}
-.ea-card .tg{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-top:2px}
-.ea-card .tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
-.ea-card .go{align-self:flex-end;min-height:40px}
-.ea-card .top{display:flex;gap:14px;align-items:center}
-.ea-card .pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
-.ea-card .pg b{font-size:15px;color:var(--ink)}
-.ea-card .pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-card .pg .bar i{display:block;height:100%;border-radius:999px}
-.ea-card .pg .s2{font-size:13px;color:var(--sub)}
+.ea-cards .ef-mcard-desc{font-size:15px;color:var(--sub);line-height:1.5}
+.ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
+.ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
+.ea-card-tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
+.ea-pg b{font-size:15px;color:var(--ink)}
+.ea-pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.ea-pg .bar i{display:block;height:100%;border-radius:999px}
+.ea-pg .s2{font-size:13px;color:var(--sub)}
 .ea-foot{padding:0 32px 4px;color:var(--sub);font-size:13px}
 .ea-home .ef-footer{margin-top:10px}
 
@@ -1441,7 +1519,9 @@ body{overflow:hidden}
 .ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:10px 10px 0 0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
 .ea-chip:hover{color:var(--ink)}
 .ea-chip.cur{background:var(--ef-accent-soft);color:var(--ink);font-weight:bold}
-.ea-chip .no{opacity:.8;font-size:14px}
+.ea-chip .ef-code{font-size:13px;min-width:0}
+.ea-apptitle{margin:0 6px 0 4px;font-size:17px;white-space:nowrap;flex:none}
+.ea-apptitle .ef-code{margin-right:6px}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
@@ -1474,7 +1554,6 @@ body{overflow:hidden}
 @media (max-width:900px){
   .ea-hd{padding:6px 16px}
   .ea-hd .ef-title{font-size:20px}
-  .ea-flow{padding:4px 16px 10px}
   .ea-cards{gap:12px;padding:6px 16px 20px}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:6px 0 20px}
@@ -1484,14 +1563,15 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+@media (max-width:1100px){ .ea-apptitle{display:none} }
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-card,.ea-card:nth-child(4),.ea-card:nth-child(4):last-child{grid-column:auto}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
-@media (max-height:720px){ .ea-card{min-height:200px} }
+@media (max-height:720px){ .ea-cards>.ef-mcard{min-height:200px} }
 @media print{
   html,body{height:auto;overflow:visible}
   .ea{height:auto;display:block}
@@ -1504,25 +1584,25 @@ body{overflow:hidden}
 <body>
 <div class="ea" id="ea">
   <!-- トップ画面 -->
-  <section class="ea-view ea-home" data-view="home" aria-label="トップ画面">
+  <section class="ea-view ea-home" data-view="home" aria-label="メニュー">
     <header class="ef-header ea-hd">
-      <h1 class="ef-title"><span class="ef-icon" aria-hidden="true">⚡</span>エネルギー変換 学習アプリ<span class="ef-sub">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</span></h1>
+      <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
         <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
-        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
+        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生用</button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       </div>
     </header>
-    <div class="ea-flow">基本編のおすすめの順番:<b>E1</b> エネルギー変換 → <b>E2</b> 電気回路 → <b>E3</b> <ruby>機構<rt>きこう</rt></ruby> → <b>E4</b> 保守点検 → <b>E5</b> 回路の設計</div>
     <div data-ref="cards"></div>
-    <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「🏠 トップ」でここにもどれます。</div>
+    <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「◀ メニュー」でここにもどれます。</div>
     <div data-ef-footer></div>
   </section>
 
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
     <div class="ea-bar">
-      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
+      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
+      <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
       <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       <span data-ref="about"></span>
@@ -1537,23 +1617,23 @@ body{overflow:hidden}
       <h2>使い方</h2>
       <div class="ea-tabs">
         <button class="ea-btn" data-ea="tab-s">🧑‍🎓 生徒向け</button>
-        <button class="ea-btn" data-ea="tab-t">🧑‍🏫 先生向け</button>
+        <button class="ea-btn" data-ea="tab-t">🧑‍🏫 先生用</button>
       </div>
     </div>
     <div class="ea-hbody" data-tab="s">
 <h3>はじめかた</h3>
 <ol>
-<li>トップ画面で、学びたいアプリのカードをタップします。</li>
+<li>メニューで、学びたいアプリのカードをタップします。はじめは「基本編」のタブの上にある「おすすめの順番」(C1 → C2 → C3 → C4 → C5)のとおりに進めましょう。「発展編」のタブは、先生の指示があったら取り組みます。</li>
 <li>はじめて開いたアプリでは、そのアプリの使い方が出ます。読んだら「はじめる」をタップ。</li>
-<li>上の <b>🏠 トップ</b> をタップすると、いつでもトップ画面にもどれます。となりの <b>⚡ E1 エネルギー</b>・<b>🔌 E2 電気回路</b> などのボタンで、ほかのアプリへ直接移れます(縦向きでは、アイコンと番号だけになります)。</li>
+<li>上の <b>◀ メニュー</b> をタップすると、いつでもメニューにもどれます。右の <b>C1 エネルギー</b>・<b>C2 電気回路</b> などのボタンで、ほかのアプリへ直接移れます(縦向きでは、記号だけになります)。</li>
 <li>どのアプリも、上の右側の <b>❓ 使い方</b> で、そのアプリの説明をもう一度見られます(読んだら「わかった」)。</li>
-<li>トップ画面のカードには、<b>進み具合</b>(クリアしたステージや課題の数)が出ます。1つでも進んだアプリは「▶ つづきから」になります。</li>
+<li>メニューのカードには、<b>進み具合</b>(クリアしたステージや課題の数)が出ます。カードのどこをタップしても、そのアプリが開きます(「ひらく ▶」)。</li>
 <li>タブレットは<b>横向きでも縦向きでも</b>使えます。縦向きでは、作業する場所(盤面・図)が横いっぱいに広がり、部品やボタンは上、説明は下に並びます。</li>
 </ol>
 <h3>Chromebook・パソコンで使うとき</h3>
 <ul>
 <li>説明の「<b>タップ</b>」は、マウスやタッチパッドの<b>クリック</b>と同じです。「<b>指でなぞる</b>」「<b>引っぱる</b>」は、<b>ドラッグ</b>(おしたまま動かして、はなす)でできます。タッチ画面のChromebookなら、指でもそのまま使えます。</li>
-<li>トップ画面や上のバーの <b>🖥️ 全画面</b> をおすと、ブラウザのタブやアドレスバーが消えて、作業する場所が広くなります。もとにもどすときは <b>🖥️ 全画面をやめる</b>(または <b>Esc</b> キー)。</li>
+<li>メニューや上のバーの <b>🖥️ 全画面</b> をおすと、ブラウザのタブやアドレスバーが消えて、作業する場所が広くなります。もとにもどすときは <b>🖥️ 全画面をやめる</b>(または <b>Esc</b> キー)。</li>
 <li>部品の一覧や説明が画面に入りきらないときは、その部分をマウスのホイールやタッチパッドの<b>2本指で上下</b>に動かすと、続きが見えます。</li>
 <li>画面の大きさは <b>Ctrl</b> と <b>+</b> / <b>−</b> で変えられます(<b>Ctrl</b> と <b>0</b> でもとの大きさ)。</li>
 </ul>
@@ -1563,22 +1643,22 @@ body{overflow:hidden}
 <li><b>↩ もどす</b>:1つ前にもどす。<b>🗑 ぜんぶ消す</b>・<b>↺ 最初から</b>:消す前に確認が出ます(「やめる」でやめられます)。</li>
 <li><b>💾 ファイルに保存</b>・<b>📂 ファイルを読みこむ</b>・<b>🖨️ 印刷</b>:設計図や点検表などをファイルにしたり、印刷したりします。</li>
 <li><b>🔇 / 🔊</b>:効果音のオン・オフ。<b>はじめは音が出ません</b>(🔇)。音を出したいときは 🔇 をタップして 🔊 にします。</li>
-<li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・トップ画面のいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
+<li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・メニューのいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
 </ul>
 <h3>5つのアプリ</h3>
-<div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>E1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>E2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>E3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>E4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>E5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
+<div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>C1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>C2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>C3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>C4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>C5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
 <h3>記録(セーブ)について</h3>
 <ul>
 <li>とちゅうの回路や★、クイズの結果は<b>自動で保存</b>されます。保存ボタンをおす必要はありません。</li>
 <li>次に<b>同じタブレットの同じブラウザ</b>で開くと、続きから始まります。</li>
 <li>シークレットモード(プライベートブラウズ)で開くと、閉じたときに記録が消えます。</li>
-<li>設計図(E3)・点検表(E4)・設計シート(E5)は、「<b>💾 ファイルに保存</b>」でファイルにして先生に提出できます。保存すると「保存しました」と出ます。</li>
+<li>設計図(C3)・点検表(C4)・設計シート(C5)は、「<b>💾 ファイルに保存</b>」でファイルにして先生に提出できます。保存すると「保存しました」と出ます。</li>
 <li>保存したファイルは、同じアプリの「<b>📂 ファイルを読みこむ</b>」で開き直せます(「読みこみました」と出ます)。</li>
 </ul>
 <h3>こまったとき</h3>
 <ul>
-<li><b>画面が動かない・おかしい</b>:🏠 トップにもどってから開き直す。それでもだめなら、ページを再読み込みします(記録は残ります)。</li>
-<li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。E5 は音を使いません)。</li>
+<li><b>画面が動かない・おかしい</b>:◀ メニューにもどってから開き直す。それでもだめなら、ページを再読み込みします(記録は残ります)。</li>
+<li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。C5 は音を使いません)。</li>
 <li><b>まちがえて消した</b>:「↩ もどす」で1つ前にもどせます。</li>
 <li><b>字が小さい</b>:ブラウザの拡大(タブレットは2本指で広げる、Chromebook・パソコンは <b>Ctrl</b> と <b>+</b>)を使えます。</li>
 <li>計算は「理想的な部品」での目安です。本物の部品では、電池の古さや部品のばらつきで値が変わります。</li>
@@ -1587,39 +1667,43 @@ body{overflow:hidden}
     <div class="ea-hbody" data-tab="t" hidden>
 <h3 id="t-kubari">1. 配り方と開き方</h3>
 <ul>
-<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに E1〜E5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
+<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに C1〜C5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
 <li><b>インターネット接続は不要</b>です。外部との通信は一切しません。</li>
 <li>Google ドライブや Classroom で配る場合は、プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</li>
 <li>iPad はファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。その場合は校内のWebサーバーなどに置いて、URLで開いてください。</li>
-<li>特定のアプリから始めたいときは、URLの最後に <code>#E3</code> のように付けると、そのアプリが直接開きます(例: <code>energy-apps.html#E2</code>)。</li>
+<li>特定のアプリから始めたいときは、URLの最後に <code>#C3</code> のように付けると、そのアプリが直接開きます(例: <code>energy-apps.html#C2</code>)。</li>
 <li>想定画面は10インチタブレット(横 1280×800 前後)・タッチ操作です。<b>縦向きにも対応</b>しています(作業エリアが全幅になり、パネルは上下に並びます)。マウス・キーボードでも操作できます。</li>
 <li><b>効果音は最初はOFF</b>です(教室で30台が同時に鳴らないように)。生徒が各アプリの 🔇/🔊 ボタンで入れられます。設定は端末ごとに記録されます。</li>
 </ul>
 
 <h3 id="t-ichiran">2. 教材の一覧(基本編・発展編)</h3>
-<p>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(E1 の蓄電池・自由実験、E2 の電流計・電圧計・LEDと抵抗・電気料金、E3 のブラックボックスと数値の設計課題、E5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
-<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th></tr><tr><td>⚡ E1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td></tr><tr><td>🔌 E2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td></tr><tr><td>⚙️ E3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td></tr><tr><td>🔧 E4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td></tr><tr><td>📐 E5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td></tr></table>
+<p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「❓ 使い方」「🧑‍🏫 先生用」「🖥️ 全画面」のボタンがあります。アプリには <b>C1〜C5</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → C3 → C4 → C5」と出ます)。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C5 を切りかえるボタンが出ます。</p>
+<p>メニューのカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
+<p>アプリの中のステージ・課題・タブは「基本編 → 発展編」の順に並んでいるので、基本編は番号の小さいほうから続けて取り組めます(例: C2 は課題1〜7 が基本編、課題8〜11 が発展編)。</p>
+<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由実験・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr></table>
 
 <h3 id="t-tangen">3. 単元での使い方</h3>
 <ul>
-<li>導入で E1(エネルギー変換と効率)→ 電気の学習で E2 → 機械の学習で E3 → 保守点検で E4 → 製作の設計・評価で E5、の順を想定しています。</li>
-<li>E2 の回路の計算と E5 の回路図は同じ計算のしくみを使っています。E2 で試したことを E5 の設計に生かせます。</li>
-<li>E3 の部品データは E4 の部品図鑑と共通です。</li>
-<li>トップ画面のカードに、各アプリの進み具合(E1 ステージ・E2 課題・E3 設計課題のクリア数、E4 部品図鑑、E5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
+<li>導入で C1(エネルギー変換と効率)→ 電気の学習で C2 → 機械の学習で C3 → 保守点検で C4 → 製作の設計・評価で C5、の順を想定しています(番号の順 = おすすめの順)。</li>
+<li>基本編の範囲は番号で指示できます。例: 「C1 はステージ7まで」「C2 は課題7まで」「C3 は設計課題9まで」。そのあとの番号(C1 ステージ8・自由実験、C2 課題8〜11、C3 設計課題10〜12)が発展編です。</li>
+<li>C2 の回路の計算と C5 の回路図は同じ計算のしくみを使っています。C2 で試したことを C5 の設計に生かせます。</li>
+<li>C3 の部品データは C4 の部品図鑑と共通です。</li>
+<li>メニューのカードに、各アプリの進み具合(C1 ステージ・C2 課題・C3 設計課題のクリア数、C4 部品図鑑、C5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
 </ul>
 
 <h3 id="t-kiroku">4. 記録の保存と提出</h3>
 <h4>提出物(印刷・ファイル)</h4>
 <ul>
-<li><b>E3 設計図</b>、<b>E4 点検表</b>、<b>E5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
-<li>ファイル名は英数字(例: <code>E5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
+<li><b>C3 設計図</b>、<b>C4 点検表</b>、<b>C5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
+<li>ファイル名は英数字(<code>C3-kikou-…json</code>・<code>C4-tenken-…json</code>・<code>C5-sekkei-…json</code>)なので、提出先で文字化けしません。ファイルの中のアプリの記号(<code>app</code>)は <code>C3</code>・<code>C4</code>・<code>C5</code> です。</li>
 <li>提出されたファイルは、4分野共通の <b>全分野_振り返り一覧.html</b> で、ほかの分野と同じように一覧にできます。</li>
 </ul>
 <h4>学習記録の保存場所</h4>
 <ul>
 <li>記録は各端末のブラウザ内に保存されます。サーバーには送られません。</li>
 <li>端末やブラウザが変わると記録は引き継がれません。ブラウザの「閲覧履歴データの削除」で消えることがあります。</li>
-<li>保存キーは <code>energyApps.E1.v1</code>〜<code>energyApps.E5.v1</code> です。</li>
+<li>保存キーは <code>energyApps.C1.v1</code>〜<code>energyApps.C5.v1</code> です。全アプリの記録の書き出しファイル(<code>energy-apps-kiroku-…json</code>)にも、この名前で入ります。</li>
+<li>第1.4版で記号を E1〜E5 から C1〜C5 に変えたので、それより前の版の記録・保存したファイルは読みこめません。</li>
 </ul>
 
 <h4>学習記録の管理(この端末・このブラウザ)</h4>
@@ -1635,8 +1719,8 @@ body{overflow:hidden}
 <h3 id="t-chui">5. 授業で使うときの注意</h3>
 <ul>
 <li>計算は理想化したモデルによる目安です。実物の製作・測定と組み合わせて使ってください。</li>
-<li>E1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
-<li>E2・E5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
+<li>C1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
+<li>C2・C5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
 <li>アプリは外部と通信しません。生徒の情報がインターネットに送られることはありません。</li>
 </ul>
 
@@ -1645,10 +1729,18 @@ body{overflow:hidden}
 <dt><b>Google ドライブや Classroom の画面で開くと動かない</b></dt><dd>プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</dd>
 <dt><b>iPad でうまく動かない</b></dt><dd>ファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。校内のWebサーバーなどに置いて、URLで開いてください。</dd>
 <dt><b>前の記録が引き継がれない</b></dt><dd>記録は端末のブラウザごとに保存されます。前と同じ端末・同じブラウザで、同じ場所に置いたファイルから開いているか確かめてください。シークレットモードでは、閉じたときに記録が消えます。端末を変えるときは、「学習記録の管理」で書き出してから、新しい端末で読み込みます。</dd>
-<dt><b>画面が動かない・おかしい</b></dt><dd>🏠 トップにもどってから開き直します。それでもだめなら、ページを再読み込みします(記録は残ります)。</dd>
+<dt><b>画面が動かない・おかしい</b></dt><dd>◀ メニューにもどってから開き直します。それでもだめなら、ページを再読み込みします(記録は残ります)。</dd>
 </dl>
 
 <h3 id="t-rireki">7. 更新履歴</h3>
+<h4>記号と画面の統一(2026-10-16・第1.4版)</h4>
+<ul>
+<li>アプリの記号を、分野の文字にそろえて E1〜E5 から <b>C1〜C5</b> にしました(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)。番号の順がおすすめの順です。</li>
+<li>メニューの形を4分野でそろえました。上のバーは「C エネルギー変換の技術 教材集」と「使い方」「先生用」。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の順で、基本編の上に「おすすめの順番: C1 → C2 → …」を出します。</li>
+<li>アプリの上のバーの「🏠 トップ」を「◀ メニュー」にし、アプリを切りかえるボタンに記号の印を付けました(「C2 電気回路」など)。</li>
+<li>アプリの中の並びを「基本編 → 発展編」の順にしました。C1 は蓄電池のステージを8に(町の電源が6・たこ足配線が7)、C2 は課題1〜7 が基本編・8〜11 が発展編、C3 は設計課題1〜9 が基本編・10〜12 が発展編で、ブラックボックスのタブを最後に、C5 は LEDライト・LED常夜灯の課題を後ろにしました。</li>
+<li>記号を変えたので、保存の名前(energyApps.C1.v1 など)と、ファイルに保存したときの名前・中の記号(C3・C4・C5)も変わりました。前の版の記録やファイルは読みこめません。</li>
+</ul>
 <h4>基本編・発展編(2026-10-16・第1.3版)</h4>
 <ul>
 <li>トップ画面を「基本編」「発展編」のタブに分け、カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにしました(記録の保存のしかたは変わりません)。</li>
@@ -1663,13 +1755,13 @@ body{overflow:hidden}
 </ul>
 <h4>追加内容(2026-10-15)</h4>
 <ul>
-<li><b>E1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
-<li><b>E1 にかくれポイント「社会からの評価」を追加</b>:ステージ4〜7と自由実験では、プレイ中は見えない「安全性」「住民の理解」の点数があり、クリア画面で発電方法ごとの住民の声とあわせて表示します(点数は授業用の目安)。</li>
+<li><b>C1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
+<li><b>C1 にかくれポイント「社会からの評価」を追加</b>:ステージ4〜7と自由実験では、プレイ中は見えない「安全性」「住民の理解」の点数があり、クリア画面で発電方法ごとの住民の声とあわせて表示します(点数は授業用の目安)。</li>
 </ul>
 <h4>改善内容(2026-10-14)</h4>
 <p>中学生の目線で全アプリを使ってみるレビュー(10インチタブレットの横・縦で確認)を行い、その結果にもとづいて次のように改善しました。</p>
 <ul>
-<li><b>内容の誤り・不具合を修正</b>:E1 自由実験の評価(原子力だけで3つとも100にならないように)、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・ブラックボックスの歯数・印刷の切れ、E4 点検項目を消したときの記録のずれとクイズの問題文、E5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
+<li><b>内容の誤り・不具合を修正</b>:C1 自由実験の評価(原子力だけで3つとも100にならないように)、C2 電池どうしのショートの警告と並列回路の電流表示、C3 回転カウンター・ブラックボックスの歯数・印刷の切れ、C4 点検項目を消したときの記録のずれとクイズの問題文、C5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
 <li><b>縦向きに対応</b>:作業エリア(盤面・図)を全幅にし、部品は上、説明は下に並べました。</li>
 <li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります(第1.2版で、4分野共通の白地+だいだいの線に変更)。</li>
 <li><b>効果音は最初OFF</b>、文字は本文15px以上、ボタンは高さ44px以上にしました。</li>
@@ -1677,19 +1769,19 @@ body{overflow:hidden}
 <li>統合版:トップのカードに進み具合と「▶ つづきから」、上のアプリ切りかえに短い名前、縦向きでボタンが折れないようにしました。</li>
 <li><b>保存データの形は変えていません</b>。これまでの学習記録はそのまま使えます。</li>
 </ul>
-<p>すべての更新履歴は、トップ画面のいちばん下、またはアプリ画面の上のバーの「ⓘ このアプリについて」から見られます。</p>
+<p>すべての更新履歴は、メニューのいちばん下、またはアプリ画面の上のバーの「ⓘ このアプリについて」から見られます。</p>
 </div>
   </section>
   <div class="ea-toast" data-ref="toast" role="status"></div>
 </div>
 
 <!-- ===== 各アプリのスクリプト ===== -->
-<script>/* ===== E1 app ===== */
+<script>/* ===== C1 app ===== */
 
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
-var STORE_KEY = 'energyApps.E1.v1';
+var STORE_KEY = 'energyApps.C1.v1';
 var CELL = 110, COLS = 7, ROWS = 5, EPS = 1e-6;
 
 /* ---------- エネルギーの形 ---------- */
@@ -1813,14 +1905,6 @@ var STAGES = [
    stars:[['CO₂ 0 で電気が届く',function(m){return m.clear;}],['費用18以下',function(m){return m.cost<=18;}],['2種類以上の発電方法を組み合わせる',function(m){return m.kinds>=2;}]],
    hints:['石炭は使えない(CO₂の上限が0)。風・太陽・ダムの水を使おう。','風 → 風車 → 発電機、ダムの水 → 水車 → 発電機。1つの発電機に2本つないでもいいよ。','太陽電池は効率20%。くもりの日は少ししか発電できないけれど、ほかと組み合わせると役に立つ。'],
    quiz:{q:'再生可能エネルギー(太陽光・風力など)の課題として正しいものは?',c:['天気や時間によって発電量が変わる','燃料がすぐなくなる','発電中にCO₂をたくさん出す'],ex:'太陽や風はなくならず、CO₂も出しませんが、天気で発電量が変わります。いくつかの方法を組み合わせたり、ためたりする工夫が必要です。'}},
- { id:'s6', title:'昼も夜も電気を使いたい', learn:'蓄電池で需要(使いたい量)と供給(届ける量)を合わせる', budget:14,
-   slots:[{name:'昼',icon:'☀️',sun:1,wind:1},{name:'夜',icon:'🌙',sun:0,wind:1}],
-   story:'太陽の光で発電する家。昼はいいけれど、夜は太陽が出ない。夜にも電気を使えるようにしよう。',
-   fixed:[{type:'house',col:6,row:2,demand:[20,20]}],
-   parts:{sun:5,panel:1,battery:1,gas:1,boiler:1,turbine:1,gen:1},
-   stars:[['昼も夜も電気が届く',function(m){return m.clear;}],['CO₂ 0',function(m){return m.co2<=EPS;}],['費用12以下',function(m){return m.cost<=12;}]],
-   hints:['「昼」「夜」のボタンで、それぞれの時間の流れを見てみよう。','昼に余った電気をためておける部品は?「太陽 → 太陽電池 → 蓄電池 → 家」','昼の余りが少ないと夜に足りない。太陽を増やそう。'],
-   quiz:{q:'蓄電池の役割として正しいものは?',c:['電気が余ったときにため、足りないときに使う','電気の量を増やす','太陽の光を強くする'],ex:'発電する量と使う量の時間のずれを、ためることでうめます。ためたり出したりするときにも少しロスがあります。'}},
  { id:'s7', title:'町の電源を決めよう', learn:'安定供給・経済性・環境・安全のバランス', budget:60,
    slots:[{name:'晴れの昼',icon:'☀️',sun:1,wind:0.5},{name:'くもりの昼',icon:'☁️',sun:0.3,wind:1},{name:'夜',icon:'🌙',sun:0,wind:0.8}],
    story:'あなたは町のエネルギー担当。晴れの日も、くもりの日も、夜も、家と工場に電気を届けよう。答えは1つではない。',
@@ -1839,6 +1923,14 @@ var STAGES = [
    stars:[['ぜんぶを安全に使える',function(m){return m.clear;}],['タップの先にタップをつながない',function(m){return !m.tapChain;}],['どのコンセントも1275W以下(定格の85%以下・よゆうを持つ)',function(m){return m.maxOutlet<=0.85;}]],
    hints:['コンセントの差し込み口は2つ。それ以上使うならテーブルタップを使おう。','ドライヤー(1200W)と電気ポット(1000W)を同じコンセントにすると2200W。オーバーだね。','ドライヤーを1つのコンセントに。残りはもう1つのコンセントからテーブルタップで分けよう。'],
    quiz:{q:'たこ足配線や使いすぎが危ないのはなぜ?',c:['大きな電流でコードやタップが熱くなり、火災の原因になるから','電気料金が高くなるだけだから','コンセントの形が変わるから'],ex:'たくさんの機器を1か所でつなぐと大きな電流が流れ、コードやタップが発熱します。消費電力(W)の合計を確かめ、ほこりもこまめにそうじしましょう。'}},
+ { id:'s6', title:'昼も夜も電気を使いたい', learn:'蓄電池で需要(使いたい量)と供給(届ける量)を合わせる', budget:14,
+   slots:[{name:'昼',icon:'☀️',sun:1,wind:1},{name:'夜',icon:'🌙',sun:0,wind:1}],
+   story:'太陽の光で発電する家。昼はいいけれど、夜は太陽が出ない。夜にも電気を使えるようにしよう。',
+   fixed:[{type:'house',col:6,row:2,demand:[20,20]}],
+   parts:{sun:5,panel:1,battery:1,gas:1,boiler:1,turbine:1,gen:1},
+   stars:[['昼も夜も電気が届く',function(m){return m.clear;}],['CO₂ 0',function(m){return m.co2<=EPS;}],['費用12以下',function(m){return m.cost<=12;}]],
+   hints:['「昼」「夜」のボタンで、それぞれの時間の流れを見てみよう。','昼に余った電気をためておける部品は?「太陽 → 太陽電池 → 蓄電池 → 家」','昼の余りが少ないと夜に足りない。太陽を増やそう。'],
+   quiz:{q:'蓄電池の役割として正しいものは?',c:['電気が余ったときにため、足りないときに使う','電気の量を増やす','太陽の光を強くする'],ex:'発電する量と使う量の時間のずれを、ためることでうめます。ためたり出したりするときにも少しロスがあります。'}},
  { id:'s9', title:'自由に実験しよう', learn:'すべての部品で自由に実験', free:true,
    slots:[{name:'晴れの昼',icon:'☀️',sun:1,wind:0.5},{name:'くもりの昼',icon:'☁️',sun:0.3,wind:1},{name:'夜',icon:'🌙',sun:0,wind:0.8}],
    story:'すべての部品を使って、自由に発電所をつくってみよう。効率・CO₂・費用をくらべてみよう。答えは1つではありません。',
@@ -2448,7 +2540,7 @@ function renderSide() {
       if ((d.cost || d.fuel) && (st.budget != null || st.free)) h += '<div>つくる費用 <b>' + d.cost + '</b>' + (d.kind === 'src' && n.type !== 'outlet' ? '/燃料代 ' + (d.fuel ? '燃料100を使うごとに <b>' + d.fuel + '</b>' : '<b>0</b>') : '') + '</div>';
       if (d.desc) h += '<div style="margin-top:4px">' + furi(d.desc) + '</div>';
       if (d.tip) h += '<div style="margin-top:4px;color:#7a5a00">🔧 ' + furi(d.tip) + '</div>';
-      h += '<div class="e1-note" style="margin-top:4px">※数値は授業用の目安です。' + (d.tip && d.tip.indexOf('点検') >= 0 ? '点検のしかたは E4「保守点検ラボ」でくわしく学べます。' : '') + '</div>';
+      h += '<div class="e1-note" style="margin-top:4px">※数値は授業用の目安です。' + (d.tip && d.tip.indexOf('点検') >= 0 ? '点検のしかたは C4「保守点検ラボ」でくわしく学べます。' : '') + '</div>';
       var es = S.board.edges.filter(function (e) { return e.from === n.id || e.to === n.id; });
       if (es.length) {
         h += '<div class="e1-elist"><b style="font-size:15px">この部品の線を消す</b>';
@@ -2940,7 +3032,7 @@ function mount(root) {
   if (first) showHowto(true); // 初回だけ「使い方」→「はじめる」で目標の画面へ
 }
 
-NS.E1 = {
+NS.C1 = {
   mount: mount,
   _test: { simulate: simulate, evaluate: evaluate, STAGES: STAGES, CAT: CAT, S: S, openStage: openStage, place: place, link: link, nodeAt: nodeAt, newBoard: newBoard, changed: changed,
     startBoard: startBoard, undo: undo, removeEdge: removeEdge, removeNode: removeNode, resetBoard: resetBoard, axesScores: axesScores, edgeGeom: edgeGeom, sankey: sankey }
@@ -2949,10 +3041,10 @@ var auto = null;
 if (auto && !auto.getAttribute('data-manual')) mount(auto);
 })();
 </script>
-<script>/* ===== E2 core ===== */
+<script>/* ===== C2 core ===== */
 
 /* ===================================================================
-   回路コア(部品定義+ソルバ) — E2 電気回路ラボ / E5 回路設計シート 共用
+   回路コア(部品定義+ソルバ) — C2 電気回路ラボ / C5 回路設計シート 共用
    window.EnergyApps.Circuit
    ・回路は「素子」の配列: { id, type, a: 端子aの節点名, b: 端子bの節点名,
        val(値), on(スイッチ), broken(切れた・こわれた・落ちた) }
@@ -3161,16 +3253,16 @@ function batteryHours(els, sol) {
 NS.Circuit = { PARTS: PARTS, valOf: valOf, solve: solve, settle: settle, findShorts: findShorts, shortLoops: shortLoops, batteryHours: batteryHours, lowR: lowR, gauss: gauss };
 })();
 </script>
-<script>/* ===== E2 app ===== */
+<script>/* ===== C2 app ===== */
 
 /* ===================================================================
-   E2 電気回路ラボ  — window.EnergyApps.E2
+   C2 電気回路ラボ  — window.EnergyApps.C2
    =================================================================== */
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
 var C = NS.Circuit, PARTS = C.PARTS;
-var STORE_KEY = 'energyApps.E2.v1';
+var STORE_KEY = 'energyApps.C2.v1';
 var SP = 80, COLS = 10, ROWS = 7;
 
 /* ---------- 共通の小道具 ---------- */
@@ -3343,6 +3435,42 @@ var CHALS = [
     },
     ex: '並列では、それぞれの豆電球に電源の電圧がそのままかかるので、<b>どちらも明るい</b>まま。家のコンセントや照明も並列につながっています。',
     quiz: { q: '並列につないだ豆電球の1個をはずすと、もう1個は?', c: ['ついたまま', '消える', 'こわれる'], ex: '並列は道が分かれているので、1つが切れても他の道には電流が流れます。' } },
+  { id: 'c8', title: 'モーターを逆に回そう', learn: '電流の向きと回転の向き', parts: {},
+    preset: [['battery', 'v,1,2', { fixed: 1, flip: 1 }], ['battery', 'v,1,3', { fixed: 1, flip: 1 }], W('v,1,1'), W('v,1,4'), W('h,1,1'), ['sw', 'h,2,1', { fixed: 1, on: false }], W('h,3,1'), W('h,4,1'),
+      W('v,5,1'), ['motor', 'v,5,2', { fixed: 1 }], W('v,5,3'), W('v,5,4')].concat(wiresH(5, 1, 5)),
+    intro: 'スイッチを入れてモーターの回る向きを見よう。次に、<b>モーターを反対向きに</b>回してみよう。モーターは動かせないけど、乾電池はタップして「向きを逆に」できるよ。',
+    hints: ['電流の向きを逆にすると、モーターの回る向きも逆になる。', '電池が2個あるときは、2個とも向きを変えないと…?'],
+    goals: function (X) {
+      var m = X.of('motor')[0], I = m ? X.r(m).I : 0;
+      if (I > 0.05) X.rt.fwd = true;
+      return [{ t: 'スイッチを入れてモーターを回す', ok: !!X.rt.fwd || I < -0.05 }, { t: 'モーターを反対向きに回す', ok: !!X.rt.fwd && I < -0.05 }];
+    },
+    ex: 'モーターは<b>電流の向き</b>を逆にすると、回る向きも逆になります。電池を1個だけ逆にすると、2個の電圧が打ち消し合って回りません。',
+    quiz: { q: '電池2個の直列で、1個だけ向きを逆にするとモーターは?', c: ['ほとんど回らない', '2倍の速さで回る', '逆向きに回る'], ex: '+1.5Vと−1.5Vが打ち消し合って、電圧がほぼ0Vになります。' } },
+  { id: 'c10', title: 'ヒューズで回路を守る', learn: 'ショートと保護', parts: { fuse: 1 },
+    preset: [['battery', 'v,1,2', { fixed: 1 }], ['battery', 'v,1,3', { fixed: 1 }], W('v,1,1'), W('v,1,4'), W('h,2,1'), W('h,3,1'), W('h,4,1'), W('h,5,1'),
+      W('v,6,1'), ['lamp', 'v,6,2', { fixed: 1 }], W('v,6,3'), W('v,6,4'),
+      W('v,4,1'), ['sw', 'v,4,2', { fixed: 1, on: false, label: 'ショート用' }], W('v,4,3'), W('v,4,4')].concat(wiresH(5, 1, 6)),
+    intro: '左上の<b>すき間</b>にヒューズを入れて、豆電球をつけよう。そのあと「ショート用」スイッチを入れると…? ヒューズが回路と電池を守る様子を確かめよう。',
+    hints: ['ヒューズは電池と直列に、すき間(左上)に入れる。', 'ヒューズが切れたら、ヒューズをタップして「新しいヒューズに交換」。ショート用スイッチを切ってからね。'],
+    goals: function (X) {
+      var ok1 = X.whatIf(function (ps) { ps.forEach(function (p) { if (p.label) p.on = false; if (p.type === 'fuse') p.broken = false; }); });
+      var f1 = ok1.anyLit('lamp') && X.of('fuse').some(function (p) { return Math.abs(ok1.r(p).I) > 0.1; });
+      return [{ t: 'ヒューズを電池と直列に入れて、豆電球をつける', ok: f1 || !!X.rt.blew }, { t: 'ショート用スイッチを入れて、ヒューズが切れるのを見る', ok: !!X.rt.blew }];
+    },
+    ex: 'ショートすると、豆電球を通らずに大きな電流が流れ、電池や導線が熱くなって危険です。<b>ヒューズ</b>は電流が大きすぎると中の金属がとけて切れ、回路を守ります。',
+    quiz: { q: 'ヒューズが切れたとき、まずすることは?', c: ['ショートなどの原因を取り除いてから、同じ<ruby>規格<rt>きかく</rt></ruby>(決められた電流の大きさ)のヒューズに交換する', 'すぐに太い針金でつないでおく', '大きな電流用のヒューズに取りかえる'], ex: '原因をそのままにすると、また大きな電流が流れます。針金でつなぐのは絶対にだめ。' } },
+  { id: 'c11', title: 'ブレーカーと使いすぎ', learn: '使いすぎ(過負荷・たこ足配線)', parts: {},
+    preset: [W('v,0,1'), ['supply', 'v,0,2', { fixed: 1, val: 3 }], W('v,0,3'), W('v,0,4'), ['breaker', 'h,0,1', { fixed: 1, val: 0.8 }]].concat(wiresH(1, 1, 8), wiresH(5, 0, 8),
+      [2, 4, 6, 8].reduce(function (a, x) { return a.concat([['sw', 'v,' + x + ',1', { fixed: 1, on: false }], W('v,' + x + ',2'), ['lamp', 'v,' + x + ',3', { fixed: 1 }], W('v,' + x + ',4')]); }, [])),
+    intro: '0.8Aのブレーカーがついた回路に、豆電球が4個(並列)。スイッチを1つずつ入れていくと、どうなる? ブレーカーが落ちたら、原因を取り除いて入れなおそう。',
+    hints: ['並列の豆電球が増えるほど、回路全体の電流は大きくなる。', 'ブレーカーが落ちたら、スイッチをいくつか切ってから、ブレーカーをタップして「入れる」。'],
+    goals: function (X) {
+      var on = X.of('lamp').filter(function (p) { return lit(X.r(p)); }).length, bk = X.of('breaker')[0];
+      return [{ t: 'スイッチを入れていき、ブレーカーが落ちるのを見る', ok: !!X.rt.trip }, { t: 'ブレーカーを入れなおし、落ちない範囲(2個)で使う', ok: !!X.rt.trip && bk && !bk.broken && on >= 2 }];
+    },
+    ex: '並列の電気器具が増えると、全体の電流は合計になります。決められた電流をこえると<b>ブレーカー</b>が自動で切れて、電線が熱くなるのを防ぎます。家庭のたこ足配線も同じです。',
+    quiz: { q: 'ブレーカーが落ちたとき、まずすることは?', c: ['使いすぎている電気器具を減らしてから、ブレーカーを入れる', 'すぐにブレーカーを入れなおす', 'ブレーカーを外して直接つなぐ'], ex: '原因(使いすぎ・ショート)を取り除かないと、また落ちます。' } },
   { id: 'c5', title: '電流計ではかろう', learn: '電流計は直列につなぐ', parts: { battery: 2, lamp: 1, ammeter: 1 },
     intro: '豆電球に流れる電流を<b>電流計</b>ではかろう。電流計は、はかりたい所に<b>直列</b>に入れる。+<ruby>端子<rt>たんし</rt></ruby>(つなぐ所。赤い+)を電源の+側に向けてね。',
     hints: ['回路のとちゅうを1か所切って、そこに電流計を入れる。', '表示がマイナスなら+と−が逆。電流計をえらんで「向きを逆に」を押そう。', '下の図のような形にしてみよう(電流計の+は電池の+側)。' + HINTFIG.c5],
@@ -3374,18 +3502,6 @@ var CHALS = [
     },
     ex: '電池を<b>直列</b>にすると電圧が大きくなり(3V)明るいが、早くなくなります。<b>並列</b>にすると明るさは1個と同じで、長持ちします。<br>※実際には、古い電池と新しい電池、種類のちがう電池をまぜて使わないこと。',
     quiz: { q: '乾電池2個を直列にしたときの特徴は?', c: ['電圧が大きくなり明るいが、電池は早くなくなる', '明るさは同じで長持ちする', '電流が流れなくなる'], ex: '直列は電圧が2倍、並列は持ちがよくなる、と覚えよう。' } },
-  { id: 'c8', title: 'モーターを逆に回そう', learn: '電流の向きと回転の向き', parts: {},
-    preset: [['battery', 'v,1,2', { fixed: 1, flip: 1 }], ['battery', 'v,1,3', { fixed: 1, flip: 1 }], W('v,1,1'), W('v,1,4'), W('h,1,1'), ['sw', 'h,2,1', { fixed: 1, on: false }], W('h,3,1'), W('h,4,1'),
-      W('v,5,1'), ['motor', 'v,5,2', { fixed: 1 }], W('v,5,3'), W('v,5,4')].concat(wiresH(5, 1, 5)),
-    intro: 'スイッチを入れてモーターの回る向きを見よう。次に、<b>モーターを反対向きに</b>回してみよう。モーターは動かせないけど、乾電池はタップして「向きを逆に」できるよ。',
-    hints: ['電流の向きを逆にすると、モーターの回る向きも逆になる。', '電池が2個あるときは、2個とも向きを変えないと…?'],
-    goals: function (X) {
-      var m = X.of('motor')[0], I = m ? X.r(m).I : 0;
-      if (I > 0.05) X.rt.fwd = true;
-      return [{ t: 'スイッチを入れてモーターを回す', ok: !!X.rt.fwd || I < -0.05 }, { t: 'モーターを反対向きに回す', ok: !!X.rt.fwd && I < -0.05 }];
-    },
-    ex: 'モーターは<b>電流の向き</b>を逆にすると、回る向きも逆になります。電池を1個だけ逆にすると、2個の電圧が打ち消し合って回りません。',
-    quiz: { q: '電池2個の直列で、1個だけ向きを逆にするとモーターは?', c: ['ほとんど回らない', '2倍の速さで回る', '逆向きに回る'], ex: '+1.5Vと−1.5Vが打ち消し合って、電圧がほぼ0Vになります。' } },
   { id: 'c9', title: 'LEDと抵抗', learn: 'LEDには抵抗を直列に', parts: { battery: 2, led: 1, resistor: 1 },
     intro: '乾電池2個(3V)でLED(<ruby>発光<rt>はっこう</rt></ruby>ダイオード)を光らせよう。LEDは電流が大きすぎる(20mAより大きい)とこわれる。<b>抵抗</b>を直列に入れて、ちょうどよい電流にしよう。LEDには<b>向き</b>もあるよ。<br>抵抗は、はじめは<b>10Ω</b>になっている。計算して、ちょうどよい値をえらぼう。',
     hints: ['抵抗の値は、抵抗をタップしてえらべる。', '抵抗の値 =(電源の電圧 − LEDの電圧)÷ 電流。20mA = 0.02A(1000mA = 1A)だから、(3 − 1.8)÷ 0.02 = 60Ω。これより大きい値をえらぼう。'],
@@ -3394,31 +3510,7 @@ var CHALS = [
       return [{ t: 'LEDが光る', ok: D.some(function (p) { return litLed(X.r(p)); }) }, { t: 'LEDの電流が20mA以下(こわれない)', ok: D.some(function (p) { return litLed(X.r(p)) && X.r(p).I <= 0.0201; }) }, { t: '抵抗を計算して60Ω以上にする', ok: Rs.some(function (p) { return C.valOf(p) >= 60 && Math.abs(X.r(p).I) > 0.0005; }) }];
     },
     ex: 'LEDは少ない電流で明るく光り、むだが少ない(効率がよい)。ただし電流を制限する<b>抵抗</b>が必要です。<br>抵抗 =(電源電圧 − LEDの電圧)÷ 流したい電流',
-    quiz: { q: '電源3V・LED 1.8Vで、10mA(0.01A)流したい。抵抗は?', c: ['120Ω', '12Ω', '300Ω'], ex: '(3 − 1.8)÷ 0.01 = 120Ω です。' } },
-  { id: 'c10', title: 'ヒューズで回路を守る', learn: 'ショートと保護', parts: { fuse: 1 },
-    preset: [['battery', 'v,1,2', { fixed: 1 }], ['battery', 'v,1,3', { fixed: 1 }], W('v,1,1'), W('v,1,4'), W('h,2,1'), W('h,3,1'), W('h,4,1'), W('h,5,1'),
-      W('v,6,1'), ['lamp', 'v,6,2', { fixed: 1 }], W('v,6,3'), W('v,6,4'),
-      W('v,4,1'), ['sw', 'v,4,2', { fixed: 1, on: false, label: 'ショート用' }], W('v,4,3'), W('v,4,4')].concat(wiresH(5, 1, 6)),
-    intro: '左上の<b>すき間</b>にヒューズを入れて、豆電球をつけよう。そのあと「ショート用」スイッチを入れると…? ヒューズが回路と電池を守る様子を確かめよう。',
-    hints: ['ヒューズは電池と直列に、すき間(左上)に入れる。', 'ヒューズが切れたら、ヒューズをタップして「新しいヒューズに交換」。ショート用スイッチを切ってからね。'],
-    goals: function (X) {
-      var ok1 = X.whatIf(function (ps) { ps.forEach(function (p) { if (p.label) p.on = false; if (p.type === 'fuse') p.broken = false; }); });
-      var f1 = ok1.anyLit('lamp') && X.of('fuse').some(function (p) { return Math.abs(ok1.r(p).I) > 0.1; });
-      return [{ t: 'ヒューズを電池と直列に入れて、豆電球をつける', ok: f1 || !!X.rt.blew }, { t: 'ショート用スイッチを入れて、ヒューズが切れるのを見る', ok: !!X.rt.blew }];
-    },
-    ex: 'ショートすると、豆電球を通らずに大きな電流が流れ、電池や導線が熱くなって危険です。<b>ヒューズ</b>は電流が大きすぎると中の金属がとけて切れ、回路を守ります。',
-    quiz: { q: 'ヒューズが切れたとき、まずすることは?', c: ['ショートなどの原因を取り除いてから、同じ<ruby>規格<rt>きかく</rt></ruby>(決められた電流の大きさ)のヒューズに交換する', 'すぐに太い針金でつないでおく', '大きな電流用のヒューズに取りかえる'], ex: '原因をそのままにすると、また大きな電流が流れます。針金でつなぐのは絶対にだめ。' } },
-  { id: 'c11', title: 'ブレーカーと使いすぎ', learn: '使いすぎ(過負荷・たこ足配線)', parts: {},
-    preset: [W('v,0,1'), ['supply', 'v,0,2', { fixed: 1, val: 3 }], W('v,0,3'), W('v,0,4'), ['breaker', 'h,0,1', { fixed: 1, val: 0.8 }]].concat(wiresH(1, 1, 8), wiresH(5, 0, 8),
-      [2, 4, 6, 8].reduce(function (a, x) { return a.concat([['sw', 'v,' + x + ',1', { fixed: 1, on: false }], W('v,' + x + ',2'), ['lamp', 'v,' + x + ',3', { fixed: 1 }], W('v,' + x + ',4')]); }, [])),
-    intro: '0.8Aのブレーカーがついた回路に、豆電球が4個(並列)。スイッチを1つずつ入れていくと、どうなる? ブレーカーが落ちたら、原因を取り除いて入れなおそう。',
-    hints: ['並列の豆電球が増えるほど、回路全体の電流は大きくなる。', 'ブレーカーが落ちたら、スイッチをいくつか切ってから、ブレーカーをタップして「入れる」。'],
-    goals: function (X) {
-      var on = X.of('lamp').filter(function (p) { return lit(X.r(p)); }).length, bk = X.of('breaker')[0];
-      return [{ t: 'スイッチを入れていき、ブレーカーが落ちるのを見る', ok: !!X.rt.trip }, { t: 'ブレーカーを入れなおし、落ちない範囲(2個)で使う', ok: !!X.rt.trip && bk && !bk.broken && on >= 2 }];
-    },
-    ex: '並列の電気器具が増えると、全体の電流は合計になります。決められた電流をこえると<b>ブレーカー</b>が自動で切れて、電線が熱くなるのを防ぎます。家庭のたこ足配線も同じです。',
-    quiz: { q: 'ブレーカーが落ちたとき、まずすることは?', c: ['使いすぎている電気器具を減らしてから、ブレーカーを入れる', 'すぐにブレーカーを入れなおす', 'ブレーカーを外して直接つなぐ'], ex: '原因(使いすぎ・ショート)を取り除かないと、また落ちます。' } }
+    quiz: { q: '電源3V・LED 1.8Vで、10mA(0.01A)流したい。抵抗は?', c: ['120Ω', '12Ω', '300Ω'], ex: '(3 − 1.8)÷ 0.01 = 120Ω です。' } }
 ];
 var SAFETY_CARDS = [{ id: 's1', title: 'コンセントの上限', learn: 'たこ足配線(安全体験)', tab: 'tap' }, { id: 's2', title: '漏電と漏電遮断器', learn: 'アース・絶縁(安全体験)', tab: 'leak' }];
 function chalById(id) { for (var i = 0; i < CHALS.length; i++) if (CHALS[i].id === id) return CHALS[i]; return null; }
@@ -3577,7 +3669,7 @@ function place(type, seg, quiet) {
   snapshot();
   var p = { id: 'p' + NID++, type: type, seg: seg, rev: false };
   var d = PARTS[type]; if (d.vals) p.val = d.def;
-  if (type === 'resistor' && S.mode === 'c9') p.val = 10; /* 課題9は自分で計算してえらぶ */
+  if (type === 'resistor' && S.mode === 'c9') p.val = 10; /* 課題11(LEDと抵抗)は自分で計算してえらぶ */
   if (type === 'sw') p.on = false;
   S.parts.push(p);
   if (type !== 'wire') {
@@ -3844,7 +3936,7 @@ function renderSide() {
   if (!p && ch) h += '<div class="e2-card tip">部品をタップすると、電圧・電流・向きの変更などができるよ。' + (S.parts.some(function (q) { return q.fixed && q.type !== 'wire'; }) ? '<br>📌 は、課題のために固定された部品(消したり動かしたりできない)。' : '') + '</div>';
   S.el.side.innerHTML = h;
 }
-/* 部品の説明(E2 の画面用。読みがなつき) */
+/* 部品の説明(C2 の画面用。読みがなつき) */
 var DESC = {
   battery: '単3形乾電池 1.5V。長い線が+極、短く太い線が−極。',
   supply: '電圧を切りかえられる直流電源。記号は電池の記号を2組ならべてかく(この記号は「電源装置」と書いて区別)。',
@@ -4421,7 +4513,7 @@ function mount(root) {
   if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
 }
 
-NS.E2 = {
+NS.C2 = {
   mount: mount,
   _test: { S: S, CHALS: CHALS, place: place, toEls: toEls, analyze: analyze, openMode: function (m) { openMode(m); }, openView: openView, partAt: partAt, changed: changed, toggleSw: toggleSw, flipPart: flipPart, repair: repair, setVal: setVal, snapshot: snapshot }
 };
@@ -4429,10 +4521,10 @@ var auto = null;
 if (auto && !auto.getAttribute('data-manual')) mount(auto);
 })();
 </script>
-<script>/* ===== E3 core ===== */
+<script>/* ===== C3 core ===== */
 
 /* ===================================================================
-   機構コア(部品データ+運動学) — E3 機構ラボ / E4 保守点検クイズ 共用
+   機構コア(部品データ+運動学) — C3 機構ラボ / C4 保守点検クイズ 共用
    window.EnergyApps.Mech
    ・力学(物理エンジン)は使わず、運動学(動きの幾何と比)だけで計算する
    ・回転を伝える列 train = { wheels:[{kind,size}], links:[type] }
@@ -4446,7 +4538,7 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
 var NS = window.EnergyApps = window.EnergyApps || {};
 if (NS.Mech) return;
 
-/* ---------- 部品データ(E4 の部品図鑑と共用) ---------- */
+/* ---------- 部品データ(C4 の部品図鑑と共用) ---------- */
 var PARTS = {
   gear: { name: '歯車', yomi: 'はぐるま', cat: '回転を伝える', unit: '枚', sizeName: '歯数', sizeUnit: '', min: 8, max: 80,
     role: '歯と歯がかみ合って、すべらずに回転を伝える。かみ合った2枚は逆向きに回る。',
@@ -4716,16 +4808,16 @@ NS.Mech = {
 };
 })();
 </script>
-<script>/* ===== E3 app ===== */
+<script>/* ===== C3 app ===== */
 
 /* ===================================================================
-   E3 機構ラボ  — window.EnergyApps.E3
+   C3 機構ラボ  — window.EnergyApps.C3
    =================================================================== */
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
 var M = NS.Mech, PARTS = M.PARTS, LINKS = M.LINKS, fmt = M.fmt;
-var STORE_KEY = 'energyApps.E3.v1';
+var STORE_KEY = 'energyApps.C3.v1';
 var MAXW = 8, TAU = Math.PI * 2;
 var KIND_RANGE = { gear: [8, 80], pulley: [20, 200], sprocket: [10, 60] };
 var COL_IN = '#2b7a4b', COL_OUT = '#c2410c';   // 入力=緑、出力=だいだい色(全画面で同じ)
@@ -4850,11 +4942,6 @@ var TASKS = [
     checks: [{ t: '出力が60回/分', f: function (s) { return near(s.outRpm, 60); } }, { t: '入力と同じ向き', f: function (s) { return s.dir > 0; } }, { t: '歯車が3枚以上', f: function (s) { return s.wheels.length >= 3; } }],
     hints: ['かみ合うたびに向きが逆になる。2枚だと逆向き。', '間にもう1枚はさむと、向きはどうなる?', '入力と出力の歯数を同じにすると、同じ速さになる(間の歯車の歯数は関係ない)。'],
     learn: '間にはさんだ歯車(アイドラ)は、向きを変えるだけで速度伝達比には関係しない。入力20枚・出力20枚なら、間の歯車が何枚の歯数でも同じ速さになる。' }),
-  convTask({ id: 'jack', mech: 'screw', icon: '🛠️', title: 'ねじジャッキ', lead: '10回転で30mm',
-    story: 'ハンドルを<b>10回転</b>させると、ちょうど<b>30mm</b>上がるジャッキにしよう。',
-    checks: [{ t: '10回転で30mm進む', f: function (c) { return near(M.screwLead(c.p, c.n) * 10, 30); } }],
-    hints: ['30mm ÷ 10回 = 1回転で何mm進めばよい?', '1回転で進む距離(リード) = ピッチ × ' + rb('条数', 'じょうすう') + '。1条ねじなら、ピッチの分だけ進む。', 'ピッチ3mm・1条にしよう(ピッチ1.5mm・2条でもよい)。'],
-    learn: 'リード3mmなら10回転で30mm。リードが小さいほどゆっくり進むが、小さな力で大きな物を持ち上げられる。だからジャッキや万力にねじが使われる。' }),
   convTask({ id: 'wiper', mech: 'link', icon: '🚗', title: 'ワイパーをつくる', lead: 'てこクランクで約90°',
     story: 'モーターで<b>クランクを1回転</b>させ、ワイパー(てこ)が<b>80°〜100°</b>の範囲で往復するようにしよう。',
     checks: [{ t: 'クランクが1回転できる', f: function (c) { return M.fourBarSweep(c.a, c.b, c.c, c.d).full; } }, { t: 'てこが往復する(1回転しない)', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull; } }, { t: 'ゆれる角度が80°〜100°', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull && s.swing >= 80 && s.swing <= 100; } }],
@@ -4871,7 +4958,12 @@ var TASKS = [
     stock: { gear: [10, 12, 15, 20, 30, 40, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 12)], links: [] }, best: 2,
     checks: [{ t: 'トルクが5倍以上', f: function (s) { return s.torque >= 5 - 1e-9; } }, { t: '出力が10回/分以上', f: function (s) { return s.outRpm >= 10 - 1e-9; } }],
     hints: ['ロスがあるので、トルクを5倍にするには、減速を5倍より少し大きくする。', 'でも減速しすぎると10回/分より遅くなる。減速は6倍(60 ÷ 6 = 10)まで。', '入力の歯車も変えられる。入力10枚 → 出力60枚(6倍)なら 6 × 0.95 = 5.7倍で、出力は10回/分。'],
-    learn: '減速すると回す力は大きくなるが、歯車1組ごとに約5%のロスがある。10→60(1/6減速)なら 6 × 0.95 = 5.7倍で、出力は10回/分。速さと力はトレードオフ(どちらかを取ると、もう一方が減る関係)。' })
+    learn: '減速すると回す力は大きくなるが、歯車1組ごとに約5%のロスがある。10→60(1/6減速)なら 6 × 0.95 = 5.7倍で、出力は10回/分。速さと力はトレードオフ(どちらかを取ると、もう一方が減る関係)。' }),
+  convTask({ id: 'jack', mech: 'screw', icon: '🛠️', title: 'ねじジャッキ', lead: '10回転で30mm',
+    story: 'ハンドルを<b>10回転</b>させると、ちょうど<b>30mm</b>上がるジャッキにしよう。',
+    checks: [{ t: '10回転で30mm進む', f: function (c) { return near(M.screwLead(c.p, c.n) * 10, 30); } }],
+    hints: ['30mm ÷ 10回 = 1回転で何mm進めばよい?', '1回転で進む距離(リード) = ピッチ × ' + rb('条数', 'じょうすう') + '。1条ねじなら、ピッチの分だけ進む。', 'ピッチ3mm・1条にしよう(ピッチ1.5mm・2条でもよい)。'],
+    learn: 'リード3mmなら10回転で30mm。リードが小さいほどゆっくり進むが、小さな力で大きな物を持ち上げられる。だからジャッキや万力にねじが使われる。' })
 ];
 function taskById(id) { for (var i = 0; i < TASKS.length; i++) if (TASKS[i].id === id) return TASKS[i]; return null; }
 
@@ -4906,8 +4998,8 @@ function buildShell() {
   var top = '<div class="e3-top"><h1>⚙️ 機構ラボ</h1>' +
     tb('build', '⚙️ <span class="lg">回転を伝える</span><span class="sh">伝える</span>', v === 'build' && !tk) +
     tb('conv', '🔄 <span class="lg">運動を変える</span><span class="sh">変える</span>', v === 'conv' && !tk) +
-    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
+    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     '<div class="e3-stitle" data-ref="stitle"></div>' +
     '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
     '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
@@ -5995,11 +6087,11 @@ function convSummaryTable() {
   return '<table class="e3-tbl">' + rows.map(function (r) { return '<tr><td class="l"><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>';
 }
 /* 先生用の振り返り一覧で、だれのファイルか分かるように、書き出すファイルに組・番号・名前を入れる。
- * このアプリで前に入れたもの → E5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
+ * このアプリで前に入れたもの → C5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
 function whoForExport() {
   var w = S.save.who;
   if (!w || !(w.cls || w.name)) {
-    try { var e5 = JSON.parse(localStorage.getItem('energyApps.E5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
+    try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
   }
   if (!w || !(w.cls || w.name)) {
     var c = window.prompt('先生に出すファイルに入れる「組・番号」を書こう(例: 2組15番)', '');
@@ -6014,12 +6106,12 @@ function whoForExport() {
 }
 function saveJSON() {
   var nm = keepName();
-  var obj = { schema: 'energyApps.artifact', version: 1, app: 'E3', type: 'mechanism', name: nm || '機構', savedAt: new Date().toISOString(), data: designData() };
+  var obj = { schema: 'energyApps.artifact', version: 1, app: 'C3', type: 'mechanism', name: nm || '機構', savedAt: new Date().toISOString(), data: designData() };
   var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   var d = new Date(), p2 = function (x) { return (x < 10 ? '0' : '') + x; };
-  a.download = 'E3-kikou-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + '.json';   // 日本語のファイル名は端末によって化けるので英数字に
+  a.download = 'C3-kikou-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + '.json';   // 日本語のファイル名は端末によって化けるので英数字に
   document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   beep('ok');
   var sv = S.ov && S.ov.querySelector('[data-ref="saved"]'); if (sv) sv.textContent = '💾 保存しました(' + a.download + ')';
@@ -6036,7 +6128,7 @@ function importJSON() {
 }
 function applyImport(txt) {
   var o; try { o = JSON.parse(txt); } catch (e) { o = null; }
-  var D = o && o.app === 'E3' && o.data;
+  var D = o && o.app === 'C3' && o.data;
   if (D && D.mode === 'train' && Array.isArray(D.parts) && Array.isArray(D.joints)) {
     var t = { wheels: D.parts.map(function (p) { return W(p.kind, +p.size); }), links: D.joints.map(function (j) { return j.type; }) };
     var ok = M.checkTrain(t).length === 0 && t.wheels.every(function (w) { return KIND_RANGE[w.kind] && w.size >= KIND_RANGE[w.kind][0] && w.size <= KIND_RANGE[w.kind][1]; }) && t.wheels.length <= MAXW;
@@ -6047,7 +6139,7 @@ function applyImport(txt) {
     closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = o.name || ''; S.save.dnameFor = 'conv//' + D.mech;
     openView('conv'); say(loadedMsg(o.name)); return true;
   }
-  beep('err'); say('⚠ このファイルは読みこめなかった(E3 機構ラボで保存したファイルを選んでね)。', 'err'); closeModal();
+  beep('err'); say('⚠ このファイルは読みこめなかった(C3 機構ラボで保存したファイルを選んでね)。', 'err'); closeModal();
   return false;
 }
 
@@ -6079,8 +6171,8 @@ function showHowto(first) {
     '<div><b>⚙️ 回転を伝える</b><br>左の「歯車」「ベルト」「チェーン」で部品をつなぐ。部品を<b>タップ</b>すると、右で歯数や直径を変えられる。まちがえたら「↩ もどす」。</div>' +
     '<div><b>👆 手で回す</b><br>歯車やプーリーを<b>指でなぞる</b>と、その部品を手で回せる。赤い印を見ると、何回転したか数えやすい。</div>' +
     '<div><b>🔄 運動を変える</b><br>ラックとピニオン・カム・リンク・スライダクランク・ねじで、回転が直線や往復に変わるようすを見る。</div>' +
-    '<div><b>📦 ブラックボックス</b><br>入力と出力の回り方を見て、箱の中の歯車の歯数や、出力の回る速さ・向きを当てるクイズ。</div>' +
     '<div><b>📋 設計課題</b><br>「1/3に減速」「ワイパーのように往復」などの条件に合う機構を組み立てる。💡ヒントは押すたびにくわしくなる。</div>' +
+    '<div><b>📦 ブラックボックス</b><br>入力と出力の回り方を見て、箱の中の歯車の歯数や、出力の回る速さ・向きを当てるクイズ。</div>' +
     '<div><b>📄 設計図</b><br>部品表と' + rb('速度伝達比', 'そくどでんたつひ') + 'つきの設計図を、印刷したりファイルに保存したりできる。</div>' +
     '</div><div class="e3-reason tip">このアプリは「動きの形と速さの比」だけを計算するシミュレーションです(' + rb('運動学', 'うんどうがく') + 'という考え方)。実際の機械では、' + rb('摩擦', 'まさつ') + '・すべり・部品の強さも考えて設計します。<br>色のきまり: <b style="color:#2b7a4b">緑=入力(回す側)</b>、<b style="color:#c2410c">だいだい色=出力(回される側)</b>。</div>' +
     '<div class="acts"><button class="e3-btn primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');
@@ -6259,7 +6351,7 @@ function mount(root) {
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 
-NS.E3 = {
+NS.C3 = {
   mount: mount,
   _test: { S: S, TASKS: TASKS, QGEN: QGEN, openView: openView, openTask: openTask, addLink: addLink, setSize: setSize, trainSol: trainSol, taskState: taskState, applyImport: applyImport, designData: designData, setMech: setMech, convParam: convParam, undo: undo, convAdvance: convAdvance, convParamsOk: convParamsOk, changed: changed }
 };
@@ -6267,18 +6359,18 @@ var auto = null;
 if (auto && !auto.getAttribute('data-manual')) mount(auto);
 })();
 </script>
-<script>/* ===== E4 core ===== */
+<script>/* ===== C4 core ===== */
 
 /* ===================================================================
-   E4 保守点検・共通部品クイズ — データ(部品図鑑・事例・点検項目・機械の図)
-   window.EnergyApps.E4data
-   部品の基本データは E3 と共用の EnergyApps.Mech.PARTS を使い、
-   E4 で必要な部品(ボルト・ナット、ゆるみ止め、軸継手、ばね、潤滑剤)をここで足す。
+   C4 保守点検・共通部品クイズ — データ(部品図鑑・事例・点検項目・機械の図)
+   window.EnergyApps.C4data
+   部品の基本データは C3 と共用の EnergyApps.Mech.PARTS を使い、
+   C4 で必要な部品(ボルト・ナット、ゆるみ止め、軸継手、ばね、潤滑剤)をここで足す。
    =================================================================== */
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
-if (NS.E4data) return;
+if (NS.C4data) return;
 var MP = (NS.Mech && NS.Mech.PARTS) || {};
 
 /* ---------- 部品の分類 ---------- */
@@ -6290,7 +6382,7 @@ var CATS = [
   { id: 'other', name: '力をためる・なめらかにする' }
 ];
 
-/* ---------- E4 で足す部品 ---------- */
+/* ---------- C4 で足す部品 ---------- */
 var EXTRA = {
   bolt: { name: 'ボルトとナット(ねじ)', yomi: 'ぼると・なっと', cat: 'fasten',
     role: 'おねじ(ボルト)とめねじ(ナット)で部品どうしをしめつけて固定する。分解して付け直せるのが長所。ナットを使わず、部品にあけためねじに直接しめるものもある。',
@@ -6840,20 +6932,20 @@ var MACHINES = [
     ] }
 ];
 
-NS.E4data = { CATS: CATS, PARTS: PARTS, ORDER: ORDER, icon: icon, gearPath: gearPath, CASES: CASES, MACH: MACH, PQ: PQ, PQ_EXCL: PQ_EXCL, METHODS: METHODS, CYCLES: CYCLES, TARGETS: TARGETS, MACHINES: MACHINES };
+NS.C4data = { CATS: CATS, PARTS: PARTS, ORDER: ORDER, icon: icon, gearPath: gearPath, CASES: CASES, MACH: MACH, PQ: PQ, PQ_EXCL: PQ_EXCL, METHODS: METHODS, CYCLES: CYCLES, TARGETS: TARGETS, MACHINES: MACHINES };
 })();
 </script>
-<script>/* ===== E4 app ===== */
+<script>/* ===== C4 app ===== */
 
 /* ===================================================================
-   E4 保守点検・共通部品クイズ  — window.EnergyApps.E4
+   C4 保守点検・共通部品クイズ  — window.EnergyApps.C4
    画面: 📖部品図鑑 / 🔍機械を見る / ❓クイズ / 🎞️ゆるみ・摩耗 / 📋点検表
    =================================================================== */
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
-var D = NS.E4data, PARTS = D.PARTS;
-var STORE_KEY = 'energyApps.E4.v1';
+var D = NS.C4data, PARTS = D.PARTS;
+var STORE_KEY = 'energyApps.C4.v1';
 var TAU = Math.PI * 2;
 
 var S = {
@@ -7269,7 +7361,7 @@ function caseNext() {
     '<button class="e4-btn primary" data-act="qmenu">クイズのはじめへ</button></div>');
 }
 /* 部品あてクイズ */
-/* 問題文は E4data.PQ の手書きの手がかり(部品ごとに区別できるもの)。
+/* 問題文は C4data.PQ の手書きの手がかり(部品ごとに区別できるもの)。
    まぎらわしい組(PQ_EXCL)は同じ問題の選択肢に入れない */
 function pqConfusable(a, b) { return D.PQ_EXCL.some(function (e) { return (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a); }); }
 function makePartQs() {
@@ -7820,11 +7912,11 @@ function printList() {
 }
 function listData(L) { return { target: L.target, created: L.created, items: L.items.map(function (it) { return { t: it.t, m: it.m, c: it.c, key: it.key, src: it.src }; }), records: L.records }; }
 /* 先生用の振り返り一覧で、だれのファイルか分かるように、書き出すファイルに組・番号・名前を入れる。
- * このアプリで前に入れたもの → E5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
+ * このアプリで前に入れたもの → C5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
 function whoForExport() {
   var w = S.save.who;
   if (!w || !(w.cls || w.name)) {
-    try { var e5 = JSON.parse(localStorage.getItem('energyApps.E5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
+    try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
   }
   if (!w || !(w.cls || w.name)) {
     var c = window.prompt('先生に出すファイルに入れる「組・番号」を書こう(例: 2組15番)', '');
@@ -7839,12 +7931,12 @@ function whoForExport() {
 }
 function saveJSON() {
   var L = curList(); if (!L) { beep('err'); return; }
-  var obj = { schema: 'energyApps.artifact', version: 1, app: 'E4', type: 'checklist', name: L.name, savedAt: new Date().toISOString(), data: listData(L) };
+  var obj = { schema: 'energyApps.artifact', version: 1, app: 'C4', type: 'checklist', name: L.name, savedAt: new Date().toISOString(), data: listData(L) };
   var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   var d = new Date();
-  a.download = 'E4-tenken-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + '.json';   // 日本語のファイル名は端末によって化けるので英数字に
+  a.download = 'C4-tenken-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + '.json';   // 日本語のファイル名は端末によって化けるので英数字に
   document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   beep('ok'); toast('💾 保存しました(' + a.download + ')');
 }
@@ -7858,7 +7950,7 @@ function importJSON() {
 }
 function applyImport(txt) {
   var o; try { o = JSON.parse(txt); } catch (e) { o = null; }
-  var Dt = o && o.app === 'E4' && o.type === 'checklist' && o.data;
+  var Dt = o && o.app === 'C4' && o.type === 'checklist' && o.data;
   var okM = function (m) { return Array.isArray(m) && m.every(function (x) { return byId(D.METHODS, x); }); };
   if (Dt && Array.isArray(Dt.items) && Dt.items.every(function (it) { return it && typeof it.t === 'string' && okM(it.m) && (it.c == null || cycleById(it.c)); })) {
     var T = targetById(Dt.target);
@@ -7871,7 +7963,7 @@ function applyImport(txt) {
     return true;
   }
   beep('err'); closeModal();
-  modal('<h2>読みこめませんでした</h2><p>このファイルは読みこめなかった。E4 保守点検ラボの「💾 ファイルに保存」で保存したファイルを選んでね。</p><div class="acts"><button class="e4-btn primary" data-act="close">とじる</button></div>');
+  modal('<h2>読みこめませんでした</h2><p>このファイルは読みこめなかった。C4 保守点検ラボの「💾 ファイルに保存」で保存したファイルを選んでね。</p><div class="acts"><button class="e4-btn primary" data-act="close">とじる</button></div>');
   return false;
 }
 
@@ -8030,7 +8122,7 @@ function mount(root) {
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 
-NS.E4 = {
+NS.C4 = {
   mount: mount,
   _test: { S: S, SIMS: SIMS, openView: openView, advise: advise, simCompare: simCompare, applyImport: applyImport, listData: listData, startCases: startCases, caseAnswer: caseAnswer, makePartQs: makePartQs, simDay: simDay, simReset: simReset, simInspect: simInspect, curList: curList }
 };
@@ -8038,18 +8130,18 @@ var auto = null;
 if (auto && !auto.getAttribute('data-manual')) mount(auto);
 })();
 </script>
-<script>/* ===== E5 app ===== */
+<script>/* ===== C5 app ===== */
 
 /* ===================================================================
-   E5 回路設計シート  — window.EnergyApps.E5
+   C5 回路設計シート  — window.EnergyApps.C5
    回路図をかく → 自動チェック → 動かして確かめる → 部品表・製作手順 → 実測と比べる
-   回路の計算は E2 と共用の EnergyApps.Circuit を使う
+   回路の計算は C2 と共用の EnergyApps.Circuit を使う
    =================================================================== */
 (function () {
 'use strict';
 var NS = window.EnergyApps = window.EnergyApps || {};
 var C = NS.Circuit, PARTS = C.PARTS;
-var STORE_KEY = 'energyApps.E5.v1';
+var STORE_KEY = 'energyApps.C5.v1';
 var SP = 80, COLS = 10, ROWS = 7;
 
 /* ---------- 小道具 ---------- */
@@ -8088,7 +8180,7 @@ function rb(t, seen) {
 }
 function lit(r) { return !!r && r.bright > 0.03; }
 
-/* ---------- 盤面の形(E2と同じ:格子の点と点の間に部品を1つ) ---------- */
+/* ---------- 盤面の形(C2と同じ:格子の点と点の間に部品を1つ) ---------- */
 function segEnds(seg) {
   var p = seg.split(','), x = +p[1], y = +p[2];
   return p[0] === 'h' ? [{ x: x, y: y }, { x: x + 1, y: y }] : [{ x: x, y: y }, { x: x, y: y + 1 }];
@@ -8144,7 +8236,7 @@ function sym(type, p, r) {
     case 'battery':
       return lead(0, 35) + lead(45, 80) + '<line x1="35" y1="-19" x2="35" y2="19" stroke="#1d2b3a" stroke-width="3.5"/><line x1="45" y1="-10" x2="45" y2="10" stroke="#1d2b3a" stroke-width="8"/>';
     case 'supply':
-      /* 直流電源(電池の記号を2組並べた形。E2 とそろえる) */
+      /* 直流電源(電池の記号を2組並べた形。C2 とそろえる) */
       return lead(0, 26) + lead(34, 46) + lead(54, 80) + '<line x1="26" y1="-17" x2="26" y2="17" stroke="#1d2b3a" stroke-width="3"/><line x1="34" y1="-9" x2="34" y2="9" stroke="#1d2b3a" stroke-width="7"/><line x1="46" y1="-17" x2="46" y2="17" stroke="#1d2b3a" stroke-width="3"/><line x1="54" y1="-9" x2="54" y2="9" stroke="#1d2b3a" stroke-width="7"/>';
     case 'sw':
       s = lead(0, 24) + lead(56, 80) + '<circle cx="24" cy="0" r="5" class="e5-s"/><circle cx="56" cy="0" r="5" class="e5-s"/>';
@@ -8199,19 +8291,6 @@ var TASKS = [
         { t: '豆電球が切れない(定格に合っている)', ok: L.length > 0 && L.every(function (p) { return lit(X.r(p)) && X.r(p).P <= LAMP_OK * LAMP_W; }) },
         noNG(X)];
     } },
-  { id: 'ledlight', icon: '💡', title: 'LEDライト', use: '乾電池2本・スイッチ・LED・抵抗',
-    goal: '電池が長もちする、LEDを使った手元ライトの回路を設計する。LEDがこわれないように電流を決める。',
-    hint: ['LEDは向きがある。+(アノード・足が長い方)を電池の+側に。', 'LEDは20mAまで。抵抗を直列に入れて電流をおさえる。', '抵抗の目安 =(電源の電圧 − 1.8V)÷ 流したい電流。'],
-    req: function (X) {
-      var D = X.of('led'), sw = X.of('sw'), R = X.of('resistor');
-      var inR = D.some(function (p) { var I = X.r(p).I; return I >= 0.005 && I <= 0.0201; });
-      return [
-        { t: 'スイッチを入れるとLEDが光る', ok: sw.length > 0 && D.some(function (p) { return X.r(p).I >= 0.003; }) },
-        { t: 'スイッチを切るとLEDが消える', ok: sw.length > 0 && D.length > 0 && !X.whatIf(ALLOFF).some('led', function (r) { return r.I >= 0.001; }) },
-        { t: 'LEDの電流が 5〜20mA(明るく、こわれない)', ok: inR },
-        { t: '抵抗を使って電流を調整している', ok: R.length > 0 && inR },
-        noNG(X)];
-    } },
   { id: 'rooms', icon: '🏠', title: '2部屋の明かり', use: '電源・スイッチ2個・豆電球2個',
     goal: '2つの部屋の明かりを、それぞれの部屋のスイッチで別々に点けたり消したりできる配線を設計する。',
     hint: ['家の電灯は「並列」につながっている。', '豆電球ごとに、その豆電球と直列にスイッチを入れる。', '電源装置は3Vくらいにすると豆電球にちょうどよい。'],
@@ -8249,6 +8328,19 @@ var TASKS = [
         { t: 'モーターに定格くらいの電圧(2〜4V)がかかる', ok: volt },
         { t: 'ふだんはヒューズが切れない', ok: F.length > 0 && run && F.every(function (p) { return Math.abs(X.r(p).I) <= C.valOf(p); }) },
         { t: 'モーターの所でショートしたら、ヒューズが切れて回路を守る', ok: prot },
+        noNG(X)];
+    } },
+  { id: 'ledlight', icon: '💡', title: 'LEDライト', use: '乾電池2本・スイッチ・LED・抵抗',
+    goal: '電池が長もちする、LEDを使った手元ライトの回路を設計する。LEDがこわれないように電流を決める。',
+    hint: ['LEDは向きがある。+(アノード・足が長い方)を電池の+側に。', 'LEDは20mAまで。抵抗を直列に入れて電流をおさえる。', '抵抗の目安 =(電源の電圧 − 1.8V)÷ 流したい電流。'],
+    req: function (X) {
+      var D = X.of('led'), sw = X.of('sw'), R = X.of('resistor');
+      var inR = D.some(function (p) { var I = X.r(p).I; return I >= 0.005 && I <= 0.0201; });
+      return [
+        { t: 'スイッチを入れるとLEDが光る', ok: sw.length > 0 && D.some(function (p) { return X.r(p).I >= 0.003; }) },
+        { t: 'スイッチを切るとLEDが消える', ok: sw.length > 0 && D.length > 0 && !X.whatIf(ALLOFF).some('led', function (r) { return r.I >= 0.001; }) },
+        { t: 'LEDの電流が 5〜20mA(明るく、こわれない)', ok: inR },
+        { t: '抵抗を使って電流を調整している', ok: R.length > 0 && inR },
         noNG(X)];
     } },
   { id: 'night', icon: '🌙', title: 'LED常夜灯', use: '電源・スイッチ・LED2個・抵抗2個',
@@ -9138,10 +9230,10 @@ function printSheet() {
 /* ---------- 保存・読込(JSON) ---------- */
 function p2(x) { return (x < 10 ? '0' : '') + x; }
 function exportJson() {
-  var d = D(), out = { schema: 'energyApps.artifact', app: 'E5', type: 'circuit-design', version: 1, savedAt: new Date().toISOString(), who: S.save.who, data: { task: S.save.task, parts: d.parts, notes: d.notes, meas: d.meas } };
+  var d = D(), out = { schema: 'energyApps.artifact', app: 'C5', type: 'circuit-design', version: 1, savedAt: new Date().toISOString(), who: S.save.who, data: { task: S.save.task, parts: d.parts, notes: d.notes, meas: d.meas } };
   var blob = new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' }), a = document.createElement('a'), t = new Date();
   a.href = URL.createObjectURL(blob);
-  a.download = 'E5-sekkei-' + S.save.task + '-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  a.download = 'C5-sekkei-' + S.save.task + '-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
   document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   closeModal(); toastMsg('保存しました。「' + task().title + '」の設計を、ファイルにしてダウンロードのフォルダに入れたよ。');
 }
@@ -9155,9 +9247,9 @@ function importJson() {
 }
 function parseImport(text) {
   var o; try { o = JSON.parse(text); } catch (e) { o = null; }
-  return o && o.schema === 'energyApps.artifact' && o.app === 'E5' && o.data ? o : null;
+  return o && o.schema === 'energyApps.artifact' && o.app === 'C5' && o.data ? o : null;
 }
-function importFail() { modal('<h2>読みこめなかった</h2><p>回路設計シート(E5)で保存したファイルを選んでね。</p><div class="acts"><button class="e5-btn primary" data-act="close">とじる</button></div>'); }
+function importFail() { modal('<h2>読みこめなかった</h2><p>回路設計シート(C5)で保存したファイルを選んでね。</p><div class="acts"><button class="e5-btn primary" data-act="close">とじる</button></div>'); }
 /* 読みこむ前に、上書きしてよいか確かめる */
 function confirmImport(text) {
   var o = parseImport(text); if (!o) { importFail(); return; }
@@ -9254,7 +9346,7 @@ function tapAt(p) {
   var pt = seg && partAt(seg);
   if (S.tool === 'erase') { if (pt) removePart(pt.id); return; }
   if (pt) {
-    if (pt.type === 'sw' && S.tool !== 'wire') { S.sel = pt.id; S.ckSel = -1; S.hl = null; toggleSw(pt); return; } /* E2 と同じく、編集中もタップで入/切 */
+    if (pt.type === 'sw' && S.tool !== 'wire') { S.sel = pt.id; S.ckSel = -1; S.hl = null; toggleSw(pt); return; } /* C2 と同じく、編集中もタップで入/切 */
     if (pt.type === 'wire' && PARTS[S.tool] && S.tool !== 'wire') {
       /* 導線の上に部品を置くと、導線と入れかえる */
       snapshot(); D().parts = D().parts.filter(function (q) { return q.id !== pt.id; });
@@ -9453,7 +9545,7 @@ function mount(root) {
   if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
 }
 
-NS.E5 = {
+NS.C5 = {
   mount: mount,
   _test: { S: S, TASKS: TASKS, analyze: analyze, makeSteps: makeSteps, bom: bom, taskReq: taskReq, D: D, A: A, labels: labels, place: place, changed: changed, applyImport: applyImport, nets: nets, render: render, build: build, srcVolt: srcVolt, diffInfo: diffInfo, fitBox: fitBox, confirmImport: confirmImport, measRows: measRows, tapAt: tapAt }
 };
@@ -9466,7 +9558,7 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
 <script>
 (function () {
 'use strict';
-var APPS = [{"id": "E1", "icon": "⚡", "name": "エネルギー変換ゲーム", "short": "エネルギー", "color": "#1e6fd9", "sub": "部品をつないで、エネルギーの変わり方と効率を体験", "tags": ["ステージ1〜8", "自由実験", "効率・CO₂・費用・社会"]}, {"id": "E2", "icon": "🔌", "name": "電気回路ラボ", "short": "電気回路", "color": "#d9480f", "sub": "回路をつくって、電流・電圧・安全を確かめる", "tags": ["課題11", "安全体験", "電気料金"]}, {"id": "E3", "icon": "⚙️", "name": "機構ラボ", "short": "機構", "color": "#2b7a4b", "sub": "歯車・ベルト・リンクで、動きと速さの変わり方を調べる", "tags": ["回転を伝える", "運動を変える", "設計課題12", "設計図"]}, {"id": "E4", "icon": "🔧", "name": "保守点検ラボ", "short": "保守点検", "color": "#c8620e", "sub": "共通部品と、点検・手入れのしかたを学ぶ", "tags": ["部品図鑑", "故障クイズ", "ゆるみ・摩耗", "点検表"]}, {"id": "E5", "icon": "📐", "name": "回路設計シート", "short": "回路設計", "color": "#5f3dc4", "sub": "目的に合った回路を設計し、製作と評価まで記録する", "tags": ["回路図", "自動チェック", "部品表・手順", "評価"]}];
+var APPS = [{"id": "C1", "icon": "⚡", "name": "エネルギー変換ゲーム", "short": "エネルギー", "color": "#1e6fd9", "sub": "部品をつないで、エネルギーの変わり方と効率を体験", "tags": ["ステージ1〜8", "自由実験", "効率・CO₂・費用・社会"]}, {"id": "C2", "icon": "🔌", "name": "電気回路ラボ", "short": "電気回路", "color": "#d9480f", "sub": "回路をつくって、電流・電圧・安全を確かめる", "tags": ["課題11", "安全体験", "電気料金"]}, {"id": "C3", "icon": "⚙️", "name": "機構ラボ", "short": "機構", "color": "#2b7a4b", "sub": "歯車・ベルト・リンクで、動きと速さの変わり方を調べる", "tags": ["回転を伝える", "運動を変える", "設計課題12", "設計図"]}, {"id": "C4", "icon": "🔧", "name": "保守点検ラボ", "short": "保守点検", "color": "#c8620e", "sub": "共通部品と、点検・手入れのしかたを学ぶ", "tags": ["部品図鑑", "故障クイズ", "ゆるみ・摩耗", "点検表"]}, {"id": "C5", "icon": "📐", "name": "回路設計シート", "short": "回路設計", "color": "#5f3dc4", "sub": "目的に合った回路を設計し、製作と評価まで記録する", "tags": ["回路図", "自動チェック", "部品表・手順", "評価"]}];
 var EA = window.EnergyApps || {};
 EA.embedded = true; // 各アプリは自分の上のバーに「このアプリについて」を出さない(このシェルのバーに出す)
 var root = document.getElementById('ea');
@@ -9486,7 +9578,7 @@ function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return n
 function byId(id) { for (var i = 0; i < APPS.length; i++) if (APPS[i].id === id) return APPS[i]; return null; }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-/* ---- 進み具合(各アプリの保存データ energyApps.E{n}.v1 を読むだけ。書きこまない) ---- */
+/* ---- 進み具合(各アプリの保存データ energyApps.C{n}.v1 を読むだけ。書きこまない) ---- */
 function readSave(id) {
   var s = lsGet(KEY(id)); if (!s) return null;
   try { var d = JSON.parse(s); return d && typeof d === 'object' && !Array.isArray(d) ? d : null; } catch (e) { return null; }
@@ -9496,28 +9588,28 @@ function isObj(o) { return o && typeof o === 'object' && !Array.isArray(o); }
 function countIds(ids, obj, ok) { var n = 0; ids.forEach(function (k) { if (ok(obj[k])) n++; }); return n; }
 function truthy(v) { return !!v; }
 var PROG = {
-  E1: function (d) {
-    var stars = isObj(d.stars) ? d.stars : {}, t = appTest('E1'), st = t && t.STAGES ? t.STAGES.filter(function (x) { return !x.free; }) : null;
+  C1: function (d) {
+    var stars = isObj(d.stars) ? d.stars : {}, t = appTest('C1'), st = t && t.STAGES ? t.STAGES.filter(function (x) { return !x.free; }) : null;
     var ids = st ? st.map(function (x) { return x.id; }) : ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
     var max = st ? st.reduce(function (m, x) { return m + (x.stars ? x.stars.length : 3); }, 0) : ids.length * 3;
     var got = ids.reduce(function (m, k) { return m + Math.max(0, Math.min(3, +stars[k] || 0)); }, 0);
     return { n: countIds(ids, stars, function (v) { return +v > 0; }), t: ids.length, main: 'ステージ', end: 'クリア', sub: '★ ' + got + ' / ' + max };
   },
-  E2: function (d) {
-    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('E2');
+  C2: function (d) {
+    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('C2');
     var ids = t && t.CHALS ? t.CHALS.map(function (x) { return x.id; }) : ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11'];
     var safe = Object.keys(cl).filter(function (k) { return /^s\d+$/.test(k) && cl[k]; }).length;
     return { n: countIds(ids, cl, truthy), t: ids.length, main: '課題', end: 'クリア', sub: safe ? '安全体験 ' + safe + ' つ' : '' };
   },
-  E3: function (d) {
-    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('E3');
+  C3: function (d) {
+    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('C3');
     var ids = t && t.TASKS ? t.TASKS.map(function (x) { return x.id; }) : null;
     var n = ids ? countIds(ids, tk, function (v) { return +v > 0; }) : Object.keys(tk).filter(function (k) { return +tk[k] > 0; }).length;
     var tot = ids ? ids.length : 12;
     return { n: Math.min(n, tot), t: tot, main: '設計課題', end: 'クリア', sub: typeof d.quizBest === 'number' && d.quizBest >= 0 ? 'ブラックボックス 最高 ' + d.quizBest + '問正解' : '' };
   },
-  E4: function (d) {
-    var D = window.EnergyApps && window.EnergyApps.E4data, seen = isObj(d.seenP) ? d.seenP : {};
+  C4: function (d) {
+    var D = window.EnergyApps && window.EnergyApps.C4data, seen = isObj(d.seenP) ? d.seenP : {};
     var ids = D && D.ORDER ? D.ORDER : null, n = ids ? countIds(ids, seen, truthy) : Object.keys(seen).filter(function (k) { return seen[k]; }).length;
     var tot = ids ? ids.length : 17, sub = [];
     if (D && D.MACHINES && isObj(d.found)) {
@@ -9528,8 +9620,8 @@ var PROG = {
     if (Array.isArray(d.lists) && d.lists.length) sub.push('点検表 ' + d.lists.length + ' まい');
     return { n: Math.min(n, tot), t: tot, main: '部品図鑑', end: '見た', sub: sub.join(' ・ ') };
   },
-  E5: function (d) {
-    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('E5');
+  C5: function (d) {
+    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('C5');
     var tasks = t && t.TASKS ? t.TASKS : null, ids = tasks ? tasks.map(function (x) { return x.id; }) : Object.keys(ds);
     var n = countIds(ids, ds, function (v) { return v && Array.isArray(v.parts) && v.parts.length > 0; }), cur = '';
     if (tasks && d.task) tasks.forEach(function (x) { if (x.id === d.task) cur = 'いまの課題: ' + (x.icon ? x.icon + ' ' : '') + x.title; });
@@ -9543,22 +9635,21 @@ function progressOf(id) {
 function progressHtml(a, p) {
   if (!p || !p.t) return '';
   var pct = Math.round(100 * Math.min(1, p.n / p.t));
-  return '<div class="pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
+  return '<div class="ea-pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
     '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%;background:' + a.color + '"></i></span>' +
     (p.sub ? '<span class="s2">' + esc(p.sub) + '</span>' : '') + '</div>';
 }
 
 /* ---- 画面を組み立てる ---- */
-function cardHtml(a) {
-  var p = progressOf(a.id);
-  return '<button class="ea-card ef-card" data-open="' + a.id + '">' +
-    '<div class="top"><span class="ic" style="background:' + a.color + '">' + a.icon + '</span>' +
-    '<div><div class="no ef-card-tag">' + a.id + '</div><div class="nm ef-card-title">' + esc(a.name) + '</div></div></div>' +
-    '<div class="ds">' + esc(a.sub) + '</div>' +
-    '<div class="tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
-    '<span class="parts-slot"></span>' +
-    progressHtml(a, p) +
-    '<span class="go ef-btn-primary">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
+function frag(html) { var b = document.createElement('div'); b.innerHTML = html; return b.firstChild; }
+// メニューのカード(4分野共通の EduitFrame.card)。タグと進み具合は「追加の欄」(extra)に入れる
+function makeCard(a, parts) {
+  var p = progressOf(a.id), pg = progressHtml(a, p);
+  return EduitFrame.card({
+    code: a.id, icon: a.icon, title: a.name, desc: a.sub, parts: parts || null,
+    extra: [frag('<div class="ea-card-tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>'), pg ? frag(pg) : null],
+    openAttrs: { 'data-open': a.id }
+  });
 }
 /* 基本編・発展編のタブ(分け方は C-energy/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js) */
 var levelTabs = null;
@@ -9567,27 +9658,24 @@ function renderCards() {
   if (window.EduitFrame && EduitFrame.levels && window.EDUIT_INFO && EDUIT_INFO.levels) {
     levelTabs = EduitFrame.levels(refs.cards, {
       gridClass: 'ea-cards',
-      card: function (item, parts) {
-        var a = byId(item.id); if (!a) return null;
-        var box = document.createElement('div');
-        box.innerHTML = cardHtml(a);
-        var c = box.firstChild, slot = c.querySelector('.parts-slot');
-        if (parts) { var sp = document.createElement('span'); sp.className = 'ef-level-parts'; sp.innerHTML = parts.innerHTML; slot.parentNode.replaceChild(sp, slot); } else slot.remove();
-        return c;
-      }
+      code: function (item) { return item.id; },
+      card: function (item, parts) { var a = byId(item.id); return a ? makeCard(a, parts) : null; }
     });
     return;
   }
   refs.cards.className = 'ea-cards';
-  refs.cards.innerHTML = APPS.map(cardHtml).join('').replace(/<span class="parts-slot"><\/span>/g, '');
+  refs.cards.innerHTML = '';
+  APPS.forEach(function (a) { refs.cards.appendChild(makeCard(a)); });
 }
+if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle($('[data-ref="menu-title"]'));
+// アプリを切りかえるボタン: 記号の印 + 短い名前(「C2 電気回路」)
 refs.chips.innerHTML = APPS.map(function (a) {
   return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +
-    '<span aria-hidden="true">' + a.icon + '</span><span class="no">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
+    '<span class="ef-code">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
-/* ---- 表示切りかえ(URLの #E1〜#E5 / #help で決まる) ---- */
+/* ---- 表示切りかえ(URLの #C1〜#C5 / #help で決まる) ---- */
 function setView(v) {
   [].forEach.call(root.querySelectorAll('.ea-view'), function (el) { el.classList.toggle('on', el.getAttribute('data-view') === v); });
 }
@@ -9597,7 +9685,8 @@ function openApp(id) {
   [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; c.classList.toggle('cur', on); c.setAttribute('aria-current', on ? 'page' : 'false'); });
   APPS.forEach(function (a) { document.body.classList.toggle('ea-on-' + a.id, a.id === id); });
   cur = id; lastView = id;
-  document.title = byId(id).icon + ' ' + id + ' ' + byId(id).name + ' - エネルギー変換 学習アプリ';
+  document.title = id + ' ' + byId(id).name + ' - エネルギー変換の技術 教材集';
+  $('[data-ref="app-title"]').innerHTML = '<span class="ef-code">' + id + '</span>' + esc(byId(id).name);
   if (!mounted[id]) {
     var host = refs.panes.querySelector('[data-pane="' + id + '"]>div');
     try {
@@ -9608,14 +9697,15 @@ function openApp(id) {
       if (window.console) console.error(e);
     }
   }
-  var r = refs.panes.querySelector('[data-pane="' + id + '"] .' + id.toLowerCase());
+  // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e5)のまま
+  var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + id.slice(1));
   if (r && r.focus && !r.contains(document.activeElement)) { try { r.focus({ preventScroll: true }); } catch (e) {} }
 }
 function openHelp(tab) {
   setView('help');
   showTab(tab || 's');
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
-  document.title = '使い方 - エネルギー変換 学習アプリ';
+  document.title = '使い方 - エネルギー変換の技術 教材集';
   if (tab === 't') renderResets();
 }
 function showTab(t) {
@@ -9626,7 +9716,7 @@ function showTab(t) {
 function openHome() {
   setView('home'); renderCards(); cur = null; lastView = 'home'; fromHome = false;
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
-  document.title = 'エネルギー変換 学習アプリ(E1〜E5)';
+  document.title = 'エネルギー変換の技術 教材集';
 }
 function route() {
   var h = decodeURIComponent(location.hash.replace(/^#/, ''));
@@ -9703,7 +9793,7 @@ $('[data-ea-file]').addEventListener('change', function (ev) {
   rd.onload = function () {
     var j = null; try { j = JSON.parse(rd.result); } catch (e) {}
     if (!j || j.schema !== 'energyApps.backup' || !j.data || typeof j.data !== 'object') { alert('このファイルは学習記録のファイルではありません。\n(「全アプリの記録をファイルに書き出す」で作ったファイルをえらんでください)'); return; }
-    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.E[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
+    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
     if (!keys.length) { alert('読み込める記録がありませんでした。'); return; }
     if (!confirm(keys.map(function (k) { return k.split('.')[1]; }).join('・') + ' の記録を読み込みます。\nこの端末の今の記録は上書きされます。よろしいですか?')) return;
     try { keys.forEach(function (k) { localStorage.setItem(k, j.data[k]); }); } catch (e) { alert('保存できませんでした: ' + e.message); return; }

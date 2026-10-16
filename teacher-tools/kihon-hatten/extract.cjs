@@ -21,8 +21,8 @@ const names = { A: {}, B: {}, C: {}, D: {} };
   const m = read("B-bio/build/menu.html").match(/^var APPS = (\{.*\});$/m);
   for (const [id, a] of Object.entries(JSON.parse(m[1]))) names.B[id] = `${a.code} ${a.plain}`;
 }
-for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(E\d)'.*?name='([^']+)'/g)) names.C[m[1]] = `${m[1]} ${m[2]}`;
-for (const m of JSON.parse(read("D-information/kyozai-shu/data/materials.json")).materials) names.D[m.id] = m.title;
+for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(C\d)'.*?name='([^']+)'/g)) names.C[m[1]] = `${m[1]} ${m[2]}`;
+for (const m of JSON.parse(read("D-information/kyozai-shu/data/materials.json")).materials) names.D[m.id] = `${m.code} ${m.title}`;
 
 const out = [];
 for (const [key, dir] of [["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"], ["D", "D-information"]]) {

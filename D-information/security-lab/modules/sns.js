@@ -1,4 +1,4 @@
-// モジュール6: SNS投稿の個人情報チェック
+// モジュール⑥: SNS投稿の個人情報チェック
 // 写真は架空のイラスト（SVG）。地名・学校名もすべて架空（「ほしぞら台駅」「ほしぞら台中」は実在しない名前として選んだ）。
 import { h, explainCard, stepCard, reflectionBox, threeSteps } from "../js/ui.js";
 

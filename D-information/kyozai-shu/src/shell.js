@@ -7,7 +7,7 @@
   const byId = new Map(DATA.materials.map((m) => [m.id, m]));
   const menu = document.getElementById("menu");
   const stage = document.getElementById("stage");
-  const nowTitle = document.getElementById("now-title");
+  const barTitle = document.getElementById("bar-title");
   const switcher = document.getElementById("switcher");
   const switchWrap = document.getElementById("switch-wrap");
   const switchBtn = document.getElementById("switch-btn");
@@ -104,64 +104,78 @@
     return el;
   }
 
+  // 記号の印（D1〜D9。materials.json の code。番号の順 = おすすめの順 = カードの順）
+  const codeEl = (m) => (window.EduitFrame && EduitFrame.code ? EduitFrame.code(m.code) : h("span", { class: "ef-code" }, m.code));
+  // メニューのカード（4分野共通の形 EduitFrame.card）。アイコンは教材の SVG を入れる
+  function card(m, parts) {
+    const opened = seen.opened.includes(m.id);
+    const extra = [opened ? h("span", { class: "seen-mark" }, "✓ 開いたことがある") : null];
+    let c;
+    if (window.EduitFrame && EduitFrame.card) {
+      c = EduitFrame.card({ code: m.code, icon: " ", title: m.title, desc: m.desc, parts, extra, href: `#/${m.id}` });
+      const ic = c.querySelector(".ef-mcard-ic");
+      if (ic) ic.replaceChildren(h("img", { src: m.iconData, alt: "" }));
+    } else c = h("article", { class: "ef-card" }, h("h3", {}, h("a", { href: `#/${m.id}` }, `${m.code} ${m.title}`)), h("p", {}, m.desc), parts, ...extra);
+    c.dataset.id = m.id;
+    if (opened) c.classList.add("seen");
+    return c;
+  }
+
   function renderMenu() {
-    const order = DATA.materials.map((m) => m.id);
-    // 基本編のおすすめの順番（EDUIT_INFO.levels の基本編の並び）
-    const basicOrder = LEVELS ? LEVELS.basic.items.map((x) => x.id).filter((id) => byId.has(id)) : order;
-    const card = (m, parts, level) =>
-      h(
-        "a",
-        { class: "mcard ef-card" + (seen.opened.includes(m.id) ? " seen" : ""), href: `#/${m.id}` },
-        h("img", { src: m.iconData, alt: "" }),
-        h("span", { class: "tag ef-card-tag" }, h("span", { class: "order" }, level === "advanced" ? "発展" : `おすすめ ${basicOrder.indexOf(m.id) + 1}番`)),
-        h("span", { class: "t ef-card-title" }, m.title),
-        h("span", { class: "d" }, m.desc),
-        parts ? h("span", { class: "parts" }, ...parts.childNodes) : null,
-        h("span", { class: "go ef-btn-primary", "aria-hidden": "true" }, "開く ▶"),
-        seen.opened.includes(m.id) ? h("span", { class: "seen-mark" }, "✓ 開いたことがある") : null,
-      );
+    const last = seen.last && byId.get(seen.last);
     menu.replaceChildren(
-      h("div", { class: "hero" }, h("h1", {}, DATA.title), h("p", { class: "lead" }, DATA.lead), h("p", { class: "author" }, DATA.author)),
-      renderNext(order),
-      renderLevels(card),
-      renderExport(),
+      h(
+        "div",
+        { class: "hero" },
+        h("p", { class: "lead" }, DATA.lead),
+        h("p", { class: "author" }, DATA.author),
+        last ? h("p", { class: "resume" }, h("span", { class: "resume-k" }, "前回のつづき"), h("a", { href: `#/${last.id}`, class: "resume-go" }, codeEl(last), ` ${last.title} ▶`)) : null,
+      ),
+      renderLevels(),
+      h("div", { class: "records" }, renderExport(), renderReset()),
       h(
         "section",
-        { class: "note", "aria-labelledby": "g-teacher" },
-        h("h2", { id: "g-teacher" }, "先生へ"),
+        { class: "note teacher", id: "teacher", "aria-labelledby": "g-teacher", tabindex: "-1" },
+        h("h2", { id: "g-teacher" }, "先生用"),
         h(
           "ul",
           {},
           h("li", {}, "インターネットにつながっていなくても使えます。入力した内容や記録は、このパソコンのブラウザの中にだけ保存されます。"),
+          h("li", {}, `教材の記号（D1〜D${DATA.materials.length}）は、おすすめの順番です。1つずつ配るファイルの名前（D1_〜）の番号と同じです。授業の進め方に合わせて、どこから始めてもかまいません。`),
           h("li", {}, `記録の提出は、上の「記録をまとめて書き出す」で、${DATA.materials.length}つの教材の記録を1つの JSON ファイルにして出せます。教材ごとの「ふりかえり・記録」からも書き出せます。`),
-          h("li", {}, "教材を開いているときは、上のバーの教材の名前（はばがせまい画面では「教材をかえる ▾」）で教材を切りかえられます。切りかえても、開いていた教材の作業は消えません。"),
+          h("li", {}, "教材を開いているときは、上のバーの教材の記号と名前（はばがせまい画面では「教材をかえる ▾」）で教材を切りかえられます。切りかえても、開いていた教材の作業は消えません。"),
           h("li", {}, `上のバーの「ふりがな」「大きな文字」は、${DATA.materials.length}つの教材とこのメニューにまとめてかかります。プログラムを書く欄や入力欄には、ふりがなは付きません。`),
           h("li", {}, "「情報セキュリティ体験ラボ」の「デジタル化と情報量」「ネットワーク通信の模擬」は短い体験版です。くわしく扱うときは、その単元のさいご（ふりかえりのあと）の案内から「デジタル化ラボ」「ネットワーク通信シミュレータ」に移れます。移った先のページの上と下に「← 情報セキュリティ体験ラボにもどる」が出ます。"),
           renderCurriculum(),
         ),
       ),
-      h(
-        "section",
-        { class: "note reset", "aria-labelledby": "g-reset" },
-        h("h2", { id: "g-reset" }, "はじめからやり直す"),
-        h("p", {}, `次の人にパソコンをわたすときに使います。${DATA.materials.length}つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品と、このメニューの「開いたことがある」の印・「記録をまとめて書き出す」の組・番号・名前を、すべて消します。ふりがな・文字の大きさなどの表示の設定と、先生用ページで差し替えた問題データは残ります。`),
-        h("button", { type: "button", class: "reset-btn ef-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
-        h("p", { class: "reset-msg", id: "reset-msg", role: "status" }, resetMsg),
-      ),
     );
     document.getElementById("reset-all").addEventListener("click", resetAll);
   }
 
+  function renderReset() {
+    return h(
+      "section",
+      { class: "note reset", "aria-labelledby": "g-reset" },
+      h("h2", { id: "g-reset" }, "はじめからやり直す"),
+      h("p", {}, `次の人にパソコンをわたすときに使います。${DATA.materials.length}つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品と、このメニューの「開いたことがある」の印・「記録をまとめて書き出す」の組・番号・名前を、すべて消します。ふりがな・文字の大きさなどの表示の設定と、先生用ページで差し替えた問題データは残ります。`),
+      h("button", { type: "button", class: "reset-btn ef-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
+      h("p", { class: "reset-msg", id: "reset-msg", role: "status" }, resetMsg),
+    );
+  }
+
   // 基本編・発展編のタブ（分け方は D-information/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js）
-  function renderLevels(card) {
+  function renderLevels() {
     const box = h("section", { class: "group levels", "aria-label": "教材（基本編・発展編）" });
     if (LEVELS && window.EduitFrame && EduitFrame.levels) {
       EduitFrame.levels(box, {
         gridClass: "grid",
-        card: (item, parts, level) => (byId.has(item.id) ? card(byId.get(item.id), parts, level) : null),
+        card: (item, parts) => (byId.has(item.id) ? card(byId.get(item.id), parts) : null),
+        // 基本編の上に「おすすめの順番: D1 → D2 → …」の1行
+        code: (item) => (byId.has(item.id) ? byId.get(item.id).code : null),
         onRender: (panel) => shellRuby.set(prefs.ruby, panel),
       });
-    } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null, "basic"))));
+    } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null))));
     return box;
   }
 
@@ -173,7 +187,7 @@
       "li",
       { class: "curriculum" },
       `${C.note}: `,
-      DATA.materials.map((m) => `${m.title} ${m.tag}`).join("、"),
+      DATA.materials.map((m) => `${m.code} ${m.title} ${m.tag}`).join("、"),
       "。",
       h("span", { class: "curr-key" }, Object.entries(C.items).map(([k, v]) => `${k} ${v}`).join("／")),
     );
@@ -353,7 +367,7 @@
     const status = DATA.materials.map((m) => {
       const s = summarize(m);
       const bits = [s.reflections.length ? `ふりかえり ${s.reflections.length}` : "", s.progress.length ? `進み具合 ${s.progress.length}こ` : ""].filter(Boolean).join("・");
-      return h("li", { class: s.hasRecord ? "has" : "none" }, h("span", { class: "mark", "aria-hidden": "true" }, s.hasRecord ? "✓" : "—"), h("span", {}, `${m.title}: `, s.hasRecord ? `記録あり（${bits || "名前だけ"}）` : "まだ記録なし"));
+      return h("li", { class: s.hasRecord ? "has" : "none" }, h("span", { class: "mark", "aria-hidden": "true" }, s.hasRecord ? "✓" : "—"), h("span", {}, `${m.code} ${m.title}: `, s.hasRecord ? `記録あり（${bits || "名前だけ"}）` : "まだ記録なし"));
     });
     const run = (ext) => {
       const missing = ["cls", "num"].filter((k) => !st[k]);
@@ -421,38 +435,14 @@
     document.getElementById("reset-all").focus();
   }
 
-  // 「つぎはこれ」: まだ開いていない教材のうち、おすすめの順番でいちばん前のもの
-  function renderNext(order) {
-    const nextId = order.find((id) => !seen.opened.includes(id));
-    const last = seen.last && byId.get(seen.last);
-    const big = (m, label) => h("a", { class: "next-go", href: `#/${m.id}` }, h("img", { src: m.iconData, alt: "" }), h("span", {}, h("span", { class: "k" }, label), h("span", { class: "t" }, m.title)), h("span", { class: "arrow", "aria-hidden": "true" }, "→"));
-    const steps = h(
-      "ol",
-      { class: "route", "aria-label": "おすすめの順番" },
-      order.map((id) => {
-        const m = byId.get(id);
-        const state = seen.opened.includes(id) ? "seen" : id === nextId ? "next" : "";
-        return h("li", { class: state }, h("a", { href: `#/${id}` }, m.title), state === "seen" ? h("span", { class: "visually-hidden" }, "（開いたことがある）") : state === "next" ? h("span", { class: "visually-hidden" }, "（つぎはこれ）") : null);
-      }),
-    );
-    return h(
-      "section",
-      { class: "next-panel", "aria-labelledby": "g-next" },
-      h("h2", { id: "g-next" }, seen.opened.length ? "つぎはこれ" : "はじめての人は、ここから"),
-      h("div", { class: "next-row" }, nextId ? big(byId.get(nextId), seen.opened.length ? "まだ開いていない教材" : "おすすめ 1番") : null, last && last.id !== nextId ? big(last, "前回のつづき") : null),
-      h("p", { class: "route-label" }, "おすすめの順番（授業の進め方に合わせて、どこから始めてもかまいません）"),
-      steps,
-    );
-  }
-
-  // 教材の切りかえ（KS-04）: アイコンに短い名前。はばがせまいときは「教材をかえる ▾」で、名前の一覧を出す
+  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D2 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
   function renderSwitcher(currentId) {
     switcher.replaceChildren(
       ...DATA.materials.map((m) =>
         h(
           "a",
-          { href: `#/${m.id}`, title: m.title, "aria-current": m.id === currentId ? "page" : null },
-          h("img", { src: m.iconData, alt: "" }),
+          { href: `#/${m.id}`, title: `${m.code} ${m.title}`, "aria-current": m.id === currentId ? "page" : null },
+          codeEl(m),
           h("span", { class: "short", "aria-hidden": "true" }, m.short || m.title),
           h("span", { class: m.short ? "full" : "full visually-hidden" }, m.title),
         ),
@@ -500,6 +490,31 @@
     else f.addEventListener("load", () => (f.contentWindow.location.hash = hash), { once: true });
   }
 
+  // 上のバーの名前: メニューのとき「D 情報の技術 教材集」、教材のとき「D2 仮想CPUラボ」
+  function setBarTitle(m) {
+    if (!m) {
+      barTitle.removeAttribute("title");
+      if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle(barTitle);
+      else barTitle.textContent = DATA.title;
+      return;
+    }
+    barTitle.replaceChildren(codeEl(m), h("span", { class: "ef-title-name" }, m.title));
+    barTitle.title = `${m.code} ${m.title}`;
+  }
+  // 「先生用」: メニューの下の先生用のところへ移る
+  document.getElementById("go-teacher").addEventListener("click", () => {
+    const go = () => {
+      const t = document.getElementById("teacher");
+      if (!t) return;
+      t.scrollIntoView({ block: "start" });
+      t.focus({ preventScroll: true });
+    };
+    if (document.body.classList.contains("app-mode")) {
+      location.hash = "#/";
+      setTimeout(go, 0);
+    } else go();
+  });
+
   let pendingInner = null;
   let pendingBack = null;
   let firstRoute = true;
@@ -521,7 +536,7 @@
       stage.hidden = true;
       renderMenu();
       menu.hidden = false;
-      nowTitle.textContent = "";
+      setBarTitle(null);
       document.title = DATA.title;
       menu.focus({ preventScroll: true });
       return;
@@ -542,8 +557,8 @@
     savePlace();
     applyBackTo(f);
     markSeen(m.id);
-    nowTitle.textContent = m.title;
-    document.title = `${m.title} | ${DATA.title}`;
+    setBarTitle(m);
+    document.title = `${m.code} ${m.title} | ${DATA.title}`;
     renderSwitcher(m.id);
     window.scrollTo(0, 0);
     f.focus();

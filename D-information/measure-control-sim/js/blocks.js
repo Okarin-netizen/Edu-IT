@@ -70,7 +70,7 @@ function listInProgram(program, list) {
   return false;
 }
 
-// はじめのプログラムの「# ここに…」のメモの下を、はじめから選んでおく（場面4 など）
+// はじめのプログラムの「# ここに…」のメモの下を、はじめから選んでおく（場面④ など）
 export function memoCursor(program) {
   let found = null;
   const walk = (list) => list.forEach((n, i) => {

@@ -19,22 +19,25 @@ export const GROUPS = [
   { id: "cyber", title: "サイバーセキュリティ" },
   { id: "moral", title: "情報モラル・知的財産・発信の責任" },
   { id: "summary", title: "まとめ" },
+  { id: "advanced", title: "発展（先生に言われたら）" },
 ];
 
 // easy: やさしい日本語のまとめ（「やさしい日本語」をオンにすると表示）
+// 並びと番号: 基本編（①〜⑩）→ 発展編（⑪ ハッシュ体験）。label は画面に出す丸数字
+export const CIRCLED = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫"];
 export const CATALOG = [
   { num: 1, id: "digital", group: "digital", title: "デジタル化と情報量", desc: "画像の解像度・階調、音の標本化、圧縮でデータ量がどう変わるか", module: digitalModule, easy: "コンピュータは、画像や 音を 数に して あつかいます。きれいに するほど、データの 量は 大きく なります。圧縮すると 小さく できます。" },
   { num: 2, id: "password", group: "security", title: "パスワード強度ラボ", desc: "文字の種類と長さで、解読にかかる時間がどれほど変わるかを体験", module: passwordModule, easy: "パスワードは 長い ほうが 強いです。ほかの 人に 教えません。同じ パスワードを ほかの サービスで 使いません。" },
   { num: 3, id: "crypto", group: "security", title: "暗号ラボ", desc: "昔の暗号を作って破り（1回目）、鍵の受け渡しと公開鍵暗号のしくみを知る（2回目）。RSAの計算は発展", module: cryptoModule, easy: "暗号は、ほかの 人に 読まれない ように する しかけです。むかしの 暗号は かんたんに 読まれました。いまの 暗号は 数学で 強く なって います。" },
-  { num: 4, id: "hash", group: "security", title: "ハッシュ体験", desc: "1文字変えるとハッシュ値がまったく変わる様子を見る", module: hashModule, easy: "ハッシュは データの 指紋の ような ものです。1文字 ちがうだけで、まったく ちがう 値に なります。書きかえに 気づく ことが できます。" },
-  { num: 5, id: "phishing", group: "cyber", title: "フィッシング見分け", desc: "サイバー攻撃の代表、フィッシング。ニセのメールやログイン画面から怪しい点を見つける", module: phishingModule, easy: "ニセの メールや ページで、パスワードや お金を とろうと する 人が います。メールの リンクは 押さないで、公式の アプリで たしかめます。" },
-  { num: 6, id: "network", group: "cyber", title: "ネットワーク通信の模擬", desc: "通信の暗号化で、サイバー攻撃ののぞき見から情報を守るしくみを比べる", module: networkModule, easy: "HTTP は、とちゅうで 中身を 見られる ことが あります。HTTPS は 中身が 暗号に なって います。でも https（鍵マーク）でも、ニセの サイトの ことも あります。" },
-  { num: 7, id: "sns", group: "moral", title: "SNS投稿の個人情報チェック", desc: "写真や文章から場所や学校が分かる手がかりを探す", module: snsModule, easy: "写真や 文から、家や 学校が わかる ことが あります。投稿する 前に、うつって いる ものと 位置情報を たしかめます。" },
-  { num: 8, id: "tattoo", group: "moral", title: "デジタルタトゥー", desc: "投稿が広がり、消せなくなる理由を体験", module: tattooModule, easy: "インターネットに 出した ものは、コピーされて 広がります。自分で 消しても、ぜんぶは 消えません。投稿する 前に よく 考えます。" },
-  { num: 9, id: "copyright", group: "moral", title: "著作権・利用ルールクイズ", desc: "引用・私的利用・フリー素材を分岐クイズで", module: copyrightModule, easy: "歌や 絵や 写真には、作った 人の 権利が あります。使う ときは ルールを 守ります。わからない ときは 先生に 聞きます。" },
-  { num: 10, id: "roleplay", group: "moral", title: "判断ロールプレイ", desc: "知らない人からのDMや、アプリの権限要求にどう答える？", module: roleplayModule, easy: "知らない 人からの メッセージや、アプリの おねがいに どう こたえるか 考えます。こまったら すぐ 大人に 相談します。" },
-  { num: 11, id: "declare", group: "summary", title: "まとめ・行動宣言", desc: "今日から実行する3つの対策を選ぶ", module: declareModule, easy: "学んだ ことから、きょうから する ことを 3つ えらびます。" },
-];
+  { num: 4, id: "phishing", group: "cyber", title: "フィッシング見分け", desc: "サイバー攻撃の代表、フィッシング。ニセのメールやログイン画面から怪しい点を見つける", module: phishingModule, easy: "ニセの メールや ページで、パスワードや お金を とろうと する 人が います。メールの リンクは 押さないで、公式の アプリで たしかめます。" },
+  { num: 5, id: "network", group: "cyber", title: "ネットワーク通信の模擬", desc: "通信の暗号化で、サイバー攻撃ののぞき見から情報を守るしくみを比べる", module: networkModule, easy: "HTTP は、とちゅうで 中身を 見られる ことが あります。HTTPS は 中身が 暗号に なって います。でも https（鍵マーク）でも、ニセの サイトの ことも あります。" },
+  { num: 6, id: "sns", group: "moral", title: "SNS投稿の個人情報チェック", desc: "写真や文章から場所や学校が分かる手がかりを探す", module: snsModule, easy: "写真や 文から、家や 学校が わかる ことが あります。投稿する 前に、うつって いる ものと 位置情報を たしかめます。" },
+  { num: 7, id: "tattoo", group: "moral", title: "デジタルタトゥー", desc: "投稿が広がり、消せなくなる理由を体験", module: tattooModule, easy: "インターネットに 出した ものは、コピーされて 広がります。自分で 消しても、ぜんぶは 消えません。投稿する 前に よく 考えます。" },
+  { num: 8, id: "copyright", group: "moral", title: "著作権・利用ルールクイズ", desc: "引用・私的利用・フリー素材を分岐クイズで", module: copyrightModule, easy: "歌や 絵や 写真には、作った 人の 権利が あります。使う ときは ルールを 守ります。わからない ときは 先生に 聞きます。" },
+  { num: 9, id: "roleplay", group: "moral", title: "判断ロールプレイ", desc: "知らない人からのDMや、アプリの権限要求にどう答える？", module: roleplayModule, easy: "知らない 人からの メッセージや、アプリの おねがいに どう こたえるか 考えます。こまったら すぐ 大人に 相談します。" },
+  { num: 10, id: "declare", group: "summary", title: "まとめ・行動宣言", desc: "今日から実行する3つの対策を選ぶ", module: declareModule, easy: "学んだ ことから、きょうから する ことを 3つ えらびます。" },
+  { num: 11, id: "hash", group: "advanced", title: "ハッシュ体験", desc: "1文字変えるとハッシュ値がまったく変わる様子を見る", module: hashModule, easy: "ハッシュは データの 指紋の ような ものです。1文字 ちがうだけで、まったく ちがう 値に なります。書きかえに 気づく ことが できます。" },
+].map((c) => ({ ...c, label: CIRCLED[c.num - 1] }));
 
 // やさしい日本語: ステップごとの「やること」（「やさしい日本語のまとめ」をオンにすると、各ステップの見出しの下に出る）
 // キーは モジュールのid → ステップのid。ないステップには何も出ない。

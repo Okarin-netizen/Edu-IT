@@ -28,11 +28,12 @@
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 
 /* ---- ヘッダー ----
- * <header class="ef-header">
- *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
- *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
- * </header>
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -79,7 +80,8 @@
 }
 
 /* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
  */
 .ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
 .ef-card {
@@ -88,6 +90,29 @@
 }
 .ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
 
 /* ---- フッター(作成者・このアプリについて) ---- */
 .ef-footer {

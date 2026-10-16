@@ -64,7 +64,7 @@ function renderHome() {
       "a",
       { class: "scn-card", href: `#/s/${s.id}` },
       h("span", { class: "scn-icon", "aria-hidden": "true" }, s.icon),
-      h("span", { class: "scn-num" }, `場面${s.num}`),
+      h("span", { class: "scn-num" }, `場面${s.label}`),
       h("span", { class: "scn-title" }, s.title),
       h("span", { class: "scn-desc" }, s.summary),
       s.time ? h("span", { class: "scn-time" }, `目安 ${s.time}（${s.period}時間目）`) : null,
@@ -105,7 +105,7 @@ function renderHome() {
 // 授業の進め方（3時間）。はじめにと先生用ページに出す
 function planRows() {
   const byPeriod = [1, 2, 3].map((p) => scenarios.filter((s) => s.period === p));
-  const names = (list) => list.map((s) => `場面${s.num} ${s.title.replace(/（.*?）/g, "")}（${s.time}）`).join("、");
+  const names = (list) => list.map((s) => `${s.label} ${s.title.replace(/（.*?）/g, "")}（${s.time}）`).join("、");
   return [
     ["1時間目", `はじめに（5分）、${names(byPeriod[0])}、ふりかえり（5分）`],
     ["2時間目", `${names(byPeriod[1])}、ふりかえり（10分）`],
@@ -190,7 +190,7 @@ function renderGuide() {
 
 // ---------------- 先生用ページ（メニューには出さない。#/teacher で開く） ----------------
 function renderTeacher() {
-  const answers = scenarios.filter((s) => s.model_answer).map((s) => h("details", { class: "answer" }, h("summary", {}, `${s.icon} 場面${s.num} ${s.title} の模範プログラム`), h("pre", { class: "code-view" }, s.model_answer)));
+  const answers = scenarios.filter((s) => s.model_answer).map((s) => h("details", { class: "answer" }, h("summary", {}, `${s.icon} ${s.label} ${s.title} の模範プログラム`), h("pre", { class: "code-view" }, s.model_answer)));
   view.replaceChildren(
     h("h1", {}, "先生用ページ"),
     explainCard("このページについて", "生徒用のメニューには出ていません。開き方は2つあります。(1) この教材のファイル（計測制御シミュレータ.html）を開き、アドレスの最後に #/teacher をつける。(2) 教材集の中など、アドレスを変えられないときは、教材の画面をクリックしてから（文字を入れる欄の外で）キーボードで teacher と続けて打つ。授業で模範を映して見せるときなどに使ってください。", "warn"),
@@ -254,7 +254,7 @@ function renderRecords() {
   const summary = scenarios.map((s) => {
     const rs = store.recordsOf(s.id);
     const best = store.best(s.id);
-    return h("tr", {}, h("td", {}, `${s.icon} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", {}, store.getReflection(s.id) || "—"));
+    return h("tr", {}, h("td", {}, `${s.icon} ${s.label} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", {}, store.getReflection(s.id) || "—"));
   });
   const list = recs.map((r) =>
     h(
@@ -364,7 +364,7 @@ function renderScenario(sid) {
   const head = h(
     "section",
     { class: "card scn-head" },
-    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `場面${s.num} ${s.title}`), s.time ? h("span", { class: "scn-time" }, `目安 ${s.time}（${s.period}時間目）`) : null),
+    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `${s.label} ${s.title}`), s.time ? h("span", { class: "scn-time" }, `目安 ${s.time}（${s.period}時間目）`) : null),
     h("p", { class: "scn-goal" }, h("strong", {}, "めあて："), s.goal),
     h(
       "details",
@@ -1115,6 +1115,8 @@ function setupToggles() {
 async function start() {
   try {
     scenarios = (await loadData("scenarios")).scenarios;
+    // 画面に出す番号は丸数字（①〜④ 基本編、⑤ 発展編）。num は並びの番号
+    for (const s of scenarios) s.label = "①②③④⑤⑥⑦⑧⑨"[s.num - 1] || String(s.num);
   } catch (e) {
     view.replaceChildren(h("p", {}, "データを読み込めませんでした。単一ファイル版（dist/計測制御シミュレータ.html）を使うか、Webサーバー経由で開いてください。"));
     return;

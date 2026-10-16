@@ -80,7 +80,7 @@ function renderHome() {
     return h(
       "a",
       { class: "module-card", href: `#/${c.id}` },
-      h("span", { class: "mc-num" }, `${c.num}・目安 ${c.module.minutes}`),
+      h("span", { class: "mc-num" }, `${c.label}・目安 ${c.module.minutes}`),
       h("span", { class: "mc-title" }, c.title),
       h("span", { class: "mc-desc" }, c.desc),
       h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${(p.done / p.total) * 100}%` })),
@@ -101,7 +101,7 @@ function renderHome() {
       "section",
       { class: "card" },
       h("h2", {}, "すすめ方"),
-      h("ol", {}, h("li", {}, "1〜4のモジュールを順に体験し、最後にふりかえりを書く"), h("li", {}, "5の計算ドリルで、データ量の計算を練習する"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する")),
+      h("ol", {}, h("li", {}, "①〜③のモジュールを順に体験し、それぞれのふりかえりを書く"), h("li", {}, "④の計算ドリルで、データ量の計算を練習する"), h("li", {}, "⑤の圧縮のしくみは発展。先生に言われたときや、早く終わったときに取り組む"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する")),
       h(
         "div",
         { class: "lesson-plan" },
@@ -109,22 +109,22 @@ function renderHome() {
         h(
           "ul",
           {},
-          h("li", {}, h("strong", {}, "1時間目"), "「はじめに・1 画像・2 音」"),
-          h("li", {}, h("strong", {}, "2時間目"), "「3 2進数・4 圧縮・ふりかえり・記録」"),
-          h("li", {}, h("strong", {}, "5 ドリル"), "は、次の時間のはじめや復習に使う"),
+          h("li", {}, h("strong", {}, "1時間目"), "「はじめに・① 画像・② 音」"),
+          h("li", {}, h("strong", {}, "2時間目"), "「③ 2進数・④ ドリル・ふりかえり・記録」"),
+          h("li", {}, h("strong", {}, "⑤ 圧縮（発展）"), "は、早く終わった人や、次の時間に使う"),
         ),
         h("p", { class: "hint" }, "時間の終わりには、ふりかえりを書いてから次へ進もう。"),
       ),
     ),
     h("section", { class: "module-group" }, h("h2", {}, "モジュール"), h("div", { class: "module-grid" }, cards)),
-    h("div", { class: "btn-row start-row" }, h("a", { class: "btn", href: `#/${CATALOG[0].id}` }, `${CATALOG[0].num} ${CATALOG[0].title}からはじめよう →`)),
+    h("div", { class: "btn-row start-row" }, h("a", { class: "btn", href: `#/${CATALOG[0].id}` }, `${CATALOG[0].label} ${CATALOG[0].title}からはじめよう →`)),
   );
 }
 
 async function renderModule(entry, stepId) {
   const m = entry.module;
   const root = h("div");
-  view.replaceChildren(h("div", { class: "module-head" }, h("p", { class: "meta" }, `モジュール${entry.num}・目安 ${m.minutes}`), h("h1", {}, entry.title), h("p", {}, m.lead)), root);
+  view.replaceChildren(h("div", { class: "module-head" }, h("p", { class: "meta" }, `モジュール${entry.label}・目安 ${m.minutes}`), h("h1", {}, entry.title), h("p", {}, m.lead)), root);
   const idx = CATALOG.indexOf(entry);
   const prev = CATALOG[idx - 1];
   const next = CATALOG[idx + 1];

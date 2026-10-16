@@ -125,7 +125,11 @@ const check = (ok, label) => {
   // ほかの教材と同じ枠: 上のバーの道具の順番・ページの移動
   const tools = await p.locator("#display-toggles button").allInnerTexts();
   check(tools.join(",") === "ふりがな,大きな文字", `上のバーの道具の順番 (${tools.join(",")})`);
-  check((await p.locator(".pager a", { hasText: "次へ：ふりかえり・記録 →" }).count()) === 1, "クイズのつぎは「ふりかえり・記録」");
+  // 基本編(①〜③)のあとに発展編(④〜⑧)。クイズ(③)のつぎは ④ つぎの言葉あて、さいごの ⑧ のつぎが「ふりかえり・記録」
+  check((await p.locator(".pager a", { hasText: "つぎの言葉あて" }).count()) === 1, "クイズ(③)のつぎは ④ つぎの言葉あて");
+  check(/はじめに[\s\S]*もっともらしいまちがい[\s\S]*個人情報[\s\S]*クイズとふりかえり[\s\S]*つぎの言葉あて/.test(await p.locator(".chapter-nav").innerText()), "左のメニューは ① もっともらしいまちがい から");
+  await go("imggen");
+  check((await p.locator(".pager a", { hasText: "ふりかえり・記録" }).count()) === 1, "⑧ ノイズから絵をつくる のつぎは「ふりかえり・記録」");
 
   // はじめから(データリセット)
   await p.click("text=大きな文字");

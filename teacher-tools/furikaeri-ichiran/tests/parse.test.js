@@ -23,14 +23,14 @@ test('サンプルはすべて読める(こわれたもの以外)', () => {
 
 test('A: まとめて書き出し(組・番号は全角でも半角にそろう、途中の記録は入れない)', () => {
   const r = load('技術_材料と加工_2組15番山田花子_20261015.json');
-  assert.deepStrictEqual(r.entries.map((e) => e.app), ['M1 材料選択ナビ', 'M4 製図トレーナー', 'M6 工具の使い方・安全トレーナー']);
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['A1 材料選択ナビ', 'A4 製図トレーナー', 'A6 工具の使い方・安全トレーナー']);
   assert.deepStrictEqual(r.entries[0].student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(r.entries[0], '選んだ理由'), '軽くて加工しやすいから');
   assert.strictEqual(val(r.entries[1], '三面図を見て、立体の形を思いうかべることができた'), 'できた');
   assert.strictEqual(val(r.entries[2], '姿勢・安全・精度'), '姿勢 A / 安全 B / 精度 B');
 });
 
-test('A: M4 だけの書き出しは中の名前を使う', () => {
+test('A: A4 だけの書き出しは中の名前を使う', () => {
   const r = load('drawing-trainer-佐藤-2026-10-15.json');
   assert.strictEqual(r.entries[0].student.name, '佐藤');
   assert.strictEqual(val(r.entries[0], '線の種類(外形線・かくれ線・中心線など)を使い分けられた'), 'もう少し');
@@ -49,25 +49,25 @@ test('A: 1つずつ書き出したファイルの組・番号・名前(メニュ
 });
 
 test('B: 自己評価の数値・記号を言葉にする', () => {
-  const b1 = load('B1_育成日誌_1班_20261015-1405.json').entries[0];
-  assert.deepStrictEqual(b1.student, { cls: '2', num: '3', name: '鈴木一郎' });
-  assert.strictEqual(val(b1, '毎日の観察・記録を続けられた'), '◎');
-  assert.strictEqual(b1.rows.find((x) => x.part === '評価: ミニトマト').value, '毎日水やり');
-  const b3 = load('B3_データ_2026-10-15.json').entries[0];
-  assert.deepStrictEqual(b3.student, { cls: '2', num: '3', name: '鈴木一郎' });
-  assert.strictEqual(val(b3, '動物・水産生物に合った環境の条件が分かった'), '◎ よくできた');  // 0 が ◎
-  assert.strictEqual(val(b3, '命を大切にし、実際の飼育や社会に生かそうと考えた'), '△ もう少し');
-  const b4 = load('b4_バックアップ_20261015.json').entries[0];
-  assert.strictEqual(b4.student.cls, '2年2');
-  assert.strictEqual(val(b4, '作物の性質をもとに、作業日を逆算して計画を立てられた'), '◎ よくできた');  // 3 が ◎
-  assert.strictEqual(b4.rows.filter((x) => x.type === '自己評価').length, 2);  // 0 は未記入
+  const b4 = load('B4_育成日誌_1班_20261015-1405.json').entries[0];
+  assert.deepStrictEqual(b4.student, { cls: '2', num: '3', name: '鈴木一郎' });
+  assert.strictEqual(val(b4, '毎日の観察・記録を続けられた'), '◎');
+  assert.strictEqual(b4.rows.find((x) => x.part === '評価: ミニトマト').value, '毎日水やり');
+  const b2 = load('B2_データ_2026-10-15.json').entries[0];
+  assert.deepStrictEqual(b2.student, { cls: '2', num: '3', name: '鈴木一郎' });
+  assert.strictEqual(val(b2, '動物・水産生物に合った環境の条件が分かった'), '◎ よくできた');  // 0 が ◎
+  assert.strictEqual(val(b2, '命を大切にし、実際の飼育や社会に生かそうと考えた'), '△ もう少し');
+  const b3 = load('B3_バックアップ_20261015.json').entries[0];
+  assert.strictEqual(b3.student.cls, '2年2');
+  assert.strictEqual(val(b3, '作物の性質をもとに、作業日を逆算して計画を立てられた'), '◎ よくできた');  // 3 が ◎
+  assert.strictEqual(b3.rows.filter((x) => x.type === '自己評価').length, 2);  // 0 は未記入
 });
 
-test('C: E5 は「組・番号」1つの欄を分ける、E3 は振り返りなし', () => {
-  const e5 = load('E5-sekkei-flash-20261015-1405.json').entries[0];
+test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
+  const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(e5, '改善案'), '抵抗を大きく');
-  const e3 = load('E3-kikou-20261015-1405.json');
+  const e3 = load('C3-kikou-20261015-1405.json');
   assert.ok(e3.ok);
   assert.strictEqual(e3.entries[0].rows.length, 0);
 });
@@ -77,7 +77,7 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(load('デジタル化ラボ_2_15_山田花子.json').entries[0].rows.length, 2);
   const net = load('ネットワーク_2-15-山田花子.json').entries[0];
   assert.strictEqual(net.rows.filter((x) => x.type === 'ふりかえり').length, 1);  // 空の振り返りは入れない
-  assert.strictEqual(net.rows.find((x) => x.type === 'ふりかえり').part, '4 のぞき見と暗号化');
+  assert.strictEqual(net.rows.find((x) => x.type === 'ふりかえり').part, '④ のぞき見と暗号化');
   const sec = load('seclab-2年3組-12-2026-10-13.json').entries[0];
   assert.deepStrictEqual(sec.student, { cls: '2年3', num: '12', name: '' });
   assert.strictEqual(val(sec, '事前テスト'), '7/11');
@@ -87,11 +87,11 @@ test('D: 各教材の振り返りと成績', () => {
   const scam = load('ネット詐欺_追体験ラボ_2_15_山田花子.json').entries[0];
   assert.deepStrictEqual(scam.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(scam, 'クリアした場面'), '2 / 5');
-  assert.strictEqual(scam.rows.find((x) => x.part === '1 ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
-  assert.strictEqual(scam.rows.find((x) => x.part === '3 ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
+  assert.strictEqual(scam.rows.find((x) => x.part === '① ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
+  assert.strictEqual(scam.rows.find((x) => x.part === '③ ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
   assert.strictEqual(scam.rows.filter((x) => x.type === 'ふりかえり').length, 2);
   const hash = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0];
-  assert.strictEqual(hash.app, 'ハッシュ化体験ラボ');
+  assert.strictEqual(hash.app, 'D9 ハッシュ化体験ラボ');
   assert.deepStrictEqual(hash.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
   assert.strictEqual(val(hash, '正解'), '6 / 8');
@@ -100,12 +100,12 @@ test('D: 各教材の振り返りと成績', () => {
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
   const r = load('情報の技術_記録まとめ_2組15番_2026-10-15.json');
-  assert.deepStrictEqual(r.entries.map((e) => e.app), ['仮想CPUラボ']);
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D2 仮想CPUラボ']);
 });
 
 test('D: 統一版(第1.6版)の記録まとめのラボは、問いの名前で読み、1つずつの書き出しと同じ行になる', () => {
   const r = load('情報の技術_記録まとめ_統一版_2組15番_2026-10-16.json');
-  assert.deepStrictEqual(r.entries.map((e) => e.app), ['ハッシュ化体験ラボ']);
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D9 ハッシュ化体験ラボ']);
   const e = r.entries[0];
   assert.strictEqual(val(e, 'ハッシュ関数の性質'), '同じ文なら同じ値、1文字変えると全部変わる');
   // 振り返り一覧は「生徒・分野・教材・場面・種類・内容」が同じ行を1つにする
@@ -135,9 +135,9 @@ test('組・番号の順に並ぶ(10番は2番のあと、組なしは最後)', 
   assert.deepStrictEqual(list.map((s) => s.cls + '-' + s.num + s.name), ['1-30', '2-2', '2-10', '-z']);
 });
 
-test('A: M7 第三角法 立体メーカーの書き出し(組・番号・名前・自己評価・ふりかえり)', () => {
+test('A: A7 第三角法 立体メーカーの書き出し(組・番号・名前・自己評価・ふりかえり)', () => {
   const r = load('立体メーカー_L形ブラケット.json');
-  const e = find(r, 'M7 第三角法 立体メーカー');
+  const e = find(r, 'A7 第三角法 立体メーカー');
   assert.deepStrictEqual(e.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(e, '三面図で、幅・高さ・奥行きがそろう位置がわかった'), 'できた');
   assert.strictEqual(val(e, 'わかったこと・できるようになったこと'), '正面図と平面図の幅がそろうことがわかった');

@@ -1,4 +1,4 @@
-// モジュール9: 判断ロールプレイ（分岐型ストーリー）
+// モジュール⑨: 判断ロールプレイ（分岐型ストーリー）
 import { h, explainCard, stepCard, reflectionBox, threeSteps } from "../js/ui.js";
 import { loadData } from "../js/data.js";
 import { store } from "../js/store.js";

@@ -35,11 +35,12 @@
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 
 /* ---- ヘッダー ----
- * <header class="ef-header">
- *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
- *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
- * </header>
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -86,7 +87,8 @@
 }
 
 /* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
  */
 .ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
 .ef-card {
@@ -95,6 +97,29 @@
 }
 .ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
 
 /* ---- フッター(作成者・このアプリについて) ---- */
 .ef-footer {
@@ -228,8 +253,8 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
 window.EDUIT_INFO = {
   domain: 'A',
   domainName: '材料と加工の技術',
-  suite: '材料と加工 教材アプリ',
-  version: '2.3',
+  suite: '材料と加工の技術 教材集',
+  version: '2.4',
   updated: '2026-10-16',
   safety: [
     '「工具の使い方・安全トレーナー」は、作業前の確認と手順を覚えるためのものです。実際の工具の使い方は、必ず先生の説明と実技の指導を受けてから使ってください。',
@@ -237,6 +262,16 @@ window.EDUIT_INFO = {
     '作品や記録は IndexedDB(使えないときは localStorage)に保存されます。メニューの「保存したデータ」から、ファイルに書き出したり消したりできます。'
   ],
   history: [
+    {
+      version: '2.4', date: '2026-10-16',
+      items: [
+        'アプリの記号を M1〜M7 から A1〜A7 に変えた(分野の A にそろえた)。番号の順が、おすすめの順・カードの順になっている',
+        'メニューのカードの形を4分野でそろえた: 記号・絵・名前・説明・使うところ・「ひらく ▶」の順。基本編の上に「おすすめの順番: A1 → A2 → …」を出した',
+        'メニューの上のバーを「A 材料と加工の技術 教材集」にし、右に「先生用」ボタンを付けた(メニューの下の先生用のところへ移る)',
+        'アプリの上のバーに、名前といっしょに記号(A2 など)を出した',
+        'アプリの中のタブの番号を ①②③ の書き方にそろえ、メニューの「使うところ」にも同じ番号を出した。「まとめ・記録」「記録」「ふりかえり」のタブは番号なしで、いつも最後にある'
+      ]
+    },
     {
       version: '2.3', date: '2026-10-16',
       items: [
@@ -285,22 +320,22 @@ window.EDUIT_INFO.levels = {
     title: '基本編',
     lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
     items: [
-      { id: 'material-navi', parts: ['材料カード', '条件設定', '比較結果', '理由を書く'], curr: 'A(1)ア・A(2)ア', why: '木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容' },
-      { id: 'wood-lab', parts: ['断面ビューア', '収縮ラボ', '反りの予測', '強度比較(繊維の向きと強さ)', '集成材・合板', 'まとめ・記録'], curr: 'A(1)ア', why: '柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本' },
-      { id: 'structure-lab', parts: ['梁(はり)', '枠と筋かい', '接合'], curr: 'A(1)イ', why: '断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本' },
-      { id: 'drawing-trainer', parts: ['三面図クイズ', '立体づくり', '三面図をかく', '等角図をかく', '線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
-      { id: 'kidori', parts: ['材料・部品', '木取り', '製作図', '強度', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
-      { id: 'tool-safety', parts: ['工具の手順', '作業前チェック', '危険を見つける', '手順ならべかえ', '実技の評価', '記録'], curr: 'A(2)イ', why: '工具の安全で正しい使い方は、製作の前に全員が身に付ける内容' }
+      { id: 'material-navi', parts: ['① 材料カード', '② 条件設定', '③ 比較結果', '④ 理由を書く'], curr: 'A(1)ア・A(2)ア', why: '木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容' },
+      { id: 'wood-lab', parts: ['① 断面ビューア', '② 収縮ラボ', '③ 反りの予測', '④ 強度比較(繊維の向きと強さ)', '⑤ 集成材・合板', 'まとめ・記録'], curr: 'A(1)ア', why: '柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本' },
+      { id: 'structure-lab', parts: ['① 梁(はり)', '② 枠と筋かい', '③ 接合'], curr: 'A(1)イ', why: '断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本' },
+      { id: 'drawing-trainer', parts: ['① 三面図クイズ', '② 立体づくり', '③ 三面図をかく', '④ 等角図をかく', '⑤ 線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
+      { id: 'kidori', parts: ['① 材料・部品', '② 木取り', '③ 製作図', '④ 強度', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
+      { id: 'tool-safety', parts: ['① 工具の手順', '② 作業前チェック', '③ 危険を見つける', '④ 手順ならべかえ', '⑤ 実技の評価', '記録'], curr: 'A(2)イ', why: '工具の安全で正しい使い方は、製作の前に全員が身に付ける内容' }
     ]
   },
   advanced: {
     title: '発展編',
     lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、計算・設計・新しい技術を使う内容です。先生の指示があったら取り組みましょう。',
     items: [
-      { id: 'wood-lab', parts: ['強度比較(7つの力の数値くらべ)'], curr: 'A(1)ア(発展)', why: '力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容' },
-      { id: 'structure-lab', parts: ['梁(はり)の「くわしく見る(発展)」', '設計課題(安全率を考えて、軽くて丈夫な構造を設計する)'], curr: 'A(1)イ・A(2)ア(発展)', why: '応力・安全率・断面の数値を使う設計は、教科書では発展の扱い' },
-      { id: 'kidori', parts: ['木取りの歩留まり・材料費', '強度の「発展」'], curr: 'A(2)ア・A(3)イ(発展)', why: '材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容' },
-      { id: 'solid-maker', parts: ['三面図をかく(三面図から立体をつくる)', '立体を見る(3D)', '図面・印刷(寸法の入った図面)', 'ふりかえり'], curr: 'A(2)イ・A(3)イ(発展)', why: '三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術' }
+      { id: 'wood-lab', parts: ['④ 強度比較(7つの力の数値くらべ)'], curr: 'A(1)ア(発展)', why: '力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容' },
+      { id: 'structure-lab', parts: ['① 梁(はり)の「くわしく見る(発展)」', '④ 設計課題(安全率を考えて、軽くて丈夫な構造を設計する)'], curr: 'A(1)イ・A(2)ア(発展)', why: '応力・安全率・断面の数値を使う設計は、教科書では発展の扱い' },
+      { id: 'kidori', parts: ['② 木取りの歩留まり・材料費', '④ 強度の「発展」'], curr: 'A(2)ア・A(3)イ(発展)', why: '材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容' },
+      { id: 'solid-maker', parts: ['① 三面図をかく(三面図から立体をつくる)', '② 立体を見る(3D)', '③ 図面・印刷(寸法の入った図面)', 'ふりかえり'], curr: 'A(2)イ・A(3)イ(発展)', why: '三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術' }
     ]
   }
 };
@@ -325,11 +360,18 @@ window.EDUIT_INFO.levels = {
  *   version: '2.1', updated: '2026-10-15',
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
- *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
  *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
@@ -499,6 +541,10 @@ window.EDUIT_INFO.levels = {
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
       panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
@@ -516,7 +562,48 @@ window.EDUIT_INFO.levels = {
     return { render: render, select: select, current: function () { return cur; } };
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -530,7 +617,7 @@ window.EDUIT_INFO.levels = {
   <h1 class="eg-h1">材料と加工の技術 先生用ガイド</h1>
   <p class="eg-meta">中学校 技術・家庭(技術分野) 内容A「材料と加工の技術」 ・ 生徒に配るファイル: <b>A_材料と加工_統一版.html</b></p>
   <div class="eg-lead">
-    <p>7つの学習アプリ(M1〜M7)と、先生用の提出ファイル一覧ビューアを1つにまとめた教材集です。インターネットへの接続やインストールは不要です。10インチの Chromebook(1280×800)で使いやすいように作っています。</p>
+    <p>7つの学習アプリ(A1〜A7)と、先生用の提出ファイル一覧ビューアを1つにまとめた教材集です。インターネットへの接続やインストールは不要です。10インチの Chromebook(1280×800)で使いやすいように作っています。</p>
   </div>
   <nav class="eg-toc" aria-label="目次"><ol>
     <li><a href="#kubari">配り方と開き方</a></li>
@@ -549,6 +636,7 @@ window.EDUIT_INFO.levels = {
       <li><code>A_材料と加工_統一版.html</code> を Classroom・Google ドライブ・USB メモリなどで配ります。メニュー・7つのアプリ・先生用ビューア・このガイドが1つのファイルに入っています(元のファイル名は <code>A-materials/dist/材料と加工_教材アプリ.html</code>)。</li>
       <li>生徒は端末に<b>ダウンロードしてから</b>ダブルクリックで開きます(ドライブの画面の中では HTML は動きません)。</li>
     </ol>
+    <p class="eg-note">A7「第三角法 立体メーカー」だけを配るときは、生徒に配るフォルダの「1つずつ配るとき」にある <code>A7_第三角法_立体メーカー.html</code> を使います。</p>
     <p class="eg-note">1ファイル版では、アプリとしてのインストール(C の方法)と、ネットから新しい版を自動で受け取ることはできません。直したときは、新しいファイルを配り直してください。</p>
     <h3>B. フォルダのまま配る</h3>
     <ol>
@@ -562,43 +650,47 @@ window.EDUIT_INFO.levels = {
       <li>Chrome のアドレスバーの「インストール」から、アプリとしてホーム画面に追加することもできます。</li>
     </ol>
     <p class="eg-note">保存のしくみはどの方法も同じで、作品はその端末の Chrome の中に残ります。同じ端末で A と B をどちらも端末のファイルとして開いたときは、保存した作品は共通になります(C の方法で Web から開いたときは別の保存場所になります)。混乱しないよう、クラスではどれか1つに決めて使うのがおすすめです。</p>
-    <h3>画面の上のボタン</h3>
+    <h3>画面の上のバー</h3>
+    <p>メニューの上のバーの左には「<b>A 材料と加工の技術 教材集</b>」と出ます。アプリを開くと、左に「<b>◀ メニュー</b>」、その右に「<b>A2 木材の繊維・収縮ラボ</b>」のように記号と名前が出ます。右のボタンは次のとおりです。</p>
     <ul>
-      <li><b>◀ メニュー</b>: アプリの一覧にもどります。</li>
       <li><b>ふりがな</b>: ふりがな(総ルビ)の表示・非表示を切りかえます。設定はすべてのアプリで共通です。</li>
       <li><b>文字</b>: 文字の大きさを 小・中・大・特大 に切りかえます。</li>
       <li><b>くっきり</b>: 色のコントラストを強くします(見えにくい生徒向け)。</li>
+      <li><b>先生用</b>(メニューだけ): メニューのいちばん下の「先生用」(提出ファイル一覧ビューア・このガイド)を開いて、そこへ移ります。</li>
     </ul>
+    <h3>メニューの並び</h3>
+    <p>メニューは上から、<b>基本編・発展編のタブ(アプリのカード)</b> → <b>保存したデータ</b>(組・番号・名前、書き出し・読み込み、データの管理)→ <b>先生用</b> の順です。カードには、記号・絵・名前・説明・「使うところ」(その編で使うタブ)・「ひらく ▶」が出ます。カードのどこを押しても開きます。基本編のカードの上には「おすすめの順番: A1 → A2 → A3 → A4 → A5 → A6」の1行が出ます。</p>
+    <p>アプリの中のタブには ①②③ の番号が付いています。基本編で使うタブが先、発展編のタブがそのあとです。「まとめ・記録」「記録」「ふりかえり」のタブには番号がなく、いつも最後にあります。</p>
   </section>
 
   <section class="eg-sec" id="ichiran">
     <h2>2. 教材の一覧(基本編・発展編)</h2>
-    <p>メニューのアプリは「基本編」「発展編」のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(M3 の設計課題、M7 第三角法 立体メーカーなど)を発展編にしています。1つのアプリが両方に出ることもあり、カードの「使うところ」にその編で使うタブの名前が出ます。どのタブがどちらの編かは、先生用フォルダの <b>全分野_基本編と発展編.html</b> にまとめています。</p>
+    <p>メニューのアプリは「基本編」「発展編」のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(A3 の ④ 設計課題、A7 第三角法 立体メーカーなど)を発展編にしています。1つのアプリが両方に出ることもあり、カードの「使うところ」にその編で使うタブの番号と名前が出ます。アプリの番号の順(A1 → A7)が、おすすめの順です。どのタブがどちらの編かは、先生用フォルダの <b>全分野_基本編と発展編.html</b> にもまとめています。</p>
     <div class="eg-table-wrap"><table class="eg-table">
-      <thead><tr><th>アプリ</th><th>主な内容</th><th>ふりかえり</th></tr></thead>
+      <thead><tr><th>アプリ</th><th>基本編で使うところ</th><th>発展編で使うところ</th><th>ふりかえり</th></tr></thead>
       <tbody>
-        <tr><td>M1 材料選択ナビ</td><td>使用目的・使用条件から木材・金属・プラスチックを比べ、選んだ理由を書く</td><td>理由を書く</td></tr>
-        <tr><td>M2 木材の繊維・収縮ラボ</td><td>柾目・板目、木表・木裏、乾燥による収縮と反り、繊維方向と強さ、合板・集成材</td><td>まとめ・記録</td></tr>
-        <tr><td>M3 構造強化ラボ</td><td>板の厚み・断面の形と曲がり方、枠と筋かい、接合方法、設計課題</td><td>設計課題の最後</td></tr>
-        <tr><td>M4 製図トレーナー</td><td>三面図クイズ、三面図から立体づくり、三面図・等角図の作図練習、線と記号のテスト</td><td>記録・ふりかえり</td></tr>
-        <tr><td>M5 木取り・構想シミュレータ</td><td>板から部品を取る木取り、歩留まり、ひな形からの等角図・第三角法、板のたわみの目安</td><td>検査・点検と自己評価</td></tr>
-        <tr><td>M6 工具の使い方・安全トレーナー</td><td>工具の手順、作業前チェック、危険予知(KYT)、手順ならべかえ</td><td>実技の自己評価・相互評価</td></tr>
-        <tr><td>M7 第三角法 立体メーカー</td><td>三面図(マス目)をかくと等角図・キャビネット図・3D の立体にする。寸法・表題欄入りの A4 図面の印刷・PDF、3Dプリンタ用 STL の書き出し</td><td>自己評価・ふりかえり</td></tr>
-        <tr><td>先生用 提出ファイル一覧ビューア</td><td>生徒が書き出したファイルをまとめて読み込み、生徒ごと・アプリごとに一覧表示。CSV 保存・印刷もできる</td><td>―</td></tr>
+        <tr><td>A1 材料選択ナビ</td><td>① 材料カード ② 条件設定 ③ 比較結果 ④ 理由を書く</td><td>―</td><td>④ 理由を書く</td></tr>
+        <tr><td>A2 木材の繊維・収縮ラボ</td><td>① 断面ビューア ② 収縮ラボ ③ 反りの予測 ④ 強度比較(繊維の向きと強さ) ⑤ 集成材・合板</td><td>④ 強度比較(7つの力の数値くらべ)</td><td>まとめ・記録</td></tr>
+        <tr><td>A3 構造強化ラボ</td><td>① 梁(はり) ② 枠と筋かい ③ 接合</td><td>① 梁の「くわしく見る(発展)」、④ 設計課題(安全率を考えて、軽くて丈夫な構造を設計する)</td><td>④ 設計課題の最後</td></tr>
+        <tr><td>A4 製図トレーナー</td><td>① 三面図クイズ ② 立体づくり ③ 三面図をかく ④ 等角図をかく ⑤ 線と記号</td><td>―</td><td>記録・ふりかえり</td></tr>
+        <tr><td>A5 木取り・構想シミュレータ</td><td>① 材料・部品 ② 木取り ③ 製作図 ④ 強度</td><td>② 木取りの歩留まり・材料費、④ 強度の「発展」</td><td>ふりかえり(検査・点検と自己評価)</td></tr>
+        <tr><td>A6 工具の使い方・安全トレーナー</td><td>① 工具の手順 ② 作業前チェック ③ 危険を見つける ④ 手順ならべかえ ⑤ 実技の評価</td><td>―</td><td>⑤ 実技の評価(自己評価・相互評価)、記録</td></tr>
+        <tr><td>A7 第三角法 立体メーカー</td><td>―</td><td>① 三面図をかく ② 立体を見る(3D) ③ 図面・印刷(寸法・表題欄入りの A4 図面、PDF、3Dプリンタ用 STL)</td><td>ふりかえり</td></tr>
+        <tr><td>先生用 提出ファイル一覧ビューア</td><td colspan="2">生徒が書き出したファイルをまとめて読み込み、「生徒ごと」「アプリごと」「くわしく見る」で一覧表示。CSV 保存・印刷もできる</td><td>―</td></tr>
       </tbody>
     </table></div>
   </section>
 
   <section class="eg-sec" id="tangen">
     <h2>3. 単元での使い方</h2>
-    <p>基本編のカードは、次の順(メニューの「おすすめ」の順)に並んでいます。</p>
+    <p>基本編のカードは、番号の順(= メニューの「おすすめの順番」)に並んでいます。</p>
     <ol>
-      <li><b>材料を知る</b>(M1・M2): 使用目的と条件から材料を選び、木材の性質を確かめる。</li>
-      <li><b>じょうぶな構造</b>(M3): 断面の形・枠と筋かい・接合方法と強さの関係を調べる。</li>
-      <li><b>図に表す</b>(M4): 三面図・等角図の読み方とかき方を練習する。</li>
-      <li><b>構想と製作の準備</b>(M5・M6): 木取りと部品の構想を立て、工具の手順と安全を確かめる。</li>
+      <li><b>材料を知る</b>(A1・A2): 使用目的と条件から材料を選び、木材の性質を確かめる。</li>
+      <li><b>じょうぶな構造</b>(A3 の ①〜③): 断面の形・枠と筋かい・接合方法と強さの関係を調べる。</li>
+      <li><b>図に表す</b>(A4): 三面図・等角図の読み方とかき方を練習する。</li>
+      <li><b>構想と製作の準備</b>(A5・A6): 木取りと部品の構想を立て、工具の手順と安全を確かめる。</li>
     </ol>
-    <p>発展編は、基本編を終えた生徒や選択の課題に使います(M3 の設計課題、M7 で自分の構想を図面と 3D の形にする など)。</p>
+    <p>発展編は、基本編を終えた生徒や選択の課題に使います(A3 の ④ 設計課題、A7 で自分の構想を図面と 3D の形にする など)。</p>
   </section>
 
   <section class="eg-sec" id="kiroku">
@@ -607,6 +699,7 @@ window.EDUIT_INFO.levels = {
     <ul>
       <li>生徒が作ったもの・記録は、<b>その端末の Chrome の中</b>に自動で保存されます(ほかの端末とは共有されません)。外部には送られません。</li>
       <li>Chrome の閲覧履歴の削除で「Cookie と他のサイトデータ」を消したときも、保存した作品は消えます。大切な記録は書き出しておくよう伝えてください。</li>
+      <li>第2.4版で記号が M1〜M7 から A1〜A7 に変わりましたが、保存の名前と書き出すファイルの形は変わっていません。前の版で保存・書き出した作品や記録も、そのまま読めます。</li>
     </ul>
     <h3>提出</h3>
     <ul>
@@ -646,8 +739,9 @@ window.EDUIT_INFO.levels = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
+      <li><b>第2.4版(2026-10-16)</b>: アプリの記号を M1〜M7 から A1〜A7 に変えた(分野の A にそろえた)。番号の順が、おすすめの順・カードの順になっている。メニューのカードの形を4分野でそろえた: 記号・絵・名前・説明・使うところ・「ひらく ▶」の順。基本編の上に「おすすめの順番: A1 → A2 → …」を出した。メニューの上のバーを「A 材料と加工の技術 教材集」にし、右に「先生用」ボタンを付けた(メニューの下の先生用のところへ移る)。アプリの上のバーに、名前といっしょに記号(A2 など)を出した。アプリの中のタブの番号を ①②③ の書き方にそろえ、メニューの「使うところ」にも同じ番号を出した。「まとめ・記録」「記録」「ふりかえり」のタブは番号なしで、いつも最後にある。</li>
       <li><b>第2.3版(2026-10-16)</b>: メニューを「基本編」「発展編」のタブに分けた。カードの「使うところ」に、その編で使うタブの名前を出すようにした(作品や記録の保存のしかたは変わらない)。</li>
-      <li><b>第2.2版(2026-10-15)</b>: M7「第三角法 立体メーカー」を追加した。</li>
+      <li><b>第2.2版(2026-10-15)</b>: M7(いまの A7)「第三角法 立体メーカー」を追加した。</li>
     </ul>
     <p>すべての更新履歴は、このページのいちばん下の「安全と個人情報・ライセンス・更新履歴」から見られます。</p>
   </section>

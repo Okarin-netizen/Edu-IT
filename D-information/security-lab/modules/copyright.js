@@ -1,4 +1,4 @@
-// モジュール8: 著作権・利用ルールクイズ（分岐型）
+// モジュール⑧: 著作権・利用ルールクイズ（分岐型）
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz } from "../js/ui.js";
 import { loadData } from "../js/data.js";
 import { store } from "../js/store.js";

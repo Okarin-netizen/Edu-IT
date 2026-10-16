@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""E1〜E5 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
+"""C1〜C5 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
 import json, os, re, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 import help as H
@@ -29,8 +29,9 @@ def ef_inline(text):
     return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
+# 各アプリの CSS・DOM の接頭辞(.e1〜.e5・e1-app など)は記号ではない中の名前なので、C1〜C5 にしても e1〜e5 のまま
 def parts(n):
-    s = open('%s/E%d/index.html' % (SRC, n), encoding='utf-8').read()
+    s = open('%s/C%d/index.html' % (SRC, n), encoding='utf-8').read()
     css = re.findall(r'<style>(.*?)</style>', s, re.S)
     # <script> だけを取り出す(共通の枠の <script src> と <script data-ef-app> は入れない。シェルが中身を入れる)
     js = re.findall(r'<script>(.*?)</script>', s, re.S)
@@ -52,14 +53,14 @@ for n in range(1, 6):
     css = must_replace(css, re.search(r'^html,body\{[^}]*\}\n', css, re.M).group(0), '')
     if n in (3, 4):
         # 印刷時に他アプリの印刷範囲まで隠さないよう、表示中のアプリだけに効かせる
-        css = must_replace(css, '  body *{visibility:hidden}', '  body.ea-on-E%d *{visibility:hidden}' % n)
+        css = must_replace(css, '  body *{visibility:hidden}', '  body.ea-on-C%d *{visibility:hidden}' % n)
         css = must_replace(css, '  .e%d-printarea,.e%d-printarea *{visibility:visible}' % (n, n),
-                           '  body.ea-on-E%d .e%d-printarea,body.ea-on-E%d .e%d-printarea *{visibility:visible}' % (n, n, n, n))
-    css_all.append('/* ---------- E%d ---------- */\n%s' % (n, css.strip()))
+                           '  body.ea-on-C%d .e%d-printarea,body.ea-on-C%d .e%d-printarea *{visibility:visible}' % (n, n, n, n))
+    css_all.append('/* ---------- C%d ---------- */\n%s' % (n, css.strip()))
     for i, code in enumerate(js):
         is_last = i == len(js) - 1
         if not is_last:
-            # 共有コア(回路コア・機構コア・E4データ)は1回だけ入れる
+            # 共有コア(回路コア・機構コア・C4データ)は1回だけ入れる
             if code in seen_cores:
                 continue
             seen_cores.add(code)
@@ -70,7 +71,7 @@ for n in range(1, 6):
                 # 見えていない間はアニメーション・シミュレーションを止める(タブレットの電池と、見ていない間に時間が進むのを防ぐ)
                 code = must_replace(code, '  S.raf = requestAnimationFrame(frame);\n  var dt',
                                     '  S.raf = requestAnimationFrame(frame);\n  if (S.root.offsetParent === null) { S.last = 0; return; }\n  var dt')
-        js_all.append('<script>/* ===== E%d %s ===== */\n%s</script>' % (n, 'app' if is_last else 'core', code))
+        js_all.append('<script>/* ===== C%d %s ===== */\n%s</script>' % (n, 'app' if is_last else 'core', code))
 
 apps_json = json.dumps([{k: a[k] for k in ('id', 'icon', 'name', 'short', 'color', 'sub', 'tags')} for a in H.APPS], ensure_ascii=False)
 shell = open(os.path.join(HERE, 'shell.html'), encoding='utf-8').read()

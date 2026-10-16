@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C3 機構ラボ</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'C3 機構ラボ' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#f1f3ee;}
+.e3{--ink:#22302a;--sub:#5e6b64;--line:#d8ded6;--accent:#2b7a4b;--accent2:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#e67700;--top:#1d3557;
+  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+  color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
+  font-size:16px;overflow:hidden;position:relative;background:#f1f3ee;-webkit-tap-highlight-color:transparent;}
+.e3 *{box-sizing:border-box}
+.e3 button{font:inherit;touch-action:manipulation}
+.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
+.e3-top .e3-btn{white-space:nowrap}
+.e3-top .sh{display:none}
+.e3-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
+.e3-stitle{flex:1;font-size:15px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
+.e3-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e4ebe3;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
+.e3-btn:active{transform:translateY(1px)}
+.e3-btn:disabled{opacity:.4;cursor:default}
+.e3-btn:focus-visible,.e3-cv:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+.e3-top .e3-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;padding:0 12px}
+.e3-top .e3-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e3-top .e3-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e3-top h1{color:var(--ef-text,#1f2328)}
+.e3-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e3-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
+.e3-btn.primary{background:var(--accent2);color:#fff}
+.e3-btn.blue{background:var(--accent2);color:#fff}
+.e3-btn.danger{background:#fde2e2;color:#a61e1e}
+.e3-btn.good{background:#d3f5e1;color:#0d6b3a}
+.e3-btn.big{min-height:56px;font-size:18px;width:100%}
+.e3-btn.sm{min-height:44px;padding:0 10px;font-size:15px}
+.e3-btn.on{background:var(--accent);color:#fff}
+.e3-btn.off,.e3-add.off{opacity:.4}
+.e3-main{flex:1;display:flex;min-height:0}
+.e3-pal{width:212px;flex:none;overflow-y:auto;overflow-x:hidden;padding:8px;background:#fff;border-right:1px solid var(--line)}
+.e3-pal h2,.e3-side h2{font-size:14px;margin:8px 2px 6px;color:var(--sub)}
+.e3-pal h2:first-child,.e3-side h2:first-child{margin-top:2px}
+.e3-addg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.e3-add{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;border:2px solid var(--line);background:#f7faf6;cursor:pointer;min-height:76px;font-size:13px;font-weight:bold;padding:4px 2px;text-align:center;line-height:1.25;color:var(--ink)}
+.e3-add .ic{font-size:24px;line-height:28px}
+.e3-add small{font-weight:normal;color:var(--sub);font-size:13px}
+.e3-add:disabled{opacity:.35}
+.e3-add.wide{grid-column:span 2;min-height:56px;flex-direction:row;gap:8px}
+.e3-list{display:flex;flex-direction:column;gap:6px}
+.e3-list .e3-btn{text-align:left;justify-content:flex-start;display:flex;align-items:center;gap:8px;min-height:52px;font-size:15px}
+.e3-list .e3-btn .ic{font-size:22px}
+.e3-list .e3-btn small{display:block;font-weight:normal;font-size:13px;color:inherit;opacity:.85}
+.e3-list .gap{height:14px}
+.e3-center{flex:1;display:flex;flex-direction:column;min-width:0}
+.e3-msg{min-height:46px;padding:10px 14px;font-size:16px;background:#fffbe6;border-bottom:1px solid #f1e3a6;line-height:1.4}
+.e3-msg.err{background:#ffe8e8;border-color:#f5b5b5;color:#8a1414}
+.e3-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
+.e3-msg.task{background:#eaf2ff;border-color:#b9d1f5}
+.e3-bar{display:flex;gap:6px;padding:6px 8px;background:#f7f9f5;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.e3-bar .sp{flex:1}
+.e3-bar .lbl{font-size:13px;color:var(--sub);font-weight:bold;margin-left:4px}
+.e3-cvbox{flex:1;min-height:0;position:relative;background:#fbfcfa}
+.e3-cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.e3-hint{position:absolute;left:10px;bottom:8px;font-size:14px;color:var(--sub);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:8px;pointer-events:none}
+.e3-side{width:300px;flex:none;overflow-y:auto;padding:10px;background:#fff;border-left:1px solid var(--line)}
+.e3-card{background:#f5f8f4;border-radius:12px;padding:10px 12px;margin-bottom:10px;line-height:1.5}
+.e3-card.out{background:#eef6ff}
+.e3-card.part{background:#fff8ec}
+.e3-kv{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:2px 0;font-size:15px}
+.e3-kv b{font-size:19px}
+.e3-kv .u{font-size:13px;color:var(--sub)}
+.e3-formula{font-size:14px;background:#fff;border:1px dashed #b8c4b9;border-radius:8px;padding:6px 8px;margin-top:6px;line-height:1.55}
+.e3-dir{font-size:20px;font-weight:bold}
+.e3-tbar{height:14px;background:#e3e8e2;border-radius:7px;overflow:hidden;margin:2px 0 6px}
+.e3-tbar i{display:block;height:100%;background:#e67700;border-radius:7px}
+.e3-tbar.sp i{background:#1e6fd9}
+.e3-step{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.e3-step{gap:3px!important}
+.e3-step .e3-btn{min-width:44px;min-height:46px;padding:0;font-size:17px}
+.e3-step .val{min-width:52px;text-align:center;font-size:22px;font-weight:bold}
+.e3-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.e3-chips .e3-btn{min-width:48px;min-height:44px;padding:0 8px;font-size:15px}
+.e3-prm{margin-bottom:10px}
+.e3-prm .nm{font-size:14px;font-weight:bold;color:var(--sub);margin-bottom:2px}
+.e3-chk{list-style:none;margin:4px 0;padding:0}
+.e3-chk li{padding:4px 0 4px 30px;position:relative;font-size:15px;line-height:1.4}
+.e3-chk li:before{content:"○";position:absolute;left:4px;top:3px;font-weight:bold;color:#9aa69e;font-size:17px}
+.e3-chk li.ok:before{content:"✔";color:var(--ok)}
+.e3-chk li.ok{color:#0d6b3a;font-weight:bold}
+.e3-ov{position:absolute;inset:0;background:rgba(20,35,28,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.e3-modal{background:#fff;border-radius:18px;max-width:900px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px;box-shadow:0 10px 40px rgba(0,0,0,.3);font-size:17px;line-height:1.6}
+.e3-modal h2{margin:0 0 10px;font-size:23px}
+.e3-modal h3{margin:14px 0 6px;font-size:18px}
+.e3-modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.e3-modal .acts .e3-btn{min-width:150px;min-height:54px;font-size:18px}
+.e3-modal .acts.stk{position:sticky;bottom:-20px;background:#fff;margin:16px -24px -20px;padding:10px 24px 16px;border-top:1px solid var(--line)}
+.e3-modal .acts.stk .e3-btn{min-width:0;flex:1 1 auto;white-space:nowrap;padding:0 12px}
+.e3-saved{color:#0d6b3a;font-weight:bold;min-height:1.6em;text-align:right}
+.e3 ruby{ruby-align:center}
+.e3 ruby rt{font-size:.55em;font-weight:normal;letter-spacing:0}
+.e3-story{font-size:15px;line-height:1.55;margin:4px 0 2px}
+.e3-warn{color:#b42318;font-weight:bold}
+.e3-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.e3-steps div{background:#f3f7f2;border-radius:12px;padding:12px;font-size:16px}
+.e3-steps b{font-size:18px}
+.e3-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:6px}
+.e3-reason.tip{background:#fff9e6;border-color:var(--warn)}
+.e3-reason.good{background:#ecfaf1;border-color:var(--ok)}
+.e3-page{flex:1;overflow-y:auto;padding:14px 16px}
+.e3-tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.e3-tcard{border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:124px;display:flex;flex-direction:column;gap:2px}
+.e3-tcard.done{background:#effaf3;border-color:#a8e0c0}
+.e3-tcard .no{font-size:13px;color:var(--sub);display:flex;justify-content:space-between}
+.e3-tcard .t{font-size:18px;font-weight:bold}
+.e3-tcard .l{font-size:14px;color:var(--sub);line-height:1.4}
+.e3-tcard .star{color:#e8a200;font-size:16px;letter-spacing:1px}
+.e3-quiz .e3-btn.ch{display:block;width:100%;text-align:left;margin:8px 0;padding:8px 14px;font-weight:bold;font-size:18px;min-height:56px}
+.e3-quiz .e3-btn.ch:disabled{opacity:.75}
+.e3-quiz .e3-btn.right:disabled,.e3-quiz .e3-btn.wrong:disabled{opacity:1}
+.e3-quiz .e3-btn.right{background:#d3f5e1;border-color:var(--ok)}
+.e3-quiz .e3-btn.wrong{background:#ffe0e0;border-color:var(--ng)}
+.e3-qno{display:flex;gap:4px;margin-bottom:8px}
+.e3-qno i{flex:1;height:8px;border-radius:4px;background:#dfe5de}
+.e3-qno i.cur{background:#9cc3ff}.e3-qno i.ok{background:var(--ok)}.e3-qno i.ng{background:var(--ng)}
+.e3-qtext{font-size:18px;font-weight:bold;line-height:1.5;margin:4px 0 8px}
+.e3-big{font-size:46px;text-align:center;margin:4px 0}
+.e3-tbl{border-collapse:collapse;width:100%;font-size:15px}
+.e3-tbl th{background:#e8efe6;padding:5px;font-size:14px}
+.e3-tbl td{border-bottom:1px solid #e1e6df;padding:4px 6px;text-align:center}
+.e3-tbl td.l{text-align:left}
+.e3-in{font:inherit;font-size:17px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;width:100%;user-select:text;-webkit-user-select:text}
+.e3-printarea img{display:block;margin:6px auto;max-height:300px;object-fit:contain;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff}
+@media (max-width:1100px){.e3-list .e3-btn{padding:0 8px;font-size:14px;gap:6px}.e3-pal{width:184px}.e3-side{width:280px}.e3-top h1{display:none}.e3-tgrid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+  .e3-top{gap:4px;padding:0 6px}
+  .e3-top .e3-btn{padding:0 9px}
+  .e3-top .lg{display:none}.e3-top .sh{display:inline}
+  .e3-stitle{font-size:14px;padding-left:2px}
+  .e3-main{flex-direction:column}
+  .e3-pal{width:auto;flex:none;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;border-right:0;border-bottom:1px solid var(--line)}
+  .e3-pal h2{display:none}
+  .e3-pal .e3-btn.off[data-act="mech"]{display:none}
+  .e3-addg{display:flex;gap:6px;flex:none}
+  .e3-add,.e3-add.wide{min-width:86px;min-height:66px;flex-direction:column;gap:0}
+  .e3-list{flex-direction:row;flex:none}
+  .e3-list .gap{width:14px;height:auto}
+  .e3-list .e3-btn,.e3-list .e3-btn.sm{min-height:66px;white-space:nowrap;font-size:15px}
+  .e3-pal .e3-card{flex:none;margin:0;max-width:260px;font-size:14px!important;padding:6px 10px}
+  .e3-center{flex:1;min-height:0}
+  .e3-side{width:auto;flex:none;max-height:40%;border-left:0;border-top:2px solid var(--line)}
+  .e3-modal{padding:16px 16px}
+  .e3-modal .acts.stk{margin:12px -16px -16px;padding:10px 16px 14px;bottom:-16px}
+  .e3-steps{grid-template-columns:1fr}
+}
+@media print{
+  html,body{height:auto;background:#fff}
+  body *{visibility:hidden}
+  .e3-printarea,.e3-printarea *{visibility:visible}
+  .e3-printarea{position:static;width:100%}
+  .e3{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
+  .e3-top,.e3-main,.e3-page{display:none!important}
+  .e3-ov{position:static;background:none;padding:0;display:block}
+  .e3-modal{max-height:none!important;overflow:visible!important;box-shadow:none;max-width:none;padding:0;border-radius:0}
+  .e3-printarea .e3-in{border:0;border-bottom:1.5px solid #333;border-radius:0;padding:4px 2px}
+  .e3-printarea .e3-in::placeholder{color:transparent}
+  .e3-printarea table,.e3-printarea tr,.e3-printarea img{break-inside:avoid}
+  .e3-noprint{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="e3-app" class="e3"></div>
+<script>
+/* ===================================================================
+   機構コア(部品データ+運動学) — C3 機構ラボ / C4 保守点検クイズ 共用
+   window.EnergyApps.Mech
+   ・力学(物理エンジン)は使わず、運動学(動きの幾何と比)だけで計算する
+   ・回転を伝える列 train = { wheels:[{kind,size}], links:[type] }
+       kind: 'gear'(歯車:size=歯数) 'pulley'(プーリー:size=直径mm) 'sprocket'(スプロケット:size=歯数)
+       links[i] は wheels[i] と wheels[i+1] のつなぎ方:
+       'mesh'(かみ合い) 'belt'(平ベルト) 'cross'(十字掛けベルト) 'chain'(チェーン) 'shaft'(同じ軸に固定)
+   ・回転の向き: +1 = 入力(モーター)と同じ向き(時計回り)、-1 = 逆向き
+   =================================================================== */
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+if (NS.Mech) return;
+
+/* ---------- 部品データ(C4 の部品図鑑と共用) ---------- */
+var PARTS = {
+  gear: { name: '歯車', yomi: 'はぐるま', cat: '回転を伝える', unit: '枚', sizeName: '歯数', sizeUnit: '', min: 8, max: 80,
+    role: '歯と歯がかみ合って、すべらずに回転を伝える。かみ合った2枚は逆向きに回る。',
+    where: ['時計', 'ミシン', '自動車の変速機', '電動ドリル'],
+    care: ['歯が欠けていないか', '油(グリース)が切れていないか', '異音がしないか'] },
+  pulley: { name: 'プーリー(ベルト車)', yomi: 'ぷーりー(べるとぐるま)', cat: '回転を伝える', sizeName: '直径', sizeUnit: 'mm', min: 20, max: 200,
+    role: 'ベルトをかけて、離れた軸に回転を伝える。ベルトがすべると伝わる回転が減る。',
+    where: ['洗濯機', '自動車のエンジン', 'ボール盤'],
+    care: ['ベルトがゆるんで、すべっていないか', 'ベルトにひびやすりへり(摩耗)がないか'] },
+  sprocket: { name: 'スプロケット', yomi: 'すぷろけっと', cat: '回転を伝える', sizeName: '歯数', sizeUnit: '', min: 10, max: 60,
+    role: 'チェーンとかみ合う歯をもつ車。すべらずに、離れた軸へ回転を伝える。',
+    where: ['自転車', 'オートバイ'],
+    care: ['歯がすりへって、先がとがっていないか', 'さびや油切れがないか', 'かけたチェーンがたるんでいないか'] },
+  belt: { name: '平ベルト', yomi: 'ひらべると', cat: '回転を伝える',
+    role: '2つのプーリーにかけて回転を伝える。ふつうにかけると同じ向き、十字にかけると逆向きに回る。断面がV字のVベルトは、みぞにはまってすべりにくい。',
+    where: ['洗濯機', 'ボール盤', '農業機械'], care: ['張りがゆるすぎたり強すぎたりしないか', 'ひび割れがないか'] },
+  chain: { name: 'チェーン(ローラチェーン)', yomi: 'ちぇーん(ろーらちぇーん)', cat: '回転を伝える',
+    role: '2つのスプロケットにかけて、すべらずに回転を伝える。両方とも同じ向きに回る。',
+    where: ['自転車', 'オートバイ'], care: ['たるみが10〜20mmか', '油が切れていないか', 'さびていないか'] },
+  shaft: { name: '軸', yomi: 'じく', cat: '支える・つなぐ',
+    role: '歯車やプーリーを固定して回転を伝える棒。同じ軸に付いた部品は同じ速さ・同じ向きに回る。',
+    where: ['すべての回転する機械'], care: ['曲がっていないか', 'ガタつきがないか'] },
+  bearing: { name: '軸受(ベアリング)', yomi: 'じくうけ(べありんぐ)', cat: '支える・つなぐ',
+    role: '回転する軸を支え、摩擦(まさつ)を小さくする。玉などが転がる「転がり軸受」(玉軸受=ボールベアリングなど)と、軸が面の上をすべる「滑り(すべり)軸受」がある。',
+    where: ['自転車の車輪', '扇風機', 'スケートボード'], care: ['回すと異音やガタがないか', '油が切れていないか'] },
+  rack: { name: 'ラックとピニオン', yomi: 'らっく・ぴにおん', cat: '運動を変える',
+    role: '小さな歯車(ピニオン)の回転を、まっすぐな歯(ラック)の直線運動に変える。',
+    where: ['自動車のハンドル', 'ボール盤の上下', '鉄道(登山電車)'], care: ['歯がすりへっていないか', '油が切れていないか'] },
+  cam: { name: 'カム', yomi: 'かむ', cat: '運動を変える',
+    role: '特別な形の板(カム)の回転を、従動節(じゅうどうせつ。カムに押されて動く棒)の上下の往復運動に変える。形で動き方が決まる。',
+    where: ['エンジンの弁', 'ミシンの糸巻き', 'おもちゃ'], care: ['カムの面がすりへっていないか', '従動節が引っかからないか'] },
+  link: { name: 'リンク機構(四節リンク)', yomi: 'りんくきこう(よんせつりんく)', cat: '運動を変える',
+    role: '4本の棒(リンク)を組み合わせ、回転運動を揺動(ようどう。決まった角度の間を行ったり来たりする動き)などに変える。',
+    where: ['ワイパー', '足踏みミシン', 'パンタグラフ', '自転車のペダルと足'], care: ['ピン(つなぎ目)にガタがないか', 'ゆるんでいないか'] },
+  crank: { name: 'スライダクランク機構', yomi: 'すらいだくらんくきこう', cat: '運動を変える',
+    role: 'クランクの回転とスライダの往復直線運動を変換する。エンジンではピストンの往復で軸を回す。',
+    where: ['自動車のエンジン', 'ポンプ', 'コンプレッサ'], care: ['油が切れていないか', 'ピストンがすりへっていないか'] },
+  screw: { name: 'ねじ(送りねじ)', yomi: 'ねじ(おくりねじ)', cat: '運動を変える',
+    role: 'ねじを1回転させると、ナットがねじ山1つ分(ピッチ。山と山の間かく)だけ進む。小さな力で大きな力が出せる。',
+    where: ['万力', 'ジャッキ', '工作機械の送り'], care: ['ねじ山がつぶれていないか', '油が切れていないか', 'ゆるんでいないか'] }
+};
+
+var LINKS = {
+  mesh:  { name: '歯車のかみ合い', kind: 'gear', flip: -1, eff: 0.95 },
+  belt:  { name: '平ベルト', kind: 'pulley', flip: 1, eff: 0.90 },
+  cross: { name: '十字掛けベルト', kind: 'pulley', flip: -1, eff: 0.88 },
+  chain: { name: 'チェーン', kind: 'sprocket', flip: 1, eff: 0.95 },
+  shaft: { name: '同じ軸', kind: null, flip: 1, eff: 1 }
+};
+
+function round(x, d) { var m = Math.pow(10, d == null ? 3 : d); return Math.round(x * m) / m; }
+function gcd(a, b) { a = Math.abs(Math.round(a)); b = Math.abs(Math.round(b)); while (b) { var t = a % b; a = b; b = t; } return a || 1; }
+
+/* 列の正しさチェック(エラーの配列。空ならOK) */
+function checkTrain(t) {
+  var errs = [], W = t.wheels, L = t.links;
+  if (!W.length) errs.push('部品がありません');
+  if (L.length !== W.length - 1) errs.push('つなぎ方の数が合いません');
+  L.forEach(function (l, i) {
+    var d = LINKS[l];
+    if (!d) { errs.push((i + 1) + '番目のつなぎ方が不明'); return; }
+    if (d.kind && (W[i].kind !== d.kind || W[i + 1].kind !== d.kind)) errs.push((i + 1) + '番目: ' + d.name + 'には' + PARTS[d.kind].name + 'どうしが必要');
+    if (l === 'shaft' && i > 0 && L[i - 1] === 'shaft') errs.push('同じ軸に3枚は重ねられません');
+  });
+  return errs;
+}
+
+/* 列を解く: 各車の回転比 g(入力に対する符号つき倍率)・回転速度・トルク倍率 */
+function solveTrain(t, opt) {
+  opt = opt || {};
+  var rpm = t.rpm || 60, W = t.wheels, L = t.links, loss = !!opt.loss;
+  var out = [], g = 1, tq = 1, shaft = 0;
+  for (var i = 0; i < W.length; i++) {
+    if (i > 0) {
+      var l = L[i - 1], d = LINKS[l] || LINKS.shaft;
+      if (l === 'shaft') { /* 同じ軸: そのまま */ }
+      else {
+        var r = W[i - 1].size / W[i].size;      // 原動車/従動車 の大きさ比 = 回転速度の倍率
+        g = g * r * d.flip;
+        tq = tq / r * (loss ? d.eff : 1);
+        shaft++;
+      }
+    }
+    out.push({ kind: W[i].kind, size: W[i].size, shaft: shaft, g: g, rpm: Math.abs(g) * rpm, dir: g >= 0 ? 1 : -1, torque: tq });
+  }
+  var last = out[out.length - 1] || { g: 1, torque: 1 };
+  var stages = [];
+  L.forEach(function (l, i) {
+    if (l === 'shaft') return;
+    stages.push({ link: l, from: i, to: i + 1, drv: W[i].size, drn: W[i + 1].size, ratio: W[i + 1].size / W[i].size });
+  });
+  return {
+    wheels: out, stages: stages, shafts: shaft + 1,
+    inRpm: rpm, outRpm: Math.abs(last.g) * rpm, outG: last.g,
+    dir: last.g >= 0 ? 1 : -1,
+    ratio: 1 / Math.abs(last.g),          // 速度伝達比 = 入力の回転速度 / 出力の回転速度
+    torque: last.torque, errors: checkTrain(t)
+  };
+}
+
+/* 見た目の半径(世界座標) */
+function wheelR(w) {
+  if (w.kind === 'gear') return w.size * 1.6;
+  if (w.kind === 'sprocket') return w.size * 1.7;
+  return w.size * 0.55;
+}
+/* 配置: 左から右へ。かみ合いは半径の和、ベルト・チェーンはすきまを空ける、同じ軸は重ねる。
+   さらに、かみ合いの歯がずれないよう各車の初期角 a0 を決める */
+function layoutTrain(t) {
+  var W = t.wheels, L = t.links, pos = [], x = 0, sol = solveTrain(t), layer = 0;
+  for (var i = 0; i < W.length; i++) {
+    var r = wheelR(W[i]), a0 = 0;
+    if (i > 0) {
+      var l = L[i - 1], pr = pos[i - 1];
+      if (l === 'shaft') layer++;
+      else if (l === 'mesh') x += pr.r + r;
+      else x += Math.max(pr.r + r + 50, 2.4 * Math.max(pr.r, r));
+      if (l === 'mesh') {
+        // 前の歯車の「接点(右向き=角0)での歯の位相」p に対し、こちらは半歯ずらす
+        var zp = W[i - 1].size, z = W[i].size;
+        var p = (((-pr.a0) * zp / (2 * Math.PI)) % 1 + 1) % 1;
+        a0 = Math.PI - (0.5 - p) * 2 * Math.PI / z;
+      }
+    }
+    pos.push({ x: x, y: 0, r: r, a0: a0, layer: layer, g: sol.wheels[i].g });
+  }
+  return pos;
+}
+
+/* ---------- 四節リンク ----------
+   固定節 d: 原点O2=(0,0) 〜 O4=(d,0)。クランク(入力) a、連結棒 b、てこ(出力) c。
+   座標は数学の向き(上が+y)。theta はクランクの角度。
+   prevB: 前のBの位置(いちばん近い方を選ぶ)、または組み立ての向き mode(+1/-1。A→O4 の左側が +1)。
+   棒が一直線にそろう所(変化点)では2つの答えが重なるので、近さで選ぶとたまに反対側へ飛ぶ。
+   向きを決めておけば、てこは同じ側のまま動き続ける */
+function fourBar(a, b, c, d, theta, prevB) {
+  var A = { x: a * Math.cos(theta), y: a * Math.sin(theta) };
+  if (Math.abs(a - c) < 1e-9 && Math.abs(b - d) < 1e-9) {
+    var Bp = { x: A.x + d, y: A.y };         // 平行クランク: 平行四辺形のまま
+    return { ok: true, A: A, B: Bp, phi: Math.atan2(Bp.y, Bp.x - d), mode: 0 };
+  }
+  var dx = d - A.x, dy = -A.y, e = Math.hypot(dx, dy);
+  if (e > b + c + 1e-9 || e < Math.abs(b - c) - 1e-9 || e < 1e-9) return { ok: false, A: A };
+  var k = (b * b - c * c + e * e) / (2 * e), h2 = b * b - k * k, h = Math.sqrt(Math.max(0, h2));
+  var mx = A.x + dx * k / e, my = A.y + dy * k / e;
+  var B1 = { x: mx - dy * h / e, y: my + dx * h / e }, B2 = { x: mx + dy * h / e, y: my - dx * h / e };
+  var B;
+  if (prevB === 1 || prevB === -1) B = prevB > 0 ? B1 : B2;
+  else if (prevB) B = Math.hypot(B1.x - prevB.x, B1.y - prevB.y) <= Math.hypot(B2.x - prevB.x, B2.y - prevB.y) ? B1 : B2;
+  else B = B1.y >= B2.y ? B1 : B2;           // はじめは上側(開いた形)
+  return { ok: true, A: A, B: B, phi: Math.atan2(B.y, B.x - d), mode: B === B1 ? 1 : -1 };
+}
+/* グラスホフの条件で種類を判定
+   a: クランク(入力) b: 連結棒 c: てこ(出力) d: 固定リンク
+   最短+最長 < 残り2本の和 のとき、いちばん短い棒が固定リンクのとなり(a か c)にあれば、その棒が1回転できる。
+   いちばん短いのが固定リンク d なら両方が1回転、連結棒 b なら どちらも1回転できない。
+   shortest: いちばん短い棒('a'|'b'|'c'|'d')。full: 入力が1回転できるか。outFull: 出力が1回転できるか */
+function linkType(a, b, c, d) {
+  if (Math.abs(a - c) < 1e-9 && Math.abs(b - d) < 1e-9) return { id: 'parallel', name: '平行クランク機構', full: true, outFull: true, shortest: null, note: '向かい合う棒が同じ長さで、平行四辺形のまま動く' };
+  var arr = [a, b, c, d], s = Math.min.apply(null, arr), l = Math.max.apply(null, arr), pq = a + b + c + d - s - l;
+  var sh = d === s ? 'd' : (a === s ? 'a' : (c === s ? 'c' : 'b'));
+  if (s + l > pq + 1e-9) return { id: 'rocker2', name: '両てこ機構', full: false, outFull: false, shortest: sh, note: '最短+最長が残り2本の和より長いので、どの棒も1回転できない' };
+  if (s + l > pq - 1e-9) return { id: 'change', name: '変化点のあるリンク機構', full: false, outFull: false, shortest: sh, note: '最短+最長が残り2本の和と同じなので、棒が一直線にそろう所(変化点)で動く向きが決まらなくなる' };
+  if (sh === 'd') return { id: 'crank2', name: '両クランク機構', full: true, outFull: true, shortest: sh, note: 'いちばん短いのが固定リンクなので、クランクもてこも1回転できる' };
+  if (sh === 'a') return { id: 'crankrocker', name: 'てこクランク機構', full: true, outFull: false, shortest: sh, note: 'いちばん短いクランクが固定リンクのとなりにあるので、クランクが1回転し、てこは往復する' };
+  if (sh === 'c') return { id: 'rockercrank', name: 'てこクランク機構(出力側が回る)', full: false, outFull: true, shortest: sh, note: 'いちばん短いのは出力側の棒。入力の棒は1回転できずに往復し、出力側が1回転する(足踏みミシンと同じ)' };
+  return { id: 'rocker2', name: '両てこ機構', full: false, outFull: false, shortest: sh, note: 'いちばん短いのは連結棒で、固定リンクのとなりにないので、クランクもてこも1回転できない' };
+}
+/* クランクを1周動かして、てこの振れ角などを調べる */
+function fourBarSweep(a, b, c, d) {
+  // 動ける角度の区間の始まりから1周たどる(区間が0°をまたいでもよい)
+  var valid = [], i, st = 0;
+  for (i = 0; i < 360; i++) valid.push(fourBar(a, b, c, d, i * Math.PI / 180).ok);
+  var okN = valid.filter(Boolean).length;
+  if (!okN) return { full: false, okDeg: 0, swing: 0, outFull: false, tmin: null, tmax: null };
+  if (okN < 360) { for (i = 0; i < 360; i++) if (valid[i] && !valid[(i + 359) % 360]) { st = i; break; } }
+  var prev = null, last = null, unwrap = 0, mn = 0, mx = 0, n = 0, mode = 0;
+  for (i = 0; i <= 360; i++) {
+    var deg = st + i, r = fourBar(a, b, c, d, deg * Math.PI / 180, mode || prev);
+    if (!r.ok) break;
+    n++; prev = r.B; mode = r.mode;
+    if (last !== null) { var dp = r.phi - last; if (dp > Math.PI) dp -= 2 * Math.PI; if (dp < -Math.PI) dp += 2 * Math.PI; unwrap += dp; mn = Math.min(mn, unwrap); mx = Math.max(mx, unwrap); }
+    if (last === null) var phi0 = r.phi;
+    last = r.phi;
+  }
+  if (okN < 360 && n) {
+    // 動けるはしは1°きざみの間にあるので、はしまで細かく近づけて振れ角に入れる(はしの近くは てこが速く動く)
+    var edge = function (tIn, tOut, ref, base) {
+      for (var k = 0; k < 40; k++) { var md = (tIn + tOut) / 2; if (fourBar(a, b, c, d, md * Math.PI / 180, mode).ok) tIn = md; else tOut = md; }
+      var re = fourBar(a, b, c, d, tIn * Math.PI / 180, mode), de = re.phi - ref;
+      if (de > Math.PI) de -= 2 * Math.PI; if (de < -Math.PI) de += 2 * Math.PI;
+      mn = Math.min(mn, base + de); mx = Math.max(mx, base + de);
+    };
+    edge(st, st - 1, phi0, 0); edge(st + n - 1, st + n, last, unwrap);
+  }
+  var sw = mx - mn, lt = linkType(a, b, c, d);
+  // 出力側がいちばん短い(てこクランクを逆に使う形)ときは、入力が往復するあいだに出力側が1回転する
+  var outFull = (okN === 360 && Math.abs(unwrap) > 2 * Math.PI - 0.05) || lt.id === 'rockercrank';
+  return { full: okN === 360, okDeg: Math.max(0, n - 1), swing: outFull ? 360 : sw * 180 / Math.PI, outFull: outFull, change: lt.id === 'change', tmin: okN < 360 ? st : 0, tmax: okN < 360 ? (st + n - 1) % 360 : 360 };
+}
+
+/* ---------- スライダクランク ---------- */
+function sliderX(r, l, theta) { return r * Math.cos(theta) + Math.sqrt(Math.max(0, l * l - Math.pow(r * Math.sin(theta), 2))); }
+
+/* ---------- カム ----------
+   形を極座標の多角形で返す(回転中心が原点、数学の向き) */
+var CAMS = {
+  ecc:   { name: '偏心円カム', bumps: 1, desc: '円の中心をずらして付けたカム。なめらかに上下する。' },
+  egg:   { name: '卵形カム', bumps: 1, desc: '一部だけ出っぱった板カム。しばらく止まってから、ぐっと上がる。' },
+  heart: { name: 'ハート形カム', bumps: 1, desc: '一定の速さで上がって、一定の速さで下がる。ミシンの糸巻きなどに使う。' },
+  two:   { name: '2山カム', bumps: 2, desc: '山が2つ。1回転で2往復する。' }
+};
+function camPoly(type, h, base) {
+  base = base || 30; var pts = [], N = 180;
+  for (var i = 0; i < N; i++) {
+    var f = i / N * 2 * Math.PI, r;
+    if (type === 'ecc') { var e = h / 2, R = base + e; pts.push({ x: e + R * Math.cos(f), y: R * Math.sin(f) }); continue; }
+    if (type === 'egg') { var c = Math.cos(f); r = base + h * (c > 0 ? Math.pow(c, 2.2) : 0); }
+    else if (type === 'heart') { var ang = Math.abs(((f + Math.PI) % (2 * Math.PI)) - Math.PI); r = base + h * (1 - ang / Math.PI); }
+    else r = base + h * (1 + Math.cos(2 * f)) / 2;
+    pts.push({ x: r * Math.cos(f), y: r * Math.sin(f) });
+  }
+  return pts;
+}
+/* 回転角 theta(時計回りを+) のときの、真上にある先のとがった従動節の高さ */
+function camLift(poly, theta) {
+  var c = Math.cos(-theta), s = Math.sin(-theta), best = -Infinity, n = poly.length;
+  for (var i = 0; i < n; i++) {
+    var p = poly[i], q = poly[(i + 1) % n];
+    var x1 = p.x * c - p.y * s, y1 = p.x * s + p.y * c, x2 = q.x * c - q.y * s, y2 = q.x * s + q.y * c;
+    if ((x1 <= 0 && x2 >= 0) || (x1 >= 0 && x2 <= 0)) {
+      var t = x1 === x2 ? 0 : x1 / (x1 - x2), y = y1 + (y2 - y1) * t;
+      if (y > best) best = y;
+    }
+  }
+  return best;
+}
+function camStroke(poly) {
+  var mn = Infinity, mx = -Infinity;
+  for (var i = 0; i < 360; i += 2) { var y = camLift(poly, i * Math.PI / 180); mn = Math.min(mn, y); mx = Math.max(mx, y); }
+  return { min: mn, max: mx, stroke: mx - mn };
+}
+
+/* ---------- ラックとピニオン・ねじ ---------- */
+var RACK_PITCH = 5;                                   // 歯の間隔 mm
+function rackPerTurn(z) { return z * RACK_PITCH; }    // 1回転で進む距離 mm
+function screwLead(p, n) { return p * n; }            // リード = ピッチ × 条数
+
+/* 速度伝達比を中学生向けの文に */
+function ratioText(ratio) {
+  if (Math.abs(ratio - 1) < 1e-6) return '同じ速さ';
+  if (ratio > 1) return '1/' + fmt(ratio) + ' に減速';
+  return fmt(1 / ratio) + ' 倍に増速';
+}
+function fmt(x, d) {
+  if (!isFinite(x)) return '−';
+  var r = round(x, d == null ? 2 : d);
+  return String(r);
+}
+
+NS.Mech = {
+  PARTS: PARTS, LINKS: LINKS, CAMS: CAMS, RACK_PITCH: RACK_PITCH,
+  checkTrain: checkTrain, solveTrain: solveTrain, layoutTrain: layoutTrain, wheelR: wheelR,
+  fourBar: fourBar, linkType: linkType, fourBarSweep: fourBarSweep,
+  sliderX: sliderX, camPoly: camPoly, camLift: camLift, camStroke: camStroke,
+  rackPerTurn: rackPerTurn, screwLead: screwLead, ratioText: ratioText, fmt: fmt, gcd: gcd, round: round
+};
+})();
+</script>
+<script>
+/* ===================================================================
+   C3 機構ラボ  — window.EnergyApps.C3
+   =================================================================== */
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+var M = NS.Mech, PARTS = M.PARTS, LINKS = M.LINKS, fmt = M.fmt;
+var STORE_KEY = 'energyApps.C3.v1';
+var MAXW = 8, TAU = Math.PI * 2;
+var KIND_RANGE = { gear: [8, 80], pulley: [20, 200], sprocket: [10, 60] };
+var COL_IN = '#2b7a4b', COL_OUT = '#c2410c';   // 入力=緑、出力=だいだい色(全画面で同じ)
+var GEAR_COL = ['#f4a261', '#7cc6bd', '#ffd166', '#a5a6f6', '#ef8f8f', '#9bd68c', '#f7b2d9', '#8fc1e3'];
+
+var S = {
+  root: null, el: {}, view: 'build', save: null, train: null, sel: -1, A: 0, playing: true,
+  task: null, cp: null, mech: 'rack', ov: null, msg: '', msgCls: '', fit: null, drag: null,
+  cw: 0, ch: 0, dpr: 1, last: 0, raf: 0, quiz: null, conv: {}, cleared: false, spinTo: null,
+  undo: [], hintN: 0, spinSign: 1, kbd: false
+};
+
+/* ---------- 小道具 ---------- */
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function near(a, b, tol) { return Math.abs(a - b) <= (tol == null ? 1e-6 : tol); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function sizeText(w) { return w.kind === 'pulley' ? '直径' + w.size + 'mm' : '歯数' + w.size; }
+function sizeShort(w) { return w.kind === 'pulley' ? w.size + 'mm' : w.size + '枚'; }
+function sizeUnit(k) { return k === 'pulley' ? 'mm' : '枚'; }
+function kindName(k) { return { gear: '歯車', pulley: 'プーリー', sprocket: 'スプロケット' }[k]; }
+function rpmText(r) { return fmt(r, 2) + '回/分'; }
+function dirIcon(d) { return d > 0 ? '↻' : '↺'; }
+function dirWord(d) { return d > 0 ? '時計回り' : '反時計回り'; }
+
+/* ---------- 効果音 ---------- */
+var AC = null;
+function beep(kind) {
+  if (!S.save || !S.save.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    var seq = { add: [[520, .06]], tap: [[700, .03]], err: [[200, .15]], ok: [[523, .1], [659, .1], [784, .1], [1047, .25]], ng: [[330, .12], [247, .2]], del: [[300, .06]], tick: [[880, .02]] }[kind] || [[440, .05]];
+    var t = AC.currentTime;
+    seq.forEach(function (s) {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = kind === 'err' || kind === 'ng' ? 'square' : 'triangle';
+      o.frequency.value = s[0]; g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + s[1]);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + s[1] + 0.02); t += s[1];
+    });
+  } catch (e) {}
+}
+
+/* ---------- 運動の変換: 種類と初期値 ---------- */
+var MECHS = [
+  { id: 'rack', icon: '📏', name: 'ラックとピニオン', sub: '回転 → 直線', part: 'rack' },
+  { id: 'cam', icon: '🥚', name: 'カム', sub: '回転 → 上下の往復', part: 'cam' },
+  { id: 'link', icon: '🦯', name: 'リンク機構', sub: '回転 → ゆれる動き(<ruby>揺動<rt>ようどう</rt></ruby>)', part: 'link' },
+  { id: 'slider', icon: '🚂', name: 'スライダクランク', sub: '回転 ⇔ 直線の往復', part: 'crank' },
+  { id: 'screw', icon: '🔩', name: 'ねじ(送りねじ)', nameH: 'ねじ(<ruby>送<rt>おく</rt></ruby>りねじ)', sub: '回転 → ゆっくり直線', part: 'screw' }
+];
+function mechById(id) { for (var i = 0; i < MECHS.length; i++) if (MECHS[i].id === id) return MECHS[i]; return MECHS[0]; }
+var CONV_DEF = { rack: { z: 16 }, cam: { type: 'ecc', h: 20 }, link: { a: 20, b: 70, c: 50, d: 60, wiper: false }, slider: { r: 25, l: 90 }, screw: { p: 1.5, n: 1 } };
+var LINK_PRESETS = [
+  { name: 'てこクランク', v: { a: 20, b: 70, c: 50, d: 60 } },
+  { name: '両てこ', v: { a: 50, b: 20, c: 60, d: 70 } },
+  { name: '両クランク', v: { a: 50, b: 60, c: 55, d: 25 } },
+  { name: '平行クランク', v: { a: 30, b: 70, c: 30, d: 70 } }
+];
+var SCREW_P = [0.5, 0.8, 1, 1.25, 1.5, 2, 2.5, 3];
+
+/* ---------- 回転を伝える: 見本 ---------- */
+function W(kind, size) { return { kind: kind, size: size }; }
+var SAMPLES = [
+  { name: '歯車2枚で減速', icon: '⚙️', t: { wheels: [W('gear', 12), W('gear', 36)], links: ['mesh'] } },
+  { name: '間に1枚(アイドラ)', icon: '⚙️', t: { wheels: [W('gear', 20), W('gear', 14), W('gear', 30)], links: ['mesh', 'mesh'] } },
+  { name: '2段歯車', icon: '🍡', t: { wheels: [W('gear', 10), W('gear', 40), W('gear', 12), W('gear', 36)], links: ['mesh', 'shaft', 'mesh'] } },
+  { name: '十字掛けベルト', icon: '✖️', t: { wheels: [W('pulley', 60), W('pulley', 120)], links: ['cross'] } },
+  { name: '自転車のチェーン', icon: '🚲', t: { wheels: [W('sprocket', 40), W('sprocket', 16)], links: ['chain'] } }
+];
+var DEF_TRAIN = { wheels: [W('gear', 12), W('gear', 36)], links: ['mesh'] };
+
+/* ---------- 設計課題 ---------- */
+function trainTask(o) { o.kind = 'train'; return o; }
+function convTask(o) { o.kind = 'conv'; return o; }
+function rb(k, y) { return '<ruby>' + k + '<rt>' + y + '</rt></ruby>'; }
+function plain(s) { return String(s).replace(/<rt>.*?<\/rt>/g, '').replace(/<[^>]+>/g, ''); }
+var TASKS = [
+  trainTask({ id: 'slow', icon: '🏗️', title: 'ゆっくり巻き上げ', lead: '1/3に減速',
+    story: 'クレーンの' + rb('巻き上げ', 'まきあげ') + '軸を、モーター(60回/分)の1/3の速さ、<b>20回/分</b>で回そう。',
+    stock: { gear: [10, 15, 20, 30, 40, 45, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 15)], links: [] }, best: 2,
+    checks: [{ t: '出力が20回/分', f: function (s) { return near(s.outRpm, 20); } }],
+    hints: [rb('速度伝達比', 'そくどでんたつひ') + ' = ' + rb('従動', 'じゅうどう') + '(回される側)の歯数 ÷ ' + rb('原動', 'げんどう') + '(回す側)の歯数。20回/分は60回/分の何分の1?', '1/3にするには、相手(従動)の歯数を入力の3倍にすればよい。', '入力は15枚。15 × 3 = 45枚の歯車を「歯車」でつなごう。'],
+    learn: '15枚の歯車で45枚の歯車を回すと、' + rb('速度伝達比', 'そくどでんたつひ') + ' = 45 ÷ 15 = 3。回転速度は1/3(20回/分)になり、そのかわり回す力(トルク)は約3倍になる。クレーンが重い物を持ち上げられるのはこのため。' }),
+  trainTask({ id: 'fast', icon: '🌀', title: '羽根を速く回す', lead: '3倍に増速',
+    story: '羽根をモーターの3倍の速さ、<b>180回/分</b>で回そう。入力の歯車の歯数も変えてよい。',
+    stock: { gear: [10, 15, 20, 30, 40, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 20)], links: [] }, best: 2,
+    checks: [{ t: '出力が180回/分', f: function (s) { return near(s.outRpm, 180); } }],
+    hints: ['大きい歯車で小さい歯車を回すと速くなる。', '入力の歯車をタップすると歯数を変えられる。入力を出力の3倍の歯数にしよう。', 'たとえば 入力30枚 → 出力10枚 なら 10 ÷ 30 = 1/3 で、3倍の速さ。'],
+    learn: '原動(入力)を大きく、従動(出力)を小さくすると増速できる。たとえば 30 → 10 なら速度伝達比 = 10 ÷ 30 = 1/3 で、回転速度は3倍。ただし回す力は約1/3に弱くなる。' }),
+  convTask({ id: 'door', mech: 'rack', icon: '🚪', title: '引き戸を動かす', lead: '1回転で100mm',
+    story: 'ピニオンを1回転させると、ラック(と戸)が<b>ちょうど100mm</b>動くようにしよう。歯の間隔は5mm。',
+    checks: [{ t: '1回転で100mm動く', f: function (c) { return near(M.rackPerTurn(c.z), 100); } }],
+    hints: ['1回転で進む距離 = 歯数 × 歯の間隔(5mm)。', '100mm ÷ 5mm = ? 枚にすればよい。'],
+    learn: 'ピニオンが1回転すると、歯数ぶんの歯がラックを送る。20枚 × 5mm = 100mm。自動車のハンドルやボール盤の上下にも使われている。' }),
+  trainTask({ id: 'cross', icon: '✖️', title: 'ベルトで逆回し', lead: '逆向き・30回/分',
+    story: 'ベルトを使って、出力軸を入力と<b>逆向き</b>に、<b>30回/分</b>で回そう。',
+    stock: { pulley: [40, 60, 80, 100, 120] }, links: ['belt', 'cross'], start: { wheels: [W('pulley', 60)], links: [] }, best: 2,
+    checks: [{ t: '出力が30回/分', f: function (s) { return near(s.outRpm, 30); } }, { t: '入力と逆向き', f: function (s) { return s.dir < 0; } }],
+    hints: ['ふつうに掛けたベルトは同じ向き。十字に掛けると逆向きになる。', '30回/分は60回/分の1/2。従動プーリーの直径を原動の2倍に。', '原動60mm → 従動120mm を「十字に掛ける」でつなごう。'],
+    learn: 'ベルトを十字に掛けると逆向きに回る。速度伝達比 = 従動プーリーの直径 ÷ 原動プーリーの直径 = 120 ÷ 60 = 2 なので、回転速度は1/2(30回/分)。' }),
+  trainTask({ id: 'bike', icon: '🚲', title: '自転車のギア', lead: 'チェーンで2.5倍',
+    story: 'ペダルを1分に60回こぐと、後輪が<b>150回/分</b>(ペダル1回で2.5回転)になるように、スプロケットを選ぼう。',
+    stock: { sprocket: [12, 14, 16, 20, 30, 36, 40, 48] }, links: ['chain'], start: { wheels: [W('sprocket', 36)], links: [] }, best: 2,
+    checks: [{ t: '後輪が150回/分', f: function (s) { return near(s.outRpm, 150); } }, { t: 'ペダルと後輪が同じ向き', f: function (s) { return s.dir > 0; } }],
+    hints: ['150 ÷ 60 = 2.5。前の歯数 ÷ 後ろの歯数 = 2.5 になる組み合わせは?', '前の歯数(入力)もタップで変えられる。前40枚なら後ろは?', '前40枚・後ろ16枚。40 ÷ 16 = 2.5。'],
+    learn: 'チェーンは同じ向きに、すべらずに回転を伝える。前40枚・後ろ16枚なら 40 ÷ 16 = 2.5。坂道では後ろを大きくして、軽くこげるようにする(そのかわり進みはおそくなる)。' }),
+  convTask({ id: 'pump', mech: 'slider', icon: '🚂', title: 'ポンプのピストン', lead: 'ストローク60mm',
+    story: 'ポンプのピストンが、<b>60mm</b>の幅で往復するようにしよう。',
+    checks: [{ t: 'ストロークが60mm', f: function (c) { return near(2 * c.r, 60); } }, { t: '連結棒がクランクより長い', f: function (c) { return c.l > c.r; } }],
+    hints: ['ピストンの往復の幅(ストローク)は、クランクの長さの何倍?', 'ストローク = クランクの長さ × 2。60mmにするにはクランクを何mmに?', '連結棒はクランクより長くしないと組み立てられない。'],
+    learn: 'ストローク = クランクの長さ × 2。クランクを30mmにすると60mmになる。エンジンでは逆に、ピストンの往復でクランク軸を回している。' }),
+  convTask({ id: 'twice', mech: 'cam', icon: '🥚', title: '1回転で2回トントン', lead: 'カムで2往復',
+    story: 'カムが<b>1回転する間に2回</b>上下し、上下の動きの幅(ストローク)が<b>25mm以上</b>になるようにしよう。',
+    checks: [{ t: '1回転で2往復', f: function (c) { return c.type === 'two'; } }, { t: 'ストローク25mm以上', f: function (c) { return M.camStroke(M.camPoly(c.type, c.h)).stroke >= 24.9; } }],
+    hints: ['山の数が、1回転での往復の回数。', '「2山カム」を選んで、山の高さを上げ、ストロークを25mm以上にしよう。'],
+    learn: 'カムの形が' + rb('従動節', 'じゅうどうせつ') + '(カムに押されて動く棒)の動き方を決める。山が2つなら1回転で2往復。山を高くするとストロークが大きくなる。' }),
+  trainTask({ id: 'idler', icon: '↔️', title: '同じ向きで届ける', lead: '歯車だけで同じ向き',
+    story: '歯車だけを使って、はなれた軸を入力と<b>同じ向き・同じ速さ(60回/分)</b>で回そう。',
+    stock: { gear: [15, 20, 30] }, links: ['mesh'], start: { wheels: [W('gear', 20)], links: [] }, best: 3,
+    checks: [{ t: '出力が60回/分', f: function (s) { return near(s.outRpm, 60); } }, { t: '入力と同じ向き', f: function (s) { return s.dir > 0; } }, { t: '歯車が3枚以上', f: function (s) { return s.wheels.length >= 3; } }],
+    hints: ['かみ合うたびに向きが逆になる。2枚だと逆向き。', '間にもう1枚はさむと、向きはどうなる?', '入力と出力の歯数を同じにすると、同じ速さになる(間の歯車の歯数は関係ない)。'],
+    learn: '間にはさんだ歯車(アイドラ)は、向きを変えるだけで速度伝達比には関係しない。入力20枚・出力20枚なら、間の歯車が何枚の歯数でも同じ速さになる。' }),
+  convTask({ id: 'wiper', mech: 'link', icon: '🚗', title: 'ワイパーをつくる', lead: 'てこクランクで約90°',
+    story: 'モーターで<b>クランクを1回転</b>させ、ワイパー(てこ)が<b>80°〜100°</b>の範囲で往復するようにしよう。',
+    checks: [{ t: 'クランクが1回転できる', f: function (c) { return M.fourBarSweep(c.a, c.b, c.c, c.d).full; } }, { t: 'てこが往復する(1回転しない)', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull; } }, { t: 'ゆれる角度が80°〜100°', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull && s.swing >= 80 && s.swing <= 100; } }],
+    hints: ['クランク(緑)をいちばん短い棒にして、「最短+最長 < 残り2本の和」にすると、クランクが1回転できる。', 'クランクがいちばん短く、固定リンクがいちばん短くなければ、てこ(だいだい色)は1回転せずに往復する。', 'ゆれる角度は、クランクを長く・てこを短くすると大きくなる。80°〜100°になるまで5mmずつ変えてみよう。'],
+    learn: 'いちばん短い棒をクランクにして、「最短+最長 < 残り2本の和」なら、クランクは1回転してもう一方は往復する(てこクランク機構)。自動車のワイパーはこのしくみ。' }),
+  trainTask({ id: 'two', icon: '🍡', title: '2段歯車で大きく減速', lead: '1/12に減速',
+    story: '出力を<b>5回/分</b>(1/12)にしよう。いちばん大きい歯車は40枚。1組では無理なので、<b>同じ軸に重ねる</b>を使おう。',
+    stock: { gear: [10, 15, 20, 30, 40] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 10)], links: [] }, best: 4,
+    checks: [{ t: '出力が5回/分', f: function (s) { return near(s.outRpm, 5); } }],
+    hints: ['1組の歯車では、40 ÷ 10 = 4 で、1/4までしか減速できない。', '「同じ軸に重ねる」で2段にすると、全体の速度伝達比 = 1段目の比 × 2段目の比。12 = 4 × 3。', '10→40 とつないで同じ軸に10枚を重ね、10→30 とつなごう。'],
+    learn: '2段にすると、速度伝達比はかけ算になる。(40÷10)×(30÷10) = 4×3 = 12。小さな歯車だけで大きく減速できるので、時計や巻き上げ機に使われている。' }),
+  trainTask({ id: 'power', icon: '💪', title: '力持ちの巻き上げ機', lead: 'トルク5倍以上', loss: true, more: '入力の歯車の歯数も変えられるよ。',
+    story: rb('摩擦', 'まさつ') + 'で力が少しずつ減る(ロスがある)機械で、回す力(トルク)を入力の<b>5倍以上</b>にしつつ、出力を<b>10回/分以上</b>にしよう。',
+    stock: { gear: [10, 12, 15, 20, 30, 40, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 12)], links: [] }, best: 2,
+    checks: [{ t: 'トルクが5倍以上', f: function (s) { return s.torque >= 5 - 1e-9; } }, { t: '出力が10回/分以上', f: function (s) { return s.outRpm >= 10 - 1e-9; } }],
+    hints: ['ロスがあるので、トルクを5倍にするには、減速を5倍より少し大きくする。', 'でも減速しすぎると10回/分より遅くなる。減速は6倍(60 ÷ 6 = 10)まで。', '入力の歯車も変えられる。入力10枚 → 出力60枚(6倍)なら 6 × 0.95 = 5.7倍で、出力は10回/分。'],
+    learn: '減速すると回す力は大きくなるが、歯車1組ごとに約5%のロスがある。10→60(1/6減速)なら 6 × 0.95 = 5.7倍で、出力は10回/分。速さと力はトレードオフ(どちらかを取ると、もう一方が減る関係)。' }),
+  convTask({ id: 'jack', mech: 'screw', icon: '🛠️', title: 'ねじジャッキ', lead: '10回転で30mm',
+    story: 'ハンドルを<b>10回転</b>させると、ちょうど<b>30mm</b>上がるジャッキにしよう。',
+    checks: [{ t: '10回転で30mm進む', f: function (c) { return near(M.screwLead(c.p, c.n) * 10, 30); } }],
+    hints: ['30mm ÷ 10回 = 1回転で何mm進めばよい?', '1回転で進む距離(リード) = ピッチ × ' + rb('条数', 'じょうすう') + '。1条ねじなら、ピッチの分だけ進む。', 'ピッチ3mm・1条にしよう(ピッチ1.5mm・2条でもよい)。'],
+    learn: 'リード3mmなら10回転で30mm。リードが小さいほどゆっくり進むが、小さな力で大きな物を持ち上げられる。だからジャッキや万力にねじが使われる。' })
+];
+function taskById(id) { for (var i = 0; i < TASKS.length; i++) if (TASKS[i].id === id) return TASKS[i]; return null; }
+
+/* ---------- 保存 ---------- */
+function loadSave() {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
+  d = d && typeof d === 'object' ? d : {};
+  if (d.sound == null) d.sound = false;   // 授業で一斉に鳴らないよう、最初は音なし
+  if (!d.train || M.checkTrain(d.train).length) d.train = clone(DEF_TRAIN);
+  d.conv = d.conv || {};
+  Object.keys(CONV_DEF).forEach(function (k) { d.conv[k] = Object.assign(clone(CONV_DEF[k]), d.conv[k] || {}); });
+  d.tasks = d.tasks || {};
+  d.tt = d.tt || {};
+  d.tc = d.tc || {};
+  if (d.speed == null) d.speed = 1;
+  d.loss = !!d.loss;
+  return d;
+}
+function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
+function say(text, cls) { S.msg = text; S.msgCls = cls || ''; if (S.el.msg) renderMsg(); }
+function renderMsg() { if (!S.el.msg) return; S.el.msg.className = 'e3-msg' + (S.msgCls ? ' ' + S.msgCls : ''); S.el.msg.innerHTML = S.msg; }
+
+/* ---------- 画面の骨組み ---------- */
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
+function curTask() { return S.task ? taskById(S.task) : null; }
+function buildShell() {
+  var v = S.view, tk = curTask();
+  var tb = function (act, label, on) { return '<button class="e3-btn' + (on ? ' on' : '') + '" data-act="' + act + '">' + label + '</button>'; };
+  var top = '<div class="e3-top"><h1>⚙️ 機構ラボ</h1>' +
+    tb('build', '⚙️ <span class="lg">回転を伝える</span><span class="sh">伝える</span>', v === 'build' && !tk) +
+    tb('conv', '🔄 <span class="lg">運動を変える</span><span class="sh">変える</span>', v === 'conv' && !tk) +
+    tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
+    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
+    '<div class="e3-stitle" data-ref="stitle"></div>' +
+    '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
+    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
+    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button>' + efSlot() + '</div>';
+  var main;
+  if (v === 'tasks') main = '<div class="e3-page" data-ref="page"></div>';
+  else main = '<div class="e3-main">' + (v === 'quiz' ? '' : '<div class="e3-pal" data-ref="pal"></div>') +
+      '<div class="e3-center"><div class="e3-msg" data-ref="msg" role="status" aria-live="polite"></div>' +
+      '<div class="e3-bar" data-ref="bar"></div>' +
+      '<div class="e3-cvbox" data-ref="box"><canvas class="e3-cv" data-ref="cv" tabindex="0" aria-label="機構のようす"></canvas><div class="e3-hint" data-ref="hint"></div></div></div>' +
+      '<div class="e3-side" data-ref="side"></div></div>';
+  S.root.innerHTML = top + main;
+  S.el = {};
+  S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  S.cw = 0; S.ch = 0;
+  if (S.el.cv) bindCanvas();
+  efMount();
+}
+function render() {
+  renderTop();
+  if (S.view === 'tasks') { renderTasks(); return; }
+  if (S.view !== 'quiz') renderPal();
+  renderBar(); renderSide(); renderMsg();
+  if (S.el.hint) S.el.hint.textContent = S.view === 'quiz' ? '入力の歯車を指でなぞると、手で回せる' : (S.view === 'build' ? '部品をタップで選ぶ/指でなぞると手で回せる' : '入力(緑)のまわりを指でなぞると、手で回せる');
+}
+function renderTop() {
+  var tk = curTask(), t = '';
+  if (tk) t = '📋 ' + tk.title;
+  else if (S.view === 'conv') t = mechById(S.mech).name;
+  S.el.stitle.textContent = t;
+  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
+  S.el.exp.classList.toggle('off', !(S.view === 'build' || S.view === 'conv'));
+}
+function openView(v) {
+  stopSpin();
+  S.task = null;   // タブで開くのは、いつも課題でない自由な画面
+  S.view = v; S.save.view = v; S.cleared = false; S.undo = []; S.hintN = 0;
+  if (v === 'build' && !S.task) { S.train = S.save.train; S.sel = Math.min(S.sel, S.train.wheels.length - 1); say('左の「つなぐ部品」で歯車やベルトを足そう。部品をタップすると大きさを変えられる。'); }
+  if (v === 'conv' && !S.task) { S.mech = S.save.mech || 'rack'; S.cp = S.save.conv[S.mech]; convReset(); say(mechIntro(S.mech)); }
+  if (v === 'quiz') { if (!S.quiz || S.quiz.done) newQuiz(); else prepQuestion(false); }
+  persist();
+  buildShell(); render();
+}
+function openTask(id) {
+  var tk = taskById(id); if (!tk) return;
+  S.task = id; S.cleared = !!(S.save.tasks[id]); S.undo = []; S.hintN = 0;
+  S.A = 0; stopSpin();
+  if (tk.kind === 'train') {
+    if (!S.save.tt[id] || M.checkTrain(S.save.tt[id]).length) S.save.tt[id] = clone(tk.start);
+    S.train = S.save.tt[id]; S.sel = S.train.wheels.length - 1; S.view = 'build';
+  } else {
+    if (!S.save.tc[id]) S.save.tc[id] = clone(CONV_DEF[tk.mech]);
+    if (tk.id === 'wiper') S.save.tc[id].wiper = true;
+    S.mech = tk.mech; S.cp = S.save.tc[id]; S.view = 'conv'; convReset();
+  }
+  S.playing = true;
+  say('📋 ' + tk.story, 'task');
+  persist(); buildShell(); render();
+}
+
+/* ---------- 回転を伝える: 操作 ---------- */
+function allowedLink(type) {
+  var tk = curTask();
+  if (!tk || tk.kind !== 'train') return true;
+  return tk.links.indexOf(type) >= 0;
+}
+function stockOf(kind) {
+  var tk = curTask();
+  if (!tk || tk.kind !== 'train') return null;
+  return tk.stock[kind] || [];
+}
+function hasKind(kind) { var st = stockOf(kind); return !st || st.length > 0; }
+function defSize(kind, prev, coax) {
+  var st = stockOf(kind);
+  if (st) {
+    if (coax) return st[0];
+    var cand = st.filter(function (x) { return !prev || x !== prev.size; });
+    return cand[Math.floor(cand.length / 2)] || st[0];
+  }
+  if (coax) return { gear: 12, pulley: 40, sprocket: 14 }[kind];
+  if (!prev || prev.kind !== kind) return { gear: 20, pulley: 80, sprocket: 20 }[kind];
+  var r = KIND_RANGE[kind], s = prev.size * 2 <= r[1] ? prev.size * 2 : Math.round(prev.size / 2);
+  if (kind === 'pulley') s = Math.round(s / 5) * 5;
+  return clamp(s, r[0], r[1]);
+}
+/* つなぎ方を足せるか: {ok, plan:'direct'|'convert'|'auto', why} */
+function addPlan(type) {
+  var T = S.train, n = T.wheels.length, last = T.wheels[n - 1], lastLink = T.links[n - 2];
+  if (!allowedLink(type)) return { ok: false, why: 'この課題では使えない' };
+  if (type === 'shaft') {
+    if (lastLink === 'shaft') return { ok: false, why: 'もう2枚重ねてある' };
+    if (n + 1 > MAXW) return { ok: false, why: '部品は' + MAXW + 'こまで' };
+    return { ok: true, plan: 'direct' };
+  }
+  var need = LINKS[type].kind;
+  if (!hasKind(need)) return { ok: false, why: 'この課題では使えない' };
+  if (n + 1 > MAXW) return { ok: false, why: '部品は' + MAXW + 'こまで' };
+  if (last.kind === need) return { ok: true, plan: 'direct' };
+  if (lastLink === 'shaft') return { ok: true, plan: 'convert' };
+  if (!allowedLink('shaft')) return { ok: false, why: kindName(need) + 'が必要' };
+  if (n + 2 > MAXW) return { ok: false, why: '部品は' + MAXW + 'こまで' };
+  return { ok: true, plan: 'auto' };
+}
+function addLink(type) {
+  var p = addPlan(type), T = S.train;
+  if (!p.ok) { beep('err'); say('⚠ ' + p.why + '。', 'err'); return; }
+  pushUndo();
+  var last = T.wheels[T.wheels.length - 1], note = '';
+  if (type === 'shaft') {
+    T.wheels.push(W(last.kind, defSize(last.kind, last, true))); T.links.push('shaft');
+    note = '同じ軸に' + kindName(last.kind) + 'を重ねた(2段)。重ねた部品は同じ速さ・同じ向きで回る。次に、これに別の部品をつなごう。';
+  } else {
+    var need = LINKS[type].kind;
+    if (p.plan === 'convert') { last.kind = need; last.size = defSize(need, null, true); note = '重ねた部品を' + kindName(need) + 'に変えて、'; }
+    if (p.plan === 'auto') { T.wheels.push(W(need, defSize(need, null, true))); T.links.push('shaft'); last = T.wheels[T.wheels.length - 1]; note = '同じ軸に' + kindName(need) + 'を付けてから、'; }
+    else last = T.wheels[T.wheels.length - 1];
+    T.wheels.push(W(need, defSize(need, last, false))); T.links.push(type);
+    note += LINKS[type].name + 'でつないだ。' + ({ mesh: 'かみ合った歯車は逆向きに回る。', belt: 'ふつうに掛けたベルトは同じ向きに回る。', cross: '十字に掛けたベルトは逆向きに回る。', chain: 'チェーンは同じ向きに、すべらずに回る。' })[type];
+  }
+  S.sel = T.wheels.length - 1;
+  beep('add'); changed(); say('✔ ' + note);
+}
+function removeLast() {
+  var T = S.train;
+  if (T.wheels.length <= 1) { beep('err'); say('⚠ 入力(モーター)の部品は取れない。大きさは変えられるよ。', 'err'); return; }
+  pushUndo();
+  T.wheels.pop(); T.links.pop();
+  if (T.links.length && T.links[T.links.length - 1] === 'shaft' && T.wheels.length > 1) { /* 2段の途中で終わってもOK */ }
+  S.sel = Math.min(S.sel, T.wheels.length - 1);
+  beep('del'); changed(); say('最後の部品を取った。「↩ もどす」で元にもどせる。');
+}
+function resetTrain() {
+  var tk = curTask();
+  var t = tk ? clone(tk.start) : { wheels: [W('gear', 20)], links: [] };
+  pushUndo();
+  S.train.wheels = t.wheels; S.train.links = t.links; S.sel = 0; S.A = 0;
+  beep('del'); changed(); say((tk ? '最初からにした。' : 'ぜんぶ消した。') + '「↩ もどす」で元にもどせる。左から部品を足そう。');
+}
+function loadSample(i) {
+  var t = clone(SAMPLES[i].t);
+  pushUndo();
+  S.train.wheels = t.wheels; S.train.links = t.links; S.sel = -1; S.A = 0;
+  beep('add'); changed(); say('見本「' + SAMPLES[i].name + '」を出した。部品をタップして大きさを変えてみよう。(前の形には「↩ もどす」でもどせる)');
+}
+function setSize(i, v) {
+  var w = S.train.wheels[i]; if (!w) return;
+  var r = KIND_RANGE[w.kind], nv = clamp(Math.round(v), r[0], r[1]);
+  if (nv !== w.size) pushUndo();
+  w.size = nv;
+  beep('tap'); changed();
+}
+/* ---------- ↩ もどす(1手ずつ) ---------- */
+function pushUndo() {
+  var isT = S.view === 'build';
+  S.undo.push({ view: S.view, task: S.task, mech: S.mech, data: clone(isT ? S.train : S.cp) });
+  if (S.undo.length > 40) S.undo.shift();
+}
+function canUndo() {
+  var u = S.undo[S.undo.length - 1];
+  return !!u && u.view === S.view && u.task === S.task && (S.view === 'build' || u.mech === S.mech);
+}
+function undo() {
+  if (!canUndo()) { S.undo = []; beep('err'); say('⚠ もどせる操作がない。', 'err'); return; }
+  var u = S.undo.pop();
+  if (S.view === 'build') { S.train.wheels = u.data.wheels; S.train.links = u.data.links; S.sel = Math.min(S.sel, S.train.wheels.length - 1); }
+  else { Object.keys(S.cp).forEach(function (k) { delete S.cp[k]; }); Object.assign(S.cp, u.data); convReset(); }
+  beep('del'); changed(); say('↩ 1つ前にもどした。');
+}
+/* 消す前の確認 */
+function confirmErase(act) {
+  var tk = curTask();
+  modal('<h2>' + (tk ? '↺ 最初からにする?' : '🗑 ぜんぶ消す?') + '</h2>' +
+    '<p>' + (tk ? 'この課題で組み立てたものを消して、最初の形にもどします。' : '組み立てた部品をぜんぶ消して、入力の歯車1つにもどします。') + '<br>「↩ もどす」で元にもどせます。</p>' +
+    '<div class="acts"><button class="e3-btn" data-act="close">やめる</button><button class="e3-btn danger" data-act="' + act + '">消す</button></div>');
+}
+function changed() {
+  persist();
+  if (S.view === 'build' || S.view === 'conv') { renderPal(); renderBar(); renderSide(); checkTask(); }
+}
+function trainSol() { var tk = curTask(); return M.solveTrain(S.train, { loss: tk ? !!tk.loss : S.save.loss }); }
+
+/* 課題の判定 */
+function taskState() {
+  var tk = curTask(); if (!tk) return null;
+  var arg = tk.kind === 'train' ? trainSol() : S.cp;
+  var res = tk.checks.map(function (c) { return { t: c.t, ok: !!c.f(arg) }; });
+  return { tk: tk, res: res, all: res.every(function (r) { return r.ok; }), sol: tk.kind === 'train' ? arg : null };
+}
+function checkTask() {
+  var st = taskState(); if (!st) return;
+  if (!st.all) { S.cleared = false; return; }
+  if (S.cleared) return;
+  S.cleared = true;
+  var tk = st.tk, stars = 3;
+  if (tk.kind === 'train' && st.sol.wheels.length > tk.best) stars = 2;
+  var prev = S.save.tasks[tk.id] || 0;
+  S.save.tasks[tk.id] = Math.max(prev, stars); persist();
+  beep('ok'); say('🎉 クリア! ' + tk.title, 'ok');
+  setTimeout(function () {
+    if (S.task !== tk.id) return;
+    modal('<div class="e3-big">🎉</div><h2 style="text-align:center">クリア!「' + esc(tk.title) + '」</h2>' +
+      '<p style="text-align:center;font-size:24px;color:#e8a200;margin:0">' + '★★★'.slice(0, stars) + '<span style="color:#ccc">' + '★★★'.slice(stars) + '</span></p>' +
+      (stars < 3 ? '<div class="e3-reason tip">もっと少ない部品(' + tk.best + 'こ)でもできるよ。' + (tk.more || '') + 'チャレンジしてみよう。</div>' : '') +
+      '<div class="e3-reason good"><b>わかったこと</b><br>' + tk.learn + '</div>' +
+      '<div class="acts"><button class="e3-btn" data-act="close">とじる</button><button class="e3-btn primary" data-act="nexttask">次の課題へ ▶</button></div>');
+  }, 450);
+}
+
+/* ---------- 左パネル ---------- */
+function renderPal() {
+  var el = S.el.pal; if (!el) return;
+  if (S.view === 'conv') {
+    var tk = curTask(), h = '<h2>しくみを選ぶ</h2><div class="e3-list">';
+    MECHS.forEach(function (m) {
+      var dis = tk && tk.mech !== m.id;
+      h += '<button class="e3-btn' + (S.mech === m.id ? ' on' : '') + (dis ? ' off' : '') + '" data-act="mech" data-id="' + m.id + '"' + (dis ? ' aria-disabled="true"' : '') + '><span class="ic">' + m.icon + '</span><span>' + (m.nameH || m.name) + '<small>' + m.sub + '</small></span></button>';
+    });
+    h += '</div><h2>やりなおす</h2><div class="e3-list"><button class="e3-btn' + (canUndo() ? '' : ' off') + '" data-act="undo">↩ もどす</button>';
+    if (tk) h += '<div class="gap"></div><button class="e3-btn danger" data-act="askreset">↺ 最初から</button></div><h2>課題</h2><div class="e3-list"><button class="e3-btn" data-act="hint">💡 ヒント</button><button class="e3-btn" data-act="tasks">📋 課題の一覧へ</button>';
+    el.innerHTML = h + '</div>'; return;
+  }
+  var tk2 = curTask();
+  var b = function (type, ic, nm, sub, wide) {
+    var p = addPlan(type);
+    return '<button class="e3-add' + (wide ? ' wide' : '') + (p.ok ? '' : ' off') + '" data-act="add" data-type="' + type + '"' + (p.ok ? '' : ' aria-disabled="true" title="' + esc(p.why) + '"') + '><span class="ic">' + ic + '</span><span>' + nm + (sub ? '<br><small>' + sub + '</small>' : '') + '</span></button>';
+  };
+  var h2 = '<h2>つなぐ部品を足す</h2><div class="e3-addg">' +
+    b('mesh', '⚙️', '歯車', 'かみ合わせる') + b('chain', '⛓️', 'チェーン', 'スプロケット') +
+    b('belt', '➰', 'ベルト', 'ふつうに掛ける') + b('cross', '✖️', 'ベルト', '十字に掛ける') +
+    b('shaft', '🍡', '同じ軸に重ねる', '2段にする', true) + '</div>' +
+    '<h2>へらす・やりなおす</h2><div class="e3-list">' +
+    '<button class="e3-btn' + (canUndo() ? '' : ' off') + '" data-act="undo">↩ もどす</button>' +
+    '<button class="e3-btn' + (S.train.wheels.length <= 1 ? ' off' : '') + '" data-act="pop">➖ 最後の部品を取る</button>' +
+    '<div class="gap"></div><button class="e3-btn danger" data-act="askreset">' + (tk2 ? '↺ 最初から' : '🗑 ぜんぶ消す') + '</button></div>';
+  if (tk2) {
+    h2 += '<h2>この課題で使える部品</h2><div class="e3-card" style="font-size:15px">';
+    Object.keys(tk2.stock).forEach(function (k) { h2 += '<b>' + kindName(k) + '</b>(' + (k === 'pulley' ? '直径mm' : '歯数') + ')<br>' + tk2.stock[k].join('・') + '<br>'; });
+    h2 += '</div><h2>課題</h2><div class="e3-list"><button class="e3-btn" data-act="hint">💡 ヒント</button><button class="e3-btn" data-act="tasks">📋 課題の一覧へ</button></div>';
+  } else {
+    h2 += '<h2>見本</h2><div class="e3-list">';
+    SAMPLES.forEach(function (s, i) { h2 += '<button class="e3-btn sm" data-act="sample" data-i="' + i + '"><span class="ic">' + s.icon + '</span>' + s.name + '</button>'; });
+    h2 += '</div>';
+  }
+  el.innerHTML = h2;
+}
+
+/* ---------- 上の操作バー ---------- */
+function renderBar() {
+  var el = S.el.bar; if (!el) return;
+  var h = '';
+  if (S.view === 'quiz') { el.innerHTML = quizBar(); return; }
+  h += '<button class="e3-btn ' + (S.playing ? '' : 'primary') + '" data-act="play">' + (S.playing ? '⏸ 止める' : '▶ 動かす') + '</button>';
+  h += '<span class="lbl">アニメの速さ</span>';
+  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) {
+    h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>';
+  });
+  h += '<button class="e3-btn sm" data-act="turn1">1回転だけ</button>';
+  h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
+  h += '<span class="sp"></span>';
+  var tk = curTask();
+  if (S.view === 'build' && !tk) h += '<button class="e3-btn sm' + (S.save.loss ? ' on' : '') + '" data-act="loss">' + (S.save.loss ? '☑' : '☐') + ' ' + rb('摩擦', 'まさつ') + 'で力が減る</button>';
+  if (S.view === 'conv' && S.mech === 'link') h += '<button class="e3-btn sm' + (S.cp.wiper ? ' on' : '') + '" data-act="wiper">' + (S.cp.wiper ? '☑' : '☐') + ' ワイパーに見立てる</button>';
+  el.innerHTML = h;
+}
+
+/* ---------- 右パネル ---------- */
+function stepper(act, val, unit, steps) {
+  var h = '<div class="e3-step">';
+  steps.forEach(function (s) { if (s < 0) h += '<button class="e3-btn" data-act="' + act + '" data-d="' + s + '" aria-label="' + s + '">' + s + '</button>'; });
+  h += '<span class="val">' + val + '<small style="font-size:13px">' + unit + '</small></span>';
+  steps.forEach(function (s) { if (s > 0) h += '<button class="e3-btn" data-act="' + act + '" data-d="' + s + '" aria-label="+' + s + '">+' + s + '</button>'; });
+  return h + '</div>';
+}
+function renderSide() {
+  var el = S.el.side; if (!el) return;
+  if (S.view === 'quiz') el.innerHTML = quizSide();
+  else if (S.view === 'conv') el.innerHTML = convSide();
+  else el.innerHTML = trainSide();
+  // 回転数カウンターは、どの画面でも書きかえたあとに取り直す
+  S.el.cin = el.querySelector('[data-ref="cin"]'); S.el.cout = el.querySelector('[data-ref="cout"]');
+}
+function trainSide() {
+  var T = S.train, s = trainSol(), tk = curTask(), h = '';
+  if (tk) h += taskCard();
+  var outW = s.wheels[s.wheels.length - 1];
+  // 選んだ部品のカード(大きさを変える所)を結果より上に置く
+  if (S.sel >= 0 && T.wheels[S.sel]) {
+    var w = T.wheels[S.sel], sw = s.wheels[S.sel], st = stockOf(w.kind), P = PARTS[w.kind];
+    h += '<div class="e3-card part"><div class="e3-kv"><b style="font-size:17px">' + (S.sel + 1) + '番 ' + kindName(w.kind) + '</b>' +
+      '<span><button class="e3-btn sm" data-act="selprev" aria-label="前の部品">◀</button> <button class="e3-btn sm" data-act="selnext" aria-label="次の部品">▶</button></span></div>' +
+      '<div style="font-size:14px;color:#5e6b64">' + (S.sel === 0 ? 'モーターの軸(入力)' : (S.sel === T.wheels.length - 1 ? '出力の軸' : '途中の軸')) + ' / ' + rpmText(sw.rpm) + ' ' + dirIcon(sw.dir) + '</div>' +
+      '<div class="e3-prm"><div class="nm">' + P.sizeName + '</div>';
+    if (st) {
+      h += '<div class="e3-chips">';
+      st.forEach(function (v) { h += '<button class="e3-btn' + (w.size === v ? ' on' : '') + '" data-act="setsize" data-v="' + v + '">' + v + '</button>'; });
+      h += '</div>';
+    } else h += stepper('size', w.size, sizeUnit(w.kind), w.kind === 'pulley' ? [-10, -5, 5, 10] : [-5, -1, 1, 5]);
+    h += '</div><div style="font-size:14px;line-height:1.5"><b>' + P.name + '</b>: ' + P.role + '</div></div>';
+  } else {
+    h += '<div class="e3-card part" style="font-size:15px">👆 歯車やプーリーを<b>タップ</b>すると、ここで大きさ(歯数・直径)を変えられる。</div>';
+  }
+  h += '<div class="e3-card out"><h2 style="margin-top:0">結果</h2>' +
+    '<div class="e3-kv"><span>入力(モーター)</span><span><b>60</b> <span class="u">回/分</span></span></div>' +
+    '<div class="e3-kv"><span>出力</span><span><b>' + fmt(s.outRpm, 2) + '</b> <span class="u">回/分</span></span></div>' +
+    '<div class="e3-kv"><span>' + rb('速度伝達比', 'そくどでんたつひ') + '</span><span><b>' + fmt(s.ratio, 3) + '</b></span></div>' +
+    '<div style="text-align:right;font-weight:bold;color:#1e6fd9">' + M.ratioText(s.ratio) + '</div>' +
+    '<div class="e3-kv"><span>出力の向き</span><span class="e3-dir">' + dirIcon(s.dir) + ' ' + (s.dir > 0 ? '入力と同じ' : '入力と逆') + '</span></div>' +
+    '<div style="font-size:14px;margin-top:4px">回転の速さ(入力=1)</div><div class="e3-tbar sp"><i style="width:' + clamp(Math.abs(outW.g) / 4 * 100, 2, 100) + '%"></i></div>' +
+    '<div style="font-size:14px">回す力・トルク(入力=1) <b>' + fmt(s.torque, 2) + '倍</b>' + (trainLoss() ? '(' + rb('摩擦', 'まさつ') + 'で減った分を入れた値)' : '') + '</div><div class="e3-tbar"><i style="width:' + clamp(s.torque / 6 * 100, 2, 100) + '%"></i></div>' +
+    '<div class="e3-formula">' + formulaHTML(s) + '</div>' +
+    '<div style="font-size:13px;color:#5e6b64;margin-top:4px">※アニメの速さを変えても、計算はいつも60回/分です。</div></div>';
+  h += '<div class="e3-card"><div class="e3-kv"><span>入力が回った回数</span><span><b data-ref="cin">0</b> 回転</span></div>' +
+    '<div class="e3-kv"><span>出力が回った回数</span><span><b data-ref="cout">0</b> 回転</span></div></div>';
+  if (s.stages.length) {
+    h += '<h2>伝え方の一覧</h2><table class="e3-tbl"><tr><th>段</th><th>原動 → 従動</th><th>比</th></tr>';
+    s.stages.forEach(function (g, i) {
+      h += '<tr><td>' + (i + 1) + '</td><td class="l">' + LINKS[g.link].name + '<br>' + sizeShort(T.wheels[g.from]) + ' → ' + sizeShort(T.wheels[g.to]) + '</td><td>' + fmt(g.ratio, 3) + '</td></tr>';
+    });
+    h += '</table>';
+  }
+  return h;
+}
+function trainLoss() { var tk = curTask(); return tk ? !!tk.loss : !!S.save.loss; }
+function formulaHTML(s) {
+  var T = S.train;
+  if (!s.stages.length) return '部品をつなぐと、ここに計算式が出る。';
+  var parts = s.stages.map(function (g) { return T.wheels[g.to].size + '÷' + T.wheels[g.from].size; });
+  var kinds = {};
+  s.stages.forEach(function (g) { kinds[T.wheels[g.from].kind === 'pulley' ? 'd' : 'z'] = 1; });
+  var u = kinds.d && kinds.z ? '歯数(直径)' : (kinds.d ? '直径' : '歯数');
+  var h = rb('速度伝達比', 'そくどでんたつひ') + ' = ' + rb('従動', 'じゅうどう') + '(回される側)の' + u + ' ÷ ' + rb('原動', 'げんどう') + '(回す側)の' + u + '<br>= ' + parts.join(' × ') + ' = <b>' + fmt(s.ratio, 3) + '</b><br>出力 = 60 ÷ ' + fmt(s.ratio, 3) + ' = <b>' + fmt(s.outRpm, 2) + '回/分</b>';
+  var flips = 0; T.links.forEach(function (l) { if (LINKS[l].flip < 0) flips++; });
+  h += '<br>向きが逆になる所: ' + flips + 'か所 → ' + (flips % 2 ? '逆向き' : '同じ向き');
+  return h;
+}
+function taskCard() {
+  var st = taskState(), h = '<div class="e3-card" style="background:#eaf2ff"><b>📋 ' + esc(st.tk.title) + '</b><div class="e3-story">' + st.tk.story + '</div>' +
+    (st.tk.kind === 'conv' && !st.all ? '<div style="font-size:14px;color:#5e6b64">💭 まず答えの数を予想してから、ボタンで確かめよう。</div>' : '') + '<ul class="e3-chk">';
+  st.res.forEach(function (r) { h += '<li class="' + (r.ok ? 'ok' : '') + '">' + r.t + '</li>'; });
+  h += '</ul>' + (st.all ? '<div style="color:#0d6b3a;font-weight:bold">🎉 クリア!</div>' : '') + '</div>';
+  return h;
+}
+
+/* ---------- キャンバスの準備 ---------- */
+function ctx2d() {
+  var cv = S.el.cv; if (!cv) return null;
+  var w = cv.clientWidth, h = cv.clientHeight, dpr = window.devicePixelRatio || 1;
+  if (!w || !h) return null;
+  if (w !== S.cw || h !== S.ch || dpr !== S.dpr) { S.cw = w; S.ch = h; S.dpr = dpr; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  var c = cv.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, h);
+  return c;
+}
+/* 世界座標の箱を画面に収める(y は下向きのまま) */
+function fitBox(x0, y0, x1, y1, pad, padTop, padBot, maxSc) {
+  var w = S.cw - pad * 2, h = S.ch - padTop - padBot;
+  var sc = Math.min(w / Math.max(1, x1 - x0), h / Math.max(1, y1 - y0), maxSc || 4);
+  var ox = pad + (w - (x1 - x0) * sc) / 2 - x0 * sc, oy = padTop + (h - (y1 - y0) * sc) / 2 - y0 * sc;
+  S.fit = { sc: sc, ox: ox, oy: oy };
+  return S.fit;
+}
+function tx(x) { return S.fit.ox + x * S.fit.sc; }
+function ty(y) { return S.fit.oy + y * S.fit.sc; }
+function pill(c, text, x, y, o) {
+  o = o || {};
+  c.font = (o.bold === false ? '' : 'bold ') + (o.size || 14) + 'px "BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif';
+  var w = c.measureText(text).width + 12, hh = (o.size || 14) + 8;
+  if (S.cw > w + 4) x = clamp(x, w / 2 + 2, S.cw - w / 2 - 2);   // 画面の外にはみ出さない
+  c.fillStyle = o.bg || 'rgba(255,255,255,.92)';
+  roundRect(c, x - w / 2, y - hh / 2, w, hh, hh / 2); c.fill();
+  if (o.stroke) { c.strokeStyle = o.stroke; c.lineWidth = 1.5; c.stroke(); }
+  c.fillStyle = o.color || '#22302a'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(text, x, y + 1);
+}
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function text(c, s, x, y, size, color, align, bold) {
+  c.font = (bold === false ? '' : 'bold ') + (size || 14) + 'px "BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif';
+  c.fillStyle = color || '#22302a'; c.textAlign = align || 'center'; c.textBaseline = 'middle'; c.fillText(s, x, y);
+}
+function arrowHead(c, x, y, ang, sz, col) {
+  c.fillStyle = col; c.beginPath();
+  c.moveTo(x + Math.cos(ang) * sz, y + Math.sin(ang) * sz);
+  c.lineTo(x + Math.cos(ang + 2.5) * sz, y + Math.sin(ang + 2.5) * sz);
+  c.lineTo(x + Math.cos(ang - 2.5) * sz, y + Math.sin(ang - 2.5) * sz);
+  c.closePath(); c.fill();
+}
+/* 回る向きの矢印(車の上) */
+function spinArrow(c, x, y, R, dir, col) {
+  var a0 = -Math.PI / 2 - 0.5, a1 = -Math.PI / 2 + 0.5;
+  c.strokeStyle = col; c.lineWidth = 4; c.lineCap = 'round';
+  c.beginPath(); c.arc(x, y, R, a0, a1); c.stroke();
+  var ae = dir > 0 ? a1 : a0, tang = ae + (dir > 0 ? Math.PI / 2 : -Math.PI / 2);
+  arrowHead(c, x + R * Math.cos(ae), y + R * Math.sin(ae), tang, 10, col);
+}
+
+/* ---------- 歯車・プーリーの絵 ---------- */
+function gearShape(c, x, y, r, z, ang, m, sharp) {
+  var tip = r + m * 0.85, root = r - m * 1.0, hp = Math.PI / z, k1 = sharp ? 0.55 : 0.62, k2 = sharp ? 0.12 : 0.3;
+  c.beginPath();
+  for (var j = 0; j < z; j++) {
+    var cc = ang + TAU * j / z;
+    var a1 = cc - hp * k1, a2 = cc - hp * k2, a3 = cc + hp * k2, a4 = cc + hp * k1;
+    if (j === 0) c.moveTo(x + root * Math.cos(a1), y + root * Math.sin(a1)); else c.lineTo(x + root * Math.cos(a1), y + root * Math.sin(a1));
+    c.lineTo(x + tip * Math.cos(a2), y + tip * Math.sin(a2));
+    c.lineTo(x + tip * Math.cos(a3), y + tip * Math.sin(a3));
+    c.lineTo(x + root * Math.cos(a4), y + root * Math.sin(a4));
+    c.arc(x, y, root, a4, cc + 2 * hp - hp * k1);
+  }
+  c.closePath();
+}
+function drawWheel(c, w, x, y, r, ang, col, o) {
+  o = o || {};
+  var sc = S.fit.sc;
+  c.save();
+  if (o.alpha != null) c.globalAlpha = o.alpha;
+  if (w.kind === 'gear' || w.kind === 'sprocket') {
+    var m = 2 * (r / sc) / w.size * sc;
+    gearShape(c, x, y, r, w.size, ang, m, w.kind === 'sprocket');
+    c.fillStyle = w.kind === 'sprocket' ? '#b9c0c8' : col; c.fill();
+    c.strokeStyle = 'rgba(30,40,35,.75)'; c.lineWidth = 1.5; c.stroke();
+    var inner = r - m * 1.0 - Math.max(3, r * 0.12);
+    if (inner > 14) {
+      c.beginPath(); c.arc(x, y, inner, 0, TAU); c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = 2; c.stroke();
+      for (var i = 0; i < 4; i++) { // 肉抜き穴
+        var a = ang + Math.PI / 4 + i * Math.PI / 2, hr = inner * 0.24;
+        if (hr > 4) { c.beginPath(); c.arc(x + Math.cos(a) * inner * 0.58, y + Math.sin(a) * inner * 0.58, hr, 0, TAU); c.fillStyle = 'rgba(255,255,255,.55)'; c.fill(); c.stroke(); }
+      }
+    }
+  } else {
+    c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = '#d4dde4'; c.fill(); c.strokeStyle = '#5c6b77'; c.lineWidth = 2; c.stroke();
+    c.beginPath(); c.arc(x, y, r * 0.86, 0, TAU); c.strokeStyle = '#8796a2'; c.lineWidth = 2; c.stroke();
+    for (var k = 0; k < 4; k++) {
+      var a2 = ang + k * Math.PI / 2;
+      c.beginPath(); c.moveTo(x + Math.cos(a2) * r * 0.2, y + Math.sin(a2) * r * 0.2); c.lineTo(x + Math.cos(a2) * r * 0.84, y + Math.sin(a2) * r * 0.84);
+      c.strokeStyle = '#8796a2'; c.lineWidth = Math.max(3, r * 0.08); c.stroke();
+    }
+  }
+  // 回転を数えるための赤い印
+  var mr = w.kind === 'pulley' ? r * 0.7 : Math.max(r - 2 * (r / sc) / w.size * sc * 1.0 - 9, r * 0.45);
+  c.beginPath(); c.arc(x + Math.cos(ang) * mr, y + Math.sin(ang) * mr, Math.max(4, Math.min(8, r * 0.1)), 0, TAU);
+  c.fillStyle = '#d62828'; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 2; c.stroke();
+  // 軸
+  c.beginPath(); c.arc(x, y, Math.max(5, Math.min(10, r * 0.13)), 0, TAU); c.fillStyle = '#2d3a33'; c.fill();
+  c.restore();
+}
+/* ベルト・チェーン */
+function tangents(x1, y1, r1, x2, y2, r2, cross) {
+  var dx = x2 - x1, dy = y2 - y1, D = Math.hypot(dx, dy), ux = dx / D, uy = dy / D, vx = -uy, vy = ux;
+  var cs = (cross ? (r1 + r2) : (r1 - r2)) / D; cs = clamp(cs, -1, 1);
+  var sn = Math.sqrt(1 - cs * cs), res = [];
+  [1, -1].forEach(function (sg) {
+    var nx = ux * cs + vx * sn * sg, ny = uy * cs + vy * sn * sg;
+    res.push({ ax: x1 + r1 * nx, ay: y1 + r1 * ny, bx: x2 + (cross ? -r2 * nx : r2 * nx), by: y2 + (cross ? -r2 * ny : r2 * ny) });
+  });
+  return res;
+}
+function drawBelt(c, p1, p2, type, th1) {
+  var chain = type === 'chain', cross = type === 'cross';
+  var r1 = p1.r + (chain ? 0 : 2), r2 = p2.r + (chain ? 0 : 2);
+  var tg = tangents(p1.x, p1.y, r1, p2.x, p2.y, r2, cross);
+  var off = -r1 * th1;
+  c.save(); c.lineCap = 'butt';
+  var col = chain ? '#3b3f45' : '#6b4f3a', lw = chain ? 7 : 8;
+  [p1, p2].forEach(function (p, i) { c.beginPath(); c.arc(p.x, p.y, i ? r2 : r1, 0, TAU); c.strokeStyle = col; c.lineWidth = lw; c.stroke(); });
+  // 上の線は p1→p2、下の線は p2→p1 へ動く(十字掛けでも同じ考え方)
+  var top = tg[0].ay < tg[1].ay ? tg[0] : tg[1], bot = top === tg[0] ? tg[1] : tg[0];
+  [[top.ax, top.ay, top.bx, top.by], [bot.bx, bot.by, bot.ax, bot.ay]].forEach(function (L) {
+    c.beginPath(); c.moveTo(L[0], L[1]); c.lineTo(L[2], L[3]); c.strokeStyle = col; c.lineWidth = lw; c.setLineDash([]); c.stroke();
+  });
+  // 動きの模様
+  c.setLineDash(chain ? [5, 4] : [10, 14]); c.lineDashOffset = off;
+  c.strokeStyle = chain ? '#c7ccd2' : '#c9a27e'; c.lineWidth = chain ? 3 : 3;
+  [[top.ax, top.ay, top.bx, top.by], [bot.bx, bot.by, bot.ax, bot.ay]].forEach(function (L) { c.beginPath(); c.moveTo(L[0], L[1]); c.lineTo(L[2], L[3]); c.stroke(); });
+  [p1, p2].forEach(function (p, i) { var rr = i ? r2 : r1; c.lineDashOffset = -rr * (i ? p2.th : th1); c.beginPath(); c.arc(p.x, p.y, rr, 0, TAU); c.stroke(); });
+  c.restore();
+}
+
+/* ---------- 回転を伝える: 描画 ---------- */
+function trainScreen(T, sol) {
+  var L = M.layoutTrain(T), x0 = Infinity, x1 = -Infinity, ymax = 0;
+  L.forEach(function (p) { x0 = Math.min(x0, p.x - p.r); x1 = Math.max(x1, p.x + p.r); ymax = Math.max(ymax, p.r); });
+  void sol;
+  return { L: L, box: [x0 - 8, -ymax - 8, x1 + 8, ymax + 8] };
+}
+function drawTrain(c, T, A, o) {
+  o = o || {};
+  var sol = M.solveTrain(T), lay = trainScreen(T, sol), L = lay.L, b = lay.box;
+  if (o.box) b = o.box;
+  fitBox(b[0], b[1], b[2], b[3], o.pad || 30, o.padTop || 70, o.padBot || 64, o.maxSc || 3.2);
+  var P = L.map(function (p, i) { return { x: tx(p.x), y: ty(p.y), r: p.r * S.fit.sc, th: L[i].g * A, ang: p.a0 + L[i].g * A, i: i, shaft: sol.wheels[i].shaft }; });
+  // 大きい順に描くと、重ねた小さい歯車が手前に見える
+  var order = P.slice().sort(function (a, b2) { return b2.r - a.r; });
+  order.forEach(function (p) { drawWheel(c, T.wheels[p.i], p.x, p.y, p.r, p.ang, GEAR_COL[p.i % GEAR_COL.length]); });
+  T.links.forEach(function (l, i) { if (l === 'belt' || l === 'cross' || l === 'chain') drawBelt(c, P[i], P[i + 1], l, P[i].th); });
+  if (o.sel != null && P[o.sel]) { var q = P[o.sel]; c.beginPath(); c.arc(q.x, q.y, q.r + 9, 0, TAU); c.strokeStyle = 'rgba(30,111,217,.85)'; c.lineWidth = 4; c.setLineDash([8, 6]); c.stroke(); c.setLineDash([]); }
+  if (o.labels !== false) {
+    // 大きさの表示
+    var byShaft = {};
+    P.forEach(function (p) { (byShaft[p.shaft] = byShaft[p.shaft] || []).push(p); });
+    Object.keys(byShaft).forEach(function (k) {
+      var arr = byShaft[k].slice().sort(function (a, b2) { return a.r - b2.r; }), prevR = 0;
+      arr.forEach(function (p) {
+        var rr = arr.length > 1 ? (prevR + p.r) / 2 : p.r * 0.5; prevR = p.r;
+        if (p.r > 16) pill(c, sizeShort(T.wheels[p.i]), p.x, p.y + Math.max(rr, 16), { size: 14, bg: 'rgba(255,255,255,.9)' });
+      });
+      var big = arr[arr.length - 1], w = sol.wheels[big.i];
+      if (o.hideAns && big.shaft !== 0) return;
+      spinArrow(c, big.x, big.y, big.r + 16, w.dir * S.spinSign, w.dir > 0 ? '#2b7a4b' : '#c2410c');
+      text(c, rpmText(w.rpm), big.x, big.y + big.r + 22, 15, '#22302a');
+    });
+    var p0 = P[0], pn = P[P.length - 1];
+    pill(c, '⚡ モーター(入力)', p0.x, Math.max(16, p0.y - p0.r - 40), { bg: '#2b7a4b', color: '#fff', size: 14 });
+    if (P.length > 1) pill(c, '🎯 出力', pn.x, Math.max(16, pn.y - pn.r - 40), { bg: '#c2410c', color: '#fff', size: 14 });
+  }
+  S.trainP = P;
+  return P;
+}
+
+/* ---------- 運動を変える ---------- */
+function convReset() { S.conv = { th: 0, dir: 1, prevB: null, turns: 0, dist: 0, trail: null, s: 0 }; S.A = 0; }
+function mechIntro(id) {
+  return {
+    rack: 'ピニオン(小さな歯車)を回すと、ラックがまっすぐ動く。歯数を変えて、1回転で進む距離を調べよう。',
+    cam: 'カムが回ると、上の棒(' + rb('従動節', 'じゅうどうせつ') + '。カムに押されて動く棒)が上下する。形を変えて、右のグラフで動き方をくらべよう。',
+    link: '4本の棒の長さで動きが変わる。緑のクランク(入力)を回したとき、だいだい色のてこ(出力)がどう動くか見よう。',
+    slider: 'クランクが回ると、ピストンがまっすぐ往復する。往復の幅(ストローク)を調べよう。',
+    screw: 'ハンドルを回すと、ナット(送り台)がまっすぐ進む。1回転で進む距離はピッチ(ねじ山の間かく)で決まる。'
+  }[id];
+}
+function setMech(id) {
+  S.mech = id; S.save.mech = id; S.cp = S.save.conv[id]; convReset();
+  beep('tap'); say(mechIntro(id)); persist();
+  renderTop(); renderPal(); renderBar(); renderSide();
+}
+/* manual=true は指で回しているとき(指と同じ向きに動かし、はしで止める) */
+function convAdvance(dth, manual) {
+  var C = S.conv, cp = S.cp;
+  if (dth) S.spinSign = (manual ? dth : dth * (S.mech === 'link' ? C.dir : 1)) > 0 ? 1 : -1;
+  if (S.mech === 'link') {
+    var lt = M.fourBarSweep(cp.a, cp.b, cp.c, cp.d), step = manual ? dth : dth * C.dir, n = Math.max(1, Math.ceil(Math.abs(step) / 0.02)), i;
+    var pass = M.linkType(cp.a, cp.b, cp.c, cp.d).id === 'rockercrank';   // 出力側が回る形: はしで止まらず、出力は同じ向きに回り続ける
+    if (pass && !manual) {
+      if (!dth) return;
+      // 足踏みミシンと同じ: 回り続けるのは出力側(はずみ車)。出力を一定の速さで回し、入力の角度を逆算する。
+      // 入力を一定の速さで動かすと、はしで急に折り返し、出力が一瞬で大きく飛ぶ(現実にはそうならない)
+      if (!C.prevB) { var r0 = M.fourBar(cp.a, cp.b, cp.c, cp.d, C.th, null); if (!r0.ok) return; C.prevB = r0.B; }
+      var sg = C.dPhi < 0 ? -1 : 1, m = Math.max(1, Math.ceil(Math.abs(dth) / 0.02));
+      for (i = 0; i < m; i++) {
+        var ps = Math.atan2(C.prevB.y, C.prevB.x - cp.d) + sg * dth / m;
+        var Bn = { x: cp.d + cp.c * Math.cos(ps), y: cp.c * Math.sin(ps) }, e = Math.hypot(Bn.x, Bn.y);
+        if (e > cp.a + cp.b || e < Math.abs(cp.a - cp.b) || e < 1e-9) break;
+        var k = (cp.a * cp.a - cp.b * cp.b + e * e) / (2 * e), h = Math.sqrt(Math.max(0, cp.a * cp.a - k * k)), ux = Bn.x / e, uy = Bn.y / e;
+        var A1 = { x: ux * k - uy * h, y: uy * k + ux * h }, A2 = { x: ux * k + uy * h, y: uy * k - ux * h };
+        var Ao = { x: cp.a * Math.cos(C.th), y: cp.a * Math.sin(C.th) };
+        var An = Math.hypot(A1.x - Ao.x, A1.y - Ao.y) <= Math.hypot(A2.x - Ao.x, A2.y - Ao.y) ? A1 : A2;
+        var dt2 = Math.atan2(An.y, An.x) - C.th; dt2 -= TAU * Math.round(dt2 / TAU);
+        C.th += dt2; C.turns += dt2 / TAU; C.prevB = Bn; C.prevPhi = ps; C.dPhi = sg * dth / m;
+      }
+      return;
+    }
+    for (i = 0; i < n; i++) {
+      var guess = pass ? C.prevB : (C.mode || C.prevB);   // ふつうは組み立ての向きを保つ(変化点で反対側へ飛ばない)
+      if (pass && C.prevB && C.prevPhi != null && C.dPhi) { var ph = Math.atan2(C.prevB.y, C.prevB.x - cp.d) + C.dPhi; guess = { x: cp.d + cp.c * Math.cos(ph), y: cp.c * Math.sin(ph) }; }
+      var nt = C.th + step / n, r = M.fourBar(cp.a, cp.b, cp.c, cp.d, nt, guess);
+      if (!r.ok) {
+        if (pass) {   // 動けるはし(棒が一直線になる所)まで近づけてから折り返すと、出力は同じ向きに回り続ける
+          var lo = C.th, hi = nt;
+          for (var bi = 0; bi < 40; bi++) { var md = (lo + hi) / 2, rm = M.fourBar(cp.a, cp.b, cp.c, cp.d, md, C.prevB); if (rm.ok) { lo = md; C.prevB = rm.B; } else hi = md; }
+          C.turns += (lo - C.th) / TAU; C.th = lo;
+        }
+        if (!lt.full && !manual) { C.dir = -C.dir; C.limit = true; }
+        break;
+      }
+      if (C.prevB) { var dp = r.phi - Math.atan2(C.prevB.y, C.prevB.x - cp.d); if (dp > Math.PI) dp -= TAU; if (dp < -Math.PI) dp += TAU; if (Math.abs(dp) > 1e-6) C.dPhi = dp; }
+      C.th = nt; C.prevB = r.B; C.prevPhi = r.phi; C.mode = r.mode; C.turns += step / n / TAU;
+    }
+    return;
+  }
+  C.th += dth; C.turns += dth / TAU;
+  if (S.mech === 'rack') {
+    C.s += M.rackPerTurn(cp.z) / TAU * dth;
+  }
+  if (S.mech === 'screw') {
+    var lead = M.screwLead(cp.p, cp.n); C.s += lead * dth / TAU;
+    if (C.s > 50) { C.s = 50; C.th -= dth; C.turns -= dth / TAU; S.playing = false; renderBar(); say('ナットがはしまで進んだ。「回数を0にする」でもどせる。'); }
+    if (C.s < 0) { C.s = 0; C.th -= dth; C.turns -= dth / TAU; }
+  }
+}
+function drawConv(c) {
+  var cp = S.cp, C = S.conv, th = C.th;
+  if (S.mech === 'rack') {
+    var R = M.rackPerTurn(cp.z) / TAU, RM = M.rackPerTurn(40) / TAU, pitch = M.RACK_PITCH, m = pitch / Math.PI;
+    fitBox(-80, -RM - 30, 80, RM + 22, 20, 64, 40, 6);
+    var sc = S.fit.sc, px = tx(0), py = ty(0), pr = R * sc, sx = C.s;
+    var yRoot = ty(-R - m), yTip = ty(-R + m * 0.85), yTop = ty(-R - m - 16);
+    var xl = tx(-80) - 20, xr = tx(80) + 20;
+    // ラックの本体(左右にずっと続く)と歯
+    c.fillStyle = '#9fb3c8'; c.fillRect(xl, yTop, xr - xl, yRoot - yTop);
+    c.beginPath();
+    var j0 = Math.floor((-90 - sx) / pitch), j1 = Math.ceil((90 - sx) / pitch);
+    for (var j = j0; j <= j1; j++) {
+      var cxw = sx + (j + 0.5) * pitch;
+      c.moveTo(tx(cxw - pitch * 0.3), yRoot); c.lineTo(tx(cxw - pitch * 0.15), yTip); c.lineTo(tx(cxw + pitch * 0.15), yTip); c.lineTo(tx(cxw + pitch * 0.3), yRoot);
+    }
+    c.fillStyle = '#9fb3c8'; c.fill(); c.strokeStyle = '#4a6076'; c.lineWidth = 1; c.stroke();
+    c.strokeStyle = '#4a6076'; c.lineWidth = 2; c.beginPath(); c.moveTo(xl, yTop); c.lineTo(xr, yTop); c.stroke();
+    // ラックに付いた目盛り(動いた距離が読める)
+    var u0 = Math.floor((-90 - sx) / 5) * 5, u1 = Math.ceil((90 - sx) / 5) * 5;
+    for (var u = u0; u <= u1; u += 5) {
+      var xx = tx(sx + u), big = u % 20 === 0;
+      c.strokeStyle = '#2f4458'; c.lineWidth = big ? 2 : 1; c.beginPath(); c.moveTo(xx, yTop); c.lineTo(xx, yTop + (big ? 14 : (u % 10 ? 5 : 9))); c.stroke();
+      if (big) text(c, String(-u === 0 ? 0 : -u), xx, yTop + 24, 13, '#1d2b3a', 'center', false);
+    }
+    // 固定の針
+    arrowHead(c, px, yTop - 3, Math.PI / 2, 12, '#c2410c');
+    c.fillStyle = '#c2410c'; c.fillRect(px - 2, yTop - 30, 4, 20);
+    drawWheel(c, { kind: 'gear', size: cp.z }, px, py, pr, -Math.PI / 2 + th, '#f4a261');
+    spinArrow(c, px, py, pr + 16, S.spinSign, '#2b7a4b');
+    pill(c, 'ピニオン(歯数' + cp.z + '枚)', px, py + pr + 26, { size: 14 });
+    pill(c, 'ラック(出力)', xl + 70, yTop - 16, { size: 14, color: COL_OUT });
+    pill(c, 'ラックが動いた距離 ' + fmt(Math.abs(sx), 1) + 'mm', px, Math.max(20, yTop - 46), { size: 16, bg: '#264d3a', color: '#fff' });
+    return;
+  }
+  if (S.mech === 'cam') {
+    var poly = M.camPoly(cp.type, cp.h), sk = M.camStroke(poly);
+    // 左: カム 右: グラフ
+    var W0 = S.cw, gx0 = W0 * 0.48;
+    var savedW = S.cw; S.cw = gx0;
+    fitBox(-120, -165, 75, 75, 10, 30, 30, 3.2);
+    S.cw = savedW;
+    var cx = tx(0), cy = ty(0), sc = S.fit.sc, lift = M.camLift(poly, th);
+    // カム
+    c.beginPath();
+    var cs = Math.cos(-th), sn = Math.sin(-th);
+    poly.forEach(function (p, i) { var x = p.x * cs - p.y * sn, y = p.x * sn + p.y * cs; if (i) c.lineTo(cx + x * sc, cy - y * sc); else c.moveTo(cx + x * sc, cy - y * sc); });
+    c.closePath(); c.fillStyle = '#ffd166'; c.fill(); c.strokeStyle = '#8a6d1a'; c.lineWidth = 2; c.stroke();
+    var mk = { x: 22 * Math.cos(-th), y: 22 * Math.sin(-th) };
+    c.beginPath(); c.arc(cx + mk.x * sc, cy - mk.y * sc, 6, 0, TAU); c.fillStyle = '#d62828'; c.fill();
+    c.beginPath(); c.arc(cx, cy, 8, 0, TAU); c.fillStyle = '#2d3a33'; c.fill();
+    spinArrow(c, cx, cy, 64 * sc, S.spinSign, '#2b7a4b');
+    // 従動節
+    var tipY = cy - lift * sc, rodTop = tipY - 80 * sc;
+    c.fillStyle = '#c9d3dc'; c.fillRect(cx - 18 * sc, cy - 120 * sc, 7 * sc, 22 * sc); c.fillRect(cx + 11 * sc, cy - 120 * sc, 7 * sc, 22 * sc);
+    c.fillStyle = '#5b7083'; c.fillRect(cx - 5 * sc, rodTop, 10 * sc, tipY - rodTop - 6 * sc);
+    c.beginPath(); c.moveTo(cx - 5 * sc, tipY - 6 * sc); c.lineTo(cx + 5 * sc, tipY - 6 * sc); c.lineTo(cx, tipY); c.closePath(); c.fill();
+    c.fillStyle = '#e76f51'; c.fillRect(cx - 22 * sc, rodTop - 14 * sc, 44 * sc, 14 * sc);
+    text(c, '従動節', cx + 22 * sc + 4, rodTop + 12 * sc, 14, '#22302a', 'left');
+    text(c, '(じゅうどうせつ)', cx + 22 * sc + 4, rodTop + 12 * sc + 17, 13, '#5e6b64', 'left', false);
+    // 高さの目印
+    var yb = cy - sk.min * sc, yt = cy - sk.max * sc;
+    c.setLineDash([4, 4]); c.strokeStyle = '#7a867e'; c.lineWidth = 1;
+    [yb, yt].forEach(function (yy) { c.beginPath(); c.moveTo(cx - 60 * sc, yy); c.lineTo(cx - 20 * sc, yy); c.stroke(); });
+    c.setLineDash([]);
+    c.font = 'bold 13px sans-serif';
+    var stx = Math.max(cx - 64 * sc, c.measureText('ストローク').width + 4);
+    text(c, 'ストローク', stx, (yb + yt) / 2 - 9, 13, '#c2410c', 'right');
+    text(c, fmt(sk.stroke, 1) + 'mm', stx, (yb + yt) / 2 + 9, 13, '#c2410c', 'right');
+    c.strokeStyle = '#c2410c'; c.lineWidth = 2; c.beginPath(); c.moveTo(cx - 58 * sc, yb); c.lineTo(cx - 58 * sc, yt); c.stroke();
+    // グラフ
+    var gx = gx0 + 20, gw = W0 - gx0 - 40, gy = 78, gh = Math.min(S.ch - 150, 300);
+    c.fillStyle = '#fff'; c.fillRect(gx, gy, gw, gh); c.strokeStyle = '#c8d0c9'; c.lineWidth = 1; c.strokeRect(gx, gy, gw, gh);
+    text(c, '変位線図(へんいせんず)', gx + gw / 2, gy - 38, 14, '#22302a');
+    text(c, '回した角度と、従動節の高さのグラフ', gx + gw / 2, gy - 18, 13, '#5e6b64', 'center', false);
+    for (var dg = 0; dg <= 360; dg += 90) { var xx = gx + gw * dg / 360; c.beginPath(); c.moveTo(xx, gy); c.lineTo(xx, gy + gh); c.strokeStyle = '#eef1ec'; c.stroke(); text(c, dg + '°', xx, gy + gh + 12, 13, '#5e6b64', 'center', false); }
+    var lo = sk.min - 4, hi = sk.max + 4, gyv = function (v) { return gy + gh - (v - lo) / (hi - lo) * gh; };
+    c.beginPath();
+    for (var d = 0; d <= 360; d += 2) { var yv = gyv(M.camLift(poly, d * Math.PI / 180)); if (d) c.lineTo(gx + gw * d / 360, yv); else c.moveTo(gx, yv); }
+    c.strokeStyle = '#1e6fd9'; c.lineWidth = 3; c.stroke();
+    var cd = ((th * 180 / Math.PI) % 360 + 360) % 360;
+    c.beginPath(); c.arc(gx + gw * cd / 360, gyv(lift), 7, 0, TAU); c.fillStyle = '#c2410c'; c.fill();
+    text(c, '高さ', gx + 4, gy + 12, 13, '#5e6b64', 'left', false);
+    text(c, '回した角度', gx + gw, gy + gh + 30, 13, '#5e6b64', 'right', false);
+    return;
+  }
+  if (S.mech === 'link') {
+    var a = cp.a, b = cp.b, cc = cp.c, d = cp.d, Rm = Math.max(a, cc, 10);
+    var ext = cp.wiper ? cc * 1.9 : cc;
+    fitBox(Math.min(-a, d - ext) - 10, -Math.max(a, ext) - 10, Math.max(a, d + ext) + 10, Math.max(a, cc) + 10, 40, 50, 50, 6);
+    void Rm;
+    var r = M.fourBar(a, b, cc, d, C.th, M.linkType(a, b, cc, d).id === 'rockercrank' ? C.prevB : (C.mode || C.prevB));
+    if (!r.ok) { // 動けない角度なら、動ける所まで探す
+      for (var k = 1; k < 360; k++) { var t2 = C.th + k * Math.PI / 180, r2 = M.fourBar(a, b, cc, d, t2, null); if (r2.ok) { C.th = t2; r = r2; break; } }
+    }
+    if (!r.ok) { text(c, 'この長さでは、つながらない(組み立てられない)', S.cw / 2, S.ch / 2, 18, '#d93a3a'); return; }
+    C.prevB = r.B; C.mode = r.mode;
+    if (!C.trail) C.trail = linkTrail(cp);
+    var X = function (p) { return tx(p.x); }, Y = function (p) { return ty(-p.y); };
+    var O2 = { x: 0, y: 0 }, O4 = { x: d, y: 0 };
+    if (cp.wiper) { // ガラスとワイパー
+      c.beginPath(); c.arc(X(O4), Y(O4), ext * S.fit.sc, Math.PI, TAU); c.fillStyle = 'rgba(160,210,240,.35)'; c.fill();
+    }
+    // Bの通り道
+    c.beginPath(); C.trail.forEach(function (p, i) { if (i) c.lineTo(X(p), Y(p)); else c.moveTo(X(p), Y(p)); });
+    c.strokeStyle = 'rgba(194,65,12,.35)'; c.lineWidth = 3; c.setLineDash([6, 6]); c.stroke(); c.setLineDash([]);
+    // 固定リンク
+    c.strokeStyle = '#8a958e'; c.lineWidth = 6; c.beginPath(); c.moveTo(X(O2), Y(O2)); c.lineTo(X(O4), Y(O4)); c.stroke();
+    [O2, O4].forEach(function (p) {
+      c.fillStyle = '#8a958e'; c.beginPath(); c.moveTo(X(p), Y(p)); c.lineTo(X(p) - 14, Y(p) + 22); c.lineTo(X(p) + 14, Y(p) + 22); c.closePath(); c.fill();
+      for (var hh = -14; hh < 14; hh += 6) { c.beginPath(); c.moveTo(X(p) + hh, Y(p) + 22); c.lineTo(X(p) + hh - 6, Y(p) + 30); c.strokeStyle = '#8a958e'; c.lineWidth = 2; c.stroke(); }
+    });
+    var bar = function (p, q, col, w) { c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.beginPath(); c.moveTo(X(p), Y(p)); c.lineTo(X(q), Y(q)); c.stroke(); };
+    if (cp.wiper) {
+      var ux = (r.B.x - d) / cc, uy = r.B.y / cc, tip = { x: d + ux * ext, y: uy * ext };
+      bar(O4, tip, '#2d3a33', 5);
+      var nx = -uy, ny = ux, mid = { x: d + ux * ext * 0.75, y: uy * ext * 0.75 };
+      bar({ x: mid.x - nx * 0.01, y: mid.y - ny * 0.01 }, tip, '#111', 9);
+    }
+    bar(O4, r.B, COL_OUT, 12); bar(O2, r.A, COL_IN, 12); bar(r.A, r.B, '#1e6fd9', 10);
+    [O2, O4, r.A, r.B].forEach(function (p) { c.beginPath(); c.arc(X(p), Y(p), 7, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = '#2d3a33'; c.lineWidth = 3; c.stroke(); });
+    pill(c, 'クランク(入力)', X({ x: r.A.x / 2, y: r.A.y / 2 }), Y({ x: r.A.x / 2, y: r.A.y / 2 }) - 22, { size: 14, color: COL_IN });
+    pill(c, '連結棒(れんけつぼう)', X({ x: (r.A.x + r.B.x) / 2, y: (r.A.y + r.B.y) / 2 }), Y({ x: (r.A.x + r.B.x) / 2, y: (r.A.y + r.B.y) / 2 }) - 20, { size: 14, color: '#1e6fd9' });
+    pill(c, 'てこ(出力)', X({ x: (d + r.B.x) / 2, y: r.B.y / 2 }) + 30, Y({ x: (d + r.B.x) / 2, y: r.B.y / 2 }), { size: 14, color: COL_OUT });
+    text(c, '固定リンク', (X(O2) + X(O4)) / 2, Y(O2) + 16, 13, '#5e6b64');
+    return;
+  }
+  if (S.mech === 'slider') {
+    var cr = cp.r, l = cp.l;
+    if (l <= cr) {   // 連結棒がクランクより長くないと、ピストンまで届かず組み立てられない
+      text(c, '連結棒がクランクより短い(同じ)ので、', S.cw / 2, S.ch / 2 - 16, 18, '#d93a3a');
+      text(c, '組み立てられない。連結棒を長くしよう。', S.cw / 2, S.ch / 2 + 14, 18, '#d93a3a');
+      return;
+    }
+    fitBox(-cr - 20, -cr - 30, l + cr + 50, cr + 30, 30, 70, 50, 4);
+    var Ap = { x: cr * Math.cos(th), y: cr * Math.sin(th) }, xp = M.sliderX(cr, l, th), sc2 = S.fit.sc;
+    // シリンダー
+    var cyl0 = l - cr - 12, cyl1 = l + cr + 40;
+    c.fillStyle = '#e3e8e2'; c.fillRect(tx(cyl0), ty(-24), (cyl1 - cyl0) * sc2, 48 * sc2);
+    c.strokeStyle = '#6b7a70'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(tx(cyl0), ty(-24)); c.lineTo(tx(cyl1), ty(-24)); c.lineTo(tx(cyl1), ty(24)); c.lineTo(tx(cyl0), ty(24)); c.stroke();
+    // はずみ車
+    c.beginPath(); c.arc(tx(0), ty(0), (cr + 12) * sc2, 0, TAU); c.fillStyle = '#d4dde4'; c.fill(); c.strokeStyle = '#5c6b77'; c.lineWidth = 2; c.stroke();
+    c.strokeStyle = COL_IN; c.lineWidth = 12; c.lineCap = 'round'; c.beginPath(); c.moveTo(tx(0), ty(0)); c.lineTo(tx(Ap.x), ty(Ap.y)); c.stroke();
+    // ピストン
+    c.fillStyle = '#9aa6b2'; c.fillRect(tx(xp - 4), ty(-21), 36 * sc2, 42 * sc2); c.strokeStyle = '#45525e'; c.lineWidth = 2; c.strokeRect(tx(xp - 4), ty(-21), 36 * sc2, 42 * sc2);
+    c.strokeStyle = '#1e6fd9'; c.lineWidth = 10; c.beginPath(); c.moveTo(tx(Ap.x), ty(Ap.y)); c.lineTo(tx(xp), ty(0)); c.stroke();
+    [{ x: 0, y: 0 }, Ap, { x: xp, y: 0 }].forEach(function (p) { c.beginPath(); c.arc(tx(p.x), ty(p.y), 6, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = '#2d3a33'; c.lineWidth = 3; c.stroke(); });
+    // 上死点・下死点
+    [[l + cr, '上死点'], [l - cr, '下死点']].forEach(function (q) {
+      c.setLineDash([4, 4]); c.strokeStyle = '#c2410c'; c.lineWidth = 2; c.beginPath(); c.moveTo(tx(q[0]), ty(-34)); c.lineTo(tx(q[0]), ty(34)); c.stroke(); c.setLineDash([]);
+      text(c, q[1], tx(q[0]), ty(34) + 14, 13, '#c2410c');
+    });
+    var ya = ty(-34) - 14;
+    c.strokeStyle = '#c2410c'; c.lineWidth = 2; c.beginPath(); c.moveTo(tx(l - cr), ya); c.lineTo(tx(l + cr), ya); c.stroke();
+    arrowHead(c, tx(l + cr), ya, 0, 8, '#c2410c'); arrowHead(c, tx(l - cr), ya, Math.PI, 8, '#c2410c');
+    pill(c, 'ストローク ' + fmt(2 * cr, 1) + 'mm', (tx(l - cr) + tx(l + cr)) / 2, ya - 18, { size: 14, color: '#c2410c' });
+    spinArrow(c, tx(0), ty(0), (cr + 12) * sc2 + 14, S.spinSign, '#2b7a4b');
+    pill(c, 'クランク(入力)', tx(0), ty(cr + 12) + 18, { size: 14, color: COL_IN });
+    pill(c, '連結棒', tx((Ap.x + xp) / 2), ty(Ap.y / 2) + 22, { size: 14, color: '#1e6fd9' });
+    pill(c, 'ピストン(出力)', tx(xp + 14), ty(0), { size: 13, color: COL_OUT });
+    return;
+  }
+  if (S.mech === 'screw') {
+    var lead = M.screwLead(cp.p, cp.n);
+    fitBox(-24, -26, 64, 26, 30, 70, 60, 14);
+    var s0 = tx(0), s1 = tx(60), cy2 = ty(0), sc3 = S.fit.sc, rad = 5 * sc3;
+    // ねじ棒
+    c.fillStyle = '#c9d3dc'; c.fillRect(s0, cy2 - rad, s1 - s0, rad * 2);
+    var shift = (C.s % cp.p + cp.p) % cp.p;
+    c.save(); c.beginPath(); c.rect(s0, cy2 - rad - 2, s1 - s0, rad * 2 + 4); c.clip();
+    c.strokeStyle = '#6b7c8b'; c.lineWidth = Math.max(1.5, cp.p * sc3 * 0.25);
+    for (var xm = -cp.p * 2; xm < 62; xm += cp.p) {
+      var xa = tx(xm + shift); c.beginPath(); c.moveTo(xa, cy2 + rad); c.lineTo(xa + cp.p * sc3 * 0.5 * cp.n, cy2 - rad); c.stroke();
+    }
+    c.restore();
+    // ナット(送り台)
+    var nx0 = tx(C.s + 2), nw = 8 * sc3;
+    c.fillStyle = '#e9c46a'; c.fillRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4); c.strokeStyle = '#8a6d1a'; c.lineWidth = 2; c.strokeRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4);
+    text(c, 'ナット(出力)', nx0 + nw / 2, cy2 - rad * 2.2 - 12, 14, COL_OUT);
+    // ハンドル(ななめから見た円)
+    var hx = tx(-12), rx = 4 * sc3, ry = 14 * sc3;
+    c.fillStyle = '#2d3a33'; c.fillRect(hx, cy2 - 4, s0 - hx, 8);
+    c.beginPath(); c.ellipse(hx, cy2, rx, ry, 0, 0, TAU); c.strokeStyle = '#5c6b77'; c.lineWidth = 5; c.stroke();
+    var kx = hx + rx * Math.cos(th + Math.PI / 2), ky = cy2 - ry * Math.sin(th + Math.PI / 2);
+    c.beginPath(); c.arc(kx, ky, 9, 0, TAU); c.fillStyle = '#d62828'; c.fill();
+    pill(c, 'ハンドル(入力)', hx, cy2 + ry + 18, { size: 14, color: COL_IN });
+    // 目盛り
+    var by2 = ty(18);
+    for (var mm2 = 0; mm2 <= 60; mm2 += 1) { c.beginPath(); c.moveTo(tx(mm2), by2); c.lineTo(tx(mm2), by2 - (mm2 % 10 ? (mm2 % 5 ? 5 : 9) : 14)); c.strokeStyle = '#8a958e'; c.lineWidth = 1; c.stroke(); if (!(mm2 % 10)) text(c, mm2 + '', tx(mm2), by2 + 11, 13, '#5e6b64', 'center', false); }
+    text(c, 'mm', tx(60) + 18, by2 + 11, 13, '#5e6b64');
+    c.beginPath(); c.moveTo(tx(C.s + 2) + 0, by2 - 18); c.lineTo(tx(C.s + 2), by2); c.strokeStyle = '#c2410c'; c.lineWidth = 3; c.stroke();
+    pill(c, '進んだ距離 ' + fmt(C.s, 2) + 'mm', S.cw / 2, 30, { size: 16, bg: '#264d3a', color: '#fff' });
+    void lead;
+  }
+}
+function linkTrail(cp) {
+  var pts = [], prev = null, sw = M.fourBarSweep(cp.a, cp.b, cp.c, cp.d), st = sw.tmin || 0, n = sw.full ? 360 : sw.okDeg;
+  if (sw.outFull) { for (var k = 0; k <= 360; k += 4) pts.push({ x: cp.d + cp.c * Math.cos(k * Math.PI / 180), y: cp.c * Math.sin(k * Math.PI / 180) }); return pts; }
+  for (var i = 0; i <= n; i += 2) { var r = M.fourBar(cp.a, cp.b, cp.c, cp.d, (st + i) * Math.PI / 180, prev); if (!r.ok) break; prev = r.mode || r.B; pts.push(r.B); }
+  return pts;
+}
+
+/* ---------- 運動を変える: 右パネル ---------- */
+function convSide() {
+  var cp = S.cp, h = '', tk = curTask(), mid = S.mech, P = PARTS[mechById(mid).part];
+  if (tk) h += taskCard();
+  var prm = function (label, key, unit, steps, lo, hi) {
+    return '<div class="e3-prm"><div class="nm">' + label + '</div>' + stepper('cp', cp[key], unit, steps).replace(/data-act="cp"/g, 'data-act="cp" data-k="' + key + '" data-lo="' + lo + '" data-hi="' + hi + '"') + '</div>';
+  };
+  var res = '';
+  if (mid === 'rack') {
+    h += prm('ピニオン(小さな歯車)の歯数', 'z', '枚', [-5, -1, 1, 5], 8, 40);
+    var per = M.rackPerTurn(cp.z);
+    res = '<div class="e3-kv"><span>1回転で進む距離</span><span><b>' + per + '</b> <span class="u">mm</span></span></div>' +
+      '<div class="e3-formula">1回転で進む距離 = 歯数 × 歯の間隔<br>= ' + cp.z + ' × ' + M.RACK_PITCH + 'mm = <b>' + per + 'mm</b></div>';
+  } else if (mid === 'cam') {
+    h += '<div class="e3-prm"><div class="nm">カムの形</div><div class="e3-chips">';
+    Object.keys(M.CAMS).forEach(function (k) { h += '<button class="e3-btn' + (cp.type === k ? ' on' : '') + '" data-act="camtype" data-v="' + k + '">' + (k === 'ecc' ? rb('偏心円', 'へんしんえん') + 'カム' : M.CAMS[k].name) + '</button>'; });
+    h += '</div></div>' + prm('山の高さ', 'h', 'mm', [-5, -1, 1, 5], 5, 30);
+    var sk = M.camStroke(M.camPoly(cp.type, cp.h)), cm = M.CAMS[cp.type];
+    res = '<div class="e3-kv"><span>ストローク(上下の幅)</span><span><b>' + fmt(sk.stroke, 1) + '</b> <span class="u">mm</span></span></div>' +
+      '<div class="e3-kv"><span>1回転での往復</span><span><b>' + cm.bumps + '</b> <span class="u">回</span></span></div>' +
+      '<div class="e3-formula">' + cm.desc + '</div>';
+  } else if (mid === 'link') {
+    h += '<div class="e3-prm"><div class="nm">見本</div><div class="e3-chips">';
+    LINK_PRESETS.forEach(function (p, i) { h += '<button class="e3-btn sm" data-act="lpre" data-i="' + i + '">' + p.name + '</button>'; });
+    h += '</div></div>' +
+      prm('<span style="color:' + COL_IN + '">■</span> クランク(入力)', 'a', 'mm', [-5, 5], 10, 100) + prm('<span style="color:#1e6fd9">■</span> ' + rb('連結棒', 'れんけつぼう'), 'b', 'mm', [-5, 5], 10, 100) +
+      prm('<span style="color:' + COL_OUT + '">■</span> てこ(出力)', 'c', 'mm', [-5, 5], 10, 100) + prm('<span style="color:#8a958e">■</span> 固定リンク(動かない棒)', 'd', 'mm', [-5, 5], 10, 100);
+    var lt = M.linkType(cp.a, cp.b, cp.c, cp.d), sw = M.fourBarSweep(cp.a, cp.b, cp.c, cp.d);
+    var arr = [cp.a, cp.b, cp.c, cp.d], mn = Math.min.apply(null, arr), mx = Math.max.apply(null, arr), rest = cp.a + cp.b + cp.c + cp.d - mn - mx;
+    var shName = { a: 'クランク', b: '連結棒', c: 'てこ', d: '固定リンク' }[lt.shortest] || '';
+    var cmp = mn + mx < rest ? '<' : (mn + mx === rest ? '=' : '>');
+    res = '<div class="e3-kv"><span>しくみの名前</span></div><div style="font-size:19px;font-weight:bold;color:#1e6fd9">' + lt.name + '</div>' +
+      '<div class="e3-kv"><span>クランク(入力)が1回転</span><span><b>' + (sw.full ? 'できる' : 'できない') + '</b></span></div>' +
+      (sw.full ? '' : '<div style="text-align:right;font-size:14px;color:#5e6b64">クランクは ' + sw.okDeg + '° の間を往復</div>') +
+      '<div class="e3-kv"><span>てこ(出力)の動き</span><span><b>' + (sw.outFull ? '1回転する' : fmt(sw.swing, 0) + '°') + '</b>' + (sw.outFull ? '' : ' <span class="u">の往復</span>') + '</span></div>' +
+      '<div class="e3-formula">最短+最長 = ' + mn + '+' + mx + ' = ' + (mn + mx) + '<br>残りの2本の和 = ' + rest + '<br>' +
+      (lt.id === 'parallel' ? '向かい合う棒が同じ長さ → 平行四辺形のまま動き、クランクもてこも1回転する' :
+        '最短+最長 ' + cmp + ' 残り' + (cmp === '<' && shName ? '、いちばん短いのは「' + shName + '」' : '') + '<br>→ ' + lt.note) +
+      '<div style="font-size:13px;color:#5e6b64;margin-top:4px">きまり: 最短+最長 < 残り2本の和 のとき、いちばん短い棒が固定リンクのとなりにあれば、その棒が1回転できる(固定リンクがいちばん短ければ、クランクもてこも1回転できる)。</div></div>';
+  } else if (mid === 'slider') {
+    h += prm('<span style="color:' + COL_IN + '">■</span> クランクの長さ', 'r', 'mm', [-5, -1, 1, 5], 10, 50) + prm('<span style="color:#1e6fd9">■</span> ' + rb('連結棒', 'れんけつぼう') + 'の長さ', 'l', 'mm', [-10, -5, 5, 10], 30, 160);
+    if (cp.l <= cp.r) res = '<div class="e3-warn">⚠ 連結棒がクランクより短い(同じ)ので、組み立てられない。連結棒をクランクより長くしよう。</div>';
+    else res = '<div class="e3-kv"><span>ストローク</span><span><b>' + fmt(2 * cp.r, 1) + '</b> <span class="u">mm</span></span></div>' +
+      '<div class="e3-formula">ストローク = クランクの長さ × 2<br>= ' + cp.r + ' × 2 = <b>' + (2 * cp.r) + 'mm</b><br>ピストンは1回転で1往復する。<br>' +
+      rb('上死点', 'じょうしてん') + ': ピストンがいちばん外側(クランクから遠い所)まで行った位置。' + rb('下死点', 'かしてん') + ': いちばん内側(クランクに近い所)の位置。この間がストローク。</div>';
+  } else if (mid === 'screw') {
+    h += '<div class="e3-prm"><div class="nm">ピッチ(ねじ山の間隔)</div><div class="e3-chips">';
+    SCREW_P.forEach(function (p) { h += '<button class="e3-btn' + (cp.p === p ? ' on' : '') + '" data-act="sp" data-v="' + p + '">' + p + '</button>'; });
+    h += '</div></div><div class="e3-prm"><div class="nm">' + rb('条数', 'じょうすう') + '(ねじ山のすじの本数。ふつうのねじは1条)</div><div class="e3-chips">' +
+      [1, 2, 3].map(function (n) { return '<button class="e3-btn' + (cp.n === n ? ' on' : '') + '" data-act="sn" data-v="' + n + '">' + n + '条</button>'; }).join('') + '</div></div>';
+    var lead = M.screwLead(cp.p, cp.n);
+    res = '<div class="e3-kv"><span>リード(1回転で進む距離)</span><span><b>' + fmt(lead, 2) + '</b> <span class="u">mm</span></span></div>' +
+      '<div class="e3-kv"><span>10回転で</span><span><b>' + fmt(lead * 10, 2) + '</b> <span class="u">mm</span></span></div>' +
+      '<div class="e3-formula">リード = ピッチ × 条数<br>= ' + cp.p + ' × ' + cp.n + ' = <b>' + fmt(lead, 2) + 'mm</b><br>(1条ねじなら、1回転でねじ山1つ分=ピッチだけ進む)</div>';
+  }
+  h += '<div class="e3-card out"><h2 style="margin-top:0">結果</h2>' + res + '</div>';
+  h += '<div class="e3-card"><div class="e3-kv"><span>回した回数</span><span><b data-ref="cin">0</b> 回転</span></div></div>';
+  h += '<div class="e3-card part" style="font-size:15px;line-height:1.5"><b>' + P.name + '</b><br>' + P.role + '<br><span style="color:#5e6b64">使われている所: ' + P.where.join('、') + '</span></div>';
+  return h;
+}
+function convParam(k, d, lo, hi) {
+  var nv = clamp(S.cp[k] + d, lo, hi);
+  if (nv === S.cp[k]) { beep('err'); say('⚠ ' + (d > 0 ? 'これ以上大きくできない(いちばん大きい値: ' + hi + ')' : 'これ以上小さくできない(いちばん小さい値: ' + lo + ')') + '。', 'err'); return; }
+  pushUndo();
+  S.cp[k] = nv;
+  S.conv.prevB = null; S.conv.mode = 0; S.conv.trail = null; S.conv.limit = false; S.conv.dPhi = 0; S.conv.dir = 1;
+  if (S.mech === 'rack' || S.mech === 'screw') { S.conv.s = 0; S.conv.th = 0; S.conv.turns = 0; }
+  beep('tap'); changed();
+}
+
+/* ---------- ブラックボックス当てクイズ ---------- */
+function choicesNum(ans, cands, fmtf, lo) {
+  var set = [ans]; lo = lo || 0;
+  cands.forEach(function (x) { if (set.length < 4 && x >= lo && x > 0 && x === Math.round(x * 100) / 100 && isFinite(x) && set.every(function (y) { return Math.abs(y - x) > 1e-6; })) set.push(x); });
+  var k = 1;
+  while (set.length < 4) { var x2 = ans + k * (ans >= 20 ? 5 : 2); if (x2 >= lo && x2 > 0 && set.every(function (y) { return Math.abs(y - x2) > 1e-6; })) set.push(x2); k = k > 0 ? -k : -k + 1; }
+  return shuffle(set.map(function (x) { return { label: fmtf(x), ok: Math.abs(x - ans) < 1e-6 }; }));
+}
+var QGEN = {
+  gear2: function () {
+    // かくれた歯車の歯数は、整数で 8〜80 枚になる組み合わせだけを使う(k=0.5 は入力が16枚以上の偶数のとき)
+    var zin, k, zout;
+    do { zin = rnd([10, 12, 15, 16, 20, 24]); k = rnd([2, 3, 4, 0.5]); zout = zin * k; }
+    while (!(Number.isInteger(zout) && zout >= 8 && zout <= 80 && (k !== 0.5 || (zin >= 16 && zin % 2 === 0))));
+    var t = { wheels: [W('gear', zin), W('gear', zout)], links: ['mesh'] };
+    var ex = k > 1 ? '入力が' + k + '回転する間に、出力は1回転(しかも逆向き)。速度伝達比は' + k + 'なので、かくれた歯車の歯数 = ' + zin + ' × ' + k + ' = ' + zout + '。'
+      : '入力が1回転する間に、出力は' + (1 / k) + '回転。出力のほうが速いので、かくれた歯車は小さい。歯数 = ' + zin + ' ÷ ' + (1 / k) + ' = ' + zout + '。';
+    return { hidden: true, t: t, q: '箱の中で、入力の歯車(歯数' + zin + ')とかみ合っている歯車の歯数はいくつ?', choices: choicesNum(zout, [zin / k, zin * k + zin, zin * (k + 1), Math.round(zin * k * 1.5)].map(Math.round), function (x) { return '歯数 ' + x; }, 8), ex: ex, inLabel: '歯数' + zin };
+  },
+  belt2: function () {
+    var din = rnd([40, 50, 60]), k = rnd([2, 3, 0.5]), dout = din * k;
+    var t = { wheels: [W('pulley', din), W('pulley', dout)], links: ['belt'] };
+    var ex = (k > 1 ? '入力が' + k + '回転で出力が1回転。' : '入力1回転で出力が' + (1 / k) + '回転。') + 'ベルトなので向きは同じ。直径 = ' + din + ' × ' + k + ' = ' + dout + 'mm。';
+    return { hidden: true, t: t, q: '箱の中で、入力のプーリー(直径' + din + 'mm)とベルトでつながっているプーリーの直径は?', choices: choicesNum(dout, [din / k, din * k + 20, din + 20, din * (k + 1)], function (x) { return '直径 ' + x + 'mm'; }, 20), ex: ex, inLabel: '直径' + din + 'mm' };
+  },
+  two: function () {
+    var zin = rnd([10, 12, 15]), r1 = rnd([2, 3, 4]), r2 = rnd([2, 3]), z3 = rnd([10, 12]);
+    var t = { wheels: [W('gear', zin), W('gear', zin * r1), W('gear', z3), W('gear', z3 * r2)], links: ['mesh', 'shaft', 'mesh'] };
+    var R = r1 * r2, ans = 60 / R;
+    return { hidden: true, t: t, q: '箱の中は2段歯車。モーターが60回/分で回るとき、出力は1分に何回転する?', choices: choicesNum(ans, [60 / (r1 + r2), 60 / r1, 60 * R / 10, 60 / (R * 2)], function (x) { return fmt(x, 2) + ' 回/分'; }),
+      ex: '入力が' + R + '回転する間に出力は1回転。速度伝達比は ' + r1 + ' × ' + r2 + ' = ' + R + '。出力 = 60 ÷ ' + R + ' = ' + fmt(ans, 2) + '回/分。2段にすると比はかけ算になる。', inLabel: '歯数' + zin };
+  },
+  dir: function () {
+    var n = rnd([3, 4, 5]), ws = [], ls = [];
+    for (var i = 0; i < n; i++) { ws.push(W('gear', rnd([12, 15, 18, 20, 24]))); if (i) ls.push('mesh'); }
+    if (Math.random() < 0.4) { ws.push(W('pulley', 40)); ls.push('shaft'); ws.push(W('pulley', 60)); ls.push(rnd(['belt', 'cross'])); }
+    var t = { wheels: ws, links: ls }, s = M.solveTrain(t), flips = ls.filter(function (l) { return LINKS[l].flip < 0; }).length;
+    var belt = ls[ls.length - 1] === 'cross' ? '十字掛けベルトも向きを逆にする。' : (ls[ls.length - 1] === 'belt' ? 'ふつうのベルトは向きを変えない。' : '');
+    return { hidden: false, still: true, t: t, q: 'モーター(左)は時計回り ↻。いちばん右の「出力」は、どちら向きに回る?',
+      choices: shuffle([{ label: '↻ 時計回り', ok: s.dir > 0 }, { label: '↺ 反時計回り', ok: s.dir < 0 }]),
+      ex: '歯車はかみ合うたびに向きが逆になる。' + belt + '向きが逆になる所が' + flips + 'か所(' + (flips % 2 ? '奇数' : '偶数') + ')なので、出力は' + (s.dir > 0 ? '入力と同じ時計回り' : '入力と逆の反時計回り') + '。' };
+  },
+  rpm: function () {
+    var zin = rnd([12, 15, 20, 30]), zout = rnd([10, 15, 20, 30, 40, 45, 60].filter(function (z) { return z !== zin && 60 * zin / z === Math.round(60 * zin / z * 100) / 100; }));
+    var idl = Math.random() < 0.5, ws = [W('gear', zin)], ls = [];
+    if (idl) { ws.push(W('gear', rnd([14, 18, 25]))); ls.push('mesh'); }
+    ws.push(W('gear', zout)); ls.push('mesh');
+    var t = { wheels: ws, links: ls }, s = M.solveTrain(t), ans = s.outRpm;
+    return { hidden: false, still: true, t: t, q: 'モーターは60回/分。出力の歯車は1分に何回転する?(歯車の数字は歯数)',
+      choices: choicesNum(ans, [60 * zout / zin, 60 * zin / (idl ? ws[1].size : zout + 10), ans * 2, ans / 2], function (x) { return fmt(x, 2) + ' 回/分'; }),
+      ex: (idl ? '間の歯車(アイドラ)は速さに関係しない。' : '') + '速度伝達比 = ' + zout + ' ÷ ' + zin + ' = ' + fmt(zout / zin, 3) + '。出力 = 60 ÷ ' + fmt(zout / zin, 3) + ' = ' + fmt(ans, 2) + '回/分。' };
+  }
+};
+function newQuiz() {
+  var order = ['gear2', 'dir', 'belt2', 'rpm', 'two', rnd(['gear2', 'dir', 'belt2'])];
+  S.quiz = { qs: order.map(function (k) { var q = QGEN[k](); q.kind = k; return q; }), i: 0, score: 0, marks: [], done: false };
+  prepQuestion(true);
+}
+function prepQuestion(reset) {
+  var Q = S.quiz, q = Q.qs[Q.i];
+  if (reset) { q.answered = null; q.peek = false; }
+  S.A = 0; stopSpin(); S.playing = !q.still || !!q.answered;
+  S.train = q.t; S.sel = -1;
+  say(q.hidden ? '📦 箱の中に何かがかくれている。入力の歯車を<b>指で回したり</b>「▶ 動かす」を押したりして、出力の回り方をよく見よう。' : '🤔 まず予想しよう。答えたら ▶ で動かして確かめられる。');
+}
+function quizBar() {
+  var q = S.quiz.qs[S.quiz.i], h = '';
+  var lock = q.still && !q.answered;
+  h += '<button class="e3-btn ' + (S.playing ? '' : 'primary') + '" data-act="play"' + (lock ? ' disabled' : '') + '>' + (S.playing ? '⏸ 止める' : '▶ 動かす') + '</button>';
+  h += '<button class="e3-btn sm" data-act="turn1"' + (lock ? ' disabled' : '') + '>入力を1回転だけ</button>';
+  h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
+  h += '<span class="lbl">アニメの速さ</span>';
+  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) { h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>'; });
+  return h;
+}
+function quizSide() {
+  var Q = S.quiz, q = Q.qs[Q.i], h = '<div class="e3-quiz"><div class="e3-qno">';
+  Q.qs.forEach(function (x, i) { h += '<i class="' + (i < Q.marks.length ? (Q.marks[i] ? 'ok' : 'ng') : (i === Q.i ? 'cur' : '')) + '"></i>'; });
+  h += '</div><div style="font-size:14px;color:#5e6b64">第' + (Q.i + 1) + '問 / ' + Q.qs.length + '問</div><div class="e3-qtext">' + q.q + '</div>';
+  q.choices.forEach(function (ch, i) {
+    var cls = '';
+    if (q.answered) cls = ch.ok ? ' right' : (q.answered === i + 1 ? ' wrong' : '');
+    h += '<button class="e3-btn ch' + cls + '" data-act="qans" data-i="' + i + '"' + (q.answered ? ' disabled' : '') + '>' + ch.label + '</button>';
+  });
+  if (q.hidden) {
+    h += '<div class="e3-card" style="margin-top:8px"><div class="e3-kv"><span>入力が回った回数</span><span><b data-ref="cin">0</b> 回転</span></div>' +
+      '<div class="e3-kv"><span>出力が回った回数</span><span><b data-ref="cout">' + (q.peek || q.answered ? '0' : '?') + '</b> 回転</span></div>' +
+      (q.peek || q.answered ? '' : '<button class="e3-btn sm" data-act="peek" style="width:100%;margin-top:4px">💡 ヒント: 出力の回数を表示</button>') + '</div>';
+  }
+  if (q.answered) {
+    var ok = q.choices[q.answered - 1].ok;
+    h += '<div class="e3-reason ' + (ok ? 'good' : '') + '"><b>' + (ok ? '⭕ 正解!' : '❌ ざんねん') + '</b><br>' + q.ex + '</div>';
+    h += '<button class="e3-btn primary big" data-act="qnext">' + (Q.i + 1 < Q.qs.length ? '次の問題へ ▶' : '結果を見る ▶') + '</button>';
+  }
+  return h + '</div>';
+}
+function quizAnswer(i) {
+  var Q = S.quiz, q = Q.qs[Q.i]; if (q.answered) return;
+  q.answered = i + 1; var ok = q.choices[i].ok;
+  Q.marks.push(ok); if (ok) Q.score++;
+  beep(ok ? 'ok' : 'ng');
+  say(ok ? '⭕ 正解!' + (q.hidden ? '箱を開けて中を見てみよう。' : '▶ で動かして確かめよう。') : '❌ ざんねん。解説を読んで、動きを確かめよう。', ok ? 'ok' : 'err');
+  if (q.still) S.playing = true;
+  renderBar(); renderSide();
+}
+function quizNext() {
+  var Q = S.quiz;
+  if (Q.i + 1 < Q.qs.length) { Q.i++; prepQuestion(true); renderBar(); renderSide(); renderMsg(); return; }
+  Q.done = true;
+  var best = S.save.quizBest == null ? -1 : S.save.quizBest;
+  if (Q.score > best) { S.save.quizBest = Q.score; persist(); }
+  modal('<div class="e3-big">' + (Q.score === Q.qs.length ? '🏆' : (Q.score >= 4 ? '🎉' : '💪')) + '</div><h2 style="text-align:center">' + Q.qs.length + '問中 ' + Q.score + '問 正解</h2>' +
+    '<p style="text-align:center">これまでの最高: ' + Math.max(Q.score, best) + '問</p>' +
+    '<div class="e3-reason tip">ポイント: 速度伝達比 = 従動の歯数(直径) ÷ 原動の歯数(直径)。歯車はかみ合うたびに向きが逆、ベルト・チェーンは同じ向き(十字掛けは逆)。</div>' +
+    '<div class="acts"><button class="e3-btn" data-act="close">とじる</button><button class="e3-btn" data-act="tobuild">⚙️ 自分で組み立てる</button><button class="e3-btn primary" data-act="qagain">もう一度(問題が変わる)</button></div>');
+}
+function drawQuiz(c) {
+  var q = S.quiz.qs[S.quiz.i], T = q.t;
+  if (!q.hidden) { drawTrain(c, T, S.A, { padTop: 70, hideAns: q.still && !q.answered }); return; }
+  var w0 = T.wheels[0], r0 = Math.max(48, M.wheelR(w0)), boxW = 240, open = !!q.answered;
+  fitBox(-r0 - 10, -110, r0 * 0.4 + boxW + 150, 110, 30, 60, 60, 3);
+  var sc = S.fit.sc, s = M.solveTrain(T), g = s.outG;
+  var bx0 = tx(r0 * 0.4), bx1 = tx(r0 * 0.4 + boxW), by0 = ty(-100), by1 = ty(100);
+  // 開けたときは中身を描く
+  if (open) {
+    var savedFit = S.fit, lay = trainScreen(T, s), Lb = lay.box;
+    c.save(); c.beginPath(); c.rect(bx0, by0, bx1 - bx0, by1 - by0); c.clip();
+    var ow = S.cw, oh = S.ch;
+    // 箱の中に収まるように仮の画面サイズで描く
+    S.cw = bx1 - bx0; S.ch = by1 - by0; c.translate(bx0, by0);
+    drawTrain(c, T, S.A, { box: Lb, pad: 8, padTop: 8, padBot: 8, labels: false, maxSc: 3 });
+    // 歯数の表示
+    S.trainP.forEach(function (p, i) { if (i > 0) pill(c, sizeShort(T.wheels[i]), p.x, p.y + Math.max(14, p.r * 0.5), { size: 14 }); });
+    var p0 = S.trainP[0]; S.boxIn = { x: p0.x + bx0, y: p0.y + by0, r: p0.r };
+    c.restore(); S.cw = ow; S.ch = oh; S.fit = savedFit;
+  }
+  c.fillStyle = open ? 'rgba(140,110,70,.12)' : '#a47148';
+  roundRect(c, bx0, by0, bx1 - bx0, by1 - by0, 14); c.fill();
+  c.strokeStyle = '#6b4a2b'; c.lineWidth = 4; c.stroke();
+  if (!open) { text(c, '?', (bx0 + bx1) / 2, (by0 + by1) / 2, 90, 'rgba(255,255,255,.85)'); text(c, 'ブラックボックス', (bx0 + bx1) / 2, by1 - 22, 16, '#fff'); }
+  // 入力の車(箱の左)。箱を開けたときは、箱の中に描いた入力の車を使う(2か所に描かない)
+  var inX = tx(0), inY = ty(0), inR = r0 * sc;
+  if (!open) drawWheel(c, w0, inX, inY, inR, S.A, GEAR_COL[0]);
+  else if (S.boxIn) { inX = S.boxIn.x; inY = S.boxIn.y; inR = S.boxIn.r; }
+  pill(c, '⚡ 入力 ' + q.inLabel, inX, Math.max(14, inY - inR - 26), { bg: '#2b7a4b', color: '#fff' });
+  spinArrow(c, inX, inY, inR + 14, S.spinSign, '#2b7a4b');
+  // 出力のダイヤル(箱の右)
+  var dx = tx(r0 * 0.4 + boxW + 75), dy = ty(0), dr = 55 * sc, ang = g * S.A - Math.PI / 2;
+  c.fillStyle = '#2d3a33'; c.fillRect(bx1, dy - 5, dx - bx1, 10);
+  c.beginPath(); c.arc(dx, dy, dr, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = '#c2410c'; c.lineWidth = 5; c.stroke();
+  for (var k = 0; k < 12; k++) { var a = k * TAU / 12; c.beginPath(); c.moveTo(dx + Math.cos(a) * dr * 0.82, dy + Math.sin(a) * dr * 0.82); c.lineTo(dx + Math.cos(a) * dr * 0.95, dy + Math.sin(a) * dr * 0.95); c.strokeStyle = '#9aa69e'; c.lineWidth = 2; c.stroke(); }
+  c.strokeStyle = '#c2410c'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(dx, dy); c.lineTo(dx + Math.cos(ang) * dr * 0.75, dy + Math.sin(ang) * dr * 0.75); c.stroke();
+  c.beginPath(); c.arc(dx + Math.cos(ang) * dr * 0.75, dy + Math.sin(ang) * dr * 0.75, 9, 0, TAU); c.fillStyle = '#d62828'; c.fill();
+  c.beginPath(); c.arc(dx, dy, 8, 0, TAU); c.fillStyle = '#2d3a33'; c.fill();
+  pill(c, '🎯 出力', dx, dy - dr - 24, { bg: '#c2410c', color: '#fff' });
+  S.quizIn = { x: inX, y: inY, r: inR };
+}
+
+/* ---------- 設計課題の一覧 ---------- */
+function renderTasks() {
+  var h = '<h2 style="margin:0 0 4px;font-size:21px">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。やさしい順に並んでいる。少ない部品でできたら ★★★。モーターは1秒に1回転(60回/分)。</p><div class="e3-tgrid">';
+  TASKS.forEach(function (t, i) {
+    var st = S.save.tasks[t.id] || 0;
+    h += '<button class="e3-tcard' + (st ? ' done' : '') + '" data-act="task" data-id="' + t.id + '"><span class="no"><span>課題' + (i + 1) + ' ・ ' + (t.kind === 'train' ? '回転を伝える' : '運動を変える') + '</span><span class="star">' + (st ? '★★★'.slice(0, st) : '') + '</span></span>' +
+      '<span class="t">' + t.icon + ' ' + t.title + '</span><span class="l">' + t.lead + '</span><span class="l">' + plain(t.story) + '</span></button>';
+  });
+  var n = TASKS.filter(function (t) { return S.save.tasks[t.id]; }).length;
+  h += '</div><p style="color:#5e6b64">クリア: ' + n + ' / ' + TASKS.length + (S.save.quizBest != null ? ' 、 ブラックボックスの最高: ' + S.save.quizBest + '問正解' : '') + '</p>';
+  S.el.page.innerHTML = h;
+}
+
+/* ---------- 設計図の書き出し ---------- */
+function designData() {
+  if (S.view === 'build') {
+    var T = S.train, s = trainSol();
+    return { mode: 'train', rpm: 60,
+      parts: T.wheels.map(function (w, i) { return { id: 'w' + (i + 1), kind: w.kind, size: w.size, shaft: s.wheels[i].shaft + 1 }; }),
+      joints: T.links.map(function (l, i) { return { type: l, from: 'w' + (i + 1), to: 'w' + (i + 2) }; }),
+      summary: { ratio: M.round(s.ratio, 4), outRpm: M.round(s.outRpm, 3), dir: s.dir > 0 ? 'same' : 'reverse', torque: M.round(s.torque, 3), loss: !!(curTask() ? curTask().loss : S.save.loss) } };
+  }
+  return { mode: 'conv', mech: S.mech, params: clone(S.cp) };
+}
+function exportModal() {
+  if (!(S.view === 'build' || S.view === 'conv')) { beep('err'); say('⚠ 設計図は「⚙️ 回転を伝える」「🔄 運動を変える」「📋 設計課題」の画面で作れる。', 'err'); return; }
+  var img = '';
+  try { img = S.el.cv.toDataURL('image/png'); } catch (e) { img = ''; }
+  var D = designData(), h = '<div class="e3-printarea"><h2>📄 設計図</h2>' +
+    '<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><label style="white-space:nowrap;font-weight:bold">名前</label><input class="e3-in" data-ref="dname" value="' + esc(S.save.dnameFor === designKey() ? (S.save.dname || '') : '') + '" placeholder="作品の名前(例: クレーンの減速装置)" maxlength="40"></div>' +
+    '<div style="font-size:14px;color:#5e6b64">' + new Date().toLocaleDateString('ja-JP') + (curTask() ? ' ・ 課題「' + esc(curTask().title) + '」' : '') + '</div>';
+  if (img) h += '<img src="' + img + '" alt="機構の図">';
+  if (D.mode === 'train') {
+    var s = trainSol(), T = S.train;
+    h += '<h3>部品表</h3><table class="e3-tbl"><tr><th>番号</th><th>部品</th><th>大きさ</th><th>軸</th><th>回転速度</th><th>向き</th></tr>';
+    T.wheels.forEach(function (w, i) { var sw = s.wheels[i]; h += '<tr><td>' + (i + 1) + '</td><td>' + kindName(w.kind) + (i === 0 ? '(入力)' : (i === T.wheels.length - 1 ? '(出力)' : '')) + '</td><td>' + sizeText(w) + '</td><td>' + (sw.shaft + 1) + '</td><td>' + rpmText(sw.rpm) + '</td><td>' + dirIcon(sw.dir) + ' ' + dirWord(sw.dir) + '</td></tr>'; });
+    h += '</table><h3>伝え方</h3><table class="e3-tbl"><tr><th>つなぎ</th><th>しかた</th><th>原動 → 従動</th><th>比</th></tr>';
+    T.links.forEach(function (l, i) { h += '<tr><td>' + (i + 1) + '→' + (i + 2) + '</td><td>' + LINKS[l].name + '</td><td>' + sizeShort(T.wheels[i]) + ' → ' + sizeShort(T.wheels[i + 1]) + '</td><td>' + (l === 'shaft' ? '1' : fmt(T.wheels[i + 1].size / T.wheels[i].size, 3)) + '</td></tr>'; });
+    h += '</table><h3>性能</h3><table class="e3-tbl"><tr><th>入力</th><th>出力</th><th>速度伝達比</th><th>向き</th><th>トルク</th></tr><tr><td>60回/分</td><td>' + rpmText(s.outRpm) + '</td><td>' + fmt(s.ratio, 3) + '(' + M.ratioText(s.ratio) + ')</td><td>' + (s.dir > 0 ? '入力と同じ' : '入力と逆') + '</td><td>約' + fmt(s.torque, 2) + '倍' + (D.summary.loss ? '(ロスあり)' : '') + '</td></tr></table>';
+  } else {
+    h += '<h3>しくみ: ' + mechById(S.mech).name + '</h3>' + convSummaryTable();
+  }
+  h += '<h3>メモ</h3><div style="border:1px solid #d8ded6;border-radius:8px;min-height:90px;padding:6px 10px;font-size:15px;color:#5e6b64">気づいたこと・製作で気をつけること:</div></div>' +
+    '<div class="e3-saved e3-noprint" data-ref="saved" role="status" aria-live="polite"></div>' +
+    '<div class="acts stk e3-noprint"><button class="e3-btn" data-act="close">とじる</button><button class="e3-btn" data-act="import">📂 ファイルを読みこむ</button><button class="e3-btn" data-act="savejson">💾 ファイルに保存</button><button class="e3-btn primary" data-act="print">🖨️ 印刷</button></div>';
+  modal(h);
+}
+/* 設計図の名前は、同じ画面(課題・しくみ)のときだけ引き継ぐ */
+function designKey() { return S.view + '/' + (S.task || '') + '/' + (S.view === 'conv' ? S.mech : ''); }
+function keepName() {
+  var inp = S.ov && S.ov.querySelector('[data-ref="dname"]');
+  if (inp) { S.save.dname = inp.value || ''; S.save.dnameFor = designKey(); persist(); }
+  return inp ? inp.value || '' : '';
+}
+function convSummaryTable() {
+  var cp = S.cp, rows = [];
+  if (S.mech === 'rack') rows = [['ピニオンの歯数', cp.z + '枚'], ['歯の間隔', M.RACK_PITCH + 'mm'], ['1回転で進む距離', M.rackPerTurn(cp.z) + 'mm']];
+  if (S.mech === 'cam') { var sk = M.camStroke(M.camPoly(cp.type, cp.h)); rows = [['カムの形', M.CAMS[cp.type].name], ['山の高さ', cp.h + 'mm'], ['ストローク', fmt(sk.stroke, 1) + 'mm'], ['1回転での往復', M.CAMS[cp.type].bumps + '回']]; }
+  if (S.mech === 'link') { var lt = M.linkType(cp.a, cp.b, cp.c, cp.d), sw = M.fourBarSweep(cp.a, cp.b, cp.c, cp.d); rows = [['クランク', cp.a + 'mm'], ['連結棒', cp.b + 'mm'], ['てこ', cp.c + 'mm'], ['固定リンク', cp.d + 'mm'], ['種類', lt.name], ['てこの動き', sw.outFull ? '1回転' : fmt(sw.swing, 0) + '°の往復']]; }
+  if (S.mech === 'slider') rows = [['クランク', cp.r + 'mm'], ['連結棒', cp.l + 'mm'], ['ストローク', 2 * cp.r + 'mm']];
+  if (S.mech === 'screw') rows = [['ピッチ', cp.p + 'mm'], ['条数', cp.n + '条'], ['リード', fmt(M.screwLead(cp.p, cp.n), 2) + 'mm'], ['10回転で', fmt(M.screwLead(cp.p, cp.n) * 10, 2) + 'mm']];
+  return '<table class="e3-tbl">' + rows.map(function (r) { return '<tr><td class="l"><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>';
+}
+/* 先生用の振り返り一覧で、だれのファイルか分かるように、書き出すファイルに組・番号・名前を入れる。
+ * このアプリで前に入れたもの → C5 回路設計シートで書いたもの → なければたずねる(キャンセルしたら入れない) */
+function whoForExport() {
+  var w = S.save.who;
+  if (!w || !(w.cls || w.name)) {
+    try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) w = e5.who; } catch (e) {}
+  }
+  if (!w || !(w.cls || w.name)) {
+    var c = window.prompt('先生に出すファイルに入れる「組・番号」を書こう(例: 2組15番)', '');
+    if (c === null) return null;
+    var n = window.prompt('名前を書こう', '');
+    w = { cls: String(c).trim().slice(0, 20), name: String(n || '').trim().slice(0, 30) };
+    if (!(w.cls || w.name)) return null;
+  }
+  S.save.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
+  persist();
+  return S.save.who;
+}
+function saveJSON() {
+  var nm = keepName();
+  var obj = { schema: 'energyApps.artifact', version: 1, app: 'C3', type: 'mechanism', name: nm || '機構', savedAt: new Date().toISOString(), data: designData() };
+  var who = whoForExport(); if (who) obj.who = who;
+  var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  var d = new Date(), p2 = function (x) { return (x < 10 ? '0' : '') + x; };
+  a.download = 'C3-kikou-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + '.json';   // 日本語のファイル名は端末によって化けるので英数字に
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  beep('ok');
+  var sv = S.ov && S.ov.querySelector('[data-ref="saved"]'); if (sv) sv.textContent = '💾 保存しました(' + a.download + ')';
+}
+function importJSON() {
+  var inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = function () {
+    var f = inp.files && inp.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () { applyImport(String(rd.result)); };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+function applyImport(txt) {
+  var o; try { o = JSON.parse(txt); } catch (e) { o = null; }
+  var D = o && o.app === 'C3' && o.data;
+  if (D && D.mode === 'train' && Array.isArray(D.parts) && Array.isArray(D.joints)) {
+    var t = { wheels: D.parts.map(function (p) { return W(p.kind, +p.size); }), links: D.joints.map(function (j) { return j.type; }) };
+    var ok = M.checkTrain(t).length === 0 && t.wheels.every(function (w) { return KIND_RANGE[w.kind] && w.size >= KIND_RANGE[w.kind][0] && w.size <= KIND_RANGE[w.kind][1]; }) && t.wheels.length <= MAXW;
+    if (ok) { closeModal(); S.task = null; S.save.train = t; S.save.dname = o.name || ''; S.save.dnameFor = 'build//'; S.view = 'build'; openView('build'); say(loadedMsg(o.name)); return true; }
+  }
+  var P = D && D.mode === 'conv' && CONV_DEF[D.mech] && D.params && convParamsOk(D.mech, D.params);
+  if (P) {
+    closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = o.name || ''; S.save.dnameFor = 'conv//' + D.mech;
+    openView('conv'); say(loadedMsg(o.name)); return true;
+  }
+  beep('err'); say('⚠ このファイルは読みこめなかった(C3 機構ラボで保存したファイルを選んでね)。', 'err'); closeModal();
+  return false;
+}
+
+function loadedMsg(nm) { return '📂 ' + (nm ? '「' + esc(nm) + '」を' : 'ファイルを') + '読みこみました。'; }
+/* 読みこんだ「運動を変える」の値を確かめる(おかしな値なら null) */
+function convParamsOk(mech, p) {
+  var o = Object.assign(clone(CONV_DEF[mech]), p), num = function (v, lo, hi) { return typeof v === 'number' && isFinite(v) && v >= lo && v <= hi; };
+  var ok = mech === 'rack' ? num(o.z, 8, 40) && o.z === Math.round(o.z) :
+    mech === 'cam' ? !!M.CAMS[o.type] && num(o.h, 5, 30) :
+    mech === 'link' ? num(o.a, 10, 100) && num(o.b, 10, 100) && num(o.c, 10, 100) && num(o.d, 10, 100) :
+    mech === 'slider' ? num(o.r, 10, 50) && num(o.l, 30, 160) :
+    mech === 'screw' ? SCREW_P.indexOf(o.p) >= 0 && [1, 2, 3].indexOf(o.n) >= 0 : false;
+  if (mech === 'link') o.wiper = !!o.wiper;
+  return ok ? o : null;
+}
+
+/* ---------- モーダル ---------- */
+function modal(html) {
+  closeModal();
+  var ov = document.createElement('div');
+  ov.className = 'e3-ov'; ov.innerHTML = '<div class="e3-modal" role="dialog" aria-modal="true">' + html + '</div>';
+  S.root.appendChild(ov); S.ov = ov;
+  // キーボードで操作しているときだけ、ボタンに移す(タッチで黄色い枠が出ないように)
+  var b = ov.querySelector('.acts .e3-btn.primary') || ov.querySelector('.e3-btn'); if (b && S.kbd) b.focus();
+}
+function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
+function showHowto(first) {
+  modal('<h2>❓ 機構ラボの使い方</h2><div class="e3-steps">' +
+    '<div><b>⚙️ 回転を伝える</b><br>左の「歯車」「ベルト」「チェーン」で部品をつなぐ。部品を<b>タップ</b>すると、右で歯数や直径を変えられる。まちがえたら「↩ もどす」。</div>' +
+    '<div><b>👆 手で回す</b><br>歯車やプーリーを<b>指でなぞる</b>と、その部品を手で回せる。赤い印を見ると、何回転したか数えやすい。</div>' +
+    '<div><b>🔄 運動を変える</b><br>ラックとピニオン・カム・リンク・スライダクランク・ねじで、回転が直線や往復に変わるようすを見る。</div>' +
+    '<div><b>📋 設計課題</b><br>「1/3に減速」「ワイパーのように往復」などの条件に合う機構を組み立てる。💡ヒントは押すたびにくわしくなる。</div>' +
+    '<div><b>📦 ブラックボックス</b><br>入力と出力の回り方を見て、箱の中の歯車の歯数や、出力の回る速さ・向きを当てるクイズ。</div>' +
+    '<div><b>📄 設計図</b><br>部品表と' + rb('速度伝達比', 'そくどでんたつひ') + 'つきの設計図を、印刷したりファイルに保存したりできる。</div>' +
+    '</div><div class="e3-reason tip">このアプリは「動きの形と速さの比」だけを計算するシミュレーションです(' + rb('運動学', 'うんどうがく') + 'という考え方)。実際の機械では、' + rb('摩擦', 'まさつ') + '・すべり・部品の強さも考えて設計します。<br>色のきまり: <b style="color:#2b7a4b">緑=入力(回す側)</b>、<b style="color:#c2410c">だいだい色=出力(回される側)</b>。</div>' +
+    '<div class="acts"><button class="e3-btn primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');
+}
+
+/* ---------- 入力(ボタン) ---------- */
+function onClick(ev) {
+  var t = ev.target.closest('[data-act]'); if (!t || !S.root.contains(t) || t.disabled) return;
+  var a = t.getAttribute('data-act');
+  if (AC && AC.state === 'suspended') { try { AC.resume(); } catch (e) {} }
+  switch (a) {
+    case 'build': case 'conv': case 'quiz': case 'tasks': closeModal(); beep('tap'); openView(a); return;
+    case 'howto': showHowto(); return;
+    case 'sound': S.save.sound = !S.save.sound; persist(); renderTop(); beep('tap'); return;
+    case 'close': closeModal(); return;
+    case 'export': exportModal(); return;
+    case 'print': keepName(); window.print(); return;
+    case 'savejson': saveJSON(); return;
+    case 'import': importJSON(); return;
+    case 'add': addLink(t.getAttribute('data-type')); return;
+    case 'pop': removeLast(); return;
+    case 'undo': undo(); return;
+    case 'askreset': confirmErase(curTask() ? 'taskreset' : 'clear'); return;
+    case 'clear': closeModal(); resetTrain(); return;
+    case 'sample': loadSample(+t.getAttribute('data-i')); return;
+    case 'size': setSize(S.sel, S.train.wheels[S.sel].size + (+t.getAttribute('data-d'))); return;
+    case 'setsize': setSize(S.sel, +t.getAttribute('data-v')); return;
+    case 'selprev': S.sel = (S.sel - 1 + S.train.wheels.length) % S.train.wheels.length; beep('tap'); renderSide(); return;
+    case 'selnext': S.sel = (S.sel + 1) % S.train.wheels.length; beep('tap'); renderSide(); return;
+    case 'play': S.playing = !S.playing; stopSpin();
+    if (S.view === 'conv' && S.mech === 'screw' && S.conv.s >= 50 && S.playing) { S.conv.s = 0; } renderBar(); return;
+    case 'speed': S.save.speed = +t.getAttribute('data-v'); persist(); renderBar(); return;
+    case 'turn1': S.playing = false; S.spinTo = { left: TAU }; renderBar(); return;
+    case 'zero': S.A = 0; stopSpin(); if (S.view === 'conv') { convReset(); } beep('tap'); return;
+    case 'loss': S.save.loss = !S.save.loss; persist(); renderBar(); renderSide(); return;
+    case 'wiper': S.cp.wiper = !S.cp.wiper; persist(); renderBar(); return;
+    case 'mech':
+      var tkm = curTask(), mid = t.getAttribute('data-id');
+      if (tkm && tkm.mech !== mid) { beep('err'); say('⚠ この課題では「' + mechById(tkm.mech).name + '」を使う。ほかのしくみは「🔄 運動を変える」で試せるよ。', 'err'); return; }
+      setMech(mid); return;
+    case 'cp': convParam(t.getAttribute('data-k'), +t.getAttribute('data-d'), +t.getAttribute('data-lo'), +t.getAttribute('data-hi')); return;
+    case 'camtype': if (S.cp.type !== t.getAttribute('data-v')) pushUndo(); S.cp.type = t.getAttribute('data-v'); beep('tap'); changed(); return;
+    case 'lpre': pushUndo(); Object.assign(S.cp, LINK_PRESETS[+t.getAttribute('data-i')].v); S.conv.prevB = null; S.conv.mode = 0; S.conv.trail = null; S.conv.th = 0; S.conv.dir = 1; S.conv.dPhi = 0; beep('tap'); changed(); return;
+    case 'sp': if (S.cp.p !== +t.getAttribute('data-v')) pushUndo(); S.cp.p = +t.getAttribute('data-v'); S.conv.s = 0; S.conv.th = 0; S.conv.turns = 0; beep('tap'); changed(); return;
+    case 'sn': if (S.cp.n !== +t.getAttribute('data-v')) pushUndo(); S.cp.n = +t.getAttribute('data-v'); S.conv.s = 0; S.conv.th = 0; S.conv.turns = 0; beep('tap'); changed(); return;
+    case 'task': beep('tap'); openTask(t.getAttribute('data-id')); return;
+    case 'taskreset':
+      closeModal();
+      var tk = curTask(); if (!tk) return;
+      if (tk.kind === 'train') resetTrain();
+      else { pushUndo(); Object.keys(S.cp).forEach(function (k) { delete S.cp[k]; }); Object.assign(S.cp, clone(CONV_DEF[tk.mech])); if (tk.id === 'wiper') S.cp.wiper = true; convReset(); beep('del'); changed(); say('最初からにした。「↩ もどす」で元にもどせる。'); }
+      return;
+    case 'hint':
+      var tk2 = curTask(); if (!tk2) return;
+      var hs = tk2.hints, hn = Math.min(S.hintN, hs.length - 1);
+      beep('tap'); say('💡 ヒント ' + (hn + 1) + '/' + hs.length + ': ' + hs[hn] + (hn < hs.length - 1 ? '<br><small>(もう一度押すと、もっとくわしいヒント)</small>' : ''), 'task');
+      S.hintN = hn + 1; return;
+    case 'nexttask':
+      closeModal();
+      var idx = TASKS.indexOf(curTask()), nx = null;
+      for (var i = 1; i <= TASKS.length; i++) { var cand = TASKS[(idx + i) % TASKS.length]; if (!S.save.tasks[cand.id]) { nx = cand; break; } }
+      if (nx) openTask(nx.id); else openView('tasks');
+      return;
+    case 'qans': quizAnswer(+t.getAttribute('data-i')); return;
+    case 'qnext': quizNext(); return;
+    case 'qagain': closeModal(); newQuiz(); buildShell(); render(); return;
+    case 'peek': S.quiz.qs[S.quiz.i].peek = true; beep('tap'); renderSide(); return;
+    case 'tobuild': closeModal(); openView('build'); return;
+  }
+}
+function stopSpin() { S.spinTo = null; }
+
+/* ---------- 入力(キャンバス: タップで選ぶ・なぞって回す) ---------- */
+function cvPoint(ev) { var r = S.el.cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+function hitWheel(p) {
+  var P = S.trainP || [], best = -1, br = Infinity;
+  P.forEach(function (q) { var d = Math.hypot(p.x - q.x, p.y - q.y); if (d <= q.r + 8 && q.r < br) { best = q.i; br = q.r; } });
+  return best;
+}
+function bindCanvas() {
+  var cv = S.el.cv;
+  cv.addEventListener('pointerdown', function (ev) {
+    var p = cvPoint(ev), D = { id: ev.pointerId, x0: p.x, y0: p.y, moved: false, wheel: -1, last: null, wasPlaying: S.playing };
+    if (S.view === 'build') {
+      D.wheel = hitWheel(p);
+      if (D.wheel >= 0) { var q = S.trainP[D.wheel]; D.cx = q.x; D.cy = q.y; D.g = M.solveTrain(S.train).wheels[D.wheel].g; }
+    } else if (S.view === 'quiz') {
+      var Q = S.quiz.qs[S.quiz.i];
+      if (Q.still && !Q.answered) { say('🤔 先に答えを選ぼう。答えたら動かして確かめられる。'); return; }
+      if (Q.hidden && S.quizIn) { D.wheel = 0; D.cx = S.quizIn.x; D.cy = S.quizIn.y; D.g = 1; }
+      else { D.wheel = hitWheel(p); if (D.wheel >= 0) { var q2 = S.trainP[D.wheel]; D.cx = q2.x; D.cy = q2.y; D.g = M.solveTrain(S.train).wheels[D.wheel].g; } }
+    } else if (S.view === 'conv') {
+      var o = convCenter(); D.wheel = 0; D.cx = o.x; D.cy = o.y; D.g = o.g;
+    }
+    D.last = Math.atan2(p.y - D.cy, p.x - D.cx);
+    S.drag = D;
+    try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault();
+  });
+  cv.addEventListener('pointermove', function (ev) {
+    var D = S.drag; if (!D || D.id !== ev.pointerId) return;
+    var p = cvPoint(ev);
+    if (!D.moved && Math.hypot(p.x - D.x0, p.y - D.y0) > 8) { D.moved = true; if (D.wheel >= 0) { S.playing = false; stopSpin(); renderBar(); } }
+    if (!D.moved || D.wheel < 0) return;
+    var a = Math.atan2(p.y - D.cy, p.x - D.cx), da = a - D.last;
+    if (da > Math.PI) da -= TAU; if (da < -Math.PI) da += TAU;
+    D.last = a;
+    if (Math.hypot(p.x - D.cx, p.y - D.cy) < 6) return;
+    var dA = da / (D.g || 1);
+    if (S.view === 'conv') convAdvance(dA, true); else { S.A += dA; if (dA) S.spinSign = dA > 0 ? 1 : -1; }
+  });
+  var end = function (ev) {
+    var D = S.drag; if (!D || D.id !== ev.pointerId) return;
+    S.drag = null;
+    if (!D.moved && S.view === 'build') {
+      var w = hitWheel({ x: D.x0, y: D.y0 });
+      S.sel = w; beep('tap'); renderSide();
+      if (w >= 0) say(kindName(S.train.wheels[w].kind) + '(' + (w + 1) + '番)を選んだ。右で' + PARTS[S.train.wheels[w].kind].sizeName + 'を変えられる。指でなぞると手で回せる。');
+    }
+  };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', function (ev) {
+    if (ev.key === ' ' || ev.key === 'Enter') { S.playing = !S.playing; renderBar(); ev.preventDefault(); }
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { var d = ev.key === 'ArrowRight' ? 0.2 : -0.2; if (S.view === 'conv') convAdvance(d, true); else { S.A += d; S.spinSign = d > 0 ? 1 : -1; } ev.preventDefault(); }
+  });
+}
+/* 運動を変える: 手で回す中心(入力の軸)の画面座標 */
+function convCenter() {
+  if (!S.fit) return { x: S.cw / 2, y: S.ch / 2, g: 1 };
+  if (S.mech === 'link') return { x: tx(0), y: ty(0), g: -1 };   // 数学の向きで角度が増える(画面では反時計回り)
+  if (S.mech === 'screw') return { x: tx(-12), y: ty(0), g: 1 };
+  if (S.mech === 'cam') return { x: tx(0), y: ty(0), g: 1 };
+  return { x: tx(0), y: ty(0), g: 1 };
+}
+
+/* ---------- アニメーション ---------- */
+function frame(ts) {
+  if (!S.root || !S.root.isConnected) { S.raf = 0; return; }
+  S.raf = requestAnimationFrame(frame);
+  var dt = S.last ? Math.min(0.05, (ts - S.last) / 1000) : 0; S.last = ts;
+  if (S.view === 'tasks' || !S.el.cv) return;
+  var w = TAU * S.save.speed * dt;      // モーター 1回転/秒 × 速さ
+  if (S.spinTo) { var st = Math.min(S.spinTo.left, w || 0); S.spinTo.left -= st; adv(st); if (S.spinTo.left <= 1e-9) { S.spinTo = null; beep('tick'); } }
+  else if (S.playing && !S.drag) adv(w);
+  var c = ctx2d(); if (!c) return;
+  if (S.view === 'build') drawTrain(c, S.train, S.A, { sel: S.sel });
+  else if (S.view === 'quiz') drawQuiz(c);
+  else drawConv(c);
+  updateCounters();
+}
+function adv(d) { if (S.view === 'conv') convAdvance(d); else { S.A += d; if (d) S.spinSign = 1; } }
+function updateCounters() {
+  if (S.el.cin && S.el.cin.isConnected) {
+    var turns = S.view === 'conv' ? S.conv.turns : S.A / TAU;
+    S.el.cin.textContent = fmt(Math.abs(turns) < 0.05 ? 0 : Math.abs(turns), 1);   // 逆に回しても回数は正の数で
+  }
+  if (S.el.cout && S.el.cout.isConnected && S.view !== 'conv') {
+    var showOut = S.view !== 'quiz' || S.quiz.qs[S.quiz.i].peek || S.quiz.qs[S.quiz.i].answered || !S.quiz.qs[S.quiz.i].hidden;
+    if (showOut) { var g = M.solveTrain(S.train).outG, v = Math.abs(S.A / TAU * g); S.el.cout.textContent = fmt(v < 0.05 ? 0 : v, 1); }
+  }
+}
+
+/* ---------- 起動 ---------- */
+function mount(root) {
+  S.root = root; root.classList.add('e3');
+  S.save = loadSave();
+  S.train = S.save.train; S.mech = S.save.mech || 'rack'; S.cp = S.save.conv[S.mech]; convReset();
+  root.addEventListener('click', onClick);
+  root.addEventListener('keydown', function (ev) { S.kbd = true; if (ev.key === 'Escape' && S.ov) { closeModal(); ev.preventDefault(); } });
+  root.addEventListener('pointerdown', function () { S.kbd = false; }, true);
+  var v = S.save.view === 'conv' || S.save.view === 'quiz' || S.save.view === 'tasks' ? S.save.view : 'build';
+  openView(v);
+  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  if (!S.raf) S.raf = requestAnimationFrame(frame);
+}
+
+NS.C3 = {
+  mount: mount,
+  _test: { S: S, TASKS: TASKS, QGEN: QGEN, openView: openView, openTask: openTask, addLink: addLink, setSize: setSize, trainSol: trainSol, taskState: taskState, applyImport: applyImport, designData: designData, setMech: setMech, convParam: convParam, undo: undo, convAdvance: convAdvance, convParamsOk: convParamsOk, changed: changed }
+};
+var auto = document.getElementById('e3-app');
+if (auto && !auto.getAttribute('data-manual')) mount(auto);
+})();
+</script>
+</body>
+</html>
