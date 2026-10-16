@@ -9,8 +9,10 @@
 できあがったものは、このフォルダではなく `D-information/` の `dist/` と `docs/` に置く。
 
 - `../dist/情報の技術_体験教材集.html` … 生徒に配る1ファイル版（ダブルクリックで開く。インターネット不要）
-- `../dist/情報の技術_体験教材集_第1.6版.zip` … 配布用。上のHTML、先生用の手引き2つ、個別の教材9ファイル、はじめにお読みください
-- `../docs/先生用の手引き.html` … 教材集の使い方、学習指導要領との対応、重なる単元の使い分け（画面の例は `../docs/画面例/`）
+- `../dist/情報の技術_体験教材集_第1.6版.zip` … 配布用。上のHTML、先生用ガイド2つ、個別の教材9ファイル、はじめにお読みください
+- `../docs/先生用ガイド.html` … 教材集の配り方と開き方、教材の一覧（基本編・発展編）、重なる単元の使い分け、記録の提出（画面の例は `../docs/画面例/`）
+- `../docs/情報セキュリティ体験ラボ_先生用ガイド.html` … 情報セキュリティ体験ラボの先生用ガイド
+- 先生用ガイドは4分野で同じ章立て・見た目（`../../shared/eduit-guide.css`）。共通の CSS・JS を読むので、`tools/make-zip.py` が中に入れてから ZIP に入れる
 
 ## しくみ
 
@@ -58,7 +60,7 @@
 - 作成者・版・「安全と個人情報・ライセンス・更新履歴」のフッターとダイアログは `../../shared/eduit-frame.js`。版・更新履歴・この分野だけの安全の説明は `../eduit-info.js`（`window.EDUIT_INFO`）。
 - `tools/build.mjs` がこの3つを教材集の中に入れる。各教材の1ファイル版にも、それぞれの `tools/build-standalone.mjs` が入れている（`../build/eduit-inline.mjs`）。
 - メニューではいちばん下に共通のフッター、教材を開いているときは教材の中のいちばん下に同じフッターが出る（教材集のフッターはかくす）。
-- 版を上げるときは、`../eduit-info.js` の version・updated・history、`tools/make-zip.py` の版、`../docs/先生用の手引き.html` を直し、各教材→教材集の順に作り直す。
+- 版を上げるときは、`../eduit-info.js` の version・updated・history、`tools/make-zip.py` の版、`../docs/先生用ガイド.html` の 7. 更新履歴を直し、各教材→教材集の順に作り直す。
 
 ## 作り直し方
 
@@ -66,7 +68,7 @@
 
 ```
 node tools/build.mjs        # ../dist/情報の技術_体験教材集.html を作る
-python3 tools/make-zip.py   # ../dist/…_第1.5版.zip を作る（版は make-zip.py・../eduit-info.js・../docs/先生用の手引き.html の中）
+python3 tools/make-zip.py   # ../dist/…_第1.5版.zip を作る（版は make-zip.py・../eduit-info.js・../docs/先生用ガイド.html の中）
 node tests/e2e.browser.cjs  # ブラウザで確認（playwright が必要。94項目）
 ```
 

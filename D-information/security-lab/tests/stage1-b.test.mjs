@@ -109,7 +109,7 @@ test("SEC-57: 「毎日この時間」が残っていると「◎ 低い」に�
 
 // ---- SEC-64 ----
 test("SEC-64: 実在する地名・学校名を使っていない", () => {
-  for (const p of ["modules/sns.js", "README.md", "../docs/情報セキュリティ体験ラボ_先生用の手引き.html"]) {
+  for (const p of ["modules/sns.js", "README.md", "../docs/情報セキュリティ体験ラボ_先生用ガイド.html"]) {
     const s = read(p);
     for (const w of ["みどり台", "桜ヶ丘中", "桜丘中", "run_run"]) assert.ok(!s.includes(w), `${p} に ${w}`);
   }

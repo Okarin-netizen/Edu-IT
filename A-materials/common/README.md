@@ -16,7 +16,7 @@ A-materials/
   common/               ← この部品
   m1-material-navi/  m2-wood-lab/  m3-structure-lab/  m4-drawing-trainer/  m5-kidori/  m6-tool-safety/  m7-solid-maker/
   teacher-viewer/       先生用 提出ファイル一覧ビューア(共通基盤スレッド)
-  docs/使い方_先生用.html   先生用の使い方
+  docs/先生用ガイド.html    先生用ガイド
   build/build-single.py     1ファイル版を作る(python3 build/build-single.py → dist/)
   build/build-ruby-dict.py  ふりがな辞書 common/ruby-dict.js を作る
   dist/                 配布用の1ファイル版(材料と加工_教材アプリ.html)

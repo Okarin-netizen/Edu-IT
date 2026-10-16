@@ -26,5 +26,5 @@ window.EDUIT_INFO.levels = {
 python3 teacher-tools/kihon-hatten/build.py   # dist/基本編と発展編.html を作る(node で各分野の eduit-info.js を読む)
 ```
 
-`クラスルーム配布/まとめる.py` を実行すると、これも作り直して `クラスルーム配布/先生用/全分野_基本編と発展編(先生用).html` にコピーします。
+`クラスルーム配布/まとめる.py` を実行すると、これも作り直して `クラスルーム配布/先生用/全分野_基本編と発展編.html` にコピーします。
 `levels` の id がメニューにない教材のときは、ビルドがエラーで止まります。
