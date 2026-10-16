@@ -84,6 +84,12 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(val(load('計測制御_記録_215.json').entries[0], 'テスト(いちばんよい結果)'), '4 / 4');
   assert.strictEqual(val(load('制作スタジオ_2-15-山田花子.json').entries[0], 'ふりかえり'), '使う人を考えた');
   assert.strictEqual(val(load('生成AIのしくみラボ_2_15_山田花子.json').entries[0], '正解'), '4 / 5');
+  const scam = load('ネット詐欺_追体験ラボ_2_15_山田花子.json').entries[0];
+  assert.deepStrictEqual(scam.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(scam, 'クリアした場面'), '2 / 5');
+  assert.strictEqual(scam.rows.find((x) => x.part === '1 ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
+  assert.strictEqual(scam.rows.find((x) => x.part === '3 ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
+  assert.strictEqual(scam.rows.filter((x) => x.type === 'ふりかえり').length, 2);
 });
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {

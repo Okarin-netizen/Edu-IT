@@ -293,6 +293,18 @@
     GENAI_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
     return [{ domain: 'D', app: '生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
   }
+  var SCAM_Q = [['r1', '体験した詐欺で、だます人はどんな手口を使っていたか'], ['r2', 'あやしいと思ったとき、自分はどんな手順で行動するか'], ['r3', '家族や友達に伝えたいこと']];
+  function parseScam(obj) {
+    var R = Rows(obj.exportedAt), r = obj.reflection || {}, list = Array.isArray(obj.scenarios) ? obj.scenarios.filter(isObj) : [];
+    if (list.length) R.add('成績', '', 'クリアした場面', list.filter(function (x) { return x.cleared; }).length + ' / ' + list.length);
+    list.forEach(function (x) {
+      var part = [str(x.no), str(x.title)].filter(Boolean).join(' ');
+      if (x.cleared) R.add('成績', part, 'クリア', 'クリア(だまされた ' + (x.misses || 0) + ' 回・ヒント ' + (x.hints || 0) + ' 回)', x.clearedAt);
+      else if (x.misses || x.hints) R.add('成績', part, 'クリア', 'まだ(だまされた ' + (x.misses || 0) + ' 回・ヒント ' + (x.hints || 0) + ' 回)');
+    });
+    SCAM_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
+    return [{ domain: 'D', app: 'ネット詐欺 追体験ラボ', student: stD(obj.student), rows: R.rows }];
+  }
   function parseKyozai(obj) {
     var st = stD(obj.student);
     return (obj.materials || []).filter(function (m) { return isObj(m) && m.hasRecord; }).map(function (m) {
@@ -320,7 +332,8 @@
     ['計測・制御シミュレータ', function (o) { return o.app === '計測・制御シミュレータ'; }, parseMc],
     ['双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
-    ['生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai]
+    ['生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
+    ['ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam]
   ];
 
   /* ファイル名から組・番号・名前を拾う(JSON の中に名前がないとき用) */
