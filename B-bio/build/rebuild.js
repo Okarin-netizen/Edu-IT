@@ -4,7 +4,7 @@
 // できるファイル(dist/ は作ったものだけ。手で直さない):
 // 1. dist/生物育成教材集.html … menu.html に、共通の枠(shared/eduit-frame.css・eduit-frame.js と B-bio/eduit-info.js)・
 //    先生用ガイド・B1〜B4(共通の枠の読み込みを中身に置きかえたもの)を SRC 行に入れて、1ファイルで動くようにする
-// 2. dist/先生用ガイド.html … 印刷しやすい先生用ガイド
+// 2. dist/先生用ガイド.html … 印刷しやすい先生用ガイド(docs/先生用ガイド.html に共通の枠と shared/eduit-guide.css を入れたもの)
 // 3. dist/生物育成教材集.zip … 生物育成教材集.html・先生用ガイド.html・はじめにお読みください.txt
 // 何回作りなおしても同じ中身になる(zip の日時は eduit-info.js の updated にそろえる)
 const fs=require('fs'),path=require('path'),cp=require('child_process'),os=require('os');
@@ -21,7 +21,9 @@ const EF_CSS=read(path.join(SHARED,'eduit-frame.css')).trim();
 // <script> の中に入れるので、コメントの中の </script も <\/script にする
 const EF_JS=read(path.join(SHARED,'eduit-frame.js')).trim().replace(/<\/(script)/gi,'<\\/$1');
 const EF_INFO=read(path.join(D,'eduit-info.js')).trim().replace(/<\/(script)/gi,'<\\/$1');
-for(const [n,s] of [['css',EF_CSS],['js',EF_JS],['info',EF_INFO]]) if(/<\/(style|script)/i.test(s)) throw new Error('closing tag inside '+n);
+// 先生用ガイドの見た目(4分野共通)
+const EG_CSS=read(path.join(SHARED,'eduit-guide.css')).trim();
+for(const [n,s] of [['css',EF_CSS],['js',EF_JS],['info',EF_INFO],['guide css',EG_CSS]]) if(/<\/(style|script)/i.test(s)) throw new Error('closing tag inside '+n);
 const INFO=new Function('window',EF_INFO+';return window.EDUIT_INFO;')({});
 const tagCss='<style data-ef-css>\n'+EF_CSS+'\n</style>';
 const tagInfo='<script data-ef-info>\n'+EF_INFO+'\n</script>';
@@ -36,6 +38,31 @@ function onceRe(s,re,repl,where){
   if(m.length!==1) throw new Error(where+': expected 1 of '+re+', found '+m.length);
   return s.replace(re,()=>repl);
 }
+// メニューの中の先生用ガイド: eduit-guide.css のうち .eg の付いた決まりだけを、#hub を付けて使う
+// (body などの決まりはメニューの見た目を変えるので入れない。文字の大きさは A−/A＋ に合わせるため rem を em にする)
+function scopeGuideCss(css){
+  css=css.replace(/\/\*[\s\S]*?\*\//g,'');
+  function walk(src){
+    let out='',i=0;
+    for(;;){
+      const ob=src.indexOf('{',i); if(ob<0) break;
+      const head=src.slice(i,ob).trim();
+      let d=1,j=ob+1; for(;d&&j<src.length;j++){ if(src[j]==='{') d++; else if(src[j]==='}') d--; }
+      if(d) throw new Error('eduit-guide.css: { と } の数が合わない');
+      const body=src.slice(ob+1,j-1);
+      if(head.startsWith('@media')){ const inner=walk(body); if(inner) out+=head+'{\n'+inner+'}\n'; }
+      else if(head.startsWith('@')) throw new Error('eduit-guide.css: '+head+' は使えない');
+      else {
+        const sels=head.split(',').map(x=>x.trim()).filter(x=>/\.eg\b/.test(x));
+        if(sels.length) out+=sels.map(x=>'#hub '+x).join(', ')+' {'+body.trim().replace(/(\d)rem\b/g,'$1em')+'}\n';
+      }
+      i=j;
+    }
+    return out;
+  }
+  return walk(css);
+}
+const tagEgHub='<style data-eg-css>\n'+scopeGuideCss(EG_CSS)+'</style>';
 // 元の教材: 相対パスの読み込みを中身に置きかえる
 function inlineEf(html,where){
   html=once(html,'<link rel="stylesheet" href="../../shared/eduit-frame.css">',tagCss,where);
@@ -55,6 +82,7 @@ function refreshEf(html,where){
 let h=read(MENU);
 h=onceRe(h,/<!-- メニューの元ファイル。[^\n]*-->/,'<!-- このファイルは B-bio/build/rebuild.js が作ったもの。直すときは build/menu.html・docs/先生用ガイド.html・B?/b?.html を直して作りなおす -->','hub');
 h=inlineEf(h,'hub');
+h=once(h,'<style data-eg-css></style>',tagEgHub,'hub guide css');
 // 先生用ガイド: docs/先生用ガイド.html の guide:start〜guide:end のあいだ
 const gsrc=read(GUIDE_SRC);
 const ga=gsrc.indexOf('<!-- guide:start -->'), gb=gsrc.indexOf('<!-- guide:end -->');
@@ -70,12 +98,12 @@ h=lines.join('\n'); fs.writeFileSync(H,h);
 const back=new Function(lines[i]+';return SRC')(); for(const k in SRC) if(back[k]!==SRC[k]) throw new Error('mismatch '+k);
 if(/\.\.\/(\.\.\/)?(shared\/|eduit-info)/.test(h.replace(lines[i],''))||/(href|src)=\\"\.\.\/(\.\.\/shared|eduit-info)/.test(lines[i])) throw new Error('external ref left in dist');
 
-// ---- 2. 先生用ガイド(メニューの style と先生用の部分。上のバーとスクリプトはなし) ----
-const s0=h.indexOf('<style>');
-const style=h.slice(s0,h.indexOf('</style>',s0)+8);
-const g='<!DOCTYPE html>\n<html lang="ja" data-ef-domain="B"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">\n<title>先生用ガイド | 生物育成の技術 教材集</title>\n'
-  +tagCss+'\n'+tagInfo+"\n<script>EDUIT_INFO.app = { name: '先生用ガイド(生物育成の技術 教材集)' };</script>\n"+tagJs+'\n'
-  +style.slice(0,-8)+'\n#hub .page{padding:20px 16px 40px;}</style></head>\n<body><div id="hub"><main class="page">\n<p class="small">生物育成の技術 教材集(生物育成教材集.html)の先生用ガイドです。教材集のメニュー下「先生用」からも同じ内容を見られます。</p>\n'+sec+'\n</main><div data-ef-footer></div></div></body></html>\n';
+// ---- 2. 先生用ガイド(docs/先生用ガイド.html ぜんぶに、共通の枠と先生用ガイドの見た目を入れる) ----
+let g=inlineEf(gsrc,'guide');
+g=once(g,'<link rel="stylesheet" href="../../shared/eduit-guide.css">','<style data-eg-css>\n'+EG_CSS+'\n</style>','guide');
+g=onceRe(g,/<!--\s*先生用ガイドの元の文書です。[\s\S]*?-->/,'<!-- このファイルは B-bio/build/rebuild.js が docs/先生用ガイド.html から作ったもの。直すときは docs/先生用ガイド.html を直して作りなおす -->','guide');
+if(!g.includes('<title>先生用ガイド | 生物育成の技術</title>')) throw new Error('guide title');
+if(/(href|src)="\.\.\//.test(g)) throw new Error('external ref left in guide');
 const G=path.join(OUT,'先生用ガイド.html');
 fs.writeFileSync(G,g);
 

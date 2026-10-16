@@ -22,7 +22,7 @@ PAGES = [
     ('m6-tool-safety', 'm6-tool-safety/index.html'),
     ('m7-solid-maker', 'm7-solid-maker/index.html'),
     ('teacher-viewer', 'teacher-viewer/index.html'),
-    ('guide', 'docs/使い方_先生用.html'),
+    ('guide', 'docs/先生用ガイド.html'),
 ]
 
 
@@ -106,7 +106,7 @@ def main(out):
     cur = id;
     view.srcdoc = DATA.pages[id];
   }
-  // 「../index.html」「m1-material-navi/index.html」「docs/使い方_先生用.html」「../index.html」などを、ページ id に置きかえる
+  // 「../index.html」「m1-material-navi/index.html」「docs/先生用ガイド.html」「../index.html」などを、ページ id に置きかえる
   function resolve(href) {
     var path = String(href).split('#')[0].split('?')[0];
     try { path = decodeURIComponent(path); } catch (e) {}
@@ -114,7 +114,7 @@ def main(out):
     if (!parts.length) return null;
     if (parts.length === 1) {
       if (parts[0] === 'index.html') return 'menu';
-      if (parts[0] === '使い方_先生用.html') return 'guide';  // 古い置き場所(A-materials/ 直下)へのリンク
+      if (parts[0] === '使い方_先生用.html' || parts[0] === '先生用ガイド.html') return 'guide';  // 古い名前・古い置き場所(A-materials/ 直下)へのリンク
       return null;
     }
     return DATA.dirs[parts[0]] || null;

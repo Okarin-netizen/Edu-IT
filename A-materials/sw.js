@@ -4,7 +4,7 @@
  * - それ以外の同じオリジンのファイルも、一度開けばキャッシュされる(キャッシュ優先)
  * 内容を更新して配り直すときは VERSION を上げる。
  */
-var VERSION = 'gijutsu-v12';
+var VERSION = 'gijutsu-v13';
 var CORE = [
   './',
   './index.html',
@@ -19,7 +19,7 @@ var CORE = [
   './common/materials.js',
   './common/apps.js',
   './eduit-info.js',
-  './docs/使い方_先生用.html'
+  './docs/先生用ガイド.html'
 ];
 // 4分野共通の枠(A-materials の1つ上の shared/)。置いていないときもインストールは止めない
 var SHARED = ['../shared/eduit-frame.css', '../shared/eduit-frame.js'];

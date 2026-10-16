@@ -14,18 +14,19 @@ DOCS = os.path.join(SRC, 'docs')
 SHARED = os.environ.get('EA_SHARED', os.path.normpath(os.path.join(SRC, '..', 'shared')))
 EF_CSS = open(os.path.join(SHARED, 'eduit-frame.css'), encoding='utf-8').read().strip()
 EF_JS = open(os.path.join(SHARED, 'eduit-frame.js'), encoding='utf-8').read().strip()
+EG_CSS = open(os.path.join(SHARED, 'eduit-guide.css'), encoding='utf-8').read().strip()  # 先生用ガイドの見た目
 EF_INFO = open(os.path.join(SRC, 'eduit-info.js'), encoding='utf-8').read().strip()
 # <script> の中に入れるので、コメントなどの </script を <\/script にする(JS としては同じ意味)
 EF_JS = EF_JS.replace('</script', '<\\/script')
 EF_INFO = EF_INFO.replace('</script', '<\\/script')
-for _x in (EF_CSS, EF_JS, EF_INFO):
+for _x in (EF_CSS, EG_CSS, EF_JS, EF_INFO):
     assert '</script' not in _x and '</style' not in _x and '{{' not in _x
 VERSION = re.search(r"version: '([^']+)'", EF_INFO).group(1)
 UPDATED = re.search(r"updated: '([^']+)'", EF_INFO).group(1)
 
 
 def ef_inline(text):
-    return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
+    return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
 def parts(n):
@@ -89,6 +90,12 @@ assert '{{' not in doc
 os.makedirs(DOCS, exist_ok=True)
 open(os.path.join(DOCS, 'tsukaikata.html'), 'w', encoding='utf-8').write(doc)
 
+# 先生用ガイド(4分野で名前・章立て・見た目をそろえたもの。本文は tsukaikata.html の先生向けと同じ)
+guide = open(os.path.join(HERE, 'sensei-guide.tpl.html'), encoding='utf-8').read()
+guide = ef_inline(guide).replace('{{GUIDE_TOC}}', H.guide_toc()).replace('{{GUIDE_SECTIONS}}', H.guide_html())
+assert '{{' not in guide
+open(os.path.join(DOCS, '先生用ガイド.html'), 'w', encoding='utf-8').write(guide)
+
 readme = open(os.path.join(HERE, 'README.txt'), encoding='utf-8').read().replace('{{VERSION}}', VERSION).replace('{{UPDATED}}', UPDATED)
 assert '{{' not in readme
 
@@ -99,5 +106,6 @@ if os.path.exists(zp):
 with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
     z.write(os.path.join(OUT, 'energy-apps.html'), 'energy-apps/energy-apps.html')
     z.write(os.path.join(DOCS, 'tsukaikata.html'), 'energy-apps/tsukaikata.html')
+    z.write(os.path.join(DOCS, '先生用ガイド.html'), 'energy-apps/先生用ガイド.html')
     z.writestr('energy-apps/README.txt', ('﻿' + readme).replace('\n', '\r\n').encode('utf-8'))
 print('version', VERSION, 'html', len(html.encode()), 'zip', os.path.getsize(zp))

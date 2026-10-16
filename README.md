@@ -28,7 +28,7 @@ Edu-IT/
 1つの教材が両方の編に出ることもあり、カードの「使うところ」にその編で使うタブ・ページの名前が出ます。
 
 - 分け方のもと: 各分野の `eduit-info.js` の `levels`(タブの部品は `shared/eduit-frame.js` の `EduitFrame.levels`)
-- 先生用の一覧(学習指導要領の項目と理由つき): [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) → `クラスルーム配布/先生用/全分野_基本編と発展編(先生用).html`
+- 先生用の一覧(学習指導要領の項目と理由つき): [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) → `クラスルーム配布/先生用/全分野_基本編と発展編.html`
 
 ## 4つの分野の中は同じ形
 
@@ -62,6 +62,7 @@ Edu-IT/
 すべてのアプリで、ヘッダー・ボタン・カード・色の「枠」と、画面の下の
 「作成: 羽生市立南中学校　技術　岡田 ・ 版 ・ 安全と個人情報・ライセンス・更新履歴」をそろえています。
 部品は `shared/`、各分野の版と更新履歴は各分野の `eduit-info.js` にあります。
+先生用ガイドも、4分野で名前(`先生用ガイド`)・章立て・見た目(`shared/eduit-guide.css`)をそろえています(形は [`shared/README.md`](shared/README.md))。
 
 ## 教材を直したあとの流れ
 

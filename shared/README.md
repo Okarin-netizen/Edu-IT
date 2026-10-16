@@ -6,6 +6,7 @@
 | ファイル | 中身 |
 |---|---|
 | `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
+| `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
 | `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`) |
 
 分野ごとの版と更新履歴は、各分野の `eduit-info.js`(`window.EDUIT_INFO`)に書きます。
@@ -40,3 +41,15 @@
 `EDUIT_INFO.levels`(各分野の `eduit-info.js`)の分け方どおりに「基本編」「発展編」のタブとカードの並びを作ります。
 カードの形は各メニューが作り、`parts`(「使うところ」の要素)をカードの中に入れます。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
 分け方の一覧(先生用)は `teacher-tools/kihon-hatten/` が作ります。
+
+## 先生用ガイドの形
+
+各分野の先生用ガイドは、名前・章立て・見た目を4分野でそろえています。新しく書くときや直すときも、この形にします。
+
+- 元のファイル: A `A-materials/docs/先生用ガイド.html`・B `B-bio/docs/先生用ガイド.html`・C `C-energy/build/help.py`(`build.py` が `docs/先生用ガイド.html` を作る)・D `D-information/docs/先生用ガイド.html` と `D-information/docs/情報セキュリティ体験ラボ_先生用ガイド.html`
+- 配布用フォルダでの名前: `X_分野名_先生用ガイド.html`(`クラスルーム配布/まとめる.py` がコピーする)
+- 読み込み: `eduit-frame.css` → `eduit-guide.css` → `eduit-info.js` → `EDUIT_INFO.app = { name: '先生用ガイド(〇〇の技術)' }` → `eduit-frame.js`
+- `<title>先生用ガイド | 〇〇の技術</title>`、上のバーの題名は「先生用ガイド」、見出しは「〇〇の技術 先生用ガイド」
+- 章は次の7つ(`<section class="eg-sec">` と `<h2>`)で、この順・この名前にする:
+  1. 配り方と開き方 2. 教材の一覧(基本編・発展編) 3. 単元での使い方 4. 記録の保存と提出 5. 授業で使うときの注意 6. こまったとき 7. 更新履歴
+- 部品のクラスは `eduit-guide.css` の先頭に書いてあります。

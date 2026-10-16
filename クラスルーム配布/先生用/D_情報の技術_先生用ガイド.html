@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>先生用ガイド | 情報の技術</title>
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+<style>
+/*
+ * 4分野共通の「先生用ガイド」の見た目(eduit-frame.css のあとに読む)
+ *
+ * 形(どの分野も同じ):
+ *   <header class="ef-header"><p class="ef-title">先生用ガイド</p></header>
+ *   <main class="eg">
+ *     <h1 class="eg-h1">〇〇の技術 先生用ガイド</h1>
+ *     <p class="eg-meta">中学校 技術・家庭(技術分野) 内容〇「…」 ・ 生徒に配るファイル: <b>…_統一版.html</b></p>
+ *     <div class="eg-lead">この教材集でできること(2〜3文)</div>
+ *     <nav class="eg-toc">目次</nav>
+ *     <section class="eg-sec" id="kubari"><h2>1. 配り方と開き方</h2> …</section>
+ *       2. 教材の一覧(基本編・発展編) / 3. 単元での使い方 / 4. 記録の保存と提出
+ *       5. 授業で使うときの注意 / 6. こまったとき / 7. 更新履歴
+ *   </main>
+ *   (フッターは eduit-frame.js が出す)
+ * 部品: .eg-note(補足の箱) .eg-warn(注意の箱) .eg-table(表) .eg-faq(dl: こまったとき) code
+ */
+body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.75; margin: 0; }
+.eg { max-width: 900px; margin: 0 auto; padding: 18px 18px 40px; font-size: 16px; }
+.eg-h1 { font-size: 1.55rem; margin: 6px 0 2px; line-height: 1.4; }
+.eg-meta { color: var(--ef-muted); margin: 0 0 12px; font-size: .92rem; }
+.eg-lead { background: var(--ef-accent-soft); border-radius: var(--ef-radius); padding: 12px 16px; margin: 0 0 14px; }
+.eg-lead p { margin: .3em 0; }
+.eg-toc { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 8px 16px; margin: 0 0 16px; font-size: .95rem; }
+.eg-toc ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 24px; }
+.eg-toc a { color: var(--ef-accent); }
+.eg-sec { background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent); border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 4px 20px 14px; margin: 0 0 16px; }
+.eg-sec h2 { font-size: 1.2rem; margin: 12px 0 8px; color: var(--ef-text); }
+.eg-sec h3 { font-size: 1.02rem; margin: 16px 0 6px; padding-left: 9px; border-left: 4px solid var(--ef-accent); }
+.eg-sec ol, .eg-sec ul { padding-left: 1.4em; }
+.eg-sec li { margin: .25em 0; }
+.eg-note, .eg-warn { border-radius: var(--ef-radius-s); padding: 8px 12px; margin: 10px 0; }
+.eg-note { background: var(--ef-surface-2); border: 1px solid var(--ef-line); }
+.eg-warn { background: #fff6d6; border: 1px solid #e8d48a; }
+.eg-note > :first-child, .eg-warn > :first-child { margin-top: 0; }
+.eg-note > :last-child, .eg-warn > :last-child { margin-bottom: 0; }
+.eg-table-wrap { overflow-x: auto; }
+.eg-table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 8px 0; background: var(--ef-surface); }
+.eg-table th, .eg-table td { border: 1px solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.eg-table th { background: var(--ef-surface-2); }
+.eg-table .eg-group td { background: var(--ef-accent-soft); font-weight: 700; }
+.eg-faq dt { font-weight: 700; margin-top: 10px; }
+.eg-faq dd { margin: 2px 0 0 1.2em; }
+.eg code { background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 4px; padding: 0 .3em; font-size: .9em; }
+@media (max-width: 640px) { .eg-toc ol { columns: 1; } .eg-sec { padding: 4px 14px 12px; } }
+@media print {
+  body { background: #fff; }
+  .ef-header { position: static; }
+  .eg { padding: 0; font-size: 11pt; }
+  .eg-toc { display: none; }
+  .eg-sec { box-shadow: none; break-inside: auto; }
+  .eg-sec h2, .eg-sec h3 { break-after: avoid; }
+  .eg-table, .eg-note, .eg-warn { break-inside: avoid; }
+}
+
+</style>
+<script>
+// 情報の技術(D)の版・更新履歴・この分野だけの安全の説明(4分野共通の枠 shared/eduit-frame.js が読む)
+// アプリの名前は、各ページの <meta name="eduit-app" content="…"> から取る(なければ教材集の名前)。
+// 版を上げたら: version・updated と history の先頭を書きかえ、各教材と教材集を作り直す(kyozai-shu/README.md)。
+(function () {
+  var meta = document.querySelector('meta[name="eduit-app"]');
+  window.EDUIT_INFO = {
+    domain: 'D',
+    domainName: '情報の技術',
+    suite: '情報の技術 体験教材集',
+    version: '1.6',
+    updated: '2026-10-16',
+    app: meta && meta.content ? { name: meta.content } : undefined,
+    safety: [
+      '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
+      'フィッシングのメールやページ、SNS投稿チェックの写真は、学習のために作った模型です。会社名・アドレス・地名・学校名はすべて架空で、リンクやボタンを押してもどこにも移動しません。',
+      'デジタル化ラボで読み込んだ写真や録音した声は、その画面の中だけで使い、保存も送信もしません。マイクは「3秒録音する」を押したときだけ使い、録音が終わると止めます。',
+      'ネットワーク通信シミュレータは、ブラウザの中の模型のネットワークです。本物のネットワークにはつながりません。サイト名・IPアドレスは説明用の架空のものです。',
+      '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
+    ],
+    history: [
+      { version: '1.6', date: '2026-10-16', items: [
+        '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
+        'ネット詐欺 追体験ラボ・生成AIのしくみラボ・ハッシュ化体験ラボを体験教材集に入れ、9つの教材を1つのファイル(統一版)で使えるようにしました。記録の保存場所は変わらないので、前の記録もそのまま使えます。',
+        '「記録をまとめて書き出す」「はじめからやり直す」も9つの教材が対象になりました。',
+        '先生用ガイドの名前・章立て・見た目を4分野でそろえました(「先生用の手引き」から「先生用ガイド」に名前を変えました)。'
+      ] },
+      { version: '1.5', date: '2026-10-15', items: [
+        'ハッシュ化体験ラボを足しました(ハッシュ値の性質・総当たり・パスワードの保存・改ざんの見つけ方)。',
+        '画面の枠(ヘッダー・ボタン・カード・色)を、4つの分野(材料と加工・生物育成・エネルギー変換・情報)で共通にしました。教材の中身や記録には変わりはありません。',
+        'どの教材からも、作成者・安全と個人情報・ライセンス・更新履歴を見られるようにしました(画面の下の「安全と個人情報・ライセンス・更新履歴」)。'
+      ] },
+      { version: '1.4', date: '2026-10-15', items: [
+        '11インチのChromebook(1366×768・タッチ)で使いやすいように見た目を調整しました。',
+        '6教材のスライダーのつまみを大きくし、小さかった見出しや札の文字を大きくしました。',
+        'ネットワーク図・CPUの図解・SNS投稿の写真の文字を大きくし、仮想CPUのプログラム欄を広げました。',
+        '計測・制御シミュレータで、プログラムを下へたどっても仮想世界と実行ボタンが画面に残るようにしました。'
+      ] },
+      { version: '1.3', date: '2026-10-13', items: [
+        'レビューで「直すともっとよくなる」とした所(30件)を直しました。',
+        '教材集で、再読みこみしてもさいごに開いていたページから始まるようにしました。学習指導要領の記号は「先生へ」にまとめました。',
+        '仮想CPUラボの手計算くらべの時間の計算、計測・制御シミュレータの不合格の時刻の表示などを直しました。'
+      ] },
+      { version: '1.2', date: '2026-10-13', items: [
+        '教材集の上のバーに「ふりがな」「大きな文字」を付け、6教材にまとめてかかるようにしました。',
+        '6教材の記録を1つのファイルで出せる「記録をまとめて書き出す」を足しました。',
+        '多くの生徒がつまずく・迷う所(ヒント、クイズのやり直し、ブロックを入れる場所など)を直しました。'
+      ] },
+      { version: '1.1', date: '2026-10-13', items: [
+        'ふりかえりを書いている途中で自動で保存するようにしました。',
+        'まちがった答えが合格になる判定や、全角で入れた答えの判定を直しました。',
+        '双方向コンテンツ制作スタジオで作品が消える問題を直しました。'
+      ] },
+      { version: '1.0', date: '', items: [
+        '6つの体験教材(デジタル化ラボ・仮想CPUラボ・ネットワーク通信シミュレータ・情報セキュリティ体験ラボ・双方向コンテンツ制作スタジオ・計測・制御シミュレータ)と、メニュー付きの教材集を作りました。'
+      ] }
+    ]
+  };
+})();
+
+/* 基本編・発展編(学習指導要領 技術分野「D 情報の技術」と教科書の内容から分けたもの)
+ * 体験教材集のメニュー(kyozai-shu/src/shell.js)が EduitFrame.levels で使う。id は kyozai-shu/data/materials.json の id。
+ * parts は生徒の画面のページの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'digitization-lab', parts: ['1 画像のデジタル化', '2 音のデジタル化', '3 2進数と文字コード', '5 データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
+      { id: 'virtual-cpu', parts: ['1 図解: 5つの装置', '4 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
+      { id: 'network-sim', parts: ['1 ネットワークを組み立てる', '2 Webページが届くまで', '3 回線が切れたら？', '4 のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
+      { id: 'security-lab', parts: ['1 デジタル化と情報量', '2 パスワード強度ラボ', '3 暗号ラボ', '5 フィッシング見分け', '6 ネットワーク通信の模擬', '7 SNS投稿の個人情報チェック', '8 デジタルタトゥー', '9 著作権・利用ルールクイズ', '10 判断ロールプレイ', '11 まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'scam-lab', parts: ['1 ワンクリック詐欺', '2 「当選しました」メール', '3 ウイルス付きメール', '4 にせのウイルス警告', '5 にせの通販サイト', '6 まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
+      { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
+      { id: 'measure-control-sim', parts: ['場面1 街灯', '場面2 自動ドア', '場面3 信号機', '場面4 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
+      { id: 'genai-lab', parts: ['4 もっともらしいまちがい', '7 個人情報が出てしまう？', '8 クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、しくみの中まで入って調べる内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'digitization-lab', parts: ['4 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
+      { id: 'virtual-cpu', parts: ['2 仮想CPUを動かす', '3 課題'], curr: 'D(1)ア(発展)', why: 'レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容' },
+      { id: 'network-sim', parts: ['5 IPアドレス・ドリル'], curr: 'D(1)ア(発展)', why: '教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展' },
+      { id: 'security-lab', parts: ['4 ハッシュ体験'], curr: 'D(1)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない' },
+      { id: 'measure-control-sim', parts: ['場面5 自由に作る(仮想マイコン)'], curr: 'D(3)イ(発展)', why: 'センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動' },
+      { id: 'genai-lab', parts: ['1 つぎの言葉あて', '2 言葉のかけら(トークン)', '3 ミニ文章AIを動かす', '5 ノイズをまぜる(学習)', '6 ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
+      { id: 'hash-lab', parts: ['1 ハッシュ値を作ってみよう', '2 1文字だけ変えると？', '3 手作りハッシュの弱点', '4 もとにもどせる？', '5 パスワードの守り方', '6 改ざんを見つける', '7 クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' }
+    ]
+  }
+};
+
+</script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '先生用ガイド(情報の技術)' };</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
+</head>
+<body>
+<header class="ef-header">
+  <p class="ef-title">先生用ガイド</p>
+</header>
+<main class="eg">
+  <h1 class="eg-h1">情報の技術 先生用ガイド</h1>
+  <p class="eg-meta">中学校 技術・家庭(技術分野) 内容D「情報の技術」 ・ 生徒に配るファイル: <b>D_情報の技術_統一版.html</b></p>
+  <div class="eg-lead">
+    <p><b>9つの体験教材を、「基本編」「発展編」に分けたメニュー付きの1つのHTMLファイルにまとめたものです。</b>インターネットへの接続やインストールは不要で、外部のサイトには一切つながりません。入力した内容や学習の記録は、その端末のブラウザの中にだけ保存されます。</p>
+  </div>
+  <nav class="eg-toc" aria-label="目次"><ol>
+    <li><a href="#kubari">配り方と開き方</a></li>
+    <li><a href="#ichiran">教材の一覧(基本編・発展編)</a></li>
+    <li><a href="#tangen">単元での使い方</a></li>
+    <li><a href="#kiroku">記録の保存と提出</a></li>
+    <li><a href="#chui">授業で使うときの注意</a></li>
+    <li><a href="#komatta">こまったとき</a></li>
+    <li><a href="#rireki">更新履歴</a></li>
+  </ol></nav>
+
+  <section class="eg-sec" id="kubari">
+    <h2>1. 配り方と開き方</h2>
+    <h3>配り方</h3>
+    <ol>
+      <li><code>D_情報の技術_統一版.html</code> を、校内の共有フォルダ・USBメモリ・各端末にコピーします(元のファイル名は <code>D-information/dist/情報の技術_体験教材集.html</code>。zip の中では <code>情報の技術_体験教材集.html</code> です。中身は同じです)。</li>
+      <li>ブラウザ（Chrome・Edge など）で開きます。端末の種類による開き方のちがいは、下の「端末ごとの開き方」を見てください。</li>
+    </ol>
+    <p>1つの教材だけを配りたいときは、<code>1つずつ配るとき</code> フォルダ(zip の中では「個別の教材」フォルダ)のファイルを使ってください。中身は教材集と同じです。</p>
+    <p>校内のWebサーバーに置いて使うこともできます（教材集のファイルを置くだけで動きます）。</p>
+    <h3>端末ごとの開き方</h3>
+    <p>配る前に、生徒と同じ端末で一度開いて確かめてください。</p>
+    <ul>
+      <li><b>Chromebook</b>：Google ドライブの画面でファイルを開くと「プレビュー」になり、教材は動きません。次の手順で開きます。
+        <ol>
+          <li>Google ドライブ（またはクラスルーム）で、ファイルを<b>ダウンロード</b>します。</li>
+          <li>ランチャーから「ファイル」アプリを開き、「ダウンロード」フォルダの <code>D_情報の技術_統一版.html</code> をダブルクリックします。Chrome で開きます。</li>
+          <li>記録はその端末の Chrome に残ります。次の時間も同じ端末で開けば、続きから使えます。</li>
+        </ol>
+        デジタル化ラボの録音では、Chrome がマイクを使ってよいか確認してくるので「許可」を押させます。</li>
+      <li><b>Windows</b>：ファイルを端末か共有フォルダに置き、ダブルクリックで開きます。</li>
+      <li><b>iPad</b>：「ファイル」アプリでファイルをタップすると「プレビュー」になり、教材が動かないことがあります。校内の Web サーバー（できれば https）にファイルを置き、Safari でその URL を開く方法をおすすめします。デジタル化ラボの録音も、https のページでないとマイクが使えません。</li>
+    </ul>
+    <h3>画面の使い方</h3>
+    <ul>
+      <li>メニューの「基本編」「発展編」のタブを選び、カードから教材を選びます。カードの「使うところ」に、その編で使うページの名前が出ます。</li>
+      <li>上のバーの左端の「◀ メニュー」（または教材集の名前）を押すとメニューに戻ります。ほかの教材へは、上のバーの右の教材の名前を押して切りかえます（はばがせまい画面では「教材をかえる ▾」を押すと名前の一覧が出ます）。</li>
+      <li>切りかえても、開いていた教材の作業はそのまま残ります。ふりかえりの文は書いている途中で自動で保存されるので、ページを再読みこみしても消えません。再読みこみをしても、それぞれの教材はさいごに開いていたページから始まります（同じタブの中だけ）。</li>
+      <li>上のバーの「ふりがな」「大きな文字」は、9つの教材とメニューにまとめてかかります。漢字の言葉に読みがなが付き、文字が大きくなります。プログラムを書く欄・入力欄・図の中の文字には、ふりがなは付きません。この設定は「はじめからやり直す」でも消えません。教材集の中では、各教材にもともとある「ふりがな」「大きな文字」のボタンは、上のバーのボタンにまとめています（情報セキュリティ体験ラボの「やさしい日本語のまとめ」は教材の中に残ります）。</li>
+    </ul>
+  </section>
+
+  <section class="eg-sec" id="ichiran">
+    <h2>2. 教材の一覧(基本編・発展編)</h2>
+    <p>メニューの教材は「基本編」「発展編」のタブに分かれています。学習指導要領の内容と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。1つの教材が両方に出ることもあり、カードの「使うところ」にその編で使うページの名前が出ます。教材の中のどのページがどちらの編かは、先生用フォルダの <b>全分野_基本編と発展編.html</b> に学習指導要領の項目と理由つきでまとめています。</p>
+    <div class="eg-table-wrap"><table class="eg-table">
+      <thead><tr><th>教材</th><th>主な内容</th><th>学習指導要領</th><th>時間の目安</th><th>発展編に入るページ</th></tr></thead>
+      <tbody>
+        <tr><td>デジタル化ラボ</td><td>画像・音のデジタル化、2進数と文字コード、圧縮、データ量の計算ドリル</td><td>D(1)</td><td>2時間</td><td>4 圧縮のしくみ</td></tr>
+        <tr><td>仮想CPUラボ</td><td>5つの装置の図解、10命令の仮想CPUのステップ実行、課題8問（必修4・発展3・チャレンジ1）、手計算くらべ</td><td>D(1)</td><td>2時間</td><td>2 仮想CPUを動かす、3 課題</td></tr>
+        <tr><td>ネットワーク通信シミュレータ</td><td>ネットワークの組み立て、Webページが届くまで、回線の故障、のぞき見と暗号化、IPアドレス・ドリル</td><td>D(1)(2)</td><td>2時間</td><td>5 IPアドレス・ドリル</td></tr>
+        <tr><td>情報セキュリティ体験ラボ</td><td>パスワード・暗号・ハッシュ・フィッシング・SNS・デジタルタトゥー・著作権など11モジュール、理解度チェック</td><td>D(1)(4)</td><td>7時間（5時間まで短くできる）</td><td>4 ハッシュ体験</td></tr>
+        <tr><td>ネット詐欺 追体験ラボ</td><td>ワンクリック詐欺・当選メール・ウイルス付きメール・にせのウイルス警告・にせの通販サイトを操作して追体験し、まとめとふりかえり</td><td>D(1)(4)</td><td>2時間</td><td>―（基本編だけ）</td></tr>
+        <tr><td>双方向コンテンツ制作スタジオ</td><td>ブロックと文字で、入力に反応するコンテンツを作る。作品をHTMLで書き出せる</td><td>D(2)</td><td>4〜6時間</td><td>―（基本編だけ）</td></tr>
+        <tr><td>計測・制御シミュレータ</td><td>街灯・自動ドア・信号機などをセンサとプログラムで制御し、自動テストで確かめる</td><td>D(3)</td><td>3時間</td><td>場面5 自由に作る(仮想マイコン)</td></tr>
+        <tr><td>生成AIのしくみラボ</td><td>つぎの言葉あて・トークン・ミニ文章AI・ハルシネーション・画像をつくるAI・個人情報の注意</td><td>D(1)(4)</td><td>2時間</td><td>1〜3(言葉あて・トークン・ミニ文章AI)、5・6(画像をつくるAI)</td></tr>
+        <tr><td>ハッシュ化体験ラボ</td><td>ハッシュ値の性質・総当たり・パスワードの保存・改ざんの見つけ方</td><td>D(1)(4)</td><td>2時間</td><td>全部（発展編だけ）</td></tr>
+      </tbody>
+    </table></div>
+    <p>生徒向けのメニューのカードには学習指導要領の記号を出さず、メニューの「先生へ」に対応の一覧があります。すべて使うと 26〜28 時間です。各教材の「はじめに」に、1時間ごとの進め方の例があります(3. にもまとめています)。</p>
+  </section>
+
+  <section class="eg-sec" id="tangen">
+    <h2>3. 単元での使い方</h2>
+    <p>基本編のカードは、おすすめの順（デジタル化ラボ → 仮想CPUラボ → ネットワーク通信シミュレータ → 情報セキュリティ体験ラボ → ネット詐欺 追体験ラボ → 双方向コンテンツ制作スタジオ → 計測・制御シミュレータ → 生成AIのしくみラボ）にならんでいます。</p>
+    <h3>教材ごとの進め方の例</h3>
+    <ul>
+      <li><b>デジタル化ラボ</b>：1時間目「はじめに・画像・音」、2時間目「2進数・圧縮・ふりかえり」。データ量の計算ドリルは、次の時間のはじめや復習に使います。動画のデータ量は「発展」で、ドリルの「動画」のときだけ出ます（電卓を使ってよい）。</li>
+      <li><b>仮想CPUラボ</b>：1時間目「図解（20分）・ステップ実行（30分）」、2時間目「課題（30分）・手計算くらべ・ふりかえり・記録の書き出し（20分）」。課題は1〜4が必修です。2時間目の後半は、課題の途中でも全員が手計算くらべに移ります。</li>
+      <li><b>ネットワーク通信シミュレータ</b>：1時間目「1 組み立て・2 Webページが届くまで」、2時間目「3 故障・4 のぞき見・5 ドリル」。ドリルの /25・/28 は「チャレンジ問題」で、クリアには関係ありません。</li>
+      <li><b>情報セキュリティ体験ラボ</b>：<b>D4_情報セキュリティ体験ラボ_先生用ガイド.html</b>（zip の中では「先生用ガイド_情報セキュリティ体験ラボ.html」）の7時間の計画のとおりです。暗号ラボは2回に分けて（1回目ステップ1〜3、2回目ステップ4〜7）行います。RSA の計算は「発展」です。デジタル化ラボとネットワーク通信シミュレータを先に使った場合は、「1 デジタル化と情報量」と「6 ネットワーク通信の模擬」を省いて5時間にできます（下の「内容が重なっている単元」を見てください）。</li>
+      <li><b>双方向コンテンツ制作スタジオ</b>：ひな形（カウンター・クイズ・バグを直そう・アンケート集計）で操作としくみをつかみ、企画・改善メモを書いて制作し、友だちに使ってもらって改善します（くわしくは教材の README）。作品には、サーバーとのやりとり（server の命令）を1つ以上入れさせます（学習指導要領 D(2) のネットワークを利用した双方向性のため）。作品一覧で「📡 サーバーあり」と表示されます。</li>
+      <li><b>計測・制御シミュレータ</b>：1時間目「場面1・2（各20分）」、2時間目「場面3（40分）」、3時間目「場面4（25分）・場面5（10〜15分）」。</li>
+    </ul>
+    <h3>内容が重なっている単元</h3>
+    <p>情報セキュリティ体験ラボの次の2つの単元は、ほかの教材と内容が重なります。どちらも残してあり、教材集の中で開いたときだけ、単元のさいご（ふりかえりのあと）に「もっとくわしく学びたいとき」の案内とボタンが出ます。移った先のページの上と下に「← 情報セキュリティ体験ラボにもどる」が出て、押すと同じ単元にもどれます。</p>
+    <div class="eg-table-wrap"><table class="eg-table">
+      <thead><tr><th>情報セキュリティ体験ラボの単元</th><th>くわしく扱う教材</th><th>使い分けの目安</th></tr></thead>
+      <tbody>
+        <tr><td>1 デジタル化と情報量</td><td>デジタル化ラボ</td><td>セキュリティの単元の導入として短く扱うならラボのまま。D(1)の授業としてじっくり扱うならデジタル化ラボ。</td></tr>
+        <tr><td>6 ネットワーク通信の模擬</td><td>ネットワーク通信シミュレータ（「のぞき見と暗号化」が開きます）</td><td>HTTPとHTTPSの違いだけなら単元のまま。ネットワークのしくみから扱うならシミュレータ。</td></tr>
+      </tbody>
+    </table></div>
+    <p>授業で片方だけを使う場合、情報セキュリティ体験ラボの「先生用ページ」で使わない単元を非表示にできます（開き方は 4. の「先生用ページの開き方」を見てください）。</p>
+  </section>
+
+  <section class="eg-sec" id="kiroku">
+    <h2>4. 記録の保存と提出</h2>
+    <h3>保存</h3>
+    <ul>
+      <li>学習の記録は、<b>その端末のブラウザの中</b>にだけ保存されます（ほかの端末とは共有されません）。外部には送られません。</li>
+    </ul>
+    <h3>提出</h3>
+    <ul>
+      <li>提出させるときは、メニューの「記録をまとめて書き出す」で、組・番号・名前を1回入れて「JSONで書き出す（先生に出す）」を押させてください。9つの教材の記録（進み具合・ふりかえり・作品の計画や改善メモ・もとのデータ）が1つの JSON ファイルになります。ファイル名は「情報の技術_記録まとめ_3組7番_2026-10-13.json」のように、組・番号・日付が入ります。</li>
+      <li>組か番号が空のときは書き出せません。まだ使っていない教材は「まだ記録なし」と表示されます。</li>
+      <li>「CSVで書き出す（表計算ソフト用）」は、表計算ソフトで見るためのものです。提出は JSON にします。教材ごとの「ふりかえり・記録」からも、これまでどおり書き出せます。</li>
+      <li>Chromebook では、書き出したファイルは「ファイル」アプリの「ダウンロード」フォルダに入ります。クラスルームの課題に添付させると集めやすくなります。</li>
+      <li>仮想CPUラボの記録には、課題ごとのプログラムと「答えの例を見たか」が入ります。情報セキュリティ体験ラボの判断ロールプレイは「最初に選んだ結末」と「いちばんよかった結末」が残ります。どちらも成績に使わないことを生徒に伝えてあります。</li>
+    </ul>
+    <h3>提出されたファイルを見る</h3>
+    <ul>
+      <li>4分野共通の <b>全分野_振り返り一覧.html</b> で、ほかの分野と同じように、提出された JSON のふりかえりを一覧にできます。</li>
+      <li>情報セキュリティ体験ラボの完了人数や事前・事後テストの伸びは、ラボの先生用ページの「クラスの記録を集計する」で見られます（<b>D4_情報セキュリティ体験ラボ_先生用ガイド.html</b> の 4. を見てください）。</li>
+    </ul>
+    <h3>記録を消す</h3>
+    <p>端末を共有している場合は、提出したあと、メニューのいちばん下の「はじめからやり直す」で「この端末の記録をすべて消す」を押すと、9つの教材の記録がまとめて消えます（「記録をまとめて書き出す」の組・番号・名前も消えます。ふりがな・文字の大きさなどの表示の設定と、差し替えた問題データは残ります）。1つの教材だけ消すときは、その教材の「ふりかえり・記録」のページから消せます。</p>
+    <h3>先生用ページの開き方</h3>
+    <p>先生用ページは、生徒が開かないようにメニューには出していません。先生の端末で、ファイルのアドレスの最後に次の文字を足して開きます。</p>
+    <div class="eg-table-wrap"><table class="eg-table">
+      <thead><tr><th>ページ</th><th>教材集で開くとき</th><th>1つずつ配るファイルで開くとき</th></tr></thead>
+      <tbody>
+        <tr><td>情報セキュリティ体験ラボの先生用ページ（使うモジュールの設定・問題データの差し替え・クラスの集計）</td><td><code>D_情報の技術_統一版.html#/security-lab/teacher</code></td><td><code>D4_情報セキュリティ体験ラボ.html#/teacher</code></td></tr>
+        <tr><td>計測・制御シミュレータの先生用ページ（3時間の計画・4つの場面の模範プログラム）</td><td><code>D_情報の技術_統一版.html#/measure-control-sim/teacher</code></td><td><code>D7_計測・制御シミュレータ.html#/teacher</code></td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>ファイル名がちがうとき（zip の中の <code>情報の技術_体験教材集.html</code> や「個別の教材」フォルダのファイルなど）も、足す文字は同じです。</li>
+      <li>アドレスに <code>#</code> から後ろがすでに付いているときは、それを消してから足します。</li>
+      <li>計測・制御シミュレータは、教材を開いた状態で画面をクリックし（入力欄の外）、キーボードで <code>teacher</code> と打っても開きます。</li>
+      <li>情報セキュリティ体験ラボの設定を変えた端末は、先生用ページの「標準に戻す」で元にもどせます。</li>
+    </ul>
+  </section>
+
+  <section class="eg-sec" id="chui">
+    <h2>5. 授業で使うときの注意</h2>
+    <ul>
+      <li><b>デジタル化ラボの「聞きくらべ」</b>：音が出ます。イヤホンを使うか、先生の画面で全員いっしょに聞き、生徒の端末は音を消してグラフを見させます。</li>
+      <li><b>情報セキュリティ体験ラボの理解度チェック</b>：事前テストと事後テストは、それぞれ最初の1回の点が記録に残ります（2回目からは練習）。事前テストのあとは点数だけが出て、答えと解説は事後テストのあとに見られます。先生用ページで、両方受けた生徒の伸びが見られます。</li>
+      <li><b>相談窓口</b>：情報セキュリティ体験ラボに相談窓口の電話番号が出ます（2026年10月13日に公式ページで確認）。年度ごとに確かめてください。変え方は、情報セキュリティ体験ラボの先生用ガイドにあります。</li>
+      <li><b>双方向コンテンツ制作スタジオのアンケート作品</b>：この教材のサーバーは端末ごとの模型なので、ほかの端末の答えは集まりません。クラスのアンケートは、班の中で1台の端末を回して答えてもらいます。</li>
+      <li><b>双方向コンテンツ制作スタジオの作品の保存</b>：作品は自動で保存されます。端末をかえるときや念のために残すときは「ファイルに保存（.json）」を使います。</li>
+      <li>登場する会社名・アドレス・地名・学校名はすべて架空です。</li>
+    </ul>
+  </section>
+
+  <section class="eg-sec" id="komatta">
+    <h2>6. こまったとき</h2>
+    <dl class="eg-faq">
+      <dt>Chromebook で開くと教材が動かない</dt><dd>Google ドライブの画面で開くと「プレビュー」になり、教材は動きません。ファイルをダウンロードしてから、「ファイル」アプリの「ダウンロード」フォルダでダブルクリックして開きます（1. の「端末ごとの開き方」）。</dd>
+      <dt>iPad で開くと教材が動かない</dt><dd>「ファイル」アプリでタップすると「プレビュー」になることがあります。校内の Web サーバー（できれば https）にファイルを置き、Safari でその URL を開いてください。</dd>
+      <dt>デジタル化ラボで録音できない</dt><dd>Chrome がマイクを使ってよいか確認してきたら「許可」を押させます。断ってしまったときのやり直し方は、デジタル化ラボの録音の前の説明にあります。iPad では、https のページでないとマイクが使えません。</dd>
+      <dt>前の時間の記録が見えない</dt><dd>記録はその端末のブラウザの中にだけ残ります。前と同じ端末・同じブラウザで開いているか確かめてください。</dd>
+      <dt>先生用ページが開かない</dt><dd>アドレスに <code>#</code> から後ろがすでに付いているときは、それを消してから <code>#/security-lab/teacher</code> などを足します（4. の「先生用ページの開き方」）。</dd>
+    </dl>
+  </section>
+
+  <section class="eg-sec" id="rireki">
+    <h2>7. 更新履歴</h2>
+    <h3>第1.6版（2026年10月16日）</h3>
+    <ul>
+      <li>メニューを「基本編」「発展編」のタブに分けました。学習指導要領の内容と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。1つの教材が両方に出ることもあり、カードの「使うところ」にその編で使うページの名前が出ます。</li>
+      <li>これまで別のファイルで配っていた「ネット詐欺 追体験ラボ」「生成AIのしくみラボ」「ハッシュ化体験ラボ」を教材集に入れ、9つの教材を1つのファイルで使えるようにしました。記録の保存場所は変わらないので、前に別のファイルで使った記録もそのまま続きから使えます。</li>
+      <li>「記録をまとめて書き出す」と「はじめからやり直す」も9つの教材が対象です。3つのラボのふりがな・大きな文字の設定は「はじめからやり直す」でも残ります。</li>
+      <li>先生用ガイドの名前・章立て・見た目を4分野でそろえました（「先生用の手引き」から「先生用ガイド」に名前を変えました）。</li>
+    </ul>
+    <h3>第1.5版（2026年10月15日）</h3>
+    <p>4つの分野（材料と加工・生物育成・エネルギー変換・情報）の教材で、画面の枠をそろえました。教材の中身や記録には変わりはありません。</p>
+    <ul>
+      <li>上のバー（白地に青い線）、「ふりがな」「大きな文字」などのボタン、メニューのカード、色と文字を、4分野で共通の形にしました。教材を開いているときは、上のバーの左に「◀ メニュー」が出ます。</li>
+      <li>メニューと各教材のいちばん下に、作成者・版と「安全と個人情報・ライセンス・更新履歴」を出しました。押すと「このアプリについて」が開き、安全と個人情報の説明、使ってよい条件（ライセンス）、更新履歴、作った人を見られます。</li>
+    </ul>
+    <h3>第1.4版（2026年10月15日）</h3>
+    <p>11インチのChromebook（1366×768・タッチ）で使いやすいように、見た目を調整しました。教材の中身や記録には変わりはありません。</p>
+    <ul>
+      <li>6教材すべて：スライダーのつまみを大きくし、指でつかみやすくしました。左のメニューの見出しや「ステップ1」の札の文字を少し大きくしました。</li>
+      <li>ネットワーク通信シミュレータ：広い画面で図が小さくなるときも、IPアドレスや機器の名前を読みやすい大きさで出します。</li>
+      <li>仮想CPUラボ：「図解: 5つの装置」の図と中の文字を大きくしました。プログラム欄を広げ、長いコメントは折り返して全部見えるようにしました。</li>
+      <li>情報セキュリティ体験ラボ：SNS投稿チェックの写真の、電柱の住所表示を大きくしました。</li>
+      <li>計測・制御シミュレータ：プログラムを下へたどっても、仮想世界と実行ボタンが画面に残るようにしました。グラフの文字を大きくしました。</li>
+      <li>双方向コンテンツ制作スタジオ：デバッグの行番号のボタンと、ブロックのすき間の「＋」を押しやすい高さにしました。</li>
+    </ul>
+    <h3>第1.3版（2026年10月13日）</h3>
+    <p>レビューで「直すともっとよくなる」とした所（30件）を直しました。授業で気をつけたい変更は次のとおりです。</p>
+    <ul>
+      <li>デジタル化ラボ：データ量の計算ドリルのステップ2は、「いろいろ」で8問以上のときだけクリアになります（前にクリアした生徒の ✓ は残ります）。録音の前に「許可」を押すことと、断ってしまったときのやり直し方を書きました。</li>
+      <li>仮想CPUラボ：手計算くらべの「昔のパソコン」の時間を、1命令に合図4回で計算するようにしたので、前の4倍の時間が出ます。答え合わせでまちがえた入力を、そのまま試せるボタンを付けました。</li>
+      <li>ネットワーク通信シミュレータ：店の名前を情報セキュリティ体験ラボとそろえて「クモストア（kumo-store.example）」にしました。図の文字を大きくしました。</li>
+      <li>情報セキュリティ体験ラボ：練習は、モジュールを選んでから、1回10問までになりました。理解度チェックの問題は単元の順に出ます（点数のつけ方は同じです）。著作権クイズでは、△のときによりよい答えが出て、同じ場面をやり直せます。</li>
+      <li>計測・制御シミュレータ：不合格になった時刻をグラフに赤い点線で出し、記録にセンサの値を書くようにしました。押しボタンを短く押しても、プログラムが気づくようにしました。</li>
+      <li>双方向コンテンツ制作スタジオ：「バグを直そう」の見本に使い方の説明を入れ、「エディタで直す」でまちがいの行へ移るようにしました。デバッグとサーバーのページに、次にすることの案内を付けました。</li>
+      <li>教材集：再読みこみしても、さいごに開いていたページから始まります。メニューのカードから学習指導要領の記号を外し、「先生へ」にまとめました。</li>
+    </ul>
+    <h3>第1.2版（2026年10月13日）</h3>
+    <p>レビューで「多くの生徒がつまずく・迷う」とした所を直しました。</p>
+    <ul>
+      <li>教材集：上のバーに「ふりがな」「大きな文字」を付け、6教材にまとめてかかるようにしました。教材の切りかえボタンに名前を付け、上のバーを低くしました。6教材の記録を1つのファイルで出せる「記録をまとめて書き出す」を足しました。タブレットの縦向きで、教材の中のメニューが全部見えるようにしました。</li>
+      <li>6教材すべて：記録を書き出すとき、組・番号が空なら書き出さず、書き出したらファイル名を表示するようにしました。答えをまちがえたときにもう一度選べるクイズを増やしました。時間の目安と、1時間ごとの進め方の例を付けました。</li>
+      <li>デジタル化ラボ：動画のデータ量を「発展」にし、聞きくらべに音のグラフと「何が起きているか」の説明を付けました。単位の決まり（8ビット＝1バイト、1KB＝1024バイト）を、はじめて出る所に書きました。</li>
+      <li>仮想CPUラボ：課題を必修・発展・チャレンジに分け、ヒントが答えそのものにならないように直しました。「この答えをプログラム欄に入れる」ボタンをなくしました。✓ は、本当にできたときだけ付くようにしました（前に開いただけで付いた ✓ は消えます）。</li>
+      <li>ネットワーク通信シミュレータ：ドリルを授業で説明する範囲（/24）にし、2進数の読み方のカードを付けました。アニメーションの一時停止と「1つずつ進む」、機器を消すときの確認と「1つもどす」を足しました。届かないわけを、くわしく出すようにしました。</li>
+      <li>情報セキュリティ体験ラボ：暗号ラボを2回に分け、RSA の計算を発展にしました。とても大きな数を「10の◯乗」と「宇宙の年齢の◯倍」で表すようにしました。先生用ページをメニューから外し、相談窓口を足しました。ふりがなの言葉を82語ふやしました。</li>
+      <li>双方向コンテンツ制作スタジオ：ブロックを入れる場所が見えるようにし、「もし」の条件を3つの欄に分けました。ブロックと実行画面を並べて見られる表示と、「大きな文字」を足しました。</li>
+      <li>計測・制御シミュレータ：ブロックを入れる場所と、ブロックを「もし」の中や外へ動かすボタンを付けました。テストのボタンをプログラムの上に置きました。模範プログラムを先生用ページへ移しました。場面4は、はじめのプログラムを少し進めた形にしました（場面4をすでに始めた生徒は、「はじめのプログラムにもどす」を押したときだけ変わります）。</li>
+    </ul>
+    <h3>第1.1版（2026年10月13日）</h3>
+    <p>生徒の目で全教材を確かめたレビューをもとに、授業の前に直したい問題を直しました。</p>
+    <ul>
+      <li>6教材すべてで、ふりかえりを書いている途中で自動で保存するようにしました（「保存」を押さずにページを移っても消えません）。</li>
+      <li>双方向コンテンツ制作スタジオで、教材集を開き直すと作品が消える問題と、「元に戻す」で別の作品のコードに置きかわる問題を直しました。</li>
+      <li>まちがった答えが合格になる判定を直しました（仮想CPUラボの課題7、計測・制御シミュレータの信号機、パスワードの強さ）。信号機は、歩行者の青4秒以上と全赤1秒以上が必要になったので、前より少しむずかしくなっています。</li>
+      <li>全角で入れた答えも正しく判定するようにしました。</li>
+      <li>文字コードの表、回線が切れたときの説明、パスワードのグラフの説明、著作権の私的使用の説明などのまちがいを直しました。</li>
+      <li>情報セキュリティ体験ラボの理解度チェックの問題を1問（パスワードを強くする方法）直しました。直す前に受けた事前テストの点とは、そのまま比べられません。</li>
+    </ul>
+    <p>すべての更新履歴は、このページのいちばん下の「安全と個人情報・ライセンス・更新履歴」から見られます。</p>
+  </section>
+</main>
+</body>
+</html>
