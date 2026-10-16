@@ -103,6 +103,17 @@ test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
   assert.deepStrictEqual(r.entries.map((e) => e.app), ['仮想CPUラボ']);
 });
 
+test('D: 統一版(第1.6版)の記録まとめのラボは、問いの名前で読み、1つずつの書き出しと同じ行になる', () => {
+  const r = load('情報の技術_記録まとめ_統一版_2組15番_2026-10-16.json');
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['ハッシュ化体験ラボ']);
+  const e = r.entries[0];
+  assert.strictEqual(val(e, 'ハッシュ関数の性質'), '同じ文なら同じ値、1文字変えると全部変わる');
+  // 振り返り一覧は「生徒・分野・教材・場面・種類・内容」が同じ行を1つにする
+  const key = (x) => [x.part, x.type, x.value].join('|');
+  const one = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0].rows.filter((x) => x.type === 'ふりかえり').map(key);
+  for (const row of e.rows) assert.ok(one.includes(key(row)), key(row));
+});
+
 test('読めないファイルは理由を返す', () => {
   assert.strictEqual(load('こわれた.json').ok, false);
   assert.strictEqual(FKR.parse('x', 'a.json').ok, false);

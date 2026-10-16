@@ -1,11 +1,12 @@
 // ブラウザでの自動テスト（npm run build のあと node tests/e2e.browser.cjs）
-// ダブルクリックで開いたときと同じ file:// で開き、6つの教材が動くこと・外部に通信しないことを確かめる。
+// ダブルクリックで開いたときと同じ file:// で開き、9つの教材が動くこと・基本編と発展編に分かれていること・外部に通信しないことを確かめる。
 const { chromium } = require("playwright");
 const path = require("path");
 
 const file = path.join(__dirname, "..", "..", "dist", "情報の技術_体験教材集.html");
 const url = "file://" + file.split(path.sep).map(encodeURIComponent).join("/");
-const IDS = ["digitization-lab", "virtual-cpu", "network-sim", "security-lab", "interactive-studio", "measure-control-sim"];
+const IDS = ["digitization-lab", "virtual-cpu", "network-sim", "security-lab", "scam-lab", "interactive-studio", "measure-control-sim", "genai-lab", "hash-lab"];
+const NAMES = ["デジタル化ラボ", "仮想CPUラボ", "ネットワーク通信シミュレータ", "情報セキュリティ体験ラボ", "ネット詐欺 追体験ラボ", "双方向コンテンツ制作スタジオ", "計測・制御シミュレータ", "生成AIのしくみラボ", "ハッシュ化体験ラボ"];
 
 let pass = 0;
 let fail = 0;
@@ -26,17 +27,29 @@ const check = (ok, label) => {
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("request", (r) => !/^(file|data|blob|about):/.test(r.url()) && external.push(r.url()));
 
+  // メニューのカードを押して教材を開く（基本編にないときは発展編のタブにかえる）
+  const openCard = async (id) => {
+    await page.goto(url + "#/");
+    const sel = `.mcard[href="#/${id}"]`;
+    for (const tab of ["basic", "advanced"]) if (!(await page.locator(sel).count())) await page.click(`.ef-level-tab.ef-level-${tab}`);
+    await page.click(sel);
+  };
+
   await page.goto(url);
-  check((await page.locator(".mcard").count()) === 6, "メニューに教材カードが6枚ある");
+  check((await page.locator(".ef-level-tab").count()) === 2 && (await page.locator('.ef-level-basic[aria-selected="true"]').count()) === 1, "メニューに「基本編」「発展編」のタブがあり、はじめは基本編");
+  check((await page.locator(".mcard").count()) === 8 && (await page.locator('.mcard[href="#/hash-lab"]').count()) === 0, "基本編に教材カードが8枚ある（ハッシュ化体験ラボは発展編だけ）");
+  check((await page.locator(".mcard .parts").count()) === 8 && /使うところ/.test(await page.locator(".mcard .parts").first().innerText()), "カードに「使うところ」（その編で使うページ）が出る");
+  await page.click(".ef-level-tab.ef-level-advanced");
+  check((await page.locator(".mcard").count()) === 7 && (await page.locator('.mcard[href="#/hash-lab"]').count()) === 1 && (await page.locator('.mcard[href="#/scam-lab"]').count()) === 0, "発展編に教材カードが7枚ある");
+  await page.reload();
+  check((await page.locator('.ef-level-advanced[aria-selected="true"]').count()) === 1, "選んだ編は読みこみ直しても残る");
+  await page.click(".ef-level-tab.ef-level-basic");
   check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
   check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
 
-  // 6つの教材を順に開く
+  // 9つの教材を順に開く
   for (const id of IDS) {
-    await page.click(`.mcard[href="#/${id}"]`).catch(async () => {
-      await page.goto(url + "#/");
-      await page.click(`.mcard[href="#/${id}"]`);
-    });
+    await openCard(id);
     const frame = page.frameLocator(`iframe[data-id="${id}"]`);
     await frame.locator("h1, h2").first().waitFor({ timeout: 10000 });
     const text = await frame.locator("body").innerText();
@@ -46,15 +59,14 @@ const check = (ok, label) => {
     const back = await page.locator("#menu").waitFor({ timeout: 3000 }).then(() => true, () => false);
     check(back && !(await page.locator(`iframe[data-id="${id}"]`).isVisible()), `${id}: メニューに戻れる`);
   }
-  check((await page.locator("iframe").count()) === 6, "開いた教材は閉じずに残る（作業が消えない）");
+  check((await page.locator("iframe").count()) === 9, "開いた教材は閉じずに残る（作業が消えない）");
   // 教材の中のリンク（#/…）を押しても、教材の中で画面が切りかわる（親のURLへ飛んで開けなくならない）
+  // （生成AI・ネット詐欺・ハッシュ化のラボは #guess のように「/」なしで切りかえる）
   for (const id of IDS) {
-    await page.click(`.mcard[href="#/${id}"]`).catch(async () => {
-      await page.goto(url + "#/");
-      await page.click(`.mcard[href="#/${id}"]`);
-    });
+    await openCard(id);
     const el = page.locator(`iframe[data-id="${id}"]`);
-    const hrefs = await (await (await el.elementHandle()).contentFrame()).$$eval('a[href^="#/"]', (as) => [...new Set(as.map((a) => a.getAttribute("href")))].filter((h) => h !== "#/"));
+    await page.frameLocator(`iframe[data-id="${id}"]`).locator("h1, h2").first().waitFor();
+    const hrefs = await (await (await el.elementHandle()).contentFrame()).$$eval('a[href^="#"]', (as) => [...new Set(as.map((a) => a.getAttribute("href")))].filter((h) => h !== "#/" && (h.startsWith("#/") || (/^#[a-z][\w-]*$/.test(h) && !document.getElementById(h.slice(1))))));
     let ok = hrefs.length > 0;
     for (const h of hrefs.slice(0, 3)) {
       const fr = await (await el.elementHandle()).contentFrame();
@@ -221,12 +233,12 @@ const check = (ok, label) => {
   await page.waitForFunction(() => location.hash === "#/virtual-cpu", null, { timeout: 5000 }).catch(() => {});
   check((await page.evaluate(() => location.hash)) === "#/virtual-cpu", "教材のさいごで、次の教材を開ける");
 
-  // ---- KS-01: 上のバーの「ふりがな」「大きな文字」が6つの教材にかかる ----
+  // ---- KS-01: 上のバーの「ふりがな」「大きな文字」が9つの教材にかかる ----
   await page.goto(url + "#/");
   // KS-09: 生徒向けのカードには学習指導要領の記号を出さず、「先生へ」に対応をまとめる
   check(!/D\(\d\)/.test(await page.locator(".grid").first().innerText()) && (await page.locator(".group .curr").count()) === 0, "KS-09: 教材のカードとグループ名に D(1) などの記号が出ない");
   const curr = await page.locator(".note .curriculum").evaluate((e) => { const c = e.cloneNode(true); c.querySelectorAll("rt").forEach((r) => r.remove()); return c.textContent; });
-  check(/デジタル化ラボD\(1\)、仮想CPUラボD\(1\)、ネットワーク通信シミュレータD\(1\)\(2\)、情報セキュリティ体験ラボD\(1\)\(4\)、双方向コンテンツ制作スタジオD\(2\)、計測・制御シミュレータD\(3\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生へ」に学習指導要領との対応がある");
+  check(/デジタル化ラボD\(1\)、仮想CPUラボD\(1\)、ネットワーク通信シミュレータD\(1\)\(2\)、情報セキュリティ体験ラボD\(1\)\(4\)、ネット詐欺追体験ラボD\(1\)\(4\)、双方向コンテンツ制作スタジオD\(2\)、計測・制御シミュレータD\(3\)、生成AIのしくみラボD\(1\)\(4\)、ハッシュ化体験ラボD\(1\)\(4\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生へ」に学習指導要領との対応がある");
   check((await page.locator("#tg-ruby").count()) === 1 && (await page.locator("#tg-large").count()) === 1, "上のバーに「ふりがな」「大きな文字」のボタンがある");
   await page.click("#tg-ruby");
   await page.click("#tg-large");
@@ -244,7 +256,7 @@ const check = (ok, label) => {
         kz: d.querySelectorAll("ruby.kz-ruby").length,
         nested: d.querySelectorAll("ruby ruby").length,
         bad: [...d.querySelectorAll("ruby")].filter((r) => r.parentElement.closest(sel)).length,
-        large: d.documentElement.classList.contains("large-text") && parseFloat(f.contentWindow.getComputedStyle(d.documentElement).fontSize) >= 18,
+        large: (d.documentElement.classList.contains("large-text") || d.documentElement.classList.contains("big-text")) && parseFloat(f.contentWindow.getComputedStyle(d.documentElement).fontSize) >= 18,
         shown: [...d.querySelectorAll("header button")].filter((b) => {
           const c = b.cloneNode(true);
           c.querySelectorAll("rt, rp").forEach((x) => x.remove());
@@ -252,7 +264,7 @@ const check = (ok, label) => {
         }).length,
       };
     }, SKIPSEL);
-    const rubyOk = id === "security-lab" ? r.own > 0 && r.kz === 0 : r.kz > 0;
+    const rubyOk = ["security-lab", "scam-lab", "genai-lab", "hash-lab"].includes(id) ? r.own > 0 && r.kz === 0 : r.kz > 0;
     check(rubyOk && r.nested === 0 && r.bad === 0, `${id}: ふりがなが付く（二重にならない・入力欄やプログラムには付かない）${JSON.stringify(r)}`);
     check(r.large && r.shown === 0, `${id}: 大きな文字になり、教材の同じボタンは上のバーにまとまる`);
   }
@@ -260,18 +272,18 @@ const check = (ok, label) => {
   await page.click("#tg-ruby");
   await page.waitForTimeout(300);
   const off = await page.evaluate(() => [...document.querySelectorAll("iframe")].map((f) => f.contentDocument.querySelectorAll("ruby").length).reduce((a, b) => a + b, 0));
-  check(off === 0, `「ふりがな」をもう一度押すと、6つの教材のふりがなが外れる（残り ${off}）`);
+  check(off === 0, `「ふりがな」をもう一度押すと、9つの教材のふりがなが外れる（残り ${off}）`);
   await page.click("#tg-ruby");
   check(await page.evaluate(() => JSON.parse(localStorage.getItem("kyozai.prefs.v1") || "{}").ruby === true), "ふりがなの設定が保存される（kyozai.prefs.v1）");
 
   // ---- KS-03 / KS-04: 細い上のバーと、名前の見える教材の切りかえ ----
   check((await page.locator(".shell-header").evaluate((e) => e.getBoundingClientRect().height)) <= 41, "教材集の上のバーは 40px 以下");
   await page.setViewportSize({ width: 1366, height: 650 });
-  check((await page.locator(".switcher a .short:visible").count()) === 6, "ノートPCの幅では、切りかえのアイコンに名前が出る");
+  check((await page.locator(".switcher a .short:visible").count()) === 9, "ノートPCの幅では、切りかえのアイコンに名前が出る");
   await page.setViewportSize({ width: 810, height: 1080 });
   await page.click("#switch-btn");
   const names = await page.locator(".switcher a:visible").allInnerTexts();
-  check(names.length === 6 && names.every((t, i) => t.includes(["デジタル化ラボ", "仮想CPUラボ", "ネットワーク通信シミュレータ", "情報セキュリティ体験ラボ", "双方向コンテンツ制作スタジオ", "計測・制御シミュレータ"][i])), "タブレット縦では「教材をかえる」で教材の名前の一覧が出る");
+  check(names.length === 9 && names.every((t, i) => t.includes(NAMES[i])), "タブレット縦では「教材をかえる」で教材の名前の一覧が出る");
   await page.locator(".switcher a", { hasText: "ネットワーク通信シミュレータ" }).click();
   await page.waitForFunction(() => location.hash === "#/network-sim");
   check(!(await page.locator(".switcher a").first().isVisible()), "一覧から選ぶと教材が開き、一覧は閉じる");
@@ -303,6 +315,15 @@ const check = (ok, label) => {
   await page.fill("#ex-cls", "3");
   await page.fill("#ex-num", "７");
   await page.fill("#ex-name", "テスト");
+  // ハッシュ化体験ラボのふりかえり（問いの id ごと）も、まとめに入る
+  await page.evaluate(() => {
+    const k = "eduit-hash-lab";
+    const v = JSON.parse(localStorage.getItem(k) || "{}");
+    v.refl = { r1: "同じ文なら同じ値になる" };
+    v.furigana = true;
+    localStorage.setItem(k, JSON.stringify(v));
+  });
+  await page.reload();
   const [dj] = await Promise.all([page.waitForEvent("download", { timeout: 5000 }).catch(() => null), page.click("#export-json")]);
   let json = null;
   try {
@@ -312,7 +333,9 @@ const check = (ok, label) => {
   const doneMsg = await plain("#export-msg");
   const fname = (doneMsg.match(/ファイル名: ([^）]+)）/) || [])[1] || "";
   check(Boolean(dj) && /^情報の技術_記録まとめ_3組7番_\d{4}-\d{2}-\d{2}\.json$/.test(fname), `まとめのファイル名に組・番号・日付が入る（${fname}）`);
-  check(json && json.materials.length === 6 && json.student.num === "7" && json.materials.find((m) => m.id === "virtual-cpu").raw["vcpu.v1"], "1つの JSON に6つの教材の記録が入る");
+  check(json && json.materials.length === 9 && json.student.num === "7" && json.materials.find((m) => m.id === "virtual-cpu").raw["vcpu.v1"], "1つの JSON に9つの教材の記録が入る");
+  const hr = json && json.materials.find((m) => m.id === "hash-lab");
+  check(hr && hr.hasRecord && hr.reflections.some((r) => r.question === "ハッシュ関数の性質" && r.text === "同じ文なら同じ値になる" && r.page === ""), "まとめにハッシュ化体験ラボのふりかえりが問いの名前つきで入る");
   check(/ファイルを保存しました（ファイル名: .+）。先生に言われた場所に出そう。/.test(doneMsg), "書き出したあとにファイル名と出し方が出る");
   const [dc] = await Promise.all([page.waitForEvent("download", { timeout: 5000 }).catch(() => null), page.click("#export-csv")]);
   const csvText = dc ? require("fs").readFileSync(await dc.path(), "utf8") : "";
@@ -333,8 +356,12 @@ const check = (ok, label) => {
   const before = await page.evaluate(() => localStorage.getItem("vcpu.v1") || "");
   page.once("dialog", (d) => d.accept());
   await page.click("#reset-all");
-  const left = await page.evaluate(() => ["digilab.v1", "vcpu.v1", "netsim.v1", "seclab.v1", "istudio.works.v1", "istudio.student.v1", "istudio.server.v1", "mcsim.v1", "kyozai.seen.v1", "kyozai.student.v1"].filter((k) => localStorage.getItem(k) !== null));
-  check(before.includes("リセット確認") && left.length === 0, `全リセットで6つの教材とメニューの記録が消える${left.length ? "（残り: " + left.join(", ") + "）" : ""}`);
+  const left = await page.evaluate(() => ["digilab.v1", "vcpu.v1", "netsim.v1", "seclab.v1", "istudio.works.v1", "istudio.student.v1", "istudio.server.v1", "mcsim.v1", "kyozai.seen.v1", "kyozai.student.v1"].filter((k) => localStorage.getItem(k) !== null)
+    // 生成AI・ネット詐欺・ハッシュ化のラボは、表示の設定（ふりがな・大きな文字）だけ残る
+    .concat(["eduit-scam-lab", "eduit-genai-lab", "eduit-hash-lab"].filter((k) => Object.keys(JSON.parse(localStorage.getItem(k) || "{}")).some((f) => f !== "furigana" && f !== "big"))));
+  check(before.includes("リセット確認") && left.length === 0, `全リセットで9つの教材とメニューの記録が消える${left.length ? "（残り: " + left.join(", ") + "）" : ""}`);
+  const hashLeft = await page.evaluate(() => localStorage.getItem("eduit-hash-lab"));
+  check(hashLeft === JSON.stringify({ furigana: true, big: true }), `全リセットで、ラボのふりかえりは消え、ふりがなの設定だけ残る（${hashLeft}）`);
   check((await page.locator(".route li.seen").count()) === 0 && (await page.locator("iframe").count()) === 0, "全リセットで「開いたことがある」の印と開いていた教材が消える");
   check(/消しました/.test(await page.locator("#reset-msg").innerText()), "全リセットのあとに知らせが出る");
   check(await page.evaluate(() => JSON.parse(localStorage.getItem("kyozai.prefs.v1") || "{}").ruby === true), "全リセットでも、ふりがな・大きな文字の設定は残る");

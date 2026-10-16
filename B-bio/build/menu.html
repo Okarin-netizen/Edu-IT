@@ -139,7 +139,7 @@ body{background:var(--ef-bg);}
       <span class="status" id="hub-store">確認中…</span>
       <button class="btn ef-btn" type="button" data-go="student">📖 使い方</button>
     </div>
-    <div class="grid" id="hub-cards"></div>
+    <div id="hub-cards"></div>
     <div class="flow">
       <b>💡 おすすめの順番</b>
       <ol>
@@ -661,20 +661,39 @@ function reflState(id){
 }
 var ORDER = ['b2', 'b3', 'b4', 'b1'];   /* おすすめの順 */
 var REC = {b2: '①', b3: '①', b4: '②', b1: '③'};
+function cardHtml(id, level){
+  var a = APPS[id];
+  var r = storeOK ? reflState(id) : {st: 'todo'};
+  var lab = r.st === 'done' ? '✅ 書いた' : (r.st === 'part' ? '📝 書きかけ' + (r.t ? '(' + r.f + '/' + r.t + ')' : '') : '✏️ まだ');
+  return '<article class="card ef-card"><div class="hd"><span class="ic" aria-hidden="true">' + a.icon + '</span>' +
+    '<div class="hdt"><p class="ef-card-tag">' + a.code + '</p><h3 class="ef-card-title">' + a.name + '</h3></div>' +
+    (level === 'advanced' ? '' : '<span class="rec" title="おすすめの順番">おすすめ' + REC[id] + '</span>') + '</div>' +
+    '<p class="desc">' + a.desc + '</p>' +
+    '<div class="parts-slot"></div>' +
+    '<div class="meta"><span class="chip">' + a.when + '</span><span class="chip ' + r.st + '">振《ふ》り返《かえ》り:' + lab + '</span></div>' +
+    '<button class="open ef-btn-primary" type="button" data-go="' + id + '">ひらく ▶</button></article>';
+}
+/* 基本編・発展編のタブ(分け方は B-bio/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js) */
+var levelTabs = null;
 function renderCards(){
-  var h = '';
-  ORDER.forEach(function(id){
-    var a = APPS[id];
-    var r = storeOK ? reflState(id) : {st: 'todo'};
-    var lab = r.st === 'done' ? '✅ 書いた' : (r.st === 'part' ? '📝 書きかけ' + (r.t ? '(' + r.f + '/' + r.t + ')' : '') : '✏️ まだ');
-    h += '<article class="card ef-card"><div class="hd"><span class="ic" aria-hidden="true">' + a.icon + '</span>' +
-      '<div class="hdt"><p class="ef-card-tag">' + a.code + '</p><h3 class="ef-card-title">' + a.name + '</h3></div>' +
-      '<span class="rec" title="おすすめの順番">おすすめ' + REC[id] + '</span></div>' +
-      '<p class="desc">' + a.desc + '</p>' +
-      '<div class="meta"><span class="chip">' + a.when + '</span><span class="chip ' + r.st + '">振《ふ》り返《かえ》り:' + lab + '</span></div>' +
-      '<button class="open ef-btn-primary" type="button" data-go="' + id + '">ひらく ▶</button></article>';
-  });
-  $('#hub-cards').innerHTML = rubyfy(h);
+  if (levelTabs) { levelTabs.render(); return; }
+  if (window.EduitFrame && EduitFrame.levels && window.EDUIT_INFO && EDUIT_INFO.levels) {
+    levelTabs = EduitFrame.levels($('#hub-cards'), {
+      gridClass: 'grid',
+      card: function(item, parts, level){
+        if (!APPS[item.id]) return null;
+        var box = document.createElement('div');
+        box.innerHTML = rubyfy(cardHtml(item.id, level));
+        var c = box.firstChild, slot = c.querySelector('.parts-slot');
+        if (parts) slot.parentNode.replaceChild(parts, slot); else slot.remove();
+        return c;
+      },
+      onRender: function(panel){ addRuby(panel); }
+    });
+    return;
+  }
+  $('#hub-cards').className = 'grid';
+  $('#hub-cards').innerHTML = rubyfy(ORDER.map(function(id){ return cardHtml(id, 'basic'); }).join('')).replace(/<div class="parts-slot"><\/div>/g, '');
   addRuby($('#hub-cards'));
 }
 window.addEventListener('storage', function(e){ if (current === 'menu' && (!e.key || /_reflstat$/.test(e.key) || /^b[1-4]_/.test(e.key))) renderCards(); });

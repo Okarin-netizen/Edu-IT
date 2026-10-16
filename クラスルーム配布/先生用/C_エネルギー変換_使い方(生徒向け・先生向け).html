@@ -135,6 +135,31 @@
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
 /* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <script>
@@ -147,14 +172,18 @@ window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
   suite: 'エネルギー変換 学習アプリ(E1〜E5)',
-  version: '1.2',
-  updated: '2026-10-15',
+  version: '1.3',
+  updated: '2026-10-16',
   safety: [
     'E2 電気回路ラボ・E5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
     'E3・E4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
     '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。E1 の発電の値段は、国の試算を丸めた概算です。'
   ],
   history: [
+    { version: '1.3', date: '2026-10-16', items: [
+      'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(E2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
+      'カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにした(記録の保存のしかたは変わらない)。'
+    ] },
     { version: '1.2', date: '2026-10-15', items: [
       '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
       '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(トップ画面の下と、アプリ画面の「ⓘ このアプリについて」)。',
@@ -174,6 +203,34 @@ window.EDUIT_INFO = {
       'トップ画面のカードに進み具合と「▶ つづきから」を表示。'
     ] }
   ]
+};
+
+/* 基本編・発展編(学習指導要領 技術分野「C エネルギー変換の技術」と教科書の内容から分けたもの)
+ * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は E1〜E5。
+ * parts は生徒の画面のステージ・課題・タブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'E1', parts: ['ステージ1 懐中電灯', 'ステージ2 自転車のライト', 'ステージ3 クレーン', 'ステージ4 火力発電所', 'ステージ5 再生可能エネルギー', 'ステージ7 町の電源', 'ステージ8 たこ足配線'], curr: 'C(1)ア・C(3)イ', why: 'エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容' },
+      { id: 'E2', parts: ['課題 豆電球・スイッチ・直列・並列', '課題 モーターを逆に回そう', '課題 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
+      { id: 'E3', parts: ['回転を伝える', '運動を変える', '設計課題(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
+      { id: 'E4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
+      { id: 'E5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、理科とつながる測定・計算をくわしく行う内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'E1', parts: ['ステージ6 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
+      { id: 'E2', parts: ['課題 電流計・電圧計ではかろう', '課題 電池の持ちを比べる', '課題 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
+      { id: 'E3', parts: ['ブラックボックス', '設計課題(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
+      { id: 'E5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
+    ]
+  }
 };
 EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1〜E5)' };
 </script>
@@ -196,7 +253,17 @@ EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1�
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
  *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
 (function () {
   'use strict';
@@ -316,7 +383,67 @@ EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1�
     else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -405,6 +532,7 @@ nav a{margin-right:14px}
 <li><b>インターネット接続は不要</b>です。外部との通信は一切しません。</li>
 <li>Google ドライブや Classroom で配る場合は、プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</li>
 <li>iPad はファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。その場合は校内のWebサーバーなどに置いて、URLで開いてください。</li>
+<li>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(E1 の蓄電池・自由実験、E2 の電流計・電圧計・LEDと抵抗・電気料金、E3 のブラックボックスと数値の設計課題、E5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、クラスルーム配布用フォルダの「先生用/全分野_基本編と発展編(先生用).html」にあります(配布用フォルダでは、このアプリは「C_エネルギー変換_統一版.html」という名前です)。</li>
 <li>特定のアプリから始めたいときは、URLの最後に <code>#E3</code> のように付けると、そのアプリが直接開きます(例: <code>energy-apps.html#E2</code>)。</li>
 <li>想定画面は10インチタブレット(横 1280×800 前後)・タッチ操作です。<b>縦向きにも対応</b>しています(作業エリアが全幅になり、パネルは上下に並びます)。マウス・キーボードでも操作できます。</li>
 <li><b>効果音は最初はOFF</b>です(教室で30台が同時に鳴らないように)。生徒が各アプリの 🔇/🔊 ボタンで入れられます。設定は端末ごとに記録されます。</li>
