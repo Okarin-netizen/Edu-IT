@@ -1,6 +1,6 @@
 # common/ 共通基盤の使い方
 
-材料と加工の各アプリ(M1〜M6)が共有する部品です。持ち主は共通基盤スレッドです。
+材料と加工の各アプリ(M1〜M7)が共有する部品です。持ち主は共通基盤スレッドです。
 不具合や追加してほしい機能があれば、編集せずに共通基盤スレッドへ伝えてください
 (例外: `beam.js` は M3 スレッドが直接直してよい)。
 
@@ -14,7 +14,7 @@ A-materials/
   eduit-info.js         版と更新履歴(4分野共通の枠が読む)
   icons/
   common/               ← この部品
-  m1-material-navi/  m2-wood-lab/  m3-structure-lab/  m4-drawing-trainer/  m5-kidori/  m6-tool-safety/
+  m1-material-navi/  m2-wood-lab/  m3-structure-lab/  m4-drawing-trainer/  m5-kidori/  m6-tool-safety/  m7-solid-maker/
   teacher-viewer/       先生用 提出ファイル一覧ビューア(共通基盤スレッド)
   docs/使い方_先生用.html   先生用の使い方
   build/build-single.py     1ファイル版を作る(python3 build/build-single.py → dist/)
@@ -76,7 +76,7 @@ G.initApp({
 G.tabs(G.$('[data-g-tabs]'));
 ```
 
-app 名(メニューの並び順 M1→M6): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(M5) / `tool-safety`
+app 名(メニューの並び順 M1→M7): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(M5) / `tool-safety` / `solid-maker`(M7)
 
 ## G の主な機能(core.js)
 
