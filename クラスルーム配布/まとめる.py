@@ -36,6 +36,7 @@ data = json.loads((info / "kyozai-shu/data/materials.json").read_text(encoding="
 for i, m in enumerate(data["materials"], 1):
     copy(info / m["source"], student / "D_情報の技術_1つずつ配るとき" / f"D{i}_{m['title']}.html")
 copy(info / "dist/生成AIのしくみラボ.html", student / "D_生成AIのしくみラボ.html")
+copy(info / "dist/ネット詐欺_追体験ラボ.html", student / "D_ネット詐欺_追体験ラボ.html")
 copy(info / "dist/ハッシュ化体験ラボ.html", student / "D_ハッシュ化体験ラボ.html")
 
 # ---- 先生用 ----
