@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>使い方 - エネルギー変換 学習アプリ(E1〜E5)</title>
-<!-- 4分野共通の枠(build.py が中身を入れる) -->
+<title>先生用ガイド | エネルギー変換の技術</title>
+<!-- 4分野共通の枠と先生用ガイドの見た目(build.py が中身を入れる。外部ファイルは読まない) -->
 <style>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
@@ -162,6 +162,65 @@
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
+<style>
+/*
+ * 4分野共通の「先生用ガイド」の見た目(eduit-frame.css のあとに読む)
+ *
+ * 形(どの分野も同じ):
+ *   <header class="ef-header"><p class="ef-title">先生用ガイド</p></header>
+ *   <main class="eg">
+ *     <h1 class="eg-h1">〇〇の技術 先生用ガイド</h1>
+ *     <p class="eg-meta">中学校 技術・家庭(技術分野) 内容〇「…」 ・ 生徒に配るファイル: <b>…_統一版.html</b></p>
+ *     <div class="eg-lead">この教材集でできること(2〜3文)</div>
+ *     <nav class="eg-toc">目次</nav>
+ *     <section class="eg-sec" id="kubari"><h2>1. 配り方と開き方</h2> …</section>
+ *       2. 教材の一覧(基本編・発展編) / 3. 単元での使い方 / 4. 記録の保存と提出
+ *       5. 授業で使うときの注意 / 6. こまったとき / 7. 更新履歴
+ *   </main>
+ *   (フッターは eduit-frame.js が出す)
+ * 部品: .eg-note(補足の箱) .eg-warn(注意の箱) .eg-table(表) .eg-faq(dl: こまったとき) code
+ */
+body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.75; margin: 0; }
+.eg { max-width: 900px; margin: 0 auto; padding: 18px 18px 40px; font-size: 16px; }
+.eg-h1 { font-size: 1.55rem; margin: 6px 0 2px; line-height: 1.4; }
+.eg-meta { color: var(--ef-muted); margin: 0 0 12px; font-size: .92rem; }
+.eg-lead { background: var(--ef-accent-soft); border-radius: var(--ef-radius); padding: 12px 16px; margin: 0 0 14px; }
+.eg-lead p { margin: .3em 0; }
+.eg-toc { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 8px 16px; margin: 0 0 16px; font-size: .95rem; }
+.eg-toc ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 24px; }
+.eg-toc a { color: var(--ef-accent); }
+.eg-sec { background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent); border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 4px 20px 14px; margin: 0 0 16px; }
+.eg-sec h2 { font-size: 1.2rem; margin: 12px 0 8px; color: var(--ef-text); }
+.eg-sec h3 { font-size: 1.02rem; margin: 16px 0 6px; padding-left: 9px; border-left: 4px solid var(--ef-accent); }
+.eg-sec ol, .eg-sec ul { padding-left: 1.4em; }
+.eg-sec li { margin: .25em 0; }
+.eg-note, .eg-warn { border-radius: var(--ef-radius-s); padding: 8px 12px; margin: 10px 0; }
+.eg-note { background: var(--ef-surface-2); border: 1px solid var(--ef-line); }
+.eg-warn { background: #fff6d6; border: 1px solid #e8d48a; }
+.eg-note > :first-child, .eg-warn > :first-child { margin-top: 0; }
+.eg-note > :last-child, .eg-warn > :last-child { margin-bottom: 0; }
+.eg-table-wrap { overflow-x: auto; }
+.eg-table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 8px 0; background: var(--ef-surface); }
+.eg-table th, .eg-table td { border: 1px solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.eg-table th { background: var(--ef-surface-2); }
+.eg-table .eg-group td { background: var(--ef-accent-soft); font-weight: 700; }
+.eg-faq dt { font-weight: 700; margin-top: 10px; }
+.eg-faq dd { margin: 2px 0 0 1.2em; }
+.eg code { background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 4px; padding: 0 .3em; font-size: .9em; }
+@media (max-width: 640px) { .eg-toc ol { columns: 1; } .eg-sec { padding: 4px 14px 12px; } }
+@media print {
+  body { background: #fff; }
+  .ef-header { position: static; }
+  .eg { padding: 0; font-size: 11pt; }
+  .eg-toc { display: none; }
+  .eg-sec { box-shadow: none; break-inside: auto; }
+  .eg-sec h2, .eg-sec h3 { break-after: avoid; }
+  .eg-table, .eg-note, .eg-warn { break-inside: avoid; }
+}
+</style>
+<style>
+.eg rt{font-size:.6em}
+</style>
 <script>
 /* エネルギー変換 学習アプリ(E1〜E5)の版・更新履歴など。
  * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
@@ -182,7 +241,8 @@ window.EDUIT_INFO = {
   history: [
     { version: '1.3', date: '2026-10-16', items: [
       'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(E2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
-      'カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにした(記録の保存のしかたは変わらない)。'
+      'カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにした(記録の保存のしかたは変わらない)。',
+      '先生用ガイドの名前・章立て・見た目を4分野でそろえた'
     ] },
     { version: '1.2', date: '2026-10-15', items: [
       '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
@@ -232,7 +292,7 @@ window.EDUIT_INFO.levels = {
     ]
   }
 };
-EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1〜E5)' };
+EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 </script>
 <script>
 /* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
@@ -447,109 +507,89 @@ EDUIT_INFO.app = { name: '使い方 - エネルギー変換 学習アプリ(E1�
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
-<style>
-:root{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent)}
-body{margin:0;background:var(--ef-bg);color:var(--ink);font-family:var(--ef-font);line-height:1.75;font-size:16.5px}
-main{max-width:960px;margin:0 auto;padding:16px 20px 60px}
-.lead{color:var(--sub);margin:0 0 10px}
-.start{background:var(--ef-surface);border:2px solid var(--accent);border-radius:14px;padding:12px 18px;margin:14px 0}
-.start b{font-size:18px}
-h2{font-size:23px;margin:34px 0 4px;padding:6px 12px;background:var(--accent);color:#fff;border-radius:10px}
-h3{font-size:19px;margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
-li{margin:3px 0}
-rt{font-size:12px}
-code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
-.ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;break-inside:avoid}
-.ea-hcard h4{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
-.ea-hcard p{margin:4px 0;font-size:15px;line-height:1.6}
-.ea-hic{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
-.ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
-.ea-tbl{border-collapse:collapse;background:#fff}
-.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:15px}
-.ea-tbl th{background:var(--ef-surface-2)}
-nav a{margin-right:14px}
-@media (max-width:760px){.ea-hgrid{grid-template-columns:1fr}}
-@media print{.ef-header{border-bottom-color:#000}body{background:#fff;font-size:13px}h2{break-before:page;background:none;color:#000;border-bottom:2px solid #000;border-radius:0}h2.first{break-before:auto}.start{border-color:#000}}
-</style>
 </head>
 <body>
-<header class="ef-header"><h1 class="ef-title"><span class="ef-icon" aria-hidden="true">⚡</span>エネルギー変換 学習アプリ 使い方</h1></header>
-<main>
-<p class="lead">中学校 技術分野「エネルギー変換の技術」の学習用アプリ(E1〜E5)を1つにまとめたものです。インターネットなしで動きます。</p>
-<div class="start"><b>▶ はじめるには:</b> このフォルダの <code>energy-apps.html</code> をブラウザ(Chrome・Edge など)で開きます。</div>
-<nav><a href="#student">生徒向け</a><a href="#teacher">先生向け</a></nav>
-<h2 id="student" class="first">🧑‍🎓 生徒向け</h2>
+<header class="ef-header">
+  <p class="ef-title">先生用ガイド</p>
+</header>
+<main class="eg">
+  <h1 class="eg-h1">エネルギー変換の技術 先生用ガイド</h1>
+  <p class="eg-meta">中学校 技術・家庭(技術分野) 内容C「エネルギー変換の技術」 ・ 生徒に配るファイル: <b>C_エネルギー変換_統一版.html</b></p>
+  <div class="eg-lead">
+    <p>5つの学習アプリ(E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート)を1つのファイルにまとめた教材集です。インターネットへの接続やインストールは不要です。10インチのタブレットや Chromebook(1280×800)で、横向きでも縦向きでも使えます。</p>
+  </div>
+  <nav class="eg-toc" aria-label="目次"><ol>
+    <li><a href="#kubari">配り方と開き方</a></li><li><a href="#ichiran">教材の一覧(基本編・発展編)</a></li><li><a href="#tangen">単元での使い方</a></li><li><a href="#kiroku">記録の保存と提出</a></li><li><a href="#chui">授業で使うときの注意</a></li><li><a href="#komatta">こまったとき</a></li><li><a href="#rireki">更新履歴</a></li>
+  </ol></nav>
 
-<h3>はじめかた</h3>
-<ol>
-<li>トップ画面で、学びたいアプリのカードをタップします。</li>
-<li>はじめて開いたアプリでは、そのアプリの使い方が出ます。読んだら「はじめる」をタップ。</li>
-<li>上の <b>🏠 トップ</b> をタップすると、いつでもトップ画面にもどれます。となりの <b>⚡ E1 エネルギー</b>・<b>🔌 E2 電気回路</b> などのボタンで、ほかのアプリへ直接移れます(縦向きでは、アイコンと番号だけになります)。</li>
-<li>どのアプリも、上の右側の <b>❓ 使い方</b> で、そのアプリの説明をもう一度見られます(読んだら「わかった」)。</li>
-<li>トップ画面のカードには、<b>進み具合</b>(クリアしたステージや課題の数)が出ます。1つでも進んだアプリは「▶ つづきから」になります。</li>
-<li>タブレットは<b>横向きでも縦向きでも</b>使えます。縦向きでは、作業する場所(盤面・図)が横いっぱいに広がり、部品やボタンは上、説明は下に並びます。</li>
-</ol>
-<h3>Chromebook・パソコンで使うとき</h3>
+<section class="eg-sec" id="kubari">
+<h2>1. 配り方と開き方</h2>
 <ul>
-<li>説明の「<b>タップ</b>」は、マウスやタッチパッドの<b>クリック</b>と同じです。「<b>指でなぞる</b>」「<b>引っぱる</b>」は、<b>ドラッグ</b>(おしたまま動かして、はなす)でできます。タッチ画面のChromebookなら、指でもそのまま使えます。</li>
-<li>トップ画面や上のバーの <b>🖥️ 全画面</b> をおすと、ブラウザのタブやアドレスバーが消えて、作業する場所が広くなります。もとにもどすときは <b>🖥️ 全画面をやめる</b>(または <b>Esc</b> キー)。</li>
-<li>部品の一覧や説明が画面に入りきらないときは、その部分をマウスのホイールやタッチパッドの<b>2本指で上下</b>に動かすと、続きが見えます。</li>
-<li>画面の大きさは <b>Ctrl</b> と <b>+</b> / <b>−</b> で変えられます(<b>Ctrl</b> と <b>0</b> でもとの大きさ)。</li>
-</ul>
-<h3>どのアプリでも同じボタン</h3>
-<ul>
-<li><b>❓ 使い方</b>:そのアプリの説明を見る。</li>
-<li><b>↩ もどす</b>:1つ前にもどす。<b>🗑 ぜんぶ消す</b>・<b>↺ 最初から</b>:消す前に確認が出ます(「やめる」でやめられます)。</li>
-<li><b>💾 ファイルに保存</b>・<b>📂 ファイルを読みこむ</b>・<b>🖨️ 印刷</b>:設計図や点検表などをファイルにしたり、印刷したりします。</li>
-<li><b>🔇 / 🔊</b>:効果音のオン・オフ。<b>はじめは音が出ません</b>(🔇)。音を出したいときは 🔇 をタップして 🔊 にします。</li>
-<li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・トップ画面のいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
-</ul>
-<h3>5つのアプリ</h3>
-<div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>E1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>E2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>E3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>E4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>E5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
-<h3>記録(セーブ)について</h3>
-<ul>
-<li>とちゅうの回路や★、クイズの結果は<b>自動で保存</b>されます。保存ボタンをおす必要はありません。</li>
-<li>次に<b>同じタブレットの同じブラウザ</b>で開くと、続きから始まります。</li>
-<li>シークレットモード(プライベートブラウズ)で開くと、閉じたときに記録が消えます。</li>
-<li>設計図(E3)・点検表(E4)・設計シート(E5)は、「<b>💾 ファイルに保存</b>」でファイルにして先生に提出できます。保存すると「保存しました」と出ます。</li>
-<li>保存したファイルは、同じアプリの「<b>📂 ファイルを読みこむ</b>」で開き直せます(「読みこみました」と出ます)。</li>
-</ul>
-<h3>こまったとき</h3>
-<ul>
-<li><b>画面が動かない・おかしい</b>:🏠 トップにもどってから開き直す。それでもだめなら、ページを再読み込みします(記録は残ります)。</li>
-<li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。E5 は音を使いません)。</li>
-<li><b>まちがえて消した</b>:「↩ もどす」で1つ前にもどせます。</li>
-<li><b>字が小さい</b>:ブラウザの拡大(タブレットは2本指で広げる、Chromebook・パソコンは <b>Ctrl</b> と <b>+</b>)を使えます。</li>
-<li>計算は「理想的な部品」での目安です。本物の部品では、電池の古さや部品のばらつきで値が変わります。</li>
-</ul>
-
-<h2 id="teacher">🧑‍🏫 先生向け</h2>
-
-<h3>配布と起動</h3>
-<ul>
-<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに E1〜E5 がすべて入っています。</li>
+<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに E1〜E5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
 <li><b>インターネット接続は不要</b>です。外部との通信は一切しません。</li>
 <li>Google ドライブや Classroom で配る場合は、プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</li>
 <li>iPad はファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。その場合は校内のWebサーバーなどに置いて、URLで開いてください。</li>
-<li>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(E1 の蓄電池・自由実験、E2 の電流計・電圧計・LEDと抵抗・電気料金、E3 のブラックボックスと数値の設計課題、E5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、クラスルーム配布用フォルダの「先生用/全分野_基本編と発展編(先生用).html」にあります(配布用フォルダでは、このアプリは「C_エネルギー変換_統一版.html」という名前です)。</li>
 <li>特定のアプリから始めたいときは、URLの最後に <code>#E3</code> のように付けると、そのアプリが直接開きます(例: <code>energy-apps.html#E2</code>)。</li>
 <li>想定画面は10インチタブレット(横 1280×800 前後)・タッチ操作です。<b>縦向きにも対応</b>しています(作業エリアが全幅になり、パネルは上下に並びます)。マウス・キーボードでも操作できます。</li>
 <li><b>効果音は最初はOFF</b>です(教室で30台が同時に鳴らないように)。生徒が各アプリの 🔇/🔊 ボタンで入れられます。設定は端末ごとに記録されます。</li>
-<li>トップ画面のカードに、各アプリの進み具合(E1 ステージ・E2 課題・E3 設計課題のクリア数、E4 部品図鑑、E5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
 </ul>
-<h3>内容と単元での使い方(目安)</h3>
-<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th></tr><tr><td>⚡ E1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td></tr><tr><td>🔌 E2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td></tr><tr><td>⚙️ E3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td></tr><tr><td>🔧 E4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td></tr><tr><td>📐 E5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td></tr></table>
+</section>
+<section class="eg-sec" id="ichiran">
+<h2>2. 教材の一覧(基本編・発展編)</h2>
+<p>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(E1 の蓄電池・自由実験、E2 の電流計・電圧計・LEDと抵抗・電気料金、E3 のブラックボックスと数値の設計課題、E5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
+<div class="eg-table-wrap"><table class="eg-table"><tr><th>アプリ</th><th>ねらい</th></tr><tr><td>⚡ E1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td></tr><tr><td>🔌 E2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td></tr><tr><td>⚙️ E3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td></tr><tr><td>🔧 E4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td></tr><tr><td>📐 E5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td></tr></table></div>
+</section>
+<section class="eg-sec" id="tangen">
+<h2>3. 単元での使い方</h2>
 <ul>
 <li>導入で E1(エネルギー変換と効率)→ 電気の学習で E2 → 機械の学習で E3 → 保守点検で E4 → 製作の設計・評価で E5、の順を想定しています。</li>
 <li>E2 の回路の計算と E5 の回路図は同じ計算のしくみを使っています。E2 で試したことを E5 の設計に生かせます。</li>
 <li>E3 の部品データは E4 の部品図鑑と共通です。</li>
-<li>計算は理想化したモデルによる目安です。実物の製作・測定と組み合わせて使ってください。</li>
+<li>トップ画面のカードに、各アプリの進み具合(E1 ステージ・E2 課題・E3 設計課題のクリア数、E4 部品図鑑、E5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
 </ul>
+</section>
+<section class="eg-sec" id="kiroku">
+<h2>4. 記録の保存と提出</h2>
 <h3>提出物(印刷・ファイル)</h3>
 <ul>
 <li><b>E3 設計図</b>、<b>E4 点検表</b>、<b>E5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
 <li>ファイル名は英数字(例: <code>E5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
+<li>提出されたファイルは、4分野共通の <b>全分野_振り返り一覧.html</b> で、ほかの分野と同じように一覧にできます。</li>
+</ul>
+<h3>学習記録の保存場所</h3>
+<ul>
+<li>記録は各端末のブラウザ内に保存されます。サーバーには送られません。</li>
+<li>端末やブラウザが変わると記録は引き継がれません。ブラウザの「閲覧履歴データの削除」で消えることがあります。</li>
+<li>保存キーは <code>energyApps.E1.v1</code>〜<code>energyApps.E5.v1</code> です。</li>
+</ul>
+
+<h3>学習記録の管理</h3>
+<p>アプリのトップ画面 →「❓ 使い方」→「先生向け」に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
+</section>
+<section class="eg-sec" id="chui">
+<h2>5. 授業で使うときの注意</h2>
+<ul>
+<li>計算は理想化したモデルによる目安です。実物の製作・測定と組み合わせて使ってください。</li>
+<li>E1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
+<li>E2・E5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
+<li>アプリは外部と通信しません。生徒の情報がインターネットに送られることはありません。</li>
+</ul>
+</section>
+<section class="eg-sec" id="komatta">
+<h2>6. こまったとき</h2>
+<dl class="eg-faq">
+<dt><b>Google ドライブや Classroom の画面で開くと動かない</b></dt><dd>プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</dd>
+<dt><b>iPad でうまく動かない</b></dt><dd>ファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。校内のWebサーバーなどに置いて、URLで開いてください。</dd>
+<dt><b>前の記録が引き継がれない</b></dt><dd>記録は端末のブラウザごとに保存されます。前と同じ端末・同じブラウザで、同じ場所に置いたファイルから開いているか確かめてください。シークレットモードでは、閉じたときに記録が消えます。端末を変えるときは、「学習記録の管理」で書き出してから、新しい端末で読み込みます。</dd>
+<dt><b>画面が動かない・おかしい</b></dt><dd>🏠 トップにもどってから開き直します。それでもだめなら、ページを再読み込みします(記録は残ります)。</dd>
+</dl>
+</section>
+<section class="eg-sec" id="rireki">
+<h2>7. 更新履歴</h2>
+<h3>基本編・発展編(2026-10-16・第1.3版)</h3>
+<ul>
+<li>トップ画面を「基本編」「発展編」のタブに分け、カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにしました(記録の保存のしかたは変わりません)。</li>
+<li>先生用ガイドの名前・章立て・見た目を4分野でそろえました。</li>
 </ul>
 <h3>画面の枠の共通化(2026-10-15・第1.2版)</h3>
 <ul>
@@ -574,17 +614,8 @@ nav a{margin-right:14px}
 <li>統合版:トップのカードに進み具合と「▶ つづきから」、上のアプリ切りかえに短い名前、縦向きでボタンが折れないようにしました。</li>
 <li><b>保存データの形は変えていません</b>。これまでの学習記録はそのまま使えます。</li>
 </ul>
-<h3>学習記録の保存場所</h3>
-<ul>
-<li>記録は各端末のブラウザ内に保存されます。サーバーには送られません。</li>
-<li>端末やブラウザが変わると記録は引き継がれません。ブラウザの「閲覧履歴データの削除」で消えることがあります。</li>
-<li>保存キーは <code>energyApps.E1.v1</code>〜<code>energyApps.E5.v1</code> です。</li>
-</ul>
-
-<h3>学習記録の管理</h3>
-<p>アプリのトップ画面 →「❓ 使い方」→「先生向け」に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
-
-
+<p>すべての更新履歴は、このページのいちばん下の「安全と個人情報・ライセンス・更新履歴」から見られます。</p>
+</section>
 </main>
 </body>
 </html>
