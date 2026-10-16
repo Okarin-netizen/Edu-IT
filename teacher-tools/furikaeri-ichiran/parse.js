@@ -49,17 +49,17 @@
 
   /* ================= A 材料と加工(gijutsu-artifact/1) ================= */
   var A_APPS = {
-    'material-navi': 'M1 材料選択ナビ', 'wood-lab': 'M2 木材の繊維・収縮ラボ', 'structure-lab': 'M3 構造強化ラボ',
-    'drawing-trainer': 'M4 製図トレーナー', 'kidori': 'M5 木取り・構想シミュレータ', 'tool-safety': 'M6 工具の使い方・安全トレーナー',
-    'solid-maker': 'M7 第三角法 立体メーカー'
+    'material-navi': 'A1 材料選択ナビ', 'wood-lab': 'A2 木材の繊維・収縮ラボ', 'structure-lab': 'A3 構造強化ラボ',
+    'drawing-trainer': 'A4 製図トレーナー', 'kidori': 'A5 木取り・構想シミュレータ', 'tool-safety': 'A6 工具の使い方・安全トレーナー',
+    'solid-maker': 'A7 第三角法 立体メーカー'
   };
-  var M4_SELF = [['read', '三面図を見て、立体の形を思いうかべることができた'], ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
+  var A4_SELF = [['read', '三面図を見て、立体の形を思いうかべることができた'], ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
     ['iso', '等角図を、たて・横・おくの3つの向きの線でかけた'], ['line', '線の種類(外形線・かくれ線・中心線など)を使い分けられた']];
-  var M4_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
-  var M7_SELF = [['match', '三面図で、幅・高さ・奥行きがそろう位置がわかった'], ['image', '三面図から、立体の形を思いうかべることができた'],
+  var A4_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
+  var A7_SELF = [['match', '三面図で、幅・高さ・奥行きがそろう位置がわかった'], ['image', '三面図から、立体の形を思いうかべることができた'],
     ['pict', '等角図とキャビネット図のちがいを説明できる'], ['sheet', '寸法や表題欄の入った図面にまとめることができた']];
-  var M5_VIEW = [['society', '社会'], ['environment', '環境'], ['economy', '経済'], ['safety', '安全'], ['usability', '使いやすさ'], ['function', '機能']];
-  var M6_SCORE = [['posture', '姿勢'], ['safety', '安全'], ['accuracy', '精度']];
+  var A5_VIEW = [['society', '社会'], ['environment', '環境'], ['economy', '経済'], ['safety', '安全'], ['usability', '使いやすさ'], ['function', '機能']];
+  var A6_SCORE = [['posture', '姿勢'], ['safety', '安全'], ['accuracy', '精度']];
 
   function aRows(a) {
     var d = a.data || {}, at = a.updatedAt || a.createdAt, R = Rows(at), title = str(a.title);
@@ -88,7 +88,7 @@
       }
       case 'drawing-trainer': {
         var r = d.reflect || {}, self = r.self || {};
-        M4_SELF.forEach(function (s) { R.add('自己評価', '', s[1], M4_LV[self[s[0]]]); });
+        A4_SELF.forEach(function (s) { R.add('自己評価', '', s[1], A4_LV[self[s[0]]]); });
         R.add('ふりかえり', '', 'わかったこと・できるようになったこと', r.learned);
         R.add('ふりかえり', '', 'むずかしかったこと・次にがんばりたいこと', r.hard);
         R.add('ふりかえり', '', '製作図をかくときにどう生かしたいか', r.use);
@@ -98,7 +98,7 @@
       }
       case 'kidori': {
         var rv = d.review || {}, vp = rv.viewpoints || {};
-        var vps = M5_VIEW.filter(function (v) { return vp[v[0]] != null && vp[v[0]] !== ''; })
+        var vps = A5_VIEW.filter(function (v) { return vp[v[0]] != null && vp[v[0]] !== ''; })
           .map(function (v) { return v[1] + ' ' + vp[v[0]]; });
         if (vps.length) R.add('自己評価', title, '観点ごとの評価(0〜5)', vps.join(' / '));
         R.add('ふりかえり', title, '工夫したところ・よかったところ', rv.good);
@@ -108,7 +108,7 @@
       }
       case 'solid-maker': {
         var rf = d.reflect || {}, sf = rf.self || {};
-        M7_SELF.forEach(function (s) { R.add('自己評価', title, s[1], M4_LV[sf[s[0]]]); });
+        A7_SELF.forEach(function (s) { R.add('自己評価', title, s[1], A4_LV[sf[s[0]]]); });
         R.add('ふりかえり', title, 'わかったこと・できるようになったこと', rf.learned);
         R.add('ふりかえり', title, 'むずかしかったこと・次にがんばりたいこと', rf.hard);
         R.add('ふりかえり', title, '自分の作品の構想や製作に、どう生かしたいか', rf.use);
@@ -118,7 +118,7 @@
         if (a.kind === 'rubric') {
           var sc = d.scores || {};
           var part = [d.type === 'peer' ? '相互評価' : '自己評価', d.toolName, d.task].filter(Boolean).join(' ');
-          var s = M6_SCORE.filter(function (x) { return sc[x[0]]; }).map(function (x) { return x[1] + ' ' + sc[x[0]]; }).join(' / ');
+          var s = A6_SCORE.filter(function (x) { return sc[x[0]]; }).map(function (x) { return x[1] + ' ' + sc[x[0]]; }).join(' / ');
           if (d.type === 'peer' && s) s += '(' + [str(d.rater) && '評価した人: ' + str(d.rater), str(d.ratee) && '評価された人: ' + str(d.ratee)].filter(Boolean).join('、') + ')';
           R.add('自己評価', part, '姿勢・安全・精度', s);
           R.add('ふりかえり', part, 'よかったところ・次に気をつけること', d.comment);
@@ -146,53 +146,53 @@
   }
 
   /* ================= B 生物育成 ================= */
-  var B1_Q = [['q1', '育てた生物と、自分が工夫した育成環境の調節方法'], ['q2', '記録(グラフ・写真)からわかったこと'], ['q3', '予測と実際をくらべて気づいたこと'],
+  var B4_Q = [['q1', '育てた生物と、自分が工夫した育成環境の調節方法'], ['q2', '記録(グラフ・写真)からわかったこと'], ['q3', '予測と実際をくらべて気づいたこと'],
     ['q4', 'うまくいかなかったことと、その原因'], ['q5', '次に育てるとき、どう改善するか'], ['q6', '生物育成の技術は社会や生活でどう役立っているか・これからどう使いたいか']];
-  var B1_S = [['s1', '毎日の観察・記録を続けられた'], ['s2', '記録やグラフから成長の変化を読み取れた'], ['s3', '記録をもとに改善の方法を考えられた'], ['s4', '安全や環境に気をつけて育てられた']];
-  var B1_EV = [['good', 'よかったこと'], ['bad', 'うまくいかなかったこと'], ['next', '次にどうするか'], ['society', '社会とのつながり']];
-  function parseB1(obj) {
+  var B4_S = [['s1', '毎日の観察・記録を続けられた'], ['s2', '記録やグラフから成長の変化を読み取れた'], ['s3', '記録をもとに改善の方法を考えられた'], ['s4', '安全や環境に気をつけて育てられた']];
+  var B4_EV = [['good', 'よかったこと'], ['bad', 'うまくいかなかったこと'], ['next', '次にどうするか'], ['society', '社会とのつながり']];
+  function parseB4(obj) {
     var p = obj.profile || {}, r = p.refl || {}, R = Rows(r.savedTs || obj.exportedAt);
-    B1_S.forEach(function (s) { R.add('自己評価', '', s[1], r[s[0]]); });
-    B1_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
+    B4_S.forEach(function (s) { R.add('自己評価', '', s[1], r[s[0]]); });
+    B4_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
     var plans = {};
     (p.plans || []).forEach(function (pl) { if (isObj(pl)) plans[pl.id] = pl; });
     Object.keys(p.evals || {}).forEach(function (id) {
       var ev = p.evals[id] || {}, pl = plans[id] || {};
       if (pl.demo) return;
       var part = '評価: ' + (str(pl.name) || '計画');
-      B1_EV.forEach(function (x) { R.add('ふりかえり', part, x[1], ev[x[0]]); });
+      B4_EV.forEach(function (x) { R.add('ふりかえり', part, x[1], ev[x[0]]); });
     });
-    return [{ domain: 'B', app: 'B1 育成日誌', student: student(r.cls, r.no, r.fullname), rows: R.rows }];
+    return [{ domain: 'B', app: 'B4 育成日誌', student: student(r.cls, r.no, r.fullname), rows: R.rows }];
   }
-  var B3_Q = [['q1', '生き物を健康に育てるために大切な条件'], ['q2', 'うまくいかなかったことと、その原因・改善した方法'], ['q3', '生き物の様子から状態を読み取るとき大切だと思ったこと'],
+  var B2_Q = [['q1', '生き物を健康に育てるために大切な条件'], ['q2', 'うまくいかなかったことと、その原因・改善した方法'], ['q3', '生き物の様子から状態を読み取るとき大切だと思ったこと'],
     ['q4', '実際の飼育や観察で生かしたいこと'], ['q6', '世話の回数や量とコスト(健康とのバランス)'], ['q5', '生き物の命や生態系、水産業・畜産業について考えたこと']];
-  var B3_EV = [['e1', '動物・水産生物に合った環境の条件が分かった'], ['e2', '様子やデータから原因を考え、世話の方法を改善できた'], ['e3', '命を大切にし、実際の飼育や社会に生かそうと考えた']];
-  var B3_LV = ['◎ よくできた', '○ できた', '△ もう少し'];
-  var B3_QUIZ = [['water', '水の生き物の診断'], ['land', '陸の動物の診断'], ['eco', '生態系と産業への配慮']];
-  function parseB3(obj) {
+  var B2_EV = [['e1', '動物・水産生物に合った環境の条件が分かった'], ['e2', '様子やデータから原因を考え、世話の方法を改善できた'], ['e3', '命を大切にし、実際の飼育や社会に生かそうと考えた']];
+  var B2_LV = ['◎ よくできた', '○ できた', '△ もう少し'];
+  var B2_QUIZ = [['water', '水の生き物の診断'], ['land', '陸の動物の診断'], ['eco', '生態系と産業への配慮']];
+  function parseB2(obj) {
     var d = obj.data || {}, r = d.refl || {}, ev = r.ev || {}, R = Rows(r.saved || obj.exported);
-    B3_EV.forEach(function (e) { R.add('自己評価', '', e[1], B3_LV[ev[e[0]]]); });
-    B3_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
+    B2_EV.forEach(function (e) { R.add('自己評価', '', e[1], B2_LV[ev[e[0]]]); });
+    B2_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
     var qz = d.quiz || {};
-    B3_QUIZ.forEach(function (q) { var x = qz[q[0]]; if (isObj(x) && x.best != null) R.add('成績', '', q[1] + '(最高)', x.best, x.date); });
-    return [{ domain: 'B', app: 'B3 動物飼育・水産', student: student(r.cls, r.no, r.name), rows: R.rows }];
+    B2_QUIZ.forEach(function (q) { var x = qz[q[0]]; if (isObj(x) && x.best != null) R.add('成績', '', q[1] + '(最高)', x.best, x.date); });
+    return [{ domain: 'B', app: 'B2 動物飼育・水産', student: student(r.cls, r.no, r.name), rows: R.rows }];
   }
-  var B4_Q = [['q1', '収穫日から逆算して計画を立てて気づいたこと'], ['q2', '地域や休業日を入れると計画はどう変わったか・なぜ考えるとよいか'],
+  var B3_Q = [['q1', '収穫日から逆算して計画を立てて気づいたこと'], ['q2', '地域や休業日を入れると計画はどう変わったか・なぜ考えるとよいか'],
     ['q3', '計画と実際のずれとその原因、次の改善案'], ['q4', '育成計画を立てる技術は社会や生活でどう役立つか']];
-  var B4_S = [['a', '作物の性質をもとに、作業日を逆算して計画を立てられた'], ['b', '地域・休業日・連作などの条件を考えて計画を直せた'], ['c', '計画と実際をくらべて、原因と改善案を考えられた']];
-  var B4_LV = { 3: '◎ よくできた', 2: '○ できた', 1: '△ もう少し' };
-  function parseB4(obj) {
+  var B3_S = [['a', '作物の性質をもとに、作業日を逆算して計画を立てられた'], ['b', '地域・休業日・連作などの条件を考えて計画を直せた'], ['c', '計画と実際をくらべて、原因と改善案を考えられた']];
+  var B3_LV = { 3: '◎ よくできた', 2: '○ できた', 1: '△ もう少し' };
+  function parseB3(obj) {
     var r = obj.reflection || {}, self = r.self || {}, R = Rows(r.saved);
-    B4_S.forEach(function (s) { R.add('自己評価', '', s[1], B4_LV[self[s[0]]]); });
-    B4_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
-    return [{ domain: 'B', app: 'B4 栽培暦ビルダー', student: student(r.kumi, r.ban, r.name), rows: R.rows }];
+    B3_S.forEach(function (s) { R.add('自己評価', '', s[1], B3_LV[self[s[0]]]); });
+    B3_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
+    return [{ domain: 'B', app: 'B3 栽培暦ビルダー', student: student(r.kumi, r.ban, r.name), rows: R.rows }];
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { E3: 'E3 機構ラボ', E4: 'E4 保守点検ラボ', E5: 'E5 回路設計シート' };
+  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート' };
   function parseC(obj) {
     var R = Rows(obj.savedAt), d = obj.data || {}, who = obj.who || {};
-    if (obj.app === 'E5') {
+    if (obj.app === 'C5') {
       var n = d.notes || {}, part = str(obj.name) || str(d.task);
       R.add('ふりかえり', part, '目的', n.goal);
       R.add('ふりかえり', part, '条件', n.cond);
@@ -254,7 +254,7 @@
     R.add('成績', '理解度チェック', '事前テスト', ck.pre);
     R.add('成績', '理解度チェック', '事後テスト', ck.post);
     (obj.reflections || []).forEach(function (r) { if (isObj(r)) R.add('ふりかえり', str(r.title) || str(r.module), 'ふりかえり', r.text, r.at); });
-    return [{ domain: 'D', app: '情報セキュリティ体験ラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D4 情報セキュリティ体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
   function parseMc(obj) {
     var app = '計測・制御シミュレータ', R = Rows(obj.exportedAt), best = {};
@@ -278,20 +278,20 @@
   function parseStudio(obj) {
     var R = Rows(obj.exportedAt);
     (obj.works || []).forEach(function (w) { if (isObj(w)) studioRows(R, w, w.updatedAt); });
-    return [{ domain: 'D', app: '双方向コンテンツ制作スタジオ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D6 双方向コンテンツ制作スタジオ', student: stD(obj.student), rows: R.rows }];
   }
   function parseStudioWork(obj) {
     var w = obj.work || {}, R = Rows(w.updatedAt);
     studioRows(R, w.plan || {}, w.updatedAt);
     R.rows.forEach(function (r) { r.part = str(w.title) || '作品'; });
-    return [{ domain: 'D', app: '双方向コンテンツ制作スタジオ', student: NOBODY, rows: R.rows }];
+    return [{ domain: 'D', app: 'D6 双方向コンテンツ制作スタジオ', student: NOBODY, rows: R.rows }];
   }
   var GENAI_Q = [['r1', '文章をつくるAIと画像をつくるAIは、それぞれどうやって作っていたか'], ['r2', 'ハルシネーションや個人情報について、気をつけたいこと'], ['r3', '生成AIを、どんな場面で、どのように使ってみたいか']];
   function parseGenai(obj) {
     var R = Rows(obj.exportedAt), q = obj.quiz || {}, r = obj.reflection || {};
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     GENAI_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: '生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D8 生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
   }
   var SCAM_Q = [['r1', '体験した詐欺で、だます人はどんな手口を使っていたか'], ['r2', 'あやしいと思ったとき、自分はどんな手順で行動するか'], ['r3', '家族や友達に伝えたいこと']];
   function parseScam(obj) {
@@ -303,7 +303,7 @@
       else if (x.misses || x.hints) R.add('成績', part, 'クリア', 'まだ(だまされた ' + (x.misses || 0) + ' 回・ヒント ' + (x.hints || 0) + ' 回)');
     });
     SCAM_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'ネット詐欺 追体験ラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D5 ネット詐欺 追体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
   var HASH_Q = [['r1', 'ハッシュ関数の性質'], ['r2', 'パスワードを守るために、サービスを作る側と自分ができること'], ['r3', 'ハッシュ値が役に立っているところ']];
   function parseHash(obj) {
@@ -313,8 +313,11 @@
     ch.forEach(function (x) { if (x.cleared) R.add('成績', 'ステップ' + str(x.no), 'チャレンジ', '達成: ' + str(x.title), x.at); });
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D9 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
+  // 教材の名前に記号(D1〜D9。教材集のおすすめの順 = materials.json の code)を付ける
+  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9' };
+  function dName(t) { return D_CODE[t] ? D_CODE[t] + ' ' + t : t; }
   function parseKyozai(obj) {
     var st = stD(obj.student);
     return (obj.materials || []).filter(function (m) { return isObj(m) && m.hasRecord; }).map(function (m) {
@@ -332,20 +335,20 @@
       return o.schema === 'gijutsu-bundle/1' || o.schema === 'gijutsu-artifact/1' ||
         (Array.isArray(o.artifacts) && o.artifacts.some(isArtifact)) || (isArtifact(o) && A_APPS[o.app]);
     }, parseA],
-    ['B1 育成日誌', function (o) { return o.app === 'B1' && isObj(o.profile); }, parseB1],
-    ['B3 動物飼育・水産', function (o) { return o.app === 'B3' && isObj(o.data); }, parseB3],
-    ['B4 栽培暦ビルダー', function (o) { return o.app === 'b4' && (isObj(o.reflection) || isObj(o.state)); }, parseB4],
+    ['B4 育成日誌', function (o) { return o.app === 'B4' && isObj(o.profile); }, parseB4],
+    ['B2 動物飼育・水産', function (o) { return o.app === 'B2' && isObj(o.data); }, parseB2],
+    ['B3 栽培暦ビルダー', function (o) { return o.app === 'B3' && (isObj(o.reflection) || isObj(o.state)); }, parseB3],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
-    ['仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
-    ['デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
-    ['ネットワーク通信シミュレータ', function (o) { return o.app === 'network-sim'; }, parseNet],
-    ['情報セキュリティ体験ラボ', function (o) { return o.app === 'seclab' && o.student !== undefined; }, parseSec],
-    ['計測・制御シミュレータ', function (o) { return o.app === '計測・制御シミュレータ'; }, parseMc],
-    ['双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
+    ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
+    ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
+    ['D3 ネットワーク通信シミュレータ', function (o) { return o.app === 'network-sim'; }, parseNet],
+    ['D4 情報セキュリティ体験ラボ', function (o) { return o.app === 'seclab' && o.student !== undefined; }, parseSec],
+    ['D7 計測・制御シミュレータ', function (o) { return o.app === '計測・制御シミュレータ'; }, parseMc],
+    ['D6 双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
-    ['生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
-    ['ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
-    ['ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash]
+    ['D8 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
+    ['D5 ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
+    ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash]
   ];
 
   /* ファイル名から組・番号・名前を拾う(JSON の中に名前がないとき用) */
@@ -366,6 +369,7 @@
       if (!entries.length) return { ok: false, format: a[0], error: '記録が入っていませんでした' };
       var fromFile = studentFromFile(fileName || '');
       entries.forEach(function (e) {
+        if (e.domain === 'D') e.app = dName(e.app);
         var s = e.student;
         if (!s.cls && !s.num && !s.name && fromFile) {
           e.student = fromFile;

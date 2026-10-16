@@ -42,8 +42,8 @@ copy(repo / "C-energy/dist/energy-apps.html", student / STUDENT["C"])
 copy(info / "dist/情報の技術_体験教材集.html", student / STUDENT["D"])  # 9つの教材(生成AI・ネット詐欺・ハッシュ化のラボも入っている)
 # 情報の技術で1つの教材だけを配りたいとき用(中身は統一版と同じ)
 data = json.loads((info / "kyozai-shu/data/materials.json").read_text(encoding="utf-8"))
-for i, m in enumerate(data["materials"], 1):
-    copy(info / m["source"], single / f"D{i}_{m['title']}.html")
+for m in data["materials"]:
+    copy(info / m["source"], single / f"{m['code']}_{m['title']}.html")
 
 # ---- 先生用 ----
 # 先生用のファイルの名前は「分野_名前.html」にそろえる。分野ごとの先生用ガイドは、どれも同じ章立て・同じ見た目
@@ -96,10 +96,10 @@ def guide(src, key, built=False):
 spec = importlib.util.spec_from_file_location("build_single", repo / "A-materials/build/build-single.py")
 build_single = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build_single)
-# 第三角法 立体メーカー(M7)だけを配りたいとき用(中身は教材アプリの M7 と同じ。メニューへ戻るボタンは出さない)
-m7 = build_single.inline("m7-solid-maker/index.html")
-m7 = m7.replace("</head>", "<style>.ef-back { display: none !important; }</style>\n</head>", 1)
-(single / "A_第三角法_立体メーカー(単体).html").write_text(m7, encoding="utf-8")
+# 第三角法 立体メーカー(A7)だけを配りたいとき用(中身は統一版の A7 と同じ。メニューへ戻るボタンは出さない)
+a7 = build_single.inline("a7-solid-maker/index.html")
+a7 = a7.replace("</head>", "<style>.ef-back { display: none !important; }</style>\n</head>", 1)
+(single / "A7_第三角法_立体メーカー.html").write_text(a7, encoding="utf-8")
 
 # 分野ごとの先生用ガイド
 guide(repo / "A-materials/docs/先生用ガイド.html", "A")

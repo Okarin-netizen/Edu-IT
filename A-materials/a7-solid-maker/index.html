@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第三角法 立体メーカー</title>
+<meta name="theme-color" content="#8a5a2b">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<link rel="stylesheet" href="../common/base.css">
+<link rel="stylesheet" href="style.css">
+<script src="../eduit-info.js"></script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: 'A7 第三角法 立体メーカー' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+</head>
+<body>
+<header id="g-header"></header>
+<main>
+  <div class="card no-print project-bar">
+    <div class="g-row">
+      <label class="g-field grow"><span>作品の名前</span><input id="pname" type="text" maxlength="40" placeholder="例: L字ブロック"></label>
+      <div class="g-row">
+        <button class="btn" id="b-new" type="button">新しく作る</button>
+        <button class="btn" id="b-open" type="button">開く</button>
+        <button class="btn primary" id="b-save" type="button">保存</button>
+        <button class="btn" id="b-export" type="button">ファイルに書き出す</button>
+        <button class="btn" id="b-import" type="button">ファイルから読み込む</button>
+      </div>
+    </div>
+    <p class="g-muted" id="save-state" aria-live="polite"></p>
+  </div>
+
+  <div data-g-tabs>
+    <div class="g-tablist" role="tablist" aria-label="作業の段階">
+      <button role="tab" data-tab="draw" type="button"><span class="num">1</span>三面図をかく</button>
+      <button role="tab" data-tab="view" type="button"><span class="num">2</span>立体を見る</button>
+      <button role="tab" data-tab="sheet" type="button"><span class="num">3</span>図面・印刷</button>
+      <button role="tab" data-tab="review" type="button"><span class="num">4</span>ふりかえり</button>
+    </div>
+
+    <!-- 1 三面図をかく -->
+    <section data-panel="draw">
+      <div class="a7-draw">
+        <div class="card a7-editor-card">
+          <div class="g-row space-between">
+            <h2 style="margin:0">三面図(第三角法)</h2>
+            <div class="g-row">
+              <button class="btn small" id="undo" type="button" title="元に戻す(Ctrl+Z)">↶ 元に戻す</button>
+              <button class="btn small" id="redo" type="button" title="やり直す(Ctrl+Y)">↷ やり直す</button>
+              <button class="btn small danger" id="clear" type="button">ぜんぶ消す</button>
+            </div>
+          </div>
+          <div class="a7-tools" role="radiogroup" aria-label="マスにかく形">
+            <span class="g-muted">かく形:</span>
+          </div>
+          <div class="a7-editor-wrap" id="editor-wrap"></div>
+          <p class="g-muted" id="editor-help">マスをクリック(ドラッグ)してぬります。ぬったマスをもう一度押すと消えます。キーボードでは Tab で図を選び、矢印キーで動かして Space でぬります。</p>
+        </div>
+        <div class="a7-panel">
+          <div class="card">
+            <div class="g-row space-between">
+              <h2 style="margin:0">できる立体(等角図)</h2>
+              <button class="btn small" id="go-view" type="button">大きく見る ▶</button>
+            </div>
+            <div class="a7-preview-wrap"><canvas id="preview" aria-label="三面図から作った立体の等角図"></canvas></div>
+            <div id="check" aria-live="polite"></div>
+            <p class="g-muted" id="info"></p>
+          </div>
+          <div class="card">
+            <h2>大きさ</h2>
+            <div class="g-row align-end">
+              <label class="g-field"><span>幅(マス)</span><input id="sz-w" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>奥行き(マス)</span><input id="sz-d" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>高さ(マス)</span><input id="sz-h" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>1マス (mm)</span><input id="sz-cell" type="number" min="1" max="200" step="1"></label>
+            </div>
+            <div class="g-row align-end">
+              <label class="g-field grow"><span>お手本の形</span><select id="sample"></select></label>
+              <button class="btn" id="load-sample" type="button">かきこむ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 立体を見る -->
+    <section data-panel="view" hidden>
+      <div class="card">
+        <div class="g-row space-between">
+          <div class="a7-seg" role="radiogroup" aria-label="立体の表し方">
+            <button type="button" role="radio" data-mode="iso">等角図</button>
+            <button type="button" role="radio" data-mode="cabinet">キャビネット図</button>
+            <button type="button" role="radio" data-mode="3d">3D(回して見る)</button>
+          </div>
+          <div class="g-row">
+            <label class="g-check" id="hid-wrap"><input type="checkbox" id="show-hidden"> かくれ線も表示</label>
+            <button class="btn" id="png-view" type="button">画像で保存</button>
+            <button class="btn" id="stl-view" type="button">STL で保存(3Dプリンタ)</button>
+          </div>
+        </div>
+        <div class="a7-view-wrap"><canvas id="view-canvas" tabindex="0" aria-label="立体の図"></canvas></div>
+        <div class="g-row" id="cam-btns" hidden>
+          <span class="g-muted">見る向き:</span>
+          <button class="btn small" type="button" data-cam="iso">ななめ上から</button>
+          <button class="btn small" type="button" data-cam="front">正面</button>
+          <button class="btn small" type="button" data-cam="top">上</button>
+          <button class="btn small" type="button" data-cam="right">右</button>
+          <button class="btn small" type="button" data-cam="back">うしろ</button>
+          <button class="btn small" type="button" data-cam="under">下から</button>
+        </div>
+        <div id="mode-note"></div>
+      </div>
+    </section>
+
+    <!-- 3 図面・印刷 -->
+    <section data-panel="sheet" hidden>
+      <div class="a7-sheet">
+        <div class="card a7-sheet-form">
+          <h2>図面に書くこと</h2>
+          <label class="g-field"><span>図名(作品の名前)</span><input id="sh-title" type="text" maxlength="30"></label>
+          <label class="g-field"><span>材料</span><input id="sh-material" type="text" maxlength="20" placeholder="例: スギ・SPF材・アクリル"></label>
+          <div class="g-row align-end">
+            <label class="g-field"><span>学年</span><input id="sh-grade" type="text" inputmode="numeric" maxlength="2" class="narrow"></label>
+            <label class="g-field"><span>組</span><input id="sh-cls" type="text" maxlength="6" class="narrow"></label>
+            <label class="g-field"><span>番号</span><input id="sh-no" type="text" inputmode="numeric" maxlength="4" class="narrow"></label>
+          </div>
+          <label class="g-field"><span>氏名</span><input id="sh-name" type="text" maxlength="20"></label>
+          <div class="g-row align-end">
+            <label class="g-field"><span>日付</span><input id="sh-date" type="date"></label>
+            <label class="g-field"><span>尺度</span><select id="sh-scale">
+              <option value="auto">自動(用紙に入る大きさ)</option>
+              <option value="2">2:1(2倍)</option>
+              <option value="1">1:1(実物の大きさ)</option>
+              <option value="0.5">1:2(1/2)</option>
+              <option value="0.2">1:5(1/5)</option>
+              <option value="0.1">1:10(1/10)</option>
+            </select></label>
+          </div>
+          <label class="g-check"><input type="checkbox" id="sh-dims"> 寸法を入れる</label>
+          <label class="g-check"><input type="checkbox" id="sh-detail"> 細かい寸法(区切りごと)も入れる</label>
+          <label class="g-check"><input type="checkbox" id="sh-iso"> 等角図(参考)も入れる</label>
+          <div class="g-row a7-sheet-btns">
+            <button class="btn primary" id="print" type="button">印刷する</button>
+            <button class="btn" id="pdf" type="button">PDF で保存</button>
+            <button class="btn" id="stl-sheet" type="button">STL で保存</button>
+          </div>
+          <p class="g-muted">「印刷する」の画面で、送り先を「PDF に保存」にすると PDF にもできます。用紙は A4 横です。</p>
+          <div id="sheet-msg" aria-live="polite"></div>
+        </div>
+        <div class="card a7-sheet-preview">
+          <div id="sheet-box" class="a7-sheet-box" aria-label="図面の見本"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 ふりかえり -->
+    <section data-panel="review" hidden>
+      <div class="card">
+        <h2>問題解決の流れ</h2>
+        <div id="ps"></div>
+      </div>
+      <div class="g-cols">
+        <div class="card">
+          <h2>ふりかえりを書く</h2>
+          <div class="g-row align-end">
+            <label class="g-field"><span>組</span><input id="rf-cls" type="text" maxlength="6" class="narrow"></label>
+            <label class="g-field"><span>番号</span><input id="rf-no" type="text" inputmode="numeric" maxlength="4" class="narrow"></label>
+            <label class="g-field grow"><span>氏名</span><input id="rf-name" type="text" maxlength="20"></label>
+          </div>
+          <p class="g-muted">組・番号・氏名は図面と同じです。「ファイルに書き出す」で出すファイルにも入ります。</p>
+          <label class="g-field"><span>わかったこと・できるようになったこと</span><textarea id="rf-learned"></textarea></label>
+          <label class="g-field"><span>むずかしかったこと・次にがんばりたいこと</span><textarea id="rf-hard"></textarea></label>
+          <label class="g-field"><span>自分の作品の構想や製作に、どう生かしたいか</span><textarea id="rf-use"></textarea></label>
+        </div>
+        <div class="card">
+          <h2>自己評価</h2>
+          <div id="selfcheck"></div>
+          <h2>記録</h2>
+          <div id="record"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<div id="print-area" aria-hidden="true"></div>
+<script src="../common/ruby-dict.js"></script>
+<script src="../common/core.js"></script>
+<script src="../common/apps.js"></script>
+<script src="geom.js"></script>
+<script src="sheet.js"></script>
+<script src="samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

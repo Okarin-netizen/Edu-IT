@@ -19,7 +19,14 @@
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
  *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
@@ -189,6 +196,10 @@
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
       panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
@@ -206,6 +217,47 @@
     return { render: render, select: select, current: function () { return cur; } };
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
