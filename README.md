@@ -24,7 +24,7 @@ Edu-IT/
 
 ```
 <分野>/
-├─ (アプリのフォルダ)   M1〜M6・B1〜B4・E1〜E5・各ラボ
+├─ (アプリのフォルダ)   M1〜M7・B1〜B4・E1〜E5・各ラボ
 ├─ dist/       配布用の完成ファイル(作り直してできるもの)
 ├─ docs/       先生用の文書(手引き・使い方)
 ├─ build/      作る道具(ビルドのスクリプト)
@@ -35,7 +35,7 @@ Edu-IT/
 
 | フォルダ | 分野 | 教材 | 配布用(`dist/`) | 作り直すコマンド |
 |---|---|---|---|---|
-| [`A-materials/`](A-materials/) | A 材料と加工 | M1 材料選択ナビ・M2 木材ラボ・M3 構造強化ラボ・M4 製図トレーナー・M5 木取り・M6 工具の安全・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
+| [`A-materials/`](A-materials/) | A 材料と加工 | M1 材料選択ナビ・M2 木材ラボ・M3 構造強化ラボ・M4 製図トレーナー・M5 木取り・M6 工具の安全・M7 第三角法 立体メーカー・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
 | [`B-bio/`](B-bio/) | B 生物育成 | B1 育成日誌・B2 育成環境コントローラ・B3 動物飼育・水産・B4 栽培暦ビルダー | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
 | [`C-energy/`](C-energy/) | C エネルギー変換 | E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
 | [`D-information/`](D-information/) | D 情報 | 体験教材集(デジタル化・仮想CPU・ネットワーク・セキュリティ・双方向・計測制御)・生成AIのしくみラボ・ネット詐欺 追体験ラボ | `情報の技術_体験教材集.html`・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html` | [`D-information/README.md`](D-information/README.md) の順に |
