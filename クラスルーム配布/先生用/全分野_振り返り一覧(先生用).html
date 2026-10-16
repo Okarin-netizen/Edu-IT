@@ -363,11 +363,14 @@ window.EDUIT_INFO = {
   /* ================= A 材料と加工(gijutsu-artifact/1) ================= */
   var A_APPS = {
     'material-navi': 'M1 材料選択ナビ', 'wood-lab': 'M2 木材の繊維・収縮ラボ', 'structure-lab': 'M3 構造強化ラボ',
-    'drawing-trainer': 'M4 製図トレーナー', 'kidori': 'M5 木取り・構想シミュレータ', 'tool-safety': 'M6 工具の使い方・安全トレーナー'
+    'drawing-trainer': 'M4 製図トレーナー', 'kidori': 'M5 木取り・構想シミュレータ', 'tool-safety': 'M6 工具の使い方・安全トレーナー',
+    'solid-maker': 'M7 第三角法 立体メーカー'
   };
   var M4_SELF = [['read', '三面図を見て、立体の形を思いうかべることができた'], ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
     ['iso', '等角図を、たて・横・おくの3つの向きの線でかけた'], ['line', '線の種類(外形線・かくれ線・中心線など)を使い分けられた']];
   var M4_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
+  var M7_SELF = [['match', '三面図で、幅・高さ・奥行きがそろう位置がわかった'], ['image', '三面図から、立体の形を思いうかべることができた'],
+    ['pict', '等角図とキャビネット図のちがいを説明できる'], ['sheet', '寸法や表題欄の入った図面にまとめることができた']];
   var M5_VIEW = [['society', '社会'], ['environment', '環境'], ['economy', '経済'], ['safety', '安全'], ['usability', '使いやすさ'], ['function', '機能']];
   var M6_SCORE = [['posture', '姿勢'], ['safety', '安全'], ['accuracy', '精度']];
 
@@ -414,6 +417,14 @@ window.EDUIT_INFO = {
         R.add('ふりかえり', title, '工夫したところ・よかったところ', rv.good);
         R.add('ふりかえり', title, '直したいところ(改善の案)', rv.improve);
         R.add('ふりかえり', title, '実物を作って気付いたこと', rv.real);
+        break;
+      }
+      case 'solid-maker': {
+        var rf = d.reflect || {}, sf = rf.self || {};
+        M7_SELF.forEach(function (s) { R.add('自己評価', title, s[1], M4_LV[sf[s[0]]]); });
+        R.add('ふりかえり', title, 'わかったこと・できるようになったこと', rf.learned);
+        R.add('ふりかえり', title, 'むずかしかったこと・次にがんばりたいこと', rf.hard);
+        R.add('ふりかえり', title, '自分の作品の構想や製作に、どう生かしたいか', rf.use);
         break;
       }
       case 'tool-safety':

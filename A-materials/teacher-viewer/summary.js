@@ -126,6 +126,18 @@
       reflected: !!(trim(r.learned) || trim(r.hard) || trim(r.use))
     };
   };
+  S['solid-maker'] = function (d) {
+    var r = d.reflect || {}, self = r.self || {}, sz = d.size || {}, dn = d.done || {};
+    var names = { match: '位置のそろい方', image: '立体を思いうかべる', pict: '等角図とキャビネット図', sheet: '図面にまとめる' };
+    return {
+      fields: [['三面図の大きさ', sz.W ? sz.W + '×' + sz.D + '×' + sz.H + ' マス(1マス ' + (sz.cell || 10) + 'mm)' : ''],
+        ['図面', [dn.print ? '印刷 ' + dn.print + ' 回' : '', dn.pdf ? 'PDF ' + dn.pdf + ' 回' : ''].filter(Boolean).join('・')],
+        ['STL', dn.stl ? dn.stl + ' 回' : ''],
+        ['自己評価', Object.keys(names).filter(function (k) { return self[k]; }).map(function (k) { return names[k] + ' ' + (LEVEL[self[k]] || self[k]); }).join('、')]],
+      texts: texts([['わかったこと・できるようになったこと', r.learned], ['むずかしかったこと・次にがんばりたいこと', r.hard], ['構想や製作にどう生かすか', r.use]]),
+      reflected: !!(trim(r.learned) || trim(r.hard) || trim(r.use))
+    };
+  };
   function countTrueBy(o, k) { return Object.keys(o || {}).filter(function (x) { return o[x] && o[x][k]; }).length; }
   S.kidori = function (d) {
     var st = d.stock || {}, rv = d.review || {};
