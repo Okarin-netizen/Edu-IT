@@ -50,7 +50,7 @@
     '体験': 'たいけん', '番号': 'ばんごう', '計算': 'けいさん', '進数': 'しんすう', '照合': 'しょうごう', '推測': 'すいそく', '記号': 'きごう',
     '英小文字': 'えいこもじ', '英大文字': 'えいおおもじ', '提出': 'ていしゅつ', '架空': 'かくう', '校外学習': 'こうがいがくしゅう', '効果': 'こうか',
     '指紋': 'しもん', '登録': 'とうろく', '正解': 'せいかい', '授業': 'じゅぎょう', '公式': 'こうしき', '流出': 'りゅうしゅつ', '情報': 'じょうほう',
-    '文字': 'もじ', '余り': 'あまり', '種類': 'しゅるい', '値': 'あたい', '利用者': 'りようしゃ', '確認': 'かくにん', '配布': 'はいふ',
+    '文字': 'もじ', '余り': 'あまり', '種類': 'しゅるい', '値': 'あたい', 'ハッシュ値': 'ち', '利用者': 'りようしゃ', '確認': 'かくにん', '配布': 'はいふ',
     '組': 'くみ', '安全': 'あんぜん', '設定': 'せってい', '画面': 'がめん', '表示': 'ひょうじ', '比': 'くら', '偽': 'にせ', '本物': 'ほんもの'
   };
   var RUBY_KEYS = Object.keys(RUBY).filter(function (k) { return k.length > 1 || k === '値'; }).sort(function (a, b) { return b.length - a.length; });
@@ -72,7 +72,10 @@
       RUBY_RE.lastIndex = 0;
       while ((m = RUBY_RE.exec(text))) {
         if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
-        frag.appendChild(h('ruby', null, m[0], h('rt', { text: RUBY[m[0]] })));
+        // 「ハッシュ値」のように、かたかなの後ろの漢字だけに読みを付ける語もある
+        var kana = /^[ァ-ヶー]*/.exec(m[0])[0];
+        if (kana) frag.appendChild(document.createTextNode(kana));
+        frag.appendChild(h('ruby', null, m[0].slice(kana.length), h('rt', { text: RUBY[m[0]] })));
         last = m.index + m[0].length;
       }
       if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
