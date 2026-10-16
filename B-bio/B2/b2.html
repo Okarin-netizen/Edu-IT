@@ -224,7 +224,7 @@ html.kz-embed #b2app .b2-nav{margin-top:0}
       <button type="button" role="tab" data-tab="sim">① 飼育<wbr>シミュレーション</button>
       <button type="button" role="tab" data-tab="quiz">② 診断<wbr>クイズ</button>
       <button type="button" role="tab" data-tab="plan">③ 飼育<wbr>計画書</button>
-      <button type="button" role="tab" data-tab="refl">振り返り</button>
+      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
     </nav>
   </header>
   <main>
@@ -232,7 +232,7 @@ html.kz-embed #b2app .b2-nav{margin-top:0}
     <section id="b2-sec-sim" data-sec="sim" hidden></section>
     <section id="b2-sec-quiz" data-sec="quiz" hidden></section>
     <section id="b2-sec-plan" data-sec="plan" hidden></section>
-    <section id="b2-sec-refl" data-sec="refl" hidden></section>
+    <section id="b2-sec-refl" data-sec="refl" hidden data-ef-reflect></section>
   </main>
   <div class="b2-toast" id="b2-toast" role="status" aria-live="polite"></div>
 </div>
@@ -1191,7 +1191,10 @@ function applySettings(){
 kzPrefs.bind($('#b2-ruby'),$('#b2-fminus'),$('#b2-fplus'));
 kzPrefs.on(function(){applySettings()});
 window.addEventListener('resize',function(){clearTimeout(measure._t);measure._t=setTimeout(function(){measure();drawChart()},150)});
+/* 振り返りを隠す設定(先生用): 振り返りのタブは開かない */
+var FK_OFF=!!(window.EduitFrame&&EduitFrame.furikaeri===false);
 function showTab(tab){
+  if(FK_OFF&&tab==='refl')tab='home';
   settings.tab=tab;store.set('settings',settings);
   $$('.b2-nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false')});
   $$('main > section').forEach(function(s){s.hidden=s.dataset.sec!==tab});
@@ -1226,7 +1229,7 @@ function renderHome(){
     '<li><b>飼育シミュレーション</b>:温度・えさ・水替え・数などを決めて「1日すすめる」。世話にかかるお金と手間(コスト)も記録されます。様子・グラフ・日誌を見ながら30日間育てる。最初の環境には、見直したほうがよいところがあります。うまくいかないときは「ヒント」。</li>'+
     '<li><b>診断クイズ</b>:生き物の様子から、原因と対策を考える。</li>'+
     '<li><b>飼育計画書</b>:えさやり・水替え・観察・衛生の計画を立てる。</li>'+
-    '<li><b>振り返り</b>:分かったこと・考えたことを書いて保存・書き出しする。</li></ol></details>';
+    '<li data-ef-reflect><b>振り返り</b>:分かったこと・考えたことを書いて保存・書き出しする。</li></ol></details>';
   h+='<details><summary>ためしてみよう(実験のアイデア)</summary><ul>'+
     '<li>えさを「とても多い」にして、水そうの汚れがどう変わるか。</li>'+
     '<li>水替えを「しない」にすると、pHや「水の古さ」はどうなるか。</li>'+
@@ -1255,7 +1258,7 @@ function startRun(k){
 function confirmReplace(nextName){ // 今の記録が消えるときの確認(B2-04・B2-14)
   if(!run||run.day===0)return Promise.resolve(true);
   var nm=SP[run.sp].name,msg;
-  if(run.done)msg=nm+'の30日の記録(グラフ・日誌)は消えます。★と健康度の平均は、振り返りの「学習の記録」に残ります。\n'+nextName+'を最初から育てますか?';
+  if(run.done)msg=nm+'の30日の記録(グラフ・日誌)は消えます。'+(FK_OFF?'':'★と健康度の平均は、振り返りの「学習の記録」に残ります。')+'\n'+nextName+'を最初から育てますか?';
   else msg=nm+'の飼育('+run.day+'日目まで)の記録は消えます。\n'+nextName+'を最初から育てますか?';
   return kzConfirm(msg,{ok:nextName+'を育てる',cancel:'やめる',danger:true});
 }
@@ -1523,7 +1526,7 @@ function resultHTML(){
   h+='<p class="b2-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
   if(!r.dead)h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
   h+='<div class="b2-story"><h3>📝 結果のまとめ</h3>'+storyOf(run).map(function(x){return '<p>'+x+'</p>'}).join('')+'</div>';
-  h+='<div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-to-refl">振り返りを書く</button><button type="button" class="b2-btn" id="b2-to-plan">飼育計画書をつくる</button><button type="button" class="b2-btn" id="b2-again">条件を変えてもう一度</button></div></div>';
+  h+='<div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-to-refl" data-ef-reflect>振り返りを書く</button><button type="button" class="b2-btn" id="b2-to-plan">飼育計画書をつくる</button><button type="button" class="b2-btn" id="b2-again">条件を変えてもう一度</button></div></div>';
   return h;
 }
 function drawChart(){

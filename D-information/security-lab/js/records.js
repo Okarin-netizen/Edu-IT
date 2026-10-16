@@ -1,6 +1,6 @@
 // ふりかえり・記録（エクスポート）と、先生用ページ（集計・設定・問題データの差し替え）
 import { store } from "./store.js";
-import { h, explainCard, toast, downloadFile } from "./ui.js";
+import { h, explainCard, toast, downloadFile, REFLECT_ATTR, recordsTitle } from "./ui.js";
 import { CATALOG, moduleProgress } from "./catalog.js";
 import { loadData, loadDefaultData, setOverride, listOverrides, DATA_NAMES } from "./data.js";
 import { resetConfigCache } from "./settings.js";
@@ -96,11 +96,11 @@ export function renderRecords(view, available, config, rerender, easy = "") {
   const progressRows = available.map((c) => {
     const p = moduleProgress(c);
     const r = s.reflections[c.id];
-    return h("tr", {}, h("td", {}, h("a", { href: `#/${c.id}` }, c.title)), h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`), h("td", {}, r ? r.text : h("span", { class: "hint" }, "まだ書いていません")));
+    return h("tr", {}, h("td", {}, h("a", { href: `#/${c.id}` }, c.title)), h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`), h("td", REFLECT_ATTR, r ? r.text : h("span", { class: "hint" }, "まだ書いていません")));
   });
   const pre = s.modules.check?.score?.["事前テスト"];
   const post = s.modules.check?.score?.["事後テスト"];
-  progressRows.push(h("tr", {}, h("td", {}, h("a", { href: "#/check" }, "理解度チェック")), h("td", {}, `事前 ${pre || "まだ"}・事後 ${post || "まだ"}`), h("td", {}, h("span", { class: "hint" }, "テストの点も、書き出すファイルに入ります"))));
+  progressRows.push(h("tr", {}, h("td", {}, h("a", { href: "#/check" }, "理解度チェック")), h("td", {}, `事前 ${pre || "まだ"}・事後 ${post || "まだ"}`), h("td", REFLECT_ATTR, h("span", { class: "hint" }, "テストの点も、書き出すファイルに入ります"))));
 
   // 書き出し: 組と番号がないときは書き出さず、ボタンの横に知らせる
   const jsonMsg = h("span", { class: "export-msg", role: "status", "aria-live": "polite" });
@@ -151,9 +151,9 @@ export function renderRecords(view, available, config, rerender, easy = "") {
   });
 
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されています。先生に提出するときは、ファイルに書き出してください。"), easy),
+    h("div", { class: "module-head" }, h("h1", {}, recordsTitle()), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されています。先生に提出するときは、ファイルに書き出してください。"), easy),
     h("section", { class: "card" }, h("h2", {}, "あなたの情報"), h("div", { class: "field-row" }, fields)),
-    h("section", { class: "card" }, h("h2", {}, "進み具合とふりかえり"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "進み具合"), h("th", {}, "ふりかえり"))), h("tbody", {}, progressRows)))),
+    h("section", { class: "card" }, h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "進み具合"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, progressRows)))),
     h(
       "section",
       { class: "card" },

@@ -1,5 +1,6 @@
 // モジュールの一覧と進み具合の計算
 import { store } from "./store.js";
+import { furikaeriOn } from "./ui.js";
 import { passwordModule } from "../modules/password.js";
 import { cryptoModule } from "../modules/crypto.js";
 import { hashModule } from "../modules/hash.js";
@@ -130,7 +131,8 @@ export function availableModules(config) {
 }
 
 export function moduleProgress(entry) {
-  const steps = entry.module.steps;
+  // 振り返りを隠す設定のときは、ふりかえりのステップを数えない
+  const steps = furikaeriOn() ? entry.module.steps : entry.module.steps.filter((s) => s.id !== "reflect");
   const done = steps.filter((s) => store.isStepDone(entry.id, s.id)).length;
   return { done, total: steps.length, complete: done === steps.length };
 }

@@ -2,6 +2,10 @@
 (function () {
   'use strict';
   var D = GenaiData, LM = GenaiLM, IM = GenaiImg;
+  // 振り返りを隠す設定(先生用。shared/eduit-frame.js)。隠すときは、③の振り返り欄・記録の振り返りを出さない
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
+  var T_QUIZ = FK_OFF ? 'クイズ' : 'クイズとふりかえり';
+  var T_REC = FK_OFF ? '記録' : 'ふりかえり・記録';
 
   if (window.EDUIT_INFO) {
     EDUIT_INFO.app = EDUIT_INFO.app || { name: '生成AIのしくみラボ' };
@@ -94,6 +98,8 @@
     var kids = Array.prototype.slice.call(arguments, 1);
     return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
   }
+  // 振り返りを隠す設定のとき出さない要素の印
+  function reflectOnly(e) { e.setAttribute('data-ef-reflect', ''); return e; }
   function segmented(options, value, onChange, label) {
     return h('div', { class: 'seg', role: 'group', 'aria-label': label },
       options.map(function (o) {
@@ -145,13 +151,13 @@
     { id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro },
     { id: 'halluc', group: '気をつけて使う(基本)', no: '1', min: '15分', title: 'もっともらしいまちがい', desc: 'AIがすらすらとまちがえる(ハルシネーション)しくみをたしかめる', render: renderHalluc },
     { id: 'privacy', group: '気をつけて使う(基本)', no: '2', min: '15分', title: '個人情報が出てしまう？', desc: '入れた個人情報が、ほかの人への答えに出てしまうしくみを見る', render: renderPrivacy },
-    { id: 'quiz', group: '気をつけて使う(基本)', no: '3', min: '10分', title: 'クイズとふりかえり', desc: 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'quiz', group: '気をつけて使う(基本)', no: '3', min: '10分', title: T_QUIZ, recTitle: 'クイズとふりかえり', desc: FK_OFF ? 'クイズで体験をたしかめる' : 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
     { id: 'guess', group: '文章をつくるAIのしくみ(発展)', no: '4', min: '10分', title: 'つぎの言葉あて', desc: '文のつづきに来る言葉を予想して、AIの予想とくらべる', render: renderGuess },
     { id: 'token', group: '文章をつくるAIのしくみ(発展)', no: '5', min: '5分', title: '言葉のかけら(トークン)', desc: 'AIが文を小さなかけらに分けて、番号にするようすを見る', render: renderToken },
     { id: 'textgen', group: '文章をつくるAIのしくみ(発展)', no: '6', min: '15分', title: 'ミニ文章AIを動かす', desc: 'つぎの言葉を1つずつえらんで文を作る、小さなAIを動かす', render: renderTextgen },
     { id: 'noise', group: '画像をつくるAIのしくみ(発展)', no: '7', min: '10分', title: 'ノイズをまぜる(学習)', desc: '絵にノイズをまぜて、AIが学習するときの問題を体験する', render: renderNoise },
     { id: 'imggen', group: '画像をつくるAIのしくみ(発展)', no: '8', min: '15分', title: 'ノイズから絵をつくる', desc: 'ノイズを少しずつ取りのぞいて、言葉から絵をつくる', render: renderImggen },
-    { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
+    { id: 'records', group: '記録する', no: '', icon: '✎', title: T_REC, render: renderRecordsPage }
   ];
   // 並びと番号: 基本編(①〜③)→ 発展編(④〜⑧)。no は並びの番号、画面には丸数字(label)で出す
   SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
@@ -293,16 +299,16 @@
       h('section', { class: 'card' },
         h('h2', { text: 'すすめ方' }),
         h('ol', null,
-          h('li', { text: '①でもっともらしいまちがい、②で個人情報の注意を体験し、③のクイズとふりかえりを書く(ここまでが基本)' }),
+          h('li', { text: '①でもっともらしいまちがい、②で個人情報の注意を体験し、③の' + (FK_OFF ? 'クイズに答える' : 'クイズとふりかえりを書く') + '(ここまでが基本)' }),
           h('li', { text: '発展: ④〜⑥で文章をつくるAI、⑦・⑧で画像をつくるAIのしくみを体験する' }),
-          h('li', null, h('a', { href: '#records', text: 'ふりかえり・記録' }), 'からファイルを書き出して提出する')),
+          h('li', null, h('a', { href: '#records', text: T_REC }), 'からファイルを書き出して提出する')),
         h('div', { class: 'lesson-plan' },
           h('h3', { text: '2時間で行うときの例' }),
           h('ul', null,
-            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① もっともらしいまちがい・② 個人情報・③ クイズとふりかえり」(基本)'),
+            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① もっともらしいまちがい・② 個人情報・③ ' + T_QUIZ + '」(基本)'),
             h('li', null, h('strong', { text: '2時間目' }), '「④ つぎの言葉あて・⑤ トークン・⑥ ミニ文章AI・⑦ ノイズをまぜる・⑧ ノイズから絵をつくる」(発展)'),
             h('li', null, h('strong', { text: '発展を少しだけ行うとき' }), 'は、⑥・⑧ を中心にする')),
-          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「ふりかえり・記録」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
+          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「' + T_REC + '」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
       h('section', { class: 'module-group' },
         h('h2', { text: 'ステップ' }),
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
@@ -925,14 +931,14 @@
       ['r3', '生成AIを、どんな場面で、どのように使ってみたいですか。']
     ];
     var status = h('p', { class: 'muted', 'aria-live': 'polite', text: '書いた内容は、この端末のブラウザの中だけに保存されます。' });
-    el.appendChild(card('ふりかえり', qsR.map(function (r) {
+    el.appendChild(reflectOnly(card('ふりかえり', qsR.map(function (r) {
       var ta = h('textarea', { id: 'refl-' + r[0], class: 'input', rows: 3 });
       ta.value = refl[r[0]] || '';
       ta.addEventListener('input', function () { refl[r[0]] = ta.value; save('refl', refl); status.textContent = '保存しました(この端末の中だけ)。'; });
       return h('label', { class: 'refl' }, h('span', { class: 'ctl-label', text: r[1] }), ta);
-    }), status));
+    }), status)));
 
-    el.appendChild(h('p', { class: 'hint' }, '書きおわったら、', h('a', { href: '#records', text: 'ふりかえり・記録' }), 'でファイルに書き出して先生に出そう。'));
+    el.appendChild(h('p', { class: 'hint', 'data-ef-reflect': '' }, '書きおわったら、', h('a', { href: '#records', text: T_REC }), 'でファイルに書き出して先生に出そう。'));
   }
 
   // ---- 記録の書き出し(端末の中でファイルを作るだけ。送信はしない) ----
@@ -944,7 +950,7 @@
       app: '生成AIのしくみラボ',
       exportedAt: new Date().toISOString(),
       student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
-      steps: SECTIONS.filter(function (x) { return x.no; }).map(function (x) { return { no: x.label, title: x.title, opened: !!visited[x.id] }; }),
+      steps: SECTIONS.filter(function (x) { return x.no; }).map(function (x) { return { no: x.label, title: x.recTitle || x.title, opened: !!visited[x.id] }; }),
       guess: { answered: Object.keys(guessState.picked).length, sameAsAI: D.guessGame.filter(function (it, i) { return guessState.picked[i] === it.options[0][0]; }).length },
       quiz: { answered: Object.keys(qs.ans).length, correct: D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length, total: D.quiz.length },
       reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
@@ -1022,21 +1028,21 @@
       quiz: r.quiz.answered ? r.quiz.correct + ' / ' + r.quiz.total + ' 問正解' : '' };
     append(el, [
       h('div', { class: 'module-head' },
-        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
-        h('p', { class: 'meta', text: '進み具合とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+        h('h1', { class: 'sec-title', text: T_REC }),
+        h('p', { class: 'meta', text: (FK_OFF ? '進み具合' : '進み具合とふりかえり') + 'は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
       card('名前',
         h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
         h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
-      card('進み具合とふりかえり',
+      card(FK_OFF ? '進み具合' : '進み具合とふりかえり',
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: 'ステップ' }), h('th', { text: 'ひらいた' }), h('th', { text: '記録' }))),
           h('tbody', null, STEP_SECTIONS.map(function (x) {
             return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: score[x.id] || '' }));
           })))),
-        h('ul', { class: 'refl-list' }, [['r1', 'ふりかえり1(しくみ)'], ['r2', 'ふりかえり2(気をつけたいこと)'], ['r3', 'ふりかえり3(使ってみたい場面)']].map(function (q) {
+        h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, [['r1', 'ふりかえり1(しくみ)'], ['r2', 'ふりかえり2(気をつけたいこと)'], ['r3', 'ふりかえり3(使ってみたい場面)']].map(function (q) {
           return h('li', null, h('b', { text: q[1] + ': ' }), refl[q[0]] ? h('span', { text: refl[q[0]] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '③ クイズとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted', 'data-ef-reflect': '' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '③ クイズとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

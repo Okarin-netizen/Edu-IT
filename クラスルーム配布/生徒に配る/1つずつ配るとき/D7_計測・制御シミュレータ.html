@@ -192,6 +192,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -824,8 +827,8 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -835,12 +838,16 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
         '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
         'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。',
-        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。'
+        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。',
+        '生成AIのしくみラボの「③ クイズとふりかえり」のクイズを、基本編の内容(もっともらしいまちがい・個人情報・使うときのルール)だけの6問にしました。'
       ] },
       { version: '1.6', date: '2026-10-16', items: [
         '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
@@ -934,7 +941,7 @@ window.EDUIT_INFO.levels = {
  *   version: '2.1', updated: '2026-10-15',
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
- *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
@@ -943,6 +950,13 @@ window.EDUIT_INFO.levels = {
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
@@ -960,6 +974,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -1177,7 +1210,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -3487,6 +3520,10 @@ const { attachAutosave, flushAutosaves, AUTOSAVE_HINT, AUTOSAVE_DONE } = __m_js_
 
 
 
+// 振り返りを隠す設定（先生用。shared/eduit-frame.js）。隠すときは、場面ごとの振り返り欄と記録の振り返りの列を出さない
+const FK_OFF = Boolean(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+const T_REC = FK_OFF ? "記録" : "ふりかえり・記録";
+
 const view = document.getElementById("view");
 const nav = document.getElementById("chapter-nav");
 let scenarios = [];
@@ -3572,7 +3609,7 @@ function renderHome() {
         h("li", {}, h("strong", {}, "プログラムを組む"), "：ブロック・フローチャート・テキストのどれでも見られます（ブロックとテキストで編集でき、3つは自動で同じ内容になります）。ブロックは「① 入れたい場所の「＋ ここに入れる」を押す → ② 命令のボタン（「＋もし〜なら」など）を押す」の順で入れます。入れたブロックは「↔」で、「もし」の中など、べつの場所へ動かせます。"),
         h("li", {}, h("strong", {}, "仮想世界で動かす"), "：スライダでセンサの値を変えたり、ケースを再生したりして動きを見る。「1ステップ」で1行ずつ確かめられます。"),
         h("li", {}, h("strong", {}, "テストで確かめる"), "：あらかじめ考えておいたケースで、合格か不合格かを自動で調べます。"),
-        h("li", {}, h("strong", {}, "直して記録する"), "：不合格の理由をグラフとログで調べて直し、「改善メモ」に残す。最後に、ページの下の「ふりかえり」を書こう（書いた文は自動で保存されます）。"),
+        h("li", {}, h("strong", {}, "直して記録する"), "：不合格の理由をグラフとログで調べて直し、「改善メモ」に残す。", FK_OFF ? "" : "最後に、ページの下の「ふりかえり」を書こう（書いた文は自動で保存されます）。"),
       ),
       explainCard("この教材について", "ブラウザの中だけで動き、インターネットには接続しません。作ったプログラムや記録は、この端末のブラウザの中にだけ保存されます。"),
     ),
@@ -3708,7 +3745,7 @@ function reflectionBox(s) {
   });
   return h(
     "section",
-    { class: "card reflection" },
+    { class: "card reflection", "data-ef-reflect": "" },
     h("h2", {}, "ふりかえり"),
     h("label", { for: id }, s.reflect || REFLECT_PROMPT),
     h("div", { class: "hint" }, "テストごとの「改善メモ」とは別に、この場面で学んだことを自分の言葉でまとめよう。"),
@@ -3731,7 +3768,7 @@ function renderRecords() {
   const summary = scenarios.map((s) => {
     const rs = store.recordsOf(s.id);
     const best = store.best(s.id);
-    return h("tr", {}, h("td", {}, `${s.icon} ${s.label} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", {}, store.getReflection(s.id) || "—"));
+    return h("tr", {}, h("td", {}, `${s.icon} ${s.label} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", { "data-ef-reflect": "" }, store.getReflection(s.id) || "—"));
   });
   const list = recs.map((r) =>
     h(
@@ -3779,9 +3816,9 @@ function renderRecords() {
     exported(name);
   };
   view.replaceChildren(
-    h("h1", {}, "ふりかえり・記録"),
+    h("h1", {}, T_REC),
     h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, field("cls", "組", "8em"), field("num", "番号", "6em"), field("name", "名前", "16em")), h("p", { class: "hint" }, "名前はこの端末のブラウザと、書き出したファイルに入ります。ほかの人と端末を使うときは、最後に「この端末の記録をすべて消す」を押そう。")),
-    h("section", { class: "card" }, h("h2", {}, "場面ごとのまとめ"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "場面"), h("th", {}, "テストした回数"), h("th", {}, "最高"), h("th", {}, "最新"), h("th", {}, "ふりかえり"))), h("tbody", {}, summary))), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "JSONで書き出す（先生に出す）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す（表計算ソフト用）")), exportNote),
+    h("section", { class: "card" }, h("h2", {}, "場面ごとのまとめ"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "場面"), h("th", {}, "テストした回数"), h("th", {}, "最高"), h("th", {}, "最新"), h("th", { "data-ef-reflect": "" }, "ふりかえり"))), h("tbody", {}, summary))), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "JSONで書き出す（先生に出す）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す（表計算ソフト用）")), exportNote),
     h("section", { class: "card" }, h("h2", {}, `テストの記録（${recs.length}件、新しい順）`), recs.length ? h("ul", { class: "rec-list" }, list) : h("p", {}, "まだ記録がありません。場面の「テストを実行」を押すと、ここに残ります。"), recs.length ? h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn secondary small", onclick: () => { if (confirm("この端末のテストの記録をすべて消します。よろしいですか？")) { store.clearRecords(); renderRecords(); } } }, "テストの記録だけ消す")) : null),
     h("section", { class: "card" }, h("h2", {}, "記録を消す"), h("p", { class: "hint" }, "次の人に端末をわたすときに使います。名前・場面ごとのプログラム・テストの記録・ふりかえりをすべて消します。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn secondary", onclick: () => { if (confirm("名前・プログラム・テストの記録・ふりかえりをすべて消します。よろしいですか？")) { store.reset(); store.setPref("seenScenes", []); undoHistories.clear(); toast("記録を消しました"); route(); } } }, "この端末の記録をすべて消す"))),
   );
@@ -4307,7 +4344,7 @@ function renderScenario(sid) {
     historyBox.replaceChildren(
       h("h3", {}, "この場面の改善の記録（新しい順）"),
       h("ol", { class: "mini-history" }, rs.map((r) => h("li", {}, h("span", { class: `status ${r.passed === r.total ? "good" : "warn"}` }, `${r.passed}/${r.total}`), " ", h("span", { class: "hint" }, fmtTime(r.at)), r.memo ? ` ${r.memo}` : ""))),
-      h("p", {}, h("a", { href: "#/records" }, "すべての記録を見る・書き出す（ふりかえり・記録）")),
+      h("p", {}, h("a", { href: "#/records" }, `すべての記録を見る・書き出す（${T_REC}）`)),
     );
   }
 
@@ -4551,7 +4588,7 @@ function renderNav(current) {
   }
   ol.append(group("調べる・記録する"));
   ol.append(link("#/guide", "?", "書き方ガイド", "guide", false));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", T_REC, "records", false));
   nav.replaceChildren(h("nav", { "aria-label": "ページ" }, ol));
 }
 

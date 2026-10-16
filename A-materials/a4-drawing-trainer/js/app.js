@@ -711,7 +711,7 @@
   function renderReflect() {
     var r = rec.data.reflect || (rec.data.reflect = { self: {}, learned: '', hard: '', use: '' });
     r.self = r.self || {};
-    var card = h('div', { class: 'card a4-reflect' }, h('h2', null, 'ふりかえり'),
+    var card = h('div', { class: 'card a4-reflect', 'data-ef-reflect': '' }, h('h2', null, 'ふりかえり'),
       h('p', null, '練習をふり返って、自分で評価しよう。書いた内容は記録といっしょに保存・書き出しされます。'));
     var tbl = h('table', { class: 'g-table' },
       h('thead', null, h('tr', null, h('th', null, '自己評価'), SELF_LEVELS.map(function (l) { return h('th', null, l[1]); }))));

@@ -3,6 +3,8 @@
   'use strict';
   var D = ScamData, E = ScamEngine;
   var APP = 'ネット詐欺 追体験ラボ';
+  // 振り返りを隠す設定(先生用。shared/eduit-frame.js)。隠すときは、まとめの振り返り欄・記録の振り返りを出さない
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
 
   if (window.EDUIT_INFO) {
     EDUIT_INFO.app = EDUIT_INFO.app || { name: APP };
@@ -52,6 +54,8 @@
     var kids = Array.prototype.slice.call(arguments, 1);
     return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
   }
+  // 振り返りを隠す設定のとき出さない要素の印
+  function reflectOnly(e) { e.setAttribute('data-ef-reflect', ''); return e; }
 
   // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
   var RUBY = {
@@ -117,12 +121,14 @@
       return { id: sc.id, group: '詐欺を体験する', no: sc.no, min: sc.min, title: sc.title, desc: sc.desc, sc: sc, render: renderScenario };
     }))
     .concat([
-      { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
-      { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
+      { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: FK_OFF ? 'まとめ' : 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
+      { id: 'records', group: '記録する', no: '', icon: '✎', title: FK_OFF ? '記録' : 'ふりかえり・記録', render: renderRecordsPage }
     ]);
   // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
   SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
   var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
+  // できた印を付けるステップ(まとめは振り返りを書くとできた印。振り返りを隠すときは数えない)
+  var DONE_SECTIONS = STEP_SECTIONS.filter(function (x) { return !(FK_OFF && x.id === 'matome'); });
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
   var current = null;
@@ -149,8 +155,8 @@
   }
   // 上のバーの「進み具合」: クリアした場面と、まとめ(ふりかえり)の割合
   function renderOverall() {
-    var done = STEP_SECTIONS.filter(isDone).length;
-    var p = Math.round(done / STEP_SECTIONS.length * 100);
+    var done = DONE_SECTIONS.filter(isDone).length;
+    var p = Math.round(done / DONE_SECTIONS.length * 100);
     var el = document.getElementById('overall-progress');
     if (!el) return;
     el.textContent = '';
@@ -162,7 +168,7 @@
   function markNav() {
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
       var sec = SECTIONS.filter(function (x) { return x.id === a.getAttribute('data-id'); })[0];
-      var done = !!(sec && sec.no && isDone(sec));
+      var done = !!(sec && sec.no && DONE_SECTIONS.indexOf(sec) >= 0 && isDone(sec));
       a.classList.toggle('is-done', done);
       a.parentNode.classList.toggle('done', done);
       a.querySelector('.num').textContent = done ? '✓' : (sec.no || sec.icon);
@@ -256,7 +262,7 @@
             h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
-            h('span', { class: 'mc-state' + (done ? ' is-done' : ''), text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
+            h('span', { class: 'mc-state' + (done ? ' is-done' : ''), 'data-ef-reflect': x.sc ? null : '', text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
         }))),
       h('div', { class: 'btn-row home-start' },
         h('a', { class: 'ef-btn-primary', href: '#oneclick', text: 'ステップ① ワンクリック詐欺からはじめよう →' }),
@@ -380,7 +386,7 @@
       point('もし、だまされてしまったら', h('p', { text: sc.ifDone })),
       h('div', { class: 'btn-row' },
         nextSc ? h('a', { class: 'ef-btn-primary', href: '#' + nextSc.id, text: 'つぎの場面：' + nextSc.title + ' →' })
-          : h('a', { class: 'ef-btn-primary', href: '#matome', text: 'まとめとふりかえりへ →' }),
+          : h('a', { class: 'ef-btn-primary', href: '#matome', text: (FK_OFF ? 'まとめ' : 'まとめとふりかえり') + 'へ →' }),
         btn('この場面をもう一度', function () { resetTimers(sc); set(E.restart(sc, st)); })));
   }
 
@@ -534,14 +540,14 @@
         h('ul', { class: 'consult' }, D.consult.lines.map(function (l) {
           return h('li', null, h('b', { text: l.name + '　' }), h('span', { class: 'tel', text: l.tel }), h('span', { class: 'muted', text: '　' + l.note }));
         }))),
-      card('ふりかえり',
+      reflectOnly(card('ふりかえり',
         h('p', { class: 'muted', text: 'クリアした場面: ' + cleared + ' / ' + D.scenarios.length + '。書いた文は、この端末の中だけに保存されます。' }),
         D.reflQ.map(function (q) {
           var ta = h('textarea', { id: 'refl-' + q.id, class: 'input', rows: 3, maxlength: '600' });
           ta.value = refl[q.id] || '';
           ta.addEventListener('input', function () { var r = saved.refl || {}; r[q.id] = ta.value; save('refl', r); markNav(); });
           return h('div', { class: 'field' }, h('label', { for: 'refl-' + q.id, text: q.label }), ta);
-        }))
+        })))
     ]);
   }
 
@@ -633,21 +639,21 @@
     var refl = saved.refl || {};
     append(el, [
       h('div', { class: 'module-head' },
-        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
-        h('p', { class: 'meta', text: 'クリアした場面とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+        h('h1', { class: 'sec-title', text: FK_OFF ? '記録' : 'ふりかえり・記録' }),
+        h('p', { class: 'meta', text: (FK_OFF ? 'クリアした場面' : 'クリアした場面とふりかえり') + 'は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
       card('名前',
         h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
         h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
-      card('進み具合とふりかえり',
+      card(FK_OFF ? '進み具合' : '進み具合とふりかえり',
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: '場面' }), h('th', { text: 'クリア' }), h('th', { text: 'だまされた' }), h('th', { text: 'ヒント' }))),
           h('tbody', null, r.scenarios.map(function (x) {
             return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
           })))),
-        h('ul', { class: 'refl-list' }, D.reflQ.map(function (q, i) {
+        h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, D.reflQ.map(function (q, i) {
           return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + ': ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#matome', text: '⑥ まとめとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted', 'data-ef-reflect': '' }, 'ふりかえりは「', h('a', { href: '#matome', text: '⑥ まとめとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

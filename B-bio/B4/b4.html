@@ -249,7 +249,7 @@ html.kz-embed .b4 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
     <section class="scr" id="b4-predict"></section>
     <section class="scr" id="b4-diag"></section>
     <section class="scr" id="b4-eval"></section>
-    <section class="scr" id="b4-refl"></section>
+    <section class="scr" id="b4-refl" data-ef-reflect></section>
     <section class="scr" id="b4-help"></section>
   </main>
   <div class="toast" id="b4-toast" role="status" aria-live="polite"></div>
@@ -929,8 +929,10 @@ var TABS = [
   ['help','❓','使い方']
 ];
 var cur = 'home';
+/* 振り返りを隠す設定(先生用): 振り返りのタブは作らない・開かない */
+var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
 function renderTabs(){
-  $('#b4-tabs').innerHTML = TABS.map(function(t){ return '<button type="button" class="tab'+(cur===t[0]?' on':'')+'" role="tab" aria-selected="'+(cur===t[0])+'" data-act="tab" data-v="'+t[0]+'"><span class="ic">'+t[1]+'</span>'+t[2]+'</button>'; }).join('');
+  $('#b4-tabs').innerHTML = TABS.filter(function(t){ return !(FK_OFF && t[0]==='refl'); }).map(function(t){ return '<button type="button" class="tab'+(cur===t[0]?' on':'')+'" role="tab" aria-selected="'+(cur===t[0])+'" data-act="tab" data-v="'+t[0]+'"'+(t[0]==='refl'?' data-ef-reflect':'')+'><span class="ic">'+t[1]+'</span>'+t[2]+'</button>'; }).join('');
   layoutTabs();
 }
 /* K4: タブが入りきらないときは 2〜3 段に折り返す(横スクロールでかくさない) */
@@ -945,6 +947,7 @@ function layoutTabs(){
   var hd=$('.top'); if(hd) APP.style.setProperty('--hdr', (hd.offsetHeight+10)+'px');
 }
 function go(name, opt){
+  if(FK_OFF && name==='refl') name='home';
   flushSave();
   cur = name; renderTabs();
   $$('section.scr').forEach(function(s){ s.classList.toggle('on', s.id==='b4-'+name); });
@@ -1860,7 +1863,7 @@ R.help = function(opt){
     '<li><b>グラフ・写真</b>: 成長と温度の関係を読み取る。写真を2枚ならべて変化を比べる。</li>'+
     '<li><b>診断・評価</b>: 困ったときは診断で原因を調べる。育て終わったら評価シートを書く。</li>'+
     '<li><b>予測(発展)</b>: 積算温度で発芽・開花・収穫の時期を、成長曲線でこれからの大きさを予測する。「もしも〜なら?」で条件を変えて比べる。</li>'+
-    '<li><b>振り返り</b>: さいごに振り返りを書いて、次の改善につなげる。</li></ol>'+
+    '<li data-ef-reflect><b>振り返り</b>: さいごに振り返りを書いて、次の改善につなげる。</li></ol>'+
     '<p class="hint">ホームの「今日のやること」と「お知らせ」で、水やり・低温・追肥の時期などを確認できます。</p></div></details>';
   h+='<details id="b4-kensa"'+(opt.anchor==='kensa'?' open':'')+'><summary>📏 正しい測り方(検査ガイド)</summary><div>'+
     '<p><b>🌱 草丈</b>: 土の表面から、茎のいちばん先(生長点)までを、ものさしでまっすぐ測る。毎回同じ株・同じ方法で測る。</p>'+
