@@ -81,7 +81,7 @@ body{background:var(--ef-bg);}
 #hub details.teacher{margin-top:22px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:6px 16px;}
 #hub details.teacher summary{min-height:44px;display:flex;align-items:center;font-weight:700;cursor:pointer;}
 #hub .small{font-size:.85em;color:var(--sub);}
-/* guide pages */
+/* 生徒用の使い方のページ(先生用ガイドは下の .eg) */
 #hub .gsec{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 18px;margin:0 0 14px;}
 #hub .gtable{width:100%;border-collapse:collapse;margin:.3em 0 .6em;font-size:.95em;}
 #hub .gtable th,#hub .gtable td{border:1.5px solid var(--line);padding:6px 10px;vertical-align:top;text-align:left;}
@@ -109,6 +109,15 @@ body{background:var(--ef-bg);}
   #hub .page{padding:0;}
   #hub .gsec{break-inside:avoid;}
 }
+</style>
+<!-- 先生用ガイドの見た目: rebuild.js が shared/eduit-guide.css の .eg の部分に #hub を付けて入れる(body などの決まりは入れない) -->
+<style data-eg-css></style>
+<style>
+/* 先生用ガイドをメニューの中で見るときの調整(文字の大きさは A−/A＋ に合わせる。目次から飛んだ見出しが上のバーに隠れないように) */
+#hub .eg{font-size:1em;padding:0 0 20px;}
+#hub .eg-sec{scroll-margin-top:calc(var(--bar) + 10px);}
+#hub .eg-toc li{margin:0;}
+@media print{#hub .eg{padding:0;}}
 </style>
 </head>
 <body>
@@ -260,7 +269,9 @@ body{background:var(--ef-bg);}
 
   <main class="page" id="pg-teacher" hidden>
     <div class="gtools"><button class="btn" type="button" data-go="menu">◀ メニューへ</button><button class="btn" type="button" data-print>🖨 印刷</button></div>
+    <div class="eg">
     <!-- 先生用ガイド: docs/先生用ガイド.html の中身を rebuild.js が入れる -->
+    </div>
 
   </main>
 
@@ -723,7 +734,7 @@ function show(id, push){
   } else {
     document.body.style.overflow = '';
     $('#hub-ttl').innerHTML = rubyfy('生物育成《せいぶついくせい》の技術《ぎじゅつ》 教材集');
-    document.title = id === 'teacher' ? '先生用ガイド | 生物育成の技術 教材集' : '生物育成の技術 教材集';
+    document.title = id === 'teacher' ? '先生用ガイド | 生物育成の技術' : '生物育成の技術 教材集';
     if (id === 'menu') renderCards();
     if (id !== 'teacher') addRuby($('#pg-' + id));
     window.scrollTo(0, 0);
@@ -735,6 +746,9 @@ hub.addEventListener('click', function(e){
   var g = e.target.closest('[data-go]');
   if (g) { var id = g.getAttribute('data-go'); if (id !== current) show(id, true); return; }
   if (e.target.closest('[data-print]')) window.print();
+  /* 先生用ガイドの目次: 画面の切りかえ(#menu など)とまざらないよう、見出しまでスクロールするだけにする */
+  var a = e.target.closest('.eg-toc a[href^="#"]');
+  if (a) { e.preventDefault(); var t = document.getElementById(a.getAttribute('href').slice(1)); if (t) t.scrollIntoView(); }
 });
 window.addEventListener('popstate', function(){ show((location.hash || '#menu').slice(1), false); });
 window.addEventListener('hashchange', function(){ var id = (location.hash || '#menu').slice(1); if (id !== current) show(id, false); });
