@@ -6,7 +6,7 @@
 | ファイル | 中身 |
 |---|---|
 | `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
-| `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ |
+| `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`) |
 
 分野ごとの版と更新履歴は、各分野の `eduit-info.js`(`window.EDUIT_INFO`)に書きます。
 安全の説明とライセンスの文は `eduit-frame.js` にあり、全分野で同じです。
@@ -33,3 +33,10 @@
 - **メニューのカード** `.ef-card`(白・上に分野の色の線 4px・角丸 12px)、`.ef-card-tag`(M1 などの記号)、`.ef-card-title`。
 - **フッター**: 画面の下に「作成: 羽生市立南中学校 技術 岡田 ・ 第◯版 ・ 安全と個人情報・ライセンス・更新履歴」。
   画面いっぱいを使うアプリは、ヘッダーの道具に `<span data-ef-about></span>` を置くと「ⓘ このアプリについて」ボタンになる。
+
+## 基本編・発展編のタブ(メニュー用)
+
+`EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, gridClass, onRender })` で、
+`EDUIT_INFO.levels`(各分野の `eduit-info.js`)の分け方どおりに「基本編」「発展編」のタブとカードの並びを作ります。
+カードの形は各メニューが作り、`parts`(「使うところ」の要素)をカードの中に入れます。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
+分け方の一覧(先生用)は `teacher-tools/kihon-hatten/` が作ります。

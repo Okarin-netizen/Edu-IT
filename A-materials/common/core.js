@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.2.0';  // A-materials/eduit-info.js の version と合わせる
+  G.version = '2.3.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '羽生市立南中学校　技術　岡田';
   G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
