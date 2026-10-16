@@ -1,4 +1,4 @@
-// モジュール1: パスワード強度ラボ
+// モジュール②: パスワード強度ラボ
 // 入力された文字はこのモジュールの変数（メモリ）の中だけで使い、保存・送信・ログ出力はしない。
 import { h, explainCard, stepCard, reflectionBox, threeSteps, choiceQuiz } from "../js/ui.js";
 import { loadData } from "../js/data.js";

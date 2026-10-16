@@ -133,7 +133,7 @@ const check = (ok, label) => {
     check(json.scenarios.filter((s) => s.cleared).length === 5 && json.scenarios[0].misses === 1, "書き出しにクリアとだまされた回数が入る");
     const FKR = require("../../../teacher-tools/furikaeri-ichiran/parse.js");
     const r = FKR.parse(json, "x.json");
-    check(r.ok && r.entries[0].app === "ネット詐欺 追体験ラボ" && r.entries[0].student.num === "15" && r.entries[0].rows.some((x) => x.type === "ふりかえり"), "振り返り一覧(先生用)で読める");
+    check(r.ok && /ネット詐欺 追体験ラボ$/.test(r.entries[0].app) && r.entries[0].student.num === "15" && r.entries[0].rows.some((x) => x.type === "ふりかえり"), "振り返り一覧(先生用)で読める");
   }
   check((await p.locator("text=ネット詐欺_追体験ラボ_2_15_テスト.json").count()) === 1, "知らせにファイル名が出る");
 

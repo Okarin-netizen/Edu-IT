@@ -1,4 +1,4 @@
-// モジュール5: ネットワーク通信の模擬（HTTP と HTTPS で、途中ののぞき見に何が見えるか）
+// モジュール⑤: ネットワーク通信の模擬（HTTP と HTTPS で、途中ののぞき見に何が見えるか）
 // 実際の通信は一切しない。HTTPS の暗号文は Web Crypto API（AES-GCM）でこの端末の中で作る。
 import { h, explainCard, stepCard, reflectionBox, threeSteps, choiceQuiz } from "../js/ui.js";
 

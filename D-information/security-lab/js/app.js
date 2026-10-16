@@ -118,7 +118,7 @@ function renderHome() {
     return h(
       "a",
       { class: "module-card", href: `#/${c.id}` },
-      h("span", { class: "mc-num" }, `モジュール${c.num}・${c.module.minutes}`),
+      h("span", { class: "mc-num" }, `モジュール${c.label}・${c.module.minutes}`),
       h("span", { class: "mc-title" }, c.title),
       h("span", { class: "mc-desc" }, c.desc),
       h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${(p.done / p.total) * 100}%` })),
@@ -135,7 +135,7 @@ function renderHome() {
       threeSteps(),
       explainCard("安心して体験できます", "このラボはすべてこのブラウザの中だけで動きます。インターネット上のサイトには一切つながらず、入力した内容が外に送られることもありません。登場する会社名やアドレスはすべて架空のものです。", "good"),
     ),
-    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, "モジュールを体験して、最後にふりかえりを書く"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する"))),
+    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, "モジュールを①から順に体験して、最後にふりかえりを書く（⑪ ハッシュ体験は発展。先生に言われたときに取り組む）"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する"))),
     ...GROUPS.map((g) => {
       const list = available.map((c, i) => [c, cards[i]]).filter(([c]) => c.group === g.id);
       return list.length ? h("section", { class: "module-group" }, h("h2", {}, g.title), h("div", { class: "module-grid" }, list.map(([, card]) => card))) : "";
@@ -147,7 +147,7 @@ async function renderModule(entry, stepId) {
   const m = entry.module;
   const root = h("div");
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("p", { class: "meta" }, `モジュール${entry.num}・目安 ${m.minutes}`), h("h1", {}, entry.title), h("p", {}, m.lead), easyBox(entry.easy)),
+    h("div", { class: "module-head" }, h("p", { class: "meta" }, `モジュール${entry.label}・目安 ${m.minutes}`), h("h1", {}, entry.title), h("p", {}, m.lead), easyBox(entry.easy)),
     root,
   );
   const idx = available.indexOf(entry);

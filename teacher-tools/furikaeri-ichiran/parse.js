@@ -205,10 +205,10 @@
 
   /* ================= D 情報 ================= */
   var D_NAMES = {
-    'デジタル化ラボ': { image: '1 画像のデジタル化', sound: '2 音のデジタル化', binary: '3 2進数と文字コード', compress: '4 圧縮のしくみ', drill: '5 データ量の計算ドリル' },
-    '仮想CPUラボ': { diagram: '1 図解: 5つの装置', sim: '2 仮想CPUを動かす', tasks: '3 課題', auto: '4 手計算くらべ' },
-    'ネットワーク通信シミュレータ': { build: '1 ネットワークを組み立てる', flow: '2 Webページが届くまで', fault: '3 回線が切れたら？', spy: '4 のぞき見と暗号化', drill: '5 IPアドレス・ドリル' },
-    '計測・制御シミュレータ': { streetlight: '1 街灯', door: '2 自動ドア', traffic: '3 信号機（時間で切りかえ）', 'traffic-button': '4 押しボタン式信号機', sandbox: '5 自由に作る（仮想マイコン）' }
+    'デジタル化ラボ': { image: '① 画像のデジタル化', sound: '② 音のデジタル化', binary: '③ 2進数と文字コード', drill: '④ データ量の計算ドリル', compress: '⑤ 圧縮のしくみ' },
+    '仮想CPUラボ': { diagram: '① 図解: 5つの装置', auto: '② 手計算くらべ', sim: '③ 仮想CPUを動かす', tasks: '④ 課題' },
+    'ネットワーク通信シミュレータ': { build: '① ネットワークを組み立てる', flow: '② Webページが届くまで', fault: '③ 回線が切れたら？', spy: '④ のぞき見と暗号化', drill: '⑤ IPアドレス・ドリル' },
+    '計測・制御シミュレータ': { streetlight: '① 街灯', door: '② 自動ドア', traffic: '③ 信号機（時間で切りかえ）', 'traffic-button': '④ 押しボタン式信号機', sandbox: '⑤ 自由に作る（仮想マイコン）' }
   };
   var VCPU_Q = {
     diagram: 'コンピュータの5つの装置の役割と、データが流れる順', sim: '命令を「取り出し → 解読 → 実行」するようすを見て気づいたこと',
@@ -225,9 +225,9 @@
   function parseVcpu(obj) {
     var app = '仮想CPUラボ', R = Rows(obj.exportedAt);
     var tasks = Array.isArray(obj.tasks) ? obj.tasks : [];
-    if (tasks.length) R.add('成績', '3 課題', 'クリアした課題', tasks.filter(function (t) { return t && t.cleared; }).length + ' / ' + tasks.length);
+    if (tasks.length) R.add('成績', D_NAMES[app].tasks, 'クリアした課題', tasks.filter(function (t) { return t && t.cleared; }).length + ' / ' + tasks.length);
     var dg = (obj.done || {}).diagram;
-    if (isObj(dg) && dg.total) R.add('成績', '1 図解: 5つの装置', 'クイズ', dg.score + ' / ' + dg.total, dg.at);
+    if (isObj(dg) && dg.total) R.add('成績', D_NAMES[app].diagram, 'クイズ', dg.score + ' / ' + dg.total, dg.at);
     reflObj(R, app, obj.reflections, VCPU_Q);
     return [{ domain: 'D', app: app, student: stD(obj.student), rows: R.rows }];
   }

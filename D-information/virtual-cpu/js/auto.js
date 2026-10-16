@@ -159,8 +159,8 @@ export function renderAuto(view, { tasks, isa }) {
       "div",
       { class: "card" },
       h("h3", {}, "2. プログラムなら"),
-      h("p", {}, "課題「1からNまでの合計」のプログラムを、この仮想CPUで実行します。N を大きくしても、プログラムは1文字も変えずにそのまま使えます。"),
-      h("details", {}, h("summary", {}, "使うプログラムを見る（課題「1からNまでの合計」の答えの例です）"), h("pre", { class: "code-block small" }, program)),
+      h("p", {}, "1からNまでをたすプログラムを、この教材の小さなコンピュータ（仮想CPU）で実行します。プログラムは用意してあるので、自分で作らなくてもくらべられます。N を大きくしても、プログラムは1文字も変えずにそのまま使えます。"),
+      h("details", {}, h("summary", {}, "使うプログラムを見る（発展の ④課題「1からNまでの合計」の答えの例です）"), h("pre", { class: "code-block small" }, program)),
       h("div", { class: "field" }, h("label", {}, "どこまでたす？", nSelect)),
       compareBox,
     ),
@@ -180,6 +180,7 @@ export function renderAuto(view, { tasks, isa }) {
       ),
       h("p", {}, "考えよう: 身のまわりで、コンピュータが「くり返し」を自動でしてくれている例はあるかな？（例: 自動ドア、信号機、エアコンの温度調節）"),
     ),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn secondary", href: "#/sim" }, "発展: ③仮想CPUで命令を動かしてみよう →")),
   );
   renderCompare();
   updateDone();

@@ -1,4 +1,4 @@
-// モジュール5: データ量の計算ドリル（問題は毎回自動で作る）
+// モジュール④: データ量の計算ドリル（問題は毎回自動で作る）
 import { h, explainCard, stepCard, shuffled, toast } from "../js/ui.js";
 import { store } from "../js/store.js";
 import { makeDrill, DRILL_KINDS, updateDrillBests, drillBestText } from "../js/digilib.js";

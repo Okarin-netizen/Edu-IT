@@ -120,6 +120,8 @@
       { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
       { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
     ]);
+  // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
+  SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
   var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
@@ -208,7 +210,7 @@
     var idx = SECTIONS.indexOf(s);
     if (s.no) {
       view.appendChild(h('header', { class: 'module-head sec-head' },
-        h('p', { class: 'meta', text: s.group + '・ステップ' + s.no + '・目安 ' + s.min }),
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
         h('h1', { class: 'sec-title', text: s.title })));
     }
     var body = h('div', { class: 'sec-body' });
@@ -251,13 +253,13 @@
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
           var done = isDone(x);
           return h('a', { class: 'module-card', href: '#' + x.id },
-            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.no + '・目安 ' + x.min }),
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
             h('span', { class: 'mc-state' + (done ? ' is-done' : ''), text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
         }))),
       h('div', { class: 'btn-row home-start' },
-        h('a', { class: 'ef-btn-primary', href: '#oneclick', text: 'ステップ1 ワンクリック詐欺からはじめよう →' }),
+        h('a', { class: 'ef-btn-primary', href: '#oneclick', text: 'ステップ① ワンクリック詐欺からはじめよう →' }),
         last && last.id !== 'oneclick' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
       h('details', { class: 'teacher' },
         h('summary', { text: '先生へ' }),
@@ -553,7 +555,7 @@
       student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
       scenarios: D.scenarios.map(function (sc) {
         var s = scState(sc);
-        return { id: sc.id, no: sc.no, title: sc.title, cleared: !!s.cleared, clearedAt: s.clearedAt || '', misses: s.misses || 0, hints: s.hints || 0,
+        return { id: sc.id, no: '①②③④⑤⑥'.charAt(Number(sc.no) - 1), title: sc.title, cleared: !!s.cleared, clearedAt: s.clearedAt || '', misses: s.misses || 0, hints: s.hints || 0,
           steps: sc.steps.filter(function (x) { return s.done[x.id]; }).length + ' / ' + sc.steps.length };
       }),
       reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
@@ -640,12 +642,12 @@
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: '場面' }), h('th', { text: 'クリア' }), h('th', { text: 'だまされた' }), h('th', { text: 'ヒント' }))),
           h('tbody', null, r.scenarios.map(function (x) {
-            return h('tr', null, h('td', { text: x.no + '. ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
+            return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
           })))),
         h('ul', { class: 'refl-list' }, D.reflQ.map(function (q, i) {
           return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + ': ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#matome', text: '6 まとめとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#matome', text: '⑥ まとめとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

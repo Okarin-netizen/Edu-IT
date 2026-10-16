@@ -77,7 +77,7 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(load('デジタル化ラボ_2_15_山田花子.json').entries[0].rows.length, 2);
   const net = load('ネットワーク_2-15-山田花子.json').entries[0];
   assert.strictEqual(net.rows.filter((x) => x.type === 'ふりかえり').length, 1);  // 空の振り返りは入れない
-  assert.strictEqual(net.rows.find((x) => x.type === 'ふりかえり').part, '4 のぞき見と暗号化');
+  assert.strictEqual(net.rows.find((x) => x.type === 'ふりかえり').part, '④ のぞき見と暗号化');
   const sec = load('seclab-2年3組-12-2026-10-13.json').entries[0];
   assert.deepStrictEqual(sec.student, { cls: '2年3', num: '12', name: '' });
   assert.strictEqual(val(sec, '事前テスト'), '7/11');
@@ -87,8 +87,8 @@ test('D: 各教材の振り返りと成績', () => {
   const scam = load('ネット詐欺_追体験ラボ_2_15_山田花子.json').entries[0];
   assert.deepStrictEqual(scam.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(scam, 'クリアした場面'), '2 / 5');
-  assert.strictEqual(scam.rows.find((x) => x.part === '1 ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
-  assert.strictEqual(scam.rows.find((x) => x.part === '3 ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
+  assert.strictEqual(scam.rows.find((x) => x.part === '① ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
+  assert.strictEqual(scam.rows.find((x) => x.part === '③ ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
   assert.strictEqual(scam.rows.filter((x) => x.type === 'ふりかえり').length, 2);
   const hash = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0];
   assert.strictEqual(hash.app, 'D9 ハッシュ化体験ラボ');
