@@ -46,7 +46,47 @@ for i, m in enumerate(data["materials"], 1):
     copy(info / m["source"], single / f"D{i}_{m['title']}.html")
 
 # ---- 先生用 ----
-# 材料と加工の使い方は common/base.css や共通の枠(shared/)を読むので、1ファイル版と同じしかたで中に入れる
+# 先生用のファイルの名前は「分野_名前.html」にそろえる。分野ごとの先生用ガイドは、どれも同じ章立て・同じ見た目
+# (shared/eduit-guide.css)で、名前は「X_分野名_先生用ガイド.html」。4分野共通の道具は「全分野_名前.html」。
+TEACHER = {
+    "A": "A_材料と加工_先生用ガイド.html",
+    "B": "B_生物育成_先生用ガイド.html",
+    "C": "C_エネルギー変換_先生用ガイド.html",
+    "D": "D_情報の技術_先生用ガイド.html",
+    "D4": "D4_情報セキュリティ体験ラボ_先生用ガイド.html",
+    "kihon": "全分野_基本編と発展編.html",
+    "furikaeri": "全分野_振り返り一覧.html",
+}
+
+
+def inline_page(src):
+    """先生用ガイドが読む CSS・JS(<link rel="stylesheet">・<script src>)を中に入れて、1ファイルで開けるようにする"""
+    html = src.read_text(encoding="utf-8")
+    base = src.parent
+
+    def css(m):
+        return "<style>\n" + (base / m.group(1)).read_text(encoding="utf-8").replace("</style", "<\\/style") + "\n</style>"
+
+    def js(m):
+        return "<script>\n" + (base / m.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script") + "\n</script>"
+
+    want = len(re.findall(r'<link rel="stylesheet"|<script src=', html))
+    html, n1 = re.subn(r'<link rel="stylesheet" href="([^"]+)">', css, html)
+    html, n2 = re.subn(r'<script src="([^"]+)"></script>', js, html)
+    if n1 + n2 != want:
+        raise SystemExit(f"{src}: 中に入れられなかったファイルがあります")
+    if "eg-sec" not in html or "window.EduitFrame" not in html:
+        raise SystemExit(f"{src}: 先生用ガイドの共通の形(shared/eduit-guide.css・eduit-frame.js)になっていません")
+    return html
+
+
+def guide(src, key):
+    """先生用ガイドを先生用フォルダに入れる。先生用フォルダでは、どのガイドも上のバーは題名だけ(「◀ メニュー」は出さない)"""
+    html = re.sub(r'\s*<a class="ef-btn ef-back"[^>]*>.*?</a>', "", inline_page(src), count=1)
+    (teacher / TEACHER[key]).write_text(html, encoding="utf-8")
+
+
+# 材料と加工の1ファイル版の部品(build-single.py)を使う
 spec = importlib.util.spec_from_file_location("build_single", repo / "A-materials/build/build-single.py")
 build_single = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build_single)
@@ -54,40 +94,20 @@ spec.loader.exec_module(build_single)
 m7 = build_single.inline("m7-solid-maker/index.html")
 m7 = m7.replace("</head>", "<style>.ef-back { display: none !important; }</style>\n</head>", 1)
 (single / "A_第三角法_立体メーカー(単体).html").write_text(m7, encoding="utf-8")
-guide = build_single.inline("docs/使い方_先生用.html")
-guide = guide.replace('href="../index.html"', 'href="../生徒に配る/' + STUDENT["A"] + '"')
-(teacher / "A_材料と加工_使い方(先生用).html").write_text(guide, encoding="utf-8")
-copy(repo / "B-bio/dist/先生用ガイド.html", teacher / "B_生物育成_先生用ガイド.html")
-copy(repo / "C-energy/docs/tsukaikata.html", teacher / "C_エネルギー変換_使い方(生徒向け・先生向け).html")
 
-
-def with_frame(src, dst, name):
-    """手引きに共通の枠(作成者・安全と個人情報・ライセンス・更新履歴のフッター)を中に入れてコピーする"""
-    def esc(code):
-        return code.replace("</script", "<\\/script")
-    frame = "\n".join([
-        "<style>\n" + (repo / "shared/eduit-frame.css").read_text(encoding="utf-8") + "\n</style>",
-        "<script>\n" + esc((info / "eduit-info.js").read_text(encoding="utf-8")) + "\n</script>",
-        "<script>EDUIT_INFO.app = { name: " + json.dumps(name, ensure_ascii=False) + " };</script>",
-        "<script>\n" + esc((repo / "shared/eduit-frame.js").read_text(encoding="utf-8")) + "\n</script>",
-    ])
-    html = src.read_text(encoding="utf-8")
-    if "</head>" not in html:
-        raise SystemExit(f"{src}: </head> がありません")
-    dst.write_text(html.replace("</head>", frame + "\n</head>", 1), encoding="utf-8")
-
+# 分野ごとの先生用ガイド
+guide(repo / "A-materials/docs/先生用ガイド.html", "A")
+guide(repo / "B-bio/dist/先生用ガイド.html", "B")
+guide(repo / "C-energy/docs/先生用ガイド.html", "C")
+guide(info / "docs/先生用ガイド.html", "D")
+guide(info / "docs/情報セキュリティ体験ラボ_先生用ガイド.html", "D4")
 
 # 4分野共通: 生徒が書き出した振り返りの JSON をまとめて一覧にする
 subprocess.run([sys.executable, str(repo / "teacher-tools/furikaeri-ichiran/build.py")], check=True)
-copy(repo / "teacher-tools/furikaeri-ichiran/dist/振り返り一覧.html", teacher / "全分野_振り返り一覧(先生用).html")
+copy(repo / "teacher-tools/furikaeri-ichiran/dist/振り返り一覧.html", teacher / TEACHER["furikaeri"])
 # 4分野共通: 基本編と発展編の分け方(学習指導要領の項目と理由つき)
 subprocess.run([sys.executable, str(repo / "teacher-tools/kihon-hatten/build.py")], check=True)
-copy(repo / "teacher-tools/kihon-hatten/dist/基本編と発展編.html", teacher / "全分野_基本編と発展編(先生用).html")
-
-with_frame(info / "docs/先生用の手引き.html", teacher / "D_情報の技術_先生用の手引き.html",
-           "情報の技術 体験教材集 先生用の手引き")
-with_frame(info / "docs/情報セキュリティ体験ラボ_先生用の手引き.html", teacher / "D_情報セキュリティ体験ラボ_先生用の手引き.html",
-           "情報セキュリティ体験ラボ 先生用の手引き")
+copy(repo / "teacher-tools/kihon-hatten/dist/基本編と発展編.html", teacher / TEACHER["kihon"])
 
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):

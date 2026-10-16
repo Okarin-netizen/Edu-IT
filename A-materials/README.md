@@ -20,7 +20,7 @@ A-materials/
 ├─ m7-solid-maker/       M7 第三角法 立体メーカー
 ├─ teacher-viewer/       先生用 提出ファイル一覧ビューア
 ├─ dist/                 配布用の完成ファイル(1ファイル版 材料と加工_教材アプリ.html)
-├─ docs/                 先生用の文書(使い方_先生用.html)
+├─ docs/                 先生用の文書(先生用ガイド.html)
 ├─ build/                作る道具(build-single.py・build-ruby-dict.py)
 └─ review/               中学生目線レビューの記録(M7)
 ```

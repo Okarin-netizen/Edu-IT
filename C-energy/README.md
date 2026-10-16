@@ -8,9 +8,9 @@
 |---|---|
 | `E1/`〜`E5/` | 各アプリの元ファイル(E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート) |
 | `eduit-info.js` | 版・更新日・更新履歴など(4分野共通の枠が読む) |
-| `dist/` | 配布用の完成ファイル。`energy-apps.html`(E1〜E5 が入った1ファイル)と `energy-apps.zip`(html・使い方・README.txt) |
-| `docs/` | 先生用の文書。`tsukaikata.html`(使い方 生徒向け・先生向け。印刷できる) |
-| `build/` | 作る道具。`build.py`・`help.py`(使い方の本文)・`shell.html`(統合版の枠)・`tsukaikata.tpl.html`・`README.txt`(zip に入れる説明のひな形) |
+| `dist/` | 配布用の完成ファイル。`energy-apps.html`(E1〜E5 が入った1ファイル)と `energy-apps.zip`(html・使い方・先生用ガイド・README.txt) |
+| `docs/` | 先生用の文書。`先生用ガイド.html`(4分野で同じ章立ての先生用ガイド)と `tsukaikata.html`(使い方 生徒向け・先生向け。印刷できる) |
+| `build/` | 作る道具。`build.py`・`help.py`(使い方・先生用ガイドの本文)・`shell.html`(統合版の枠)・`tsukaikata.tpl.html`・`sensei-guide.tpl.html`(先生用ガイドのひな形)・`README.txt`(zip に入れる説明のひな形) |
 | `review/` | レビュー結果と改善計画 |
 
 ## 作り直しかた
@@ -21,7 +21,7 @@ E1〜E5 や `build/` の中を直したら、リポジトリのいちばん上�
 python3 C-energy/build/build.py
 ```
 
-`dist/energy-apps.html`・`dist/energy-apps.zip`・`docs/tsukaikata.html` が作り直されます。
+`dist/energy-apps.html`・`dist/energy-apps.zip`・`docs/tsukaikata.html`・`docs/先生用ガイド.html` が作り直されます。
 版を上げるときは、先に `eduit-info.js` の version・updated・history を書きかえます。
 
 ## 注意
