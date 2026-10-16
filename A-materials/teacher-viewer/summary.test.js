@@ -50,3 +50,10 @@ test('アプリごとの要約とふりかえりの有無', () => {
   const q = TV.summarize(art('wood-lab', { notes: {}, quizLog: [{ correct: true }, { correct: false }] }));
   assert.deepStrictEqual(q.fields[0], ['反りの予測', '1 / 2 回 正解']);
 });
+
+test('M7 立体メーカー: 大きさ・図面・自己評価・ふりかえり', () => {
+  const s = TV.summarize(art('solid-maker', { size: { W: 6, D: 4, H: 5, cell: 10 }, done: { pdf: 1, stl: 2 }, reflect: { self: { match: '3' }, learned: 'そろう' } }));
+  assert.ok(s.reflected);
+  assert.ok(s.fields.some((f) => f[0] === '三面図の大きさ' && f[1].includes('6×4×5')));
+  assert.ok(s.fields.some((f) => f[0] === 'STL' && f[1] === '2 回'));
+});
