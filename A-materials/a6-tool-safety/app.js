@@ -282,7 +282,7 @@
         else if (e.key === 'Enter' || e.key === ' ') { moved = false; toggleAt({ x: cursor.x, y: cursor.y }); }
         else return;
         e.preventDefault();
-        cursor.x = G.clamp(cursor.x, 0, 400); cursor.y = G.clamp(cursor.y, 0, 260);
+        cursor.x = G.clamp(cursor.x, 0, 400); cursor.y = G.clamp(cursor.y, 30, 260);
         svg.classList.add('kbd');
         if (moved) drawMarks();
       });
