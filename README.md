@@ -27,6 +27,10 @@ Edu-IT/
 教科書の「発展」「コラム」にあたるものや数値での設計・計算、新しい技術を使うものを発展編にしています。
 1つの教材が両方の編に出ることもあり、カードの「使うところ」にその編で使うタブ・ページの名前が出ます。
 
+教材の記号は **分野の文字 + 番号**(A1〜A7・B1〜B4・C1〜C5・D1〜D9)で、4分野とも **番号の順 = おすすめの順 = メニューのカードの順** です。
+アプリの中のタブも「基本 → 発展」の順にならべ、**①②③…の続き番号** にしています(「はじめに」「振り返り」「記録」は番号なし)。
+メニューのカード・上のバーの形は4分野共通です(`shared/eduit-frame.js` の `EduitFrame.card`・`menuTitle`・`code`)。
+
 - 分け方のもと: 各分野の `eduit-info.js` の `levels`(タブの部品は `shared/eduit-frame.js` の `EduitFrame.levels`)
 - 先生用の一覧(学習指導要領の項目と理由つき): [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) → `クラスルーム配布/先生用/全分野_基本編と発展編.html`
 
@@ -34,7 +38,7 @@ Edu-IT/
 
 ```
 <分野>/
-├─ (アプリのフォルダ)   M1〜M7・B1〜B4・E1〜E5・各ラボ
+├─ (アプリのフォルダ)   a1-…〜a7-…・B1〜B4・C1〜C5・各ラボ
 ├─ dist/       配布用の完成ファイル(作り直してできるもの)
 ├─ docs/       先生用の文書(手引き・使い方)
 ├─ build/      作る道具(ビルドのスクリプト)
@@ -45,10 +49,10 @@ Edu-IT/
 
 | フォルダ | 分野 | 教材 | 配布用(`dist/`) | 作り直すコマンド |
 |---|---|---|---|---|
-| [`A-materials/`](A-materials/) | A 材料と加工 | M1 材料選択ナビ・M2 木材ラボ・M3 構造強化ラボ・M4 製図トレーナー・M5 木取り・M6 工具の安全・M7 第三角法 立体メーカー・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
-| [`B-bio/`](B-bio/) | B 生物育成 | B1 育成日誌・B2 育成環境コントローラ・B3 動物飼育・水産・B4 栽培暦ビルダー | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
-| [`C-energy/`](C-energy/) | C エネルギー変換 | E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
-| [`D-information/`](D-information/) | D 情報 | 体験教材集(デジタル化・仮想CPU・ネットワーク・セキュリティ・ネット詐欺・双方向・計測制御・生成AI・ハッシュ化の9教材) | `情報の技術_体験教材集.html`(9教材の統一版)・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html`(1つだけ配るとき) | [`D-information/README.md`](D-information/README.md) の順に |
+| [`A-materials/`](A-materials/) | A 材料と加工 | A1 材料選択ナビ・A2 木材ラボ・A3 構造強化ラボ・A4 製図トレーナー・A5 木取り・A6 工具の安全・A7 第三角法 立体メーカー・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
+| [`B-bio/`](B-bio/) | B 生物育成 | B1 育成環境コントローラ・B2 動物飼育・水産・B3 栽培暦ビルダー・B4 育成日誌 | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
+| [`C-energy/`](C-energy/) | C エネルギー変換 | C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
+| [`D-information/`](D-information/) | D 情報 | 体験教材集(D1 デジタル化・D2 仮想CPU・D3 ネットワーク・D4 セキュリティ・D5 ネット詐欺・D6 双方向・D7 計測制御・D8 生成AI・D9 ハッシュ化の9教材) | `情報の技術_体験教材集.html`(9教材の統一版)・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html`(1つだけ配るとき) | [`D-information/README.md`](D-information/README.md) の順に |
 
 ## 先生用の道具 → [`teacher-tools/`](teacher-tools/)
 
@@ -71,6 +75,7 @@ Edu-IT/
 
 ## 気をつけること
 
-- フォルダの名前を変えても、生徒の記録(ブラウザに保存されたもの)や書き出したファイルはそのまま使えます。
-  記録の保存名(`gijutsu.*`・`energyApps.*` など)や書き出しの id は、振り返り一覧が読むので変えないでください。
+- 記号はフォルダ名・保存名・書き出しの app の値にも入っています(A `a2-wood-lab/`・`a2.*`、B `B-bio/B1/`・`b1_*`・`app: 'B1'`、C `C-energy/C1/`・`energyApps.C1.v1`・`app: 'C3'`)。
+  記号を変えるときは、これらと振り返り一覧(`teacher-tools/furikaeri-ichiran/parse.js`)をいっしょに直してください。
+  2026-10-16 に記号をそろえたとき、それより前の版の記録との互換性はなくしました(リリース前のため)。
 - フォルダのまま Web サーバーに置くときは、その分野のフォルダと `shared/` を同じ並びで置きます。

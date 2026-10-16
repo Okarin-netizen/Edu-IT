@@ -7,7 +7,7 @@
 |---|---|
 | `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
-| `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`) |
+| `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
 
 分野ごとの版と更新履歴は、各分野の `eduit-info.js`(`window.EDUIT_INFO`)に書きます。
 安全の説明とライセンスの文は `eduit-frame.js` にあり、全分野で同じです。
@@ -17,7 +17,7 @@
 ```html
 <link rel="stylesheet" href="../../shared/eduit-frame.css">
 <script src="../eduit-info.js"></script>          <!-- 分野ごと: window.EDUIT_INFO -->
-<script>EDUIT_INFO.app = { name: 'M3 構造強化ラボ' };</script>  <!-- アプリ名(なければ教材集の名前) -->
+<script>EDUIT_INFO.app = { name: 'A3 構造強化ラボ' };</script>  <!-- アプリ名(なければ教材集の名前) -->
 <script src="../../shared/eduit-frame.js"></script>
 ```
 
@@ -28,10 +28,16 @@
 - 色は `<html data-ef-domain="A|B|C|D">` で分野の色になる(`EDUIT_INFO.domain` があれば自動)。
   A 木の茶 `#985a26` / B 緑 `#2e7d32` / C だいだい `#b45309` / D 青 `#1a5fc8`。
 - 画面の地 `--ef-bg`、カード・ヘッダーは白、枠線 `--ef-line`、文字 `--ef-text`、フォント `--ef-font`。
-- **ヘッダー** `.ef-header`: 白地・下に分野の色の線(3px)。左から「◀ メニュー」(`.ef-btn.ef-back`)→ アイコンとアプリ名(`.ef-title`)→ 右寄せの道具(`.ef-tools`)。
-  道具の並びは「ふりがな → 文字の大きさ → くっきり → 使い方 → そのアプリだけのボタン」。
+- **記号**: 4分野とも分野の文字 + 番号(A1〜A7・B1〜B4・C1〜C5・D1〜D9)。番号の順 = おすすめの順 = メニューのカードの順。
+  画面では `EduitFrame.code('A2')`(`<span class="ef-code">A2</span>`、分野の色の小さな印)で出す。
+- **メニューの上のバー** `.ef-header`: 左に `EduitFrame.menuTitle(h1)` の「[A] 材料と加工の技術 教材集」。
+  右の道具は「ふりがな → 文字の大きさ → (くっきり) → 使い方 → 先生用」。その分野にない機能のボタンは出さない。「先生用」はメニューの下の先生用のところへ移る。
+- **アプリの上のバー** `.ef-header`: 白地・下に分野の色の線(3px)。左から「◀ メニュー」(`.ef-btn.ef-back`)→ 記号の印とアプリ名(`.ef-title`、「[A2] 木材の繊維・収縮ラボ」)→ 右寄せの道具(`.ef-tools`)。
+  道具の並びは「ふりがな → 文字の大きさ → くっきり → 使い方 → そのアプリだけのボタン」。同じ分野の教材を切りかえるボタンにも記号を出す(「[D2] CPU」)。
+- **メニューの下の部分**: 基本編・発展編(カード)→ 記録(書き出し・データの管理)→ 先生用、の順。
 - **ボタン** `.ef-btn`(白地・丸い枠)、ON は `.is-on` か `aria-pressed="true"`(分野の色で塗る)。いちばん大事な操作は `.ef-btn-primary`。
-- **メニューのカード** `.ef-card`(白・上に分野の色の線 4px・角丸 12px)、`.ef-card-tag`(M1 などの記号)、`.ef-card-title`。
+- **メニューのカード**: `EduitFrame.card({ code, icon, title, desc, parts, extra, href か onOpen, openAttrs })` で作る(`.ef-card.ef-mcard`)。
+  記号・アイコン・名前・説明・使うところ・追加の欄(extra: B の目安時間・振り返りの印、C のタグ・進み具合 など)・「ひらく ▶」の順。カードのどこを押しても開く。
 - **フッター**: 画面の下に「作成: 羽生市立南中学校 技術 岡田 ・ 第◯版 ・ 安全と個人情報・ライセンス・更新履歴」。
   画面いっぱいを使うアプリは、ヘッダーの道具に `<span data-ef-about></span>` を置くと「ⓘ このアプリについて」ボタンになる。
 
@@ -39,7 +45,9 @@
 
 `EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, gridClass, onRender })` で、
 `EDUIT_INFO.levels`(各分野の `eduit-info.js`)の分け方どおりに「基本編」「発展編」のタブとカードの並びを作ります。
-カードの形は各メニューが作り、`parts`(「使うところ」の要素)をカードの中に入れます。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
+カードは `EduitFrame.card` で作り、`parts`(「使うところ」の要素)を渡します。`code: function (item) { return 'A1'; }` を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行が出ます。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
+
+アプリの中のタブ・ページは「基本のタブ → 発展のタブ」の順にならべ、①②③…の続き番号にします(「はじめに」「振り返り」「記録」は番号なし、振り返り・記録はいつも最後)。`levels` の `parts` にも同じ番号で書きます。
 分け方の一覧(先生用)は `teacher-tools/kihon-hatten/` が作ります。
 
 ## 先生用ガイドの形
