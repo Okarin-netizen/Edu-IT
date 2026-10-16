@@ -3,26 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>材料と加工 教材アプリ</title>
+<title>材料と加工の技術 教材集</title>
 <meta name="theme-color" content="#985a26">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../shared/eduit-frame.css">
 <link rel="stylesheet" href="common/base.css">
 <script src="eduit-info.js"></script>
-<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '材料と加工 教材アプリ(メニュー)' };</script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '材料と加工の技術 教材集(メニュー)' };</script>
 <script src="../shared/eduit-frame.js"></script>
 <style>
   .apps { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: .75rem; }
-  /* メニューのカードは4分野共通の .ef-card(白・上に分野の色の線・角丸) */
-  .app-card { display: flex; flex-direction: column; gap: .2rem; text-decoration: none; color: inherit; min-height: 9rem; padding: .75rem 1rem; transition: transform .1s, box-shadow .1s; }
-  .app-card:hover { border-color: var(--frame); box-shadow: 0 2px 10px rgba(60, 35, 10, .14); }
-  .app-card:active { transform: translateY(2px); }
-  .app-card .go { margin-top: auto; align-self: flex-end; min-height: 40px; font-size: .95rem; }
-  .app-card .ef-card-tag { margin: 0; font-size: .85rem; }
-  .app-card h3.ef-card-title { margin: 0; font-size: 1.08rem; line-height: 1.45; text-wrap: balance; }
-  /* 題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
-  .app-card h3 .seg { display: inline-block; max-width: 100%; }
+  /* メニューのカードは4分野共通の EduitFrame.card(.ef-card.ef-mcard)。題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
+  .ef-mcard .ef-card-title { text-wrap: balance; }
+  .ef-mcard .seg { display: inline-block; max-width: 100%; }
+  .ef-mcard[aria-disabled="true"] { opacity: .6; }
   .fold { margin: .6rem 0; }
   .fold > summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .92rem; list-style: none; }
   .fold > summary::-webkit-details-marker { display: none; }
@@ -31,10 +26,7 @@
   .fold > summary:hover { color: var(--ink); }
   .fold.teacher { margin-top: 1.5rem; padding-top: .3rem; border-top: 1px solid var(--line); }
   .fold.teacher[open] > summary { font-weight: bold; color: var(--ink); }
-  .app-card p { margin: 0; font-size: .92rem; }
-  .app-card .state { margin-top: auto; }
-  .app-card[aria-disabled="true"] { opacity: .6; }
-  #tapps .app-card { min-height: 7rem; }
+  #tapps .ef-mcard { min-height: 7rem; }
   .profile .g-field input { width: 6em; }
   .profile .pf-name input { width: 14em; }
 </style>
@@ -81,23 +73,30 @@
 <script src="common/apps.js"></script>
 <script>
   G.basePath = './';
-  G.initApp({ app: 'menu', title: '材料と加工 教材アプリ', home: false, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
+  // 上のバー: 左に「A 材料と加工の技術 教材集」、右に ふりがな・文字の大きさ・くっきり・先生用
+  var teacherBtn = G.h('button', { class: 'ef-btn', type: 'button', title: 'メニューの下の「先生用」へ移る', onclick: function () {
+    var t = G.$('#teacher');
+    t.open = true;
+    t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var s = t.querySelector('summary'); if (s) s.focus({ preventScroll: true });
+  } }, '先生用');
+  G.initApp({ app: 'menu', title: EDUIT_INFO.suite, home: false, tools: teacherBtn, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
+  if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle(G.$('#g-header h1'));
+  // メニューのカード(4分野共通の形 EduitFrame.card)
   function makeCard(a, parts) {
-    var state = G.h('span', { class: 'state badge' }, '');
-    var card = G.h('a', { class: 'ef-card app-card', href: a.dir + 'index.html' },
-      G.h('span', { class: 'ef-card-tag code' }, a.code),
-      G.h.apply(null, ['h3', { class: 'ef-card-title' }].concat(a.title.split(/(?<=・)/).map(function (s) { return G.h('span', { class: 'seg' }, s); }))),
-      G.h('p', null, a.desc),
-      parts || null,
-      state, G.h('span', { class: 'ef-btn-primary go', 'aria-hidden': 'true' }, 'ひらく ▶'));
+    var state = G.h('span', { class: 'state badge' }, '準備中');
+    var card = EduitFrame.card({ code: a.code === '先生用' ? null : a.code, icon: a.icon, title: a.title, desc: a.desc, parts: parts || null, extra: [state], href: a.dir + 'index.html' });
+    var t = card.querySelector('.ef-card-title');
+    t.textContent = '';
+    a.title.split(/(?<=・)/).forEach(function (s) { t.appendChild(G.h('span', { class: 'seg' }, s)); });
+    state.remove();
     if (/^https?:$/.test(location.protocol) && !G.single) {
-      fetch(a.dir + 'index.html', { method: 'HEAD' }).then(function (r) {
-        if (!r.ok) throw 0;
-        state.remove();
-      }).catch(function () {
-        state.textContent = '準備中'; card.setAttribute('aria-disabled', 'true');
+      fetch(a.dir + 'index.html', { method: 'HEAD' }).then(function (r) { if (!r.ok) throw 0; }).catch(function () {
+        var box = card.querySelector('.ef-mcard-extra');
+        if (!box) { box = G.h('div', { class: 'ef-mcard-extra' }); card.insertBefore(box, card.querySelector('.ef-mcard-go')); }
+        box.appendChild(state); card.setAttribute('aria-disabled', 'true');
       });
-    } else state.remove();
+    }
     return card;
   }
   function addCards(box, list) {
@@ -106,16 +105,12 @@
   // 基本編・発展編のタブ(分け方は eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js)
   var appById = {};
   G.APPS.forEach(function (a) { appById[a.id] = a; });
-  if (window.EduitFrame && EduitFrame.levels && EDUIT_INFO.levels) {
-    EduitFrame.levels(G.$('#apps'), {
-      gridClass: 'apps',
-      card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], parts) : null; },
-      onRender: function (panel) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(panel); } catch (e) {} }
-    });
-  } else {
-    G.$('#apps').className = 'apps';
-    addCards(G.$('#apps'), G.APPS);
-  }
+  EduitFrame.levels(G.$('#apps'), {
+    gridClass: 'apps',
+    card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], parts) : null; },
+    code: function (item) { return appById[item.id] && appById[item.id].code; },
+    onRender: function (panel) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(panel); } catch (e) {} }
+  });
   addCards(G.$('#tapps'), G.TEACHER_APPS);
   // 組・番号・名前(書き出すファイルに入る)
   var PKEY = 'gijutsu.profile';

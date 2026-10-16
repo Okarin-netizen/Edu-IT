@@ -14,7 +14,7 @@ test('1つずつ書き出したファイルの組・番号・名前も使う', (
   const r = TV.parseFile('wood-lab.json', JSON.stringify(art('wood-lab', {}, { student: { class: '1', no: '3', name: '北 一郎' } })));
   assert.strictEqual(r.label, '1組3番 北 一郎');
 });
-test('名前がないときは M4 の名前、なければファイル名', () => {
+test('名前がないときは A4 の名前、なければファイル名', () => {
   assert.strictEqual(TV.parseFile('x.json', JSON.stringify(art('drawing-trainer', { name: '太郎' }))).label, '太郎');
   const r = TV.parseFile('dir/山田.json', JSON.stringify([art('kidori', {})]));
   assert.strictEqual(r.label, '山田'); assert.ok(r.fromFile);
@@ -44,14 +44,14 @@ test('アプリごとの要約とふりかえりの有無', () => {
   assert.ok(TV.summarize(art('structure-lab', { challenge: { reflect: '三角形' } })).reflected);
   assert.ok(TV.summarize(art('drawing-trainer', { reflect: { learned: 'わかった' } })).reflected);
   assert.ok(TV.summarize(art('kidori', { review: { improve: '次は' } })).reflected);
-  const m6 = TV.summarize(art('tool-safety', { type: 'self', toolName: 'のこぎり', scores: { posture: 'A' }, comment: '線を見る' }, { kind: 'rubric' }));
-  assert.ok(m6.reflected);
-  assert.ok(m6.fields.some(f => f[1].indexOf('姿勢 A') >= 0));
+  const a6 = TV.summarize(art('tool-safety', { type: 'self', toolName: 'のこぎり', scores: { posture: 'A' }, comment: '線を見る' }, { kind: 'rubric' }));
+  assert.ok(a6.reflected);
+  assert.ok(a6.fields.some(f => f[1].indexOf('姿勢 A') >= 0));
   const q = TV.summarize(art('wood-lab', { notes: {}, quizLog: [{ correct: true }, { correct: false }] }));
   assert.deepStrictEqual(q.fields[0], ['反りの予測', '1 / 2 回 正解']);
 });
 
-test('M7 立体メーカー: 大きさ・図面・自己評価・ふりかえり', () => {
+test('A7 立体メーカー: 大きさ・図面・自己評価・ふりかえり', () => {
   const s = TV.summarize(art('solid-maker', { size: { W: 6, D: 4, H: 5, cell: 10 }, done: { pdf: 1, stl: 2 }, reflect: { self: { match: '3' }, learned: 'そろう' } }));
   assert.ok(s.reflected);
   assert.ok(s.fields.some((f) => f[0] === '三面図の大きさ' && f[1].includes('6×4×5')));

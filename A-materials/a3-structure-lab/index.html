@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>構造強化ラボ</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<link rel="stylesheet" href="../common/base.css">
+<link rel="stylesheet" href="app.css">
+<script src="../eduit-info.js"></script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: 'A3 構造強化ラボ' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+</head>
+<body>
+<header id="g-header"></header>
+
+<main class="g-main" id="main">
+  <div class="savebar card no-print">
+    <label class="g-field savebar-name"><span>記録の名前</span><input id="work-title" type="text" maxlength="60" value="構造強化ラボの記録"></label>
+    <div class="g-row">
+      <button class="btn" type="button" id="btn-new">新しく始める</button>
+      <button class="btn" type="button" id="btn-open">開く</button>
+      <button class="btn" type="button" id="btn-export">ファイルに書き出す</button>
+      <button class="btn" type="button" id="btn-import">ファイルから読み込む</button>
+    </div>
+    <p class="g-muted savebar-status" id="save-status" aria-live="polite"></p>
+  </div>
+
+  <div data-g-tabs>
+    <div class="g-tablist" role="tablist" aria-label="画面の切りかえ">
+      <button role="tab" data-tab="beam" type="button"><span class="num">1</span>梁(はり)</button>
+      <button role="tab" data-tab="frame" type="button"><span class="num">2</span>枠と筋かい</button>
+      <button role="tab" data-tab="joint" type="button"><span class="num">3</span>接合</button>
+      <button role="tab" data-tab="challenge" type="button"><span class="num">4</span>設計課題</button>
+    </div>
+
+    <!-- 1 梁 -->
+    <section data-panel="beam">
+      <p class="lead">板(梁)に力をかけると、どれくらい曲がるかな。材料・厚み・形を変えて比べよう。</p>
+      <div class="g-cols">
+        <div>
+          <div class="card">
+            <h2>曲がり方</h2>
+            <div class="viz-wrap"><svg id="beam-svg" viewBox="0 0 640 245" role="img" aria-labelledby="beam-svg-desc"></svg></div>
+            <p class="g-muted" id="beam-svg-desc" aria-live="polite"></p>
+            <div class="g-row legend" id="beam-legend"></div>
+          </div>
+          <div class="card">
+            <h2>結果</h2>
+            <div id="beam-result" aria-live="polite"></div>
+            <div class="g-row no-print">
+              <button class="btn primary" type="button" id="btn-pin">いまの設計を「比べる前」にする</button>
+              <button class="btn" type="button" id="btn-unpin" hidden>「比べる前」を消す</button>
+            </div>
+            <div id="beam-compare"></div>
+          </div>
+          <div class="card">
+            <h2>実験と比べる</h2>
+            <p>本物の板におもりをのせて、たわみをはかってみよう。計算とどれくらいちがうかな。</p>
+            <div class="g-row">
+              <label class="g-field"><span>はかったたわみ(mm)</span><input id="measured" type="number" min="0" max="500" step="0.1" inputmode="decimal"></label>
+            </div>
+            <p id="measured-out" aria-live="polite"></p>
+            <label class="g-field"><span>気づいたこと(木目・節・支え方など)</span><textarea id="measured-note" rows="2"></textarea></label>
+          </div>
+        </div>
+
+        <form class="card" id="beam-form" autocomplete="off" onsubmit="return false">
+          <h2>条件</h2>
+          <label class="g-field"><span>材料</span><select id="b-material"></select></label>
+          <div class="g-field">
+            <label for="b-load">荷重(おもりの重さ)kg</label>
+            <div class="range-num"><input type="range" id="b-load-r" min="0" max="50" step="0.5" aria-label="荷重のスライダー"><input type="number" id="b-load" min="0" max="500" step="0.5" inputmode="decimal"></div>
+          </div>
+          <div class="g-field">
+            <label for="b-span">支点間の距離 mm</label>
+            <div class="range-num"><input type="range" id="b-span-r" min="100" max="1800" step="10" aria-label="支点間の距離のスライダー"><input type="number" id="b-span" min="10" max="5000" step="10" inputmode="decimal"></div>
+          </div>
+
+          <fieldset class="seg">
+            <legend>支え方</legend>
+            <label><input type="radio" name="b-support" value="simple" checked> 両はしで支える</label>
+            <label><input type="radio" name="b-support" value="cantilever"> 片方だけ固定(片持ち)</label>
+          </fieldset>
+          <fieldset class="seg">
+            <legend>荷重のかけ方</legend>
+            <label><input type="radio" name="b-load-type" value="point" checked> <span data-when="simple">まん中に集中</span><span data-when="cantilever">先に集中</span></label>
+            <label><input type="radio" name="b-load-type" value="uniform"> 全体に分布</label>
+          </fieldset>
+          <fieldset class="seg shape-seg">
+            <legend>断面の形</legend>
+            <label><input type="radio" name="b-shape" value="rect" checked> 板</label>
+            <label><input type="radio" name="b-shape" value="ribbed"> リブ付き</label>
+            <label><input type="radio" name="b-shape" value="L"> L形</label>
+            <label><input type="radio" name="b-shape" value="channel"> コの字</label>
+            <label><input type="radio" name="b-shape" value="box"> 箱形</label>
+          </fieldset>
+          <div class="section-row">
+            <svg id="section-svg" viewBox="0 0 160 120" role="img" aria-label="断面の図"></svg>
+            <div>
+              <label class="g-field"><span>幅 b(mm)</span><input type="number" id="b-b" min="0" max="2000" step="1" inputmode="decimal"></label>
+              <label class="g-field"><span>板の厚み t(mm)</span><input type="number" id="b-t" min="0" max="300" step="0.5" inputmode="decimal"></label>
+              <label class="g-field" data-shape="L channel box"><span>高さ h(mm)</span><input type="number" id="b-h" min="0" max="500" step="1" inputmode="decimal"></label>
+              <label class="g-field" data-shape="ribbed"><span>リブの本数</span><input type="number" id="b-ribs" min="0" max="6" step="1"></label>
+              <label class="g-field" data-shape="ribbed"><span>リブの幅(mm)</span><input type="number" id="b-ribw" min="0" max="200" step="1" inputmode="decimal"></label>
+              <label class="g-field" data-shape="ribbed"><span>リブの高さ(mm)</span><input type="number" id="b-ribh" min="0" max="300" step="1" inputmode="decimal"></label>
+            </div>
+          </div>
+          <div class="g-row quick">
+            <span class="g-muted">ためす:</span>
+            <button class="btn small" type="button" data-quick="t2">厚みを2倍</button>
+            <button class="btn small" type="button" data-quick="b2">幅を2倍</button>
+            <button class="btn small" type="button" data-quick="rib">リブを1本足す</button>
+            <button class="btn small" type="button" data-quick="reset">はじめにもどす</button>
+          </div>
+          <details class="formula">
+            <summary>くわしく見る(発展):計算のしかた</summary>
+            <p id="formula-text"></p>
+            <p class="g-muted">断面二次モーメント I は、断面の形で決まる「曲がりにくさ」。板なら I = b × t × t × t ÷ 12。厚みが2倍になると I は8倍になる。</p>
+          </details>
+          <div id="beam-source"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 2 枠と筋かい -->
+    <section data-panel="frame" hidden>
+      <p class="lead">四角い枠の上を横におしてみよう(ドラッグ、または上の横材を選んで ← → キー)。</p>
+      <div class="g-cols">
+        <div class="card">
+          <div class="viz-wrap"><svg id="frame-svg" viewBox="0 0 420 330" aria-labelledby="frame-desc"></svg></div>
+          <p id="frame-desc" aria-live="polite"></p>
+          <div class="g-row no-print">
+            <button class="btn small" type="button" id="frame-left">← 左におす</button>
+            <button class="btn small" type="button" id="frame-right">右におす →</button>
+            <button class="btn small" type="button" id="frame-reset">もとにもどす</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>補強のしかた</h2>
+          <fieldset class="seg vertical" id="frame-modes"><legend class="sr-only">補強のしかた</legend></fieldset>
+          <div class="g-note frame-point">
+            <strong>ポイント</strong>:三角形は、辺の長さが変わらないかぎり形が変わらない。四角形は、角(節点)がまわると形が変わってしまう。
+          </div>
+          <label class="g-field"><span>身のまわりで、三角形の構造が使われているものは?</span><textarea id="frame-note" rows="3"></textarea></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 接合 -->
+    <section data-panel="joint" hidden>
+      <p class="lead">部材をつなぐ方法(接合)によって、強さやゆるみにくさがちがう。</p>
+      <div class="g-grid" id="joint-cards"></div>
+      <div class="card" id="joint-quiz"></div>
+    </section>
+
+    <!-- 4 設計課題 -->
+    <section data-panel="challenge" hidden>
+      <div id="ps-cycle" class="g-ps"></div>
+      <div class="g-cols">
+        <div>
+          <div class="card">
+            <div class="g-row" id="level-tabs" role="group" aria-label="課題をえらぶ"></div>
+            <h2 id="lv-title"></h2>
+            <p id="lv-story"></p>
+            <ul id="lv-conds" class="conds"></ul>
+          </div>
+          <div class="card">
+            <h2>設計する</h2>
+            <div class="g-row">
+              <label class="g-field"><span>材料</span><select id="c-material"></select></label>
+              <label class="g-field"><span>板の厚み(mm)</span><select id="c-t"></select></label>
+              <label class="g-field"><span>補強のリブ(<span id="rib-size"></span>)</span><select id="c-ribs"></select></label>
+            </div>
+            <div class="viz-wrap"><svg id="c-svg" viewBox="0 0 640 245" role="img" aria-label="棚板の曲がり方"></svg></div>
+            <div id="c-result" aria-live="polite"></div>
+            <button class="btn primary" type="button" id="c-try">この設計で試す(記録する)</button>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h2>試した記録</h2>
+            <div class="g-table-wrap"><table class="g-table" id="c-log"><thead><tr><th>#</th><th>材料</th><th class="num">厚み</th><th class="num">リブ</th><th class="num">重さ g</th><th>結果</th></tr></thead><tbody></tbody></table></div>
+          </div>
+          <div class="card">
+            <h2>ふりかえり</h2>
+            <label class="g-field"><span>いちばんよいと思った設計と、その理由</span><textarea id="c-reflect" rows="3"></textarea></label>
+            <label class="g-field"><span>実際に作るとき、ほかに考えること(費用・見た目・作りやすさ・安全など)</span><textarea id="c-reflect2" rows="3"></textarea></label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="../common/ruby-dict.js"></script>
+<script src="../common/core.js"></script>
+<script src="../common/apps.js"></script>
+<script src="../common/materials.js"></script>
+<script src="../common/beam.js"></script>
+<script src="frame.js"></script>
+<script src="challenge.js"></script>
+<script src="joints.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

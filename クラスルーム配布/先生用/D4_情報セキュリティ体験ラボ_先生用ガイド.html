@@ -35,11 +35,12 @@
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 
 /* ---- ヘッダー ----
- * <header class="ef-header">
- *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
- *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
- * </header>
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -86,7 +87,8 @@
 }
 
 /* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
  */
 .ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
 .ef-card {
@@ -95,6 +97,29 @@
 }
 .ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
 
 /* ---- フッター(作成者・このアプリについて) ---- */
 .ef-footer {
@@ -228,8 +253,8 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
   window.EDUIT_INFO = {
     domain: 'D',
     domainName: '情報の技術',
-    suite: '情報の技術 体験教材集',
-    version: '1.6',
+    suite: '情報の技術 教材集',
+    version: '1.7',
     updated: '2026-10-16',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
@@ -240,6 +265,12 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.7', date: '2026-10-16', items: [
+        '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
+        'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
+        '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
+        'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。'
+      ] },
       { version: '1.6', date: '2026-10-16', items: [
         '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
         'ネット詐欺 追体験ラボ・生成AIのしくみラボ・ハッシュ化体験ラボを体験教材集に入れ、9つの教材を1つのファイル(統一版)で使えるようにしました。記録の保存場所は変わらないので、前の記録もそのまま使えます。',
@@ -286,7 +317,7 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
 window.EDUIT_INFO.levels = {
   basic: {
     title: '基本編',
-    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順(記号の番号の順)にならんでいます。授業の進め方に合わせて、どこから始めてもかまいません。',
     items: [
       { id: 'digitization-lab', parts: ['1 画像のデジタル化', '2 音のデジタル化', '3 2進数と文字コード', '5 データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
       { id: 'virtual-cpu', parts: ['1 図解: 5つの装置', '4 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
@@ -337,7 +368,14 @@ window.EDUIT_INFO.levels = {
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
  *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
@@ -507,6 +545,10 @@ window.EDUIT_INFO.levels = {
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
       panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
@@ -524,7 +566,48 @@ window.EDUIT_INFO.levels = {
     return { render: render, select: select, current: function () { return cur; } };
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 

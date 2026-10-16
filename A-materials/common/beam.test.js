@@ -125,7 +125,7 @@ test('とても薄い板では「公式の範囲外」の警告と「こわれ�
   assert.equal(r.level.id, 'break');
 });
 
-test('材料オブジェクトを直接渡せる(M5 の材質テーブル用)', () => {
+test('材料オブジェクトを直接渡せる(A5 の材質テーブル用)', () => {
   const r = Beam.analyze({ material: { E: 7000, strength: 65, density: 0.38 }, section: { b: 200, t: 15 }, span: 600, loadKg: 10 });
   close(r.deflection, 1.120760, 1e-6);
 });

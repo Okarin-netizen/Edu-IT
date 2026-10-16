@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C1 エネルギー変換ゲーム</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'C1 エネルギー変換ゲーム' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#eef3f8;}
+.e1{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
+  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+  color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
+  font-size:16px;overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
+.e1 *{box-sizing:border-box}
+.e1 button{font:inherit;touch-action:manipulation}
+.e1 rt{font-size:.55em;font-weight:normal}
+.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
+.e1-top h1{font-size:17px;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
+.e1-stitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
+.e1-stitle .t{font-size:17px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.e1-stitle .l{font-size:13px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;color:var(--ink);font-weight:bold;cursor:pointer;font-size:16px}
+.e1-btn:active{transform:translateY(1px)}
+.e1-btn:disabled{opacity:.45;cursor:default;transform:none}
+.e1-top .e1-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-line,#d6d3cb);border-radius:999px;white-space:nowrap;padding:0 12px;flex:none}
+.e1-top .e1-btn:hover{border-color:var(--ef-accent,#b45309)}
+.e1-top .e1-btn.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e1-top h1{color:var(--ef-text,#1f2328)}
+.e1-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e1-top .ef-about-btn::before{content:"ⓘ";font-size:20px}
+.e1-btn.primary{background:var(--accent);color:#fff}
+.e1-btn.danger{background:#fde2e2;color:#a61e1e}
+.e1-btn.go{background:var(--accent);color:#fff;font-size:21px;min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
+.e1-main{flex:1;display:flex;min-height:0}
+.e1-palwrap{position:relative;width:220px;flex:none;background:#fff;border-right:1px solid var(--line);min-height:0}
+.e1-pal{position:absolute;inset:0;overflow-y:auto;padding:8px}
+.e1-palmore{position:absolute;left:0;right:0;bottom:0;padding:18px 0 8px;text-align:center;font-size:15px;font-weight:bold;color:#1d3557;background:linear-gradient(rgba(255,255,255,0),#fff 55%);pointer-events:none;display:none}
+.e1-palmore.on{display:block}
+.e1-pal h2,.e1-side h2{font-size:15px;margin:4px 2px 6px;color:var(--sub)}
+.e1-palgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.e1-pi{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 2px;border-radius:12px;border:2px solid var(--line);background:#f8fbff;touch-action:pan-y;cursor:pointer;min-height:76px;text-align:center}
+.e1-pi.sel{border-color:var(--accent);background:#dcebff;box-shadow:0 0 0 3px #9cc3ff}
+.e1-pi.empty{opacity:.38}
+.e1-pi .hd{display:flex;align-items:center;justify-content:center;gap:2px;font-weight:bold;font-size:14px;line-height:1.2}
+.e1-pi .ic{font-size:21px;line-height:28px}
+.e1-pi .nm{white-space:nowrap;letter-spacing:-.04em}
+.e1-pi .sb{font-size:13px;color:var(--sub);line-height:1.35;margin-top:2px;white-space:nowrap}
+.e1-pi .left{font-size:13px;color:#1d3557;font-weight:bold;line-height:1.35}
+.e1-pill{display:inline-block;padding:0 4px;border-radius:7px;color:#fff;font-size:13px;font-weight:bold;line-height:18px}
+.e1-center{flex:1;display:flex;flex-direction:column;min-width:0}
+.e1-msg{height:62px;flex:none;overflow-y:auto;padding:6px 14px;font-size:16px;background:#fffbe6;border-bottom:1px solid #f1e3a6;line-height:1.4;display:flex}
+.e1-msg>span{margin:auto 0}
+.e1-msg.err{background:#ffe8e8;border-color:#f5b5b5;color:#8a1414}
+.e1-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
+.e1-boardbox{flex:1;min-height:0;position:relative}
+.e1-board{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.e1-cell{fill:#f7fafd;stroke:#d5dee8;stroke-width:1.5;stroke-dasharray:5 5}
+.e1-cell.pickable{fill:#eaf3ff;stroke:#8fb8f0}
+.e1-cell.hover{fill:#cfe3ff;stroke:var(--accent);stroke-dasharray:none}
+.e1-nbox{fill:#fff;stroke:#9aaabb;stroke-width:2.5}
+.e1-node.src .e1-nbox{fill:#fff4e0;stroke:#e8a33d}
+.e1-node.conv .e1-nbox{fill:#eef6ff;stroke:#5c8fd6}
+.e1-node.goal .e1-nbox{fill:#eafaf0;stroke:#2f9e5a;stroke-width:3}
+.e1-node.goal.short .e1-nbox{fill:#fff0f0;stroke:#d94848}
+.e1-node.sel .e1-nbox{stroke:#1e6fd9;stroke-width:6}
+.e1-node.over .e1-nbox{stroke:#e8590c;stroke-width:6;fill:#ffe3d3}
+.e1-node.idle .e1-nbox{stroke-dasharray:7 5}
+.e1-nic{font-size:30px;text-anchor:middle;dominant-baseline:central}
+.e1-nname{font-size:16px;font-weight:bold;text-anchor:middle;fill:#1d2b3a}
+.e1-nsub{font-size:14px;text-anchor:middle;fill:#3d4d5c}
+.e1-badge{font-size:14px;font-weight:bold;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.e1-loss{font-size:16px;font-weight:bold;fill:#d9480f;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:4px;animation:e1float 1.8s ease-in-out infinite}
+.e1-elabel{font-size:16px;font-weight:bold;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#fff;stroke-width:5px}
+.e1-flow{fill:none;stroke:#fff;stroke-opacity:.9;stroke-dasharray:4 12;animation:e1dash .9s linear infinite;pointer-events:none}
+.e1-running .e1-flow{animation-duration:.35s}
+.e1-ehit{stroke:transparent;stroke-width:36;fill:none;cursor:pointer}
+.e1-ex{cursor:pointer}
+.e1-ex .hit{fill:transparent}
+.e1-ex .vis{fill:#fff;stroke:#8193a6;stroke-width:2}
+.e1-ex text{font-size:19px;font-weight:bold;fill:#4a5a6a;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+@keyframes e1dash{to{stroke-dashoffset:-16}}
+@keyframes e1float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes e1pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){.e1-flow,.e1-loss,.e1-star{animation:none!important}}
+.e1-side{width:286px;flex:none;overflow-y:auto;padding:10px;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.e1-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfdff}
+.e1-goalrow{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:15px}
+.e1-goalrow .ic{font-size:22px}
+.e1-bar{height:12px;background:#e6ecf2;border-radius:6px;overflow:hidden;margin-top:3px}
+.e1-bar>i{display:block;height:100%;background:var(--ok);border-radius:6px}
+.e1-bar.ng>i{background:var(--ng)}
+.e1-bar.mid>i{background:var(--warn)}
+.e1-bar.neu>i{background:#5b8fd0}
+.e1-meter{margin:6px 0;font-size:15px}
+.e1-meter b{font-size:17px}
+.e1-meter small{font-size:13px;color:var(--sub)}
+.e1-note{font-size:13px;color:var(--sub);line-height:1.5}
+.e1-slots{display:flex;gap:6px;flex-wrap:wrap}
+.e1-slots .e1-btn{flex:1 1 40%;padding:0 6px;font-size:15px;min-height:44px;white-space:nowrap}
+.e1-slots .e1-btn.on{background:#1d3557;color:#fff}
+.e1-acts{display:flex;flex-direction:column;gap:8px}
+.e1-info{font-size:15px;line-height:1.6}
+.e1-info .ttl{font-size:17px;font-weight:bold;margin-bottom:4px}
+.e1-elist{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.e1-elist .e1-btn{font-size:15px;min-height:44px;text-align:left;padding:4px 10px}
+.e1-row{display:flex;gap:8px;margin-top:8px}
+.e1-row .e1-btn{flex:1}
+.e1-clearrow{display:flex;justify-content:flex-end;margin-top:14px}
+.e1-ghost{position:absolute;pointer-events:none;font-size:40px;transform:translate(-50%,-50%);z-index:50;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
+.e1-ov{position:absolute;inset:0;background:rgba(20,30,45,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.e1-modal{background:#fff;border-radius:18px;max-width:900px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px 0;box-shadow:0 10px 40px rgba(0,0,0,.3);font-size:17px;line-height:1.7}
+.e1-modal h2{margin:0 0 10px;font-size:23px}
+.e1-modal h3{margin:14px 0 6px;font-size:18px}
+.e1-modal .acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:#fff;margin-top:14px;padding:12px 0 16px;border-top:1px solid #e3e9ef;z-index:2}
+.e1-modal .acts .e1-btn{min-width:150px;min-height:54px;font-size:18px}
+.e1-modal details{margin:12px 0 4px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.e1-modal summary{min-height:50px;display:flex;align-items:center;font-weight:bold;cursor:pointer;color:#1d3557}
+.e1-stars{font-size:52px;text-align:center;letter-spacing:8px;margin:4px 0}
+.e1-star{display:inline-block;animation:e1pop .5s both}
+.e1-star.off{filter:grayscale(1);opacity:.25}
+.e1-checks{list-style:none;padding:0;margin:6px 0}
+.e1-checks li{padding:3px 0}
+.e1-stgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.e1-stcard{border:2px solid var(--line);border-radius:14px;padding:12px;background:#f8fbff;cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:120px}
+.e1-stcard.cur{border-color:var(--accent);background:#e6f0ff}
+.e1-stcard .no{font-size:14px;color:var(--sub)}
+.e1-stcard .t{font-size:18px;font-weight:bold;margin:2px 0;line-height:1.35}
+.e1-stcard .l{font-size:14px;color:var(--sub);line-height:1.4}
+.e1-stcard .s{font-size:20px;margin-top:4px}
+.e1-stcard .q{font-size:14px;color:#1a7a48;font-weight:bold}
+.e1-quiz .e1-btn{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;font-weight:normal;font-size:17px;min-height:54px}
+.e1-quiz .e1-btn.right{background:#d3f5e1;border-color:var(--ok)}
+.e1-quiz .e1-btn.wrong{background:#ffe0e0;border-color:var(--ng)}
+.e1-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:6px}
+.e1-reason.tip{background:#fff9e6;border-color:var(--warn)}
+.e1-table{border-collapse:collapse;width:100%;font-size:16px}
+.e1-social{background:#f6f0fb;border:2px solid #d9c3ea;border-radius:12px;padding:4px 14px 8px;margin:12px 0}
+.e1-axis.e1-price{grid-template-columns:minmax(0,260px) 1fr 76px}
+.e1-btn.e1-mini{min-height:44px;padding:4px 10px;font-size:14px;margin-top:4px}
+.e1-table td{border-bottom:1px solid #e3e9ef;padding:5px 8px}
+.e1-table td:last-child{text-align:right;font-weight:bold}
+.e1-sankey{width:100%;height:auto;background:#fafcff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+.e1-sankey text{font-size:15px}
+.e1-axis{display:grid;grid-template-columns:minmax(0,290px) 1fr 44px;gap:8px;align-items:center;margin:6px 0;font-size:16px;line-height:1.35}
+.e1-axis small{display:block;font-size:13px;color:var(--sub)}
+.e1-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.e1-steps div{background:#f3f7fc;border-radius:12px;padding:12px;font-size:16px}
+.e1-steps b{font-size:18px}
+@media (max-width:1100px){.e1-top h1{display:none}.e1-btn.go{font-size:19px}}
+@media (max-width:900px){
+  .e1-stitle .t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:15px;line-height:1.2}
+  .e1-stitle .l{display:none}
+  .e1-main{flex-direction:column}
+  .e1-palwrap{width:auto;height:96px;flex:none;border-right:none;border-bottom:1px solid var(--line)}
+  .e1-pal{overflow-x:auto;overflow-y:hidden;padding:8px}
+  .e1-pal h2{display:none}
+  .e1-palgrid{display:flex;gap:6px;width:max-content}
+  .e1-pi{width:108px;min-height:78px;touch-action:pan-x}
+  .e1-palmore{left:auto;top:0;right:0;bottom:0;width:44px;padding:0;align-items:center;justify-content:center;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 55%);font-size:22px}
+  .e1-palmore.on{display:flex}
+  .e1-center{flex:none}
+  .e1-boardbox{flex:none;width:100%;aspect-ratio:778/572}
+  .e1-side{width:auto;flex:1;min-height:0;border-left:none;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px}
+  .e1-side>*{min-width:0}
+  .e1-side>.wide{grid-column:1/-1}
+  .e1-acts{order:-2;flex-direction:row}
+  .e1-acts .go{flex:2;min-height:56px}
+  .e1-acts .e1-btn:not(.go){flex:1}
+  .e1-side>.e1-info{order:-1}
+  .e1-slots .e1-btn{flex:1}
+  .e1-clearrow{margin-top:6px}
+  .e1-stgrid{grid-template-columns:repeat(2,1fr)}
+  .e1-modal{padding:16px 18px 0}
+  .e1-axis{grid-template-columns:minmax(0,230px) 1fr 40px}
+}
+</style>
+</head>
+<body>
+<div id="e1-app" class="e1"></div>
+<script>
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+var STORE_KEY = 'energyApps.C1.v1';
+var CELL = 110, COLS = 7, ROWS = 5, EPS = 1e-6;
+
+/* ---------- エネルギーの形 ---------- */
+var FORMS = {
+  chem:   { name: '化学', ch: '化', color: '#9c36b5' },
+  heat:   { name: '熱',   ch: '熱', color: '#e8590c' },
+  motion: { name: '運動', ch: '運', color: '#2f9e44' },
+  elec:   { name: '電気', ch: '電', color: '#1c7ed6' },
+  light:  { name: '光',   ch: '光', color: '#e0a400' },
+  pos:    { name: '位置', ch: '位', color: '#8d6e63' },
+  nuc:    { name: '核',   ch: '核', color: '#495057' }
+};
+
+/* ---------- 部品カタログ ----------
+ kind: src(エネルギー源) / conv(変換・伝達) / goal(使う所)
+ cap: 源の最大出力(1マス分) eff: 変換効率 cost: つくる費用(置くと1回かかる) fuel: 燃料代(燃料100を使うごとに) co2: 使った量1あたりのCO2
+ 数値は授業用に丸めた目安。 */
+var CAT = {
+  kandenchi:{kind:'src',name:'乾電池',icon:'🔋',out:'elec',cap:10,cost:1,co2:0,
+    desc:'中の薬品の化学変化で電気をつくる(化学エネルギー → 電気エネルギー)。このゲームでは、何本かを同じ部品につなぐと「直列」につないだことにして、電気が足されます(本当は、並列につないでも電圧は上がりません)。',tip:'使い終わったら、決められた回収に出そう。'},
+  pedal:{kind:'src',name:'こぐ人',icon:'🚴',out:'motion',cap:20,cost:0,co2:0,
+    desc:'食べ物の化学エネルギーを、筋肉でペダルを回す運動エネルギーに変える。'},
+  coal:{kind:'src',name:'石炭',icon:'🪨',out:'chem',cap:100,cost:1,fuel:2,co2:1.0,
+    desc:'大昔の植物からできた化石燃料(大昔の生物からできた燃料)。燃やすと熱が出るが、CO₂(二酸化炭素)を多く出す。',tip:'燃料の値段は安め。燃料はいつかなくなる。'},
+  gas:{kind:'src',name:'天然ガス',icon:'🔥',out:'chem',cap:100,cost:1,fuel:3,co2:0.55,
+    desc:'化石燃料。同じ量の熱を出すとき、CO₂は石炭の約半分。',tip:'燃料の値段は石炭より高め。燃料はいつかなくなる。'},
+  uran:{kind:'src',name:'ウラン',icon:'☢️',out:'nuc',cap:200,cost:8,fuel:1,co2:0,
+    desc:'原子力発電の燃料。核分裂(ウランの原子核が分かれること)で大量の熱を出す。運転中にCO₂をほとんど出さない。',tip:'少しの燃料で大量の熱が出るので燃料代は安いが、安全対策にお金がかかる。放射性廃棄物(放射線を出すごみ)の処分や、事故を防ぐ安全対策が大きな課題。'},
+  dam:{kind:'src',name:'ダムの水',icon:'🏞️',out:'pos',cap:40,cost:6,co2:0,
+    desc:'高い所にためた水がもつ位置エネルギー。その日の天気には左右されにくい再生可能エネルギー(使ってもなくならないエネルギー)。',tip:'つくる費用は高いが、燃料代は0。長く使える。ダムをつくれる場所は限られ、雨の少ない年は水が減る。'},
+  wind:{kind:'src',name:'風',icon:'🍃',out:'motion',cap:60,cost:2,co2:0,renew:'wind',only:'windmill',onlyMsg:'風は、そのままでは機械を回せません。まず「風車」で受け止めよう。',
+    desc:'空気の流れがもつ運動エネルギー。日や時間によって強さが変わる。',tip:'燃料代は0。お金のほとんどは風車をつくる費用。'},
+  sun:{kind:'src',name:'太陽の光',icon:'☀️',out:'light',cap:100,cost:2,co2:0,renew:'sun',
+    desc:'光エネルギー。くもりの日は少なく、夜は0になる。',tip:'燃料代は0。お金のほとんどはパネルをつくる費用。'},
+  bio:{kind:'src',name:'バイオマス',icon:'🪵',out:'chem',cap:60,cost:1,fuel:5,co2:0.1,
+    desc:'木くずなど生物からできた燃料。燃やすとCO₂が出るが、植物が育つときに吸ったCO₂なので、全体では増えにくいと考えられている。',tip:'木くずを集めて運ぶのにお金がかかり、燃料代が高め。'},
+  outlet:{kind:'src',name:'コンセント',icon:'🔌',out:'elec',cap:15,cost:0,co2:0,hard:true,maxOut:2,
+    desc:'かべのコンセント。差し込み口は2つ。1か所で合計1500Wまで(定格:安全に使える上限)。'},
+
+  boiler:{kind:'conv',name:'ボイラー',icon:'♨️',in:'chem',out:'heat',eff:0.9,cost:2,
+    desc:'燃料を燃やして水をわかし、高温・高圧の蒸気をつくる(化学 → 熱)。',tip:'点検: 配管のさび・水もれ。'},
+  reactor:{kind:'conv',name:'原子炉',icon:'⚛️',in:'nuc',out:'heat',eff:0.95,cost:8,
+    desc:'ウランの核分裂の熱で蒸気をつくる(核 → 熱)。',tip:'放射線をもらさない厳重な管理と定期点検が必要。'},
+  turbine:{kind:'conv',name:'タービン',icon:'💨',in:'heat',out:'motion',eff:0.45,cost:3,
+    desc:'蒸気の力で羽根車を回す(熱 → 運動)。熱を運動に変えるとき、半分以上が熱のまま海や空気に捨てられる。',tip:'点検: 羽根の傷・軸受け(回る軸を支える部品)の摩耗(すり減ること)。'},
+  gen:{kind:'conv',name:'発電機',icon:'🧲',in:'motion',out:'elec',eff:0.9,cost:2,
+    desc:'磁石とコイルで回転を電気に変える(運動 → 電気、電磁誘導:磁石を動かすとコイルに電気が生まれるしくみ)。自転車ライトの発電機も同じしくみ。',tip:'点検: 軸受けの注油・コイルの絶縁(電気がもれないようにすること)。'},
+  mill:{kind:'conv',name:'水車',icon:'🎡',in:'pos',out:'motion',eff:0.9,cost:3,
+    desc:'高い所から落ちる水の力で羽根車を回す(位置 → 運動)。'},
+  windmill:{kind:'conv',name:'風車',icon:'🌀',in:'motion',out:'motion',eff:0.4,cost:3,
+    desc:'風の運動エネルギーの一部だけを羽根の回転に変える(理論上の上限は約59%)。'},
+  panel:{kind:'conv',name:'太陽電池',icon:'🔲',in:'light',out:'elec',eff:0.2,cost:2,
+    desc:'光が当たると電気が生まれる(光 → 電気)。ふつうのパネルの変換効率は約20%。',tip:'点検: パネル表面のよごれ。'},
+  motor:{kind:'conv',name:'モーター',icon:'🔄',in:'elec',out:'motion',eff:0.85,cost:1,
+    desc:'電気で回転する(電気 → 運動)。発電機と同じく磁石とコイルを使う。'},
+  gear:{kind:'conv',name:'歯車',icon:'⚙️',in:'motion',out:'motion',eff:0.95,cost:1,
+    desc:'回転の速さと力の大きさを変えて伝える(運動 → 運動)。かみ合う所の摩擦で少しロスがある。',tip:'点検: 注油・歯の欠け。'},
+  battery:{kind:'conv',name:'蓄電池',icon:'🫙',in:'elec',out:'elec',eff:0.9,cost:3,store:100,
+    desc:'余った電気を化学エネルギーとしてため、足りないときに電気として出す。出し入れで少しロスがある。'},
+  line:{kind:'conv',name:'送電線',icon:'🗼',in:'elec',out:'elec',eff:0.95,cost:1,
+    desc:'変圧器(電圧を変える装置)で電圧を高くして、発電所から遠くの町まで電気を送る。電線の抵抗で少し熱になる。'},
+  bulb:{kind:'conv',name:'豆電球',icon:'💡',in:'elec',out:'light',eff:0.1,cost:1,
+    desc:'フィラメントを高温にして光らせる(電気 → 光)。電気のほとんどが熱になってしまう。'},
+  led:{kind:'conv',name:'LED電球',icon:'✨',in:'elec',out:'light',eff:0.4,cost:2,
+    desc:'半導体(電気を通したり通さなかったりする材料)が直接光る(電気 → 光)。同じ明るさなら、豆電球よりずっと少ない電気ですむ。'},
+  tap:{kind:'conv',name:'テーブルタップ',icon:'🔗',in:'elec',out:'elec',eff:1,cost:1,cap:15,maxOut:4,
+    desc:'1つの差し込み口から、いくつかの機器に電気を分ける。合計1500W(定格)をこえると発熱・発火の危険がある。',tip:'点検: ほこり(トラッキング火災:差し込み口にたまったほこりから火が出ること)・コードの傷。'},
+
+  lightg:{kind:'goal',name:'明かり',icon:'🔦',in:'light'},
+  house:{kind:'goal',name:'家',icon:'🏠',in:'elec'},
+  factory:{kind:'goal',name:'工場',icon:'🏭',in:'elec'},
+  crane:{kind:'goal',name:'クレーン',icon:'🏗️',in:'motion'},
+  dryer:{kind:'goal',name:'ドライヤー',icon:'💇',in:'elec'},
+  pot:{kind:'goal',name:'電気ポット',icon:'🫖',in:'elec'},
+  tv:{kind:'goal',name:'テレビ',icon:'📺',in:'elec'},
+  phone:{kind:'goal',name:'スマホ充電',icon:'📱',in:'elec'}
+};
+
+var ONE = [{ name: '', sun: 1, wind: 1 }];
+var VIA_LINE = '発電所から家や工場までは遠いので、「送電線」を通してつなごう。';
+
+/* ---------- ステージ ---------- */
+var STAGES = [
+ { id:'s1', title:'懐中電灯をつけよう', learn:'化学 → 電気 → 光', slots:ONE,
+   story:'夜道を照らす懐中電灯をつくろう。乾電池の中では、化学エネルギーが電気エネルギーに変わっている。',
+   fixed:[{type:'lightg',col:5,row:2,demand:[2]}],
+   parts:{kandenchi:3,bulb:2,led:1},
+   effStar:0.3,
+   stars:[['明かりがつく',function(m){return m.clear;}],['総合効率 30%以上',function(m){return m.eff>=0.3;}],['乾電池1本だけで',function(m){return m.count.kandenchi<=1;}]],
+   hints:['まずは「乾電池 → 豆電球 → 明かり」とつないでみよう。','豆電球は、電気の90%が熱になってしまう。乾電池1本では足りないね。乾電池を何本か同じ豆電球につなぐと、このゲームでは「直列」につないだことにして電気が足されるよ。','LED電球なら少ない電気で明るくできる。乾電池1本でためそう。'],
+   quiz:{q:'豆電球よりLED電球の方が、少ない電気で同じ明るさになるのはなぜ?',c:['電気を光に変える割合(効率)が高く、熱になるロスが少ないから','LEDは電気を使わずに光るから','LEDの方が電気をたくさん使うから'],ex:'豆電球は電気の約90%が熱になります。LEDは光に変わる割合が高いので、同じ明るさでも少ない電気ですみます。'}},
+ { id:'s2', title:'自転車のライト', learn:'運動 → 電気(発電機)', slots:ONE,
+   story:'ペダルをこぐと前のライトが光る自転車。足の運動エネルギーを電気に変えて、明かりをつけよう。',
+   fixed:[{type:'lightg',col:6,row:2,demand:[6]}],
+   parts:{pedal:1,gen:1,bulb:1,led:1},
+   effStar:0.3,
+   stars:[['明かりがつく',function(m){return m.clear;}],['総合効率 30%以上',function(m){return m.eff>=0.3;}],['部品を3こ以内で',function(m){return m.placed<=3;}]],
+   hints:['運動エネルギーを電気エネルギーに変える部品はどれかな?','「こぐ人 → 発電機 → 電球 → 明かり」の順につなごう。','豆電球では、こぐ人がいくらがんばっても電気が足りない。'],
+   quiz:{q:'自転車ライトの発電機は、何エネルギーを何エネルギーに変えている?',c:['運動 → 電気','電気 → 運動','熱 → 電気'],ex:'発電機は回転(運動)を電気に変えます。逆に電気を回転に変えるのがモーターで、しくみ(磁石とコイル)はよく似ています。'}},
+ { id:'s3', title:'クレーンで荷物を上げよう', learn:'電気 → 運動、歯車で伝える', slots:ONE,
+   story:'工事現場のクレーンを動かそう。モーターの回転は速すぎて力が弱いので、歯車で回転をおそくして大きな力にする。',
+   fixed:[{type:'crane',col:6,row:2,demand:[20],via:'gear',viaMsg:'クレーンには「歯車」を通してつなごう。モーターの回転は速すぎて、そのままでは重い荷物を持ち上げる力が出ないよ。'}],
+   parts:{kandenchi:5,motor:1,gear:2},
+   effStar:0.75,
+   stars:[['荷物が上がる',function(m){return m.clear;}],['総合効率 75%以上',function(m){return m.eff>=0.75;}],['乾電池3本以内で',function(m){return m.count.kandenchi<=3;}]],
+   hints:['電気を回転(運動)に変える部品はどれかな?','「乾電池 → モーター → 歯車 → クレーン」。乾電池1本では足りないので、何本かを同じモーターにつなごう(このゲームでは、同じ部品につないだ乾電池は「直列」につないだことにしています)。','歯車を2つ重ねると、そのぶん摩擦のロスが増えるよ。'],
+   quiz:{q:'歯車を通すと、伝わるエネルギーの量はどうなる?',c:['摩擦で少し減る','歯車の力で増える','まったく変わらない'],ex:'歯車で回転をおそくすると力は大きくなりますが、エネルギーは増えません。かみ合う所の摩擦で少し熱になって減ります。'}},
+ { id:'s4', title:'火力発電所をつくろう', learn:'化学 → 熱 → 運動 → 電気', slots:ONE, budget:22,
+   story:'町の家に電気を届ける火力発電所をつくろう。燃料を燃やした熱で蒸気をつくり、タービンを回して発電する。',
+   fixed:[{type:'house',col:6,row:2,demand:[100],via:'line',viaMsg:VIA_LINE}],
+   parts:{coal:4,gas:4,boiler:1,turbine:1,gen:1,line:1},
+   effStar:0.3,
+   stars:[['家に電気が届く',function(m){return m.clear;}],['総合効率 30%以上',function(m){return m.eff>=0.3;}],['CO₂を170以下に',function(m){return m.co2<=170;}]],
+   hints:['順番は「燃料 → ボイラー → タービン → 発電機 → 送電線 → 家」。','燃料1つでは足りない。燃料をいくつか置いて、同じボイラーにつなごう。','天然ガスは石炭より CO₂ が少ない燃料だよ。'],
+   quiz:{q:'火力発電で、いちばん大きなロスが出ているのはどこ?',c:['タービン(熱 → 運動)','送電線','発電機'],ex:'熱を運動に変えるとき、半分以上は熱のまま海や空気に捨てられます。そのため火力発電全体の効率は40%前後になります(このゲームでは約35%)。'}},
+ { id:'s5', title:'くもりの日の再生可能エネルギー', learn:'再生可能エネルギーの特徴', budget:20, co2Max:0,
+   slots:[{name:'くもりの日',icon:'☁️',sun:0.4,wind:1}],
+   story:'CO₂を出さずに、家に電気を届けよう。ただし今日はくもり。太陽の光はふだんの40%しかない。',
+   fixed:[{type:'house',col:6,row:2,demand:[60],via:'line',viaMsg:VIA_LINE}],
+   parts:{sun:4,wind:4,dam:1,coal:1,panel:1,windmill:1,mill:1,gen:1,boiler:1,turbine:1,line:1},
+   stars:[['CO₂ 0 で電気が届く',function(m){return m.clear;}],['費用18以下',function(m){return m.cost<=18;}],['2種類以上の発電方法を組み合わせる',function(m){return m.kinds>=2;}]],
+   hints:['石炭は使えない(CO₂の上限が0)。風・太陽・ダムの水を使おう。','風 → 風車 → 発電機、ダムの水 → 水車 → 発電機。1つの発電機に2本つないでもいいよ。','太陽電池は効率20%。くもりの日は少ししか発電できないけれど、ほかと組み合わせると役に立つ。'],
+   quiz:{q:'再生可能エネルギー(太陽光・風力など)の課題として正しいものは?',c:['天気や時間によって発電量が変わる','燃料がすぐなくなる','発電中にCO₂をたくさん出す'],ex:'太陽や風はなくならず、CO₂も出しませんが、天気で発電量が変わります。いくつかの方法を組み合わせたり、ためたりする工夫が必要です。'}},
+ { id:'s6', title:'昼も夜も電気を使いたい', learn:'蓄電池で需要(使いたい量)と供給(届ける量)を合わせる', budget:14,
+   slots:[{name:'昼',icon:'☀️',sun:1,wind:1},{name:'夜',icon:'🌙',sun:0,wind:1}],
+   story:'太陽の光で発電する家。昼はいいけれど、夜は太陽が出ない。夜にも電気を使えるようにしよう。',
+   fixed:[{type:'house',col:6,row:2,demand:[20,20]}],
+   parts:{sun:5,panel:1,battery:1,gas:1,boiler:1,turbine:1,gen:1},
+   stars:[['昼も夜も電気が届く',function(m){return m.clear;}],['CO₂ 0',function(m){return m.co2<=EPS;}],['費用12以下',function(m){return m.cost<=12;}]],
+   hints:['「昼」「夜」のボタンで、それぞれの時間の流れを見てみよう。','昼に余った電気をためておける部品は?「太陽 → 太陽電池 → 蓄電池 → 家」','昼の余りが少ないと夜に足りない。太陽を増やそう。'],
+   quiz:{q:'蓄電池の役割として正しいものは?',c:['電気が余ったときにため、足りないときに使う','電気の量を増やす','太陽の光を強くする'],ex:'発電する量と使う量の時間のずれを、ためることでうめます。ためたり出したりするときにも少しロスがあります。'}},
+ { id:'s7', title:'町の電源を決めよう', learn:'安定供給・経済性・環境・安全のバランス', budget:60,
+   slots:[{name:'晴れの昼',icon:'☀️',sun:1,wind:0.5},{name:'くもりの昼',icon:'☁️',sun:0.3,wind:1},{name:'夜',icon:'🌙',sun:0,wind:0.8}],
+   story:'あなたは町のエネルギー担当。晴れの日も、くもりの日も、夜も、家と工場に電気を届けよう。答えは1つではない。',
+   fixed:[{type:'house',col:6,row:1,demand:[50,50,60],via:'line',viaMsg:VIA_LINE},{type:'factory',col:6,row:3,demand:[80,80,40],via:'line',viaMsg:VIA_LINE}],
+   preset:[{type:'line',col:5,row:2}], presetEdges:[['p0','f0'],['p0','f1']],
+   parts:{coal:3,gas:3,uran:1,bio:2,dam:1,wind:4,sun:4,boiler:2,reactor:1,turbine:2,gen:3,mill:1,windmill:2,panel:2,battery:2,line:2},
+   stars:[['いつでも電気が届く',function(m){return m.clear;}],['CO₂を合計200以下に',function(m){return m.co2<=200;}],['費用45以下',function(m){return m.cost<=45;}]],
+   hints:['手順の目安:①送電線と家・工場の線は、はじめからつないであるよ。②天気に左右されない発電(火力・原子力・ダム)を1つつくり、発電機を送電線につなぐ。③「晴れの昼」「くもりの昼」「夜」のボタンで、足りない時間を確かめる。④足りない分を、ほかの発電で足す。','天気に左右されない発電(火力・原子力・ダム)と、再生可能エネルギーを組み合わせよう。','CO₂・費用・安定・安全のどれを大事にするか考えよう。発電機1つや送電線1本に、何本もつないでいいよ。'],
+   quiz:{q:'町の電源の組み合わせを決めるとき、大切な考え方は?',c:['安定して届くか・費用・環境への影響などを比べ、バランスよく選ぶ','CO₂が少なければ、ほかは考えなくてよい','いちばん安い方法だけを選ぶ'],ex:'どの発電方法にも長所と短所があります。技術を「安定供給・経済性・環境・安全」などの面から評価し、適切に選択して管理・運用することが大切です。'}},
+ { id:'s8', title:'たこ足配線に注意', learn:'電気機器の安全な使い方', unit:'W', showLoad:true,
+   slots:ONE,
+   story:'部屋の2つのコンセントで、ドライヤー・電気ポット・テレビ・スマホ充電を使いたい。コンセント1か所で使えるのは合計1500Wまで(定格:安全に使える上限)。安全につなごう。',
+   fixed:[{type:'outlet',col:0,row:1},{type:'outlet',col:0,row:3},
+          {type:'dryer',col:5,row:0,demand:[12]},{type:'pot',col:5,row:2,demand:[10]},{type:'tv',col:6,row:3,demand:[2]},{type:'phone',col:5,row:4,demand:[0.2]}],
+   parts:{tap:2},
+   stars:[['ぜんぶを安全に使える',function(m){return m.clear;}],['タップの先にタップをつながない',function(m){return !m.tapChain;}],['どのコンセントも1275W以下(定格の85%以下・よゆうを持つ)',function(m){return m.maxOutlet<=0.85;}]],
+   hints:['コンセントの差し込み口は2つ。それ以上使うならテーブルタップを使おう。','ドライヤー(1200W)と電気ポット(1000W)を同じコンセントにすると2200W。オーバーだね。','ドライヤーを1つのコンセントに。残りはもう1つのコンセントからテーブルタップで分けよう。'],
+   quiz:{q:'たこ足配線や使いすぎが危ないのはなぜ?',c:['大きな電流でコードやタップが熱くなり、火災の原因になるから','電気料金が高くなるだけだから','コンセントの形が変わるから'],ex:'たくさんの機器を1か所でつなぐと大きな電流が流れ、コードやタップが発熱します。消費電力(W)の合計を確かめ、ほこりもこまめにそうじしましょう。'}},
+ { id:'s9', title:'自由に実験しよう', learn:'すべての部品で自由に実験', free:true,
+   slots:[{name:'晴れの昼',icon:'☀️',sun:1,wind:0.5},{name:'くもりの昼',icon:'☁️',sun:0.3,wind:1},{name:'夜',icon:'🌙',sun:0,wind:0.8}],
+   story:'すべての部品を使って、自由に発電所をつくってみよう。効率・CO₂・費用をくらべてみよう。答えは1つではありません。',
+   fixed:[{type:'house',col:6,row:2,demand:[50,50,50]}],
+   parts:{kandenchi:9,pedal:9,coal:9,gas:9,uran:9,bio:9,dam:9,wind:9,sun:9,boiler:9,reactor:9,turbine:9,gen:9,mill:9,windmill:9,panel:9,battery:9,line:9,motor:9,gear:9,bulb:9,led:9},
+   stars:[],
+   hints:['好きな組み合わせをためして、メーターをくらべよう。','スイッチONで、エネルギーの流れ図(サンキー図)を見ることができるよ。','同じ量の電気を届けるのに、CO₂がいちばん少ない組み合わせは?いちばん安いのは?'],
+   quiz:null}
+];
+
+/* ---------- 保存 ---------- */
+function loadSave() {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
+  if (!d || typeof d !== 'object') d = {};
+  d.stars = d.stars || {}; d.boards = d.boards || {}; d.quiz = d.quiz || {};
+  if (d.sound === undefined) d.sound = false; // 授業で一斉に鳴らないよう、最初はOFF
+  return d;
+}
+function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
+
+/* ---------- 計算エンジン ---------- */
+function demandOf(n, si) { var d = n.demand || [0]; return d[Math.min(si, d.length - 1)] || 0; }
+
+function simulate(stage, board) {
+  var nodes = board.nodes, byId = {}, ch = {}, pa = {};
+  nodes.forEach(function (n) { byId[n.id] = n; ch[n.id] = []; pa[n.id] = []; });
+  var edges = board.edges.filter(function (e) { return byId[e.from] && byId[e.to]; });
+  edges.forEach(function (e) { ch[e.from].push(e); pa[e.to].push(e); });
+  var indeg = {}, order = [], q = [];
+  nodes.forEach(function (n) { indeg[n.id] = pa[n.id].length; if (!indeg[n.id]) q.push(n.id); });
+  while (q.length) { var id = q.shift(); order.push(id); ch[id].forEach(function (e) { if (--indeg[e.to] === 0) q.push(e.to); }); }
+  var R = { slots: [], loop: order.length < nodes.length, byId: byId, ch: ch, pa: pa, edges: edges, order: order };
+  if (R.loop) return R;
+  var absorb = {};
+  for (var i = order.length - 1; i >= 0; i--) {
+    var n0 = byId[order[i]], d0 = CAT[n0.type];
+    absorb[n0.id] = d0.store ? true : (d0.kind === 'goal' ? false : ch[n0.id].some(function (e) { return absorb[e.to]; }));
+  }
+  var stored = {};
+  nodes.forEach(function (n) { if (CAT[n.type].store) stored[n.id] = 0; });
+  var dirty = {};
+  order.forEach(function (id) { var d = CAT[byId[id].type]; dirty[id] = d.kind === 'src' ? d.co2 > 0 : pa[id].some(function (e) { return dirty[e.from]; }); });
+
+  stage.slots.forEach(function (slot, si) {
+    var pot = {}, outNeed = {}, eNeed = {}, flow = {}, inF = {}, out = {}, loss = {}, waste = {}, prod = {}, del = {}, over = {}, need = {}, caps = {};
+    function capOf(n) { var d = CAT[n.type]; var f = d.renew ? (slot[d.renew] == null ? 1 : slot[d.renew]) : 1; return d.cap * f; }
+    order.forEach(function (id) {
+      var n = byId[id], d = CAT[n.type];
+      if (d.kind === 'src') pot[id] = caps[id] = capOf(n);
+      else if (d.kind === 'conv') { var s = 0; pa[id].forEach(function (e) { s += pot[e.from]; }); pot[id] = s * d.eff + (d.store ? stored[id] : 0); }
+    });
+    for (var j = order.length - 1; j >= 0; j--) {
+      var id = order[j], n = byId[id], d = CAT[n.type], on = 0;
+      ch[id].forEach(function (e) { on += eNeed[e.id] || 0; });
+      outNeed[id] = on;
+      var inNeed = 0;
+      if (d.kind === 'goal') inNeed = demandOf(n, si);
+      else if (d.kind === 'conv') inNeed = d.store ? Math.max(0, on - stored[id]) / d.eff : on / d.eff;
+      need[id] = inNeed;
+      if (d.kind !== 'src' && pa[id].length) splitNeed(pa[id], inNeed);
+    }
+    // CO2を出さない道を先に使い、足りない分だけ燃料の道に割り当てる
+    function splitNeed(ps, inNeed) {
+      var clean = ps.filter(function (e) { return !dirty[e.from]; }), dir = ps.filter(function (e) { return dirty[e.from]; });
+      var Wc = 0; clean.forEach(function (e) { Wc += pot[e.from]; });
+      var toC = dir.length ? Math.min(inNeed, Wc) : inNeed, rest = inNeed - toC;
+      share(clean, toC, Wc); var Wd = 0; dir.forEach(function (e) { Wd += pot[e.from]; }); share(dir, rest, Wd);
+    }
+    function share(es, amt, W) { es.forEach(function (e) { eNeed[e.id] = W > EPS ? amt * pot[e.from] / W : amt / es.length; }); }
+    order.forEach(function (id) {
+      var n = byId[id], d = CAT[n.type], o = 0;
+      if (d.kind === 'src') {
+        var c = caps[id];
+        if (d.hard && outNeed[id] > c + EPS) over[id] = outNeed[id];
+        o = ch[id].length ? (absorb[id] ? c : Math.min(c, outNeed[id])) : 0;
+        prod[id] = o;
+      } else {
+        var inp = 0; pa[id].forEach(function (e) { inp += flow[e.id] || 0; });
+        inF[id] = inp;
+        if (d.cap && inp > d.cap + EPS) over[id] = inp;
+        if (d.kind === 'goal') { del[id] = inp; return; }
+        o = inp * d.eff; loss[id] = inp - o;
+        if (d.store) { var draw = Math.min(stored[id], Math.max(0, outNeed[id] - o)); stored[id] -= draw; o += draw; }
+      }
+      out[id] = o;
+      var cs = ch[id], tn = 0;
+      cs.forEach(function (e) { tn += eNeed[e.id] || 0; });
+      if (o <= tn + EPS) { cs.forEach(function (e) { flow[e.id] = tn > EPS ? o * (eNeed[e.id] || 0) / tn : 0; }); }
+      else {
+        cs.forEach(function (e) { flow[e.id] = eNeed[e.id] || 0; });
+        var sur = o - tn, ab = cs.filter(function (e) { return absorb[e.to]; });
+        if (ab.length) ab.forEach(function (e) { flow[e.id] += sur / ab.length; });
+        else if (d.store) { var put = Math.min(d.store - stored[id], sur); stored[id] += put; waste[id] = sur - put; out[id] = o - sur; }
+        else { waste[id] = sur; out[id] = o - sur; }
+      }
+    });
+    var used = 0, co2 = 0, useful = 0, ok = true, tl = 0, tw = 0;
+    nodes.forEach(function (n) {
+      var d = CAT[n.type];
+      if (d.kind === 'src') { used += prod[n.id] || 0; co2 += (prod[n.id] || 0) * d.co2; }
+      if (d.kind === 'goal') { var dm = demandOf(n, si); useful += Math.min(del[n.id] || 0, dm); if ((del[n.id] || 0) < dm - 0.01) ok = false; }
+      tl += loss[n.id] || 0; tw += waste[n.id] || 0;
+    });
+    var st = {}; for (var k in stored) st[k] = stored[k];
+    R.slots.push({ flow: flow, inF: inF, out: out, loss: loss, waste: waste, prod: prod, del: del, over: over, caps: caps,
+      stored: st, used: used, co2: co2, useful: useful, ok: ok, loss_t: tl, waste_t: tw });
+  });
+  return R;
+}
+
+/* 結果の評価 */
+function evaluate(stage, board, R) {
+  var m = { count: {}, placed: 0, cost: 0, build: 0, fuel: 0, unitCost: 0, co2: 0, used: 0, useful: 0, loss: 0, eff: 0, kinds: 0, reasons: [], tips: [], clear: false, tapChain: false, maxOutlet: 0 };
+  board.nodes.forEach(function (n) {
+    m.count[n.type] = (m.count[n.type] || 0) + 1;
+    if (!n.fixed) { m.placed++; m.build += CAT[n.type].cost; }
+  });
+  for (var t in CAT) if (!m.count[t]) m.count[t] = 0;
+  m.cost = m.build;
+  if (R.loop) { m.reasons.push('線がぐるっと輪になっている所があります。エネルギーは「エネルギー源 → 使う所」の一方向に流れるようにつなごう。'); return m; }
+  var srcKinds = {};
+  R.slots.forEach(function (s) {
+    m.co2 += s.co2; m.used += s.used; m.useful += s.useful; m.loss += s.loss_t;
+    board.nodes.forEach(function (n) { if (CAT[n.type].kind === 'src' && (s.prod[n.id] || 0) > EPS) srcKinds[n.type] = 1; });
+  });
+  m.kinds = Object.keys(srcKinds).length;
+  m.eff = m.used > EPS ? m.useful / m.used : 0;
+  // 燃料代 = 使った燃料の量 × 燃料の値段(時間・天気が何種類かあるときは、その平均)
+  R.slots.forEach(function (s) {
+    board.nodes.forEach(function (n) { var d = CAT[n.type]; if (d.fuel) m.fuel += (s.prod[n.id] || 0) / 100 * d.fuel / R.slots.length; });
+  });
+  m.fuel = r1(m.fuel); m.cost = m.build + m.fuel;
+  var dAvg = m.useful / R.slots.length;
+  m.unitCost = dAvg > EPS ? m.cost / dAvg * 100 : 0;
+  board.nodes.forEach(function (n) {
+    if (n.type === 'tap' && R.pa[n.id].some(function (e) { return R.byId[e.from].type === 'tap'; })) m.tapChain = true;
+    if (n.type === 'outlet') R.slots.forEach(function (s) { var on = 0; R.ch[n.id].forEach(function (e) { on += s.flow[e.id] || 0; }); var o = Math.max(on, s.over[n.id] || 0); m.maxOutlet = Math.max(m.maxOutlet, o / CAT.outlet.cap); });
+  });
+  var u = stage.unit;
+  R.slots.forEach(function (s, si) {
+    var sname = stage.slots.length > 1 ? '【' + stage.slots[si].name + '】' : '';
+    for (var id in s.over) {
+      var n = R.byId[id], d = CAT[n.type];
+      if (n.type === 'outlet') m.reasons.push(sname + '「' + outletName(n, board.nodes) + '」で ' + fmtU(s.over[id], u) + ' 使おうとしています。コンセントの定格(安全に使える上限)は1500W。こえるとコードやプラグが発熱し、火災の原因になります。さらに使いすぎると、家のブレーカーが落ちることもあります。');
+      else m.reasons.push(sname + '「' + d.name + '」に ' + fmtU(s.over[id], u) + ' 流れています。定格1500Wをこえて、発熱・発火の危険があります!');
+    }
+  });
+  var multi = stage.slots.length > 1, whys = [];
+  R.slots.forEach(function (s, si) {
+    var shorts = [];
+    board.nodes.forEach(function (n) {
+      if (CAT[n.type].kind !== 'goal') return;
+      var dm = demandOf(n, si), dl = s.del[n.id] || 0;
+      if (dl >= dm - 0.01) return;
+      if (ancestors(R, n.id).some(function (id) { return s.over[id]; })) return; // 使いすぎの説明を優先
+      if (!multi) { m.reasons.push(diagnose(stage, R, n, si, dl, dm)); return; }
+      shorts.push(CAT[n.type].icon + CAT[n.type].name + ' ' + fmtU(dl, u) + ' / 必要 ' + fmtU(dm, u));
+      var w = diagWhy(stage, R, n, si, dm);
+      if (w && whys.indexOf(w) < 0) whys.push(w);
+    });
+    if (shorts.length) m.reasons.push('【' + stage.slots[si].name + '】足りない:' + shorts.join('、'));
+  });
+  whys.slice(0, 2).forEach(function (w) { m.reasons.push(w); });
+  if (stage.budget != null && m.cost > stage.budget + EPS) m.reasons.push('予算オーバーです(費用 ' + r1(m.cost) + ' / 予算 ' + stage.budget + ')。使っていない部品や、高い部品を見直そう。');
+  if (stage.co2Max != null && m.co2 > stage.co2Max + EPS) m.reasons.push('CO₂を出しています(' + r1(m.co2) + ')。このステージではCO₂を0にしよう。CO₂を出すのは石炭・天然ガスなどの燃料だよ。');
+  board.nodes.forEach(function (n) {
+    if (n.fixed) return;
+    if (!R.ch[n.id].length && !R.pa[n.id].length) m.tips.push('「' + CAT[n.type].name + '」がどこにもつながっていません。使わないなら消すと費用が下がります。');
+  });
+  m.clear = m.reasons.length === 0;
+  m.stars = stage.stars.map(function (s) { return m.clear && !!s[1](m); });
+  m.starN = m.stars.filter(Boolean).length;
+  return m;
+}
+
+function ancestors(R, id) {
+  var seen = {}, st = [id];
+  while (st.length) { var x = st.pop(); R.pa[x].forEach(function (e) { if (!seen[e.from]) { seen[e.from] = 1; st.push(e.from); } }); }
+  return Object.keys(seen);
+}
+function diagnose(stage, R, n, si, dl, dm) {
+  var u = stage.unit, d = CAT[n.type];
+  var sname = stage.slots.length > 1 ? '【' + stage.slots[si].name + '】' : '';
+  return sname + '「' + d.name + '」に届いた' + FORMS[d.in].name + 'は ' + fmtU(dl, u) + ' / 必要 ' + fmtU(dm, u) + '。' + diagWhy(stage, R, n, si, dm);
+}
+// 足りない理由(時間帯が複数のときは、同じ理由を1回だけ出す)
+function diagWhy(stage, R, n, si, dm) {
+  var s = R.slots[si], u = stage.unit, d = CAT[n.type], sl = stage.slots[si];
+  var sname = stage.slots.length > 1 ? '【' + sl.name + '】' : '';
+  if (!R.pa[n.id].length) return '「' + d.name + '」に、まだ何もつながっていません。';
+  var anc = ancestors(R, n.id);
+  var srcs = anc.filter(function (id) { return CAT[R.byId[id].type].kind === 'src'; });
+  if (!srcs.length) return '「' + d.name + '」につながっている道に、エネルギー源(🔋☀️🪨 など)がありません。';
+  var sunOnly = srcs.every(function (id) { return R.byId[id].type === 'sun'; });
+  if (sunOnly && sl.sun === 0) {
+    var bats = anc.filter(function (id) { return CAT[R.byId[id].type].store; });
+    if (bats.length) {
+      var had = 0; if (si > 0) bats.forEach(function (id) { had += R.slots[si - 1].stored[id] || 0; });
+      return sname + '夜は太陽の光が0なので、蓄電池にためた電気だけが使えます。ためた量 ' + fmt(had) + ' / 夜に必要 ' + fmt(dm) + '。昼の太陽を増やして、もっとためよう。';
+    }
+    return sname + '夜は太陽の光が0です。昼の電気をためておく方法を考えよう。';
+  }
+  var parts = [], worst = null;
+  anc.forEach(function (id) { var l = s.loss[id] || 0; if (l > 0.05 && (!worst || l > s.loss[worst])) worst = id; });
+  if (worst) {
+    var wd = CAT[R.byId[worst].type];
+    parts.push('いちばんロスが大きいのは「' + wd.name + '」:入った' + FORMS[wd.in].name + 'エネルギーの ' + Math.round((1 - wd.eff) * 100) + '% が使えずに、熱などとして捨てられています。');
+  }
+  var full = srcs.every(function (id) { return (s.prod[id] || 0) >= (s.caps[id] || 0) - 0.01; });
+  if (full && !u) parts.push('エネルギー源は全力を出しています。エネルギー源を増やすか、ロスの少ない部品を選ぼう。');
+  return parts.join('');
+}
+function outletName(n, nodes) {
+  var os = nodes.filter(function (x) { return x.type === 'outlet'; });
+  if (os.length < 2) return 'コンセント';
+  return (os.every(function (x) { return x === n || x.row >= n.row; }) ? '上の' : '下の') + 'コンセント';
+}
+
+function r1(v) { return Math.round(v * 10) / 10; }
+function fmt(v) { if (Math.abs(v) < 0.05) return '0'; if (Math.abs(v) >= 10) return String(Math.round(v)); return String(r1(v)); }
+function fmtU(v, u) { return u === 'W' ? Math.round(v * 100) + 'W' : fmt(v); }
+
+/* ---------- 状態 ---------- */
+var S = { root: null, si: 0, board: null, sel: null, pick: null, view: 0, R: null, M: null, save: null, hint: 0, msg: '', msgCls: '', drag: null, pdrag: null, running: false, hist: [] };
+function stage() { return STAGES[S.si]; }
+function newBoard(st) {
+  var nodes = st.fixed.map(function (f, i) {
+    var n = { id: 'f' + i, type: f.type, col: f.col, row: f.row, fixed: true };
+    if (f.demand) n.demand = f.demand.slice();
+    if (f.via) { n.via = f.via; n.viaMsg = f.viaMsg; }
+    return n;
+  });
+  return { nodes: nodes, edges: [], next: 1 };
+}
+// ステージの最初の状態(固定の部品+はじめから置いてある部品)
+function startBoard(st) {
+  var b = newBoard(st);
+  (st.preset || []).forEach(function (p, i) { b.nodes.push({ id: 'p' + i, type: p.type, col: p.col, row: p.row }); });
+  (st.presetEdges || []).forEach(function (e) { b.edges.push({ id: e[0] + '>' + e[1], from: e[0], to: e[1] }); });
+  return b;
+}
+function loadBoard(si) {
+  var st = STAGES[si], b = newBoard(st), sv = S.save.boards[st.id];
+  if (!(sv && sv.nodes)) return startBoard(st);
+  {
+    try {
+      var cells = {};
+      b.nodes.forEach(function (n) { cells[n.col + ',' + n.row] = 1; });
+      sv.nodes.forEach(function (n) {
+        if (!CAT[n.type] || n.fixed || cells[n.col + ',' + n.row]) return;
+        if (n.col < 0 || n.row < 0 || n.col >= COLS || n.row >= ROWS) return;
+        cells[n.col + ',' + n.row] = 1;
+        b.nodes.push({ id: n.id, type: n.type, col: n.col, row: n.row });
+      });
+      var ids = {}; b.nodes.forEach(function (n) { ids[n.id] = 1; });
+      (sv.edges || []).forEach(function (e) { if (ids[e.from] && ids[e.to]) b.edges.push({ id: e.from + '>' + e.to, from: e.from, to: e.to }); });
+      b.next = sv.next || 100;
+    } catch (e) { b = newBoard(st); }
+  }
+  return b;
+}
+function saveBoard() {
+  S.save.boards[stage().id] = {
+    nodes: S.board.nodes.filter(function (n) { return !n.fixed; }).map(function (n) { return { id: n.id, type: n.type, col: n.col, row: n.row }; }),
+    edges: S.board.edges.map(function (e) { return { from: e.from, to: e.to }; }), next: S.board.next };
+  persist();
+}
+function recalc() { S.R = simulate(stage(), S.board); S.M = evaluate(stage(), S.board, S.R); }
+function nodeAt(c, r) { for (var i = 0; i < S.board.nodes.length; i++) { var n = S.board.nodes[i]; if (n.col === c && n.row === r) return n; } return null; }
+function nodeById(id) { for (var i = 0; i < S.board.nodes.length; i++) if (S.board.nodes[i].id === id) return S.board.nodes[i]; return null; }
+function isPortrait() { try { return window.matchMedia('(max-width:900px)').matches; } catch (e) { return false; } }
+function palDir() { return isPortrait() ? '上' : '左'; }
+/* 1手もどす */
+function snap() {
+  S.hist.push(JSON.stringify({ nodes: S.board.nodes, edges: S.board.edges, next: S.board.next }));
+  if (S.hist.length > 50) S.hist.shift();
+}
+function undo() {
+  if (!S.hist.length) { say('もどせる操作はありません。'); return false; }
+  var b = JSON.parse(S.hist.pop());
+  S.board = b; S.sel = null; S.pick = null; beep('del'); changed(); say('↩ 1つ前の状態にもどしました。');
+  return true;
+}
+function remaining(type) { var max = stage().parts[type] || 0, c = 0; S.board.nodes.forEach(function (n) { if (!n.fixed && n.type === type) c++; }); return max - c; }
+
+/* ---------- 効果音 ---------- */
+var AC = null;
+function beep(kind) {
+  if (!S.save.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    var seq = { place: [[520, .06]], link: [[660, .06], [880, .08]], err: [[200, .15]], ok: [[523, .1], [659, .1], [784, .1], [1047, .25]], ng: [[330, .15], [262, .25]], del: [[300, .06]] }[kind] || [[440, .05]];
+    var t = AC.currentTime;
+    seq.forEach(function (s) {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = kind === 'err' || kind === 'ng' ? 'square' : 'triangle';
+      o.frequency.value = s[0]; g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + s[1]);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + s[1] + 0.02); t += s[1];
+    });
+  } catch (e) {}
+}
+
+/* ---------- 操作 ---------- */
+function say(text, cls) { S.msg = text; S.msgCls = cls || ''; renderMsg(); }
+function place(type, c, r) {
+  if (nodeAt(c, r)) return false;
+  if (remaining(type) <= 0) { say('「' + CAT[type].name + '」はもう置けません(このステージで使える数の上限)。', 'err'); beep('err'); return false; }
+  snap();
+  var id = 'n' + (S.board.next++);
+  S.board.nodes.push({ id: id, type: type, col: c, row: r });
+  if (remaining(type) <= 0) S.pick = null;
+  beep('place');
+  changed();
+  say('「' + CAT[type].name + '」を置きました。' + (S.pick ? '続けて置くときはマスをタップ。' : '') + 'つなぐときは、部品をタップしてから、つなぎたい相手をタップ。');
+  return true;
+}
+function canLink(a, b) {
+  var da = CAT[a.type], db = CAT[b.type];
+  if (a.id === b.id) return { ok: false, why: '' };
+  if (da.kind === 'goal') return { ok: false, why: '「' + da.name + '」はエネルギーを使う所(目標)。ここから先へはつなげません。', dir: 1 };
+  if (db.kind === 'src') return { ok: false, why: '「' + db.name + '」はエネルギー源。ここに入れることはできません。', dir: 1 };
+  if (da.out !== db.in) return { ok: false, why: '形がちがいます。「' + da.name + '」から出るのは【' + FORMS[da.out].name + '】エネルギー、「' + db.name + '」に入れられるのは【' + FORMS[db.in].name + '】エネルギーです。間に、形を変える部品が必要です。' };
+  if (b.via && a.type !== b.via) return { ok: false, why: b.viaMsg };
+  if (da.only && b.type !== da.only) return { ok: false, why: da.onlyMsg };
+  if (S.board.edges.some(function (e) { return e.from === a.id && e.to === b.id; })) return { ok: false, why: 'もうつながっています。線を消すときは、線のそばの「×」をタップしてね。' };
+  if (S.board.edges.some(function (e) { return e.from === b.id && e.to === a.id; })) return { ok: false, why: '反対向きにつながっています。' };
+  if (reach(b.id, a.id)) return { ok: false, why: 'つなぐと輪になってしまいます。エネルギーは一方向に流れるようにしよう。' };
+  if (da.maxOut && S.board.edges.filter(function (e) { return e.from === a.id; }).length >= da.maxOut) return { ok: false, why: '「' + da.name + '」につなげるのは ' + da.maxOut + ' つまでです。' + (a.type === 'outlet' ? 'もっと使いたいときはテーブルタップを使おう。' : '') };
+  return { ok: true };
+}
+function reach(from, to) {
+  var seen = {}, st = [from];
+  while (st.length) { var x = st.pop(); if (x === to) return true; if (seen[x]) continue; seen[x] = 1; S.board.edges.forEach(function (e) { if (e.from === x) st.push(e.to); }); }
+  return false;
+}
+function link(a, b) {
+  var r = canLink(a, b);
+  if (!r.ok) {
+    var r2 = canLink(b, a);
+    if (r2.ok) { var t = a; a = b; b = t; r = r2; }
+  }
+  if (!r.ok) { if (r.why) { say(r.why, 'err'); beep('err'); } return false; }
+  snap();
+  S.board.edges.push({ id: a.id + '>' + b.id, from: a.id, to: b.id });
+  beep('link');
+  changed();
+  var da = CAT[a.type], hid = edgeGeom(a, b).hidden;
+  say('「' + da.name + '」→「' + CAT[b.type].name + '」に【' + FORMS[da.out].name + '】エネルギーが流れるようにつなぎました。' + (hid ? '(線が間の部品の下を通っています。部品を動かすと見やすくなります)' : ''), 'ok');
+  return true;
+}
+function removeNode(id) {
+  var n = nodeById(id); if (!n || n.fixed) return;
+  snap();
+  S.board.nodes = S.board.nodes.filter(function (x) { return x.id !== id; });
+  S.board.edges = S.board.edges.filter(function (e) { return e.from !== id && e.to !== id; });
+  S.sel = null; beep('del'); changed(); say('「' + CAT[n.type].name + '」を消しました。');
+}
+function removeEdge(id) {
+  if (!S.board.edges.some(function (e) { return e.id === id; })) return;
+  snap(); S.board.edges = S.board.edges.filter(function (e) { return e.id !== id; }); beep('del'); changed(); say('線を消しました。まちがえたときは「↩ もどす」。');
+}
+function moveNode(n, c, r) { if (n.fixed) { say('この部品は動かせません。', 'err'); return; } if (nodeAt(c, r)) return; snap(); n.col = c; n.row = r; changed(); }
+function changed() { saveBoard(); recalc(); render(); }
+
+function openStage(i, showIntro) {
+  closeModal();
+  S.si = i; S.board = loadBoard(i); S.sel = null; S.pick = null; S.view = 0; S.hint = 0; S.hist = [];
+  S.save.last = i; persist();
+  recalc(); render();
+  say(stage().free ? '部品を自由に置いて実験しよう。' : palDir() + 'の部品をタップ → 置きたいマスをタップ。部品どうしは「部品をタップ → 相手をタップ」でつなげます。');
+  if (showIntro) showIntroModal();
+}
+
+/* ---------- 描画 ---------- */
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+/* 読みがな(むずかしい語の最初の1回にルビを付ける) */
+var GLOSS = { '放射性廃棄物': 'ほうしゃせいはいきぶつ', '再生可能': 'さいせいかのう', '懐中電灯': 'かいちゅうでんとう', '安定供給': 'あんていきょうきゅう',
+  '総合効率': 'そうごうこうりつ', '変換効率': 'へんかんこうりつ', '電磁誘導': 'でんじゆうどう', '化石燃料': 'かせきねんりょう', '二酸化炭素': 'にさんかたんそ',
+  '消費電力': 'しょうひでんりょく', '経済性': 'けいざいせい', '核分裂': 'かくぶんれつ', '原子核': 'げんしかく', '半導体': 'はんどうたい', '放射線': 'ほうしゃせん',
+  '変圧器': 'へんあつき', '蓄電池': 'ちくでんち', '軸受け': 'じくうけ', '原子炉': 'げんしろ', '需要': 'じゅよう', '供給': 'きょうきゅう', '摩耗': 'まもう',
+  '絶縁': 'ぜつえん', '定格': 'ていかく', '効率': 'こうりつ', '廃棄物': 'はいきぶつ', '火災': 'かさい' };
+var GLOSS_RE = new RegExp(Object.keys(GLOSS).sort(function (a, b) { return b.length - a.length; }).join('|'), 'g');
+function furi(s) { var seen = {}; return String(s).replace(GLOSS_RE, function (w) { if (seen[w]) return w; seen[w] = 1; return '<ruby>' + w + '<rt>' + GLOSS[w] + '</rt></ruby>'; }); }
+function pill(f, short) { return '<span class="e1-pill" style="background:' + FORMS[f].color + '">' + (short ? FORMS[f].ch : FORMS[f].name) + '</span>'; }
+function formPath(d) {
+  if (d.kind === 'src') return pill(d.out) + 'を出す';
+  if (d.kind === 'goal') return pill(d.in) + 'を使う';
+  return pill(d.in) + '→' + pill(d.out);
+}
+function starStr(n, max) { var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
+
+/* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
+function buildShell() {
+  S.root.innerHTML =
+    '<div class="e1-top">' +
+      '<h1>⚡ エネルギー変換ゲーム</h1>' +
+      '<button class="e1-btn" data-act="stages">☰ ステージ</button>' +
+      '<div class="e1-stitle" data-ref="stitle"></div>' +
+      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
+      '<button class="e1-btn" data-act="intro">🎯 目標</button>' +
+      '<button class="e1-btn" data-act="hint">💡 ヒント</button>' +
+      '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
+      efSlot() +
+    '</div>' +
+    '<div class="e1-main">' +
+      '<div class="e1-palwrap"><div class="e1-pal" data-ref="pal"></div><div class="e1-palmore" data-ref="palmore" aria-hidden="true"></div></div>' +
+      '<div class="e1-center"><div class="e1-msg" data-ref="msg" role="status" aria-live="polite"></div>' +
+        '<div class="e1-boardbox"><svg class="e1-board" data-ref="svg" viewBox="-4 -18 778 572" preserveAspectRatio="xMidYMid meet" tabindex="0" aria-label="盤面"></svg></div></div>' +
+      '<div class="e1-side" data-ref="side"></div>' +
+    '</div>';
+  S.el = {};
+  S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  efMount();
+}
+function render() { renderTop(); renderPal(); renderBoard(); renderSide(); renderMsg(); }
+function stageLabel(i) { return STAGES[i].free ? '自由' : 'ステージ' + (i + 1); }
+function renderTop() {
+  var st = stage();
+  S.el.stitle.innerHTML = '<span class="t">' + stageLabel(S.si) + ':' + esc(st.title) + '</span><span class="l">' + esc(st.learn) + '</span>';
+  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
+  S.el.sound.setAttribute('aria-label', S.save.sound ? '効果音:オン' : '効果音:オフ');
+}
+function renderMsg() { var m = S.el.msg; m.innerHTML = '<span>' + esc(S.msg) + '</span>'; m.className = 'e1-msg' + (S.msgCls ? ' ' + S.msgCls : ''); }
+function renderPal() {
+  var st = stage(), h = '<h2>部品(タップして選ぶ)</h2><div class="e1-palgrid">';
+  Object.keys(st.parts).forEach(function (t) {
+    var d = CAT[t], left = remaining(t), sub;
+    if (d.kind === 'src') sub = pill(d.out, 1) + ' 最大' + (st.unit === 'W' ? d.cap * 100 + 'W' : d.cap);
+    else sub = pill(d.in, 1) + '→' + pill(d.out, 1) + ' ' + Math.round(d.eff * 100) + '%';
+    if (st.unit === 'W' && t === 'tap') sub = '定格1500W';
+    var foot = (st.free ? '' : 'あと' + left + 'こ') + (st.budget != null || st.free ? (st.free ? '' : ' ') + '<span style="white-space:nowrap">💴' + d.cost + (d.fuel ? '+燃料' : '') + '</span>' : '');
+    h += '<div class="e1-pi' + (S.pick === t ? ' sel' : '') + (left <= 0 ? ' empty' : '') + '" data-pal="' + t + '" role="button" tabindex="0" aria-label="' + d.name + '">' +
+      '<span class="hd"><span class="ic">' + d.icon + '</span><span class="nm">' + d.name + '</span></span>' +
+      '<span class="sb">' + sub + '</span>' + (foot ? '<span class="left">' + foot + '</span>' : '') + '</div>';
+  });
+  S.el.pal.innerHTML = h + '</div>';
+  updPalMore();
+}
+function updPalMore() {
+  var p = S.el.pal, m = S.el.palmore; if (!p || !m) return;
+  var port = isPortrait();
+  var more = port ? p.scrollWidth - p.scrollLeft - p.clientWidth > 6 : p.scrollHeight - p.scrollTop - p.clientHeight > 6;
+  m.textContent = port ? '▶' : '▼ 下にまだあります';
+  m.classList.toggle('on', more);
+}
+function center(n) { return { x: n.col * CELL + CELL / 2, y: n.row * CELL + CELL / 2 }; }
+/* 画面に出す文字の幅の目安(はみ出すときは textLength で縮める) */
+function tlen(s, size) { var w = 0; for (var i = 0; i < s.length; i++) w += s.charCodeAt(i) < 0x2000 ? size * 0.6 : size; return w; }
+function svgText(cls, x, y, s, size, max) {
+  return '<text class="' + cls + '" x="' + x + '" y="' + y + '"' + (tlen(s, size) > max ? ' textLength="' + max + '" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(s) + '</text>';
+}
+/* 線の通り道:間に部品があるときは、曲げてよける */
+function boxExit(p, tx, ty) {
+  var dx = tx - p.x, dy = ty - p.y, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L, k = 50 / Math.max(Math.abs(ux), Math.abs(uy));
+  return { x: p.x + ux * k, y: p.y + uy * k };
+}
+function curveBlocked(p, cx, cy, q, others) {
+  for (var i = 1; i < 24; i++) {
+    var t = i / 24, a = (1 - t) * (1 - t), b = 2 * (1 - t) * t, c = t * t;
+    var x = a * p.x + b * cx + c * q.x, y = a * p.y + b * cy + c * q.y;
+    if (x < -2 || x > 772 || y < -8 || y > 552) return true;
+    for (var j = 0; j < others.length; j++) {
+      var ox = others[j].col * CELL, oy = others[j].row * CELL;
+      if (x > ox + 4 && x < ox + 106 && y > oy + 2 && y < oy + 110) return true;
+    }
+  }
+  return false;
+}
+function edgeGeom(a, b) {
+  var p = center(a), q = center(b), dx = q.x - p.x, dy = q.y - p.y, L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L, ny = dx / L;
+  var mx0 = (p.x + q.x) / 2, my0 = (p.y + q.y) / 2;
+  var others = S.board.nodes.filter(function (n) { return n !== a && n !== b; });
+  var offs = [0, 34, -34, 60, -60, 90, -90, 130, -130], off = null;
+  for (var i = 0; i < offs.length; i++) {
+    if (!curveBlocked(p, mx0 + nx * offs[i] * 2, my0 + ny * offs[i] * 2, q, others)) { off = offs[i]; break; }
+  }
+  var hidden = off === null; if (hidden) off = 0;
+  var cx = mx0 + nx * off * 2, cy = my0 + ny * off * 2;
+  var s = off ? boxExit(p, cx, cy) : boxExit(p, q.x, q.y), e = off ? boxExit(q, cx, cy) : boxExit(q, p.x, p.y);
+  var tx = e.x - s.x, ty = e.y - s.y, TL = Math.sqrt(tx * tx + ty * ty) || 1;
+  var d = off ? 'M' + r1(s.x) + ',' + r1(s.y) + ' Q' + r1(cx) + ',' + r1(cy) + ' ' + r1(e.x) + ',' + r1(e.y) : 'M' + r1(s.x) + ',' + r1(s.y) + ' L' + r1(e.x) + ',' + r1(e.y);
+  var mx = off ? 0.25 * s.x + 0.5 * cx + 0.25 * e.x : (s.x + e.x) / 2, my = off ? 0.25 * s.y + 0.5 * cy + 0.25 * e.y : (s.y + e.y) / 2;
+  return { d: d, mx: mx, my: my, ux: tx / TL, uy: ty / TL, hidden: hidden };
+}
+function renderBoard() {
+  var st = stage(), R = S.R, sl = R && !R.loop ? R.slots[S.view] : null, h = [], top = [], u = st.unit;
+  var selFree = S.sel && nodeById(S.sel) && !nodeById(S.sel).fixed, idle = !S.pick && !S.sel;
+  for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+    if (nodeAt(c, r)) continue;
+    var cls = 'e1-cell' + (S.pick || selFree ? ' pickable' : '');
+    h.push('<rect class="' + cls + '" data-cell="' + c + ',' + r + '" x="' + (c * CELL + 4) + '" y="' + (r * CELL + 4) + '" width="' + (CELL - 8) + '" height="' + (CELL - 8) + '" rx="12"/>');
+  }
+  S.board.edges.forEach(function (e) {
+    var a = nodeById(e.from), b = nodeById(e.to); if (!a || !b) return;
+    var g = edgeGeom(a, b), ux = g.ux, uy = g.uy, mx = g.mx, my = g.my;
+    var f = sl ? (sl.flow[e.id] || 0) : 0, col = FORMS[CAT[a.type].out].color;
+    var w = f > EPS ? 5 + Math.min(9, Math.sqrt(f) * 1.1) : 4;
+    var ang = Math.atan2(uy, ux) * 180 / Math.PI;
+    h.push('<g data-edge="' + esc(e.id) + '">');
+    h.push('<path d="' + g.d + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" opacity="' + (f > EPS ? 1 : 0.45) + '"/>');
+    if (f > EPS) h.push('<path class="e1-flow" d="' + g.d + '" stroke-width="' + Math.max(2, w / 3) + '"/>');
+    h.push('<polygon points="-8,-9 10,0 -8,9" fill="' + col + '" transform="translate(' + r1(mx) + ',' + r1(my) + ') rotate(' + r1(ang) + ')"/>');
+    if (f > EPS) h.push('<text class="e1-elabel" fill="' + col + '" x="' + r1(mx - uy * 20) + '" y="' + r1(my + ux * 20) + '">' + fmtU(f, u) + '</text>');
+    h.push('<path class="e1-ehit" d="' + g.d + '"/></g>');
+    if (g.hidden) top.push('<path d="' + g.d + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-dasharray="7 6" opacity=".85" pointer-events="none"/>');
+    if (idle) {
+      var hx = r1(mx + uy * 30), hy = r1(my - ux * 30);
+      top.push('<g class="e1-ex" data-edge="' + esc(e.id) + '" role="button" aria-label="' + CAT[a.type].name + 'から' + CAT[b.type].name + 'への線を消す">' +
+        '<circle class="hit" cx="' + hx + '" cy="' + hy + '" r="25"/><circle class="vis" cx="' + hx + '" cy="' + hy + '" r="12"/><text x="' + hx + '" y="' + hy + '">×</text></g>');
+    }
+  });
+  S.board.nodes.forEach(function (n) {
+    var d = CAT[n.type], x = n.col * CELL, y = n.row * CELL, cls = 'e1-node ' + d.kind, sub = '', extra = '';
+    if (S.sel === n.id) cls += ' sel';
+    if (sl && sl.over[n.id]) { cls += ' over'; extra += '<text x="92" y="18" font-size="22" text-anchor="middle">🔥</text>'; }
+    var linked = S.board.edges.some(function (e) { return e.from === n.id || e.to === n.id; });
+    if (!linked && !n.fixed) cls += ' idle';
+    if (d.kind === 'src') {
+      var cap = sl ? sl.caps[n.id] : d.cap, pr = sl ? (sl.prod[n.id] || 0) : 0;
+      sub = n.type === 'outlet' ? '定格1500W' : '出力 ' + fmt(pr) + '/' + fmt(cap);
+    } else if (d.kind === 'conv') {
+      sub = d.store && sl ? 'ためた量 ' + fmt(sl.stored[n.id] || 0) : (n.type === 'tap' ? fmtU(sl ? sl.inF[n.id] || 0 : 0, u) + '/1500W' : '効率 ' + Math.round(d.eff * 100) + '%');
+      var ls = sl ? sl.loss[n.id] || 0 : 0;
+      if (ls > 0.05) extra += '<text class="e1-loss" x="55" y="4">♨熱 −' + fmt(ls) + '</text>';
+    } else {
+      var dm = demandOf(n, S.view), dl = sl ? (sl.del[n.id] || 0) : 0, okk = dl >= dm - 0.01;
+      if (!okk) cls += ' short';
+      sub = fmtU(dl, u) + '/' + fmtU(dm, u) + (okk ? ' ✓' : '');
+      var pw = Math.max(0, Math.min(1, dm > 0 ? dl / dm : 0)) * 70;
+      extra += '<rect x="20" y="93" width="70" height="6" rx="3" fill="#dde5ec"/><rect x="20" y="93" width="' + pw + '" height="6" rx="3" fill="' + (okk ? '#1a9b5b' : '#e8590c') + '"/>';
+    }
+    h.push('<g class="' + cls + '" data-node="' + n.id + '" transform="translate(' + x + ',' + y + ')">' +
+      '<rect class="e1-nbox" x="11" y="9" width="88" height="94" rx="14"/>' +
+      '<text class="e1-nic" x="55" y="34">' + d.icon + '</text>' +
+      svgText('e1-nname', 55, 68, d.name, 16, 92) +
+      svgText('e1-nsub', 55, 86, sub, 14, 100) +
+      (d.in ? '<circle pointer-events="none" cx="11" cy="38" r="12" fill="' + FORMS[d.in].color + '"/><text class="e1-badge" x="11" y="38">' + FORMS[d.in].ch + '</text>' : '') +
+      (d.out ? '<circle pointer-events="none" cx="99" cy="38" r="12" fill="' + FORMS[d.out].color + '"/><text class="e1-badge" x="99" y="38">' + FORMS[d.out].ch + '</text>' : '') +
+      (n.fixed && d.kind !== 'goal' ? '<text x="18" y="26" font-size="15">📌</text>' : '') +
+      extra + '</g>');
+  });
+  h.push(top.join(''));
+  h.push('<line data-ref="dragline" x1="0" y1="0" x2="0" y2="0" stroke="#1e6fd9" stroke-width="5" stroke-dasharray="8 6" visibility="hidden" pointer-events="none"/>');
+  S.el.svg.innerHTML = h.join('');
+  S.el.svg.classList.toggle('e1-running', S.running);
+}
+function meter(label, val, max, txt, good) {
+  var p = max > 0 ? Math.min(1, val / max) : 0, cls = good === false ? ' ng' : (good === 'mid' ? ' mid' : (good === 'neu' ? ' neu' : ''));
+  return '<div class="e1-meter">' + label + ' <b>' + txt + '</b><div class="e1-bar' + cls + '"><i style="width:' + (p * 100) + '%"></i></div></div>';
+}
+function renderSide() {
+  var st = stage(), R = S.R, M = S.M, h = '', u = st.unit;
+  if (st.slots.length > 1) {
+    h += '<div class="e1-card wide"><h2>時間・天気を切りかえて確認</h2><div class="e1-slots">';
+    st.slots.forEach(function (s, i) {
+      var ok = R && !R.loop && R.slots[i].ok;
+      h += '<button class="e1-btn' + (i === S.view ? ' on' : '') + '" data-act="slot" data-i="' + i + '">' + s.icon + ' ' + s.name + (ok ? ' ✓' : '') + '</button>';
+    });
+    h += '</div></div>';
+  } else if (st.slots[0].name) h += '<div class="e1-card wide">天気:' + st.slots[0].icon + ' ' + st.slots[0].name + '(太陽 ' + Math.round(st.slots[0].sun * 100) + '%)</div>';
+  var sl = R && !R.loop ? R.slots[S.view] : null;
+  h += '<div class="e1-card"><h2>目標' + (st.slots.length > 1 ? '(' + st.slots[S.view].name + ')' : '') + '</h2>';
+  S.board.nodes.forEach(function (n) {
+    var d = CAT[n.type]; if (d.kind !== 'goal') return;
+    var dm = demandOf(n, S.view), dl = sl ? sl.del[n.id] || 0 : 0, ok = dl >= dm - 0.01;
+    h += '<div class="e1-goalrow"><span class="ic">' + d.icon + '</span><div style="flex:1">' + d.name + ' ' + fmtU(dl, u) + ' / ' + fmtU(dm, u) + (ok ? ' ✅' : '') +
+      '<div class="e1-bar' + (ok ? '' : ' ng') + '"><i style="width:' + Math.min(100, dm ? dl / dm * 100 : 0) + '%"></i></div></div></div>';
+  });
+  h += '</div>';
+  if (st.showLoad) {
+    h += '<div class="e1-card"><h2>コンセント・タップの使用量</h2>';
+    var tapNo = 0, taps = S.board.nodes.filter(function (n) { return n.type === 'tap'; }).length;
+    S.board.nodes.forEach(function (n) {
+      if (n.type !== 'outlet' && n.type !== 'tap') return;
+      var v = 0;
+      if (sl) { if (n.type === 'outlet') v = sl.over[n.id] || sl.prod[n.id] || 0; else v = sl.inF[n.id] || 0; }
+      var p = v / 15, nm = n.type === 'outlet' ? outletName(n, S.board.nodes) : 'テーブルタップ' + (taps > 1 ? (++tapNo) : '');
+      h += meter(CAT[n.type].icon + ' ' + nm, v, 15, fmtU(v, u) + ' / 1500W <small>(' + Math.round(p * 100) + '%)</small>', p > 1 ? false : (p > 0.85 ? 'mid' : true));
+    });
+    h += '<div class="e1-note">★は、どのコンセントも85%(1275W)以下。</div></div>';
+  } else if (M) {
+    h += '<div class="e1-card"><h2>メーター' + (st.slots.length > 1 ? '(すべての時間の合計)' : '') + '</h2>';
+    var et = st.effStar;
+    h += meter('総合効率', M.eff, 1, Math.round(M.eff * 100) + '%' + (et ? ' <small>(★は' + Math.round(et * 100) + '%以上)</small>' : ''), et ? (M.eff >= et - EPS ? true : 'mid') : 'neu');
+    if (st.budget != null || st.free) {
+      h += meter('費用', M.cost, st.budget || 60, r1(M.cost) + (st.budget != null ? ' / 予算 ' + st.budget : ''), st.budget != null && M.cost > st.budget ? false : true);
+      h += '<div class="e1-note" style="font-size:14px">つくる費用 ' + r1(M.build) + ' + 燃料代 ' + r1(M.fuel) + (M.unitCost ? '<br>電気100を届ける費用 ' + r1(M.unitCost) : '') + '<br><button class="e1-btn e1-mini" data-act="price">💴 発電方法の値段くらべ</button></div>';
+    }
+    var co2max = st.co2Max != null ? Math.max(st.co2Max, 1) : 300;
+    h += meter('CO₂', M.co2, co2max, fmt(M.co2) + (st.co2Max != null ? ' / 上限 ' + st.co2Max : ''), st.co2Max != null && M.co2 > st.co2Max + EPS ? false : (M.co2 > 150 ? 'mid' : true));
+    h += '<div class="e1-note" style="font-size:14px">使った資源 ' + fmt(M.used) + ' → 役に立った ' + fmt(M.useful) + '、熱などのロス ' + fmt(M.loss) + '</div>';
+    h += '</div>';
+  }
+  h += '<div class="e1-acts wide"><button class="e1-btn go" data-act="run">⚡ スイッチON(ためす)</button>' +
+    '<button class="e1-btn" data-act="undo"' + (S.hist.length ? '' : ' disabled') + '>↩ もどす</button></div>';
+  if (S.sel) {
+    var n = nodeById(S.sel);
+    if (n) {
+      var d = CAT[n.type];
+      h += '<div class="e1-card e1-info wide"><div class="ttl">' + d.icon + ' ' + d.name + '</div><div>' + formPath(d) + '</div>';
+      if (n.type === 'tap') h += '<div>電気を分けるだけ(ロスはほぼ0)</div>';
+      else if (d.kind === 'conv') h += '<div>' + furi('変換効率') + ' <b>' + Math.round(d.eff * 100) + '%</b>(' + Math.round((1 - d.eff) * 100) + '%はロス)</div>';
+      if (d.kind === 'src' && n.type !== 'outlet') h += '<div>最大出力 <b>' + d.cap + '</b>' + (d.co2 ? '/CO₂ 1あたり ' + d.co2 : '/CO₂ 0') + '</div>';
+      if ((d.cost || d.fuel) && (st.budget != null || st.free)) h += '<div>つくる費用 <b>' + d.cost + '</b>' + (d.kind === 'src' && n.type !== 'outlet' ? '/燃料代 ' + (d.fuel ? '燃料100を使うごとに <b>' + d.fuel + '</b>' : '<b>0</b>') : '') + '</div>';
+      if (d.desc) h += '<div style="margin-top:4px">' + furi(d.desc) + '</div>';
+      if (d.tip) h += '<div style="margin-top:4px;color:#7a5a00">🔧 ' + furi(d.tip) + '</div>';
+      h += '<div class="e1-note" style="margin-top:4px">※数値は授業用の目安です。' + (d.tip && d.tip.indexOf('点検') >= 0 ? '点検のしかたは C4「保守点検ラボ」でくわしく学べます。' : '') + '</div>';
+      var es = S.board.edges.filter(function (e) { return e.from === n.id || e.to === n.id; });
+      if (es.length) {
+        h += '<div class="e1-elist"><b style="font-size:15px">この部品の線を消す</b>';
+        es.forEach(function (e) {
+          var a = nodeById(e.from), b = nodeById(e.to); if (!a || !b) return;
+          h += '<button class="e1-btn danger" data-act="edgeask" data-id="' + esc(e.id) + '">✂ ' + CAT[a.type].icon + CAT[a.type].name + ' → ' + CAT[b.type].icon + CAT[b.type].name + '</button>';
+        });
+        h += '</div>';
+      }
+      if (!n.fixed) h += '<div class="e1-row"><button class="e1-btn danger" data-act="del">🗑 この部品を消す</button></div>';
+      h += '</div>';
+    }
+  }
+  h += '<div class="e1-clearrow wide"><button class="e1-btn danger" data-act="clear">' + (st.free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '</button></div>';
+  S.el.side.innerHTML = h;
+}
+
+/* ---------- サンキー図 ---------- */
+// 列を飛ぶ帯は、見えない中継点を通して、途中の列の棒の上を通らないようにする
+function sankey(st, R) {
+  var W = 820, NW = 14, u = st.unit, GAP = 12;
+  var agg = { flow: {}, prod: {}, inF: {}, loss: {}, waste: {}, del: {} };
+  R.slots.forEach(function (s) { ['flow', 'prod', 'inF', 'loss', 'waste', 'del'].forEach(function (k) { for (var id in s[k]) agg[k][id] = (agg[k][id] || 0) + s[k][id]; }); });
+  var nodes = R.order.filter(function (id) { return (agg.prod[id] || 0) > EPS || (agg.inF[id] || 0) > EPS; });
+  if (!nodes.length) return '';
+  var inc = {}; nodes.forEach(function (id) { inc[id] = 1; });
+  var es = R.edges.filter(function (e) { return inc[e.from] && inc[e.to] && (agg.flow[e.id] || 0) > EPS; });
+  var depth = {}, D = 0;
+  nodes.forEach(function (id) { depth[id] = 0; });
+  nodes.forEach(function (id) { es.forEach(function (e) { if (e.from === id) depth[e.to] = Math.max(depth[e.to], depth[id] + 1); }); });
+  nodes.forEach(function (id) { D = Math.max(D, depth[id]); });
+  nodes.forEach(function (id) { if (CAT[R.byId[id].type].kind === 'goal') depth[id] = D; });
+  var totLoss = 0, totWaste = 0, stored = 0;
+  nodes.forEach(function (id) { totLoss += agg.loss[id] || 0; totWaste += agg.waste[id] || 0; });
+  var last = R.slots[R.slots.length - 1].stored; for (var k in last) stored += last[k];
+  var val = {};
+  nodes.forEach(function (id) { var d = CAT[R.byId[id].type]; val[id] = d.kind === 'src' ? agg.prod[id] : d.kind === 'goal' ? agg.del[id] : Math.max(agg.inF[id] || 0, 0); });
+  var sinks = [];
+  if (totLoss > EPS) sinks.push({ id: '_loss', name: '熱などのロス', v: totLoss, color: '#e8590c' });
+  if (totWaste > EPS) sinks.push({ id: '_waste', name: '使われず余った', v: totWaste, color: '#adb5bd' });
+  if (stored > EPS) sinks.push({ id: '_store', name: '蓄電池に残った', v: stored, color: '#1c7ed6' });
+  // ロス・余りを出す部品が最後の列にあるときは、行き先を1列右にする
+  var SD = D;
+  nodes.forEach(function (id) { if (depth[id] === D && ((agg.loss[id] || 0) > EPS || (agg.waste[id] || 0) > EPS)) SD = D + 1; });
+  var links = [];
+  nodes.forEach(function (id) {
+    var d = CAT[R.byId[id].type];
+    es.filter(function (e) { return e.from === id; }).forEach(function (e) { links.push({ from: id, to: e.to, v: agg.flow[e.id], color: FORMS[d.out].color, t: fmtU(agg.flow[e.id], u), lvl: 0 }); });
+    if ((agg.loss[id] || 0) > EPS) links.push({ from: id, to: '_loss', v: agg.loss[id], color: '#e8590c', t: d.name + 'のロス ' + fmtU(agg.loss[id], u), lvl: 1 });
+    if ((agg.waste[id] || 0) > EPS) links.push({ from: id, to: '_waste', v: agg.waste[id], color: '#adb5bd', t: '余り', lvl: 2 });
+  });
+  var cols = []; for (var i = 0; i <= SD; i++) cols.push([]);
+  nodes.forEach(function (id) { cols[depth[id]].push({ id: id, v: val[id] }); });
+  var relays = [], rc = 0;
+  links.forEach(function (L) {
+    var c0 = depth[L.from], c1 = L.to.charAt(0) === '_' ? SD : depth[L.to];
+    L.path = [L.from];
+    for (var c = c0 + 1; c < c1; c++) { var rid = '_r' + (rc++); relays.push({ id: rid, col: c, v: L.v, lvl: L.lvl }); L.path.push(rid); }
+    L.path.push(L.to);
+  });
+  relays.sort(function (a, b) { return a.lvl - b.lvl; }).forEach(function (r) { cols[r.col].push({ id: r.id, v: r.v }); });
+  sinks.forEach(function (x) { cols[SD].push({ id: x.id, v: x.v }); });
+  var maxSum = 0, maxCnt = 0;
+  cols.forEach(function (c) { var s = 0; c.forEach(function (it) { s += it.v; }); maxSum = Math.max(maxSum, s); maxCnt = Math.max(maxCnt, c.length); });
+  var H = 380 + Math.max(0, maxCnt - 6) * 30;
+  var k2 = (H - 40 - GAP * (maxCnt - 1)) / maxSum;
+  var X = function (d) { return 16 + d * ((W - 200) / Math.max(1, SD)); };
+  var pos = {}, out = [];
+  cols.forEach(function (c, ci) {
+    var y = 20;
+    c.forEach(function (it) { var h = Math.max(2, it.v * k2); pos[it.id] = { x: X(ci), y: y, h: h, oo: 0, oi: 0 }; y += h + GAP; });
+  });
+  function band(a, b, v, color, la) {
+    var w = Math.max(1, v * k2), pa = pos[a], pb = pos[b];
+    var y0 = pa.y + pa.oo + w / 2, y1 = pb.y + pb.oi + w / 2, x0 = pa.x + NW, x1 = pb.x, mx = (x0 + x1) / 2;
+    pa.oo += w; pb.oi += w;
+    out.push('<path d="M' + r1(x0) + ',' + r1(y0) + ' C' + r1(mx) + ',' + r1(y0) + ' ' + r1(mx) + ',' + r1(y1) + ' ' + r1(x1) + ',' + r1(y1)+ '" stroke="' + color + '" stroke-width="' + w + '" fill="none" stroke-opacity=".45"><title>' + esc(la) + '</title></path>');
+  }
+  nodes.forEach(function (id) {
+    links.filter(function (L) { return L.from === id; }).sort(function (a, b) { return pos[a.path[1]].y - pos[b.path[1]].y; }).forEach(function (L) {
+      for (var j = 0; j + 1 < L.path.length; j++) band(L.path[j], L.path[j + 1], L.v, L.color, L.t);
+    });
+  });
+  // 中継点の中をまっすぐつなぐ(帯がとぎれないように)
+  relays.forEach(function (r) {
+    var p = pos[r.id], w = Math.max(1, r.v * k2), L = null;
+    links.forEach(function (x) { if (x.path.indexOf(r.id) >= 0) L = x; });
+    out.push('<path d="M' + r1(p.x) + ',' + r1(p.y + w / 2) + ' h' + NW + '" stroke="' + L.color + '" stroke-width="' + w + '" stroke-opacity=".45" fill="none"/>');
+  });
+  nodes.forEach(function (id) {
+    var d = CAT[R.byId[id].type], p = pos[id], c = d.kind === 'goal' ? '#1a9b5b' : FORMS[d.out].color;
+    out.push('<rect x="' + p.x + '" y="' + p.y + '" width="' + NW + '" height="' + p.h + '" fill="' + c + '"/>');
+    out.push('<text x="' + (p.x + NW + 4) + '" y="' + r1(p.y + Math.min(p.h / 2, 14) + 5) + '" fill="#1d2b3a" paint-order="stroke" stroke="#fafcff" stroke-width="4">' + d.icon + d.name + ' ' + fmtU(val[id], u) + '</text>');
+  });
+  sinks.forEach(function (s) {
+    var p = pos[s.id];
+    out.push('<rect x="' + p.x + '" y="' + p.y + '" width="' + NW + '" height="' + p.h + '" fill="' + s.color + '"/>');
+    out.push('<text x="' + (p.x + NW + 4) + '" y="' + r1(p.y + Math.min(p.h / 2, 14) + 5) + '" fill="' + (s.id === '_loss' ? '#c2410c' : '#1d2b3a') + '" font-weight="bold" paint-order="stroke" stroke="#fafcff" stroke-width="4">' + (s.id === '_loss' ? '♨ ' : '') + s.name + ' ' + fmtU(s.v, u) + '</text>');
+  });
+  return '<svg class="e1-sankey" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="エネルギーの流れ図">' + out.join('') + '</svg>';
+}
+
+/* ---------- モーダル ---------- */
+function modal(html, cls) {
+  closeModal();
+  var ov = document.createElement('div');
+  ov.className = 'e1-ov'; ov.innerHTML = '<div class="e1-modal ' + (cls || '') + '" role="dialog" aria-modal="true">' + html + '</div>';
+  S.root.appendChild(ov); S.ov = ov;
+  var b = ov.querySelector('.acts .e1-btn.primary') || ov.querySelector('.e1-btn'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} }
+  ov.firstChild.scrollTop = 0;
+  return ov;
+}
+function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
+function goalsText(st) {
+  var h = '<ul>';
+  st.fixed.forEach(function (f) {
+    var d = CAT[f.type]; if (d.kind !== 'goal') return;
+    var dm = st.slots.map(function (s, i) { return (st.slots.length > 1 ? s.name + ' ' : '') + fmtU(f.demand[Math.min(i, f.demand.length - 1)], st.unit); }).join('、');
+    h += '<li>' + d.icon + ' ' + d.name + 'に ' + pill(d.in) + ' を ' + dm + ' 届ける</li>';
+  });
+  if (st.budget != null) h += '<li>費用は予算 ' + st.budget + ' 以内</li>';
+  if (st.co2Max != null) h += '<li>CO₂ は ' + st.co2Max + '(出さない)</li>';
+  return h + '</ul>';
+}
+function showIntroModal() {
+  var st = stage(), h = '<h2>' + stageLabel(S.si) + ':' + furi(esc(st.title)) + '</h2><p>' + furi(st.story) + '</p><h3>🎯 目標</h3>' + goalsText(st);
+  if (st.stars.length) { h += '<h3>★ をねらおう</h3><ul class="e1-checks">'; st.stars.forEach(function (s) { h += '<li>★ ' + furi(s[0]) + '</li>'; }); h += '</ul>'; }
+  if (st.slots.length > 1) h += '<p>⏰ このステージは「' + st.slots.map(function (s) { return s.icon + s.name; }).join('」「') + '」のすべてで足りるようにします。「時間・天気」のボタンで切りかえて確認できます。</p>';
+  if (st.preset) h += '<p>🗼 送電線と、家・工場への線は、はじめからつないであります。</p>';
+  if (st.budget != null || st.free) h += '<p>🕵 このステージには、見えない「かくれポイント」(安全性・住民の理解)があります。クリアすると結果がわかるよ。</p>';
+  if (st.unit === 'W') h += '<p>数字は' + furi('消費電力') + '(W:ワット)です。</p>'; else h += '<p style="font-size:15px;color:#5b6b7c">数字はエネルギーの量の目安です(単位はありません)。</p>';
+  h += '<div class="acts">' + (S.si === 0 ? '<button class="e1-btn" data-act="howto">❓ 使い方を見る</button>' : '') + '<button class="e1-btn primary" data-act="close">はじめる</button></div>';
+  modal(h);
+}
+function showHowto(first) {
+  modal('<h2>❓ エネルギー変換ゲームの使い方</h2><div class="e1-steps">' +
+    '<div><b>① 部品を選ぶ</b><br>左(縦向きでは上)の部品をタップ(青くなる)。</div>' +
+    '<div><b>② 置く</b><br>盤面の空いているマスをタップ。部品を盤面へ指で引っぱってもOK。</div>' +
+    '<div><b>③ つなぐ</b><br>部品をタップ → つなぎたい相手の部品をタップ。部品から相手まで指でなぞってもOK。</div>' +
+    '<div><b>④ スイッチON</b><br>「⚡ スイッチON」で結果を確かめる。足りない理由も教えてくれるよ。</div>' +
+    '<div><b>🔁 動かす・消す</b><br>部品をなぞって空きマスへ動かす。部品を消すときは、部品をタップして「🗑 この部品を消す」。線は、線のそばの「×」をタップすると消せる。</div>' +
+    '<div><b>↩ もどす</b><br>まちがえたら「↩ もどす」で1つ前にもどせる。「' + (stage().free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '」で、はじめの状態にもどる。</div>' +
+    '<div><b>🎨 エネルギーの形</b><br>' + Object.keys(FORMS).map(function (f) { return pill(f); }).join(' ') + '<br>形が同じ所どうしだけつなげる。</div>' +
+    '<div><b>📊 ' + furi('効率') + 'とは?</b><br>部品に入ったエネルギーのうち、目的の形になって出ていく割合。効率40%なら、100入ると40出て、60は熱などになって逃げる。</div>' +
+    '<div><b>💴 費用とは?</b><br>「つくる費用」(部品を置くと1回かかる)+「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせてかかる)。太陽・風・水は燃料代が0。発電方法で値段が変わるよ。</div>' +
+    '<div><b>🔊 効果音</b><br>右上の 🔇/🔊 で、音を出す・出さないを切りかえる(最初は音なし)。</div>' +
+    '</div><p>部品の左右の丸は、入るエネルギー(左)と出るエネルギー(右)の形です。部品を通るたびに一部が熱になって逃げます(♨)。数値は授業用の目安です。</p>' +
+    '<div class="acts">' + (first ? '<button class="e1-btn primary" data-act="howtostart">はじめる</button>' : '<button class="e1-btn primary" data-act="close">わかった</button>') + '</div>');
+}
+function showStages() {
+  var h = '<h2>☰ ステージを選ぶ</h2><div class="e1-stgrid">';
+  STAGES.forEach(function (st, i) {
+    var sc = S.save.stars[st.id] || 0;
+    h += '<button class="e1-stcard' + (i === S.si ? ' cur' : '') + '" data-act="go" data-i="' + i + '"><div class="no">' + (st.free ? '自由' : 'ステージ ' + (i + 1)) + '</div><div class="t">' + esc(st.title) + '</div><div class="l">' + esc(st.learn) + '</div>' +
+      (st.stars.length ? '<div class="s" style="color:#f0a500">' + starStr(sc, st.stars.length) + '</div>' : '') +
+      (S.save.quiz[st.id] ? '<div class="q">🤔 ふりかえり ✓</div>' : '') + '</button>';
+  });
+  h += '</div><div class="acts"><button class="e1-btn" data-act="close">とじる</button></div>';
+  modal(h);
+}
+function showHint() {
+  var st = stage(), n = Math.min(S.hint + 1, st.hints.length), h = '<h2>💡 ヒント</h2>';
+  for (var i = 0; i < n; i++) h += '<div class="e1-reason tip">ヒント' + (i + 1) + ':' + furi(st.hints[i]) + '</div>';
+  S.hint = n;
+  h += '<div class="acts">' + (n < st.hints.length ? '<button class="e1-btn" data-act="hint">もっとヒント</button>' : '') + '<button class="e1-btn primary" data-act="close">とじる</button></div>';
+  modal(h);
+}
+/* 電源の評価(授業用の目安)。どの組み合わせにも長所と短所があり、すべてが100になる組み合わせはない。
+   stab: 天気・時間・つかれに左右されにくい / safe: 事故や処分のむずかしいごみの心配の少なさ / fuel: 燃料代の高さ
+   acc: 住民の理解の得やすさ(かくれポイント。クリアするまで見せない) */
+var AX = {
+  coal: { stab: 1, safe: 0.6, fuel: 0.3, acc: 0.5 }, gas: { stab: 1, safe: 0.7, fuel: 0.4, acc: 0.7 }, uran: { stab: 1, safe: 0.2, fuel: 0.3, acc: 0.3 },
+  bio: { stab: 0.9, safe: 0.8, fuel: 0.4, acc: 0.7 }, dam: { stab: 0.8, safe: 0.7, fuel: 0, acc: 0.5 }, wind: { stab: 0.3, safe: 0.9, fuel: 0, acc: 0.6 },
+  sun: { stab: 0.2, safe: 0.9, fuel: 0, acc: 0.8 }, kandenchi: { stab: 0.3, safe: 0.7, fuel: 1, acc: 0.8 }, pedal: { stab: 0.2, safe: 1, fuel: 0, acc: 1 },
+  outlet: { stab: 1, safe: 1, fuel: 0.5, acc: 1 }
+};
+/* 社会からの声(かくれポイントの説明) */
+var SOC = {
+  coal: '🪨 石炭:「煙やCO₂が心配」という声。燃料は安く、昔から使われてきた。',
+  gas: '🔥 天然ガス:石炭より煙やCO₂が少なく、受け入れられやすい。燃料のほとんどを外国から輸入している。',
+  uran: '☢️ 原子力:「事故が起きたら」という不安が大きい。放射性廃棄物(放射線を出すごみ)をどこで処分するかが決まりにくい。',
+  bio: '🪵 バイオマス:地元の木を使うと仕事が生まれ、喜ばれることも。燃料を運ぶトラックの音やにおいの心配も。',
+  dam: '🏞️ ダム:大きなダムでは村が水の底に沈み、住む場所を移った人もいた。川の生き物への影響も。',
+  wind: '🍃 風力:風車の音や景色、鳥がぶつかる心配で、反対の声が出ることがある。',
+  sun: '☀️ 太陽光:多くの人に受け入れられやすい。ただし山を切り開いて並べると、土砂くずれや景色の心配の声も。'
+};
+function axesScores(st, board, R, M) {
+  var tot = 0, stab = 0, safe = 0, fuel = 0, acc = 0, used = {};
+  R.slots.forEach(function (s) {
+    board.nodes.forEach(function (n) {
+      var d = CAT[n.type]; if (d.kind !== 'src') return;
+      var p = s.prod[n.id] || 0, a = AX[n.type] || { stab: 1, safe: 1, fuel: 0, acc: 1 };
+      tot += p; stab += p * a.stab; safe += p * a.safe; fuel += p * a.fuel; acc += p * a.acc;
+      if (p > EPS) used[n.type] = 1;
+    });
+  });
+  var ref = M.useful / 0.346, env = ref > 0 ? Math.max(0, 1 - M.co2 / ref) : 1;
+  var econ = Math.max(0, Math.min(1, 1 - 0.6 * M.cost / (st.budget || 60) - 0.5 * (tot ? fuel / tot : 0)));
+  return { env: env, econ: econ, stab: tot ? stab / tot : 0, safe: tot ? safe / tot : 1, acc: tot ? acc / tot : 1, used: Object.keys(used) };
+}
+function axes(st, M) {
+  var a = axesScores(st, S.board, S.R, M);
+  var rows = [['🌏 環境', 'CO₂の少なさ', a.env], ['💴 経済', 'つくる費用・燃料代の安さ', a.econ], ['🔌 安定', '天気や時間に左右されにくい', a.stab]];
+  var h = '<h3>' + (st.free ? 'この組み合わせの評価' : 'この町の電源の評価') + '</h3>';
+  rows.forEach(function (r) { h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#3b82c4"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>'; });
+  return h + '<p style="font-size:16px">' + furi('どの発電方法にも長所と短所があり、すべてを高くするのはむずかしい。下の「社会からの評価」もあわせて、どれを大事にしたか、なぜその組み合わせにしたかを説明できるようにしよう。') +
+    '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。太陽光や風力は環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
+}
+function social(st, M) {
+  var a = axesScores(st, S.board, S.R, M), avg = (a.safe + a.acc) / 2;
+  var h = '<div class="e1-social"><h3>🕵 かくれポイント:社会からの評価</h3><p style="font-size:16px;margin:4px 0 8px">' + furi('じつは、プレイ中には見えない点数がありました。発電所は、安全で、近くに住む人たちに理解されていないと、つくることも続けることもできません。') + '</p>';
+  [['🛡 安全性', '事故や、処分のむずかしいごみの心配の少なさ', a.safe], ['🏘 住民の理解', '近くに住む人や市民に受け入れられやすいか', a.acc]].forEach(function (r) {
+    h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#8e44ad"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>';
+  });
+  var v = avg >= 0.75 ? ['😊', '多くの市民に受け入れられやすい組み合わせです。'] : avg >= 0.5 ? ['🤔', '賛成の人も反対の人もいそうです。ていねいな説明が必要です。'] : ['😟', '反対や不安の声が多く出そうです。安全対策や説明に、時間とお金がかかります。'];
+  h += '<p style="font-size:17px"><b>' + v[0] + ' ' + furi(v[1]) + '</b></p>';
+  var cs = a.used.filter(function (t) { return SOC[t]; });
+  if (cs.length) { h += '<ul style="font-size:15px;margin:4px 0">'; cs.forEach(function (t) { h += '<li>' + furi(SOC[t]) + '</li>'; }); h += '</ul>'; }
+  return h + '<p style="font-size:15px">' + furi('住民の理解を得るには、説明会で安全対策や情報を公開し、地元の人と話し合うことが大切です。技術は「つくれるか」だけでなく、社会に受け入れられるかも考えて選びます。') +
+    '</p><p class="e1-note" style="font-size:14px">' + furi('点数は授業用の目安です。同じ発電方法でも、場所や安全対策、説明のしかたによって、住民の受けとめ方は変わります。') + '</p></div>';
+}
+/* 本物の発電所の電気の値段(1kWhあたり)。国の発電コスト検証ワーキンググループ(2021年)が
+   2020年に新しく建てた場合として試算した値を、授業用に丸めた概算。f: お金のうち燃料代が大きいか */
+var PRICE = [
+  { t: 'gas', nm: '天然ガス火力', y: 11, f: 1, w: '燃料代が大部分。燃料の値段が上がると高くなる。' },
+  { t: 'dam', nm: '水力(中くらいのダム)', y: 11, f: 0, w: 'つくる費用が大部分。燃料代は0。つくれる場所が少ない。' },
+  { t: 'uran', nm: '原子力', y: 12, f: 0, more: 1, w: 'つくる費用・安全対策費が大きい。燃料代は小さい。事故の対応などでさらに高くなることがある。' },
+  { t: 'coal', nm: '石炭火力', y: 13, f: 1, w: '燃料は安めだが、CO₂を減らす対策の費用もかかる。' },
+  { t: 'sun', nm: '太陽光(大きな発電所)', y: 13, f: 0, w: 'パネルをつくる費用が大部分。燃料代は0。年々安くなっている。' },
+  { t: 'wind', nm: '風力(陸の上)', y: 20, f: 0, w: '風車をつくる費用が大部分。燃料代は0。' },
+  { t: 'bio', nm: 'バイオマス(木くず)', y: 30, f: 1, w: '燃料(木くず)を集めて運ぶ費用がかかる。' }
+];
+function showPrice() {
+  var h = '<h2>💴 発電方法の値段くらべ</h2><p style="font-size:16px">' + furi('本物の発電所で、電気1kWh(1000Wのドライヤーを1時間使うくらいの量)をつくる値段のおよその目安です。') + '</p>';
+  PRICE.forEach(function (p) {
+    var d = CAT[p.t];
+    h += '<div class="e1-axis e1-price"><span>' + d.icon + ' ' + p.nm + '<small>' + (p.f ? '🔥 燃料代が大きい' : '🏗 つくる費用が大きい') + '</small></span><div class="e1-bar"><i style="width:' + Math.round(p.y / 30 * 100) + '%;background:' + (p.f ? '#e07a2e' : '#3b82c4') + '"></i></div><b style="white-space:nowrap">約' + p.y + '円' + (p.more ? '〜' : '') + '</b></div>' +
+      '<div class="e1-note" style="font-size:14px;margin:-2px 0 8px">' + furi(p.w) + '</div>';
+  });
+  h += '<p style="font-size:16px">' + furi('燃料を使う発電は「燃料代」が毎日かかり、太陽・風・水は「つくる費用」が大部分です。安いだけでなく、CO₂・安定・安全もあわせて考えよう。') + '</p>' +
+    '<p class="e1-note" style="font-size:14px">※ 概算です。国の発電コスト検証(2021年)の、2020年に新しく発電所を建てた場合の試算(1kWhあたり)を丸めました。燃料の値段や建てる場所、年によって大きく変わります。太陽光・風力の天気による変化をおぎなう費用は入っていません。ゲームの中の費用の数字は、この値段とは別の、授業用の目安です。</p>' +
+    '<div class="acts"><button class="e1-btn primary" data-act="close">とじる</button></div>';
+  modal(h);
+}
+function costBox(M) {
+  var h = '<h3>💴 この組み合わせの費用</h3><table class="e1-table"><tr><td>つくる費用(部品を置くと1回)</td><td>' + r1(M.build) + '</td></tr><tr><td>燃料代(燃やした量に合わせて)</td><td>' + r1(M.fuel) + '</td></tr>' +
+    (M.unitCost ? '<tr><td>電気100を届ける費用</td><td>' + r1(M.unitCost) + '</td></tr>' : '') + '</table>';
+  var t = M.fuel > EPS ? (M.fuel >= M.build ? '燃料代の方が多い組み合わせ。燃料の値段が上がると、電気の値段も上がりやすい。' : 'つくる費用が多めで、燃料代もかかる組み合わせ。') : '燃料代0の組み合わせ。お金のほとんどは、はじめにつくる費用。';
+  return h + '<p style="font-size:16px">' + furi(t) + '</p>';
+}
+function run() {
+  if (S.running) return;
+  recalc();
+  S.running = true; render();
+  say('⚡ スイッチON!エネルギーが流れています…');
+  setTimeout(function () {
+    S.running = false; render();
+    var st = stage(), M = S.M;
+    if (M.clear) {
+      beep('ok');
+      if (st.stars.length && M.starN > (S.save.stars[st.id] || 0)) { S.save.stars[st.id] = M.starN; persist(); }
+      showResult(true);
+    } else { beep('ng'); showResult(false); }
+  }, 900);
+}
+function showResult(win) {
+  var st = stage(), M = S.M, u = st.unit, h = '';
+  if (win) {
+    h += '<h2>🎉 クリア!' + (st.free ? '(家に電気が届いた)' : '') + '</h2>';
+    if (st.stars.length) {
+      h += '<div class="e1-stars">';
+      M.stars.forEach(function (b, i) { h += '<span class="e1-star' + (b ? '' : ' off') + '" style="animation-delay:' + (i * 0.25) + 's;color:#f0a500">★</span>'; });
+      h += '</div><ul class="e1-checks">';
+      st.stars.forEach(function (s, i) { h += '<li>' + (M.stars[i] ? '⭐' : '◻️') + ' ' + s[0] + '</li>'; });
+      h += '</ul>';
+    }
+  } else {
+    h += '<h2>😣 まだ足りないところがあるよ</h2>';
+    M.reasons.slice(0, 6).forEach(function (r) { h += '<div class="e1-reason">' + esc(r) + '</div>'; });
+  }
+  M.tips.slice(0, 2).forEach(function (r) { h += '<div class="e1-reason tip">' + esc(r) + '</div>'; });
+  if (win && st.quiz) {
+    var order = [0, 1, 2].sort(function () { return Math.random() - 0.5; });
+    h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ふりかえり</h3><p>' + furi(st.quiz.q) + '</p>';
+    order.forEach(function (i) { h += '<button class="e1-btn" data-act="quiz" data-i="' + i + '">' + st.quiz.c[i] + '</button>'; });
+    h += '<div data-ref="qex"></div></div>';
+  }
+  if (win && (st.id === 's7' || st.free)) h += axes(st, M);
+  if (win && (st.budget != null || st.free)) h += social(st, M);
+  if (win && (st.budget != null || st.free)) h += costBox(M);
+  var tbl = '';
+  if (!u) {
+    tbl = '<table class="e1-table"><tr><td>使った資源のエネルギー</td><td>' + fmt(M.used) + '</td></tr><tr><td>役に立ったエネルギー</td><td>' + fmt(M.useful) + '</td></tr>' +
+      '<tr><td>♨ 熱などになって逃げたエネルギー</td><td>' + fmt(M.loss) + '</td></tr><tr><td>' + furi('総合効率') + '(役に立った ÷ 使った)</td><td>' + Math.round(M.eff * 100) + '%</td></tr>' +
+      '<tr><td>CO₂</td><td>' + fmt(M.co2) + '</td></tr>' + (st.budget != null || st.free ? '<tr><td>💴 つくる費用</td><td>' + r1(M.build) + '</td></tr><tr><td>💴 燃料代</td><td>' + r1(M.fuel) + '</td></tr><tr><td>費用の合計</td><td>' + r1(M.cost) + (st.budget != null ? ' / ' + st.budget : '') + '</td></tr>' +
+        (M.unitCost ? '<tr><td>電気100を届ける費用(費用 ÷ 届けた量 × 100)</td><td>' + r1(M.unitCost) + '</td></tr>' : '') : '') + '</table>';
+  }
+  var sk = S.R.loop ? '' : sankey(st, S.R);
+  if (sk) tbl += '<h3>エネルギーの流れ図(線の太さ=' + (u === 'W' ? '消費電力(W)' : 'エネルギーの量') + ')</h3>' + sk;
+  if (tbl) h += '<details><summary>📊 ' + (u ? '' : '数値の表と') + 'エネルギーの流れ図を見る</summary>' + tbl + '</details>';
+  h += '<div class="acts">';
+  if (win) {
+    h += '<button class="e1-btn" data-act="close">もう一度くふうする</button>';
+    if (st.budget != null || st.free) h += '<button class="e1-btn" data-act="price">💴 値段くらべ</button>';
+    if (S.si < STAGES.length - 1) h += '<button class="e1-btn primary" data-act="next">次のステージへ ▶</button>';
+  } else {
+    h += '<button class="e1-btn" data-act="hint">💡 ヒント</button><button class="e1-btn primary" data-act="close">直してみる</button>';
+  }
+  h += '</div>';
+  modal(h);
+}
+function answerQuiz(i, btn) {
+  var st = stage(), box = btn.parentNode;
+  if (box.getAttribute('data-done')) return;
+  var right = i === 0;
+  btn.classList.add(right ? 'right' : 'wrong');
+  if (right) {
+    box.setAttribute('data-done', '1');
+    box.querySelector('[data-ref=qex]').innerHTML = '<div class="e1-reason tip">⭕ 正解!' + furi(st.quiz.ex) + '</div>';
+    S.save.quiz[st.id] = true; persist(); beep('link');
+  } else { beep('err'); box.querySelector('[data-ref=qex]').innerHTML = '<div class="e1-reason">もう一度考えてみよう。</div>'; }
+}
+
+/* ---------- 入力 ---------- */
+function svgPoint(ev) {
+  var svg = S.el.svg, pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+function cellOf(p) { var c = Math.floor(p.x / CELL), r = Math.floor(p.y / CELL); return c < 0 || r < 0 || c >= COLS || r >= ROWS ? null : { c: c, r: r }; }
+function tapCell(cell) {
+  var n = nodeAt(cell.c, cell.r);
+  if (n) {
+    if (S.sel && S.sel !== n.id) { var a = nodeById(S.sel); S.sel = null; if (!link(a, n)) render(); return; }
+    S.pick = null;
+    S.sel = S.sel === n.id ? null : n.id;
+    render();
+    if (S.sel) say('「' + CAT[n.type].name + '」を選びました。つなぎたい相手の部品をタップ' + (n.fixed ? '' : '(空いているマスをタップすると移動)') + '。');
+    return;
+  }
+  if (S.pick) { place(S.pick, cell.c, cell.r); return; }
+  if (S.sel) { var m = nodeById(S.sel); S.sel = null; if (m && !m.fixed) { moveNode(m, cell.c, cell.r); say('「' + CAT[m.type].name + '」を動かしました。まちがえたときは「↩ もどす」。'); } else render(); return; }
+  say(palDir() + 'の部品をタップして選んでから、マスをタップすると置けます。');
+}
+function bindInput() {
+  var svg = S.el.svg;
+  svg.addEventListener('pointerdown', function (ev) {
+    if (ev.button > 0 || S.ov) return;
+    var p = svgPoint(ev), cell = cellOf(p), n = cell ? nodeAt(cell.c, cell.r) : null;
+    // 線(とその「×」)のタップを、部品のマスより先に見る
+    var eg = ev.target.closest && ev.target.closest('[data-edge]');
+    if (eg && !S.pick && !S.sel) { askEdge(eg.getAttribute('data-edge')); ev.preventDefault(); return; }
+    S.drag = { x: ev.clientX, y: ev.clientY, cell: cell, node: n, moved: false };
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault();
+  });
+  svg.addEventListener('pointermove', function (ev) {
+    var d = S.drag; if (!d) return;
+    if (!d.moved && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) > 22) d.moved = true;
+    if (d.moved && d.node) {
+      var p = svgPoint(ev), c = center(d.node), dl = svg.querySelector('[data-ref=dragline]');
+      dl.setAttribute('x1', c.x); dl.setAttribute('y1', c.y); dl.setAttribute('x2', p.x); dl.setAttribute('y2', p.y); dl.setAttribute('visibility', 'visible');
+      hoverCell(cellOf(p));
+    }
+  });
+  function end(ev, cancel) {
+    var d = S.drag; S.drag = null; if (!d) return;
+    var dl = svg.querySelector('[data-ref=dragline]'); if (dl) dl.setAttribute('visibility', 'hidden');
+    hoverCell(null);
+    if (cancel) return;
+    var cell = cellOf(svgPoint(ev));
+    // 少し指がずれても、同じマスで離したらタップとして扱う
+    if (!d.moved || (cell && d.cell && cell.c === d.cell.c && cell.r === d.cell.r)) { if (d.cell) tapCell(d.cell); return; }
+    if (!d.node || !cell) return;
+    var t = nodeAt(cell.c, cell.r);
+    if (t && t !== d.node) { S.sel = null; if (!link(d.node, t)) render(); }
+    else if (!t) { S.sel = null; moveNode(d.node, cell.c, cell.r); if (!d.node.fixed) say('「' + CAT[d.node.type].name + '」を動かしました。まちがえたときは「↩ もどす」。'); }
+  }
+  svg.addEventListener('pointerup', function (ev) { end(ev, false); });
+  svg.addEventListener('pointercancel', function (ev) { end(ev, true); });
+
+  S.el.pal.addEventListener('pointerdown', function (ev) {
+    var it = ev.target.closest('[data-pal]'); if (!it || S.ov) return;
+    S.pdrag = { type: it.getAttribute('data-pal'), x: ev.clientX, y: ev.clientY, moved: false, ghost: null };
+  });
+  S.el.pal.addEventListener('scroll', updPalMore);
+  window.addEventListener('resize', function () { updPalMore(); });
+  S.root.addEventListener('pointermove', function (ev) {
+    var d = S.pdrag; if (!d) return;
+    var dx = ev.clientX - d.x, dy = ev.clientY - d.y;
+    // 横向き:パレットは左にあるので横に引っぱる。縦向き:パレットは上にあるので下へ引っぱる
+    var start = isPortrait() ? (dy > 18 && Math.abs(dy) > Math.abs(dx)) : (Math.abs(dx) > 18 && Math.abs(dx) > Math.abs(dy));
+    if (!d.moved && start) {
+      if (remaining(d.type) <= 0) { S.pdrag = null; return; }
+      d.moved = true; d.ghost = document.createElement('div'); d.ghost.className = 'e1-ghost'; d.ghost.textContent = CAT[d.type].icon; S.root.appendChild(d.ghost);
+      try { ev.target.releasePointerCapture && ev.target.releasePointerCapture(ev.pointerId); } catch (e) {}
+    }
+    if (d.moved) {
+      var rb = S.root.getBoundingClientRect();
+      d.ghost.style.left = (ev.clientX - rb.left) + 'px'; d.ghost.style.top = (ev.clientY - rb.top) + 'px';
+      hoverCell(overBoard(ev) ? cellOf(svgPoint(ev)) : null);
+    }
+  });
+  S.root.addEventListener('pointerup', function (ev) {
+    var d = S.pdrag; if (!d) return; S.pdrag = null;
+    hoverCell(null);
+    if (d.ghost) d.ghost.remove();
+    if (!d.moved) {
+      if (!ev.target.closest('[data-pal]')) return;
+      if (remaining(d.type) <= 0) { say('「' + CAT[d.type].name + '」はもう置けません。', 'err'); beep('err'); return; }
+      S.pick = S.pick === d.type ? null : d.type; S.sel = null; render();
+      if (S.pick) say('「' + CAT[d.type].name + '」:' + CAT[d.type].desc + ' → 置きたいマスをタップ。');
+      return;
+    }
+    if (overBoard(ev)) { var c = cellOf(svgPoint(ev)); if (c && !nodeAt(c.c, c.r)) place(d.type, c.c, c.r); }
+  });
+  S.root.addEventListener('pointercancel', function () { var d = S.pdrag; if (d && d.ghost) d.ghost.remove(); S.pdrag = null; hoverCell(null); });
+
+  S.root.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b || b.disabled) return;
+    var act = b.getAttribute('data-act'), i = +b.getAttribute('data-i');
+    if (act === 'stages') showStages();
+    else if (act === 'go') { closeModal(); openStage(i, true); }
+    else if (act === 'close') { closeModal(); }
+    else if (act === 'howtostart') { closeModal(); showIntroModal(); }
+    else if (act === 'hint') showHint();
+    else if (act === 'howto') showHowto(false);
+    else if (act === 'price') showPrice();
+    else if (act === 'intro') showIntroModal();
+    else if (act === 'sound') { S.save.sound = !S.save.sound; persist(); renderTop(); }
+    else if (act === 'slot') { S.view = i; render(); }
+    else if (act === 'run') run();
+    else if (act === 'undo') undo();
+    else if (act === 'del') { if (S.sel) removeNode(S.sel); }
+    else if (act === 'edgeask') askEdge(b.getAttribute('data-id'));
+    else if (act === 'clear') {
+      if (stage().free) modal('<h2>🗑 ぜんぶ消しますか?</h2><p>置いた部品と線をすべて消します。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="clearyes">消す</button></div>');
+      else modal('<h2>↺ 最初からやり直しますか?</h2><p>置いた部品と線を消して、このステージの最初の状態にもどします。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="clearyes">消す</button></div>');
+    }
+    else if (act === 'clearyes') { closeModal(); resetBoard(); }
+    else if (act === 'next') { closeModal(); openStage(Math.min(STAGES.length - 1, S.si + 1), true); }
+    else if (act === 'quiz') answerQuiz(i, b);
+    else if (act === 'edgeyes') { closeModal(); removeEdge(b.getAttribute('data-id')); }
+  });
+  S.root.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') { if (S.ov) closeModal(); else { S.sel = null; S.pick = null; render(); } return; }
+    if (S.ov) return;
+    if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'z' || ev.key === 'Z')) { ev.preventDefault(); undo(); return; }
+    var t = ev.target.closest && ev.target.closest('[data-pal]');
+    if (t && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); var ty = t.getAttribute('data-pal'); if (remaining(ty) > 0) { S.pick = ty; S.sel = null; render(); say('「' + CAT[ty].name + '」を選びました。盤面で矢印キーとEnterで置けます。'); S.el.svg.focus(); } return; }
+    if (ev.target !== S.el.svg) return;
+    S.kc = S.kc || { c: 0, r: 0 };
+    var mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[ev.key];
+    if (mv) {
+      ev.preventDefault();
+      var nc = Math.max(0, Math.min(COLS - 1, S.kc.c + mv[0])), nr = Math.max(0, Math.min(ROWS - 1, S.kc.r + mv[1]));
+      if (ev.shiftKey && S.sel) { var sn = nodeById(S.sel); if (sn && !sn.fixed && !nodeAt(nc, nr)) { moveNode(sn, nc, nr); } }
+      S.kc = { c: nc, r: nr }; hoverCell(S.kc);
+      var hn = nodeAt(nc, nr); say('マス(' + (nc + 1) + ',' + (nr + 1) + ')' + (hn ? ':' + CAT[hn.type].name : ':空き') + '。Enterで選ぶ・置く・つなぐ、Shift+矢印で選んだ部品を移動、Deleteで消す。');
+    } else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); tapCell(S.kc); hoverCell(S.kc); }
+    else if (ev.key === 'Delete' || ev.key === 'Backspace') { ev.preventDefault(); if (S.sel) removeNode(S.sel); }
+  });
+}
+function resetBoard() {
+  snap(); S.board = startBoard(stage()); S.sel = null; S.pick = null; changed();
+  say((stage().free ? 'ぜんぶ消しました。' : '最初の状態にもどしました。') + '「↩ もどす」で元にもどせます。');
+}
+function overBoard(ev) { var r = S.el.svg.getBoundingClientRect(); return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom; }
+function hoverCell(c) {
+  S.el.svg.querySelectorAll('.e1-cell.hover').forEach(function (x) { x.classList.remove('hover'); });
+  S.el.svg.querySelectorAll('.e1-node .e1-nbox[stroke]').forEach(function (x) { x.removeAttribute('stroke'); });
+  if (!c) return;
+  var el = S.el.svg.querySelector('[data-cell="' + c.c + ',' + c.r + '"]');
+  if (el) el.classList.add('hover');
+  else { var n = nodeAt(c.c, c.r), g = n && S.el.svg.querySelector('[data-node="' + n.id + '"] .e1-nbox'); if (g) g.setAttribute('stroke', '#1e6fd9'); }
+}
+function askEdge(id) {
+  var e = null; S.board.edges.forEach(function (x) { if (x.id === id) e = x; }); if (!e) return;
+  var a = nodeById(e.from), b = nodeById(e.to);
+  modal('<h2>この線を消しますか?</h2><p>' + CAT[a.type].icon + ' ' + CAT[a.type].name + ' → ' + CAT[b.type].icon + ' ' + CAT[b.type].name + '</p><p style="font-size:15px;color:#5b6b7c">「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="edgeyes" data-id="' + esc(id) + '">消す</button></div>');
+}
+
+/* ---------- 起動 ---------- */
+function mount(root) {
+  S.root = root; root.classList.add('e1');
+  S.save = loadSave();
+  buildShell(); bindInput();
+  var first = S.save.last == null;
+  openStage(Math.max(0, Math.min(STAGES.length - 1, S.save.last || 0)), false);
+  if (first) showHowto(true); // 初回だけ「使い方」→「はじめる」で目標の画面へ
+}
+
+NS.C1 = {
+  mount: mount,
+  _test: { simulate: simulate, evaluate: evaluate, STAGES: STAGES, CAT: CAT, S: S, openStage: openStage, place: place, link: link, nodeAt: nodeAt, newBoard: newBoard, changed: changed,
+    startBoard: startBoard, undo: undo, removeEdge: removeEdge, removeNode: removeNode, resetBoard: resetBoard, axesScores: axesScores, edgeGeom: edgeGeom, sankey: sankey }
+};
+var auto = document.getElementById('e1-app');
+if (auto && !auto.getAttribute('data-manual')) mount(auto);
+})();
+</script>
+</body>
+</html>

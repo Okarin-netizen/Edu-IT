@@ -14,13 +14,13 @@ DEFAULT_OUT = os.path.join(ROOT, 'dist', '材料と加工_教材アプリ.html')
 # ページ id → index.html の場所(並び順はメニューと同じ)
 PAGES = [
     ('menu', 'index.html'),
-    ('m1-material-navi', 'm1-material-navi/index.html'),
-    ('m2-wood-lab', 'm2-wood-lab/index.html'),
-    ('m3-structure-lab', 'm3-structure-lab/index.html'),
-    ('m4-drawing-trainer', 'm4-drawing-trainer/index.html'),
-    ('m5-kidori', 'm5-kidori/index.html'),
-    ('m6-tool-safety', 'm6-tool-safety/index.html'),
-    ('m7-solid-maker', 'm7-solid-maker/index.html'),
+    ('a1-material-navi', 'a1-material-navi/index.html'),
+    ('a2-wood-lab', 'a2-wood-lab/index.html'),
+    ('a3-structure-lab', 'a3-structure-lab/index.html'),
+    ('a4-drawing-trainer', 'a4-drawing-trainer/index.html'),
+    ('a5-kidori', 'a5-kidori/index.html'),
+    ('a6-tool-safety', 'a6-tool-safety/index.html'),
+    ('a7-solid-maker', 'a7-solid-maker/index.html'),
     ('teacher-viewer', 'teacher-viewer/index.html'),
     ('guide', 'docs/先生用ガイド.html'),
 ]
@@ -81,7 +81,7 @@ def main(out):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>材料と加工 教材アプリ(1ファイル版)</title>
+<title>材料と加工の技術 教材集(1ファイル版)</title>
 <meta name="theme-color" content="#985a26">
 <link rel="icon" href="data:image/svg+xml;base64,%(icon)s">
 <style>
@@ -94,7 +94,7 @@ def main(out):
 <noscript><p>JavaScript を有効にしてください。</p></noscript>
 <iframe id="view" title="教材アプリ"></iframe>
 <script>
-/* 材料と加工 教材アプリ 1ファイル版(作成: 技術 岡田) */
+/* 材料と加工の技術 教材集 1ファイル版(作成: 技術 岡田) */
 (function () {
   'use strict';
   var DATA = %(data)s;
@@ -106,7 +106,7 @@ def main(out):
     cur = id;
     view.srcdoc = DATA.pages[id];
   }
-  // 「../index.html」「m1-material-navi/index.html」「docs/先生用ガイド.html」「../index.html」などを、ページ id に置きかえる
+  // 「../index.html」「a1-material-navi/index.html」「docs/先生用ガイド.html」「../index.html」などを、ページ id に置きかえる
   function resolve(href) {
     var path = String(href).split('#')[0].split('?')[0];
     try { path = decodeURIComponent(path); } catch (e) {}

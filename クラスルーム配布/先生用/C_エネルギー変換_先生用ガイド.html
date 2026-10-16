@@ -36,11 +36,12 @@
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 
 /* ---- ヘッダー ----
- * <header class="ef-header">
- *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
- *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
- * </header>
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -87,7 +88,8 @@
 }
 
 /* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
  */
 .ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
 .ef-card {
@@ -96,6 +98,29 @@
 }
 .ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
 
 /* ---- フッター(作成者・このアプリについて) ---- */
 .ef-footer {
@@ -222,7 +247,7 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
 .eg rt{font-size:.6em}
 </style>
 <script>
-/* エネルギー変換 学習アプリ(E1〜E5)の版・更新履歴など。
+/* エネルギー変換の技術 教材集(C1〜C5)の版・更新履歴など。
  * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
  * 統合版(dist/energy-apps.html)では build.py がこのファイルを中に入れる。
  * 版を上げたら version・updated と history の先頭を書きかえて、build.py で作り直す。
@@ -230,35 +255,41 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
 window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
-  suite: 'エネルギー変換 学習アプリ(E1〜E5)',
-  version: '1.3',
+  suite: 'エネルギー変換の技術 教材集',
+  version: '1.4',
   updated: '2026-10-16',
   safety: [
-    'E2 電気回路ラボ・E5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
-    'E3・E4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
-    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。E1 の発電の値段は、国の試算を丸めた概算です。'
+    'C2 電気回路ラボ・C5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
+    'C3・C4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
+    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。C1 の発電の値段は、国の試算を丸めた概算です。'
   ],
   history: [
+    { version: '1.4', date: '2026-10-16', items: [
+      'アプリの記号を、分野の文字にそろえて E1〜E5 から C1〜C5 にした(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)。番号の順がおすすめの順。',
+      'メニューの形を4分野でそろえた。上のバーは「C エネルギー変換の技術 教材集」と「使い方」「先生用」。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の順で、基本編の上に「おすすめの順番: C1 → C2 → …」を出す。',
+      'アプリの上のバーの「🏠 トップ」を「◀ メニュー」にし、アプリを切りかえるボタンに記号の印を付けた(「C2 電気回路」など)。',
+      '記号を変えたので、保存の名前(energyApps.C1.v1 など)と、ファイルに保存したときの名前・中の記号(C3・C4・C5)も変わった。前の版の記録やファイルは読みこめない。'
+    ] },
     { version: '1.3', date: '2026-10-16', items: [
-      'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(E2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
+      'トップ画面を「基本編」「発展編」のタブに分けた。学習指導要領と教科書の内容から、全員が学ぶステージ・課題を基本編、教科書の「発展」「コラム」にあたるもの(C2 の電流計・電圧計・LEDと抵抗・電気料金 など)を発展編にした。',
       'カードの「使うところ」に、その編で使うステージ・課題・タブの名前を出すようにした(記録の保存のしかたは変わらない)。',
       '先生用ガイドの名前・章立て・見た目を4分野でそろえた'
     ] },
     { version: '1.2', date: '2026-10-15', items: [
       '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした。ヘッダーは白地に分野の色(だいだい)の線、トップ画面のカードと「はじめる」ボタンも共通の形と色にした。',
       '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(トップ画面の下と、アプリ画面の「ⓘ このアプリについて」)。',
-      'E3・E4: ファイルに保存するとき、組・番号・名前も入れるようにした(E5 で書いた名前を使う。なければたずねる)。先生用の振り返り一覧で、だれのファイルか分かる。',
+      'C3・C4: ファイルに保存するとき、組・番号・名前も入れるようにした(C5 で書いた名前を使う。なければたずねる)。先生用の振り返り一覧で、だれのファイルか分かる。',
       'そのほかの画面・操作・保存データの形は変えていない。これまでの学習記録はそのまま使える。'
     ] },
     { version: '1.1', date: '2026-10-15', items: [
-      'E1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
-      'E1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
-      'E3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(E4 も同じ)。',
+      'C1: 発電の費用を「つくる費用」と「燃料代」に分け、「電気100を届ける費用」を表示。「💴 発電方法の値段くらべ」(国の発電コスト検証 2021年の試算を丸めた概算)を追加。',
+      'C1: ステージ4〜7と自由実験に、かくれポイント「社会からの評価」(安全性・住民の理解)を追加し、クリア画面に表示。',
+      'C3: てこクランクで出力側を回すとき、はずみ車が一定の速さで回る動きに直した。リンク機構が動ける端(死点)で反対側の組み立てへ飛ばないように直した(C4 も同じ)。',
       '統合版: Chromebook(11インチ)向けに「🖥️ 全画面」ボタンと、Chromebook・パソコンでの使い方を追加。'
     ] },
     { version: '1.0', date: '2026-10-14', items: [
-      'E1〜E5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
-      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(E1 自由実験の評価、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・印刷、E4 点検表の記録のずれ・クイズの問題文、E5 LED の電圧不足の診断・製作手順の安全など)。',
+      'C1〜C5 の5つのアプリと、1つのファイルにまとめた統合版・使い方(生徒向け・先生向け)を作成。',
+      '中学生の目線で全アプリを使ってみるレビューを行い、内容の誤り・不具合を直した(C1 自由実験の評価、C2 電池どうしのショートの警告と並列回路の電流表示、C3 回転カウンター・印刷、C4 点検表の記録のずれ・クイズの問題文、C5 LED の電圧不足の診断・製作手順の安全など)。',
       'タブレットの縦向きに対応。操作の言葉(❓ 使い方・↩ もどす・🗑 ぜんぶ消す など)をそろえ、効果音は最初OFFにした。難しい用語に読みがなを付けた。',
       'トップ画面のカードに進み具合と「▶ つづきから」を表示。'
     ] }
@@ -266,7 +297,7 @@ window.EDUIT_INFO = {
 };
 
 /* 基本編・発展編(学習指導要領 技術分野「C エネルギー変換の技術」と教科書の内容から分けたもの)
- * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は E1〜E5。
+ * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は C1〜C5。
  * parts は生徒の画面のステージ・課題・タブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
  */
 window.EDUIT_INFO.levels = {
@@ -274,21 +305,21 @@ window.EDUIT_INFO.levels = {
     title: '基本編',
     lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
     items: [
-      { id: 'E1', parts: ['ステージ1 懐中電灯', 'ステージ2 自転車のライト', 'ステージ3 クレーン', 'ステージ4 火力発電所', 'ステージ5 再生可能エネルギー', 'ステージ7 町の電源', 'ステージ8 たこ足配線'], curr: 'C(1)ア・C(3)イ', why: 'エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容' },
-      { id: 'E2', parts: ['課題 豆電球・スイッチ・直列・並列', '課題 モーターを逆に回そう', '課題 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
-      { id: 'E3', parts: ['回転を伝える', '運動を変える', '設計課題(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
-      { id: 'E4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
-      { id: 'E5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
+      { id: 'C1', parts: ['ステージ1 懐中電灯', 'ステージ2 自転車のライト', 'ステージ3 クレーン', 'ステージ4 火力発電所', 'ステージ5 再生可能エネルギー', 'ステージ7 町の電源', 'ステージ8 たこ足配線'], curr: 'C(1)ア・C(3)イ', why: 'エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容' },
+      { id: 'C2', parts: ['課題 豆電球・スイッチ・直列・並列', '課題 モーターを逆に回そう', '課題 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
+      { id: 'C3', parts: ['回転を伝える', '運動を変える', '設計課題(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
+      { id: 'C4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
+      { id: 'C5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
     ]
   },
   advanced: {
     title: '発展編',
     lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、理科とつながる測定・計算をくわしく行う内容です。先生の指示があったら取り組みましょう。',
     items: [
-      { id: 'E1', parts: ['ステージ6 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
-      { id: 'E2', parts: ['課題 電流計・電圧計ではかろう', '課題 電池の持ちを比べる', '課題 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
-      { id: 'E3', parts: ['ブラックボックス', '設計課題(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
-      { id: 'E5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
+      { id: 'C1', parts: ['ステージ6 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
+      { id: 'C2', parts: ['課題 電流計・電圧計ではかろう', '課題 電池の持ちを比べる', '課題 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
+      { id: 'C3', parts: ['ブラックボックス', '設計課題(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
+      { id: 'C5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
     ]
   }
 };
@@ -316,7 +347,14 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
  *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
@@ -486,6 +524,10 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
       panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
@@ -503,7 +545,48 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
     return { render: render, select: select, current: function () { return cur; } };
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -516,7 +599,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
   <h1 class="eg-h1">エネルギー変換の技術 先生用ガイド</h1>
   <p class="eg-meta">中学校 技術・家庭(技術分野) 内容C「エネルギー変換の技術」 ・ 生徒に配るファイル: <b>C_エネルギー変換_統一版.html</b></p>
   <div class="eg-lead">
-    <p>5つの学習アプリ(E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート)を1つのファイルにまとめた教材集です。インターネットへの接続やインストールは不要です。10インチのタブレットや Chromebook(1280×800)で、横向きでも縦向きでも使えます。</p>
+    <p>5つの学習アプリ(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)を1つのファイルにまとめた教材集です。インターネットへの接続やインストールは不要です。10インチのタブレットや Chromebook(1280×800)で、横向きでも縦向きでも使えます。</p>
   </div>
   <nav class="eg-toc" aria-label="目次"><ol>
     <li><a href="#kubari">配り方と開き方</a></li><li><a href="#ichiran">教材の一覧(基本編・発展編)</a></li><li><a href="#tangen">単元での使い方</a></li><li><a href="#kiroku">記録の保存と提出</a></li><li><a href="#chui">授業で使うときの注意</a></li><li><a href="#komatta">こまったとき</a></li><li><a href="#rireki">更新履歴</a></li>
@@ -525,7 +608,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 <section class="eg-sec" id="kubari">
 <h2>1. 配り方と開き方</h2>
 <ul>
-<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに E1〜E5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
+<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに C1〜C5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
 <li><b>インターネット接続は不要</b>です。外部との通信は一切しません。</li>
 <li>Google ドライブや Classroom で配る場合は、プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</li>
 <li>iPad はファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。その場合は校内のWebサーバーなどに置いて、URLで開いてください。</li>
@@ -536,42 +619,42 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 </section>
 <section class="eg-sec" id="ichiran">
 <h2>2. 教材の一覧(基本編・発展編)</h2>
-<p>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(E1 の蓄電池・自由実験、E2 の電流計・電圧計・LEDと抵抗・電気料金、E3 のブラックボックスと数値の設計課題、E5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
-<div class="eg-table-wrap"><table class="eg-table"><tr><th>アプリ</th><th>ねらい</th></tr><tr><td>⚡ E1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td></tr><tr><td>🔌 E2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td></tr><tr><td>⚙️ E3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td></tr><tr><td>🔧 E4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td></tr><tr><td>📐 E5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td></tr></table></div>
+<p>トップ画面のカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
+<div class="eg-table-wrap"><table class="eg-table"><tr><th>アプリ</th><th>ねらい</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td></tr></table></div>
 </section>
 <section class="eg-sec" id="tangen">
 <h2>3. 単元での使い方</h2>
 <ul>
-<li>導入で E1(エネルギー変換と効率)→ 電気の学習で E2 → 機械の学習で E3 → 保守点検で E4 → 製作の設計・評価で E5、の順を想定しています。</li>
-<li>E2 の回路の計算と E5 の回路図は同じ計算のしくみを使っています。E2 で試したことを E5 の設計に生かせます。</li>
-<li>E3 の部品データは E4 の部品図鑑と共通です。</li>
-<li>トップ画面のカードに、各アプリの進み具合(E1 ステージ・E2 課題・E3 設計課題のクリア数、E4 部品図鑑、E5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
+<li>導入で C1(エネルギー変換と効率)→ 電気の学習で C2 → 機械の学習で C3 → 保守点検で C4 → 製作の設計・評価で C5、の順を想定しています。</li>
+<li>C2 の回路の計算と C5 の回路図は同じ計算のしくみを使っています。C2 で試したことを C5 の設計に生かせます。</li>
+<li>C3 の部品データは C4 の部品図鑑と共通です。</li>
+<li>トップ画面のカードに、各アプリの進み具合(C1 ステージ・C2 課題・C3 設計課題のクリア数、C4 部品図鑑、C5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
 </ul>
 </section>
 <section class="eg-sec" id="kiroku">
 <h2>4. 記録の保存と提出</h2>
 <h3>提出物(印刷・ファイル)</h3>
 <ul>
-<li><b>E3 設計図</b>、<b>E4 点検表</b>、<b>E5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
-<li>ファイル名は英数字(例: <code>E5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
+<li><b>C3 設計図</b>、<b>C4 点検表</b>、<b>C5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
+<li>ファイル名は英数字(例: <code>C5-sekkei-…json</code>)なので、提出先で文字化けしません。</li>
 <li>提出されたファイルは、4分野共通の <b>全分野_振り返り一覧.html</b> で、ほかの分野と同じように一覧にできます。</li>
 </ul>
 <h3>学習記録の保存場所</h3>
 <ul>
 <li>記録は各端末のブラウザ内に保存されます。サーバーには送られません。</li>
 <li>端末やブラウザが変わると記録は引き継がれません。ブラウザの「閲覧履歴データの削除」で消えることがあります。</li>
-<li>保存キーは <code>energyApps.E1.v1</code>〜<code>energyApps.E5.v1</code> です。</li>
+<li>保存キーは <code>energyApps.C1.v1</code>〜<code>energyApps.C5.v1</code> です。</li>
 </ul>
 
 <h3>学習記録の管理</h3>
-<p>アプリのトップ画面 →「❓ 使い方」→「先生向け」に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
+<p>アプリのトップ画面 →「🧑‍🏫 先生用」(または「❓ 使い方」→「先生用」)に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
 </section>
 <section class="eg-sec" id="chui">
 <h2>5. 授業で使うときの注意</h2>
 <ul>
 <li>計算は理想化したモデルによる目安です。実物の製作・測定と組み合わせて使ってください。</li>
-<li>E1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
-<li>E2・E5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
+<li>C1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
+<li>C2・C5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
 <li>アプリは外部と通信しません。生徒の情報がインターネットに送られることはありません。</li>
 </ul>
 </section>
@@ -581,7 +664,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 <dt><b>Google ドライブや Classroom の画面で開くと動かない</b></dt><dd>プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</dd>
 <dt><b>iPad でうまく動かない</b></dt><dd>ファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。校内のWebサーバーなどに置いて、URLで開いてください。</dd>
 <dt><b>前の記録が引き継がれない</b></dt><dd>記録は端末のブラウザごとに保存されます。前と同じ端末・同じブラウザで、同じ場所に置いたファイルから開いているか確かめてください。シークレットモードでは、閉じたときに記録が消えます。端末を変えるときは、「学習記録の管理」で書き出してから、新しい端末で読み込みます。</dd>
-<dt><b>画面が動かない・おかしい</b></dt><dd>🏠 トップにもどってから開き直します。それでもだめなら、ページを再読み込みします(記録は残ります)。</dd>
+<dt><b>画面が動かない・おかしい</b></dt><dd>◀ メニューにもどってから開き直します。それでもだめなら、ページを再読み込みします(記録は残ります)。</dd>
 </dl>
 </section>
 <section class="eg-sec" id="rireki">
@@ -600,13 +683,13 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 </ul>
 <h3>追加内容(2026-10-15)</h3>
 <ul>
-<li><b>E1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
-<li><b>E1 にかくれポイント「社会からの評価」を追加</b>:ステージ4〜7と自由実験では、プレイ中は見えない「安全性」「住民の理解」の点数があり、クリア画面で発電方法ごとの住民の声とあわせて表示します(点数は授業用の目安)。</li>
+<li><b>C1 に発電の費用(コスト)を追加</b>:費用を「つくる費用」(部品を置くと1回)と「燃料代」(石炭・天然ガス・ウラン・バイオマスを燃やした量に合わせて)に分け、「電気100を届ける費用」も表示します。太陽・風・水は燃料代0です。「💴 発電方法の値段くらべ」では、国の発電コスト検証(2021年)の2020年試算を丸めた1kWhあたりの値段(概算)をくらべられます。予算・★の条件は変えていません。</li>
+<li><b>C1 にかくれポイント「社会からの評価」を追加</b>:ステージ4〜7と自由実験では、プレイ中は見えない「安全性」「住民の理解」の点数があり、クリア画面で発電方法ごとの住民の声とあわせて表示します(点数は授業用の目安)。</li>
 </ul>
 <h3>改善内容(2026-10-14)</h3>
 <p>中学生の目線で全アプリを使ってみるレビュー(10インチタブレットの横・縦で確認)を行い、その結果にもとづいて次のように改善しました。</p>
 <ul>
-<li><b>内容の誤り・不具合を修正</b>:E1 自由実験の評価(原子力だけで3つとも100にならないように)、E2 電池どうしのショートの警告と並列回路の電流表示、E3 回転カウンター・ブラックボックスの歯数・印刷の切れ、E4 点検項目を消したときの記録のずれとクイズの問題文、E5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
+<li><b>内容の誤り・不具合を修正</b>:C1 自由実験の評価(原子力だけで3つとも100にならないように)、C2 電池どうしのショートの警告と並列回路の電流表示、C3 回転カウンター・ブラックボックスの歯数・印刷の切れ、C4 点検項目を消したときの記録のずれとクイズの問題文、C5 LEDの電圧不足の診断と製作手順(先生の点検・はんだごての安全)など。</li>
 <li><b>縦向きに対応</b>:作業エリア(盤面・図)を全幅にし、部品は上、説明は下に並べました。</li>
 <li><b>操作の言葉と色をそろえました</b>:「❓ 使い方」「↩ もどす」「🗑 ぜんぶ消す」(確認つき)「↺ 最初から」「とじる」「💾 ファイルに保存」「📂 ファイルを読みこむ」「🖨️ 印刷」。ヘッダーは紺で、下にトップ画面のカードと同じアプリ色の線があります(第1.2版で、4分野共通の白地+だいだいの線に変更)。</li>
 <li><b>効果音は最初OFF</b>、文字は本文15px以上、ボタンは高さ44px以上にしました。</li>

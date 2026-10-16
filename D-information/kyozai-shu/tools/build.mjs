@@ -60,7 +60,7 @@ for (const m of data.materials) {
   // 「つぎはこれ」の案内。さいごのページでは、教材集の並びで次の教材をすすめる
   const i = data.materials.indexOf(m);
   const nextM = data.materials[i + 1];
-  const guide = { ...(data.guides?.[m.id] || {}), nextMaterial: nextM ? { id: nextM.id, title: nextM.title } : null };
+  const guide = { ...(data.guides?.[m.id] || {}), nextMaterial: nextM ? { id: nextM.id, title: `${nextM.code} ${nextM.title}` } : null };
   html = insertBefore(html, "</body>", `<script>\n${guideSrc.replace("__GUIDE__", () => jsonForScript(guide))}</script>\n`, m.source);
   payloads.push(`  <script type="application/json" id="app-${m.id}">${jsonForScript(html)}</script>`);
   const { source, icon, rubySkip, ownRuby, plainHash, ...rest } = m;

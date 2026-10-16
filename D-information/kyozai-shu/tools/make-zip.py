@@ -1,16 +1,16 @@
-# 配布用ZIPを作る（先に node tools/build.mjs）。実行: python3 tools/make-zip.py  → ../dist/情報の技術_体験教材集_第1.6版.zip
-# ZIPの中: 教材集の1ファイル版、先生用ガイド2つ、はじめにお読みください、個別の教材9つ
+# 配布用ZIPを作る（先に node tools/build.mjs）。実行: python3 tools/make-zip.py  → ../dist/情報の技術_体験教材集_第1.7版.zip
+# ZIPの中: 教材集の1ファイル版、先生用ガイド2つ、はじめにお読みください、個別の教材9つ（D1_〜D9_ の名前）
 # 先生用ガイドは共通の CSS・JS(../../shared/ と ../eduit-info.js)を読むので、中に入れてから ZIP に入れる
 import json, pathlib, re, zipfile
 
 root = pathlib.Path(__file__).resolve().parent.parent
 projects = root.parent
 data = json.loads((root / "data/materials.json").read_text(encoding="utf-8"))
-top = "情報の技術_体験教材集_第1.6版"
+top = "情報の技術_体験教材集_第1.7版"
 out = projects / "dist" / f"{top}.zip"
 out.parent.mkdir(exist_ok=True)
 
-readme = """情報の技術 体験教材集（第1.6版 2026年10月）
+readme = """情報の技術 教材集（第1.7版 2026年10月）
 作成：技術　岡田
 
 中学校技術・家庭科（技術分野）D「情報の技術」で使う9つの体験教材を、
@@ -19,6 +19,7 @@ readme = """情報の技術 体験教材集（第1.6版 2026年10月）
 ■ 生徒に配るもの
   「情報の技術_体験教材集.html」1つだけです。
   ダブルクリックするとブラウザ（Edge・Chrome など）で開き、メニューの「基本編」「発展編」から教材を選べます。
+  教材には D1〜D9 の記号が付いています。番号の順が、おすすめの順番です。
   インストールもインターネット接続も不要です。
   Chromebook では、Google ドライブの画面で開くと「プレビュー」になり動きません。
   端末にダウンロードしてから「ファイル」アプリで開いてください（くわしくは先生用ガイド）。
@@ -62,5 +63,5 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     z.writestr(f"{top}/先生用ガイド.html", inline(projects / "docs/先生用ガイド.html"))
     z.writestr(f"{top}/先生用ガイド_情報セキュリティ体験ラボ.html", inline(projects / "docs/情報セキュリティ体験ラボ_先生用ガイド.html"))
     for m in data["materials"]:
-        z.write(projects / m["source"], f"{top}/個別の教材/{m['title']}.html")
+        z.write(projects / m["source"], f"{top}/個別の教材/{m['code']}_{m['title']}.html")
 print(f"D-information/{out.relative_to(projects)} を作りました（{out.stat().st_size // 1024} KB）")
