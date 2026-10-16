@@ -898,12 +898,12 @@
       h('p', { text: '入れた内容は、会社のサーバーに記録として残ることがあります。まちがいや不正アクセスで、会話の記録がほかの人に見えてしまう事故も起きています。入れる前に「だれに見られても大丈夫？」と考えます。' })));
   }
 
-  // ================= 8 クイズとふりかえり =================
+  // ================= ③ クイズとふりかえり(基本の内容だけ) =================
   var qs = { ans: {} };
   function renderQuiz(el) {
     var score = D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length;
     var answered = Object.keys(qs.ans).length;
-    el.appendChild(h('p', { class: 'lead', text: 'ここまでの体験をふりかえるクイズです。発展(④〜⑧)の内容の問題もあります。まだやっていないところは、答えたあとの説明を読んでたしかめよう。' }));
+    el.appendChild(h('p', { class: 'lead', text: '① もっともらしいまちがい・② 個人情報の体験をふりかえるクイズです(6問)。答えたあとの説明も読もう。' }));
     D.quiz.forEach(function (q, i) {
       var a = qs.ans[i];
       el.appendChild(card('Q' + (i + 1) + '　' + q.q,
