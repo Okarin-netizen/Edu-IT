@@ -10,6 +10,7 @@
 - `dist/情報の技術_体験教材集_第1.5版.zip` … 配布用のまとめ（上のHTML、先生用の手引き2つ、個別の教材6つ、はじめにお読みください）
 - `dist/生成AIのしくみラボ.html` … 生成AIのしくみラボの1ファイル版（教材集とは別に配る）
 - `dist/ネット詐欺_追体験ラボ.html` … ネット詐欺 追体験ラボの1ファイル版（教材集とは別に配る）
+- `dist/ハッシュ化体験ラボ.html` … ハッシュ化体験ラボの1ファイル版（教材集とは別に配る）
 - `docs/先生用の手引き.html` … 教材集の使い方、学習指導要領との対応（画面の例は `docs/画面例/`）
 - `docs/情報セキュリティ体験ラボ_先生用の手引き.html` … 情報セキュリティ体験ラボの詳しい手引き
 
@@ -26,6 +27,7 @@ D-information/
 ├─ measure-control-sim/  計測・制御シミュレータ
 ├─ genai-lab/            生成AIのしくみラボ
 ├─ scam-lab/             ネット詐欺 追体験ラボ
+├─ hash-lab/             ハッシュ化体験ラボ
 ├─ eduit-info.js         情報の技術の版・更新履歴（4分野共通の枠が読む）
 ├─ dist/                 配布用の完成ファイル
 ├─ docs/                 先生用の文書
@@ -42,7 +44,7 @@ D-information/
 ```
 # 1. 直した教材のフォルダで（例: security-lab）
 npm test             # 点検
-npm run build        # dist/ の1ファイル版を作る（genai-lab・scam-lab は ../dist/ の配布用も作る）
+npm run build        # dist/ の1ファイル版を作る（genai-lab・scam-lab・hash-lab は ../dist/ の配布用も作る）
 
 # 2. kyozai-shu で
 node tools/build.mjs        # ../dist/情報の技術_体験教材集.html を作る
