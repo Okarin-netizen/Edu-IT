@@ -14,6 +14,7 @@ Edu-IT/
 ├─ teacher-tools/    先生用の道具(4分野共通)
 ├─ shared/           4分野共通の枠(見た目・作成者・安全と個人情報・ライセンス・更新履歴)
 ├─ クラスルーム配布/  Classroom で配るファイル(生徒に配る/・先生用/)
+├─ site/            生徒用のホームページ(GitHub Pages)の入口ページと、公開するファイルをまとめる道具
 ├─ LICENSE.md        使ってよい条件
 └─ README.md         この文書
 ```
@@ -68,10 +69,20 @@ Edu-IT/
 部品は `shared/`、各分野の版と更新履歴は各分野の `eduit-info.js` にあります。
 先生用ガイドも、4分野で名前(`先生用ガイド`)・章立て・見た目(`shared/eduit-guide.css`)をそろえています(形は [`shared/README.md`](shared/README.md))。
 
+## ホームページで公開する(GitHub Pages) → [`site/`](site/)
+
+生徒は URL を開くだけで、ダウンロードせずに使えます。公開するのは **入口ページ(A〜D の一覧)と4つの統一版だけ** で、先生用ガイドと `teacher-tools/` はホームページに出しません。
+
+- 公開されるもの: `index.html`(入口・[`site/index.html`](site/index.html))・`a.html`〜`d.html`(`クラスルーム配布/生徒に配る/` の統一版)
+- `main` に push すると、[`.github/workflows/pages.yml`](.github/workflows/pages.yml) が `python3 site/build.py` で `_site/` にまとめて公開します。
+- はじめに1回だけ: リポジトリの Settings → Pages → Source を「GitHub Actions」にします(無料プランではリポジトリを Public にする必要があります)。
+- 記録はホームページのアドレスごとに、その端末のブラウザの中に保存されます。ダウンロードしたファイルで使った記録とは別になります。
+
 ## 教材を直したあとの流れ
 
 1. 直した分野の「作り直すコマンド」を実行する(`dist/` が新しくなる)
 2. `python3 クラスルーム配布/まとめる.py` を実行する(配布用のフォルダが新しくなる)
+3. commit して `main` に push する(ホームページも新しくなる)
 
 ## 気をつけること
 
