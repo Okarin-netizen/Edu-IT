@@ -90,6 +90,12 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(scam.rows.find((x) => x.part === '1 ワンクリック詐欺').value, 'クリア(だまされた 1 回・ヒント 0 回)');
   assert.strictEqual(scam.rows.find((x) => x.part === '3 ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
   assert.strictEqual(scam.rows.filter((x) => x.type === 'ふりかえり').length, 2);
+  const hash = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0];
+  assert.strictEqual(hash.app, 'ハッシュ化体験ラボ');
+  assert.deepStrictEqual(hash.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
+  assert.strictEqual(val(hash, '正解'), '6 / 8');
+  assert.strictEqual(val(hash, 'パスワードを守るために、サービスを作る側と自分ができること'), 'サービスごとにちがう長いパスワードにする');
 });
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {

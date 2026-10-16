@@ -305,6 +305,16 @@
     SCAM_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
     return [{ domain: 'D', app: 'ネット詐欺 追体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
+  var HASH_Q = [['r1', 'ハッシュ関数の性質'], ['r2', 'パスワードを守るために、サービスを作る側と自分ができること'], ['r3', 'ハッシュ値が役に立っているところ']];
+  function parseHash(obj) {
+    var R = Rows(obj.exportedAt), q = obj.quiz || {}, r = obj.reflection || {};
+    var ch = Array.isArray(obj.challenges) ? obj.challenges.filter(isObj) : [];
+    if (ch.length) R.add('成績', '', 'チャレンジ達成', ch.filter(function (x) { return x.cleared; }).length + ' / ' + ch.length);
+    ch.forEach(function (x) { if (x.cleared) R.add('成績', 'ステップ' + str(x.no), 'チャレンジ', '達成: ' + str(x.title), x.at); });
+    if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
+    HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
+    return [{ domain: 'D', app: 'ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
+  }
   function parseKyozai(obj) {
     var st = stD(obj.student);
     return (obj.materials || []).filter(function (m) { return isObj(m) && m.hasRecord; }).map(function (m) {
@@ -333,7 +343,8 @@
     ['双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
     ['生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
-    ['ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam]
+    ['ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
+    ['ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash]
   ];
 
   /* ファイル名から組・番号・名前を拾う(JSON の中に名前がないとき用) */
