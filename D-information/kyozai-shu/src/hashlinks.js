@@ -3,6 +3,7 @@
 // 元の教材ファイルは変えず、教材集を作るときにすべての教材の末尾にこのスクリプトを足している。
 (function () {
   if (window.parent === window) return;
+  var PLAIN = __PLAIN__;
   window.addEventListener("click", function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
@@ -17,8 +18,10 @@
       if (t) {
         t.scrollIntoView();
         if (t.focus) t.focus();
+        return;
       }
-      return;
+      // 生成AI・ネット詐欺・ハッシュ化のラボは、ページを #guess のように「/」なしで切りかえる（materials.json の plainHash）
+      if (!PLAIN || !/^#[\w-]+$/.test(href)) return;
     }
     if (location.hash !== href) location.hash = href;
   });

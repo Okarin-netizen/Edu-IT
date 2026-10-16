@@ -319,7 +319,8 @@
     var st = stD(obj.student);
     return (obj.materials || []).filter(function (m) { return isObj(m) && m.hasRecord; }).map(function (m) {
       var R = Rows(obj.exportedAt);
-      (m.reflections || []).forEach(function (r) { if (isObj(r)) R.add('ふりかえり', r.page, 'ふりかえり', r.text, r.at); });
+      // 生成AI・ネット詐欺・ハッシュ化のラボ(第1.6版から教材集に入った)は、ページの代わりに問い(question)が入る
+      (m.reflections || []).forEach(function (r) { if (isObj(r)) R.add('ふりかえり', str(r.page), str(r.question) || 'ふりかえり', r.text, r.at); });
       return { domain: 'D', app: str(m.title), student: st, rows: R.rows };
     });
   }

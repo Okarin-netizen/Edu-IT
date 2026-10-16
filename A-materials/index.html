@@ -47,8 +47,8 @@
     <p>使いたいアプリを選びましょう。一度開いたアプリは、インターネットにつながっていなくても使えます。作ったものはこの端末の中に保存されます。</p>
   </section>
   <section aria-labelledby="apps-h">
-    <h2 id="apps-h">アプリ</h2>
-    <div class="apps" id="apps"></div>
+    <h2 id="apps-h">アプリ(基本編・発展編)</h2>
+    <div id="apps"></div>
   </section>
   <section class="card" aria-labelledby="data-h">
     <h2 id="data-h">保存したデータ</h2>
@@ -82,26 +82,40 @@
 <script>
   G.basePath = './';
   G.initApp({ app: 'menu', title: '材料と加工 教材アプリ', home: false, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
-  function addCards(box, list) {
-    list.forEach(function (a) {
-      var state = G.h('span', { class: 'state badge' }, '');
-      var card = G.h('a', { class: 'ef-card app-card', href: a.dir + 'index.html' },
-        G.h('span', { class: 'ef-card-tag code' }, a.code),
-        G.h.apply(null, ['h3', { class: 'ef-card-title' }].concat(a.title.split(/(?<=・)/).map(function (s) { return G.h('span', { class: 'seg' }, s); }))),
-        G.h('p', null, a.desc),
-        state, G.h('span', { class: 'ef-btn-primary go', 'aria-hidden': 'true' }, 'ひらく ▶'));
-      box.appendChild(card);
-      if (/^https?:$/.test(location.protocol) && !G.single) {
-        fetch(a.dir + 'index.html', { method: 'HEAD' }).then(function (r) {
-          if (!r.ok) throw 0;
-          state.remove();
-        }).catch(function () {
-          state.textContent = '準備中'; card.setAttribute('aria-disabled', 'true');
-        });
-      } else state.remove();
-    });
+  function makeCard(a, parts) {
+    var state = G.h('span', { class: 'state badge' }, '');
+    var card = G.h('a', { class: 'ef-card app-card', href: a.dir + 'index.html' },
+      G.h('span', { class: 'ef-card-tag code' }, a.code),
+      G.h.apply(null, ['h3', { class: 'ef-card-title' }].concat(a.title.split(/(?<=・)/).map(function (s) { return G.h('span', { class: 'seg' }, s); }))),
+      G.h('p', null, a.desc),
+      parts || null,
+      state, G.h('span', { class: 'ef-btn-primary go', 'aria-hidden': 'true' }, 'ひらく ▶'));
+    if (/^https?:$/.test(location.protocol) && !G.single) {
+      fetch(a.dir + 'index.html', { method: 'HEAD' }).then(function (r) {
+        if (!r.ok) throw 0;
+        state.remove();
+      }).catch(function () {
+        state.textContent = '準備中'; card.setAttribute('aria-disabled', 'true');
+      });
+    } else state.remove();
+    return card;
   }
-  addCards(G.$('#apps'), G.APPS);
+  function addCards(box, list) {
+    list.forEach(function (a) { box.appendChild(makeCard(a)); });
+  }
+  // 基本編・発展編のタブ(分け方は eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js)
+  var appById = {};
+  G.APPS.forEach(function (a) { appById[a.id] = a; });
+  if (window.EduitFrame && EduitFrame.levels && EDUIT_INFO.levels) {
+    EduitFrame.levels(G.$('#apps'), {
+      gridClass: 'apps',
+      card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], parts) : null; },
+      onRender: function (panel) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(panel); } catch (e) {} }
+    });
+  } else {
+    G.$('#apps').className = 'apps';
+    addCards(G.$('#apps'), G.APPS);
+  }
   addCards(G.$('#tapps'), G.TEACHER_APPS);
   // 組・番号・名前(書き出すファイルに入る)
   var PKEY = 'gijutsu.profile';

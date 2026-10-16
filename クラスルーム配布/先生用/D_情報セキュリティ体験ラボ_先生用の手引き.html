@@ -154,6 +154,31 @@
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
 /* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -167,8 +192,8 @@
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 体験教材集',
-    version: '1.5',
-    updated: '2026-10-15',
+    version: '1.6',
+    updated: '2026-10-16',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -178,6 +203,11 @@
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.6', date: '2026-10-16', items: [
+        '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
+        'ネット詐欺 追体験ラボ・生成AIのしくみラボ・ハッシュ化体験ラボを体験教材集に入れ、9つの教材を1つのファイル(統一版)で使えるようにしました。記録の保存場所は変わらないので、前の記録もそのまま使えます。',
+        '「記録をまとめて書き出す」「はじめからやり直す」も9つの教材が対象になりました。'
+      ] },
       { version: '1.5', date: '2026-10-15', items: [
         'ハッシュ化体験ラボを足しました(ハッシュ値の性質・総当たり・パスワードの保存・改ざんの見つけ方)。',
         '画面の枠(ヘッダー・ボタン・カード・色)を、4つの分野(材料と加工・生物育成・エネルギー変換・情報)で共通にしました。教材の中身や記録には変わりはありません。',
@@ -211,6 +241,40 @@
   };
 })();
 
+/* 基本編・発展編(学習指導要領 技術分野「D 情報の技術」と教科書の内容から分けたもの)
+ * 体験教材集のメニュー(kyozai-shu/src/shell.js)が EduitFrame.levels で使う。id は kyozai-shu/data/materials.json の id。
+ * parts は生徒の画面のページの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'digitization-lab', parts: ['1 画像のデジタル化', '2 音のデジタル化', '3 2進数と文字コード', '5 データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
+      { id: 'virtual-cpu', parts: ['1 図解: 5つの装置', '4 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
+      { id: 'network-sim', parts: ['1 ネットワークを組み立てる', '2 Webページが届くまで', '3 回線が切れたら？', '4 のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
+      { id: 'security-lab', parts: ['1 デジタル化と情報量', '2 パスワード強度ラボ', '3 暗号ラボ', '5 フィッシング見分け', '6 ネットワーク通信の模擬', '7 SNS投稿の個人情報チェック', '8 デジタルタトゥー', '9 著作権・利用ルールクイズ', '10 判断ロールプレイ', '11 まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'scam-lab', parts: ['1 ワンクリック詐欺', '2 「当選しました」メール', '3 ウイルス付きメール', '4 にせのウイルス警告', '5 にせの通販サイト', '6 まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
+      { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
+      { id: 'measure-control-sim', parts: ['場面1 街灯', '場面2 自動ドア', '場面3 信号機', '場面4 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
+      { id: 'genai-lab', parts: ['4 もっともらしいまちがい', '7 個人情報が出てしまう？', '8 クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、しくみの中まで入って調べる内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'digitization-lab', parts: ['4 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
+      { id: 'virtual-cpu', parts: ['2 仮想CPUを動かす', '3 課題'], curr: 'D(1)ア(発展)', why: 'レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容' },
+      { id: 'network-sim', parts: ['5 IPアドレス・ドリル'], curr: 'D(1)ア(発展)', why: '教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展' },
+      { id: 'security-lab', parts: ['4 ハッシュ体験'], curr: 'D(1)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない' },
+      { id: 'measure-control-sim', parts: ['場面5 自由に作る(仮想マイコン)'], curr: 'D(3)イ(発展)', why: 'センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動' },
+      { id: 'genai-lab', parts: ['1 つぎの言葉あて', '2 言葉のかけら(トークン)', '3 ミニ文章AIを動かす', '5 ノイズをまぜる(学習)', '6 ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
+      { id: 'hash-lab', parts: ['1 ハッシュ値を作ってみよう', '2 1文字だけ変えると？', '3 手作りハッシュの弱点', '4 もとにもどせる？', '5 パスワードの守り方', '6 改ざんを見つける', '7 クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' }
+    ]
+  }
+};
+
 </script>
 <script>EDUIT_INFO.app = { name: "情報セキュリティ体験ラボ 先生用の手引き" };</script>
 <script>
@@ -232,7 +296,17 @@
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
  *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
 (function () {
   'use strict';
@@ -352,7 +426,67 @@
     else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 

@@ -3,6 +3,7 @@
 "use strict";
 (() => {
   const DATA = JSON.parse(document.getElementById("kyozai-data").textContent);
+  const LEVELS = window.EDUIT_INFO && window.EDUIT_INFO.levels;
   const byId = new Map(DATA.materials.map((m) => [m.id, m]));
   const menu = document.getElementById("menu");
   const stage = document.getElementById("stage");
@@ -12,7 +13,7 @@
   const switchBtn = document.getElementById("switch-btn");
   const frames = new Map();
 
-  // 上のバーの「ふりがな」「大きな文字」（KS-01）: 6つの教材とこのメニューにかかる。
+  // 上のバーの「ふりがな」「大きな文字」（KS-01）: すべての教材とこのメニューにかかる。
   // 表示の設定なので「はじめからやり直す」でも消さない（resetKeys に入れない）
   const PREFS_KEY = "kyozai.prefs.v1";
   let prefs = { ruby: false, largeText: false };
@@ -105,23 +106,24 @@
 
   function renderMenu() {
     const order = DATA.materials.map((m) => m.id);
-    const card = (m) =>
+    // 基本編のおすすめの順番（EDUIT_INFO.levels の基本編の並び）
+    const basicOrder = LEVELS ? LEVELS.basic.items.map((x) => x.id).filter((id) => byId.has(id)) : order;
+    const card = (m, parts, level) =>
       h(
         "a",
         { class: "mcard ef-card" + (seen.opened.includes(m.id) ? " seen" : ""), href: `#/${m.id}` },
         h("img", { src: m.iconData, alt: "" }),
-        h("span", { class: "tag ef-card-tag" }, h("span", { class: "order" }, `おすすめ ${order.indexOf(m.id) + 1}番`)),
+        h("span", { class: "tag ef-card-tag" }, h("span", { class: "order" }, level === "advanced" ? "発展" : `おすすめ ${basicOrder.indexOf(m.id) + 1}番`)),
         h("span", { class: "t ef-card-title" }, m.title),
         h("span", { class: "d" }, m.desc),
+        parts ? h("span", { class: "parts" }, ...parts.childNodes) : null,
         h("span", { class: "go ef-btn-primary", "aria-hidden": "true" }, "開く ▶"),
         seen.opened.includes(m.id) ? h("span", { class: "seen-mark" }, "✓ 開いたことがある") : null,
       );
     menu.replaceChildren(
       h("div", { class: "hero" }, h("h1", {}, DATA.title), h("p", { class: "lead" }, DATA.lead), h("p", { class: "author" }, DATA.author)),
       renderNext(order),
-      ...DATA.groups.map((g) =>
-        h("section", { class: "group", "aria-labelledby": `g-${g.id}` }, h("h2", { id: `g-${g.id}` }, g.title), h("div", { class: "grid" }, g.items.map((id) => card(byId.get(id))))),
-      ),
+      renderLevels(card),
       renderExport(),
       h(
         "section",
@@ -131,9 +133,9 @@
           "ul",
           {},
           h("li", {}, "インターネットにつながっていなくても使えます。入力した内容や記録は、このパソコンのブラウザの中にだけ保存されます。"),
-          h("li", {}, "記録の提出は、上の「記録をまとめて書き出す」で、6つの教材の記録を1つの JSON ファイルにして出せます。教材ごとの「ふりかえり・記録」からも書き出せます。"),
+          h("li", {}, `記録の提出は、上の「記録をまとめて書き出す」で、${DATA.materials.length}つの教材の記録を1つの JSON ファイルにして出せます。教材ごとの「ふりかえり・記録」からも書き出せます。`),
           h("li", {}, "教材を開いているときは、上のバーの教材の名前（はばがせまい画面では「教材をかえる ▾」）で教材を切りかえられます。切りかえても、開いていた教材の作業は消えません。"),
-          h("li", {}, "上のバーの「ふりがな」「大きな文字」は、6つの教材とこのメニューにまとめてかかります。プログラムを書く欄や入力欄には、ふりがなは付きません。"),
+          h("li", {}, `上のバーの「ふりがな」「大きな文字」は、${DATA.materials.length}つの教材とこのメニューにまとめてかかります。プログラムを書く欄や入力欄には、ふりがなは付きません。`),
           h("li", {}, "「情報セキュリティ体験ラボ」の「デジタル化と情報量」「ネットワーク通信の模擬」は短い体験版です。くわしく扱うときは、その単元のさいご（ふりかえりのあと）の案内から「デジタル化ラボ」「ネットワーク通信シミュレータ」に移れます。移った先のページの上と下に「← 情報セキュリティ体験ラボにもどる」が出ます。"),
           renderCurriculum(),
         ),
@@ -142,12 +144,25 @@
         "section",
         { class: "note reset", "aria-labelledby": "g-reset" },
         h("h2", { id: "g-reset" }, "はじめからやり直す"),
-        h("p", {}, "次の人にパソコンをわたすときに使います。6つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品と、このメニューの「開いたことがある」の印・「記録をまとめて書き出す」の組・番号・名前を、すべて消します。ふりがな・文字の大きさなどの表示の設定と、先生用ページで差し替えた問題データは残ります。"),
+        h("p", {}, `次の人にパソコンをわたすときに使います。${DATA.materials.length}つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品と、このメニューの「開いたことがある」の印・「記録をまとめて書き出す」の組・番号・名前を、すべて消します。ふりがな・文字の大きさなどの表示の設定と、先生用ページで差し替えた問題データは残ります。`),
         h("button", { type: "button", class: "reset-btn ef-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
         h("p", { class: "reset-msg", id: "reset-msg", role: "status" }, resetMsg),
       ),
     );
     document.getElementById("reset-all").addEventListener("click", resetAll);
+  }
+
+  // 基本編・発展編のタブ（分け方は D-information/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js）
+  function renderLevels(card) {
+    const box = h("section", { class: "group levels", "aria-label": "教材（基本編・発展編）" });
+    if (LEVELS && window.EduitFrame && EduitFrame.levels) {
+      EduitFrame.levels(box, {
+        gridClass: "grid",
+        card: (item, parts, level) => (byId.has(item.id) ? card(byId.get(item.id), parts, level) : null),
+        onRender: (panel) => shellRuby.set(prefs.ruby, panel),
+      });
+    } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null, "basic"))));
+    return box;
   }
 
   // KS-09: 学習指導要領との対応は、生徒向けのカードには出さず、「先生へ」にまとめる
@@ -165,7 +180,7 @@
   }
 
   // ================= 記録をまとめて書き出す（KS-05） =================
-  // 6つの教材の記録（resetKeys にあるキー）を読むだけで、教材の保存場所には書きこまない。
+  // すべての教材の記録（resetKeys にあるキー）を読むだけで、教材の保存場所には書きこまない。
   const STUDENT_KEY = "kyozai.student.v1";
   function loadStudent() {
     try {
@@ -240,6 +255,12 @@
           const text = typeof r === "string" ? r : isObj(r) ? String(r.text || "") : "";
           if (text.trim()) reflections.push({ page: name(id), text, at: isObj(r) ? fmtAt(r.at) : "" });
         }
+      // 生成AI・ネット詐欺・ハッシュ化のラボ: refl は問いの id（r1〜r3）ごと。ページの名前は付けない（1つずつの書き出しと同じ行になる）
+      if (isObj(s.refl))
+        for (const [id, r] of Object.entries(s.refl)) {
+          const text = typeof r === "string" ? r : "";
+          if (text.trim()) reflections.push({ page: "", question: (m.reflNames && m.reflNames[id]) || id, text, at: "" });
+        }
       if (isObj(s.modules))
         for (const [id, mod] of Object.entries(s.modules)) {
           if (!isObj(mod)) continue;
@@ -310,7 +331,7 @@
     for (const m of data.materials) {
       if (!m.hasRecord) rows.push([st.cls, st.num, st.name, m.title, "記録なし", "", "", ""]);
       for (const p of m.progress) rows.push([st.cls, st.num, st.name, m.title, "進み具合", p.page, p.detail, p.at || ""]);
-      for (const r of m.reflections) rows.push([st.cls, st.num, st.name, m.title, "ふりかえり", r.page, r.text, r.at]);
+      for (const r of m.reflections) rows.push([st.cls, st.num, st.name, m.title, "ふりかえり", r.page || r.question || "", r.text, r.at]);
     }
     return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
   }
@@ -355,7 +376,7 @@
       "section",
       { class: "note export", "aria-labelledby": "g-export" },
       h("h2", { id: "g-export" }, "記録をまとめて書き出す"),
-      h("p", {}, "6つの教材の記録（進み具合・ふりかえりなど）を、1つのファイルにまとめて書き出します。組・番号・名前は、ここで1回入れればよいです。"),
+      h("p", {}, `${DATA.materials.length}つの教材の記録（進み具合・ふりかえりなど）を、1つのファイルにまとめて書き出します。組・番号・名前は、ここで1回入れればよいです。`),
       h("div", { class: "field-row" }, field("cls", "組", "cls", "6"), field("num", "番号", "num", "6"), field("name", "名前", "name", "16")),
       h("p", { class: "export-status-label", id: "ex-status-label" }, "教材ごとの記録（「まだ記録なし」の教材は、まだ使っていないか、何も保存されていません）"),
       h("ul", { class: "export-status", "aria-labelledby": "ex-status-label" }, status),
@@ -373,7 +394,7 @@
   // 全リセット: 開いている教材を閉じてから（閉じるときの保存で記録が戻らないように）、各教材の記録を消す
   let resetMsg = "";
   function resetAll() {
-    if (!confirm("6つの教材の記録（名前・進み具合・ふりかえり・プログラムや作品）と、まとめて書き出す欄の組・番号・名前をすべて消して、はじめからやり直します。よろしいですか？（元に戻せません）")) return;
+    if (!confirm(`${DATA.materials.length}つの教材の記録（名前・進み具合・ふりかえり・プログラムや作品）と、まとめて書き出す欄の組・番号・名前をすべて消して、はじめからやり直します。よろしいですか？（元に戻せません）`)) return;
     for (const f of frames.values()) f.remove();
     frames.clear();
     place = { inner: {}, back: {} };
@@ -381,7 +402,17 @@
       sessionStorage.removeItem(PLACE_KEY);
     } catch {}
     try {
-      for (const k of DATA.resetKeys || []) localStorage.removeItem(k);
+      for (const k of DATA.resetKeys || []) {
+        // 表示の設定（ふりがな・大きな文字）だけは残す（各ラボの「はじめからやり直す」と同じ）
+        const keep = (DATA.resetKeep || {})[k];
+        const old = keep ? readKey(k) : undefined;
+        localStorage.removeItem(k);
+        if (isObj(old)) {
+          const rest = {};
+          for (const f of keep) if (f in old) rest[f] = old[f];
+          if (Object.keys(rest).length) localStorage.setItem(k, JSON.stringify(rest));
+        }
+      }
     } catch {}
     seen = { opened: [], last: null };
     resetMsg = "記録をすべて消しました。はじめから使えます。";
