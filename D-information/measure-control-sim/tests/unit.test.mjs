@@ -272,7 +272,7 @@ test("MC-14 消す前の確認に使う: 中のブロックの数と、ブロッ
   assert.equal(blockLabel(program[0].body[0]), "もし 明るさ < 30 なら");
 });
 
-test("MC-09 場面4: はじめのプログラムは黄・赤まで入っていて、「# ここに…」の下（「もし」の中）が選ばれる", () => {
+test("MC-09 場面④: はじめのプログラムは黄・赤まで入っていて、「# ここに…」の下（「もし」の中）が選ばれる", () => {
   const s = data.scenarios.find((x) => x.id === "traffic-button");
   const { program } = compile(s.starter, MODELS[s.model].device);
   const cur = memoCursor(program);

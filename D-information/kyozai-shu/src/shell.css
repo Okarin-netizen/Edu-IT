@@ -74,14 +74,16 @@ a { color: var(--accent); }
   position: sticky; top: 0; z-index: 5; font-size: 15px; line-height: 1.3;
 }
 .shell-header .ef-tools { flex-wrap: nowrap; flex: none; }
-.brand { font-size: 16px; text-decoration: none; white-space: nowrap; min-height: 34px; }
-.brand img { width: 24px; height: 24px; }
+/* 上のバーの名前（メニュー「D 情報の技術 教材集」・教材「D2 仮想CPUラボ」）。共通の枠の .ef-title と .ef-code */
+.bar-title { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.bar-title .ef-title-name { overflow: hidden; text-overflow: ellipsis; }
+.bar-title .ef-code { flex: none; }
+/* 「先生用」はメニューのときだけ（教材のときは教材の切りかえを出す） */
+.app-mode .teacher-btn { display: none; }
 /* 「◀ メニュー」は教材を開いているときだけ */
 #back-link { display: none; }
 .app-mode #back-link { display: inline-flex; }
 .shell-header .ef-btn { min-height: 32px; padding: 0 12px; font-size: 14px; }
-.now { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.now:not(:empty)::before { content: "›"; margin-right: 8px; color: var(--text-muted); }
 
 /* ふりがな・大きな文字（6つの教材とメニューにかかる） */
 .shell-toggles { display: flex; gap: 6px; flex: none; }
@@ -99,12 +101,15 @@ a { color: var(--accent); }
   border: 1.5px solid transparent; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap;
 }
 .switcher a:hover { background: var(--surface-2); }
-.switcher a img { width: 22px; height: 22px; opacity: 0.75; }
-.switcher a:hover img, .switcher a:focus-visible img { opacity: 1; }
+.switcher a .ef-code { font-size: 12px; min-width: 0; }
+/* 教材を開いているときは、上のバーに「D2 仮想CPUラボ」の名前が入るよう、切りかえとボタンを少しつめる */
+.app-mode .switcher a { padding: 0 5px 0 3px; gap: 4px; font-size: 12.5px; }
+.app-mode .shell-toggle::before { display: none; }
+.app-mode .shell-header .shell-toggle { padding: 0 10px; }
+.app-mode .bar-title { flex: 1 1 auto; }
 .switcher .full { display: none; }
 /* いま開いている教材: 色の枠と下線でも示す */
 .switcher a[aria-current="page"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
-.switcher a[aria-current="page"] img { opacity: 1; }
 .home-mode .switch-wrap { display: none; }
 
 @media (max-width: 1279px) {
@@ -116,7 +121,7 @@ a { color: var(--accent); }
   }
   .switch-wrap.open .switcher { display: flex; }
   .switcher a { height: auto; min-height: 44px; padding: 6px 12px 6px 8px; font-size: 15px; gap: 10px; }
-  .switcher a img { width: 28px; height: 28px; opacity: 1; }
+  .switcher a .ef-code { font-size: 14px; min-width: 2.2em; }
   .switcher .short { display: none; }
   .switcher .full { display: inline; }
 }
@@ -124,52 +129,29 @@ a { color: var(--accent); }
 /* メニュー */
 #menu { max-width: 1100px; margin: 0 auto; padding: 28px 20px 8px; }
 #menu:focus { outline: none; }
-.hero { margin-bottom: 22px; }
+.hero { margin-bottom: 18px; }
 .hero .lead { color: var(--text-secondary); max-width: 46em; }
 .hero .author { font-size: 0.9rem; color: var(--text-muted); }
+.hero .resume { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; }
+.hero .resume-k { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
+.hero .resume-go { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; text-decoration: none; }
+.hero .resume-go:hover { text-decoration: underline; }
 .group { margin-bottom: 26px; }
 .group h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-/* メニューのカード: 共通の枠の .ef-card（白・上に青い線4px・角丸12px）、.ef-card-tag、.ef-card-title、.ef-btn-primary */
-.mcard {
-  display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 4px 14px; align-content: start;
-  text-decoration: none; color: var(--text-primary);
-}
-.mcard:hover { border-color: var(--accent); }
-.mcard img { width: 52px; height: 52px; grid-row: span 3; }
-.mcard .tag { margin: 0; }
-.mcard .t { margin: 0; line-height: 1.4; }
-.mcard .d { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
-.mcard .go { grid-column: 2; justify-self: start; margin-top: 8px; min-height: 38px; padding: 0 16px; font-size: 15px; }
-.mcard .order { font-weight: 700; }
-.mcard .parts { grid-column: 2; display: block; font-size: 0.86rem; line-height: 1.55; }
-.mcard .parts .ef-level-parts-k { margin-right: 0.4em; }
-.mcard .seen-mark { grid-column: 2; font-size: 0.8rem; font-weight: 700; color: var(--good); }
+/* メニューのカード: 共通の枠の EduitFrame.card（.ef-card.ef-mcard）。アイコンは教材の SVG */
+.ef-mcard:hover { border-color: var(--accent); }
+.ef-mcard-ic img { display: block; width: 44px; height: 44px; }
+.ef-mcard .ef-mcard-ic { width: 44px; }
+.ef-mcard .ef-level-parts { margin: 0; }
+.ef-mcard .ef-level-parts .ef-level-parts-k { margin-right: 0.4em; }
+.ef-mcard .seen-mark { font-size: 0.8rem; font-weight: 700; color: var(--good); }
+.ef-mcard-go { text-decoration: none; }
+/* 記録（まとめて書き出す・はじめからやり直す）と先生用 */
+.note h2 { scroll-margin-top: calc(var(--bar-h) + 12px); }
+.note.teacher { scroll-margin-top: calc(var(--bar-h) + 12px); }
+.note.teacher:focus { outline: none; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-
-/* つぎはこれ */
-.next-panel { background: var(--surface-1); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 26px; box-shadow: var(--shadow); }
-.next-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-.next-go {
-  flex: 1 1 280px; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 10px;
-  text-decoration: none; color: var(--text-primary); background: var(--accent-soft); border: 1.5px solid var(--accent);
-}
-.next-go:first-child { background: var(--accent); color: var(--accent-ink); }
-.next-go img { width: 40px; height: 40px; flex: none; background: var(--surface-1); border-radius: 9px; }
-.next-go > span:not(.arrow) { display: grid; flex: 1; }
-.next-go .k { font-size: 0.8rem; font-weight: 700; }
-.next-go .t { font-size: 1.1rem; font-weight: 700; line-height: 1.4; }
-.next-go .arrow { font-size: 1.3rem; font-weight: 700; }
-.next-go:hover { filter: brightness(1.06); }
-.route-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
-.route { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; counter-reset: r; font-size: 0.88rem; }
-.route li { counter-increment: r; display: flex; align-items: center; }
-.route li + li::before { content: "→"; color: var(--text-muted); margin: 0 6px 0 2px; }
-.route a { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 99px; border: 1.5px solid var(--border); color: var(--text-primary); text-decoration: none; background: var(--surface-1); }
-.route a::before { content: counter(r); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 0.78rem; font-weight: 700; border: 1.5px solid #8c8a82; }
-.route .seen a::before { content: "✓"; background: var(--good); border-color: var(--good); color: var(--surface-1); }
-.route .next a { border-color: var(--accent); font-weight: 700; }
-.route .next a::before { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .note { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 18px; }
 .note ul { margin: 0; padding-left: 1.3em; }
@@ -186,12 +168,9 @@ a { color: var(--accent); }
 .shell-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: 0.8rem; color: var(--text-muted); }
 .shell-footer .ef-footer { margin: 0; }
 
-@media (max-width: 860px) {
-  .now { display: none; }
-}
 @media (max-width: 700px) {
   html { font-size: 16px; }
-  .brand span, .now { display: none; }
+  .app-mode .bar-title .ef-title-name { display: none; }
   .shell-header { gap: 6px; padding: 0 8px; }
   .shell-header .shell-toggle, .shell-header .switch-btn { padding: 0 8px; font-size: 13px; }
   .shell-toggle::before { display: none; }
@@ -251,8 +230,6 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-
 /* KS-09: 学習指導要領との対応（先生へ） */
 .note .curriculum .curr-key { display: block; font-size: 0.82rem; color: var(--text-muted); }
 
-/* CB-06（2026-10-15）: 11インチChromebookで小さく見えた「おすすめ ◯番」を 13.6px に */
-.mcard .order { font-size: 0.8rem; }
 
 /* 暗い画面の設定のときは、共通の枠の色も教材集の暗い色に合わせる（第1.5版） */
 @media (prefers-color-scheme: dark) {

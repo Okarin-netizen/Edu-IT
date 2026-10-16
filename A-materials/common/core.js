@@ -7,13 +7,13 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.3.0';  // A-materials/eduit-info.js の version と合わせる
+  G.version = '2.4.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '羽生市立南中学校　技術　岡田';
   G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
   // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
   G.LS_PREFIX = {
-    'material-navi': ['material-navi.'], 'wood-lab': ['m2.'], 'structure-lab': ['structure-lab.'],
+    'material-navi': ['material-navi.'], 'wood-lab': ['a2.'], 'structure-lab': ['structure-lab.'],
     'drawing-trainer': ['drawing-trainer.'], 'kidori': ['kidori.'], 'tool-safety': ['tool-safety.'], 'solid-maker': ['solid-maker.']
   };
 
@@ -513,7 +513,8 @@
 
   /* ---------- アプリ共通のヘッダー ----------
    * G.initApp({ app:'kidori', title:'木取り・構想シミュレータ', home:'../index.html', files:[...] })
-   * - ヘッダー(メニューへ戻る/ルビ/文字サイズ/コントラスト)を <header id="g-header"> に描く
+   * - ヘッダー(メニューへ戻る/名前/ルビ/文字サイズ/コントラスト)を <header id="g-header"> に描く
+   * - 名前の前に記号(A5 など)の印を出す。記号は common/apps.js(G.APPS)の app と同じ id の code。opt.code で上書き、opt.code: '' で出さない
    * - ルビの自動付与と Service Worker 登録を行う
    */
   G.initApp = function (opt) {
@@ -538,7 +539,13 @@
     if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
     else if (typeof opt.help === 'string') help = G.h('a', { class: 'ef-btn', href: opt.help }, '使い方');
     if (opt.home !== false) header.appendChild(G.h('a', { class: 'ef-btn ef-back g-home', href: opt.home || '../index.html' }, '◀ メニュー'));
-    header.appendChild(G.h('h1', { class: 'ef-title g-title' }, opt.title || document.title));
+    // 上のバーの名前: 「A2 木材の繊維・収縮ラボ」の形。記号は common/apps.js の code(opt.code で上書き)を .ef-code の印で出す
+    var code = opt.code;
+    if (code === undefined && opt.app) (G.APPS || []).forEach(function (a) { if (a.id === opt.app) code = a.code; });
+    var title = G.h('h1', { class: 'ef-title g-title' },
+      code ? G.h('span', { class: 'ef-code', 'data-noruby': true }, code) : null,
+      code ? ' ' : null, opt.title || document.title);
+    header.appendChild(title);
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
       G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
         G.settings.set('ruby', !G.settings.get('ruby', true));

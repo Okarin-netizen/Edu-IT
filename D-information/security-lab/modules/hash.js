@@ -1,4 +1,4 @@
-// モジュール3: ハッシュ体験
+// モジュール⑪（発展）: ハッシュ体験
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz } from "../js/ui.js";
 import { sha256Hex, hexBitDiff } from "../js/cryptolib.js";
 

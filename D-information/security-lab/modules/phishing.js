@@ -1,4 +1,4 @@
-// モジュール4: フィッシング見分け
+// モジュール④: フィッシング見分け
 // 画面に出るメールやページはすべて架空の模型。リンクやボタンを押しても、どこにも移動しない。
 import { h, explainCard, stepCard, reflectionBox, threeSteps, choiceQuiz } from "../js/ui.js";
 import { loadData } from "../js/data.js";

@@ -1,8 +1,8 @@
 # common/ 共通基盤の使い方
 
-材料と加工の各アプリ(M1〜M7)が共有する部品です。持ち主は共通基盤スレッドです。
+材料と加工の各アプリ(A1〜A7)が共有する部品です。持ち主は共通基盤スレッドです。
 不具合や追加してほしい機能があれば、編集せずに共通基盤スレッドへ伝えてください
-(例外: `beam.js` は M3 スレッドが直接直してよい)。
+(例外: `beam.js` は A3 スレッドが直接直してよい)。
 
 ## フォルダ構成
 
@@ -14,7 +14,7 @@ A-materials/
   eduit-info.js         版と更新履歴(4分野共通の枠が読む)
   icons/
   common/               ← この部品
-  m1-material-navi/  m2-wood-lab/  m3-structure-lab/  m4-drawing-trainer/  m5-kidori/  m6-tool-safety/  m7-solid-maker/
+  a1-material-navi/  a2-wood-lab/  a3-structure-lab/  a4-drawing-trainer/  a5-kidori/  a6-tool-safety/  a7-solid-maker/   (A1〜A7。番号の順 = おすすめの順)
   teacher-viewer/       先生用 提出ファイル一覧ビューア(共通基盤スレッド)
   docs/先生用ガイド.html    先生用ガイド
   build/build-single.py     1ファイル版を作る(python3 build/build-single.py → dist/)
@@ -51,8 +51,9 @@ A-materials/
 <main>
   <div data-g-tabs>
     <div class="g-tablist" role="tablist">
-      <button role="tab" data-tab="quiz"><span class="num">1</span>クイズ</button>
-      <button role="tab" data-tab="draw"><span class="num">2</span>作図練習</button>
+      <button role="tab" data-tab="quiz"><span class="num">①</span>クイズ</button>
+      <button role="tab" data-tab="draw"><span class="num">②</span>作図練習</button>
+      <button role="tab" data-tab="record">記録・ふりかえり</button>
     </div>
     <section data-panel="quiz">…</section>
     <section data-panel="draw">…</section>
@@ -60,6 +61,7 @@ A-materials/
 </main>
 <script src="../common/ruby-dict.js"></script>
 <script src="../common/core.js"></script>
+<script src="../common/apps.js"></script>   <!-- 上のバーの記号(A4 など)を出すのに使う -->
 <!-- 必要なら: <script src="../common/materials.js"></script> <script src="../common/beam.js"></script> -->
 <script src="app.js"></script>
 </body>
@@ -70,19 +72,23 @@ A-materials/
 // app.js
 G.initApp({
   app: 'drawing-trainer',            // 保存データの app 名(下の一覧と同じにする)
-  title: '製図トレーナー',
+  title: '製図トレーナー',             // 上のバーには「A4 製図トレーナー」と出る(記号は apps.js の code)
   files: ['style.css', 'app.js', 'data.js']  // オフライン用にキャッシュしたい自分のファイル
 });
 G.tabs(G.$('[data-g-tabs]'));
 ```
 
-app 名(メニューの並び順 M1→M7): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(M5) / `tool-safety` / `solid-maker`(M7)
+app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(A5) / `tool-safety` / `solid-maker`(A7)
+
+- アプリの一覧は `apps.js` の `G.APPS`(`id`・`icon`・`code`・`dir`・`title`・`desc`)。メニューのカード・上のバー・提出ファイル一覧ビューアがこれを使う。
+- `G.initApp` は `app` と同じ `id` を `G.APPS` から探し、その `code` を上のバーの名前の前に `.ef-code` の印で出す(`code` で上書き、`code: ''` で出さない)。
+- タブの番号は丸数字 `<span class="num">①</span>` で書く。基本編のタブが先、発展編のタブがそのあと。はじめに・まとめ・記録・ふりかえりのタブには番号を付けず、いつも最後に置く。
 
 ## G の主な機能(core.js)
 
 | 機能 | 説明 |
 |---|---|
-| `G.initApp({app,title,files,home,data,help,tools})` | 4分野共通の枠のヘッダー(`.ef-header`: ◀ メニュー・ふりがな・文字サイズ・くっきり・使い方(`help` に関数か URL)・アプリだけのボタン(`tools` に要素))、共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴 + 保存データの管理。`data:false` で管理ボタンなし)、ルビ自動付与、Service Worker 登録 |
+| `G.initApp({app,title,files,home,data,help,tools})` | 4分野共通の枠のヘッダー(`.ef-header`: ◀ メニュー・記号と名前・ふりがな・文字サイズ・くっきり・使い方(`help` に関数か URL)・アプリだけのボタン(`tools` に要素))、共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴 + 保存データの管理。`data:false` で管理ボタンなし)、ルビ自動付与、Service Worker 登録 |
 | `G.h(tag, attrs, ...children)` | 要素を作る。`onclick` などはイベント、`class`、`style:{}`、`html` 可 |
 | `G.$(sel)` / `G.$$(sel)` | querySelector / querySelectorAll(配列) |
 | `G.num(v, def, lo, hi)` | 入力を安全な数値に(全角数字・空欄・範囲外に強い) |
@@ -131,7 +137,7 @@ app 名(メニューの並び順 M1→M7): `material-navi` / `wood-lab` / `struc
 ## 計算・データ
 
 - `materials.js` → `G.materials`: 材料の目安値(E: GPa、density: g/cm³、strength: MPa)と出典文 `G.materials.source`。
-- `beam.js` → `window.Beam`: 梁の計算(M3 スレッド作成。テスト `node --test beam.test.js`)。
+- `beam.js` → `window.Beam`: 梁の計算(A3 スレッド作成。テスト `node --test beam.test.js`)。
   **`materials.js` を先に読み込む**(Beam.MATERIALS が共通の値になる)。単位は E が N/mm²(= GPa × 1000)。
 
 ## スタイル(base.css)
@@ -168,3 +174,6 @@ A-materials で `python3 build/build-single.py` を実行すると、各ペー�
 - 2026-10-15(第2.1版 4分野共通の枠): 各ページで `../../shared/eduit-frame.css`(base.css より先)・`../eduit-info.js`・`EDUIT_INFO.app = {name}`・`../../shared/eduit-frame.js` を読む。
   base.css の `--bg` `--panel` `--ink` `--muted` `--line` などは `--ef-*` に合わせ、ヘッダー・主なボタン(`.btn.primary`)・タブの選択中は分野の色 `--frame`(木の茶)。`--accent`(図や強調の青)は各アプリの中身のまま。
   作成者の表示は共通のフッターに1つだけ(旧 `.g-footer` のクレジットは、共通の枠が読めないときの予備)。版と更新履歴は `A-materials/eduit-info.js` に書く。
+- 2026-10-16(第2.4版 記号と画面の統一): 記号を M1〜M7 から A1〜A7、フォルダを `m1-…/` から `a1-…/` に変えた(app 名・保存キーは同じ。A2 の表示設定だけ `m2.*` → `a2.*`)。
+  `apps.js` に `icon` を足し、各アプリのページも `apps.js` を読む。`G.initApp` は上のバーの名前の前に記号(`.ef-code`)を出す。メニューのカードは `EduitFrame.card`、上のバーの名前は `EduitFrame.menuTitle`(「A 材料と加工の技術 教材集」)、右に「先生用」ボタン(下の折りたたみ「先生用」を開いて移る)。
+  タブの番号は丸数字(①②③)にし、まとめ・記録・ふりかえりのタブは番号なし(base.css の `.g-tablist [role=tab] .num`)。

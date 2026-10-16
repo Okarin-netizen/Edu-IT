@@ -262,7 +262,7 @@ export function renderDiagram(view) {
       h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: checkSort }, "答え合わせ")),
       sortResult,
     ),
-    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/sim" }, "次: 仮想CPUで命令を動かしてみよう →")),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/auto" }, "次: ②手計算とプログラムをくらべてみよう →")),
   );
   go(0);
   return () => token++;

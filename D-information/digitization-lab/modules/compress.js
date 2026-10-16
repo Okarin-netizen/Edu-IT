@@ -1,4 +1,4 @@
-// モジュール4: 圧縮のしくみ（ランレングス圧縮を手作業→自動、可逆と非可逆）
+// モジュール⑤（発展）: 圧縮のしくみ（ランレングス圧縮を手作業→自動、可逆と非可逆）
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz } from "../js/ui.js";
 import { rleCounts, unrleCounts, rleImageBits, rleText, unrleText, parseCountList } from "../js/digilib.js";
 

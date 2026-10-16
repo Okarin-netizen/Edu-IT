@@ -1,0 +1,4455 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script>(function () {
+  var P; try { P = window.parent !== window && window.parent.GSingle; } catch (e) {}
+  if (!P) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+    var h = a.getAttribute('href');
+    if (/^(#|blob:|data:|https?:|javascript:)/.test(h)) return;
+    if (P.go(h)) e.preventDefault();
+  }, true);
+})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第三角法 立体メーカー</title>
+<meta name="theme-color" content="#8a5a2b">
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+<style>
+/* 技術分野アプリ 共通スタイル base.css(中学生向け・10インチ Chromebook 1280×800 / 1024×600 を基準)
+ * 色はトークン(--xxx)で定義。色だけに頼らず、形・線種・文字でも区別すること。
+ * さわる部分(ボタン・タブ・入力)は高さ 44px 以上。
+ * 画面の枠(地の色・文字・線・ヘッダー・主なボタン・タブ・カード・フッター)は、4分野共通の
+ * ../../shared/eduit-frame.css の --ef-* に合わせる(先に読み込む)。--accent は図や強調に使う色で、各アプリの中身のまま。 */
+:root {
+  --bg: var(--ef-bg, #f4f1ea);
+  --panel: var(--ef-surface, #ffffff);
+  --panel-2: var(--ef-surface-2, #faf8f3);
+  --ink: var(--ef-text, #23262b);
+  --muted: var(--ef-muted, #5d6470);
+  --line: var(--ef-line, #d9d4c8);
+  --frame: var(--ef-accent, #985a26);        /* 分野の色(材料と加工: 木の茶)。ヘッダーの線・主なボタン・タブ */
+  --frame-soft: var(--ef-accent-soft, #f5e9dc);
+  --accent: #2d6aa8;
+  --accent-ink: #ffffff;
+  --accent-soft: #e5eef8;
+  --ok: #1d7a3a;
+  --ok-soft: #e1f4e5;
+  --ng: #c0392b;
+  --ng-soft: #fde8e5;
+  --warn: #8a5d00;
+  --warn-soft: #fff3d6;
+  --wood: #c8955b;
+  --wood-soft: #f1dfc5;
+  --wood-dark: #8a5a2b;
+  --focus: #f08c00;
+  --radius: var(--ef-radius, 12px);
+  --radius-s: var(--ef-radius-s, 8px);
+  --shadow: 0 1px 2px rgba(60, 45, 20, .08), 0 2px 8px rgba(60, 45, 20, .05);
+  --hdr-h: 52px;
+  --tap: 44px;
+  --fs: 17px;
+  color-scheme: light;
+}
+:root[data-size="s"] { --fs: 15px; }
+:root[data-size="l"] { --fs: 20px; }
+:root[data-size="xl"] { --fs: 24px; }
+:root.high-contrast {
+  --bg: #ffffff; --panel-2: #ffffff; --ink: #000; --muted: #222; --line: #555; --accent: #0033cc;
+  --ok: #005a1e; --ng: #a00000; --warn: #6b4500; --wood: #a86a2c;
+}
+/* くっきり: 共通の枠の色も強くする(分野の色は濃い茶) */
+:root.high-contrast, :root.high-contrast[data-ef-domain] {
+  --ef-bg: #ffffff; --ef-surface-2: #ffffff; --ef-text: #000; --ef-muted: #222; --ef-line: #555;
+  --ef-accent: #5c3210; --ef-accent-soft: #f0e2d2;
+}
+:root.high-contrast .ef-btn { border-color: #555; }
+* { box-sizing: border-box; }
+html { font-size: var(--fs); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--ef-font, "BIZ UDPGothic", "BIZ UDゴシック", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif);
+  line-height: 1.7;
+  -webkit-tap-highlight-color: rgba(45, 106, 168, .15);
+}
+p { margin: .45em 0; }
+h1, h2, h3, h4 { line-height: 1.45; color: var(--ink); }
+/* ルビ */
+ruby { ruby-position: over; ruby-align: center; }
+rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; letter-spacing: -.06em; } /* 読みが長い語の前後のすき間を少しへらす */
+.ruby-off rt, .ruby-off rp { display: none; }
+/* フォーカス表示(キーボード操作) */
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* ヘッダー(4分野共通の .ef-header。1行・高さ固定で画面を広く使う)
+ * <header class="g-header ef-header"> ◀ メニュー(.ef-btn.ef-back) / アプリ名(.ef-title) / 道具(.ef-tools の .ef-btn) */
+.g-header { position: sticky; top: 0; z-index: 30; background: var(--ef-surface, #fff); border-bottom: 3px solid var(--frame); box-shadow: var(--shadow); }
+.g-header.ef-header { flex-wrap: nowrap; gap: .4rem; min-height: calc(var(--hdr-h) + 3px); padding: 0 .75rem; }
+.g-title { font-size: 1.12rem; margin: 0 .3rem; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.9; display: block; }
+.g-header .ef-title { font-size: 18px; }
+.g-header-tools { display: flex; gap: 6px; flex: none; flex-wrap: nowrap; margin-left: auto; }
+.g-header .ef-btn { min-height: 40px; padding: 0 12px; }
+.g-home { flex: none; }
+/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない) */
+[data-g-setting][aria-pressed="true"]::before { content: "✓ "; }
+.ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
+@media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
+
+main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
+
+/* ボタン(さわる部分は 44px 以上) */
+button, select, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]) { min-height: var(--tap); }
+textarea { min-height: 5.5em; }
+.btn {
+  font: inherit; font-size: .95rem; line-height: 1.5; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: .3em;
+  min-height: var(--tap); padding: .3rem 1rem; border-radius: var(--radius-s);
+  border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
+  transition: background-color .15s, border-color .15s, transform .05s;
+  touch-action: manipulation;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
+.btn.primary:hover { border-color: var(--frame); filter: brightness(1.08); }
+.btn.primary rt, .badge rt, [aria-selected="true"] rt, .btn.primary.small rt { color: inherit; opacity: .9; }
+.btn.danger { color: var(--ng); border-color: var(--ng); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.ghost:hover { border-color: var(--line); background: var(--panel-2); }
+.btn.small { min-height: var(--tap); padding: .15rem .7rem; font-size: .88rem; }
+.btn.link { border: none; background: none; color: var(--accent); text-decoration: underline; padding: 0 .2rem; min-height: var(--tap); }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* タブ(大きめのボタン形。スクロールしても上に残る) */
+.g-tablist {
+  display: flex; gap: .35rem; flex-wrap: wrap; align-items: stretch;
+  position: sticky; top: calc(var(--hdr-h) + 3px); z-index: 20;
+  background: var(--bg); padding: .45rem 0 .5rem; margin: 0 0 .5rem; border-bottom: 1px solid var(--line);
+}
+.g-tablist [role=tab] {
+  font: inherit; font-size: .98rem; cursor: pointer; min-height: 48px; padding: .25rem .9rem;
+  border: 1.5px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink);
+  display: inline-flex; align-items: center; gap: 0; touch-action: manipulation;
+}
+.g-tablist [role=tab]:hover { border-color: var(--frame); }
+.g-tablist [role=tab][aria-selected="true"] { background: var(--frame); border-color: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; box-shadow: 0 2px 0 rgba(60, 35, 10, .25); }
+/* タブの番号は丸数字(①②③…)をそのまま書く(4分野共通)。はじめに・まとめ・記録・ふりかえりのタブには番号を付けない */
+.g-tablist [role=tab] .num { display: inline-block; margin-right: .3em; font-weight: bold; }
+@media (max-width: 1100px) { .g-tablist [role=tab] { padding: .2rem .7rem; font-size: .92rem; } }
+
+/* カード・レイアウト */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; box-shadow: var(--shadow); margin-bottom: .65rem; }
+.card > h2:first-child, .card > h3:first-child { margin-top: 0; }
+h2 { font-size: 1.18rem; margin: .5em 0 .35em; }
+h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
+.card > h2:first-child { padding-left: .55rem; border-left: 5px solid var(--wood); }
+.g-row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.g-end { justify-content: flex-end; }
+.g-grid { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.g-cols { display: grid; gap: .65rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
+@media (max-width: 760px) { .g-cols { grid-template-columns: 1fr; } }
+.g-muted { color: var(--muted); font-size: .9rem; }
+.g-note { background: var(--warn-soft); border-left: 5px solid var(--warn); padding: .4rem .75rem; border-radius: 8px; font-size: .92rem; margin: .5rem 0; }
+.g-ok { color: var(--ok); } .g-ng { color: var(--ng); }
+.badge { display: inline-block; padding: .05em .65em; border-radius: 999px; font-size: .85rem; border: 1px solid var(--line); background: var(--panel-2); }
+.badge.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.badge.ng { background: var(--ng-soft); border-color: var(--ng); color: var(--ng); }
+.badge.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* フォーム */
+label { cursor: pointer; }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--panel); border: 1.5px solid var(--line); border-radius: 8px; padding: .25rem .55rem; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+input[type=number] { width: 6em; }
+input[type=checkbox], input[type=radio] { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex: none; }
+textarea { width: 100%; line-height: 1.6; }
+.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; }
+.g-field > span:first-child, .g-field > label:first-child { font-size: .9rem; color: var(--muted); }
+input[aria-invalid="true"] { border-color: var(--ng); background: var(--ng-soft); }
+.g-check { display: flex; align-items: center; gap: .6rem; min-height: var(--tap); padding: .1rem 0; }
+.g-check input { width: 26px; height: 26px; margin: 0; }
+.g-slider { display: grid; grid-template-columns: 7em 1fr 2.2em; align-items: center; gap: .5rem; min-height: var(--tap); }
+.g-slider input[type=range] { min-width: 0; width: 100%; }
+/* display を指定したクラスより hidden 属性を優先する */
+[hidden] { display: none !important; }
+
+/* スライダー(指でつまみやすい大きさ) */
+input[type=range] {
+  -webkit-appearance: none; appearance: none; background: transparent; height: var(--tap); min-width: 8rem; cursor: pointer; padding: 0; border: none; touch-action: none;
+}
+input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: var(--line); }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%;
+  background: var(--accent); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+}
+input[type=range]::-moz-range-track { height: 8px; border-radius: 4px; background: var(--line); }
+input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .35); }
+input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* 画面の高さが低いとき(1024×600 など)は余白をつめる */
+@media (max-height: 680px) {
+  :root { --hdr-h: 48px; }
+  main, .g-main { padding-top: .4rem; }
+  .card { padding: .6rem .85rem; margin-bottom: .5rem; }
+  .g-tablist { padding: .3rem 0 .35rem; margin-bottom: .4rem; }
+  .g-tablist [role=tab] { min-height: 44px; }
+  h2 { font-size: 1.1rem; }
+}
+
+/* 表 */
+table.g-table { border-collapse: collapse; width: 100%; background: var(--panel); }
+.g-table th, .g-table td { border: 1px solid var(--line); padding: .3rem .45rem; text-align: left; vertical-align: middle; }
+.g-table th { background: var(--panel-2); font-weight: bold; font-size: .9rem; }
+.g-table td.num, .g-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.g-table-wrap { overflow-x: auto; }
+
+/* 問題解決の型 */
+.g-ps ol { display: flex; flex-wrap: wrap; gap: .25rem; list-style: none; padding: 0; margin: .25rem 0; counter-reset: ps; }
+.g-ps li { counter-increment: ps; padding: .15rem .7rem .15rem .5rem; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font-size: .85rem; color: var(--muted); }
+.g-ps li::before { content: counter(ps) " "; font-weight: bold; }
+.g-ps li:not(:last-child)::after { content: " →"; color: var(--muted); }
+.g-ps li.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: bold; }
+.g-ps li.on::before { content: "▶ " counter(ps) " "; }
+.g-ps .g-ps-note { margin: .1rem 0 .3rem; font-size: .82rem; color: var(--muted); }
+
+/* 凡例 */
+.g-legend { list-style: none; padding: 0; margin: .3rem 0; display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .9rem; }
+
+/* モーダル・トースト */
+.g-modal { border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; font-size: 1rem; max-width: min(640px, 94vw); width: 100%; color: var(--ink); background: var(--panel); }
+.g-modal::backdrop { background: rgba(0, 0, 0, .35); }
+.g-modal h2 { margin-top: 0; }
+.g-filelist { max-height: 55vh; overflow: auto; margin-bottom: .5rem; }
+.g-filerow { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .35rem 0; border-bottom: 1px solid var(--line); }
+#g-toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: .4rem; align-items: center; pointer-events: none; }
+.g-toast-item { background: #2b2f36; color: #fff; padding: .6rem 1.1rem; border-radius: 12px; font-size: .95rem; box-shadow: var(--shadow); transition: opacity .4s; }
+.g-toast-item.out { opacity: 0; }
+
+/* 印刷 */
+@media print {
+  .g-header, .g-tablist, .no-print { display: none !important; }
+  body { background: #fff; }
+  .card { box-shadow: none; break-inside: avoid; }
+  [data-panel][hidden].print-all { display: block !important; }
+}
+
+.g-toast-item rt { color: #ddd; }
+
+/* フッター: 4分野共通の .ef-footer(作成者・版・安全と個人情報・ライセンス・更新履歴)+ 保存データの管理ボタン
+ * 共通の枠が読めないときだけ、下の .g-footer(作成者・保存データの管理)を出す */
+.g-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+  max-width: 1280px; margin: 1.5rem auto 0; padding: .6rem 1rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+.g-footer.g-footer-ef { display: block; max-width: none; margin: 0; padding: 0; border: 0; }
+.g-footer .btn.small { min-height: var(--tap); }
+.ef-footer .g-data-btn { min-height: 36px; font-size: 13px; padding: 0 .6rem; }
+@media print { .g-footer .btn { display: none; } }
+
+</style>
+<style>
+/* 第三角法 立体メーカー(A7) */
+.grow { flex: 1 1 14rem; }
+.align-end { align-items: flex-end; }
+.space-between { justify-content: space-between; }
+.project-bar { padding: .4rem .8rem; }
+.project-bar .g-field { margin: 0; flex-direction: row; align-items: center; gap: .5rem; }
+.project-bar .g-field > span:first-child { white-space: nowrap; }
+.project-bar .g-field input { flex: 1; min-width: 6rem; }
+.project-bar p { margin: .1rem 0 0; font-size: .8rem; }
+.project-bar p:empty { display: none; }
+input.narrow { width: 4.5em; }
+
+/* 1 三面図をかく */
+.a7-draw { display: grid; gap: .65rem; grid-template-columns: minmax(0, 1.75fr) minmax(270px, 1fr); align-items: start; }
+@media (max-width: 1000px) { .a7-draw { grid-template-columns: minmax(0, 1.5fr) minmax(250px, 1fr); } }
+@media (max-width: 700px) { .a7-draw { grid-template-columns: 1fr; } }
+.a7-tools { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: .45rem 0 .3rem; }
+.a7-tool {
+  font: inherit; font-size: .92rem; cursor: pointer; min-height: var(--tap); min-width: var(--tap); padding: .2rem .55rem;
+  display: inline-flex; align-items: center; gap: .3rem; border: 1.5px solid var(--line); border-radius: var(--radius-s);
+  background: var(--panel); color: var(--wood-dark); touch-action: manipulation;
+}
+.a7-tool span { color: var(--ink); }
+.a7-tool-sep { margin-left: .4rem; }
+.a7-tool:hover { border-color: var(--frame); }
+.a7-tool[aria-checked="true"] { border: 3px solid var(--frame); background: var(--frame-soft); font-weight: bold; }
+.a7-tool[aria-checked="true"]::after { content: "✓"; color: var(--frame); font-weight: bold; }
+.a7-editor-wrap { width: 100%; overflow: auto; }
+.a7-editor { display: block; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.a7-editor .a7-bg { fill: #fff; }
+.a7-editor .a7-band { fill: var(--accent-soft); }
+.a7-editor .a7-fill { fill: var(--wood); }
+.a7-editor .a7-top .a7-fill { fill: #b9874f; }
+.a7-editor .a7-side .a7-fill { fill: #d6a670; }
+.a7-editor .a7-grid { stroke: #c9c3b6; stroke-width: 1; fill: none; }
+.a7-editor .a7-border { stroke: var(--ink); stroke-width: 2; fill: none; }
+.a7-editor .a7-miter { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.a7-editor .a7-mis { fill: none; stroke: var(--ng); stroke-width: 3; stroke-dasharray: 5 3; }
+.a7-editor .a7-mis-t { fill: var(--ng); font-weight: bold; font-size: 15px; text-anchor: middle; }
+.a7-editor .a7-cursor { fill: none; stroke: var(--focus); stroke-width: 3; }
+.a7-editor .a7-hit { fill: transparent; cursor: pointer; }
+.a7-editor .a7-name { font-size: 15px; font-weight: bold; fill: var(--ink); }
+.a7-editor .a7-rt { font-size: 9.5px; fill: var(--muted); text-anchor: middle; }
+.ruby-off .a7-editor .a7-rt { display: none; }
+.a7-editor .a7-axis { font-size: 12.5px; fill: var(--muted); }
+.a7-editor .a7-view:focus { outline: none; }
+.a7-editor .a7-view:focus-visible .a7-border { stroke: var(--focus); stroke-width: 3; }
+.a7-preview-wrap canvas { display: block; width: 100%; border: 1px solid var(--line); border-radius: 8px; }
+.a7-warn { background: var(--ng-soft); border-left: 5px solid var(--ng); padding: .4rem .75rem; border-radius: 8px; font-size: .92rem; margin: .5rem 0; }
+.a7-ok { background: var(--ok-soft); border-left: 5px solid var(--ok); padding: .4rem .75rem; border-radius: 8px; font-size: .92rem; margin: .5rem 0; color: var(--ok); font-weight: bold; }
+.a7-panel .card h2 { margin-bottom: .3rem; }
+.a7-panel .g-field input[type=number] { width: 5em; }
+
+/* 2 立体を見る */
+.a7-seg { display: inline-flex; flex-wrap: wrap; gap: 0; border: 1.5px solid var(--frame); border-radius: 999px; overflow: hidden; }
+.a7-seg button {
+  font: inherit; font-size: .98rem; min-height: 48px; padding: .2rem 1rem; border: 0; border-right: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); cursor: pointer; touch-action: manipulation;
+}
+.a7-seg button:last-child { border-right: 0; }
+.a7-seg button[aria-checked="true"] { background: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; }
+.a7-seg button[aria-checked="true"]::before { content: "✓ "; }
+.a7-seg button[aria-checked="true"] rt { color: inherit; opacity: .9; }
+.a7-view-wrap { margin: .5rem 0 .3rem; }
+.a7-view-wrap canvas { display: block; width: 100%; border: 1px solid var(--line); border-radius: 8px; touch-action: none; }
+#cam-btns { margin-bottom: .2rem; }
+
+/* 3 図面・印刷 */
+.a7-sheet { display: grid; gap: .65rem; grid-template-columns: minmax(250px, 1fr) minmax(0, 2.3fr); align-items: start; }
+@media (max-width: 900px) { .a7-sheet { grid-template-columns: 1fr; } .a7-sheet-preview { order: -1; } }
+.a7-sheet-form .g-field { margin-bottom: .3rem; }
+.a7-sheet-form input[type=text] { width: 100%; }
+.a7-sheet-form input.narrow { width: 4.5em; }
+.a7-sheet-btns { margin: .5rem 0 .2rem; }
+.a7-sheet-box { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 4px; }
+.a7-sheet-box svg { display: block; width: 100%; height: auto; }
+
+/* 4 ふりかえり */
+.a7-self { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 .45rem; padding: .2rem .7rem .3rem; }
+.a7-self legend { font-size: .95rem; padding: 0 .3rem; }
+.a7-self .g-check { display: inline-flex; margin-right: 1rem; }
+
+/* 印刷(図面だけを A4 横で) */
+#print-area { display: none; }
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body.a7-printing > *:not(#print-area) { display: none !important; }
+  body.a7-printing { background: #fff; margin: 0; }
+  body.a7-printing #print-area { display: block; width: 296mm; height: 208mm; overflow: hidden; }
+  body.a7-printing #print-area svg { display: block; width: 296mm; height: 208mm; }
+}
+
+</style>
+<script>
+/* 材料と加工の技術(A) の版・更新履歴・この分野だけの安全の説明
+ * 共通の枠 shared/eduit-frame.js が読む(classic script)。
+ * 各ページでは、このあとに EDUIT_INFO.app = { name: 'アプリ名' } を書く。
+ * 版を上げたら common/core.js の G.version と sw.js の VERSION も上げる。
+ */
+window.EDUIT_INFO = {
+  domain: 'A',
+  domainName: '材料と加工の技術',
+  suite: '材料と加工の技術 教材集',
+  version: '2.4',
+  updated: '2026-10-16',
+  safety: [
+    '「工具の使い方・安全トレーナー」は、作業前の確認と手順を覚えるためのものです。実際の工具の使い方は、必ず先生の説明と実技の指導を受けてから使ってください。',
+    '材料の強さ・たわみ・収縮などの数値は、文献の代表値を丸めた目安です。実物の観察や実験と合わせて考えてください。',
+    '作品や記録は IndexedDB(使えないときは localStorage)に保存されます。メニューの「保存したデータ」から、ファイルに書き出したり消したりできます。'
+  ],
+  history: [
+    {
+      version: '2.4', date: '2026-10-16',
+      items: [
+        'アプリの記号を M1〜M7 から A1〜A7 に変えた(分野の A にそろえた)。番号の順が、おすすめの順・カードの順になっている',
+        'メニューのカードの形を4分野でそろえた: 記号・絵・名前・説明・使うところ・「ひらく ▶」の順。基本編の上に「おすすめの順番: A1 → A2 → …」を出した',
+        'メニューの上のバーを「A 材料と加工の技術 教材集」にし、右に「先生用」ボタンを付けた(メニューの下の先生用のところへ移る)',
+        'アプリの上のバーに、名前といっしょに記号(A2 など)を出した',
+        'アプリの中のタブの番号を ①②③ の書き方にそろえ、メニューの「使うところ」にも同じ番号を出した。「まとめ・記録」「記録」「ふりかえり」のタブは番号なしで、いつも最後にある'
+      ]
+    },
+    {
+      version: '2.3', date: '2026-10-16',
+      items: [
+        'メニューを「基本編」「発展編」のタブに分けた: 学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(M3 の設計課題・M7 第三角法 立体メーカーなど)を発展編にした',
+        'カードの「使うところ」に、その編で使うタブの名前を出すようにした(作品や記録の保存のしかたは変わらない)',
+        '先生用ガイドの名前・章立て・見た目を4分野でそろえた(「使い方(先生用)」から「先生用ガイド」に名前を変えた)'
+      ]
+    },
+    {
+      version: '2.2', date: '2026-10-15',
+      items: [
+        'M7「第三角法 立体メーカー」を追加した: 三面図(マス目・ななめの半マスも)をかくと、等角図・キャビネット図・3D の立体にする。合わないマスを赤い点線で知らせる',
+        'M7: 寸法・表題欄・部品欄の入った A4 横の図面を印刷・PDF で保存でき、3Dプリンタ用の STL も書き出せる',
+        'M7: 中学生目線レビューの12件を直した(かいている途中で赤い「!」を出さない・ふりかえりタブで組・番号・氏名を入れて書き出せる・タブレットでも立体をとなりに表示 など)'
+      ]
+    },
+    {
+      version: '2.1', date: '2026-10-15',
+      items: [
+        '各アプリで1つずつ書き出すファイルにも、メニューで入れた組・番号・名前が入るようにした(先生用の振り返り一覧・提出ファイル一覧ビューアで、だれのファイルか分かる)',
+        '画面の枠(ヘッダー・ボタン・カード・色)を4分野で共通にした',
+        '作成者・安全と個人情報・ライセンス・更新履歴を見られるようにした(画面の下の「安全と個人情報・ライセンス・更新履歴」)',
+        '製図トレーナー: 「答えを見る」で正解の線がボードの外に出る不具合を直し、等角図・三面図に基準線を表示した',
+        '11インチの Chromebook(1366×650)で、主な操作と結果が1画面に入るようにした(M2〜M6)'
+      ]
+    },
+    {
+      version: '2.0', date: '2026-10-14',
+      items: [
+        '材料選択ナビ・木材の繊維・収縮ラボ・構造強化ラボ・製図トレーナー・木取り・構想シミュレータ・工具の使い方・安全トレーナーの6つのアプリをまとめた',
+        '先生用の提出ファイル一覧ビューアと、使い方(先生用)を付けた',
+        'ふりがな・文字の大きさ・くっきり(色のコントラスト)の切りかえを全アプリ共通にした',
+        '作品をファイルに書き出す・読み込む、保存データを消す、を全アプリ共通にした',
+        'インターネットなしで動く1ファイル版を作れるようにした'
+      ]
+    }
+  ]
+};
+
+/* 基本編・発展編(学習指導要領 技術分野「A 材料と加工の技術」と教科書の内容から分けたもの)
+ * メニュー(index.html)が EduitFrame.levels で使う。id は common/apps.js の id。
+ * parts は生徒の画面のタブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'material-navi', parts: ['① 材料カード', '② 条件設定', '③ 比較結果', '④ 理由を書く'], curr: 'A(1)ア・A(2)ア', why: '木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容' },
+      { id: 'wood-lab', parts: ['① 断面ビューア', '② 収縮ラボ', '③ 反りの予測', '④ 強度比較(繊維の向きと強さ)', '⑤ 集成材・合板', 'まとめ・記録'], curr: 'A(1)ア', why: '柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本' },
+      { id: 'structure-lab', parts: ['① 梁(はり)', '② 枠と筋かい', '③ 接合'], curr: 'A(1)イ', why: '断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本' },
+      { id: 'drawing-trainer', parts: ['① 三面図クイズ', '② 立体づくり', '③ 三面図をかく', '④ 等角図をかく', '⑤ 線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
+      { id: 'kidori', parts: ['① 材料・部品', '② 木取り', '③ 製作図', '④ 強度', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
+      { id: 'tool-safety', parts: ['① 工具の手順', '② 作業前チェック', '③ 危険を見つける', '④ 手順ならべかえ', '⑤ 実技の評価', '記録'], curr: 'A(2)イ', why: '工具の安全で正しい使い方は、製作の前に全員が身に付ける内容' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、計算・設計・新しい技術を使う内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'wood-lab', parts: ['④ 強度比較(7つの力の数値くらべ)'], curr: 'A(1)ア(発展)', why: '力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容' },
+      { id: 'structure-lab', parts: ['① 梁(はり)の「くわしく見る(発展)」', '④ 設計課題(安全率を考えて、軽くて丈夫な構造を設計する)'], curr: 'A(1)イ・A(2)ア(発展)', why: '応力・安全率・断面の数値を使う設計は、教科書では発展の扱い' },
+      { id: 'kidori', parts: ['② 木取りの歩留まり・材料費', '④ 強度の「発展」'], curr: 'A(2)ア・A(3)イ(発展)', why: '材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容' },
+      { id: 'solid-maker', parts: ['① 三面図をかく(三面図から立体をつくる)', '② 立体を見る(3D)', '③ 図面・印刷(寸法の入った図面)', 'ふりかえり'], curr: 'A(2)イ・A(3)イ(発展)', why: '三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術' }
+    ]
+  }
+};
+
+</script>
+<script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: 'A7 第三角法 立体メーカー' };</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
+<style>.ef-back { display: none !important; }</style>
+</head>
+<body>
+<header id="g-header"></header>
+<main>
+  <div class="card no-print project-bar">
+    <div class="g-row">
+      <label class="g-field grow"><span>作品の名前</span><input id="pname" type="text" maxlength="40" placeholder="例: L字ブロック"></label>
+      <div class="g-row">
+        <button class="btn" id="b-new" type="button">新しく作る</button>
+        <button class="btn" id="b-open" type="button">開く</button>
+        <button class="btn primary" id="b-save" type="button">保存</button>
+        <button class="btn" id="b-export" type="button">ファイルに書き出す</button>
+        <button class="btn" id="b-import" type="button">ファイルから読み込む</button>
+      </div>
+    </div>
+    <p class="g-muted" id="save-state" aria-live="polite"></p>
+  </div>
+
+  <div data-g-tabs>
+    <div class="g-tablist" role="tablist" aria-label="作業の段階">
+      <button role="tab" data-tab="draw" type="button"><span class="num">①</span>三面図をかく</button>
+      <button role="tab" data-tab="view" type="button"><span class="num">②</span>立体を見る</button>
+      <button role="tab" data-tab="sheet" type="button"><span class="num">③</span>図面・印刷</button>
+      <button role="tab" data-tab="review" type="button">ふりかえり</button>
+    </div>
+
+    <!-- 1 三面図をかく -->
+    <section data-panel="draw">
+      <div class="a7-draw">
+        <div class="card a7-editor-card">
+          <div class="g-row space-between">
+            <h2 style="margin:0">三面図(第三角法)</h2>
+            <div class="g-row">
+              <button class="btn small" id="undo" type="button" title="元に戻す(Ctrl+Z)">↶ 元に戻す</button>
+              <button class="btn small" id="redo" type="button" title="やり直す(Ctrl+Y)">↷ やり直す</button>
+              <button class="btn small danger" id="clear" type="button">ぜんぶ消す</button>
+            </div>
+          </div>
+          <div class="a7-tools" role="radiogroup" aria-label="マスにかく形">
+            <span class="g-muted">かく形:</span>
+          </div>
+          <div class="a7-editor-wrap" id="editor-wrap"></div>
+          <p class="g-muted" id="editor-help">マスをクリック(ドラッグ)してぬります。ぬったマスをもう一度押すと消えます。キーボードでは Tab で図を選び、矢印キーで動かして Space でぬります。</p>
+        </div>
+        <div class="a7-panel">
+          <div class="card">
+            <div class="g-row space-between">
+              <h2 style="margin:0">できる立体(等角図)</h2>
+              <button class="btn small" id="go-view" type="button">大きく見る ▶</button>
+            </div>
+            <div class="a7-preview-wrap"><canvas id="preview" aria-label="三面図から作った立体の等角図"></canvas></div>
+            <div id="check" aria-live="polite"></div>
+            <p class="g-muted" id="info"></p>
+          </div>
+          <div class="card">
+            <h2>大きさ</h2>
+            <div class="g-row align-end">
+              <label class="g-field"><span>幅(マス)</span><input id="sz-w" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>奥行き(マス)</span><input id="sz-d" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>高さ(マス)</span><input id="sz-h" type="number" min="1" max="16" step="1"></label>
+              <label class="g-field"><span>1マス (mm)</span><input id="sz-cell" type="number" min="1" max="200" step="1"></label>
+            </div>
+            <div class="g-row align-end">
+              <label class="g-field grow"><span>お手本の形</span><select id="sample"></select></label>
+              <button class="btn" id="load-sample" type="button">かきこむ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 立体を見る -->
+    <section data-panel="view" hidden>
+      <div class="card">
+        <div class="g-row space-between">
+          <div class="a7-seg" role="radiogroup" aria-label="立体の表し方">
+            <button type="button" role="radio" data-mode="iso">等角図</button>
+            <button type="button" role="radio" data-mode="cabinet">キャビネット図</button>
+            <button type="button" role="radio" data-mode="3d">3D(回して見る)</button>
+          </div>
+          <div class="g-row">
+            <label class="g-check" id="hid-wrap"><input type="checkbox" id="show-hidden"> かくれ線も表示</label>
+            <button class="btn" id="png-view" type="button">画像で保存</button>
+            <button class="btn" id="stl-view" type="button">STL で保存(3Dプリンタ)</button>
+          </div>
+        </div>
+        <div class="a7-view-wrap"><canvas id="view-canvas" tabindex="0" aria-label="立体の図"></canvas></div>
+        <div class="g-row" id="cam-btns" hidden>
+          <span class="g-muted">見る向き:</span>
+          <button class="btn small" type="button" data-cam="iso">ななめ上から</button>
+          <button class="btn small" type="button" data-cam="front">正面</button>
+          <button class="btn small" type="button" data-cam="top">上</button>
+          <button class="btn small" type="button" data-cam="right">右</button>
+          <button class="btn small" type="button" data-cam="back">うしろ</button>
+          <button class="btn small" type="button" data-cam="under">下から</button>
+        </div>
+        <div id="mode-note"></div>
+      </div>
+    </section>
+
+    <!-- 3 図面・印刷 -->
+    <section data-panel="sheet" hidden>
+      <div class="a7-sheet">
+        <div class="card a7-sheet-form">
+          <h2>図面に書くこと</h2>
+          <label class="g-field"><span>図名(作品の名前)</span><input id="sh-title" type="text" maxlength="30"></label>
+          <label class="g-field"><span>材料</span><input id="sh-material" type="text" maxlength="20" placeholder="例: スギ・SPF材・アクリル"></label>
+          <div class="g-row align-end">
+            <label class="g-field"><span>学年</span><input id="sh-grade" type="text" inputmode="numeric" maxlength="2" class="narrow"></label>
+            <label class="g-field"><span>組</span><input id="sh-cls" type="text" maxlength="6" class="narrow"></label>
+            <label class="g-field"><span>番号</span><input id="sh-no" type="text" inputmode="numeric" maxlength="4" class="narrow"></label>
+          </div>
+          <label class="g-field"><span>氏名</span><input id="sh-name" type="text" maxlength="20"></label>
+          <div class="g-row align-end">
+            <label class="g-field"><span>日付</span><input id="sh-date" type="date"></label>
+            <label class="g-field"><span>尺度</span><select id="sh-scale">
+              <option value="auto">自動(用紙に入る大きさ)</option>
+              <option value="2">2:1(2倍)</option>
+              <option value="1">1:1(実物の大きさ)</option>
+              <option value="0.5">1:2(1/2)</option>
+              <option value="0.2">1:5(1/5)</option>
+              <option value="0.1">1:10(1/10)</option>
+            </select></label>
+          </div>
+          <label class="g-check"><input type="checkbox" id="sh-dims"> 寸法を入れる</label>
+          <label class="g-check"><input type="checkbox" id="sh-detail"> 細かい寸法(区切りごと)も入れる</label>
+          <label class="g-check"><input type="checkbox" id="sh-iso"> 等角図(参考)も入れる</label>
+          <div class="g-row a7-sheet-btns">
+            <button class="btn primary" id="print" type="button">印刷する</button>
+            <button class="btn" id="pdf" type="button">PDF で保存</button>
+            <button class="btn" id="stl-sheet" type="button">STL で保存</button>
+          </div>
+          <p class="g-muted">「印刷する」の画面で、送り先を「PDF に保存」にすると PDF にもできます。用紙は A4 横です。</p>
+          <div id="sheet-msg" aria-live="polite"></div>
+        </div>
+        <div class="card a7-sheet-preview">
+          <div id="sheet-box" class="a7-sheet-box" aria-label="図面の見本"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 ふりかえり -->
+    <section data-panel="review" hidden>
+      <div class="card">
+        <h2>問題解決の流れ</h2>
+        <div id="ps"></div>
+      </div>
+      <div class="g-cols">
+        <div class="card">
+          <h2>ふりかえりを書く</h2>
+          <div class="g-row align-end">
+            <label class="g-field"><span>組</span><input id="rf-cls" type="text" maxlength="6" class="narrow"></label>
+            <label class="g-field"><span>番号</span><input id="rf-no" type="text" inputmode="numeric" maxlength="4" class="narrow"></label>
+            <label class="g-field grow"><span>氏名</span><input id="rf-name" type="text" maxlength="20"></label>
+          </div>
+          <p class="g-muted">組・番号・氏名は図面と同じです。「ファイルに書き出す」で出すファイルにも入ります。</p>
+          <label class="g-field"><span>わかったこと・できるようになったこと</span><textarea id="rf-learned"></textarea></label>
+          <label class="g-field"><span>むずかしかったこと・次にがんばりたいこと</span><textarea id="rf-hard"></textarea></label>
+          <label class="g-field"><span>自分の作品の構想や製作に、どう生かしたいか</span><textarea id="rf-use"></textarea></label>
+        </div>
+        <div class="card">
+          <h2>自己評価</h2>
+          <div id="selfcheck"></div>
+          <h2>記録</h2>
+          <div id="record"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<div id="print-area" aria-hidden="true"></div>
+<script>
+/* 自動生成: ruby-dict-src.txt を編集して build/build-ruby-dict.py を実行してください */
+window.RUBY_DICT = {
+"くぎ打ち": "くぎうち",
+"けがき針": "けがきばり",
+"すき間": "すきま",
+"たわみ量": "たわみりょう",
+"のこ身": "のこみ",
+"はみ出し": "はみだし",
+"ほぞ接ぎ": "ほぞつぎ",
+"一体": "いったい",
+"一度": "いちど",
+"一方": "いっぽう",
+"一本": "いっぽん",
+"一点": "いってん",
+"一番": "いちばん",
+"一致": "いっち",
+"一般": "いっぱん",
+"一般的": "いっぱんてき",
+"一覧": "いちらん",
+"一辺": "いっぺん",
+"丈夫": "じょうぶ",
+"三つ目ぎり": "みつめぎり",
+"三角": "さんかく",
+"三角形": "さんかくけい",
+"三面図": "さんめんず",
+"上から": "うえから",
+"上が": "あが",
+"上げ": "あげ",
+"上で": "うえで",
+"上に": "うえに",
+"上の": "うえの",
+"上下": "じょうげ",
+"上位": "じょうい",
+"上側": "うえがわ",
+"上回": "うわまわ",
+"上手": "じょうず",
+"上面": "じょうめん",
+"下から": "したから",
+"下が": "さが",
+"下に": "したに",
+"下の": "したの",
+"下側": "したがわ",
+"下手": "へた",
+"下穴": "したあな",
+"下面": "かめん",
+"不合格": "ふごうかく",
+"不明": "ふめい",
+"不正解": "ふせいかい",
+"両刃のこぎり": "りょうばのこぎり",
+"両方": "りょうほう",
+"両端": "りょうたん",
+"並べ": "ならべ",
+"中に": "なかに",
+"中の": "なかの",
+"中央": "ちゅうおう",
+"中心": "ちゅうしん",
+"中心線": "ちゅうしんせん",
+"中間": "ちゅうかん",
+"丸み": "まるみ",
+"丸め": "まるめ",
+"丸太": "まるた",
+"丸棒": "まるぼう",
+"乾い": "かわい",
+"乾か": "かわか",
+"乾く": "かわく",
+"乾燥": "かんそう",
+"予測": "よそく",
+"二次": "にじ",
+"二点": "にてん",
+"互いに": "たがいに",
+"交わ": "まじわ",
+"交互": "こうご",
+"交差": "こうさ",
+"今の": "いまの",
+"今回": "こんかい",
+"仕上": "しあ",
+"仕上げ": "しあげ",
+"仕切り板": "しきりいた",
+"付い": "つい",
+"付き": "つき",
+"付け": "つけ",
+"付ける": "つける",
+"代表": "だいひょう",
+"代表値": "だいひょうち",
+"以上": "いじょう",
+"以下": "いか",
+"以前": "いぜん",
+"以外": "いがい",
+"仮に": "かりに",
+"件目": "けんめ",
+"伝統": "でんとう",
+"伝統的": "でんとうてき",
+"位置": "いち",
+"低い": "ひくい",
+"体育館": "たいいくかん",
+"体験": "たいけん",
+"何を": "なにを",
+"何度": "なんど",
+"何枚": "なんまい",
+"余分": "よぶん",
+"余裕": "よゆう",
+"作っ": "つくっ",
+"作り": "つくり",
+"作る": "つくる",
+"作品": "さくひん",
+"作図": "さくず",
+"作成者": "さくせいしゃ",
+"作業": "さぎょう",
+"作業台": "さぎょうだい",
+"使い": "つかい",
+"使いやすさ": "つかいやすさ",
+"使い方": "つかいかた",
+"使い道": "つかいみち",
+"使う": "つかう",
+"使え": "つかえ",
+"使った": "つかった",
+"使って": "つかって",
+"使わ": "つかわ",
+"使用": "しよう",
+"使用条件": "しようじょうけん",
+"使用目的": "しようもくてき",
+"価格": "かかく",
+"便覧": "びんらん",
+"保っ": "たもっ",
+"保つ": "たもつ",
+"保て": "たもて",
+"保存": "ほぞん",
+"保存した": "ほぞんした",
+"保護めがね": "ほごめがね",
+"修理": "しゅうり",
+"個数": "こすう",
+"倍": "ばい",
+"値を": "あたいを",
+"値段": "ねだん",
+"停止": "ていし",
+"側板": "がわいた",
+"側面": "そくめん",
+"側面図": "そくめんず",
+"優先": "ゆうせん",
+"先に": "さきに",
+"先の": "さきの",
+"先生": "せんせい",
+"先端": "せんたん",
+"入り": "いり",
+"入る": "はいる",
+"入れ": "いれ",
+"入れ方": "いれかた",
+"入力": "にゅうりょく",
+"全乾": "ぜんかん",
+"全体": "ぜんたい",
+"全部": "ぜんぶ",
+"全面": "ぜんめん",
+"公式": "こうしき",
+"公開": "こうかい",
+"共通": "きょうつう",
+"内側": "うちがわ",
+"内寸": "ないすん",
+"円": "えん",
+"円柱": "えんちゅう",
+"再利用": "さいりよう",
+"再生": "さいせい",
+"出し": "だし",
+"出す": "だす",
+"出た": "でた",
+"出典": "しゅってん",
+"刃": "は",
+"刃先": "はさき",
+"刃物": "はもの",
+"分別": "ぶんべつ",
+"分布": "ぶんぷ",
+"分解": "ぶんかい",
+"分野": "ぶんや",
+"切っ": "きっ",
+"切り": "きり",
+"切りしろ": "きりしろ",
+"切り替え": "きりかえ",
+"切る": "きる",
+"切れ": "きれ",
+"切断": "せつだん",
+"判定": "はんてい",
+"別の": "べつの",
+"削る": "けずる",
+"削れ": "けずれ",
+"削除": "さくじょ",
+"削除する": "さくじょする",
+"前に": "まえに",
+"前回": "ぜんかい",
+"前後": "ぜんご",
+"前板": "まえいた",
+"割り": "わり",
+"割れ": "われ",
+"割合": "わりあい",
+"加工": "かこう",
+"加熱": "かねつ",
+"効か": "きか",
+"効き": "きき",
+"効果": "こうか",
+"動い": "うごい",
+"動か": "うごか",
+"動き": "うごき",
+"動く": "うごく",
+"十字": "じゅうじ",
+"半分": "はんぶん",
+"半径": "はんけい",
+"半径方向": "はんけいほうこう",
+"単位": "たんい",
+"単板": "たんぱん",
+"印刷": "いんさつ",
+"危険": "きけん",
+"危険予知": "きけんよち",
+"厚い": "あつい",
+"厚く": "あつく",
+"厚さ": "あつさ",
+"厚み": "あつみ",
+"原因": "げんいん",
+"参考": "さんこう",
+"反り": "そり",
+"収縮": "しゅうしゅく",
+"収縮率": "しゅうしゅくりつ",
+"取り": "とり",
+"取り付け": "とりつけ",
+"取り消し": "とりけし",
+"取る": "とる",
+"取れ": "とれ",
+"受け": "うけ",
+"受ける": "うける",
+"可塑性": "かそせい",
+"台形": "だいけい",
+"台所用": "だいどころよう",
+"台頭": "だいがしら",
+"右": "みぎ",
+"右上": "みぎうえ",
+"右下": "みぎした",
+"右側面": "みぎそくめん",
+"右側面図": "みぎそくめんず",
+"右手前": "みぎてまえ",
+"合う": "あう",
+"合っ": "あっ",
+"合わ": "あわ",
+"合板": "ごうはん",
+"合格": "ごうかく",
+"合計": "ごうけい",
+"合金": "ごうきん",
+"同じ": "おなじ",
+"名前": "なまえ",
+"名称": "めいしょう",
+"向き": "むき",
+"向く": "むく",
+"含水": "がんすい",
+"含水率": "がんすいりつ",
+"品物": "しなもの",
+"問": "もん",
+"問題": "もんだい",
+"問題解決": "もんだいかいけつ",
+"四つ目ぎり": "よつめぎり",
+"四角": "しかく",
+"四角い": "しかくい",
+"四角形": "しかくけい",
+"回す": "まわす",
+"回せ": "まわせ",
+"回収": "かいしゅう",
+"回数": "かいすう",
+"回目": "かいめ",
+"回転": "かいてん",
+"囲ん": "かこん",
+"図": "ず",
+"固め": "かため",
+"固定": "こてい",
+"国産": "こくさん",
+"国産材": "こくさんざい",
+"圧力": "あつりょく",
+"圧着": "あっちゃく",
+"均一": "きんいつ",
+"均等": "きんとう",
+"垂直": "すいちょく",
+"基盤": "きばん",
+"場所": "ばしょ",
+"場面": "ばめん",
+"塗っ": "ぬっ",
+"塗装": "とそう",
+"塩化": "えんか",
+"塩化ビニル": "えんかビニル",
+"増え": "ふえ",
+"増やし": "ふやし",
+"増やす": "ふやす",
+"変え": "かえ",
+"変える": "かえる",
+"変わ": "かわ",
+"変わり": "かわり",
+"変わる": "かわる",
+"変化": "へんか",
+"変形": "へんけい",
+"変更": "へんこう",
+"外し": "はずし",
+"外す": "はずす",
+"外せ": "はずせ",
+"外に": "そとに",
+"外側": "そとがわ",
+"外寸": "がいすん",
+"外形": "がいけい",
+"外形線": "がいけいせん",
+"多い": "おおい",
+"多く": "おおく",
+"大き": "おおき",
+"大きい": "おおきい",
+"大きく": "おおきく",
+"大きさ": "おおきさ",
+"大切": "たいせつ",
+"天板": "てんいた",
+"太い": "ふとい",
+"失敗": "しっぱい",
+"奇数": "きすう",
+"奥行き": "おくゆき",
+"妻手": "つまて",
+"始め": "はじめ",
+"始点": "してん",
+"姿勢": "しせい",
+"学校": "がっこう",
+"学習": "がくしゅう",
+"安全": "あんぜん",
+"安全性": "あんぜんせい",
+"安全率": "あんぜんりつ",
+"安全確認": "あんぜんかくにん",
+"安心": "あんしん",
+"完了": "かんりょう",
+"完成": "かんせい",
+"完成し": "かんせいし",
+"完成後": "かんせいご",
+"実物": "じつぶつ",
+"実線": "じっせん",
+"実際": "じっさい",
+"実際に": "じっさいに",
+"実験": "じっけん",
+"家具": "かぐ",
+"家電": "かでん",
+"寄せ": "よせ",
+"密度": "みつど",
+"寸法": "すんぽう",
+"寸法線": "すんぽうせん",
+"寸法補助線": "すんぽうほじょせん",
+"対し": "たいし",
+"対応": "たいおう",
+"対称": "たいしょう",
+"対角線": "たいかくせん",
+"小さい": "ちいさい",
+"小さく": "ちいさく",
+"少し": "すこし",
+"少ない": "すくない",
+"少なく": "すくなく",
+"尺度": "しゃくど",
+"屋外": "おくがい",
+"山形": "やまがた",
+"工具": "こうぐ",
+"工夫": "くふう",
+"工業": "こうぎょう",
+"工程": "こうてい",
+"左": "ひだり",
+"左上": "ひだりうえ",
+"左下": "ひだりした",
+"左側": "ひだりがわ",
+"左右": "さゆう",
+"左右対称": "さゆうたいしょう",
+"市販": "しはん",
+"幅": "はば",
+"干割れ": "ひわれ",
+"平均": "へいきん",
+"平行": "へいこう",
+"平面図": "へいめんず",
+"年輪": "ねんりん",
+"広い": "ひろい",
+"広が": "ひろが",
+"広葉樹": "こうようじゅ",
+"底板": "そこいた",
+"度合": "どあ",
+"座標": "ざひょう",
+"建築": "けんちく",
+"式": "しき",
+"引か": "ひか",
+"引き": "ひき",
+"引き出し": "ひきだし",
+"引き出す": "ひきだす",
+"引き抜き": "ひきぬき",
+"引き抜く": "ひきぬく",
+"引く": "ひく",
+"引け": "ひけ",
+"引っ": "ひっ",
+"引っ張ら": "ひっぱら",
+"弱い": "よわい",
+"弱点": "じゃくてん",
+"張っ": "はっ",
+"張る": "はる",
+"強い": "つよい",
+"強く": "つよく",
+"強さ": "つよさ",
+"強化": "きょうか",
+"強度": "きょうど",
+"強調": "きょうちょう",
+"弾性率": "だんせいりつ",
+"当て木": "あてぎ",
+"形": "かたち",
+"影響": "えいきょう",
+"後で": "あとで",
+"後ろ": "うしろ",
+"復元": "ふくげん",
+"心持": "こころも",
+"心持ち": "こころもち",
+"心材": "しんざい",
+"必ず": "かならず",
+"必要": "ひつよう",
+"応力": "おうりょく",
+"思う": "おもう",
+"思った": "おもった",
+"性能": "せいのう",
+"性質": "せいしつ",
+"情報": "じょうほう",
+"想像": "そうぞう",
+"成分": "せいぶん",
+"成績": "せいせき",
+"戻す": "もどす",
+"戻せ": "もどせ",
+"手で": "てで",
+"手の": "ての",
+"手を": "てを",
+"手前": "てまえ",
+"手早く": "てばやく",
+"手軽": "てがる",
+"手間": "てま",
+"手順": "てじゅん",
+"打ち": "うち",
+"打つ": "うつ",
+"技法": "ぎほう",
+"技術": "ぎじゅつ",
+"技術分野": "ぎじゅつぶんや",
+"抜け": "ぬけ",
+"押さ": "おさ",
+"押して": "おして",
+"押す": "おす",
+"拒否": "きょひ",
+"拡大": "かくだい",
+"授業": "じゅぎょう",
+"掛け": "かけ",
+"接ぎ": "つぎ",
+"接合": "せつごう",
+"接着": "せっちゃく",
+"接着剤": "せっちゃくざい",
+"接続": "せつぞく",
+"接線": "せっせん",
+"接線方向": "せっせんほうこう",
+"描く": "えがく",
+"描画": "びょうが",
+"提出": "ていしゅつ",
+"換算": "かんさん",
+"摩擦": "まさつ",
+"操作": "そうさ",
+"支え": "ささえ",
+"支点": "してん",
+"支点間距離": "してんかんきょり",
+"改善": "かいぜん",
+"教室": "きょうしつ",
+"教材": "きょうざい",
+"教科書": "きょうかしょ",
+"数え": "かぞえ",
+"数値": "すうち",
+"数字": "すうじ",
+"数量": "すうりょう",
+"文字": "もじ",
+"文献": "ぶんけん",
+"斜め": "ななめ",
+"斜線": "しゃせん",
+"断熱": "だんねつ",
+"断面": "だんめん",
+"断面二次モーメント": "だんめんにじモーメント",
+"断面図": "だんめんず",
+"新しい": "あたらしい",
+"新しく": "あたらしく",
+"新規": "しんき",
+"方が": "ほうが",
+"方を": "ほうを",
+"方向": "ほうこう",
+"方法": "ほうほう",
+"方眼": "ほうがん",
+"日本": "にほん",
+"早材": "そうざい",
+"時間": "じかん",
+"晩材": "ばんざい",
+"曲がっ": "まがっ",
+"曲がら": "まがら",
+"曲がり": "まがり",
+"曲がる": "まがる",
+"曲げ": "まげ",
+"曲げ強さ": "まげつよさ",
+"更新": "こうしん",
+"書い": "かい",
+"書き": "かき",
+"書き出し": "かきだし",
+"書き出す": "かきだす",
+"書く": "かく",
+"最低": "さいてい",
+"最初": "さいしょ",
+"最大": "さいだい",
+"最小": "さいしょう",
+"最後": "さいご",
+"最適": "さいてき",
+"最高": "さいこう",
+"有効": "ゆうこう",
+"有効数字": "ゆうこうすうじ",
+"有害": "ゆうがい",
+"服装": "ふくそう",
+"木ねじ": "もくねじ",
+"木取": "きどり",
+"木取り": "きどり",
+"木口": "こぐち",
+"木材": "もくざい",
+"木殺し": "きごろし",
+"木目": "もくめ",
+"木目方向": "もくめほうこう",
+"木端": "こば",
+"木表": "きおもて",
+"木裏": "きうら",
+"未選択": "みせんたく",
+"未配置": "みはいち",
+"本": "ほん",
+"本数": "ほんすう",
+"本文": "ほんぶん",
+"本棚": "ほんだな",
+"本物": "ほんもの",
+"本立": "ほんた",
+"本立て": "ほんたて",
+"材": "ざい",
+"材料": "ざいりょう",
+"材料取り": "ざいりょうどり",
+"材料費": "ざいりょうひ",
+"材質": "ざいしつ",
+"条件": "じょうけん",
+"条件設定": "じょうけんせってい",
+"東南": "とうなん",
+"板": "いた",
+"板に": "いたに",
+"板の": "いたの",
+"板厚": "いたあつ",
+"板材": "いたざい",
+"板目": "いため",
+"枚": "まい",
+"枚数": "まいすう",
+"柾目": "まさめ",
+"格子": "こうし",
+"格子点": "こうしてん",
+"案": "あん",
+"棚": "たな",
+"棚板": "たないた",
+"検査": "けんさ",
+"構想": "こうそう",
+"構造": "こうぞう",
+"模様": "もよう",
+"横": "よこ",
+"横びき": "よこびき",
+"横向": "よこむ",
+"横木": "よこぎ",
+"横材": "よこざい",
+"樹皮": "じゅひ",
+"樹種": "じゅしゅ",
+"樹脂": "じゅし",
+"機能": "きのう",
+"欠点": "けってん",
+"次に": "つぎに",
+"次の": "つぎの",
+"次回": "じかい",
+"止める": "とめる",
+"正しい": "ただしい",
+"正しく": "ただしく",
+"正方形": "せいほうけい",
+"正確": "せいかく",
+"正解": "せいかい",
+"正面": "しょうめん",
+"正面図": "しょうめんず",
+"歩留まり": "ぶどまり",
+"残し": "のこし",
+"残っ": "のこっ",
+"残り": "のこり",
+"残材": "ざんざい",
+"段差": "だんさ",
+"段階": "だんかい",
+"比べ": "くらべ",
+"比べる": "くらべる",
+"比較": "ひかく",
+"比較的": "ひかくてき",
+"比較表": "ひかくひょう",
+"気づ": "きづ",
+"気付い": "きづい",
+"気付いた": "きづいた",
+"気付き": "きづき",
+"水分": "すいぶん",
+"水平": "すいへい",
+"水道管": "すいどうかん",
+"決ま": "きま",
+"決め": "きめ",
+"法線": "ほうせん",
+"法線方向": "ほうせんほうこう",
+"注意": "ちゅうい",
+"注目": "ちゅうもく",
+"流れ": "ながれ",
+"消し": "けし",
+"消しゴム": "けしごむ",
+"消す": "けす",
+"減る": "へる",
+"温度": "おんど",
+"測っ": "はかっ",
+"測って": "はかって",
+"測り": "はかり",
+"測る": "はかる",
+"湿気": "しっけ",
+"満点": "まんてん",
+"準備": "じゅんび",
+"準備中": "じゅんびちゅう",
+"灰色": "はいいろ",
+"点": "てん",
+"点数": "てんすう",
+"点検": "てんけん",
+"点線": "てんせん",
+"無垢": "むく",
+"無題": "むだい",
+"無駄": "むだ",
+"燃焼": "ねんしょう",
+"片持": "かたも",
+"片持ち": "かたもち",
+"片方": "かたほう",
+"物性": "ぶっせい",
+"特大": "とくだい",
+"特徴": "とくちょう",
+"特性": "とくせい",
+"状態": "じょうたい",
+"現物": "げんぶつ",
+"理由": "りゆう",
+"理科年表": "りかねんぴょう",
+"理解": "りかい",
+"環境": "かんきょう",
+"生徒": "せいと",
+"生材": "なまざい",
+"用途": "ようと",
+"画像": "がぞう",
+"画面": "がめん",
+"番目": "ばんめ",
+"発見": "はっけん",
+"登録": "とうろく",
+"白っ": "しろっ",
+"目の": "めの",
+"目安": "めやす",
+"目安値": "めやすち",
+"目標": "もくひょう",
+"目的": "もくてき",
+"目盛り": "めもり",
+"直し": "なおし",
+"直したい": "なおしたい",
+"直す": "なおす",
+"直交": "ちょっこう",
+"直前": "ちょくぜん",
+"直定規": "ちょくじょうぎ",
+"直径": "ちょっけい",
+"直接": "ちょくせつ",
+"直方体": "ちょくほうたい",
+"直角": "ちょっかく",
+"相互評価": "そうごひょうか",
+"省略": "しょうりゃく",
+"真ん中": "まんなか",
+"真上": "まうえ",
+"矢印": "やじるし",
+"短い": "みじかい",
+"破線": "はせん",
+"確か": "たしか",
+"確認": "かくにん",
+"確認し": "かくにんし",
+"磁石": "じしゃく",
+"示し": "しめし",
+"社会": "しゃかい",
+"移す": "うつす",
+"移り": "うつり",
+"移動": "いどう",
+"種類": "しゅるい",
+"積み": "つみ",
+"積む": "つむ",
+"積め": "つめ",
+"積ん": "つん",
+"穴": "あな",
+"空い": "あい",
+"空き": "あき",
+"立て": "たて",
+"立体": "りったい",
+"立方体": "りっぽうたい",
+"端から": "はしから",
+"端の": "はしの",
+"端末": "たんまつ",
+"端材": "はざい",
+"第三": "だいさん",
+"第三角法": "だいさんかくほう",
+"等角": "とうかく",
+"等角図": "とうかくず",
+"筋かい": "すじかい",
+"答え": "こたえ",
+"管理": "かんり",
+"箱": "はこ",
+"箱形": "はこがた",
+"節点": "せってん",
+"範囲": "はんい",
+"簡単": "かんたん",
+"精密": "せいみつ",
+"精度": "せいど",
+"約": "やく",
+"細い": "ほそい",
+"細かく": "こまかく",
+"終わり": "おわり",
+"終点": "しゅうてん",
+"組み": "くみ",
+"組み合わせ": "くみあわせ",
+"組み立て": "くみたて",
+"組み立てら": "くみたてら",
+"組み立てる": "くみたてる",
+"組む": "くむ",
+"組め": "くめ",
+"経済": "けいざい",
+"結果": "けっか",
+"絞り込み": "しぼりこみ",
+"絶縁": "ぜつえん",
+"継ぎ": "つぎ",
+"続き": "つづき",
+"線": "せん",
+"練習": "れんしゅう",
+"縦": "たて",
+"縦びき": "たてびき",
+"縦線": "たてせん",
+"縮む": "ちぢむ",
+"繊維": "せんい",
+"繊維方向": "せんいほうこう",
+"置い": "おい",
+"置いた": "おいた",
+"置き": "おき",
+"置き方": "おきかた",
+"置く": "おく",
+"置け": "おけ",
+"考え": "かんがえ",
+"考えた": "かんがえた",
+"考える": "かんがえる",
+"考え方": "かんがえかた",
+"背板": "せいた",
+"背面": "はいめん",
+"自分": "じぶん",
+"自動": "じどう",
+"自己評価": "じこひょうか",
+"自由": "じゆう",
+"良い": "よい",
+"良かった": "よかった",
+"荷重": "かじゅう",
+"薄い": "うすい",
+"薬品": "やくひん",
+"行い": "おこない",
+"衝撃": "しょうげき",
+"表し": "あらわし",
+"表す": "あらわす",
+"表れ": "あらわれ",
+"表目": "おもてめ",
+"表示": "ひょうじ",
+"表示さ": "ひょうじさ",
+"表示し": "ひょうじし",
+"表示す": "ひょうじす",
+"表示用": "ひょうじよう",
+"表面": "ひょうめん",
+"裏で": "うらで",
+"裏板": "うらいた",
+"裏目": "うらめ",
+"補助": "ほじょ",
+"補助線": "ほじょせん",
+"補強": "ほきょう",
+"補強材": "ほきょうざい",
+"製作": "せいさく",
+"製作図": "せいさくず",
+"製品": "せいひん",
+"製図": "せいず",
+"見え": "みえ",
+"見せ": "みせ",
+"見た": "みた",
+"見た目": "みため",
+"見つ": "みつ",
+"見て": "みて",
+"見る": "みる",
+"見分": "みわけ",
+"見方": "みかた",
+"見本": "みほん",
+"見直し": "みなおし",
+"見通し": "みとおし",
+"規格": "きかく",
+"視線": "しせん",
+"観察": "かんさつ",
+"観点": "かんてん",
+"角が": "かどが",
+"角の": "かどの",
+"角を": "かどを",
+"角度": "かくど",
+"角材": "かくざい",
+"解説": "かいせつ",
+"言わ": "いわ",
+"言葉": "ことば",
+"計算": "けいさん",
+"計算上": "けいさんじょう",
+"計算式": "けいさんしき",
+"記入": "きにゅう",
+"記号": "きごう",
+"記録": "きろく",
+"設定": "せってい",
+"設計": "せっけい",
+"設計課題": "せっけいかだい",
+"評価": "ひょうか",
+"試し": "ためし",
+"試す": "ためす",
+"試作品": "しさくひん",
+"説明": "せつめい",
+"説明す": "せつめいす",
+"読み": "よみ",
+"読み込み": "よみこみ",
+"読み込む": "よみこむ",
+"読み込め": "よみこめ",
+"読め": "よめ",
+"読んで": "よんで",
+"課題": "かだい",
+"調べ": "しらべ",
+"調整": "ちょうせい",
+"費用": "ひよう",
+"貼り合わ": "はりあわ",
+"資料": "しりょう",
+"質量": "しつりょう",
+"足す": "たす",
+"足り": "たり",
+"距離": "きょり",
+"身に付け": "みにつけ",
+"身の": "みの",
+"軟鋼": "なんこう",
+"軸方向": "じくほうこう",
+"軽い": "かるい",
+"軽く": "かるく",
+"載荷": "さいか",
+"輪郭": "りんかく",
+"辺材": "へんざい",
+"込む": "こむ",
+"近い": "ちかい",
+"返し": "かえし",
+"返す": "かえす",
+"返せ": "かえせ",
+"追加": "ついか",
+"逆に": "ぎゃくに",
+"逆目": "さかめ",
+"透明": "とうめい",
+"透明度": "とうめいど",
+"途中": "とちゅう",
+"通し": "とおし",
+"通って": "とおって",
+"速い": "はやい",
+"運ぶ": "はこぶ",
+"道具": "どうぐ",
+"違い": "ちがい",
+"遠い": "とおい",
+"選ば": "えらば",
+"選び": "えらび",
+"選ぶ": "えらぶ",
+"選ん": "えらん",
+"選んだ": "えらんだ",
+"選択": "せんたく",
+"選択肢": "せんたくし",
+"避け": "さけ",
+"部分": "ぶぶん",
+"部品": "ぶひん",
+"部品表": "ぶひんひょう",
+"部材": "ぶざい",
+"配列": "はいれつ",
+"配置": "はいち",
+"重さ": "おもさ",
+"重な": "かさな",
+"重なっている": "かさなっている",
+"重なり": "かさなり",
+"重ね": "かさね",
+"重み": "おもみ",
+"重力加速度": "じゅうりょくかそくど",
+"重視": "じゅうし",
+"金具": "かなぐ",
+"金属": "きんぞく",
+"金物": "かなもの",
+"針葉樹": "しんようじゅ",
+"鉄": "てつ",
+"鉄板": "てっぱん",
+"銅": "どう",
+"鎖線": "させん",
+"長い": "ながい",
+"長さ": "ながさ",
+"長手": "ながて",
+"長方形": "ちょうほうけい",
+"閉じ": "とじ",
+"開い": "ひらい",
+"開き": "ひらき",
+"開く": "ひらく",
+"間の": "あいだの",
+"間伐材": "かんばつざい",
+"関係": "かんけい",
+"限り": "かぎり",
+"限界": "げんかい",
+"集中": "しゅうちゅう",
+"集成": "しゅうせい",
+"集成材": "しゅうせいざい",
+"離す": "はなす",
+"電気": "でんき",
+"電線": "でんせん",
+"青い": "あおい",
+"面": "めん",
+"面取": "めんと",
+"面材": "めんざい",
+"面積": "めんせき",
+"項目": "こうもく",
+"順位": "じゅんい",
+"順番": "じゅんばん",
+"順目": "ならいめ",
+"飛び出し": "とびだし",
+"飲料": "いんりょう",
+"高い": "たかい",
+"高さ": "たかさ",
+"高価": "こうか"
+};
+if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
+
+</script>
+<script>
+/*
+ * 技術分野アプリ 共通基盤 core.js
+ * - classic script(file:// でも動く)。グローバル G に機能をまとめる。
+ * - 外部通信なし。保存は IndexedDB(使えない環境では localStorage)。
+ * 使い方は common/README.md を参照。
+ */
+(function () {
+  'use strict';
+  var G = (window.G = window.G || {});
+  G.version = '2.4.0';  // A-materials/eduit-info.js の version と合わせる
+  // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
+  G.CREDIT = '羽生市立南中学校　技術　岡田';
+  G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
+  // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
+  G.LS_PREFIX = {
+    'material-navi': ['material-navi.'], 'wood-lab': ['a2.'], 'structure-lab': ['structure-lab.'],
+    'drawing-trainer': ['drawing-trainer.'], 'kidori': ['kidori.'], 'tool-safety': ['tool-safety.'], 'solid-maker': ['solid-maker.']
+  };
+
+  /* ---------- DOM ヘルパー ---------- */
+  G.$ = function (sel, root) { return (root || document).querySelector(sel); };
+  G.$$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  // G.h('button', {class:'btn', onclick: fn}, 'ラベル', childNode, [配列も可])
+  G.h = function (tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+        else if (k === 'class') el.className = v;
+        else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+        else if (k === 'html') el.innerHTML = v;
+        else if (k === 'value') el.value = v;
+        else if (k === 'checked') el.checked = !!v;
+        else if (v === true) el.setAttribute(k, '');
+        else el.setAttribute(k, v);
+      });
+    }
+    for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  };
+  function append(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { append(el, x); }); return; }
+    el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  G.esc = function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  G.uid = function (prefix) {
+    return (prefix || 'id') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  };
+  G.clamp = function (v, lo, hi) { return Math.min(hi, Math.max(lo, v)); };
+  // 入力値を安全な数値にする(負数・0・過大値・空欄に強い)
+  G.num = function (v, def, lo, hi) {
+    var n = parseFloat(String(v).replace(/[０-９．]/g, function (c) {
+      return String.fromCharCode(c.charCodeAt(0) - 0xfee0);
+    }));
+    if (!isFinite(n)) n = def;
+    if (lo !== undefined) n = Math.max(lo, n);
+    if (hi !== undefined) n = Math.min(hi, n);
+    return n;
+  };
+  G.fmt = function (n, digits) {
+    if (!isFinite(n)) return '—';
+    var d = digits === undefined ? 1 : digits;
+    return Number(n.toFixed(d)).toLocaleString('ja-JP', { maximumFractionDigits: d });
+  };
+
+  /* ---------- 設定(ルビ・文字サイズ。全アプリ共通) ---------- */
+  var SKEY = 'gijutsu.settings';
+  G.settings = {
+    all: function () {
+      try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return G.settings._mem || {}; }
+    },
+    get: function (k, def) { var a = G.settings.all(); return a[k] === undefined ? def : a[k]; },
+    set: function (k, v) {
+      var a = G.settings.all(); a[k] = v;
+      try { localStorage.setItem(SKEY, JSON.stringify(a)); } catch (e) { G.settings._mem = a; }
+      G.applySettings();
+    }
+  };
+  G.applySettings = function () {
+    var root = document.documentElement;
+    root.classList.toggle('ruby-off', !G.settings.get('ruby', true));
+    root.setAttribute('data-size', G.settings.get('size', 'm'));
+    root.classList.toggle('high-contrast', !!G.settings.get('contrast', false));
+    G.$$('[data-g-setting]').forEach(function (b) {
+      var k = b.getAttribute('data-g-setting');
+      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', true)));
+      if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
+      if (k === 'size') b.setAttribute('data-value', G.settings.get('size', 'm'));
+    });
+  };
+
+  /* ---------- ルビ(総ルビ/なし切替) ----------
+   * 読みはデータ側(common/ruby-dict.js の RUBY_DICT、または各アプリが G.ruby.add で追加)に持つ。
+   * 文章は普通の日本語で書けば、辞書にある語に自動で <ruby> が付く。
+   * 個別指定したいときは本文に {漢字|かんじ} と書く。
+   * ルビを付けたくない要素には data-noruby を付ける。
+   */
+  G.ruby = (function () {
+    var dict = {};
+    var re = null;
+    var KANJI = /[㐀-鿿々〆ヶ々〆ヶ]/;
+    var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, SELECT: 1, OPTION: 1, RUBY: 1, RT: 1, RP: 1, CODE: 1, PRE: 1, CANVAS: 1, svg: 1, SVG: 1, TITLE: 1 };
+    function add(obj) {
+      Object.keys(obj).forEach(function (w) { if (KANJI.test(w)) dict[w] = obj[w]; });
+      re = null;
+    }
+    function build() {
+      var keys = Object.keys(dict).sort(function (a, b) { return b.length - a.length; });
+      if (!keys.length) { re = /\{([^{}|]+)\|([^{}]+)\}/g; return; }
+      re = new RegExp('\\{([^{}|]+)\\|([^{}]+)\\}|(' + keys.map(function (k) {
+        return k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }).join('|') + ')', 'g');
+    }
+    // 語と読みを、かな部分でそろえて漢字部分だけにルビを付ける
+    function rubyNodes(word, reading) {
+      var parts = word.match(/[぀-ゟ゠-ヿーー]+|[^぀-ゟ゠-ヿーー]+/g) || [word];
+      var pat = '^' + parts.map(function (p) {
+        return /^[぀-ゟ゠-ヿーー]+$/.test(p) ? '(' + p + ')' : '(.+?)';
+      }).join('') + '$';
+      var m = new RegExp(pat).exec(reading);
+      var frag = document.createDocumentFragment();
+      if (!m) { frag.appendChild(mk(word, reading)); return frag; }
+      parts.forEach(function (p, i) {
+        if (/^[぀-ゟ゠-ヿーー]+$/.test(p)) frag.appendChild(document.createTextNode(p));
+        else frag.appendChild(mk(p, m[i + 1]));
+      });
+      return frag;
+    }
+    function mk(base, rt) {
+      var r = document.createElement('ruby');
+      r.appendChild(document.createTextNode(base));
+      var rp1 = document.createElement('rp'); rp1.textContent = '(';
+      var t = document.createElement('rt'); t.textContent = rt;
+      var rp2 = document.createElement('rp'); rp2.textContent = ')';
+      r.appendChild(rp1); r.appendChild(t); r.appendChild(rp2);
+      return r;
+    }
+    function skipped(node) {
+      for (var p = node.parentNode; p && p !== document; p = p.parentNode) {
+        if (p.nodeType !== 1) continue;
+        if (SKIP[p.nodeName] || p.namespaceURI === 'http://www.w3.org/2000/svg') return true;
+        if (p.hasAttribute('data-noruby') || p.isContentEditable) return true;
+      }
+      return false;
+    }
+    function processText(node) {
+      var text = node.nodeValue;
+      if (!text || (!KANJI.test(text) && text.indexOf('{') < 0)) return;
+      if (skipped(node)) return;
+      if (!re) build();
+      re.lastIndex = 0;
+      var m, last = 0, frag = null;
+      while ((m = re.exec(text))) {
+        if (!frag) frag = document.createDocumentFragment();
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        if (m[1]) frag.appendChild(rubyNodes(m[1], m[2]));
+        else frag.appendChild(rubyNodes(m[3], dict[m[3]]));
+        last = re.lastIndex;
+      }
+      if (!frag) return;
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      // 1つの span にまとめる(flex や grid の中で、文字がばらばらの項目にならないように)
+      var wrap = document.createElement('span');
+      wrap.className = 'g-rb';
+      wrap.appendChild(frag);
+      node.parentNode.replaceChild(wrap, node);
+    }
+    function apply(root) {
+      root = root || document.body;
+      if (!root) return;
+      if (root.nodeType === 3) { processText(root); return; }
+      if (root.nodeType !== 1 && root.nodeType !== 11) return;
+      if (root.nodeType === 1 && (SKIP[root.nodeName] || root.namespaceURI === 'http://www.w3.org/2000/svg')) return;
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      var list = [], n;
+      while ((n = walker.nextNode())) list.push(n);
+      list.forEach(processText);
+    }
+    var observer = null;
+    function observe() {
+      if (observer || !window.MutationObserver) return;
+      observer = new MutationObserver(function (muts) {
+        observer.disconnect();
+        muts.forEach(function (mu) {
+          if (mu.type === 'characterData') processText(mu.target);
+          else mu.addedNodes.forEach(function (nd) { if (nd.isConnected) apply(nd); });
+        });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+      });
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
+    // ルビ付きの要素から、ふりがなを除いた文字列を取り出す
+    function plain(el) {
+      var c = el.cloneNode(true);
+      G.$$('rt,rp', c).forEach(function (x) { x.remove(); });
+      return c.textContent;
+    }
+    // 文字列 → ルビ付き HTML(innerHTML で使いたいとき)
+    function html(text) {
+      var d = document.createElement('span');
+      d.textContent = text;
+      apply(d);
+      return d.innerHTML;
+    }
+    if (window.RUBY_DICT) add(window.RUBY_DICT);
+    return { add: add, apply: apply, observe: observe, plain: plain, html: html, dict: dict };
+  })();
+
+  /* ---------- 保存(IndexedDB + JSON 入出力) ----------
+   * 共通スキーマ artifact:
+   * { schema:'gijutsu-artifact/1', id, app, kind, title, createdAt, updatedAt, data:{...} }
+   */
+  G.SCHEMA = 'gijutsu-artifact/1';
+  G.newArtifact = function (app, title, data, kind) {
+    var now = new Date().toISOString();
+    return { schema: G.SCHEMA, id: G.uid(app), app: app, kind: kind || 'work', title: title || '無題', createdAt: now, updatedAt: now, data: data || {} };
+  };
+  G.store = (function () {
+    var DB = 'gijutsu', STORE = 'artifacts', dbp = null, LSK = 'gijutsu.artifacts';
+    function open() {
+      if (dbp) return dbp;
+      dbp = new Promise(function (res, rej) {
+        if (!window.indexedDB) { rej(new Error('no idb')); return; }
+        var rq;
+        try { rq = indexedDB.open(DB, 1); } catch (e) { rej(e); return; }
+        rq.onupgradeneeded = function () {
+          var os = rq.result.createObjectStore(STORE, { keyPath: 'id' });
+          os.createIndex('app', 'app');
+        };
+        rq.onsuccess = function () { res(rq.result); };
+        rq.onerror = function () { rej(rq.error); };
+      }).catch(function (e) { console.warn('IndexedDB が使えないため localStorage に保存します', e); return null; });
+      return dbp;
+    }
+    function lsAll() { try { return JSON.parse(localStorage.getItem(LSK)) || {}; } catch (e) { return {}; } }
+    function lsSave(all) { localStorage.setItem(LSK, JSON.stringify(all)); }
+    function tx(mode, fn) {
+      return open().then(function (db) {
+        if (!db) return fn(null);
+        return new Promise(function (res, rej) {
+          var t = db.transaction(STORE, mode), os = t.objectStore(STORE), out;
+          var r = fn(os);
+          if (r && 'onsuccess' in r) r.onsuccess = function () { out = r.result; };
+          t.oncomplete = function () { res(out); };
+          t.onerror = function () { rej(t.error); };
+        });
+      });
+    }
+    return {
+      put: function (a) {
+        if (!a || !a.id || !a.app) return Promise.reject(new Error('artifact に id と app が必要です'));
+        a.schema = G.SCHEMA;
+        a.updatedAt = new Date().toISOString();
+        var copy = JSON.parse(JSON.stringify(a));
+        return tx('readwrite', function (os) {
+          if (!os) { var all = lsAll(); all[copy.id] = copy; lsSave(all); return null; }
+          return os.put(copy);
+        }).then(function () { return copy; });
+      },
+      get: function (id) {
+        return open().then(function (db) {
+          if (!db) return lsAll()[id] || null;
+          return new Promise(function (res, rej) {
+            var rq = db.transaction(STORE, 'readonly').objectStore(STORE).get(id);
+            rq.onsuccess = function () { res(rq.result || null); };
+            rq.onerror = function () { rej(rq.error); };
+          });
+        });
+      },
+      list: function (app) {
+        return open().then(function (db) {
+          if (!db) {
+            var all = lsAll();
+            return Object.keys(all).map(function (k) { return all[k]; }).filter(function (a) { return !app || a.app === app; });
+          }
+          return new Promise(function (res, rej) {
+            var t = db.transaction(STORE, 'readonly'), os = t.objectStore(STORE);
+            var rq = app ? os.index('app').getAll(app) : os.getAll();
+            rq.onsuccess = function () { res(rq.result); };
+            rq.onerror = function () { rej(rq.error); };
+          });
+        }).then(function (list) {
+          return list.sort(function (a, b) { return (b.updatedAt || '').localeCompare(a.updatedAt || ''); });
+        });
+      },
+      del: function (id) {
+        return tx('readwrite', function (os) {
+          if (!os) { var all = lsAll(); delete all[id]; lsSave(all); return null; }
+          return os.delete(id);
+        });
+      }
+    };
+  })();
+
+  // メニューで入れた組・番号・名前(先生用の振り返り一覧で、だれのファイルか分かるように書き出しに入れる)
+  G.profile = function () {
+    try {
+      var p = JSON.parse(localStorage.getItem('gijutsu.profile')) || {};
+      return { class: String(p.class || ''), no: String(p.no || ''), name: String(p.name || '') };
+    } catch (e) { return { class: '', no: '', name: '' }; }
+  };
+  // JSON をファイルとして書き出す(作品・記録には、組・番号・名前が入っていればそれも入れる)
+  G.exportJSON = function (obj, filename) {
+    var st = G.profile();
+    if (obj && typeof obj === 'object' && !Array.isArray(obj) && !obj.student && (st.class || st.no || st.name)) {
+      obj = Object.assign({}, obj, { student: st });  // 保存している作品そのものは変えない
+    }
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    G.download(blob, filename || 'gijutsu.json');
+  };
+  G.download = function (blob, filename) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  };
+  // ファイルを選ばせて JSON を読み込む → Promise<object>
+  G.pickJSON = function () {
+    return new Promise(function (res, rej) {
+      var inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.json,application/json';
+      inp.onchange = function () {
+        var f = inp.files[0];
+        if (!f) { rej(new Error('ファイルが選ばれていません')); return; }
+        var rd = new FileReader();
+        rd.onload = function () {
+          try { res(JSON.parse(rd.result)); } catch (e) { rej(new Error('JSON として読めませんでした')); }
+        };
+        rd.onerror = function () { rej(rd.error); };
+        rd.readAsText(f);
+      };
+      inp.click();
+    });
+  };
+  // 読み込んだ JSON を artifact の配列に正規化する(単体・配列・{artifacts:[]} に対応)
+  G.normalizeImport = function (obj, app) {
+    var list = Array.isArray(obj) ? obj : obj && Array.isArray(obj.artifacts) ? obj.artifacts : [obj];
+    return list.filter(function (a) {
+      return a && typeof a === 'object' && a.data && (!app || a.app === app);
+    }).map(function (a) {
+      var c = JSON.parse(JSON.stringify(a));
+      c.schema = G.SCHEMA;
+      if (!c.id) c.id = G.uid(c.app || app || 'x');
+      return c;
+    });
+  };
+
+  /* ---------- 小さな UI 部品 ---------- */
+  G.toast = function (msg, ms) {
+    var box = G.$('#g-toast');
+    if (!box) { box = G.h('div', { id: 'g-toast', role: 'status', 'aria-live': 'polite' }); document.body.appendChild(box); }
+    var t = G.h('div', { class: 'g-toast-item' }, msg);
+    box.appendChild(t);
+    setTimeout(function () { t.classList.add('out'); setTimeout(function () { t.remove(); }, 400); }, ms || 2600);
+  };
+
+  // タブ: <div data-g-tabs> 内の [role=tab][data-tab=X] と [data-panel=X] を結ぶ
+  G.tabs = function (root, onChange) {
+    var tabs = G.$$('[role=tab]', root);
+    function show(name, focus) {
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-tab') === name;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      G.$$('[data-panel]', root).forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== name; });
+      try { sessionStorage.setItem('tab:' + (G.app || '') + location.pathname, name); } catch (e) {}
+      if (onChange) onChange(name);
+    }
+    tabs.forEach(function (t, i) {
+      var name = t.getAttribute('data-tab');
+      var panel = G.$('[data-panel="' + name + '"]', root);
+      t.id = t.id || 'tab-' + name;
+      t.setAttribute('aria-controls', panel ? (panel.id = panel.id || 'panel-' + name) : '');
+      if (panel) { panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', t.id); }
+      t.addEventListener('click', function () { show(name); });
+      t.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (e.key === 'Home') d = -i; if (e.key === 'End') d = tabs.length - 1 - i;
+        if (!d) return;
+        e.preventDefault();
+        show(tabs[(i + d + tabs.length) % tabs.length].getAttribute('data-tab'), true);
+      });
+    });
+    var first = tabs[0] && tabs[0].getAttribute('data-tab'), saved = null;
+    try { saved = sessionStorage.getItem('tab:' + (G.app || '') + location.pathname); } catch (e) {}
+    show(saved && G.$('[data-tab="' + saved + '"]', root) ? saved : first);
+    return { show: show };
+  };
+
+  // モーダル(<dialog>)。G.modal({title, body:Node, actions:[{label, value, primary}]}) → Promise<value>
+  G.modal = function (opt) {
+    return new Promise(function (res) {
+      var dlg = G.h('dialog', { class: 'g-modal', 'aria-label': opt.title || '' });
+      var form = G.h('form', { method: 'dialog' });
+      if (opt.title) form.appendChild(G.h('h2', null, opt.title));
+      if (opt.body) form.appendChild(typeof opt.body === 'string' ? G.h('p', null, opt.body) : opt.body);
+      var acts = G.h('div', { class: 'g-row g-end' });
+      (opt.actions || [{ label: '閉じる', value: 'close', primary: true }]).forEach(function (a) {
+        acts.appendChild(G.h('button', { class: 'btn' + (a.primary ? ' primary' : ''), value: a.value }, a.label));
+      });
+      form.appendChild(acts);
+      dlg.appendChild(form);
+      document.body.appendChild(dlg);
+      dlg.addEventListener('close', function () { res(dlg.returnValue); dlg.remove(); });
+      dlg.showModal();
+    });
+  };
+  G.confirm = function (msg, okLabel) {
+    return G.modal({ title: '確認', body: msg, actions: [{ label: 'やめる', value: 'no' }, { label: okLabel || 'OK', value: 'yes', primary: true }] })
+      .then(function (v) { return v === 'yes'; });
+  };
+
+  // 保存した作品の一覧を開く → Promise<artifact|null>
+  G.openDialog = function (app) {
+    return G.store.list(app).then(function (list) {
+      return new Promise(function (res) {
+        var chosen = null;
+        var body = G.h('div', { class: 'g-filelist' });
+        if (!list.length) body.appendChild(G.h('p', null, 'まだ保存された作品はありません。'));
+        list.forEach(function (a) {
+          var row = G.h('div', { class: 'g-filerow' },
+            G.h('button', { class: 'btn link', type: 'button', onclick: function () { chosen = a; dlgClose(); } },
+              a.title || '無題'),
+            G.h('span', { class: 'g-muted' }, new Date(a.updatedAt).toLocaleString('ja-JP')),
+            G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
+              G.confirm('「' + (a.title || '無題') + '」を削除します。もとに戻せません。', '削除する').then(function (ok) {
+                if (ok) G.store.del(a.id).then(function () { row.remove(); });
+              });
+            } }, '削除'));
+          body.appendChild(row);
+        });
+        var p = G.modal({ title: '保存した作品を開く', body: body, actions: [{ label: '閉じる', value: 'close' }] });
+        function dlgClose() { var d = G.$('dialog.g-modal[open]'); if (d) d.close('pick'); }
+        p.then(function () { res(chosen); });
+      });
+    });
+  };
+
+
+  /* ---------- 保存データの管理(1件ずつ削除・すべて削除) ----------
+   * G.clearAppData(app) … そのアプリの作品と localStorage を消す(app を省くと全アプリ)
+   * G.dataDialog(app)   … 一覧と削除ボタンのダイアログ。何か消したら閉じたときに画面を読み込み直す
+   */
+  G.clearLocal = function (app) {
+    var heads = [];
+    Object.keys(G.LS_PREFIX).forEach(function (k) { if (!app || k === app) heads = heads.concat(G.LS_PREFIX[k]); });
+    if (!app) heads.push('gijutsu.artifacts', 'gijutsu.profile');
+    try {
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+      keys.forEach(function (k) {
+        if (heads.some(function (h) { return k === h || k.indexOf(h) === 0; })) localStorage.removeItem(k);
+      });
+    } catch (e) {}
+  };
+  G.clearAppData = function (app) {
+    return G.store.list(app).then(function (list) {
+      return Promise.all(list.map(function (a) { return G.store.del(a.id); })).then(function () {
+        G.clearLocal(app);
+        return list.length;
+      });
+    });
+  };
+  G.dataDialog = function (app, appTitle) {
+    var changed = false;
+    return G.store.list(app).then(function (list) {
+      var body = G.h('div', { class: 'g-filelist' });
+      body.appendChild(G.h('p', null, (appTitle ? '「' + appTitle + '」で' : '') + 'この端末に保存されているデータです。消したデータはもとに戻せません。先生に出す前に消さないよう気をつけましょう。'));
+      var listBox = G.h('div', null);
+      function draw() {
+        listBox.innerHTML = '';
+        if (!list.length) listBox.appendChild(G.h('p', { class: 'g-muted' }, '保存されている作品・記録はありません。'));
+        list.forEach(function (a) {
+          var info = !app && G.APPS && G.APPS.filter(function (x) { return x.id === a.app; })[0];
+          listBox.appendChild(G.h('div', { class: 'g-filerow' },
+            G.h('span', null, info ? G.h('span', { class: 'badge' }, info.code) : null, info ? ' ' : null, a.title || '無題'),
+            G.h('span', { class: 'g-muted' }, a.updatedAt ? new Date(a.updatedAt).toLocaleString('ja-JP') : ''),
+            G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
+              G.confirm('「' + (a.title || '無題') + '」を削除します。もとに戻せません。', '削除する').then(function (ok) {
+                if (!ok) return;
+                G.store.del(a.id).then(function () { changed = true; list = list.filter(function (x) { return x !== a; }); G.toast('削除しました'); draw(); });
+              });
+            } }, '削除')));
+        });
+      }
+      draw();
+      body.appendChild(listBox);
+      body.appendChild(G.h('div', { class: 'g-row', style: { marginTop: '.75rem' } },
+        G.h('button', { class: 'btn danger', type: 'button', onclick: function () {
+          G.confirm((appTitle ? '「' + appTitle + '」の' : 'すべてのアプリの') + 'データをすべて削除します。とちゅうの作業や記録も消えます。もとに戻せません。', 'すべて削除する').then(function (ok) {
+            if (!ok) return;
+            G.clearAppData(app).then(function () { changed = true; list = []; G.toast('すべて削除しました'); draw(); });
+          });
+        } }, 'すべて削除する')));
+      return G.modal({ title: '保存データの管理', body: body, actions: [{ label: '閉じる', value: 'close', primary: true }] }).then(function () {
+        if (changed) location.reload();
+      });
+    });
+  };
+
+  /* ---------- アプリ共通のヘッダー ----------
+   * G.initApp({ app:'kidori', title:'木取り・構想シミュレータ', home:'../index.html', files:[...] })
+   * - ヘッダー(メニューへ戻る/名前/ルビ/文字サイズ/コントラスト)を <header id="g-header"> に描く
+   * - 名前の前に記号(A5 など)の印を出す。記号は common/apps.js(G.APPS)の app と同じ id の code。opt.code で上書き、opt.code: '' で出さない
+   * - ルビの自動付与と Service Worker 登録を行う
+   */
+  G.initApp = function (opt) {
+    opt = opt || {};
+    G.app = opt.app;
+    G.applySettings();
+    var header = G.$('#g-header');
+    if (!header) { header = G.h('header', { id: 'g-header' }); document.body.insertBefore(header, document.body.firstChild); }
+    // 4分野共通の枠(shared/eduit-frame.css の .ef-header / .ef-btn)
+    header.classList.add('g-header', 'ef-header');
+    header.innerHTML = '';
+    var sizes = { s: '小', m: '中', l: '大', xl: '特大' };
+    var sizeBtn = G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'size', title: '文字の大きさを変える', onclick: function () {
+      var order = ['s', 'm', 'l', 'xl'];
+      var cur = G.settings.get('size', 'm');
+      var next = order[(order.indexOf(cur) + 1) % order.length];
+      G.settings.set('size', next);
+      sizeBtn.lastChild.textContent = sizes[next];
+    } }, '文字 ', G.h('span', { 'data-noruby': true }, sizes[G.settings.get('size', 'm')]));
+    // 道具の並び: ふりがな → 文字の大きさ → くっきり → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
+    var help = null;
+    if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
+    else if (typeof opt.help === 'string') help = G.h('a', { class: 'ef-btn', href: opt.help }, '使い方');
+    if (opt.home !== false) header.appendChild(G.h('a', { class: 'ef-btn ef-back g-home', href: opt.home || '../index.html' }, '◀ メニュー'));
+    // 上のバーの名前: 「A2 木材の繊維・収縮ラボ」の形。記号は common/apps.js の code(opt.code で上書き)を .ef-code の印で出す
+    var code = opt.code;
+    if (code === undefined && opt.app) (G.APPS || []).forEach(function (a) { if (a.id === opt.app) code = a.code; });
+    var title = G.h('h1', { class: 'ef-title g-title' },
+      code ? G.h('span', { class: 'ef-code', 'data-noruby': true }, code) : null,
+      code ? ' ' : null, opt.title || document.title);
+    header.appendChild(title);
+    header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
+      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
+        G.settings.set('ruby', !G.settings.get('ruby', true));
+      } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
+      sizeBtn,
+      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
+        G.settings.set('contrast', !G.settings.get('contrast', false));
+      } }, 'くっきり'),
+      help,
+      opt.tools || null));
+    G.applySettings();
+    // 作成者の読みがな(フッターと「このアプリについて」で使う)
+    G.ruby.add({ '羽生': 'はにゅう', '市立': 'しりつ', '南中学校': 'みなみちゅうがっこう', '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
+    if (!G.$('.g-footer')) {
+      var dataBtn = opt.app && opt.app !== 'menu' && opt.data !== false
+        ? G.h('button', { class: 'btn small ghost g-data-btn', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null;
+      var foot;
+      if (window.EduitFrame) {
+        // 共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴)。保存データの管理ボタンはその右に
+        foot = G.h('div', { class: 'g-footer g-footer-ef', 'data-ef-footer': true });
+      } else {
+        foot = G.h('footer', { class: 'g-footer' },
+          G.h('span', { class: 'g-credit' }, G.h('span', { 'data-noruby': true }, '作成: '), G.h('span', { 'data-credit': true }, G.CREDIT_RUBY)),
+          dataBtn);
+      }
+      var addFoot = function () {
+        document.body.appendChild(foot);
+        if (window.EduitFrame) {
+          // 枠がもう body の最後にフッターを出していたら、こちらへ移す(2つ出さない)
+          var made = G.$('body > .ef-footer');
+          if (made) foot.appendChild(made); else window.EduitFrame.mount();
+          var ef = foot.querySelector('.ef-footer');
+          if (ef && dataBtn) ef.appendChild(dataBtn);
+        }
+      };
+      if (document.body) addFoot(); else document.addEventListener('DOMContentLoaded', addFoot);
+    }
+    // 一つのHTML版(build-single.py)の中で開かれているか
+    if (window.parent !== window) {
+      try { if (window.parent.GSingle) G.single = window.parent.GSingle; } catch (e) {}
+    }
+    // (リンクの付けかえは build-single.py が各ページに入れるスクリプトが行う)
+    var start = function () {
+      G.ruby.apply(document.body);
+      G.ruby.observe();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+    G.registerSW(opt.files || []);
+  };
+
+  /* ---------- オフライン(Service Worker) ----------
+   * ルートの sw.js が common/ とメニューを先にキャッシュする。
+   * 各アプリは自分のファイル一覧を渡すと、初回オープン時にまとめてキャッシュされる。
+   * file:// で開いたときは Service Worker は使えない(ファイルはそのまま動く)。
+   */
+  G.registerSW = function (files) {
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || G.single) return;
+    var swUrl = new URL((G.basePath || '../') + 'sw.js', location.href);
+    if (G.$('meta[name="g-root"]')) swUrl = new URL('sw.js', new URL(G.$('meta[name="g-root"]').content, location.href));
+    navigator.serviceWorker.register(swUrl.href, { scope: new URL('./', swUrl).href }).then(function (reg) {
+      var urls = (files || []).map(function (f) { return new URL(f, location.href).href; });
+      urls.push(location.href.split('#')[0]);
+      var send = function (w) { if (w) w.postMessage({ type: 'cache', urls: urls }); };
+      send(reg.active || reg.waiting || reg.installing);
+      navigator.serviceWorker.ready.then(function (r) { send(r.active); });
+    }).catch(function (e) { console.warn('Service Worker を登録できませんでした', e); });
+  };
+
+  /* ---------- 問題解決の型(全アプリ共通の流れ) ---------- */
+  G.PS_STEPS = [
+    { id: 'find', label: '問題の発見' },
+    { id: 'task', label: '課題の設定' },
+    { id: 'plan', label: '構想' },
+    { id: 'make', label: '製作' },
+    { id: 'eval', label: '評価' },
+    { id: 'improve', label: '改善' }
+  ];
+  // G.psCycle(el, ['plan']) … 今このアプリが受け持つ段階を強調して表示
+  G.psCycle = function (el, active) {
+    active = active || [];
+    el.innerHTML = '';
+    el.classList.add('g-ps');
+    el.setAttribute('aria-label', '問題解決の流れ');
+    var ol = G.h('ol', null);
+    G.PS_STEPS.forEach(function (s) {
+      var on = active.indexOf(s.id) >= 0;
+      ol.appendChild(G.h('li', { class: on ? 'on' : '', 'aria-current': on ? 'step' : null }, s.label));
+    });
+    el.appendChild(ol);
+    // 強調の意味を短く書く(色だけに頼らない)
+    if (active.length) el.appendChild(G.h('p', { class: 'g-ps-note' }, '▶ = このアプリでとりくむ段階'));
+    return el;
+  };
+
+  /* ---------- 技術の見方・考え方(観点) ---------- */
+  G.VIEWPOINTS = [
+    { id: 'society', label: '社会' },
+    { id: 'environment', label: '環境' },
+    { id: 'economy', label: '経済' },
+    { id: 'safety', label: '安全' },
+    { id: 'usability', label: '使いやすさ' },
+    { id: 'function', label: '機能・性能' }
+  ];
+
+  // レーダーチャート(Canvas)。色だけに頼らず線種とマーカーでも区別する。
+  // G.radar(canvas, { axes:['社会',...], max:5, series:[{label:'A案', values:[...]}] })
+  G.RADAR_STYLES = [
+    { color: '#1f6feb', dash: [], marker: 'circle' },
+    { color: '#d1242f', dash: [8, 4], marker: 'square' },
+    { color: '#1a7f37', dash: [2, 3], marker: 'triangle' },
+    { color: '#8250df', dash: [10, 3, 2, 3], marker: 'diamond' }
+  ];
+  G.radar = function (canvas, cfg) {
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = canvas.clientWidth || canvas.width, cssH = canvas.clientHeight || canvas.height;
+    canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+    var axes = cfg.axes, n = axes.length, max = cfg.max || 5;
+    var cx = cssW / 2, cy = cssH / 2 + 6, R = Math.min(cssW, cssH) / 2 - 46;
+    var css = getComputedStyle(document.documentElement);
+    var ink = css.getPropertyValue('--ink').trim() || '#222', line = css.getPropertyValue('--line').trim() || '#ccc';
+    function pt(i, v) {
+      var a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+      return [cx + Math.cos(a) * R * v / max, cy + Math.sin(a) * R * v / max];
+    }
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    for (var lv = 1; lv <= max; lv++) {
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) { var p = pt(i, lv); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.fillStyle = ink; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (i = 0; i < n; i++) {
+      var o = pt(i, max);
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(o[0], o[1]); ctx.stroke();
+      var lp = pt(i, max * 1.2);
+      ctx.fillText(axes[i], lp[0], lp[1]);
+    }
+    (cfg.series || []).forEach(function (s, si) {
+      var st = G.RADAR_STYLES[si % G.RADAR_STYLES.length];
+      ctx.strokeStyle = st.color; ctx.fillStyle = st.color; ctx.lineWidth = 2.5; ctx.setLineDash(st.dash);
+      ctx.beginPath();
+      s.values.forEach(function (v, i) { var p = pt(i, G.clamp(v || 0, 0, max)); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+      ctx.closePath(); ctx.stroke();
+      ctx.globalAlpha = 0.08; ctx.fill(); ctx.globalAlpha = 1; ctx.setLineDash([]);
+      s.values.forEach(function (v, i) { var p = pt(i, G.clamp(v || 0, 0, max)); marker(ctx, st.marker, p[0], p[1], 4.5); });
+    });
+    return canvas;
+  };
+  function marker(ctx, kind, x, y, r) {
+    ctx.beginPath();
+    if (kind === 'square') ctx.rect(x - r, y - r, r * 2, r * 2);
+    else if (kind === 'triangle') { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r * 1.1, y + r * 0.8); ctx.lineTo(x - r * 1.1, y + r * 0.8); ctx.closePath(); }
+    else if (kind === 'diamond') { ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); }
+    else ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  G.drawMarker = marker;
+  // 凡例(HTML)。レーダーと同じ線種・マーカーを使う
+  G.radarLegend = function (labels) {
+    var shapes = { circle: '●', square: '■', triangle: '▲', diamond: '◆' };
+    var dashes = { 0: '───', 1: '- - -', 2: '·····', 3: '-·-·-' };
+    return G.h('ul', { class: 'g-legend' }, labels.map(function (l, i) {
+      var st = G.RADAR_STYLES[i % G.RADAR_STYLES.length];
+      return G.h('li', null, G.h('span', { style: { color: st.color }, 'aria-hidden': 'true' }, shapes[st.marker] + ' ' + dashes[i % 4] + ' '), l);
+    }));
+  };
+
+  // 観点レーダーの自己評価フォーム(スライダー 0〜5)。onChange(values) が呼ばれる
+  G.viewpointSliders = function (el, values, onChange) {
+    el.innerHTML = '';
+    values = values || {};
+    G.VIEWPOINTS.forEach(function (v) {
+      var id = 'vp-' + v.id + '-' + Math.random().toString(36).slice(2, 6);
+      var out = G.h('output', { for: id }, String(values[v.id] || 0));
+      var inp = G.h('input', { type: 'range', id: id, min: 0, max: 5, step: 1, value: values[v.id] || 0, oninput: function () {
+        values[v.id] = +inp.value; out.textContent = inp.value; if (onChange) onChange(values);
+      } });
+      el.appendChild(G.h('div', { class: 'g-slider' }, G.h('label', { for: id }, v.label), inp, out));
+    });
+    return values;
+  };
+
+  /* ---------- 共通の注意書き ---------- */
+  G.noteEstimate = function (text) {
+    return G.h('p', { class: 'g-note' }, G.h('strong', null, '目安です。'), text || '数値は文献の代表値を丸めたものです。実際の材料は樹種・製品・含水率などで大きく変わるので、実物で確かめましょう。');
+  };
+
+  /* ---------- Canvas を高解像度で使うための準備 ---------- */
+  G.setupCanvas = function (canvas, cssW, cssH) {
+    var dpr = window.devicePixelRatio || 1;
+    cssW = cssW || canvas.clientWidth; cssH = cssH || canvas.clientHeight;
+    canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+    canvas.style.height = cssH + 'px';
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  };
+  G.cssVar = function (name, fallback) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  };
+})();
+
+</script>
+<script>
+/* メニューに並べるアプリの一覧(共通基盤スレッドが管理)。A1 から順に並べる(番号の順 = おすすめの順 = カードの順)
+ * code はメニューのカード・アプリの上のバー(G.initApp)・提出ファイル一覧ビューアに出す記号。
+ * icon はメニューのカードの絵。各アプリのページもこのファイルを読み、G.initApp が app の id から code を探す。 */
+(function (root) {
+  root.G = root.G || {};
+  root.G.APPS = [
+    { id: 'material-navi', icon: '🧱', code: 'A1', dir: 'a1-material-navi/', title: '材料選択ナビ', desc: '使用目的・使用条件から木材・金属・プラスチックを比べて選び、理由を説明する。' },
+    { id: 'wood-lab', icon: '🪵', code: 'A2', dir: 'a2-wood-lab/', title: '木材の繊維・収縮ラボ', desc: '柾目と板目、木表と木裏、乾燥による収縮や反りを操作して確かめる。' },
+    { id: 'structure-lab', icon: '🏗️', code: 'A3', dir: 'a3-structure-lab/', title: '構造強化ラボ', desc: '板の厚み・補強・筋かい・接合を変えて、丈夫な構造の工夫を確かめる。' },
+    { id: 'drawing-trainer', icon: '📐', code: 'A4', dir: 'a4-drawing-trainer/', title: '製図トレーナー', desc: '立体と等角図・第三角法の対応を、クイズと作図練習で身に付ける。' },
+    { id: 'kidori', icon: '🪚', code: 'A5', dir: 'a5-kidori/', title: '木取り・構想シミュレータ', desc: '板から部品を無駄なく取る木取りを試し、製作図と強度の見通しを立てる。' },
+    { id: 'tool-safety', icon: '🦺', code: 'A6', dir: 'a6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の正しい使い方と作業前の安全確認を、手順として確かめる。' },
+    { id: 'solid-maker', icon: '🧊', code: 'A7', dir: 'a7-solid-maker/', title: '第三角法 立体メーカー', desc: '第三角法で三面図をかくと、等角図・キャビネット図・3D の立体にする。図面の印刷・PDF、3Dプリンタ用の STL も作れる。' }
+  ];
+  // 先生用(メニューの下に別に並べる)
+  root.G.TEACHER_APPS = [
+    { id: 'teacher-viewer', icon: '📋', code: '先生用', dir: 'teacher-viewer/', title: '提出ファイル一覧ビューア', desc: '生徒が書き出したファイルをまとめて読み込み、生徒ごと・アプリごとに一覧で見る。' }
+  ];
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* A7 第三角法 立体メーカー: 三面図(マス目)から立体を作る計算(画面に依存しない)
+ * ブラウザでは window.SolidGeom、node では require('./geom.js')。
+ *
+ * 座標: x = 幅(左→右)、y = 奥行き(手前→おく)、z = 高さ(下→上)。1マス = 1。
+ * 三面図のマス(u: 右へ、v: 上へ、0 から):
+ *   正面図 front[v*W+u]: u = x, v = z(手前から見る)
+ *   平面図 top[v*W+u]  : u = x, v = y(上から見る。正面図の上に置き、下が手前)
+ *   右側面図 side[v*D+u]: u = y, v = z(右から見る。正面図の右に置き、左が手前)
+ * マスの値: 0 = 空き, 1 = ぬる, 2 ◣ 3 ◢ 4 ◥ 5 ◤(斜めに半分ぬる)
+ *
+ * 立体 = 3つの図をそれぞれの向きにのばした柱の重なり(共通部分)。
+ * 1つの立方体を、斜めのマスの面で切ると凸多面体になるので、それを集めて外側の面だけを残す。
+ */
+(function (root) {
+  'use strict';
+  var G = {};
+  var EPS = 1e-9;
+
+  // 斜めのマス: マスの中の座標 (a: 右へ, b: 上へ, 0〜1) で n0*a + n1*b <= c の側をぬる
+  var HALF = {
+    2: [1, 1, 1],     // ◣ 左下
+    3: [-1, 1, 0],    // ◢ 右下
+    4: [-1, -1, -1],  // ◥ 右上
+    5: [1, -1, 0]     // ◤ 左上
+  };
+  G.CELL_KINDS = [0, 1, 2, 3, 4, 5];
+  G.CELL_CHAR = { 0: '.', 1: '#', 2: 'a', 3: 'b', 4: 'c', 5: 'd' };
+
+  // マスの形が点 (a,b) をふくむか(tol > 0 で少し広く、< 0 で少しせまく)
+  function contains(val, a, b, tol) {
+    tol = tol || 0;
+    if (!val) return false;
+    if (a < -tol || a > 1 + tol || b < -tol || b > 1 + tol) return false;
+    if (val === 1) return true;
+    var h = HALF[val];
+    return h[0] * a + h[1] * b <= h[2] + tol * Math.SQRT2;
+  }
+  G.contains = contains;
+
+  /* ---------- 小さなベクトル計算 ---------- */
+  function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+  function add(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+  function mul(a, s) { return [a[0] * s, a[1] * s, a[2] * s]; }
+  function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+  function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+  function len(a) { return Math.sqrt(dot(a, a)); }
+  function norm(a) { var l = len(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+  G.vec = { sub: sub, add: add, mul: mul, dot: dot, cross: cross, len: len, norm: norm };
+
+  // 多角形の面積ベクトル(Newell)
+  function areaVec(pts) {
+    var s = [0, 0, 0];
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i], q = pts[(i + 1) % pts.length];
+      s[0] += (p[1] - q[1]) * (p[2] + q[2]);
+      s[1] += (p[2] - q[2]) * (p[0] + q[0]);
+      s[2] += (p[0] - q[0]) * (p[1] + q[1]);
+    }
+    return mul(s, 0.5);
+  }
+  function centroid(pts) {
+    var c = [0, 0, 0];
+    pts.forEach(function (p) { c = add(c, p); });
+    return mul(c, 1 / pts.length);
+  }
+  // 平らな凸多角形の点を、法線 n のまわりに左回り(外から見て反時計回り)にならべる。同じ点は1つに
+  function orderAround(pts, n) {
+    var uniq = [];
+    pts.forEach(function (p) {
+      if (!uniq.some(function (q) { return Math.abs(p[0] - q[0]) < 1e-7 && Math.abs(p[1] - q[1]) < 1e-7 && Math.abs(p[2] - q[2]) < 1e-7; })) uniq.push(p);
+    });
+    if (uniq.length < 3) return uniq;
+    var c = centroid(uniq);
+    var e1 = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    e1 = norm(sub(e1, mul(n, dot(e1, n))));
+    var e2 = cross(n, e1);
+    uniq.sort(function (p, q) {
+      var dp = sub(p, c), dq = sub(q, c);
+      return Math.atan2(dot(dp, e2), dot(dp, e1)) - Math.atan2(dot(dq, e2), dot(dq, e1));
+    });
+    // 一直線にならぶ点を取る
+    var out = [];
+    for (var i = 0; i < uniq.length; i++) {
+      var a = uniq[(i + uniq.length - 1) % uniq.length], b = uniq[i], d = uniq[(i + 1) % uniq.length];
+      if (len(cross(sub(b, a), sub(d, b))) > 1e-9) out.push(b);
+    }
+    return out;
+  }
+
+  /* ---------- 凸多面体(面の配列)と平面での切断 ---------- */
+  function cube(i, j, k) {
+    var x0 = i, x1 = i + 1, y0 = j, y1 = j + 1, z0 = k, z1 = k + 1;
+    function F(n, pts) { return { n: n, pts: orderAround(pts, n) }; }
+    return [
+      F([-1, 0, 0], [[x0, y0, z0], [x0, y1, z0], [x0, y1, z1], [x0, y0, z1]]),
+      F([1, 0, 0], [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]]),
+      F([0, -1, 0], [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]]),
+      F([0, 1, 0], [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]]),
+      F([0, 0, -1], [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]]),
+      F([0, 0, 1], [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]])
+    ];
+  }
+  // N·p <= d の側を残す
+  function clipPoly(faces, N, d) {
+    var nn = norm(N), dd = d / len(N);
+    var out = [], onPlane = [];
+    faces.forEach(function (f) {
+      var pts = f.pts, res = [];
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i], q = pts[(i + 1) % pts.length];
+        var sp = dot(nn, p) - dd, sq = dot(nn, q) - dd;
+        var pin = sp <= 1e-9, qin = sq <= 1e-9;
+        if (pin) res.push(p);
+        if (pin !== qin) {
+          var t = sp / (sp - sq);
+          var x = add(p, mul(sub(q, p), t));
+          res.push(x); onPlane.push(x);
+        }
+        if (Math.abs(sp) <= 1e-9) onPlane.push(p);
+      }
+      if (res.length >= 3) {
+        var o = orderAround(res, f.n);
+        if (o.length >= 3 && len(areaVec(o)) > 1e-9) out.push({ n: f.n, pts: o });
+      }
+    });
+    if (!out.length) return [];
+    var cap = orderAround(onPlane, nn);
+    if (cap.length >= 3 && len(areaVec(cap)) > 1e-9) out.push({ n: nn, pts: cap });
+    return out;
+  }
+
+  /* ---------- 三面図のデータ ---------- */
+  G.emptyModel = function (W, D, H) {
+    return { W: W, D: D, H: H, front: zeros(W * H), top: zeros(W * D), side: zeros(D * H) };
+  };
+  function zeros(n) { var a = []; for (var i = 0; i < n; i++) a.push(0); return a; }
+  // 文字の行(上の行から)から作る: '.' 空き '#' ぬる 'a' ◣ 'b' ◢ 'c' ◥ 'd' ◤
+  var CH = { '.': 0, '#': 1, 'a': 2, 'b': 3, 'c': 4, 'd': 5 };
+  function fromRows(rows, U, V) {
+    var a = zeros(U * V);
+    for (var r = 0; r < V; r++) {
+      var line = rows[r] || '', v = V - 1 - r;
+      for (var u = 0; u < U; u++) a[v * U + u] = CH[line.charAt(u)] || 0;
+    }
+    return a;
+  }
+  function toRows(a, U, V) {
+    var rows = [];
+    for (var v = V - 1; v >= 0; v--) {
+      var s = '';
+      for (var u = 0; u < U; u++) s += G.CELL_CHAR[a[v * U + u]] || '.';
+      rows.push(s);
+    }
+    return rows;
+  }
+  // {W,D,H, front:[行...], top:[行...], side:[行...]} (行は上から) → model
+  G.modelFromRows = function (o) {
+    return { W: o.W, D: o.D, H: o.H, front: fromRows(o.front, o.W, o.H), top: fromRows(o.top, o.W, o.D), side: fromRows(o.side, o.D, o.H) };
+  };
+  G.modelToRows = function (m) {
+    return { W: m.W, D: m.D, H: m.H, front: toRows(m.front, m.W, m.H), top: toRows(m.top, m.W, m.D), side: toRows(m.side, m.D, m.H) };
+  };
+  // 大きさを変える(重なるところはそのまま残す)
+  G.resizeModel = function (m, W, D, H) {
+    function re(a, U0, V0, U, V) {
+      var b = zeros(U * V);
+      for (var v = 0; v < Math.min(V, V0); v++) for (var u = 0; u < Math.min(U, U0); u++) b[v * U + u] = a[v * U0 + u] || 0;
+      return b;
+    }
+    return { W: W, D: D, H: H, front: re(m.front, m.W, m.H, W, H), top: re(m.top, m.W, m.D, W, D), side: re(m.side, m.D, m.H, D, H) };
+  };
+  G.isEmptyView = function (a) { return !a.some(function (v) { return v; }); };
+
+  /* ---------- 立体を作る ---------- */
+  // 3つの図 → 凸多面体の集まり(マスごと)
+  function pieces(m) {
+    var W = m.W, D = m.D, H = m.H, out = {};
+    for (var k = 0; k < H; k++) for (var j = 0; j < D; j++) for (var i = 0; i < W; i++) {
+      var f = m.front[k * W + i], t = m.top[j * W + i], s = m.side[k * D + j];
+      if (!f || !t || !s) continue;
+      var poly = cube(i, j, k), h;
+      if (f > 1) { h = HALF[f]; poly = clipPoly(poly, [h[0], 0, h[1]], h[2] + h[0] * i + h[1] * k); }
+      if (t > 1 && poly.length) { h = HALF[t]; poly = clipPoly(poly, [h[0], h[1], 0], h[2] + h[0] * i + h[1] * j); }
+      if (s > 1 && poly.length) { h = HALF[s]; poly = clipPoly(poly, [0, h[0], h[1]], h[2] + h[0] * j + h[1] * k); }
+      if (poly.length >= 4) out[i + ',' + j + ',' + k] = { i: i, j: j, k: k, faces: poly };
+    }
+    return out;
+  }
+
+  /* 2D の凸多角形(左回り)を半平面で切る。keepLeft: 辺 p→q の左側を残す */
+  function area2(pts) {
+    var s = 0;
+    for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; s += p[0] * q[1] - q[0] * p[1]; }
+    return s / 2;
+  }
+  function clip2(poly, p, q, keepLeft) {
+    var out = [];
+    function side(x) { var c = (q[0] - p[0]) * (x[1] - p[1]) - (q[1] - p[1]) * (x[0] - p[0]); return keepLeft ? c : -c; }
+    for (var i = 0; i < poly.length; i++) {
+      var a = poly[i], b = poly[(i + 1) % poly.length], sa = side(a), sb = side(b);
+      if (sa >= -1e-12) out.push(a);
+      if ((sa >= -1e-12) !== (sb >= -1e-12)) {
+        var t = sa / (sa - sb);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    }
+    return out;
+  }
+  // 凸多角形 A から凸多角形 B を引いた残り(凸多角形の配列)
+  function diff2(A, B) {
+    if (area2(B) < 0) B = B.slice().reverse();
+    var rest = A, pieces = [];
+    for (var i = 0; i < B.length && rest.length >= 3; i++) {
+      var p = B[i], q = B[(i + 1) % B.length];
+      var outP = clip2(rest, p, q, false);
+      if (outP.length >= 3 && Math.abs(area2(outP)) > 1e-9) pieces.push(outP);
+      rest = clip2(rest, p, q, true);
+    }
+    if (rest.length < 3 || Math.abs(area2(rest)) <= 1e-9) return pieces;
+    return pieces;
+  }
+
+  // 外側に出ている面だけを集める
+  function exposedFaces(P) {
+    var faces = [];
+    Object.keys(P).forEach(function (key) {
+      var pc = P[key];
+      pc.faces.forEach(function (f) {
+        var ax = -1;
+        for (var a = 0; a < 3; a++) if (Math.abs(Math.abs(f.n[a]) - 1) < 1e-9) ax = a;
+        if (ax < 0) { faces.push({ n: f.n, pts: f.pts }); return; } // 斜めの面はいつも外側
+        var dir = f.n[ax] > 0 ? 1 : -1;
+        var idx = [pc.i, pc.j, pc.k];
+        idx[ax] += dir;
+        var nb = P[idx.join(',')];
+        var other = nb && nb.faces.filter(function (g) { return Math.abs(g.n[ax] + dir) < 1e-9; })[0];
+        if (!other) { faces.push({ n: f.n, pts: f.pts }); return; }
+        var u = (ax + 1) % 3, v = (ax + 2) % 3, c = f.pts[0][ax];
+        var A = f.pts.map(function (p) { return [p[u], p[v]]; });
+        if (area2(A) < 0) A.reverse();
+        var B = other.pts.map(function (p) { return [p[u], p[v]]; });
+        diff2(A, B).forEach(function (pp) {
+          var pts3 = pp.map(function (q) { var r = [0, 0, 0]; r[ax] = c; r[u] = q[0]; r[v] = q[1]; return r; });
+          var o = orderAround(pts3, f.n);
+          if (o.length >= 3) faces.push({ n: f.n, pts: o });
+        });
+      });
+    });
+    return faces;
+  }
+
+  function vkey(p) { return Math.round(p[0] * 1e5) + ',' + Math.round(p[1] * 1e5) + ',' + Math.round(p[2] * 1e5); }
+
+  /* 面の辺を、その上にあるほかの点で分ける(T字のつなぎ目をなくす)。
+   * 戻り値: 面ごとの「分けたあとの点の列」と、小さな辺 → その辺を持つ面の法線 */
+  function splitEdges(faces) {
+    var verts = {}, hash = {};
+    faces.forEach(function (f) {
+      f.pts.forEach(function (p) {
+        var k = vkey(p);
+        if (verts[k]) return;
+        verts[k] = p;
+        var hk = Math.floor(p[0] + 1e-7) + ',' + Math.floor(p[1] + 1e-7) + ',' + Math.floor(p[2] + 1e-7);
+        (hash[hk] || (hash[hk] = [])).push({ k: k, p: p });
+      });
+    });
+    var segs = {};
+    faces.forEach(function (f, fi) {
+      var ring = [];
+      for (var i = 0; i < f.pts.length; i++) {
+        var a = f.pts[i], b = f.pts[(i + 1) % f.pts.length], ab = sub(b, a), L2 = dot(ab, ab);
+        var ka = vkey(a), kb = vkey(b);
+        var on = [];
+        var lo = [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.min(a[2], b[2])];
+        var hi = [Math.max(a[0], b[0]), Math.max(a[1], b[1]), Math.max(a[2], b[2])];
+        for (var X = Math.floor(lo[0] - 1e-6); X <= Math.floor(hi[0] + 1e-6); X++)
+          for (var Y = Math.floor(lo[1] - 1e-6); Y <= Math.floor(hi[1] + 1e-6); Y++)
+            for (var Z = Math.floor(lo[2] - 1e-6); Z <= Math.floor(hi[2] + 1e-6); Z++) {
+              (hash[X + ',' + Y + ',' + Z] || []).forEach(function (v) {
+                if (v.k === ka || v.k === kb) return;
+                var t = dot(sub(v.p, a), ab) / L2;
+                if (t <= 1e-9 || t >= 1 - 1e-9) return;
+                if (len(sub(v.p, add(a, mul(ab, t)))) > 1e-6) return;
+                on.push({ t: t, k: v.k, p: v.p });
+              });
+            }
+        on.sort(function (x, y) { return x.t - y.t; });
+        var chain = [{ k: ka, p: a }].concat(on, [{ k: kb, p: b }]);
+        for (var c = 0; c < chain.length - 1; c++) {
+          ring.push(chain[c].p);
+          var k1 = chain[c].k, k2 = chain[c + 1].k;
+          if (k1 === k2) continue;
+          var sk = k1 < k2 ? k1 + '|' + k2 : k2 + '|' + k1;
+          var s = segs[sk] || (segs[sk] = { a: chain[c].p, b: chain[c + 1].p, normals: [], faces: [] });
+          s.normals.push(f.n); s.faces.push(fi);
+        }
+      }
+      f.ring = ring;
+    });
+    return segs;
+  }
+
+  // 折れ目(となりの面と向きがちがう辺)かどうか
+  function isCrease(s) {
+    if (s.normals.length < 2) return true;
+    for (var i = 1; i < s.normals.length; i++) if (dot(s.normals[0], s.normals[i]) < 1 - 1e-6) return true;
+    return false;
+  }
+
+  // 一直線にならぶ折れ目をつないで長い線にする
+  function mergeLines(list) {
+    var groups = {};
+    list.forEach(function (s) {
+      var d = norm(sub(s.b, s.a));
+      for (var i = 0; i < 3; i++) { if (Math.abs(d[i]) > 1e-9) { if (d[i] < 0) d = mul(d, -1); break; } }
+      var o = sub(s.a, mul(d, dot(s.a, d)));
+      var key = d.map(function (x) { return Math.round(x * 1e4); }).join(',') + '/' + o.map(function (x) { return Math.round(x * 1e4); }).join(',');
+      var g = groups[key] || (groups[key] = { d: d, o: o, iv: [] });
+      var t1 = dot(s.a, d), t2 = dot(s.b, d);
+      g.iv.push([Math.min(t1, t2), Math.max(t1, t2)]);
+    });
+    var out = [];
+    Object.keys(groups).forEach(function (k) {
+      var g = groups[k];
+      g.iv.sort(function (x, y) { return x[0] - y[0]; });
+      var cur = null;
+      g.iv.forEach(function (iv) {
+        if (cur && iv[0] <= cur[1] + 1e-7) cur[1] = Math.max(cur[1], iv[1]);
+        else { if (cur) out.push(cur); cur = [iv[0], iv[1]]; cur.g = g; }
+      });
+      if (cur) out.push(cur);
+    });
+    return out.map(function (iv) { return { a: add(iv.g.o, mul(iv.g.d, iv[0])), b: add(iv.g.o, mul(iv.g.d, iv[1])) }; });
+  }
+
+  /* 三面図 → 立体(面・折れ目の線・大きさ・体積) */
+  G.build = function (m) {
+    var P = pieces(m);
+    var faces = exposedFaces(P);
+    var segs = splitEdges(faces);
+    var creases = [];
+    faces.forEach(function (f) { f.edges = []; });
+    Object.keys(segs).forEach(function (k) {
+      var s = segs[k];
+      if (!isCrease(s)) return;
+      creases.push(s);
+      s.faces.forEach(function (fi) { faces[fi].edges.push([s.a, s.b]); });
+    });
+    var lines = mergeLines(creases);
+    var lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity], vol = 0;
+    faces.forEach(function (f) {
+      f.pts.forEach(function (p) { for (var i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i]); hi[i] = Math.max(hi[i], p[i]); } });
+      vol += dot(f.pts[0], areaVec(f.pts)) / 3;
+    });
+    var empty = !faces.length;
+    return { faces: faces, lines: lines, empty: empty, min: empty ? [0, 0, 0] : lo, max: empty ? [0, 0, 0] : hi, volume: vol, pieces: Object.keys(P).length };
+  };
+
+  /* ---------- 投影(図にする向き) ----------
+   * toward: 見る人のほうへ向かう向き。proj(p) → [右へ, 上へ] */
+  var C30 = Math.cos(Math.PI / 6), K = 0.5 * Math.cos(Math.PI / 4);
+  G.VIEWS = {
+    front: { toward: [0, -1, 0], proj: function (p) { return [p[0], p[2]]; } },
+    top: { toward: [0, 0, 1], proj: function (p) { return [p[0], p[1]]; } },
+    right: { toward: [1, 0, 0], proj: function (p) { return [p[1], p[2]]; } },
+    iso: { toward: norm([1, -1, 1]), proj: function (p) { return [C30 * (p[0] + p[1]), 0.5 * (p[1] - p[0]) + p[2]]; } },
+    // キャビネット図: 正面はそのままの形、奥行きは 45° の向きに半分の長さ
+    cabinet: { toward: [K, -1, K], proj: function (p) { return [p[0] + K * p[1], p[2] + K * p[1]]; } }
+  };
+
+  /* 見える線・かくれ線を求める。戻り値 { visible:[[x1,y1,x2,y2]...], hidden:[...] }(2D、上が +) */
+  G.lineDrawing = function (solid, viewName) {
+    var V = G.VIEWS[viewName], w = V.toward, proj = V.proj;
+    var occ = [];
+    solid.faces.forEach(function (f) {
+      var den = dot(f.n, w);
+      if (den <= 1e-9) return; // 見る人に向いた面だけが前をふさぐ
+      var p2 = f.pts.map(proj), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      p2.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
+      occ.push({ f: f, den: den, d: dot(f.n, f.pts[0]), x0: x0 - 1e-6, y0: y0 - 1e-6, x1: x1 + 1e-6, y1: y1 + 1e-6 });
+    });
+    function hidden(p) {
+      var q = proj(p);
+      for (var i = 0; i < occ.length; i++) {
+        var o = occ[i];
+        if (q[0] < o.x0 || q[0] > o.x1 || q[1] < o.y0 || q[1] > o.y1) continue;
+        var t = (o.d - dot(o.f.n, p)) / o.den;
+        if (t <= 1e-6) continue;
+        var x = add(p, mul(w, t)), pts = o.f.pts, inside = true;
+        for (var k = 0; k < pts.length; k++) {
+          var a = pts[k], b = pts[(k + 1) % pts.length];
+          if (dot(cross(sub(b, a), sub(x, a)), o.f.n) < -1e-7) { inside = false; break; }
+        }
+        if (inside) return true;
+      }
+      return false;
+    }
+    var vis = [], hid = [];
+    solid.lines.forEach(function (L) {
+      var a2 = proj(L.a), b2 = proj(L.b);
+      if (Math.hypot(b2[0] - a2[0], b2[1] - a2[1]) < 1e-7) return; // 見る向きと平行な線は点になる
+      var ab = sub(L.b, L.a), n = Math.max(3, Math.min(80, Math.ceil(len(ab) * 6)));
+      function at(t) { return add(L.a, mul(ab, t)); }
+      var state = [];
+      for (var i = 0; i < n; i++) state.push(hidden(at((i + 0.5) / n)));
+      // かわり目を二分法でくわしく求める
+      var cuts = [0];
+      for (i = 1; i < n; i++) {
+        if (state[i] === state[i - 1]) continue;
+        var lo = (i - 0.5) / n, hi = (i + 0.5) / n;
+        for (var it = 0; it < 14; it++) { var mid = (lo + hi) / 2; if (hidden(at(mid)) === state[i - 1]) lo = mid; else hi = mid; }
+        cuts.push((lo + hi) / 2);
+      }
+      cuts.push(1);
+      for (i = 0; i < cuts.length - 1; i++) {
+        var mid2 = (cuts[i] + cuts[i + 1]) / 2, h = hidden(at(mid2));
+        var p = proj(at(cuts[i])), q = proj(at(cuts[i + 1]));
+        (h ? hid : vis).push([p[0], p[1], q[0], q[1]]);
+      }
+    });
+    return cleanup2D(vis, hid);
+  };
+
+  // 2D: 同じ直線上の線をまとめ、見える線と重なるかくれ線は消す
+  function cleanup2D(vis, hid) {
+    function key(s) {
+      var dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy);
+      dx /= L; dy /= L;
+      if (dx < -1e-9 || (Math.abs(dx) <= 1e-9 && dy < 0)) { dx = -dx; dy = -dy; }
+      var off = s[0] * dy - s[1] * dx;
+      return { k: Math.round(dx * 1e4) + ',' + Math.round(dy * 1e4) + ',' + Math.round(off * 1e4), dx: dx, dy: dy, off: off };
+    }
+    var groups = {};
+    function put(list, kind) {
+      list.forEach(function (s) {
+        if (Math.hypot(s[2] - s[0], s[3] - s[1]) < 1e-7) return;
+        var K2 = key(s), g = groups[K2.k] || (groups[K2.k] = { dx: K2.dx, dy: K2.dy, off: K2.off, v: [], h: [] });
+        var t1 = s[0] * g.dx + s[1] * g.dy, t2 = s[2] * g.dx + s[3] * g.dy;
+        g[kind].push([Math.min(t1, t2), Math.max(t1, t2)]);
+      });
+    }
+    put(vis, 'v'); put(hid, 'h');
+    function merge(iv) {
+      iv.sort(function (a, b) { return a[0] - b[0]; });
+      var out = [];
+      iv.forEach(function (x) { var c = out[out.length - 1]; if (c && x[0] <= c[1] + 1e-6) c[1] = Math.max(c[1], x[1]); else out.push([x[0], x[1]]); });
+      return out;
+    }
+    function minus(iv, cut) {
+      var out = [];
+      iv.forEach(function (x) {
+        var parts = [[x[0], x[1]]];
+        cut.forEach(function (c) {
+          var nx = [];
+          parts.forEach(function (p) {
+            if (c[1] <= p[0] + 1e-6 || c[0] >= p[1] - 1e-6) { nx.push(p); return; }
+            if (c[0] > p[0] + 1e-6) nx.push([p[0], c[0]]);
+            if (c[1] < p[1] - 1e-6) nx.push([c[1], p[1]]);
+          });
+          parts = nx;
+        });
+        out = out.concat(parts);
+      });
+      return out.filter(function (p) { return p[1] - p[0] > 1e-6; });
+    }
+    var V = [], Hd = [];
+    Object.keys(groups).forEach(function (k) {
+      var g = groups[k], v = merge(g.v), h = minus(merge(g.h), v);
+      function pt(t) { return [g.dx * t + g.dy * g.off, g.dy * t - g.dx * g.off]; }
+      v.forEach(function (x) { var p = pt(x[0]), q = pt(x[1]); V.push([p[0], p[1], q[0], q[1]]); });
+      h.forEach(function (x) { var p = pt(x[0]), q = pt(x[1]); Hd.push([p[0], p[1], q[0], q[1]]); });
+    });
+    return { visible: V, hidden: Hd };
+  }
+  G.cleanup2D = cleanup2D;
+
+  /* ---------- 三面図どうしが合っているか ----------
+   * ぬったのに立体にならない(ほかの図と合わない)マスの番号を、図ごとに返す */
+  G.mismatches = function (m) {
+    var W = m.W, D = m.D, H = m.H;
+    var S = [0.15, 0.5, 0.85], T = [];
+    for (var i = 0; i <= 24; i++) T.push(0.02 + 0.96 * i / 24);
+    function samples(val) {
+      var out = [];
+      S.forEach(function (a) { S.forEach(function (b) { if (contains(val, a, b, -0.06)) out.push([a, b]); }); });
+      if (!out.length) out.push(val === 2 ? [0.25, 0.25] : val === 3 ? [0.75, 0.25] : val === 4 ? [0.75, 0.75] : [0.25, 0.75]);
+      return out;
+    }
+    // 視線の向きにならぶマスのどれかで、ほかの2つの図がその点をふくむか
+    function coveredFront(i, k, a, b) {
+      for (var j = 0; j < D; j++) {
+        var t = m.top[j * W + i], s = m.side[k * D + j];
+        if (!t || !s) continue;
+        for (var q = 0; q < T.length; q++) if (contains(t, a, T[q], 1e-9) && contains(s, T[q], b, 1e-9)) return true;
+      }
+      return false;
+    }
+    function coveredTop(i, j, a, b) {
+      for (var k = 0; k < H; k++) {
+        var f = m.front[k * W + i], s = m.side[k * D + j];
+        if (!f || !s) continue;
+        for (var q = 0; q < T.length; q++) if (contains(f, a, T[q], 1e-9) && contains(s, b, T[q], 1e-9)) return true;
+      }
+      return false;
+    }
+    function coveredSide(j, k, a, b) {
+      for (var i = 0; i < W; i++) {
+        var f = m.front[k * W + i], t = m.top[j * W + i];
+        if (!f || !t) continue;
+        for (var q = 0; q < T.length; q++) if (contains(f, T[q], b, 1e-9) && contains(t, T[q], a, 1e-9)) return true;
+      }
+      return false;
+    }
+    var out = { front: [], top: [], side: [] };
+    var u, v;
+    for (v = 0; v < H; v++) for (u = 0; u < W; u++) {
+      var f = m.front[v * W + u];
+      if (f && samples(f).some(function (p) { return !coveredFront(u, v, p[0], p[1]); })) out.front.push(v * W + u);
+    }
+    for (v = 0; v < D; v++) for (u = 0; u < W; u++) {
+      var t = m.top[v * W + u];
+      if (t && samples(t).some(function (p) { return !coveredTop(u, v, p[0], p[1]); })) out.top.push(v * W + u);
+    }
+    for (v = 0; v < H; v++) for (u = 0; u < D; u++) {
+      var s = m.side[v * D + u];
+      if (s && samples(s).some(function (p) { return !coveredSide(u, v, p[0], p[1]); })) out.side.push(v * D + u);
+    }
+    out.count = out.front.length + out.top.length + out.side.length;
+    return out;
+  };
+
+  /* ---------- STL(3D プリンタ用) ----------
+   * 面を三角形に分ける(T字のつなぎ目の点も入れて、すき間のない形にする)。scale: 1マスの mm */
+  G.triangles = function (solid, scale) {
+    var tris = [];
+    solid.faces.forEach(function (f) {
+      var ring = f.ring || f.pts;
+      if (ring.length < 3) return;
+      if (ring.length === 3) { tris.push({ n: f.n, v: ring.map(function (p) { return mul(p, scale); }) }); return; }
+      var c = centroid(f.pts);
+      for (var i = 0; i < ring.length; i++) {
+        var a = ring[i], b = ring[(i + 1) % ring.length];
+        if (len(cross(sub(a, c), sub(b, c))) < 1e-12) continue;
+        tris.push({ n: f.n, v: [mul(c, scale), mul(a, scale), mul(b, scale)] });
+      }
+    });
+    return tris;
+  };
+  // バイナリ STL(ArrayBuffer)
+  G.stlBinary = function (solid, scale, name) {
+    var tris = G.triangles(solid, scale);
+    var buf = new ArrayBuffer(84 + tris.length * 50), dv = new DataView(buf);
+    var head = String(name || 'solid').replace(/[^\x20-\x7e]/g, '_').slice(0, 79);
+    for (var i = 0; i < head.length; i++) dv.setUint8(i, head.charCodeAt(i));
+    dv.setUint32(80, tris.length, true);
+    var o = 84;
+    tris.forEach(function (t) {
+      var vals = t.n.concat(t.v[0], t.v[1], t.v[2]);
+      vals.forEach(function (x) { dv.setFloat32(o, x, true); o += 4; });
+      dv.setUint16(o, 0, true); o += 2;
+    });
+    return buf;
+  };
+
+  /* ---------- 立体を3Dで見る(回す)ための投影 ---------- */
+  // yaw: 上から見て左回り(度)、pitch: 見下ろす角度(度)。戻り値 {toward, right, up}
+  G.camera = function (yaw, pitch) {
+    var y = yaw * Math.PI / 180, p = pitch * Math.PI / 180;
+    // yaw = 0, pitch = 0 で正面(手前)から見る
+    var toward = [Math.sin(y) * Math.cos(p), -Math.cos(y) * Math.cos(p), Math.sin(p)];
+    var right = [Math.cos(y), Math.sin(y), 0];
+    return { toward: toward, right: right, up: norm(cross(toward, right)) };
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = G;
+  else root.SolidGeom = G;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* A7 第三角法 立体メーカー: 図面(A4 横)を SVG で作る・PDF にする
+ * ブラウザでは window.SolidSheet、node では require('./sheet.js')(SVG と PDF の組み立てだけ)。
+ *
+ * SolidSheet.svg(solid, opt) → { svg: 'SVG の文字列', scale: 尺度(数) }
+ *   opt: { cell: 1マスの mm, title, material, grade, cls, no, name, date,
+ *          scale: 'auto' か 数(1, 0.5 …), dims: 寸法を入れる, detail: 細かい寸法も, iso: 等角図も入れる }
+ * SolidSheet.toPDF(svg, title) → Promise<Blob>(ブラウザだけ。300dpi の画像を1ページの PDF に入れる)
+ */
+(function (root) {
+  'use strict';
+  var S = {};
+  var Geom = root.SolidGeom || (typeof require !== 'undefined' ? require('./geom.js') : null);
+  var PW = 297, PH = 210;          // 用紙 A4 横(mm)
+  var FRAME = 10;                   // 輪郭線までの余白
+  var LW = { frame: 0.7, outline: 0.5, hidden: 0.35, thin: 0.25, table: 0.35 };
+  var FONT = "'BIZ UDPGothic','BIZ UDゴシック','Hiragino Kaku Gothic ProN','Noto Sans JP','Noto Sans CJK JP','Yu Gothic',Meiryo,sans-serif";
+  var SCALES = [5, 2, 1, 1 / 2, 1 / 5, 1 / 10, 1 / 20];
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function r2(n) { return Math.round(n * 100) / 100; }
+  function mmText(v) { var x = Math.round(v * 10) / 10; return String(x % 1 === 0 ? x.toFixed(0) : x.toFixed(1)); }
+  S.scaleLabel = function (sc) { return sc >= 1 ? mmText(sc) + ':1' : '1:' + mmText(1 / sc); };
+
+  function Pen() {
+    var out = [];
+    return {
+      out: out,
+      line: function (x1, y1, x2, y2, w, dash) {
+        out.push('<line x1="' + r2(x1) + '" y1="' + r2(y1) + '" x2="' + r2(x2) + '" y2="' + r2(y2) + '" stroke="#000" stroke-width="' + w + '"' +
+          (dash ? ' stroke-dasharray="' + dash + '"' : ' stroke-linecap="round"') + '/>');
+      },
+      rect: function (x, y, w, h, lw) { out.push('<rect x="' + r2(x) + '" y="' + r2(y) + '" width="' + r2(w) + '" height="' + r2(h) + '" fill="none" stroke="#000" stroke-width="' + lw + '"/>'); },
+      // 欄の幅 maxW(mm)に入るように、文字を小さくする(それでも入らないときは … で切る)
+      fit: function (x, y, s, size, anchor, maxW) {
+        s = String(s == null ? '' : s);
+        function w(t, z) { var n = 0; for (var i = 0; i < t.length; i++) n += t.charCodeAt(i) < 0x80 ? 0.55 : 1; return n * z; }
+        var z = size;
+        if (w(s, z) > maxW) z = Math.max(2.2, size * maxW / w(s, size));
+        while (s.length > 1 && w(s, z) > maxW) s = s.slice(0, -2) + '…';
+        this.text(x, y, s, r2(z), anchor);
+      },
+      text: function (x, y, s, size, anchor, rot, bold) {
+        out.push('<text x="' + r2(x) + '" y="' + r2(y) + '" font-size="' + size + '" text-anchor="' + (anchor || 'start') + '"' +
+          (bold ? ' font-weight="bold"' : '') + (rot ? ' transform="rotate(' + rot + ' ' + r2(x) + ' ' + r2(y) + ')"' : '') + '>' + esc(s) + '</text>');
+      },
+      raw: function (s) { out.push(s); }
+    };
+  }
+
+  // 矢印(寸法線の端)。(x,y) が先、(dx,dy) は矢の向き
+  function arrow(pen, x, y, dx, dy) {
+    var L = 2.6, Wd = 0.55, bx = x - dx * L, by = y - dy * L;
+    pen.raw('<path d="M' + r2(x) + ' ' + r2(y) + ' L' + r2(bx - dy * Wd) + ' ' + r2(by + dx * Wd) + ' L' + r2(bx + dy * Wd) + ' ' + r2(by - dx * Wd) + ' Z" fill="#000"/>');
+  }
+  // 横の寸法: 図の線の高さ fromY から、寸法線の高さ y まで補助線を引く
+  function dimH(pen, x1, x2, fromY, y, value) {
+    var s = y > fromY ? 1 : -1;
+    pen.line(x1, fromY + s * 1, x1, y + s * 2, LW.thin);
+    pen.line(x2, fromY + s * 1, x2, y + s * 2, LW.thin);
+    pen.line(x1, y, x2, y, LW.thin);
+    var d = x2 > x1 ? 1 : -1;
+    arrow(pen, x1, y, -d, 0); arrow(pen, x2, y, d, 0);
+    pen.text((x1 + x2) / 2, y - 0.8, value, 3.2, 'middle');
+  }
+  // たての寸法(文字は右から読む向き)
+  function dimV(pen, y1, y2, fromX, x, value) {
+    var s = x > fromX ? 1 : -1;
+    pen.line(fromX + s * 1, y1, x + s * 2, y1, LW.thin);
+    pen.line(fromX + s * 1, y2, x + s * 2, y2, LW.thin);
+    pen.line(x, y1, x, y2, LW.thin);
+    var d = y2 > y1 ? 1 : -1;
+    arrow(pen, x, y1, 0, -d); arrow(pen, x, y2, 0, d);
+    pen.text(x - 0.8, (y1 + y2) / 2, value, 3.2, 'middle', -90);
+  }
+  // 区切りの位置(小さい順・重なりなし)
+  function stops(list) {
+    var a = list.slice().sort(function (p, q) { return p - q; }), out = [];
+    a.forEach(function (v) { if (!out.length || v - out[out.length - 1] > 1e-6) out.push(v); });
+    return out;
+  }
+
+  // 第三角法の記号
+  function projSymbol(pen, x, y) {
+    // 円すい台を横から見た台形(左が大きい)と、右から見た2つの円
+    pen.raw('<path d="M' + r2(x) + ' ' + r2(y - 3) + ' L' + r2(x + 7) + ' ' + r2(y - 1.6) + ' L' + r2(x + 7) + ' ' + r2(y + 1.6) + ' L' + r2(x) + ' ' + r2(y + 3) + ' Z" fill="none" stroke="#000" stroke-width="0.35"/>');
+    pen.raw('<circle cx="' + r2(x + 13) + '" cy="' + r2(y) + '" r="3" fill="none" stroke="#000" stroke-width="0.35"/>');
+    pen.raw('<circle cx="' + r2(x + 13) + '" cy="' + r2(y) + '" r="1.6" fill="none" stroke="#000" stroke-width="0.35"/>');
+    pen.line(x - 1.5, y, x + 17.5, y, 0.18, '4 0.8 0.8 0.8');
+  }
+
+  S.svg = function (solid, opt) {
+    opt = opt || {};
+    var cell = +opt.cell || 10;
+    var pen = Pen();
+    // 輪郭線と中心マーク
+    pen.rect(FRAME, FRAME, PW - 2 * FRAME, PH - 2 * FRAME, LW.frame);
+    pen.line(PW / 2, 0, PW / 2, FRAME, LW.frame); pen.line(PW / 2, PH - FRAME, PW / 2, PH, LW.frame);
+    pen.line(0, PH / 2, FRAME, PH / 2, LW.frame); pen.line(PW - FRAME, PH / 2, PW, PH / 2, LW.frame);
+
+    // 表題欄(右下)と部品欄(その上)
+    var TW = 120, TX = PW - FRAME - TW, RH = 8, TY = PH - FRAME - RH * 4;
+    var who = [opt.grade ? opt.grade + '年' : '', opt.cls ? opt.cls + '組' : '', opt.no ? opt.no + '番' : ''].join('');
+    var sc = 1;
+    function cellBox(x, y, w, label, value, size) {
+      pen.rect(x, y, w, RH, LW.table);
+      if (label) pen.text(x + 1.5, y + 3.2, label, 2.3);
+      if (value != null) pen.fit(x + (label ? w / 2 + 3 : w / 2), y + 6, value, size || 3.6, 'middle', w - (label ? 14 : 3));
+    }
+    // 尺度はあとで決まるので、表は最後に描く
+    function titleBlock() {
+      cellBox(TX, TY, 84, '図名', opt.title || '', 4.2);
+      cellBox(TX + 84, TY, 36, '尺度', S.scaleLabel(sc));
+      pen.rect(TX, TY + RH, 84, RH, LW.table); pen.text(TX + 1.5, TY + RH + 3.2, '投影法', 2.3);
+      projSymbol(pen, TX + 32, TY + RH + 4.2); pen.text(TX + 53, TY + RH + 5.4, '第三角法', 3.2);
+      cellBox(TX + 84, TY + RH, 36, '単位', 'mm');
+      cellBox(TX, TY + RH * 2, 60, '年組番号', who);
+      cellBox(TX + 60, TY + RH * 2, 60, '日付', opt.date || '');
+      cellBox(TX, TY + RH * 3, 120, '氏名', opt.name || '', 4);
+      pen.rect(TX, TY, TW, RH * 4, LW.frame);
+      // 部品欄
+      var PY = TY - 14, cols = [['品番', 12], ['品名', 42], ['材料', 32], ['個数', 12], ['備考', 22]], x = TX;
+      cols.forEach(function (c, i) {
+        pen.rect(x, PY, c[1], 7, LW.table); pen.text(x + c[1] / 2, PY + 4.9, c[0], 3, 'middle');
+        var v = [1, opt.title || '', opt.material || '', 1, ''][i];
+        pen.rect(x, PY + 7, c[1], 7, LW.table); pen.fit(x + c[1] / 2, PY + 11.9, v, 3.2, 'middle', c[1] - 2);
+        x += c[1];
+      });
+      pen.rect(TX, PY, TW, 14, LW.frame);
+    }
+
+    if (!solid || solid.empty) {
+      sc = 1; titleBlock();
+      pen.text(PW / 2 - 40, PH / 2, '(まだ立体になっていません)', 6, 'middle');
+      return { svg: wrap(pen.out.join('\n')), scale: sc };
+    }
+
+    var V = Geom.VIEWS;
+    var dF = Geom.lineDrawing(solid, 'front'), dT = Geom.lineDrawing(solid, 'top'), dR = Geom.lineDrawing(solid, 'right');
+    var mn = solid.min, mx = solid.max;
+    var W = (mx[0] - mn[0]) * cell, D = (mx[1] - mn[1]) * cell, H = (mx[2] - mn[2]) * cell;
+
+    // 寸法の区切り(図の線の端の位置)
+    function chain(draw, idx, lo, hi) {
+      var vals = [lo, hi];
+      draw.visible.concat(draw.hidden).forEach(function (s) { vals.push(s[idx], s[idx + 2]); });
+      return stops(vals);
+    }
+    var cx = chain(dF, 0, mn[0], mx[0]), cz = chain(dF, 1, mn[2], mx[2]), cy = chain(dR, 0, mn[1], mx[1]);
+
+    // 図をかく場所
+    var useIso = opt.iso !== false;
+    var area = useIso ? { x0: FRAME + 6, y0: FRAME + 6, x1: TX - 8, y1: PH - FRAME - 6 } : { x0: FRAME + 6, y0: FRAME + 6, x1: PW - FRAME - 6, y1: TY - 18 };
+    var gap = 14, dims = opt.dims !== false;
+    function needRows(c, k) {
+      if (!dims) return 0;
+      if (!opt.detail || c.length < 3 || c.length > 11) return 1;
+      for (var i = 1; i < c.length; i++) if ((c[i] - c[i - 1]) * cell * k < 5) return 1;
+      return 2;
+    }
+    function size(k) {
+      var mL = needRows(cz, k) * 8 + (dims ? 4 : 0), mB = Math.max(needRows(cx, k), needRows(cy, k)) * 8 + (dims ? 4 : 0);
+      return { w: mL + W * k + gap + D * k, h: D * k + gap + H * k + mB, mL: mL, mB: mB };
+    }
+    var aw = area.x1 - area.x0, ah = area.y1 - area.y0;
+    if (opt.scale && opt.scale !== 'auto') sc = +opt.scale;
+    else {
+      sc = SCALES[SCALES.length - 1];
+      for (var i = 0; i < SCALES.length; i++) { var z = size(SCALES[i]); if (z.w <= aw && z.h <= ah) { sc = SCALES[i]; break; } }
+    }
+    var L = size(sc), k = cell * sc;
+    var ox = area.x0 + (aw - L.w) / 2 + L.mL, top = area.y0 + (ah - L.h) / 2;
+    var FX = ox, FY = top + D * sc + gap + H * sc;     // 正面図の左下
+    var TY0 = top + D * sc;                             // 平面図の下(手前)
+    var RX = FX + W * sc + gap;                         // 右側面図の左(手前)
+
+    function place(draw, fx, fy, u0, v0) {
+      function X(u) { return fx + (u - u0) * k; }
+      function Y(v) { return fy - (v - v0) * k; }
+      draw.hidden.forEach(function (s) { pen.line(X(s[0]), Y(s[1]), X(s[2]), Y(s[3]), LW.hidden, '2.4 0.9'); });
+      draw.visible.forEach(function (s) { pen.line(X(s[0]), Y(s[1]), X(s[2]), Y(s[3]), LW.outline); });
+    }
+    place(dF, FX, FY, mn[0], mn[2]);
+    place(dT, FX, TY0, mn[0], mn[1]);
+    place(dR, RX, FY, mn[1], mn[2]);
+    pen.text(FX + W * sc / 2, FY + L.mB + 5, '正面図', 3.4, 'middle');
+    pen.text(FX + W * sc / 2, top - 2, '平面図', 3.4, 'middle');
+    pen.text(RX + D * sc / 2, FY + L.mB + 5, '右側面図', 3.4, 'middle');
+
+    if (dims) {
+      var rowsX = needRows(cx, sc), rowsZ = needRows(cz, sc), rowsY = needRows(cy, sc);
+      var by = FY + 8;
+      if (rowsX === 2) { for (i = 1; i < cx.length; i++) dimH(pen, FX + (cx[i - 1] - mn[0]) * k, FX + (cx[i] - mn[0]) * k, FY, by, mmText((cx[i] - cx[i - 1]) * cell)); by += 8; }
+      dimH(pen, FX, FX + W * sc, FY, by, mmText(W));
+      var bx = FX - 8;
+      if (rowsZ === 2) { for (i = 1; i < cz.length; i++) dimV(pen, FY - (cz[i - 1] - mn[2]) * k, FY - (cz[i] - mn[2]) * k, FX, bx, mmText((cz[i] - cz[i - 1]) * cell)); bx -= 8; }
+      dimV(pen, FY, FY - H * sc, FX, bx, mmText(H));
+      var ry = FY + 8;
+      if (rowsY === 2) { for (i = 1; i < cy.length; i++) dimH(pen, RX + (cy[i - 1] - mn[1]) * k, RX + (cy[i] - mn[1]) * k, FY, ry, mmText((cy[i] - cy[i - 1]) * cell)); ry += 8; }
+      dimH(pen, RX, RX + D * sc, FY, ry, mmText(D));
+    }
+
+    // 等角図(参考・尺度なし)
+    if (useIso) {
+      var dI = Geom.lineDrawing(solid, 'iso');
+      var b = bounds(dI.visible);
+      var IA = { x0: TX + 4, y0: FRAME + 12, x1: PW - FRAME - 4, y1: TY - 14 - 6 };
+      var s2 = Math.min((IA.x1 - IA.x0) / (b.x1 - b.x0 || 1), (IA.y1 - IA.y0) / (b.y1 - b.y0 || 1)) * 0.9;
+      var ix = IA.x0 + ((IA.x1 - IA.x0) - (b.x1 - b.x0) * s2) / 2 - b.x0 * s2;
+      var iy = IA.y0 + ((IA.y1 - IA.y0) - (b.y1 - b.y0) * s2) / 2 + b.y1 * s2;
+      dI.visible.forEach(function (s) { pen.line(ix + s[0] * s2, iy - s[1] * s2, ix + s[2] * s2, iy - s[3] * s2, LW.outline); });
+      pen.text(TX + TW / 2, FRAME + 7, '等角図(参考・尺度なし)', 3.4, 'middle');
+    }
+    titleBlock();
+    return { svg: wrap(pen.out.join('\n')), scale: sc };
+  };
+  function bounds(segs) {
+    var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    segs.forEach(function (s) {
+      b.x0 = Math.min(b.x0, s[0], s[2]); b.x1 = Math.max(b.x1, s[0], s[2]);
+      b.y0 = Math.min(b.y0, s[1], s[3]); b.y1 = Math.max(b.y1, s[1], s[3]);
+    });
+    if (!isFinite(b.x0)) return { x0: 0, y0: 0, x1: 1, y1: 1 };
+    return b;
+  }
+  S.bounds = bounds;
+  function wrap(body) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + PW + ' ' + PH + '" width="' + PW + 'mm" height="' + PH + 'mm" font-family="' + FONT + '">' +
+      '<rect x="0" y="0" width="' + PW + '" height="' + PH + '" fill="#fff"/>\n' + body + '\n</svg>';
+  }
+
+  /* ---------- PDF(1ページ・画像1枚) ---------- */
+  function bytes(s) { // ASCII だけの文字列
+    var a = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i) & 255;
+    return a;
+  }
+  function utf16hex(s) {
+    var h = 'FEFF';
+    for (var i = 0; i < s.length; i++) h += ('000' + s.charCodeAt(i).toString(16).toUpperCase()).slice(-4);
+    return '<' + h + '>';
+  }
+  /* img: { data: Uint8Array, width, height, filter: 'FlateDecode'|'DCTDecode', color: 'DeviceGray'|'DeviceRGB' } → Uint8Array */
+  S.buildPDF = function (img, title) {
+    var w = 841.89, h = 595.28; // A4 横(pt)
+    var parts = [], offs = [], pos = 0;
+    function put(x) { var b = typeof x === 'string' ? bytes(x) : x; parts.push(b); pos += b.length; }
+    function obj(n, body, stream) {
+      offs[n] = pos;
+      put(n + ' 0 obj\n' + body);
+      if (stream) { put('\nstream\n'); put(stream); put('\nendstream'); }
+      put('\nendobj\n');
+    }
+    put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    obj(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w + ' ' + h + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+    obj(4, '<< /Type /XObject /Subtype /Image /Width ' + img.width + ' /Height ' + img.height + ' /ColorSpace /' + img.color +
+      ' /BitsPerComponent 8 /Filter /' + img.filter + ' /Length ' + img.data.length + ' >>', img.data);
+    var content = 'q ' + w + ' 0 0 ' + h + ' 0 0 cm /Im0 Do Q';
+    obj(5, '<< /Length ' + content.length + ' >>', bytes(content));
+    obj(6, '<< /Title ' + utf16hex(title || '図面') + ' /Creator (Edu-IT A7) >>');
+    var xref = pos;
+    var x = 'xref\n0 7\n0000000000 65535 f \n';
+    for (var i = 1; i <= 6; i++) x += ('000000000' + offs[i]).slice(-10) + ' 00000 n \n';
+    put(x + 'trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+    var out = new Uint8Array(pos), o = 0;
+    parts.forEach(function (p) { out.set(p, o); o += p.length; });
+    return out;
+  };
+
+  // ブラウザ: SVG → 300dpi の画像 → PDF
+  S.toPDF = function (svg, title) {
+    var DPI = 300, W = Math.round(PW / 25.4 * DPI), H = Math.round(PH / 25.4 * DPI);
+    return new Promise(function (res, rej) {
+      var im = new Image();
+      im.onload = function () { res(im); };
+      im.onerror = function () { rej(new Error('図面を画像にできませんでした')); };
+      im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }).then(function (im) {
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(im, 0, 0, W, H);
+      if (typeof CompressionStream === 'undefined') {
+        return new Promise(function (r) { cv.toBlob(r, 'image/jpeg', 0.95); }).then(function (b) { return b.arrayBuffer(); }).then(function (ab) {
+          return { data: new Uint8Array(ab), width: W, height: H, filter: 'DCTDecode', color: 'DeviceRGB' };
+        });
+      }
+      var px = ctx.getImageData(0, 0, W, H).data, gray = new Uint8Array(W * H);
+      for (var i = 0, j = 0; j < gray.length; i += 4, j++) gray[j] = (px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000;
+      var cs = new Blob([gray]).stream().pipeThrough(new CompressionStream('deflate'));
+      return new Response(cs).arrayBuffer().then(function (ab) {
+        return { data: new Uint8Array(ab), width: W, height: H, filter: 'FlateDecode', color: 'DeviceGray' };
+      });
+    }).then(function (img) {
+      return new Blob([S.buildPDF(img, title)], { type: 'application/pdf' });
+    });
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = S;
+  else root.SolidSheet = S;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* A7 お手本の形。行は上から。'.' 空き '#' ぬる 'a' ◣ 'b' ◢ 'c' ◥ 'd' ◤
+ * front: 正面図(幅×高さ)、top: 平面図(幅×奥行き。下の行が手前)、side: 右側面図(奥行き×高さ。左の列が手前) */
+(function (root) {
+  'use strict';
+  function fill(U, V) { var r = []; for (var i = 0; i < V; i++) r.push(new Array(U + 1).join('#')); return r; }
+  var S = [
+    { id: 'l', label: 'L字ブロック', W: 4, D: 3, H: 3,
+      front: ['#...', '#...', '####'], top: fill(4, 3), side: fill(3, 3) },
+    { id: 'step', label: '階段の形', W: 3, D: 3, H: 3,
+      front: ['#..', '##.', '###'], top: fill(3, 3), side: fill(3, 3) },
+    { id: 'groove', label: 'みぞのあるブロック', W: 5, D: 3, H: 3,
+      front: ['##.##', '##.##', '#####'], top: fill(5, 3), side: fill(3, 3) },
+    { id: 'hole', label: '四角い穴のあいた板(かくれ線)', W: 4, D: 4, H: 2,
+      front: fill(4, 2), top: ['####', '#..#', '#..#', '####'], side: fill(4, 2) },
+    { id: 'wedge', label: 'くさび(ななめの面)', W: 4, D: 3, H: 3,
+      front: ['a...', '#a..', '##a.'], top: ['###.', '###.', '###.'], side: fill(3, 3) },
+    { id: 'roof', label: '屋根の形(三角柱)', W: 4, D: 3, H: 2,
+      front: ['.ba.', 'b##a'], top: fill(4, 3), side: fill(3, 2) },
+    { id: 'bracket', label: 'L形ブラケット(ななめの補強)', W: 6, D: 4, H: 5,
+      front: ['#.....', '#.....', '#a....', '##a...', '######'], top: fill(6, 4), side: fill(4, 5) },
+    { id: 'shelf', label: '本立て(コの字)', W: 6, D: 3, H: 4,
+      front: ['#....#', '#....#', '#....#', '######'], top: fill(6, 3), side: fill(3, 4) },
+    { id: 'chamfer', label: '角を面取りしたブロック', W: 3, D: 3, H: 3,
+      front: ['##a', '###', '###'], top: fill(3, 3), side: ['b##', '###', '###'] }
+  ];
+  root.SolidSamples = S;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* 第三角法 立体メーカー(A7) app.js
+ * 三面図(マス目)をかくと、立体(等角図・キャビネット図・3D)にする。図面の印刷・PDF、STL の書き出し。 */
+(function () {
+  'use strict';
+  var APP = 'solid-maker';
+  var SG = window.SolidGeom, SS = window.SolidSheet, SAMPLES = window.SolidSamples;
+  if (G.ruby && G.ruby.add) G.ruby.add({ '面取り': 'めんとり', '三角柱': 'さんかくちゅう', '体積': 'たいせき', '投影法': 'とうえいほう', '図名': 'ずめい', '実物': 'じつぶつ' });
+  G.initApp({
+    app: APP,
+    title: '第三角法 立体メーカー',
+    files: ['style.css', 'geom.js', 'sheet.js', 'samples.js', 'app.js'],
+    help: showHelp
+  });
+
+  var TOOLS = [
+    { v: 1, label: 'ぬる', name: 'マス全体をぬる' },
+    { v: 2, label: '', name: '左下の半分(◣)' },
+    { v: 3, label: '', name: '右下の半分(◢)' },
+    { v: 4, label: '', name: '右上の半分(◥)' },
+    { v: 5, label: '', name: '左上の半分(◤)' },
+    { v: 0, label: '消す', name: 'マスを消す' }
+  ];
+  // マスの中の形(a: 右へ, b: 上へ)
+  var SHAPE = { 1: [[0, 0], [1, 0], [1, 1], [0, 1]], 2: [[0, 0], [1, 0], [0, 1]], 3: [[0, 0], [1, 0], [1, 1]], 4: [[1, 0], [1, 1], [0, 1]], 5: [[0, 0], [1, 1], [0, 1]] };
+  var VIEW_NAME = { front: '正面図', top: '平面図', side: '右側面図' };
+  var SELF = [
+    { id: 'match', label: '三面図で、幅・高さ・奥行きがそろう位置がわかった' },
+    { id: 'image', label: '三面図から、立体の形を思いうかべることができた' },
+    { id: 'pict', label: '等角図とキャビネット図のちがいを説明できる' },
+    { id: 'sheet', label: '寸法や表題欄の入った図面にまとめることができた' }
+  ];
+  var LV = [['3', 'できた'], ['2', 'だいたいできた'], ['1', 'もう少し']];
+  var CAMS = { iso: [45, 35.26], front: [0, 0], top: [0, 90], right: [90, 0], back: [215, 25], under: [40, -30] };
+
+  /* ---------- データ ---------- */
+  function defaultData() {
+    return {
+      size: { W: 8, D: 6, H: 6, cell: 10 },
+      views: { front: '', top: '', side: '' },
+      look: { mode: 'iso', hidden: false },
+      sheet: { title: '', material: '', grade: '', cls: '', no: '', name: '', date: '', scale: 'auto', dims: true, detail: true, iso: true },
+      reflect: { self: {}, learned: '', hard: '', use: '' },
+      done: { samples: 0, print: 0, pdf: 0, stl: 0 }
+    };
+  }
+  var art = null, P = null, M = null;     // 作品・art.data・三面図のモデル
+  var solid = null, mis = null, drawCache = {};
+  var undoStack = [], redoStack = [];
+  var tool = 1, currentTab = 'draw';
+  var cam = { yaw: CAMS.iso[0], pitch: CAMS.iso[1] };
+
+  function encode(m) {
+    return { W: m.W, D: m.D, H: m.H, front: m.front.join(''), top: m.top.join(''), side: m.side.join('') };
+  }
+  function decodeInto(size, views) {
+    var W = G.clamp(Math.round(+size.W || 8), 1, 16), D = G.clamp(Math.round(+size.D || 6), 1, 16), H = G.clamp(Math.round(+size.H || 6), 1, 16);
+    var m = SG.emptyModel(W, D, H);
+    ['front', 'top', 'side'].forEach(function (k) {
+      var s = String((views && views[k]) || '');
+      for (var i = 0; i < m[k].length; i++) { var c = +s.charAt(i); m[k][i] = c >= 0 && c <= 5 ? c : 0; }
+    });
+    return m;
+  }
+  function snapshot() { return JSON.stringify(encode(M)); }
+  function restore(s) { var o = JSON.parse(s); M = decodeInto(o, o); P.size.W = M.W; P.size.D = M.D; P.size.H = M.H; cursor = { front: 0, top: 0, side: 0 }; }
+  function pushUndo() { undoStack.push(snapshot()); if (undoStack.length > 60) undoStack.shift(); redoStack = []; }
+
+  function setProject(a) {
+    var base = defaultData();
+    a.data = a.data || {};
+    Object.keys(base).forEach(function (k) {
+      if (a.data[k] === undefined) a.data[k] = base[k];
+      else if (base[k] && typeof base[k] === 'object') {
+        Object.keys(base[k]).forEach(function (kk) { if (a.data[k][kk] === undefined) a.data[k][kk] = base[k][kk]; });
+      }
+    });
+    art = a; P = a.data;
+    M = decodeInto(P.size, P.views);
+    var pf = G.profile();
+    if (!P.sheet.cls && !P.sheet.no && !P.sheet.name) { P.sheet.cls = pf.class; P.sheet.no = pf.no; P.sheet.name = pf.name; }
+    undoStack = []; redoStack = [];
+    try { localStorage.setItem('solid-maker.last', a.id); } catch (e) {}
+    G.$('#pname').value = art.title === '無題' ? '' : art.title;
+    modelChanged(true);
+    renderAll();
+  }
+  function newProject(sampleId) {
+    var a = G.newArtifact(APP, '無題', defaultData());
+    setProject(a);
+    if (sampleId) loadSample(sampleId, true);
+  }
+
+  // 自動保存
+  var saveTimer = null;
+  function changed() {
+    clearTimeout(saveTimer);
+    G.$('#save-state').textContent = '変更があります…';
+    saveTimer = setTimeout(save, 900);
+  }
+  function save(manual) {
+    clearTimeout(saveTimer);
+    art.title = (G.$('#pname').value || '').trim() || '無題';
+    var e = encode(M);
+    P.size.W = e.W; P.size.D = e.D; P.size.H = e.H;
+    P.views = { front: e.front, top: e.top, side: e.side };
+    art.updatedAt = new Date().toISOString();
+    return G.store.put(art).then(function () {
+      var t = new Date();
+      G.$('#save-state').textContent = (manual ? '保存しました ' : '自動保存しました ') + t.getHours() + ':' + ('0' + t.getMinutes()).slice(-2);
+      if (manual) G.toast('保存しました');
+    }).catch(function (err) { G.$('#save-state').textContent = '保存できませんでした: ' + err.message; });
+  }
+
+  // 三面図が変わったら立体を作り直す
+  function modelChanged(quiet) {
+    solid = SG.build(M);
+    mis = SG.mismatches(M);
+    drawCache = {};
+    if (!quiet) changed();
+  }
+  // まだかいていない図(空の図)。1つでもあるうちは、合わないマスを知らせない
+  function emptyViews() { return ['front', 'top', 'side'].filter(function (k) { return SG.isEmptyView(M[k]); }); }
+  function misCount() { return emptyViews().length ? 0 : mis.count; }
+  function drawing(name) { return drawCache[name] || (drawCache[name] = SG.lineDrawing(solid, name)); }
+  function cellMM() { return G.clamp(+P.size.cell || 10, 1, 200); }
+  function title() { return (G.$('#pname').value || '').trim() || '立体'; }
+
+  /* ---------- 1 三面図をかく ---------- */
+  var ed = null; // エディタの配置
+  var hover = null, focusView = null, cursor = { front: 0, top: 0, side: 0 };
+
+  function buildTools() {
+    var box = G.$('.a7-tools');
+    TOOLS.forEach(function (t) {
+      var icon = t.v === 0 ? '<rect x="2" y="2" width="20" height="20" fill="#fff" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2"/>'
+        : '<rect x="2" y="2" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1"/><polygon points="' +
+          SHAPE[t.v].map(function (p) { return (2 + p[0] * 20) + ',' + (22 - p[1] * 20); }).join(' ') + '" fill="currentColor"/>';
+      var b = G.h('button', { type: 'button', role: 'radio', class: 'a7-tool', 'data-v': t.v, title: t.name, 'aria-label': t.name, onclick: function () { setTool(t.v); } },
+        G.h('span', { html: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">' + icon + '</svg>' }), t.label ? G.h('span', null, t.label) : null);
+      if (t.v === 2) box.appendChild(G.h('span', { class: 'g-muted a7-tool-sep' }, 'ななめ半分:'));
+      box.appendChild(b);
+      if (t.v === 5) box.appendChild(G.h('span', { class: 'a7-tool-sep' }));
+    });
+    setTool(1);
+  }
+  function setTool(v) {
+    tool = v;
+    G.$$('.a7-tool').forEach(function (b) { b.setAttribute('aria-checked', String(+b.getAttribute('data-v') === v)); });
+  }
+
+  function layout() {
+    var wrap = G.$('#editor-wrap');
+    var W = M.W, D = M.D, H = M.H;
+    var L = 34, T = 40, B = 60, R = 14, gap = 34;
+    var aw = Math.max(280, wrap.clientWidth - 4);
+    // 開いたときに、3つの図が画面の中に入る高さにする
+    var top = wrap.getBoundingClientRect().top + (window.scrollY || 0);
+    var ah = Math.max(300, Math.min(window.innerHeight - 250, window.innerHeight - top - 12));
+    var px = Math.floor(Math.min((aw - L - gap - R) / (W + D), (ah - T - gap - B) / (D + H)));
+    px = G.clamp(px, 12, 56);
+    var o = { px: px, gap: gap, L: L, T: T, W: W, D: D, H: H };
+    o.top = { x: L, y: T, U: W, V: D };
+    o.front = { x: L, y: T + D * px + gap, U: W, V: H };
+    o.side = { x: L + W * px + gap, y: o.front.y, U: D, V: H };
+    o.width = L + W * px + gap + D * px + R;
+    o.height = o.front.y + H * px + B;
+    return o;
+  }
+  // 図とマスの番号 → 画面の位置
+  function cellXY(view, u, v) { var b = ed[view]; return [b.x + u * ed.px, b.y + (b.V - 1 - v) * ed.px]; }
+
+  // マウスを置いたマスと、ほかの図で位置がそろう行・列
+  function bandsFor(h) {
+    var out = { front: { col: null, row: null }, top: { col: null, row: null }, side: { col: null, row: null } };
+    if (!h) return out;
+    if (h.view === 'front') { out.front = { col: h.u, row: h.v }; out.top.col = h.u; out.side.row = h.v; }
+    if (h.view === 'top') { out.top = { col: h.u, row: h.v }; out.front.col = h.u; out.side.col = h.v; }
+    if (h.view === 'side') { out.side = { col: h.u, row: h.v }; out.top.row = h.u; out.front.row = h.v; }
+    return out;
+  }
+
+  function renderEditor() {
+    ed = layout();
+    var px = ed.px, s = [];
+    var bands = bandsFor(hover || (focusView ? { view: focusView, u: cursor[focusView] % ed[focusView].U, v: Math.floor(cursor[focusView] / ed[focusView].U) } : null));
+    var misSet = { front: {}, top: {}, side: {} };
+    if (misCount() && !stroke) ['front', 'top', 'side'].forEach(function (k) { mis[k].forEach(function (i) { misSet[k][i] = true; }); });
+    // 平面図と右側面図をつなぐ 45° の線
+    var X0 = ed.side.x, Y0 = ed.top.y + ed.D * px;
+    s.push('<line x1="' + X0 + '" y1="' + Y0 + '" x2="' + (X0 + ed.D * px) + '" y2="' + (Y0 - ed.D * px) + '" class="a7-miter"/>');
+    ['top', 'front', 'side'].forEach(function (view) {
+      var b = ed[view], arr = M[view], U = b.U, V = b.V, bd = bands[view];
+      s.push('<g class="a7-view a7-' + view + '" data-view="' + view + '" tabindex="0" role="group" aria-label="' + VIEW_NAME[view] + '(' + U + '×' + V + 'マス)">');
+      s.push('<rect x="' + b.x + '" y="' + b.y + '" width="' + U * px + '" height="' + V * px + '" class="a7-bg"/>');
+      if (bd.col !== null) s.push('<rect x="' + (b.x + bd.col * px) + '" y="' + b.y + '" width="' + px + '" height="' + V * px + '" class="a7-band"/>');
+      if (bd.row !== null) s.push('<rect x="' + b.x + '" y="' + (b.y + (V - 1 - bd.row) * px) + '" width="' + U * px + '" height="' + px + '" class="a7-band"/>');
+      for (var v = 0; v < V; v++) for (var u = 0; u < U; u++) {
+        var val = arr[v * U + u];
+        if (!val) continue;
+        var xy = cellXY(view, u, v);
+        s.push('<polygon class="a7-fill" points="' + SHAPE[val].map(function (p) { return (xy[0] + p[0] * px) + ',' + (xy[1] + (1 - p[1]) * px); }).join(' ') + '"/>');
+      }
+      // 方眼
+      var d = '';
+      for (var i = 1; i < U; i++) d += 'M' + (b.x + i * px) + ' ' + b.y + 'v' + V * px;
+      for (i = 1; i < V; i++) d += 'M' + b.x + ' ' + (b.y + i * px) + 'h' + U * px;
+      s.push('<path d="' + d + '" class="a7-grid"/>');
+      s.push('<rect x="' + b.x + '" y="' + b.y + '" width="' + U * px + '" height="' + V * px + '" class="a7-border"/>');
+      // ほかの図と合わないマス
+      Object.keys(misSet[view]).forEach(function (k) {
+        var idx = +k, xy = cellXY(view, idx % U, Math.floor(idx / U));
+        s.push('<rect x="' + (xy[0] + 2) + '" y="' + (xy[1] + 2) + '" width="' + (px - 4) + '" height="' + (px - 4) + '" class="a7-mis"/>');
+        s.push('<text x="' + (xy[0] + px / 2) + '" y="' + (xy[1] + px / 2 + 5) + '" class="a7-mis-t">!</text>');
+      });
+      if (focusView === view) {
+        var c = cursor[view], cxy = cellXY(view, c % U, Math.floor(c / U));
+        s.push('<rect x="' + (cxy[0] + 1) + '" y="' + (cxy[1] + 1) + '" width="' + (px - 2) + '" height="' + (px - 2) + '" class="a7-cursor"/>');
+      }
+      // マウス・指で押すための透明なマス
+      for (v = 0; v < V; v++) for (u = 0; u < U; u++) {
+        var q = cellXY(view, u, v);
+        s.push('<rect x="' + q[0] + '" y="' + q[1] + '" width="' + px + '" height="' + px + '" class="a7-hit" data-i="' + (v * U + u) + '"/>');
+      }
+      s.push('</g>');
+    });
+    // 図の名前と向き
+    var fx = ed.front, tx = ed.top, sx = ed.side;
+    s.push(rubyName(fx.x + ed.W * px / 2, fx.y + ed.H * px + 29, '正面図', 'しょうめんず'));
+    s.push(txt(fx.x + ed.W * px / 2, fx.y + ed.H * px + 50, '← 幅 →', 'a7-axis'));
+    s.push(rubyName(tx.x + ed.W * px / 2 - 34, tx.y - 10, '平面図', 'へいめんず'));
+    s.push(txt(tx.x + ed.W * px / 2 - 8, tx.y - 10, '(上から見た図)', 'a7-axis', 'start'));
+    s.push(rubyName(sx.x + ed.D * px / 2, sx.y + ed.H * px + 29, '右側面図', 'みぎそくめんず'));
+    s.push(txt(sx.x + ed.D * px / 2, sx.y + ed.H * px + 50, '手前 ← 奥行き → おく', 'a7-axis'));
+    s.push(txtV(fx.x - 12, fx.y + ed.H * px / 2, '高さ'));
+    s.push(txtV(tx.x - 12, tx.y + ed.D * px / 2, '奥行き'));
+    s.push(txt(tx.x + ed.W * px + 6, tx.y + 12, 'おく', 'a7-axis', 'start'));
+    s.push(txt(tx.x + ed.W * px + 6, tx.y + ed.D * px - 4, '手前', 'a7-axis', 'start'));
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" class="a7-editor" width="' + ed.width + '" height="' + ed.height + '" viewBox="0 0 ' + ed.width + ' ' + ed.height + '">' + s.join('') + '</svg>';
+    var wrap = G.$('#editor-wrap');
+    var hadFocus = document.activeElement && document.activeElement.closest && document.activeElement.closest('.a7-view');
+    var fv = hadFocus ? hadFocus.getAttribute('data-view') : null;
+    wrap.innerHTML = svg;
+    if (fv) { var g = wrap.querySelector('[data-view="' + fv + '"]'); if (g) g.focus({ preventScroll: true }); }
+    G.$('#undo').disabled = !undoStack.length;
+    G.$('#redo').disabled = !redoStack.length;
+  }
+  // ふりがな付きの図の名前(ふりがなを消す設定では .ruby-off で隠れる)
+  function rubyName(x, y, s, yomi) { return txt(x, y - 15, yomi, 'a7-rt') + txt(x, y, s, 'a7-name'); }
+  function txt(x, y, s, cls, anchor) { return '<text x="' + x + '" y="' + y + '" class="' + cls + '" text-anchor="' + (anchor || 'middle') + '">' + G.esc(s) + '</text>'; }
+  function txtV(x, y, s) { return '<text x="' + x + '" y="' + y + '" class="a7-axis" text-anchor="middle" transform="rotate(-90 ' + x + ' ' + y + ')">' + G.esc(s) + '</text>'; }
+
+  // ぬる・消す
+  var stroke = null;
+  function cellFromPoint(x, y) {
+    var el = document.elementFromPoint(x, y);
+    if (!el || !el.classList || !el.classList.contains('a7-hit')) return null;
+    var g = el.closest('[data-view]');
+    return { view: g.getAttribute('data-view'), i: +el.getAttribute('data-i') };
+  }
+  function setCell(view, i, val) {
+    if (M[view][i] === val) return false;
+    M[view][i] = val;
+    return true;
+  }
+  // ドラッグ中はマスだけを描き直し、指をはなしたときに立体を作り直す(大きな図でも重くならないように)
+  var raf = 0;
+  function afterEdit() {
+    if (raf) return;
+    raf = requestAnimationFrame(function () {
+      raf = 0;
+      if (stroke) { renderEditor(); return; }
+      modelChanged();
+      renderEditor(); renderPreview(); renderCheck();
+    });
+  }
+  function bindEditor() {
+    var wrap = G.$('#editor-wrap');
+    wrap.addEventListener('pointerdown', function (e) {
+      var c = cellFromPoint(e.clientX, e.clientY);
+      if (!c) return;
+      e.preventDefault();
+      var cur = M[c.view][c.i];
+      var val = tool === 0 ? 0 : cur === tool ? 0 : tool;
+      pushUndo();
+      stroke = { val: val, id: e.pointerId };
+      focusView = c.view; cursor[c.view] = c.i;
+      setCell(c.view, c.i, val);
+      afterEdit();
+    });
+    wrap.addEventListener('pointermove', function (e) {
+      var c = cellFromPoint(e.clientX, e.clientY);
+      if (stroke && stroke.id === e.pointerId) {
+        if (c && setCell(c.view, c.i, stroke.val)) { cursor[c.view] = c.i; afterEdit(); }
+        return;
+      }
+      var h = c ? { view: c.view, u: c.i % ed[c.view].U, v: Math.floor(c.i / ed[c.view].U) } : null;
+      if (JSON.stringify(h) !== JSON.stringify(hover)) { hover = h; renderEditor(); }
+    });
+    function end() { if (stroke) { stroke = null; afterEdit(); } }
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    wrap.addEventListener('pointerleave', function () { if (hover) { hover = null; renderEditor(); } });
+    wrap.addEventListener('focusin', function (e) {
+      var g = e.target.closest && e.target.closest('[data-view]');
+      if (g && focusView !== g.getAttribute('data-view')) { focusView = g.getAttribute('data-view'); renderEditor(); }
+    });
+    wrap.addEventListener('focusout', function () {
+      setTimeout(function () { if (!wrap.contains(document.activeElement) && focusView) { focusView = null; renderEditor(); } }, 0);
+    });
+    wrap.addEventListener('keydown', function (e) {
+      var g = e.target.closest && e.target.closest('[data-view]');
+      if (!g) return;
+      var view = g.getAttribute('data-view'), b = ed[view], c = cursor[view], u = c % b.U, v = Math.floor(c / b.U);
+      var mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (mv) {
+        e.preventDefault();
+        u = G.clamp(u + mv[0], 0, b.U - 1); v = G.clamp(v + mv[1], 0, b.V - 1);
+        cursor[view] = v * b.U + u; renderEditor(); announce(view);
+      } else if (e.key === ' ' || e.key === 'Enter' || e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        var cur = M[view][c], val = e.key === 'Delete' || e.key === 'Backspace' || tool === 0 ? 0 : cur === tool ? 0 : tool;
+        pushUndo(); setCell(view, c, val); afterEdit(); announce(view, val);
+      }
+    });
+  }
+  function announce(view, val) {
+    var b = ed[view], c = cursor[view];
+    if (val === undefined) val = M[view][c];
+    var names = { 0: '空き', 1: 'ぬってある', 2: '左下の半分', 3: '右下の半分', 4: '右上の半分', 5: '左上の半分' };
+    G.$('#editor-help').setAttribute('aria-live', 'polite');
+    G.$('#editor-help').textContent = VIEW_NAME[view] + ' 左から ' + (c % b.U + 1) + ' 列目・下から ' + (Math.floor(c / b.U) + 1) + ' 段目: ' + names[val];
+  }
+
+  function undo() {
+    if (!undoStack.length) return;
+    redoStack.push(snapshot()); restore(undoStack.pop());
+    modelChanged(); renderSize(); renderEditor(); renderPreview(); renderCheck();
+  }
+  function redo() {
+    if (!redoStack.length) return;
+    undoStack.push(snapshot()); restore(redoStack.pop());
+    modelChanged(); renderSize(); renderEditor(); renderPreview(); renderCheck();
+  }
+
+  function renderSize() {
+    G.$('#sz-w').value = M.W; G.$('#sz-d').value = M.D; G.$('#sz-h').value = M.H; G.$('#sz-cell').value = cellMM();
+  }
+  function bindSize() {
+    [['#sz-w', 'W'], ['#sz-d', 'D'], ['#sz-h', 'H']].forEach(function (f) {
+      G.$(f[0]).addEventListener('change', function () {
+        var raw = +String(this.value).replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+        var v = Math.round(G.num(this.value, M[f[1]], 1, 16));
+        if (!(raw >= 1 && raw <= 16)) G.toast('マスの数は 1〜16 にしてください(' + v + ' にしました)');
+        this.value = v;
+        if (v === M[f[1]]) return;
+        pushUndo();
+        var n = { W: M.W, D: M.D, H: M.H }; n[f[1]] = v;
+        M = SG.resizeModel(M, n.W, n.D, n.H);
+        P.size.W = M.W; P.size.D = M.D; P.size.H = M.H;
+        cursor = { front: 0, top: 0, side: 0 };
+        modelChanged(); renderEditor(); renderPreview(); renderCheck();
+      });
+    });
+    G.$('#sz-cell').addEventListener('change', function () {
+      var v = G.num(this.value, cellMM(), 1, 200);
+      this.value = v; P.size.cell = v;
+      changed(); renderCheck();
+    });
+  }
+
+  function sampleName(s) { return s.label.replace(/\(.*?\)/, ''); }
+  function loadSample(id, quiet) {
+    var s = SAMPLES.filter(function (x) { return x.id === id; })[0];
+    if (!s) return;
+    if (!quiet) pushUndo();
+    M = SG.modelFromRows(s);
+    P.size.W = M.W; P.size.D = M.D; P.size.H = M.H;
+    P.done.samples = (P.done.samples || 0) + 1;
+    // 名前がまだないか、お手本の名前のままなら、お手本の名前にする
+    var cur = (G.$('#pname').value || '').trim();
+    if (!cur || cur === '無題' || SAMPLES.some(function (x) { return sampleName(x) === cur; })) { art.title = sampleName(s); G.$('#pname').value = art.title; }
+    cursor = { front: 0, top: 0, side: 0 };
+    modelChanged(); renderSize(); renderEditor(); renderPreview(); renderCheck();
+  }
+
+  // 立体の小さな図(等角図)
+  function renderPreview() {
+    var cv = G.$('#preview');
+    var w = cv.parentNode.clientWidth || 300, h = Math.round(G.clamp(w * 0.72, 180, 300));
+    var ctx = G.setupCanvas(cv, w, h);
+    drawLines(ctx, w, h, solid.empty ? null : drawing('iso'), false);
+    if (solid.empty) emptyNote(ctx, w, h);
+  }
+  function emptyNote(ctx, w, h) {
+    ctx.fillStyle = G.cssVar('--muted', '#666');
+    ctx.font = '15px ' + getComputedStyle(document.body).fontFamily;
+    ctx.textAlign = 'center';
+    ctx.fillText('3つの図にマスをぬると、ここに立体が出ます', w / 2, h / 2);
+  }
+  function renderCheck() {
+    var box = G.$('#check');
+    box.innerHTML = '';
+    var ev = emptyViews();
+    if (ev.length) {
+      box.appendChild(G.h('p', { class: 'g-note' }, ev.length === 3 ? '3つの図にマスをぬると、立体ができます。どの図からかいてもかまいません。'
+        : 'つぎは' + ev.map(function (k) { return '「' + VIEW_NAME[k] + '」'; }).join('と') + 'をかきましょう。3つそろうと立体ができます。'));
+    } else if (solid.empty) {
+      box.appendChild(G.h('p', { class: 'a7-warn' }, G.h('strong', null, '! まだ立体になりません。'), ' 3つの図で、ぬったマスの位置がそろっていません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。'));
+    } else if (mis.count) {
+      var where = ['front', 'top', 'side'].filter(function (k) { return mis[k].length; }).map(function (k) { return VIEW_NAME[k] + ' ' + mis[k].length + ' こ'; }).join('・');
+      box.appendChild(G.h('p', { class: 'a7-warn' }, G.h('strong', null, '! 合わないマスがあります(' + where + ')。'),
+        ' 赤い点線のマスは、ほかの図と位置がそろっていないので立体になりません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。かいている途中なら、3つともかき終えてから確かめましょう。'));
+    } else {
+      box.appendChild(G.h('p', { class: 'a7-ok' }, '✓ 3つの図の位置がそろっています。'));
+    }
+    var c = cellMM(), mn = solid.min, mx = solid.max;
+    G.$('#info').textContent = solid.empty ? '' :
+      '大きさ: 幅 ' + G.fmt((mx[0] - mn[0]) * c, 1) + ' × 奥行き ' + G.fmt((mx[1] - mn[1]) * c, 1) + ' × 高さ ' + G.fmt((mx[2] - mn[2]) * c, 1) + ' mm ・ 体積 約 ' +
+      G.fmt(solid.volume * c * c * c / 1000, 1) + ' cm³';
+  }
+
+  /* ---------- 線の図(等角図・キャビネット図)を Canvas にかく ---------- */
+  function drawLines(ctx, w, h, d, showHidden, opt) {
+    opt = opt || {};
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    if (!d) return;
+    var segs = d.visible.concat(showHidden ? d.hidden : []);
+    var b = SS.bounds(segs), pad = opt.pad || 18;
+    var s = Math.min((w - 2 * pad) / ((b.x1 - b.x0) || 1), (h - 2 * pad) / ((b.y1 - b.y0) || 1));
+    s = Math.min(s, opt.maxScale || 90);
+    var ox = (w - (b.x1 - b.x0) * s) / 2 - b.x0 * s, oy = (h + (b.y1 - b.y0) * s) / 2 + b.y0 * s;
+    var ink = G.cssVar('--ink', '#222');
+    ctx.lineCap = 'round';
+    if (showHidden) {
+      ctx.strokeStyle = ink; ctx.lineWidth = 1.2; ctx.setLineDash([6, 4]); ctx.lineCap = 'butt';
+      ctx.beginPath();
+      d.hidden.forEach(function (q) { ctx.moveTo(ox + q[0] * s, oy - q[1] * s); ctx.lineTo(ox + q[2] * s, oy - q[3] * s); });
+      ctx.stroke(); ctx.setLineDash([]); ctx.lineCap = 'round';
+    }
+    ctx.strokeStyle = ink; ctx.lineWidth = opt.lw || 2.2;
+    ctx.beginPath();
+    d.visible.forEach(function (q) { ctx.moveTo(ox + q[0] * s, oy - q[1] * s); ctx.lineTo(ox + q[2] * s, oy - q[3] * s); });
+    ctx.stroke();
+    return { ox: ox, oy: oy, s: s };
+  }
+
+  /* ---------- 3D(回して見る) ---------- */
+  function draw3D(ctx, w, h) {
+    ctx.clearRect(0, 0, w, h);
+    var bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#f7f9fc'); bg.addColorStop(1, '#e4e9f0');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    if (solid.empty) { emptyNote(ctx, w, h); return; }
+    var V = SG.vec, c = SG.camera(cam.yaw, cam.pitch);
+    var mn = solid.min, mx = solid.max, ctr = V.mul(V.add(mn, mx), 0.5);
+    var rad = V.len(V.sub(mx, mn)) / 2 || 1, s = Math.min(w, h) * 0.44 / rad;
+    function P2(p) { var q = V.sub(p, ctr); return [w / 2 + V.dot(q, c.right) * s, h / 2 - V.dot(q, c.up) * s]; }
+    var light = V.norm(V.add(V.add(V.mul(c.toward, 0.7), V.mul(c.up, 0.6)), V.mul(c.right, -0.25)));
+    var base = hexRgb(G.cssVar('--wood', '#c8955b'));
+    var list = solid.faces.filter(function (f) { return V.dot(f.n, c.toward) > 1e-6; }).map(function (f) {
+      var cen = [0, 0, 0];
+      f.pts.forEach(function (p) { cen = V.add(cen, p); });
+      return { f: f, z: V.dot(V.mul(cen, 1 / f.pts.length), c.toward) };
+    });
+    list.sort(function (a, b) { return a.z - b.z; });
+    ctx.lineJoin = 'round';
+    list.forEach(function (it) {
+      var f = it.f, k = 0.5 + 0.5 * Math.max(0, V.dot(f.n, light));
+      var col = 'rgb(' + base.map(function (x) { return Math.round(Math.min(255, x * k + 18)); }).join(',') + ')';
+      ctx.beginPath();
+      f.pts.forEach(function (p, i) { var q = P2(p); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+      ctx.closePath();
+      ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1;
+      ctx.fill(); ctx.stroke();
+      if (f.edges.length) {
+        ctx.beginPath();
+        f.edges.forEach(function (e) { var a = P2(e[0]), b = P2(e[1]); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); });
+        ctx.strokeStyle = '#3b2a18'; ctx.lineWidth = 1.6; ctx.stroke();
+      }
+    });
+    // 向きの目印
+    var o = [44, h - 40], axes = [[[1, 0, 0], '幅', '#c0392b'], [[0, 1, 0], '奥行き', '#1d7a3a'], [[0, 0, 1], '高さ', '#2d6aa8']];
+    ctx.font = 'bold 13px ' + getComputedStyle(document.body).fontFamily;
+    ctx.textAlign = 'center';
+    axes.forEach(function (a) {
+      var dx = V.dot(a[0], c.right) * 28, dy = -V.dot(a[0], c.up) * 28;
+      ctx.strokeStyle = a[2]; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(o[0], o[1]); ctx.lineTo(o[0] + dx, o[1] + dy); ctx.stroke();
+      if (Math.hypot(dx, dy) > 6) { ctx.fillStyle = a[2]; ctx.fillText(a[1], o[0] + dx * 1.45, o[1] + dy * 1.45 + 4); }
+    });
+  }
+  function hexRgb(hx) {
+    var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hx).trim());
+    return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [200, 149, 91];
+  }
+
+  /* ---------- 2 立体を見る ---------- */
+  var NOTES = {
+    iso: '等角図: 幅・奥行き・高さの3つの向きの線が、120° ずつ開いて見える図です。横の線は水平から 30° かたむけてかき、長さは実物と同じ割合にします。',
+    cabinet: 'キャビネット図: 正面の形をそのままかき、奥行きの線は 45° かたむけて、長さを実物の 1/2 にしてかきます。',
+    '3d': '3D: ドラッグ(または矢印キー)で回して、いろいろな向きから見られます。三面図のそれぞれの図が、どの向きから見た形なのかを確かめましょう。'
+  };
+  function viewSize() {
+    var wrap = G.$('#view-canvas').parentNode;
+    var w = wrap.clientWidth || 600, h = Math.round(G.clamp(window.innerHeight - 300, 300, 640));
+    return [w, h];
+  }
+  function renderView() {
+    var mode = P.look.mode, hid = !!P.look.hidden;
+    G.$$('.a7-seg [data-mode]').forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-mode') === mode)); });
+    G.$('#show-hidden').checked = hid;
+    G.$('#hid-wrap').hidden = mode === '3d';
+    G.$('#cam-btns').hidden = mode !== '3d';
+    var cv = G.$('#view-canvas'), sz = viewSize(), ctx = G.setupCanvas(cv, sz[0], sz[1]);
+    cv.style.cursor = mode === '3d' ? 'grab' : 'default';
+    if (mode === '3d') draw3D(ctx, sz[0], sz[1]);
+    else {
+      drawLines(ctx, sz[0], sz[1], solid.empty ? null : drawing(mode), hid, { pad: 30, lw: 2.6 });
+      if (solid.empty) emptyNote(ctx, sz[0], sz[1]);
+    }
+    var note = G.$('#mode-note');
+    note.innerHTML = '';
+    note.appendChild(G.h('p', { class: 'g-muted' }, NOTES[mode]));
+    if (mode !== '3d' && hid) note.appendChild(G.h('p', { class: 'g-muted' }, '太い実線 = 見える線(外形線)、細い破線 = かくれ線(見えない線)'));
+    if (misCount()) note.appendChild(G.h('p', { class: 'a7-warn' }, '! 三面図に合わないマスがあります(「三面図をかく」で赤い点線のマス)。'));
+  }
+  function bindView() {
+    G.$$('.a7-seg [data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () { P.look.mode = b.getAttribute('data-mode'); changed(); renderView(); });
+    });
+    G.$('#show-hidden').addEventListener('change', function () { P.look.hidden = this.checked; changed(); renderView(); });
+    G.$$('[data-cam]').forEach(function (b) {
+      b.addEventListener('click', function () { var c = CAMS[b.getAttribute('data-cam')]; cam.yaw = c[0]; cam.pitch = c[1]; renderView(); });
+    });
+    var cv = G.$('#view-canvas'), drag = null;
+    cv.addEventListener('pointerdown', function (e) {
+      if (P.look.mode !== '3d') return;
+      drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+      cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing';
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.5;
+      cam.pitch = G.clamp(drag.pitch + (e.clientY - drag.y) * 0.5, -89, 90);
+      var sz = viewSize(), ctx = G.setupCanvas(cv, sz[0], sz[1]);
+      draw3D(ctx, sz[0], sz[1]);
+    });
+    function up() { drag = null; if (P.look.mode === '3d') cv.style.cursor = 'grab'; }
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.addEventListener('keydown', function (e) {
+      if (P.look.mode !== '3d') return;
+      var d = { ArrowLeft: [10, 0], ArrowRight: [-10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10] }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      cam.yaw += d[0]; cam.pitch = G.clamp(cam.pitch + d[1], -89, 90);
+      renderView();
+    });
+    G.$('#png-view').addEventListener('click', function () {
+      var mode = P.look.mode, name = { iso: '等角図', cabinet: 'キャビネット図', '3d': '3D' }[mode];
+      G.$('#view-canvas').toBlob(function (b) { G.download(b, title() + '_' + name + '.png'); });
+    });
+    G.$('#stl-view').addEventListener('click', saveSTL);
+  }
+
+  function saveSTL() {
+    if (solid.empty) { G.toast('まだ立体になっていません'); return; }
+    var buf = SG.stlBinary(solid, cellMM(), 'Edu-IT A7 ' + (art.id || ''));
+    G.download(new Blob([buf], { type: 'model/stl' }), title() + '.stl');
+    P.done.stl = (P.done.stl || 0) + 1; changed();
+    G.toast('STL ファイルを保存しました(単位: mm)');
+  }
+
+  /* ---------- 3 図面・印刷 ---------- */
+  var SHEET_FIELDS = [['#sh-title', 'title'], ['#sh-material', 'material'], ['#sh-grade', 'grade'], ['#sh-cls', 'cls'], ['#sh-no', 'no'], ['#sh-name', 'name'], ['#sh-date', 'date'], ['#sh-scale', 'scale']];
+  function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function sheetOpt() {
+    var s = P.sheet;
+    return {
+      cell: cellMM(), title: s.title || title(), material: s.material, grade: s.grade, cls: s.cls, no: s.no, name: s.name,
+      date: (s.date || today()).replace(/-/g, '.'), scale: s.scale, dims: s.dims, detail: s.detail, iso: s.iso
+    };
+  }
+  function renderSheet() {
+    var s = P.sheet;
+    if (!s.date) s.date = today();
+    SHEET_FIELDS.forEach(function (f) { G.$(f[0]).value = s[f[1]] || ''; });
+    G.$('#sh-title').placeholder = title();
+    G.$('#sh-scale').value = s.scale || 'auto';
+    G.$('#sh-dims').checked = !!s.dims; G.$('#sh-detail').checked = !!s.detail; G.$('#sh-iso').checked = !!s.iso;
+    G.$('#sh-detail').disabled = !s.dims;
+    updateSheet();
+  }
+  var lastSheet = null;
+  function updateSheet() {
+    lastSheet = SS.svg(solid.empty ? null : solid, sheetOpt());
+    G.$('#sheet-box').innerHTML = lastSheet.svg;
+    var msg = G.$('#sheet-msg');
+    msg.innerHTML = '';
+    if (solid.empty) msg.appendChild(G.h('p', { class: 'g-note' }, 'まだ立体になっていません。「三面図をかく」で図をかきましょう。'));
+    else {
+      msg.appendChild(G.h('p', { class: 'g-muted' }, '尺度 ' + SS.scaleLabel(lastSheet.scale) + '(' + (lastSheet.scale === 1 ? '実物と同じ大きさ' : lastSheet.scale > 1 ? '実物の ' + lastSheet.scale + ' 倍' : '実物の 1/' + Math.round(1 / lastSheet.scale)) + ')でかいています。'));
+      if (misCount()) msg.appendChild(G.h('p', { class: 'a7-warn' }, '! 三面図に合わないマスがあります。図面は、立体になった部分からかいています。'));
+    }
+  }
+  function bindSheet() {
+    SHEET_FIELDS.forEach(function (f) {
+      var el = G.$(f[0]);
+      el.addEventListener(el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input', function () { P.sheet[f[1]] = el.value; changed(); updateSheet(); });
+    });
+    [['#sh-dims', 'dims'], ['#sh-detail', 'detail'], ['#sh-iso', 'iso']].forEach(function (f) {
+      G.$(f[0]).addEventListener('change', function () { P.sheet[f[1]] = this.checked; G.$('#sh-detail').disabled = !P.sheet.dims; changed(); updateSheet(); });
+    });
+    G.$('#print').addEventListener('click', function () {
+      if (!lastSheet) updateSheet();
+      var area = G.$('#print-area');
+      area.innerHTML = lastSheet.svg;
+      document.body.classList.add('a7-printing');
+      P.done.print = (P.done.print || 0) + 1; changed();
+      setTimeout(function () { window.print(); }, 50);
+    });
+    window.addEventListener('afterprint', function () { document.body.classList.remove('a7-printing'); G.$('#print-area').innerHTML = ''; });
+    G.$('#pdf').addEventListener('click', function () {
+      if (!lastSheet) updateSheet();
+      var btn = this;
+      btn.disabled = true;
+      G.toast('PDF を作っています…');
+      SS.toPDF(lastSheet.svg, sheetOpt().title).then(function (blob) {
+        G.download(blob, '図面_' + sheetOpt().title + '.pdf');
+        P.done.pdf = (P.done.pdf || 0) + 1; changed();
+      }).catch(function (e) { G.toast('PDF を作れませんでした: ' + e.message); })
+        .then(function () { btn.disabled = false; });
+    });
+    G.$('#stl-sheet').addEventListener('click', saveSTL);
+  }
+
+  /* ---------- 4 ふりかえり ---------- */
+  function renderReview() {
+    G.psCycle(G.$('#ps'), ['plan']);
+    var box = G.$('#selfcheck');
+    box.innerHTML = '';
+    SELF.forEach(function (it) {
+      var fs = G.h('fieldset', { class: 'a7-self' }, G.h('legend', null, it.label));
+      LV.forEach(function (lv) {
+        var inp = G.h('input', { type: 'radio', name: 'self-' + it.id, value: lv[0], checked: P.reflect.self[it.id] === lv[0] });
+        inp.addEventListener('change', function () { P.reflect.self[it.id] = lv[0]; changed(); });
+        fs.appendChild(G.h('label', { class: 'g-check' }, inp, lv[1]));
+      });
+      box.appendChild(fs);
+    });
+    G.$('#rf-cls').value = P.sheet.cls || ''; G.$('#rf-no').value = P.sheet.no || ''; G.$('#rf-name').value = P.sheet.name || '';
+    G.$('#rf-learned').value = P.reflect.learned || '';
+    G.$('#rf-hard').value = P.reflect.hard || '';
+    G.$('#rf-use').value = P.reflect.use || '';
+    var c = cellMM(), mn = solid.min, mx = solid.max, d = P.done || {};
+    var rows = [
+      ['三面図の大きさ', M.W + ' × ' + M.D + ' × ' + M.H + ' マス(1マス ' + c + ' mm)'],
+      ['できた立体', solid.empty ? 'まだ' : '幅 ' + G.fmt((mx[0] - mn[0]) * c, 1) + ' × 奥行き ' + G.fmt((mx[1] - mn[1]) * c, 1) + ' × 高さ ' + G.fmt((mx[2] - mn[2]) * c, 1) + ' mm'],
+      ['合わないマス', misCount() ? misCount() + ' こ' : 'なし'],
+      ['図面', (d.print ? '印刷 ' + d.print + ' 回 ' : '') + (d.pdf ? 'PDF ' + d.pdf + ' 回' : '') || 'まだ'],
+      ['STL', d.stl ? d.stl + ' 回 保存' : 'まだ']
+    ];
+    var tb = G.h('table', { class: 'g-table' });
+    rows.forEach(function (r) { tb.appendChild(G.h('tr', null, G.h('th', null, r[0]), G.h('td', null, r[1]))); });
+    G.$('#record').innerHTML = '';
+    G.$('#record').appendChild(tb);
+  }
+  function bindReview() {
+    [['#rf-cls', 'cls'], ['#rf-no', 'no'], ['#rf-name', 'name']].forEach(function (f) {
+      G.$(f[0]).addEventListener('input', function () { P.sheet[f[1]] = this.value; changed(); });
+    });
+    [['#rf-learned', 'learned'], ['#rf-hard', 'hard'], ['#rf-use', 'use']].forEach(function (f) {
+      G.$(f[0]).addEventListener('input', function () { P.reflect[f[1]] = this.value; changed(); });
+    });
+  }
+
+  // メニューで組・番号・名前を入れていないとき(単体版など)は、このアプリで入れたものを書き出しに入れる
+  function withStudent() {
+    var pf = G.profile(), s = P.sheet;
+    if (pf.class || pf.no || pf.name || !(s.cls || s.no || s.name)) return art;
+    return Object.assign({}, art, { student: { class: String(s.cls || ''), no: String(s.no || ''), name: String(s.name || '') } });
+  }
+
+  /* ---------- 使い方 ---------- */
+  function showHelp() {
+    var body = G.h('div', null,
+      G.h('ol', null,
+        G.h('li', null, '「三面図をかく」で、正面図・平面図・右側面図のマスをぬります。第三角法なので、平面図は正面図の上、右側面図は正面図の右に置きます。'),
+        G.h('li', null, 'ななめの形は、◣ ◢ ◥ ◤ でマスの半分をぬります。'),
+        G.h('li', null, '右の「できる立体」に等角図が出ます。赤い点線のマスは、ほかの図と位置が合っていないマスです。'),
+        G.h('li', null, '「立体を見る」で、等角図・キャビネット図・3D に切りかえます。3D はドラッグで回せます。'),
+        G.h('li', null, '「図面・印刷」で、寸法と表題欄の入った A4 の図面を印刷したり、PDF で保存したりできます。STL で保存すると、3Dプリンタで使えます。'),
+        G.h('li', null, '最後に「ふりかえり」を書き、「ファイルに書き出す」で提出します。')),
+      G.h('p', { class: 'g-note' }, '三面図に見えている形から、いちばん大きな立体を作ります。三面図だけでは形が1つに決まらないこともあります(たとえば、見えない部分のくぼみ)。そのときは、かくれ線(見えない線)も使って考えましょう。'));
+    G.modal({ title: '使い方', body: body });
+  }
+
+  /* ---------- 全体 ---------- */
+  function renderAll() {
+    renderSize();
+    renderCurrentTab();
+  }
+  function renderCurrentTab() {
+    if (currentTab === 'draw') { renderEditor(); renderPreview(); renderCheck(); }
+    else if (currentTab === 'view') renderView();
+    else if (currentTab === 'sheet') renderSheet();
+    else if (currentTab === 'review') renderReview();
+  }
+  var tabs = G.tabs(G.$('[data-g-tabs]'), function (name) {
+    currentTab = name;
+    if (P) renderCurrentTab();
+  });
+  var rt = null;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (P) renderCurrentTab(); }, 150); });
+  document.addEventListener('keydown', function (e) {
+    if (currentTab !== 'draw' || !(e.ctrlKey || e.metaKey)) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName)) return;
+    if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+    else if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); }
+  });
+
+  buildTools(); bindEditor(); bindSize(); bindView(); bindSheet(); bindReview();
+  var sel = G.$('#sample');
+  SAMPLES.forEach(function (s) { sel.appendChild(G.h('option', { value: s.id }, s.label)); });
+  G.$('#load-sample').addEventListener('click', function () { loadSample(sel.value); G.toast('「' + sel.options[sel.selectedIndex].text + '」をかきこみました'); });
+  G.$('#undo').addEventListener('click', undo);
+  G.$('#redo').addEventListener('click', redo);
+  G.$('#clear').addEventListener('click', function () {
+    G.confirm('3つの図のマスをぜんぶ消します(「元に戻す」で戻せます)。', 'ぜんぶ消す').then(function (ok) {
+      if (!ok) return;
+      pushUndo();
+      M = SG.emptyModel(M.W, M.D, M.H);
+      modelChanged(); renderEditor(); renderPreview(); renderCheck();
+    });
+  });
+  G.$('#go-view').addEventListener('click', function () { tabs.show('view'); });
+  G.$('#pname').addEventListener('input', changed);
+
+  G.$('#b-new').addEventListener('click', function () {
+    G.confirm('新しい作品を作ります。今の作品は保存されています。', '新しく作る').then(function (ok) {
+      if (ok) save().then(function () { newProject(); tabs.show('draw'); });
+    });
+  });
+  G.$('#b-save').addEventListener('click', function () { save(true); });
+  G.$('#b-open').addEventListener('click', function () {
+    save().then(function () { return G.openDialog(APP); }).then(function (a) { if (a) { setProject(a); G.toast('「' + a.title + '」を開きました'); } });
+  });
+  G.$('#b-export').addEventListener('click', function () {
+    save().then(function () { G.exportJSON(withStudent(), '立体メーカー_' + (art.title || '無題') + '.json'); });
+  });
+  G.$('#b-import').addEventListener('click', function () {
+    G.pickJSON().then(function (obj) {
+      var list = G.normalizeImport(obj, APP);
+      if (!list.length) { G.toast('立体メーカーの作品が見つかりませんでした'); return; }
+      return Promise.all(list.map(function (a) { return G.store.put(a); })).then(function () {
+        setProject(list[0]);
+        G.toast(list.length > 1 ? list.length + ' 件を読み込み、1件目を開きました' : '「' + list[0].title + '」を読み込みました');
+      });
+    }).catch(function (e) { G.toast(e.message); });
+  });
+
+  // 起動: 前回の作品を開く(はじめてなら L字ブロックのお手本から)
+  var lastId = null;
+  try { lastId = localStorage.getItem('solid-maker.last'); } catch (e) {}
+  (lastId ? G.store.get(lastId) : Promise.resolve(null)).then(function (a) {
+    if (a && a.app === APP) setProject(a); else newProject('l');
+  }).catch(function () { newProject('l'); });
+})();
+
+</script>
+</body>
+</html>

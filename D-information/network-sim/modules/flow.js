@@ -143,7 +143,7 @@ export const flowModule = {
         const packetBox = h("div", { class: "packet-box" });
         li5.append(packetBox);
         packetBox.replaceChildren(h("div", { class: "table-wrap" }, h("table", { class: "data packets-table" }, h("caption", { class: "hint" }, "送られるパケット"), h("thead", {}, h("tr", {}, h("th", {}, "番号"), h("th", {}, "宛先IP"), h("th", {}, "送信元IP"), h("th", {}, "中身"), h("th", {}, "とう着"))), h("tbody", {}, rows))),
-          h("p", { class: "hint packets-note" }, "※ しくみを見やすくするため、ここでは暗号化しないで送っています。暗号化するとどうなるかは「4 のぞき見と暗号化」で比べます。"),
+          h("p", { class: "hint packets-note" }, "※ しくみを見やすくするため、ここでは暗号化しないで送っています。暗号化するとどうなるかは「④ のぞき見と暗号化」で比べます。"),
           h("p", { class: "hint packets-note" }, "※ 192.168.… のような家の中の番号は、そのままではインターネットに出られません。ほんとうは、家のルータが、外に出るときに自分の番号に付けかえています（NAT）。"),
         );
         split.scrollSideToEnd();

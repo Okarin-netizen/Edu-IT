@@ -143,16 +143,18 @@
 
   var SECTIONS = [
     { id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro },
-    { id: 'guess', group: '文章をつくるAI', no: '1', min: '10分', title: 'つぎの言葉あて', desc: '文のつづきに来る言葉を予想して、AIの予想とくらべる', render: renderGuess },
-    { id: 'token', group: '文章をつくるAI', no: '2', min: '5分', title: '言葉のかけら(トークン)', desc: 'AIが文を小さなかけらに分けて、番号にするようすを見る', render: renderToken },
-    { id: 'textgen', group: '文章をつくるAI', no: '3', min: '15分', title: 'ミニ文章AIを動かす', desc: 'つぎの言葉を1つずつえらんで文を作る、小さなAIを動かす', render: renderTextgen },
-    { id: 'halluc', group: '文章をつくるAI', no: '4', min: '15分', title: 'もっともらしいまちがい', desc: 'AIがすらすらとまちがえる(ハルシネーション)しくみをたしかめる', render: renderHalluc },
-    { id: 'noise', group: '画像をつくるAI', no: '5', min: '10分', title: 'ノイズをまぜる(学習)', desc: '絵にノイズをまぜて、AIが学習するときの問題を体験する', render: renderNoise },
-    { id: 'imggen', group: '画像をつくるAI', no: '6', min: '15分', title: 'ノイズから絵をつくる', desc: 'ノイズを少しずつ取りのぞいて、言葉から絵をつくる', render: renderImggen },
-    { id: 'privacy', group: '安全に使う', no: '7', min: '15分', title: '個人情報が出てしまう？', desc: '入れた個人情報が、ほかの人への答えに出てしまうしくみを見る', render: renderPrivacy },
-    { id: 'quiz', group: '安全に使う', no: '8', min: '10分', title: 'クイズとふりかえり', desc: 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'halluc', group: '気をつけて使う(基本)', no: '1', min: '15分', title: 'もっともらしいまちがい', desc: 'AIがすらすらとまちがえる(ハルシネーション)しくみをたしかめる', render: renderHalluc },
+    { id: 'privacy', group: '気をつけて使う(基本)', no: '2', min: '15分', title: '個人情報が出てしまう？', desc: '入れた個人情報が、ほかの人への答えに出てしまうしくみを見る', render: renderPrivacy },
+    { id: 'quiz', group: '気をつけて使う(基本)', no: '3', min: '10分', title: 'クイズとふりかえり', desc: 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'guess', group: '文章をつくるAIのしくみ(発展)', no: '4', min: '10分', title: 'つぎの言葉あて', desc: '文のつづきに来る言葉を予想して、AIの予想とくらべる', render: renderGuess },
+    { id: 'token', group: '文章をつくるAIのしくみ(発展)', no: '5', min: '5分', title: '言葉のかけら(トークン)', desc: 'AIが文を小さなかけらに分けて、番号にするようすを見る', render: renderToken },
+    { id: 'textgen', group: '文章をつくるAIのしくみ(発展)', no: '6', min: '15分', title: 'ミニ文章AIを動かす', desc: 'つぎの言葉を1つずつえらんで文を作る、小さなAIを動かす', render: renderTextgen },
+    { id: 'noise', group: '画像をつくるAIのしくみ(発展)', no: '7', min: '10分', title: 'ノイズをまぜる(学習)', desc: '絵にノイズをまぜて、AIが学習するときの問題を体験する', render: renderNoise },
+    { id: 'imggen', group: '画像をつくるAIのしくみ(発展)', no: '8', min: '15分', title: 'ノイズから絵をつくる', desc: 'ノイズを少しずつ取りのぞいて、言葉から絵をつくる', render: renderImggen },
     { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
   ];
+  // 並びと番号: 基本編(①〜③)→ 発展編(④〜⑧)。no は並びの番号、画面には丸数字(label)で出す
+  SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
   var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
@@ -246,7 +248,7 @@
     var idx = SECTIONS.indexOf(s);
     if (s.no) {
       view.appendChild(h('header', { class: 'module-head sec-head' },
-        h('p', { class: 'meta', text: s.group + '・ステップ' + s.no + '・目安 ' + s.min }),
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
         h('h1', { class: 'sec-title', text: s.title })));
     }
     var body = h('div', { class: 'sec-body' });
@@ -291,28 +293,28 @@
       h('section', { class: 'card' },
         h('h2', { text: 'すすめ方' }),
         h('ol', null,
-          h('li', { text: '1〜4で文章をつくるAI、5・6で画像をつくるAIのしくみを体験する' }),
-          h('li', { text: '7で個人情報の注意を体験し、8のクイズとふりかえりを書く' }),
+          h('li', { text: '①でもっともらしいまちがい、②で個人情報の注意を体験し、③のクイズとふりかえりを書く(ここまでが基本)' }),
+          h('li', { text: '発展: ④〜⑥で文章をつくるAI、⑦・⑧で画像をつくるAIのしくみを体験する' }),
           h('li', null, h('a', { href: '#records', text: 'ふりかえり・記録' }), 'からファイルを書き出して提出する')),
         h('div', { class: 'lesson-plan' },
           h('h3', { text: '2時間で行うときの例' }),
           h('ul', null,
-            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・1 つぎの言葉あて・2 トークン・3 ミニ文章AI・4 もっともらしいまちがい」'),
-            h('li', null, h('strong', { text: '2時間目' }), '「5 ノイズをまぜる・6 ノイズから絵をつくる・7 個人情報・8 クイズとふりかえり」'),
-            h('li', null, h('strong', { text: '1時間で行うとき' }), 'は、1・3・4・6・7 を中心にする')),
+            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① もっともらしいまちがい・② 個人情報・③ クイズとふりかえり」(基本)'),
+            h('li', null, h('strong', { text: '2時間目' }), '「④ つぎの言葉あて・⑤ トークン・⑥ ミニ文章AI・⑦ ノイズをまぜる・⑧ ノイズから絵をつくる」(発展)'),
+            h('li', null, h('strong', { text: '発展を少しだけ行うとき' }), 'は、⑥・⑧ を中心にする')),
           h('p', { class: 'muted', text: '次の人に端末をわたすときは、「ふりかえり・記録」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
       h('section', { class: 'module-group' },
         h('h2', { text: 'ステップ' }),
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
           return h('a', { class: 'module-card', href: '#' + x.id },
-            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.no + '・目安 ' + x.min }),
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
             h('span', { class: 'mc-state' + (visited[x.id] ? ' is-done' : ''), text: visited[x.id] ? '✓ やった' : 'まだ' }));
         }))),
       h('div', { class: 'btn-row home-start' },
-        h('a', { class: 'ef-btn-primary', href: '#guess', text: 'ステップ1 つぎの言葉あてからはじめよう →' }),
-        last && last.id !== 'guess' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
+        h('a', { class: 'ef-btn-primary', href: '#halluc', text: 'ステップ① もっともらしいまちがいからはじめよう →' }),
+        last && last.id !== 'halluc' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
       h('details', { class: 'teacher' },
         h('summary', { text: '先生へ' }),
         h('ul', null,
@@ -560,7 +562,7 @@
   function renderHalluc(el) {
     var model = LM.buildModel(D.corpora.ichiban.sentences);
     append(el, h('p', { class: 'lead' }, '生成AIは、本当のことのように見えるまちがいを答えることがあります。これを',
-      h('b', { text: 'ハルシネーション' }), '(もっともらしいまちがい)といいます。なぜ起きるのかを、ミニ文章AIでたしかめます。'));
+      h('b', { text: 'ハルシネーション' }), '(もっともらしいまちがい)といいます。なぜ起きるのかを、ミニ文章AI(学習した文から、つぎに来そうな言葉を1つずつえらんで文をつくる小さなAI。しくみは発展の ⑥ でくわしく体験できます)でたしかめます。'));
 
     // A: ミニAIで(学習データと同じ文を2本まで、新しい文を3本。新しい文だけを判定する)
     var nNew = hs.results.filter(function (r) { return !r.old; }).length;
@@ -788,7 +790,7 @@
 
     el.appendChild(h('div', { class: 'controls' }, wordsRow, gs.word ? mixRow : null,
       gs.word2 && gs.word ? h('label', { class: 'ctl' }, h('span', { class: 'ctl-label', text: gs.word + ' ↔ ' + gs.word2 }), mixIn) : null));
-    el.appendChild(h('p', { class: 'muted' }, 'ことば(プロンプト)も、', h('a', { href: '#token' }, 'ステップ2のトークン'),
+    el.appendChild(h('p', { class: 'muted' }, 'ことば(プロンプト)も、', h('a', { href: '#token' }, 'ステップ⑤のトークン'),
       'と同じように番号にしてAIにわたします: ',
       promptWords.length ? promptWords.map(function (w) { return w + ' → ' + LM.tokenize(w, vocab)[0].id; }).join('、') : '(ことばなし)'));
 
@@ -896,12 +898,12 @@
       h('p', { text: '入れた内容は、会社のサーバーに記録として残ることがあります。まちがいや不正アクセスで、会話の記録がほかの人に見えてしまう事故も起きています。入れる前に「だれに見られても大丈夫？」と考えます。' })));
   }
 
-  // ================= 8 クイズとふりかえり =================
+  // ================= ③ クイズとふりかえり(基本の内容だけ) =================
   var qs = { ans: {} };
   function renderQuiz(el) {
     var score = D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length;
     var answered = Object.keys(qs.ans).length;
-    el.appendChild(h('p', { class: 'lead', text: 'ここまでの体験をふりかえるクイズです。' }));
+    el.appendChild(h('p', { class: 'lead', text: '① もっともらしいまちがい・② 個人情報の体験をふりかえるクイズです(6問)。答えたあとの説明も読もう。' }));
     D.quiz.forEach(function (q, i) {
       var a = qs.ans[i];
       el.appendChild(card('Q' + (i + 1) + '　' + q.q,
@@ -942,7 +944,7 @@
       app: '生成AIのしくみラボ',
       exportedAt: new Date().toISOString(),
       student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
-      steps: SECTIONS.filter(function (x) { return x.no; }).map(function (x) { return { no: x.no, title: x.title, opened: !!visited[x.id] }; }),
+      steps: SECTIONS.filter(function (x) { return x.no; }).map(function (x) { return { no: x.label, title: x.title, opened: !!visited[x.id] }; }),
       guess: { answered: Object.keys(guessState.picked).length, sameAsAI: D.guessGame.filter(function (it, i) { return guessState.picked[i] === it.options[0][0]; }).length },
       quiz: { answered: Object.keys(qs.ans).length, correct: D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length, total: D.quiz.length },
       reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
@@ -1029,12 +1031,12 @@
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: 'ステップ' }), h('th', { text: 'ひらいた' }), h('th', { text: '記録' }))),
           h('tbody', null, STEP_SECTIONS.map(function (x) {
-            return h('tr', null, h('td', { text: x.no + '. ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: score[x.id] || '' }));
+            return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: score[x.id] || '' }));
           })))),
         h('ul', { class: 'refl-list' }, [['r1', 'ふりかえり1(しくみ)'], ['r2', 'ふりかえり2(気をつけたいこと)'], ['r3', 'ふりかえり3(使ってみたい場面)']].map(function (q) {
           return h('li', null, h('b', { text: q[1] + ': ' }), refl[q[0]] ? h('span', { text: refl[q[0]] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '8 クイズとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '③ クイズとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

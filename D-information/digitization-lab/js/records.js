@@ -17,7 +17,7 @@ export function renderRecords(view, catalog) {
     return h(
       "tr",
       {},
-      h("td", {}, `${c.num}. ${c.title}`),
+      h("td", {}, `${c.label} ${c.title}`),
       h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`),
       h("td", {}, best ? `ドリル最高 ${best}` : ""),
       h("td", {}, store.getReflection(c.id) || h("span", { class: "hint" }, "（まだ書いていません）")),

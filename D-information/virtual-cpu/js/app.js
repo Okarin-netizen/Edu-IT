@@ -1,4 +1,4 @@
-// 画面の切りかえ（#/ … トップ、#/diagram 図解、#/sim 仮想CPU、#/tasks 課題、#/task/ID、#/auto 手計算くらべ、#/records ふりかえり・記録）
+// 画面の切りかえ（#/ … トップ、#/diagram ①図解、#/auto ②手計算くらべ、#/sim ③仮想CPU、#/tasks ④課題、#/task/ID、#/records ふりかえり・記録）
 import { h, explain } from "./ui.js";
 import { loadData } from "./data.js";
 import { store } from "./store.js";
@@ -35,10 +35,11 @@ function renderNav() {
     link("/", "⌂", "はじめに", false),
     h("li", { class: "nav-group", "aria-hidden": "true" }, "体験する"),
     // ✓ は「やり終えた」ときだけ（開いただけではつけない）。課題は必修（課題1〜4）を全部クリアしたとき
+    // 基本編（① 図解・② 手計算くらべ）→ 発展編（③ 仮想CPUを動かす・④ 課題）の順
     link("/diagram", "1", "図解: 5つの装置", store.isDone("diagram")),
-    link("/sim", "2", "仮想CPUを動かす", false),
-    link("/tasks", "3", "課題", (() => { const c = tierCount(tasks, "must"); return c.total > 0 && c.done === c.total; })()),
-    link("/auto", "4", "手計算くらべ", store.isDone("auto")),
+    link("/auto", "2", "手計算くらべ", store.isDone("auto")),
+    link("/sim", "3", "仮想CPUを動かす", false),
+    link("/tasks", "4", "課題", (() => { const c = tierCount(tasks, "must"); return c.total > 0 && c.done === c.total; })()),
     h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"),
     link("/records", "✎", "ふりかえり・記録", false),
   );
@@ -62,9 +63,9 @@ function renderHome(view) {
       "div",
       { class: "module-grid" },
       card("①", "#/diagram", "図解: 5つの装置", "入力・記憶・演算・制御・出力。データがどう流れるかをアニメで見る。", store.isDone("diagram") ? h("span", { class: "status good small-status" }, "✓ やった") : null),
-      card("②", "#/sim", "仮想CPUを動かす", "10個の命令で動く小さなCPU。1段階ずつ進めて、レジスタ（CPUの中の小さな記憶の箱）と記憶装置の変化を見る。", null),
-      card("③", "#/tasks", "課題", "必修は課題1〜4。たし算、ひき算、くり返しをプログラムする。発展・チャレンジもある。", h("span", { class: `status ${must.done === must.total ? "good" : ""} small-status` }, `必修 ${must.done} / ${must.total}（全体 ${done} / ${tasks.length}）`)),
-      card("④", "#/auto", "手計算 vs プログラム", "同じ計算を人とコンピュータでくらべ、処理の自動化を考える。", store.isDone("auto") ? h("span", { class: "status good small-status" }, "✓ やった") : null),
+      card("②", "#/auto", "手計算 vs プログラム", "同じ計算を人とコンピュータでくらべ、処理の自動化を考える。", store.isDone("auto") ? h("span", { class: "status good small-status" }, "✓ やった") : null),
+      card("③", "#/sim", "仮想CPUを動かす", "10個の命令で動く小さなCPU。1段階ずつ進めて、レジスタ（CPUの中の小さな記憶の箱）と記憶装置の変化を見る。", null),
+      card("④", "#/tasks", "課題", "必修は課題1〜4。たし算、ひき算、くり返しをプログラムする。発展・チャレンジもある。", h("span", { class: `status ${must.done === must.total ? "good" : ""} small-status` }, `必修 ${must.done} / ${must.total}（全体 ${done} / ${tasks.length}）`)),
     ),
     h(
       "details",
@@ -74,14 +75,13 @@ function renderHome(view) {
       h(
         "ol",
         {},
-        h("li", {}, "1時間目（前半 約20分）: ①図解で5つの装置とデータ・制御の流れを確認し、機器の仲間分けをする。"),
-        h("li", {}, "1時間目（後半 約30分）: ②仮想CPUで「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し→解読→実行をたしかめる。③課題1〜2（必修）。"),
-        h("li", {}, "2時間目（前半 約30分）: ③課題3〜4（必修。順次とくり返し）。終わった生徒は課題5〜7（発展）、課題8（チャレンジ）へ進む。"),
-        h("li", {}, "2時間目（後半 約20分）: 課題の途中でも、全員で④手計算くらべをして、処理の自動化をまとめる。ふりかえりを書き、記録（JSON）を書き出す。"),
+        h("li", {}, "1時間目（前半 約25分）: ①図解で5つの装置とデータ・制御の流れを確認し、機器の仲間分けをする。"),
+        h("li", {}, "1時間目（後半 約25分）: ②手計算くらべで、同じ計算を人とプログラムでくらべ、処理の自動化をまとめる。ふりかえりを書き、記録（JSON）を書き出す。（ここまでが基本編）"),
+        h("li", {}, "発展（2時間目）: ③仮想CPUで「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し→解読→実行をたしかめる。④課題1〜4（必修。順次とくり返し）。終わった生徒は課題5〜7（発展）、課題8（チャレンジ）へ進む。"),
       ),
       h("p", {}, "課題の区分: 課題1〜4 が必修、5〜7 が発展、8 がチャレンジです。時間の目安は、必修1問 5〜8分、発展1問 8〜12分です（クラスに合わせて調整してください）。"),
       h("p", {}, "ヒントは「考え方 → 一部の答え」の順に出ます。最後のヒントも答えそのものではありません。ヒントを全部見ると「答えの例」を開けます。答えの例をプログラム欄に入れるボタンはなく、生徒が自分で打ちこみます。答えの例を開いたことは記録に残り、書き出した JSON に入ります（各課題のプログラムも入ります）。"),
-      h("p", {}, "✓ は、①は仲間分けの答え合わせ、③は必修（課題1〜4）のクリア、④は手計算と N を大きくしたくらべをしたときにつきます。開いただけではつきません。"),
+      h("p", {}, "✓ は、①は仲間分けの答え合わせ、②は手計算と N を大きくしたくらべ、④は必修（課題1〜4）のクリアをしたときにつきます。開いただけではつきません。"),
       h("p", {}, "進み具合と書いたプログラムは、この端末のブラウザの中だけに保存されます（外部には送りません）。"),
       h("button", { class: "btn small secondary", type: "button", onclick: () => confirm("この端末に保存された進み具合とプログラムをすべて消しますか？") && (store.reset(), route()) }, "この端末の記録を消す"),
     ),

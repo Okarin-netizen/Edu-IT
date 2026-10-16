@@ -13,7 +13,7 @@ export const MODULES = [
   { ...faultModule, num: 3, period: 2, title: "回線が切れたら？", desc: "回線を切る・ルータを止める。別の道で届く？ 届かなくなる？" },
   { ...spyModule, num: 4, period: 2, title: "のぞき見と暗号化", desc: "途中の回線をのぞく人に見えるものを、HTTP と HTTPS で比べる。" },
   { ...drillModule, num: 5, period: 2, title: "IPアドレス・ドリル", desc: "IPアドレスの書き方、同じネットワーク、2進数、機器の役目を練習。" },
-];
+].map((m) => ({ ...m, label: "①②③④⑤"[m.num - 1] })); // 画面に出す番号は丸数字（①〜④ 基本編、⑤ 発展編）
 
 const view = document.getElementById("view");
 const nav = document.getElementById("chapter-nav");
@@ -92,7 +92,7 @@ function renderHome() {
       return h(
         "a",
         { class: "module-card", href: `#/${m.id}` },
-        h("span", { class: "mc-num" }, `${m.num}　目安 ${m.minutes}（${m.period}時間目）`),
+        h("span", { class: "mc-num" }, `${m.label}　目安 ${m.minutes}（${m.period}時間目）`),
         h("span", { class: "mc-title" }, m.title),
         h("span", { class: "mc-desc" }, m.desc),
         h("span", { class: "hint" }, p.complete ? "✓ クリア" : `${p.done} / ${p.total} ステップ`),
@@ -112,7 +112,7 @@ function renderHome() {
       { class: "card" },
       h("p", {}, "パソコンでWebページを見るとき、ネットワークの中では何が起きているのでしょう。このシミュレータでは、ブラウザの中の", h("strong", {}, "模型のネットワーク"), "を組み立てて、パケット・IPアドレス・DNS・ルータ・サーバのはたらきを目で見て確かめます。"),
       explainCard("安心して使えます", "この教材はブラウザの中だけで動き、本物のネットワークや外部のサイトには一切接続しません。出てくるサイト名は架空（<code>.example</code>）です。IPアドレスは、家の中で使う番号（プライベートアドレス）と、説明用に予約された番号を使っています。"),
-      h("p", { class: "hint" }, "おすすめの順番：1 → 2 → 3 → 4 → 5。1で作ったネットワークが2〜4で使われます（はじめから用意された形のままでも体験できます）。"),
+      h("p", { class: "hint" }, "おすすめの順番：① → ② → ③ → ④ → ⑤（⑤は発展）。①で作ったネットワークが②〜④で使われます（はじめから用意された形のままでも体験できます）。"),
     ),
     // 授業の区切り（NW-17）。2時間で使う
     h(
@@ -128,11 +128,11 @@ function renderHome() {
           {},
           [1, 2].map((p) => {
             const ms = MODULES.filter((m) => m.period === p);
-            return h("tr", {}, h("th", { scope: "row" }, `${p}時間目`), h("td", {}, ms.map((m) => `${m.num} ${m.title}`).join("、")), h("td", {}, ms.map((m) => m.minutes).join(" ＋ ")));
+            return h("tr", {}, h("th", { scope: "row" }, `${p}時間目`), h("td", {}, ms.map((m) => `${m.label} ${m.title}`).join("、")), h("td", {}, ms.map((m) => m.minutes).join(" ＋ ")));
           }),
         ),
       ),
-      h("p", { class: "hint" }, "どのページも、終わりに「ふりかえり」を書きます。5のドリルの「チャレンジ問題」は、時間がある人だけでかまいません。"),
+      h("p", { class: "hint" }, "どのページも、終わりに「ふりかえり」を書きます。⑤のドリル（発展）の「チャレンジ問題」は、時間がある人だけでかまいません。"),
     ),
     grid,
     // ことばの一覧（読み方つき）（NW-13）
@@ -162,7 +162,7 @@ function renderRecords() {
   });
   const rows = MODULES.map((m) => {
     const p = progress(m);
-    return h("tr", {}, h("td", {}, `${m.num}. ${m.title}`), h("td", {}, `${p.done} / ${p.total}`), h("td", {}, store.getReflection(m.id) || "—"));
+    return h("tr", {}, h("td", {}, `${m.label} ${m.title}`), h("td", {}, `${p.done} / ${p.total}`), h("td", {}, store.getReflection(m.id) || "—"));
   });
   // 書き出す前に、組と番号が入っているかを確かめる。書き出したら、ファイル名と出し方を知らせる（共通のきまり）
   const exportNote = h("p", { class: "export-note", "aria-live": "polite" });
@@ -228,7 +228,7 @@ function renderRecords() {
 }
 
 function renderModule(m) {
-  const head = h("div", { class: "module-head" }, h("h1", {}, `${m.num}. ${m.title}`), h("p", { class: "meta" }, `目安 ${m.minutes}（2時間で使うときは ${m.period}時間目）`), h("p", {}, m.lead));
+  const head = h("div", { class: "module-head" }, h("h1", {}, `${m.label} ${m.title}`), h("p", { class: "meta" }, `目安 ${m.minutes}（2時間で使うときは ${m.period}時間目）`), h("p", {}, m.lead));
   view.replaceChildren(head);
   m.render(view);
   const idx = MODULES.indexOf(m);

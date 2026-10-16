@@ -1,4 +1,4 @@
-// モジュール11: 情報のデジタル化と情報量（画像の解像度・階調、音の標本化・量子化、圧縮）
+// モジュール①: 情報のデジタル化と情報量（画像の解像度・階調、音の標本化・量子化、圧縮）
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz } from "../js/ui.js";
 import { imageBits, audioBits, formatBits, quantize, rle, log2 } from "../js/digitallib.js";
 

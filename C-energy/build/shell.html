@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>エネルギー変換 学習アプリ(E1〜E5)</title>
-<!-- E1〜E5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.E{n}.mount() で起動する。 -->
+<title>エネルギー変換の技術 教材集</title>
+<!-- C1〜C5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
 <!-- ===== 4分野共通の枠(shared/eduit-frame.css・C-energy/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
 <style>
 {{EF_CSS}}
 </style>
 <script>
 {{EF_INFO}}
-EDUIT_INFO.app = { name: 'エネルギー変換 学習アプリ(E1〜E5)' };
+EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 </script>
 <script>
 {{EF_JS}}
@@ -32,7 +32,7 @@ body{overflow:hidden}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
 .ea-btn:hover:not([disabled]){border-color:var(--accent)}
-.ea-btn:focus-visible,.ea-card:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+.ea-btn:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 .ea-btn.danger{background:#fde2e2;border-color:#f3b7b7;color:#a61e1e}
 .ea-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
 .ea-back{color:var(--accent);background:var(--ef-accent-soft);border-color:transparent;font-weight:bold}
@@ -42,31 +42,25 @@ body{overflow:hidden}
 .ea-hd{padding:6px 32px;flex:none}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
-.ea-flow{padding:12px 32px 10px;color:var(--sub);font-size:15px}
-.ea-flow b{color:var(--ink)}
-.ea-flow rt,.ea-hbody rt{font-size:12px}
+.ea-hbody rt{font-size:12px}
+/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
-.ea-card{grid-column:span 2;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:236px;touch-action:manipulation;position:relative}
-.ea-card:hover{border-color:var(--accent)}
-.ea-card:nth-child(4){grid-column:2 / span 2}
-.ea-card:nth-child(4):last-child{grid-column:3 / span 2}
-.ea-card .ef-level-parts{display:block;font-size:14px}
+.ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
+.ea-cards>.ef-mcard:hover{border-color:var(--accent)}
+.ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
+.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
+.ea-cards .ef-level-parts{display:block;font-size:14px}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
-.ea-card:active{transform:translateY(2px)}
-.ea-card .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff}
-.ea-card .no{margin:0;font-size:14px}
-.ea-card .nm{margin:0;font-size:22px}
-.ea-card .ds{font-size:15px;color:var(--sub);line-height:1.5}
-.ea-card .tg{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-top:2px}
-.ea-card .tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
-.ea-card .go{align-self:flex-end;min-height:40px}
-.ea-card .top{display:flex;gap:14px;align-items:center}
-.ea-card .pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
-.ea-card .pg b{font-size:15px;color:var(--ink)}
-.ea-card .pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-card .pg .bar i{display:block;height:100%;border-radius:999px}
-.ea-card .pg .s2{font-size:13px;color:var(--sub)}
+.ea-cards .ef-mcard-desc{font-size:15px;color:var(--sub);line-height:1.5}
+.ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
+.ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
+.ea-card-tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
+.ea-pg b{font-size:15px;color:var(--ink)}
+.ea-pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.ea-pg .bar i{display:block;height:100%;border-radius:999px}
+.ea-pg .s2{font-size:13px;color:var(--sub)}
 .ea-foot{padding:0 32px 4px;color:var(--sub);font-size:13px}
 .ea-home .ef-footer{margin-top:10px}
 
@@ -79,7 +73,9 @@ body{overflow:hidden}
 .ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:10px 10px 0 0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
 .ea-chip:hover{color:var(--ink)}
 .ea-chip.cur{background:var(--ef-accent-soft);color:var(--ink);font-weight:bold}
-.ea-chip .no{opacity:.8;font-size:14px}
+.ea-chip .ef-code{font-size:13px;min-width:0}
+.ea-apptitle{margin:0 6px 0 4px;font-size:17px;white-space:nowrap;flex:none}
+.ea-apptitle .ef-code{margin-right:6px}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
@@ -112,7 +108,6 @@ body{overflow:hidden}
 @media (max-width:900px){
   .ea-hd{padding:6px 16px}
   .ea-hd .ef-title{font-size:20px}
-  .ea-flow{padding:4px 16px 10px}
   .ea-cards{gap:12px;padding:6px 16px 20px}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:6px 0 20px}
@@ -122,14 +117,15 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+@media (max-width:1100px){ .ea-apptitle{display:none} }
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-card,.ea-card:nth-child(4),.ea-card:nth-child(4):last-child{grid-column:auto}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
-@media (max-height:720px){ .ea-card{min-height:200px} }
+@media (max-height:720px){ .ea-cards>.ef-mcard{min-height:200px} }
 @media print{
   html,body{height:auto;overflow:visible}
   .ea{height:auto;display:block}
@@ -142,25 +138,25 @@ body{overflow:hidden}
 <body>
 <div class="ea" id="ea">
   <!-- トップ画面 -->
-  <section class="ea-view ea-home" data-view="home" aria-label="トップ画面">
+  <section class="ea-view ea-home" data-view="home" aria-label="メニュー">
     <header class="ef-header ea-hd">
-      <h1 class="ef-title"><span class="ef-icon" aria-hidden="true">⚡</span>エネルギー変換 学習アプリ<span class="ef-sub">中学校 技術分野「エネルギー変換の技術」 ・ インターネットなしで動きます</span></h1>
+      <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
         <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
-        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生向け</button>
+        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生用</button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       </div>
     </header>
-    <div class="ea-flow">基本編のおすすめの順番:<b>E1</b> エネルギー変換 → <b>E2</b> 電気回路 → <b>E3</b> <ruby>機構<rt>きこう</rt></ruby> → <b>E4</b> 保守点検 → <b>E5</b> 回路の設計</div>
     <div data-ref="cards"></div>
-    <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「🏠 トップ」でここにもどれます。</div>
+    <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「◀ メニュー」でここにもどれます。</div>
     <div data-ef-footer></div>
   </section>
 
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
     <div class="ea-bar">
-      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="トップ画面にもどる">🏠 トップ</button>
+      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
+      <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
       <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       <span data-ref="about"></span>
@@ -175,7 +171,7 @@ body{overflow:hidden}
       <h2>使い方</h2>
       <div class="ea-tabs">
         <button class="ea-btn" data-ea="tab-s">🧑‍🎓 生徒向け</button>
-        <button class="ea-btn" data-ea="tab-t">🧑‍🏫 先生向け</button>
+        <button class="ea-btn" data-ea="tab-t">🧑‍🏫 先生用</button>
       </div>
     </div>
     <div class="ea-hbody" data-tab="s">{{HELP_STUDENT}}</div>
@@ -211,7 +207,7 @@ function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return n
 function byId(id) { for (var i = 0; i < APPS.length; i++) if (APPS[i].id === id) return APPS[i]; return null; }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-/* ---- 進み具合(各アプリの保存データ energyApps.E{n}.v1 を読むだけ。書きこまない) ---- */
+/* ---- 進み具合(各アプリの保存データ energyApps.C{n}.v1 を読むだけ。書きこまない) ---- */
 function readSave(id) {
   var s = lsGet(KEY(id)); if (!s) return null;
   try { var d = JSON.parse(s); return d && typeof d === 'object' && !Array.isArray(d) ? d : null; } catch (e) { return null; }
@@ -221,28 +217,28 @@ function isObj(o) { return o && typeof o === 'object' && !Array.isArray(o); }
 function countIds(ids, obj, ok) { var n = 0; ids.forEach(function (k) { if (ok(obj[k])) n++; }); return n; }
 function truthy(v) { return !!v; }
 var PROG = {
-  E1: function (d) {
-    var stars = isObj(d.stars) ? d.stars : {}, t = appTest('E1'), st = t && t.STAGES ? t.STAGES.filter(function (x) { return !x.free; }) : null;
+  C1: function (d) {
+    var stars = isObj(d.stars) ? d.stars : {}, t = appTest('C1'), st = t && t.STAGES ? t.STAGES.filter(function (x) { return !x.free; }) : null;
     var ids = st ? st.map(function (x) { return x.id; }) : ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
     var max = st ? st.reduce(function (m, x) { return m + (x.stars ? x.stars.length : 3); }, 0) : ids.length * 3;
     var got = ids.reduce(function (m, k) { return m + Math.max(0, Math.min(3, +stars[k] || 0)); }, 0);
     return { n: countIds(ids, stars, function (v) { return +v > 0; }), t: ids.length, main: 'ステージ', end: 'クリア', sub: '★ ' + got + ' / ' + max };
   },
-  E2: function (d) {
-    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('E2');
+  C2: function (d) {
+    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('C2');
     var ids = t && t.CHALS ? t.CHALS.map(function (x) { return x.id; }) : ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11'];
     var safe = Object.keys(cl).filter(function (k) { return /^s\d+$/.test(k) && cl[k]; }).length;
     return { n: countIds(ids, cl, truthy), t: ids.length, main: '課題', end: 'クリア', sub: safe ? '安全体験 ' + safe + ' つ' : '' };
   },
-  E3: function (d) {
-    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('E3');
+  C3: function (d) {
+    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('C3');
     var ids = t && t.TASKS ? t.TASKS.map(function (x) { return x.id; }) : null;
     var n = ids ? countIds(ids, tk, function (v) { return +v > 0; }) : Object.keys(tk).filter(function (k) { return +tk[k] > 0; }).length;
     var tot = ids ? ids.length : 12;
     return { n: Math.min(n, tot), t: tot, main: '設計課題', end: 'クリア', sub: typeof d.quizBest === 'number' && d.quizBest >= 0 ? 'ブラックボックス 最高 ' + d.quizBest + '問正解' : '' };
   },
-  E4: function (d) {
-    var D = window.EnergyApps && window.EnergyApps.E4data, seen = isObj(d.seenP) ? d.seenP : {};
+  C4: function (d) {
+    var D = window.EnergyApps && window.EnergyApps.C4data, seen = isObj(d.seenP) ? d.seenP : {};
     var ids = D && D.ORDER ? D.ORDER : null, n = ids ? countIds(ids, seen, truthy) : Object.keys(seen).filter(function (k) { return seen[k]; }).length;
     var tot = ids ? ids.length : 17, sub = [];
     if (D && D.MACHINES && isObj(d.found)) {
@@ -253,8 +249,8 @@ var PROG = {
     if (Array.isArray(d.lists) && d.lists.length) sub.push('点検表 ' + d.lists.length + ' まい');
     return { n: Math.min(n, tot), t: tot, main: '部品図鑑', end: '見た', sub: sub.join(' ・ ') };
   },
-  E5: function (d) {
-    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('E5');
+  C5: function (d) {
+    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('C5');
     var tasks = t && t.TASKS ? t.TASKS : null, ids = tasks ? tasks.map(function (x) { return x.id; }) : Object.keys(ds);
     var n = countIds(ids, ds, function (v) { return v && Array.isArray(v.parts) && v.parts.length > 0; }), cur = '';
     if (tasks && d.task) tasks.forEach(function (x) { if (x.id === d.task) cur = 'いまの課題: ' + (x.icon ? x.icon + ' ' : '') + x.title; });
@@ -268,22 +264,21 @@ function progressOf(id) {
 function progressHtml(a, p) {
   if (!p || !p.t) return '';
   var pct = Math.round(100 * Math.min(1, p.n / p.t));
-  return '<div class="pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
+  return '<div class="ea-pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
     '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%;background:' + a.color + '"></i></span>' +
     (p.sub ? '<span class="s2">' + esc(p.sub) + '</span>' : '') + '</div>';
 }
 
 /* ---- 画面を組み立てる ---- */
-function cardHtml(a) {
-  var p = progressOf(a.id);
-  return '<button class="ea-card ef-card" data-open="' + a.id + '">' +
-    '<div class="top"><span class="ic" style="background:' + a.color + '">' + a.icon + '</span>' +
-    '<div><div class="no ef-card-tag">' + a.id + '</div><div class="nm ef-card-title">' + esc(a.name) + '</div></div></div>' +
-    '<div class="ds">' + esc(a.sub) + '</div>' +
-    '<div class="tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
-    '<span class="parts-slot"></span>' +
-    progressHtml(a, p) +
-    '<span class="go ef-btn-primary">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
+function frag(html) { var b = document.createElement('div'); b.innerHTML = html; return b.firstChild; }
+// メニューのカード(4分野共通の EduitFrame.card)。タグと進み具合は「追加の欄」(extra)に入れる
+function makeCard(a, parts) {
+  var p = progressOf(a.id), pg = progressHtml(a, p);
+  return EduitFrame.card({
+    code: a.id, icon: a.icon, title: a.name, desc: a.sub, parts: parts || null,
+    extra: [frag('<div class="ea-card-tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>'), pg ? frag(pg) : null],
+    openAttrs: { 'data-open': a.id }
+  });
 }
 /* 基本編・発展編のタブ(分け方は C-energy/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js) */
 var levelTabs = null;
@@ -292,27 +287,24 @@ function renderCards() {
   if (window.EduitFrame && EduitFrame.levels && window.EDUIT_INFO && EDUIT_INFO.levels) {
     levelTabs = EduitFrame.levels(refs.cards, {
       gridClass: 'ea-cards',
-      card: function (item, parts) {
-        var a = byId(item.id); if (!a) return null;
-        var box = document.createElement('div');
-        box.innerHTML = cardHtml(a);
-        var c = box.firstChild, slot = c.querySelector('.parts-slot');
-        if (parts) { var sp = document.createElement('span'); sp.className = 'ef-level-parts'; sp.innerHTML = parts.innerHTML; slot.parentNode.replaceChild(sp, slot); } else slot.remove();
-        return c;
-      }
+      code: function (item) { return item.id; },
+      card: function (item, parts) { var a = byId(item.id); return a ? makeCard(a, parts) : null; }
     });
     return;
   }
   refs.cards.className = 'ea-cards';
-  refs.cards.innerHTML = APPS.map(cardHtml).join('').replace(/<span class="parts-slot"><\/span>/g, '');
+  refs.cards.innerHTML = '';
+  APPS.forEach(function (a) { refs.cards.appendChild(makeCard(a)); });
 }
+if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle($('[data-ref="menu-title"]'));
+// アプリを切りかえるボタン: 記号の印 + 短い名前(「C2 電気回路」)
 refs.chips.innerHTML = APPS.map(function (a) {
   return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +
-    '<span aria-hidden="true">' + a.icon + '</span><span class="no">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
+    '<span class="ef-code">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
-/* ---- 表示切りかえ(URLの #E1〜#E5 / #help で決まる) ---- */
+/* ---- 表示切りかえ(URLの #C1〜#C5 / #help で決まる) ---- */
 function setView(v) {
   [].forEach.call(root.querySelectorAll('.ea-view'), function (el) { el.classList.toggle('on', el.getAttribute('data-view') === v); });
 }
@@ -322,7 +314,8 @@ function openApp(id) {
   [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; c.classList.toggle('cur', on); c.setAttribute('aria-current', on ? 'page' : 'false'); });
   APPS.forEach(function (a) { document.body.classList.toggle('ea-on-' + a.id, a.id === id); });
   cur = id; lastView = id;
-  document.title = byId(id).icon + ' ' + id + ' ' + byId(id).name + ' - エネルギー変換 学習アプリ';
+  document.title = id + ' ' + byId(id).name + ' - エネルギー変換の技術 教材集';
+  $('[data-ref="app-title"]').innerHTML = '<span class="ef-code">' + id + '</span>' + esc(byId(id).name);
   if (!mounted[id]) {
     var host = refs.panes.querySelector('[data-pane="' + id + '"]>div');
     try {
@@ -333,14 +326,15 @@ function openApp(id) {
       if (window.console) console.error(e);
     }
   }
-  var r = refs.panes.querySelector('[data-pane="' + id + '"] .' + id.toLowerCase());
+  // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e5)のまま
+  var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + id.slice(1));
   if (r && r.focus && !r.contains(document.activeElement)) { try { r.focus({ preventScroll: true }); } catch (e) {} }
 }
 function openHelp(tab) {
   setView('help');
   showTab(tab || 's');
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
-  document.title = '使い方 - エネルギー変換 学習アプリ';
+  document.title = '使い方 - エネルギー変換の技術 教材集';
   if (tab === 't') renderResets();
 }
 function showTab(t) {
@@ -351,7 +345,7 @@ function showTab(t) {
 function openHome() {
   setView('home'); renderCards(); cur = null; lastView = 'home'; fromHome = false;
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
-  document.title = 'エネルギー変換 学習アプリ(E1〜E5)';
+  document.title = 'エネルギー変換の技術 教材集';
 }
 function route() {
   var h = decodeURIComponent(location.hash.replace(/^#/, ''));
@@ -428,7 +422,7 @@ $('[data-ea-file]').addEventListener('change', function (ev) {
   rd.onload = function () {
     var j = null; try { j = JSON.parse(rd.result); } catch (e) {}
     if (!j || j.schema !== 'energyApps.backup' || !j.data || typeof j.data !== 'object') { alert('このファイルは学習記録のファイルではありません。\n(「全アプリの記録をファイルに書き出す」で作ったファイルをえらんでください)'); return; }
-    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.E[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
+    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
     if (!keys.length) { alert('読み込める記録がありませんでした。'); return; }
     if (!confirm(keys.map(function (k) { return k.split('.')[1]; }).join('・') + ' の記録を読み込みます。\nこの端末の今の記録は上書きされます。よろしいですか?')) return;
     try { keys.forEach(function (k) { localStorage.setItem(k, j.data[k]); }); } catch (e) { alert('保存できませんでした: ' + e.message); return; }
