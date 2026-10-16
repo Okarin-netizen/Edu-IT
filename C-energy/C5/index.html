@@ -602,19 +602,6 @@ var TASKS = [
         { t: '豆電球が切れない(定格に合っている)', ok: L.length > 0 && L.every(function (p) { return lit(X.r(p)) && X.r(p).P <= LAMP_OK * LAMP_W; }) },
         noNG(X)];
     } },
-  { id: 'ledlight', icon: '💡', title: 'LEDライト', use: '乾電池2本・スイッチ・LED・抵抗',
-    goal: '電池が長もちする、LEDを使った手元ライトの回路を設計する。LEDがこわれないように電流を決める。',
-    hint: ['LEDは向きがある。+(アノード・足が長い方)を電池の+側に。', 'LEDは20mAまで。抵抗を直列に入れて電流をおさえる。', '抵抗の目安 =(電源の電圧 − 1.8V)÷ 流したい電流。'],
-    req: function (X) {
-      var D = X.of('led'), sw = X.of('sw'), R = X.of('resistor');
-      var inR = D.some(function (p) { var I = X.r(p).I; return I >= 0.005 && I <= 0.0201; });
-      return [
-        { t: 'スイッチを入れるとLEDが光る', ok: sw.length > 0 && D.some(function (p) { return X.r(p).I >= 0.003; }) },
-        { t: 'スイッチを切るとLEDが消える', ok: sw.length > 0 && D.length > 0 && !X.whatIf(ALLOFF).some('led', function (r) { return r.I >= 0.001; }) },
-        { t: 'LEDの電流が 5〜20mA(明るく、こわれない)', ok: inR },
-        { t: '抵抗を使って電流を調整している', ok: R.length > 0 && inR },
-        noNG(X)];
-    } },
   { id: 'rooms', icon: '🏠', title: '2部屋の明かり', use: '電源・スイッチ2個・豆電球2個',
     goal: '2つの部屋の明かりを、それぞれの部屋のスイッチで別々に点けたり消したりできる配線を設計する。',
     hint: ['家の電灯は「並列」につながっている。', '豆電球ごとに、その豆電球と直列にスイッチを入れる。', '電源装置は3Vくらいにすると豆電球にちょうどよい。'],
@@ -652,6 +639,19 @@ var TASKS = [
         { t: 'モーターに定格くらいの電圧(2〜4V)がかかる', ok: volt },
         { t: 'ふだんはヒューズが切れない', ok: F.length > 0 && run && F.every(function (p) { return Math.abs(X.r(p).I) <= C.valOf(p); }) },
         { t: 'モーターの所でショートしたら、ヒューズが切れて回路を守る', ok: prot },
+        noNG(X)];
+    } },
+  { id: 'ledlight', icon: '💡', title: 'LEDライト', use: '乾電池2本・スイッチ・LED・抵抗',
+    goal: '電池が長もちする、LEDを使った手元ライトの回路を設計する。LEDがこわれないように電流を決める。',
+    hint: ['LEDは向きがある。+(アノード・足が長い方)を電池の+側に。', 'LEDは20mAまで。抵抗を直列に入れて電流をおさえる。', '抵抗の目安 =(電源の電圧 − 1.8V)÷ 流したい電流。'],
+    req: function (X) {
+      var D = X.of('led'), sw = X.of('sw'), R = X.of('resistor');
+      var inR = D.some(function (p) { var I = X.r(p).I; return I >= 0.005 && I <= 0.0201; });
+      return [
+        { t: 'スイッチを入れるとLEDが光る', ok: sw.length > 0 && D.some(function (p) { return X.r(p).I >= 0.003; }) },
+        { t: 'スイッチを切るとLEDが消える', ok: sw.length > 0 && D.length > 0 && !X.whatIf(ALLOFF).some('led', function (r) { return r.I >= 0.001; }) },
+        { t: 'LEDの電流が 5〜20mA(明るく、こわれない)', ok: inR },
+        { t: '抵抗を使って電流を調整している', ok: R.length > 0 && inR },
         noNG(X)];
     } },
   { id: 'night', icon: '🌙', title: 'LED常夜灯', use: '電源・スイッチ・LED2個・抵抗2個',

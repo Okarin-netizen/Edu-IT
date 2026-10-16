@@ -220,11 +220,11 @@ html.kz-embed #b2app .b2-nav{margin-top:0}
       </div>
     </div>
     <nav class="b2-nav" role="tablist" aria-label="画面の切りかえ">
-      <button type="button" role="tab" data-tab="home">① はじめに</button>
-      <button type="button" role="tab" data-tab="sim">② 飼育<wbr>シミュレーション</button>
-      <button type="button" role="tab" data-tab="quiz">③ 診断<wbr>クイズ</button>
-      <button type="button" role="tab" data-tab="plan">④ 飼育<wbr>計画書</button>
-      <button type="button" role="tab" data-tab="refl">⑤ 振り返り</button>
+      <button type="button" role="tab" data-tab="home">はじめに</button>
+      <button type="button" role="tab" data-tab="sim">① 飼育<wbr>シミュレーション</button>
+      <button type="button" role="tab" data-tab="quiz">② 診断<wbr>クイズ</button>
+      <button type="button" role="tab" data-tab="plan">③ 飼育<wbr>計画書</button>
+      <button type="button" role="tab" data-tab="refl">振り返り</button>
     </nav>
   </header>
   <main>
@@ -1205,7 +1205,7 @@ function showTab(tab){
 }
 $$('.b2-nav button').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
 
-/* ================= ① はじめに ================= */
+/* ================= はじめに ================= */
 var run=normRun(store.get('sim',null));
 function starStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(n)}
 function renderHome(){
@@ -1213,7 +1213,7 @@ function renderHome(){
   h+='<div class="b2-card"><h1>生き物を育てる技術を体験しよう</h1>';
   h+='<p>動物や水産生物は、温度・水・えさ・広さ・清潔さなどの環境を、人が調節して育てています。このシミュレータでは、それらの条件を変えながら30日間育て、<b>生き物の様子から状態を読み取る力</b>を身につけます。世話にかかる<b>お金と手間(コスト)</b>も計算されるので、健康とコストのバランスも考えよう。合わない環境が長く続くと、生き物は<b>死んでしまう</b>こともあります。</p>';
   h+='<div class="b2-note">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
-  h+='<h2>① 育てる生き物を選ぼう</h2><div class="b2-species">';
+  h+='<h2>育てる生き物を選ぼう</h2><div class="b2-species">';
   Object.keys(SP).forEach(function(k){var sp=SP[k],a=arch[k];
     h+='<button type="button" class="b2-sp'+(run&&run.sp===k?' b2-cur':'')+'" data-sp="'+k+'">'+iconSVG(k)+'<b>'+sp.name+'</b><span class="b2-tag">'+(sp.kind==='water'?'水産生物':'陸の動物')+'</span>'+
       (a?'<span class="b2-done">'+(a.dead?'前回は死んでしまった':'30日の記録あり '+starStr(a.star))+'</span>':'')+'<span>'+sp.info+'</span></button>';});
@@ -1271,7 +1271,7 @@ function archiveRun(st){
     size:round(r.size,2),eggs:r.eggs,fry:r.fry,dead:r.dead,deadDay:r.deadDay,lost:r.lost,yen:Math.round(r.cost.yen),min:Math.round(r.cost.min)};
 }
 
-/* ================= ② 飼育シミュレーション ================= */
+/* ================= ① 飼育シミュレーション ================= */
 var simBuiltFor=null;
 function seg(name,opts,val){
   return '<div class="b2-seg" data-set="'+name+'">'+opts.map(function(o){return '<button type="button" data-v="'+o[0]+'" aria-pressed="'+(String(o[0])===String(val)?'true':'false')+'">'+o[1]+'</button>'}).join('')+'</div>';
@@ -1542,7 +1542,7 @@ function drawChart(){
   line('dirt','#9a6a1a',[7,5],2.5);line('g','#6a4fa3',[2,4],3);line('h','#2e7d32',[],3);
 }
 
-/* ================= ③ 診断クイズ ================= */
+/* ================= ② 診断クイズ ================= */
 var QUIZ={
  water:{title:'水の生き物の診断',desc:'メダカ・金魚の様子から原因と対策を考えよう',qs:[
   {v:{sp:'medaka',n:30,dirt:30,air:0,plants:0,temp:30,pose:'top',vivid:.5,speed:.6},look:['水面近くで口をパクパクしている','水温 30℃、エアレーションなし、数が多い'],
@@ -1699,7 +1699,7 @@ function writeReflStat(d){
   try{localStorage.setItem('b2_reflstat',JSON.stringify({filled:f,total:RQ.length}))}catch(e){}
 }
 
-/* ================= ④ 飼育計画書 ================= */
+/* ================= ③ 飼育計画書 ================= */
 var DAYS=['月','火','水','木','金','土','日'];
 var planData=null;
 function defaultPlan(){return {sp:run?run.sp:'',other:'',place:'',size:'',num:'',food:'',amount:'',feed:{},water:'',waterHow:'',obs:{},obsOther:'',hyg:{},holiday:'',future:'',costMonth:'',timeWeek:'',costIdea:'',date:today()}}
@@ -1777,7 +1777,7 @@ function planText(){
   return plain(t);
 }
 
-/* ================= ⑤ 振り返り ================= */
+/* ================= 振り返り ================= */
 var RQ=[
  {k:'q1',t:'シミュレーションで分かった、生き物を健康に育てるために大切な条件は何ですか。',ph:'例:えさは多ければよいのではなく、食べ残しが水を汚して…'},
  {k:'q2',t:'うまくいかなかったこと(健康度が下がった・汚れた・死んでしまった など)と、その原因・改善した方法を書きましょう。',ph:'例:7日目に水が汚れた。原因は…なので、…にしたら回復した。'},

@@ -1,5 +1,5 @@
 // 材料選択ナビ 単体用 Service Worker(共通基盤がないときだけ使う)
-const CACHE = 'a1-material-navi-v1';
+const CACHE = 'a1-material-navi-v2';
 const FILES = ['./', 'index.html', 'app.css', 'app.js', 'materials-data.js', 'materials.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

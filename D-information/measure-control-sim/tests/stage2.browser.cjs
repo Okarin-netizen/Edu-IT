@@ -81,21 +81,21 @@ const prog = (page, sid) => page.evaluate((id) => JSON.parse(localStorage.getIte
   const teacher = await page.textContent("#view");
   ok(teacher.includes("模範プログラム") && (await page.$$("details.answer")).length === 4 && teacher.includes("#/teacher"), "先生用ページに4場面の模範と開き方");
 
-  // MC-09・MC-02: 場面4ははじめから「もし」の中のメモの下が選ばれている
+  // MC-09・MC-02: 場面④ははじめから「もし」の中のメモの下が選ばれている
   await go("#/s/traffic-button");
-  ok(/目安 25分（3時間目）/.test(await page.textContent(".scn-head")), "場面4に目安");
+  ok(/目安 25分（3時間目）/.test(await page.textContent(".scn-head")), "場面④に目安");
   const active = await page.evaluate(() => {
     const a = document.querySelector(".blk-slot.active");
     return a && a.closest(".blk-if") && a.previousElementSibling?.classList.contains("blk-comment");
   });
-  ok(active, "場面4: 「もし」の中の「# ここに…」の下の「＋」が選ばれている");
+  ok(active, "場面④: 「もし」の中の「# ここに…」の下の「＋」が選ばれている");
   await page.click(".blk-add-wait");
-  ok((await prog(page, "traffic-button")).includes("# ここに、歩行者をわたらせて、車を青にもどす手順を書こう\n    1 秒待つ\n  おわり"), "場面4: 命令が「もし」の中に入る");
+  ok((await prog(page, "traffic-button")).includes("# ここに、歩行者をわたらせて、車を青にもどす手順を書こう\n    1 秒待つ\n  おわり"), "場面④: 命令が「もし」の中に入る");
 
   // MC-02: ↔ で「もし」の外のブロックを中へ動かす
   await go("#/s/streetlight");
   await page.click(".blk-add-wait"); // 何も選ばないと「ずっと」の最後（「▶」が出ている所）に入る
-  ok((await prog(page, "streetlight")).includes("  おわり\n  1 秒待つ\nおわり"), "場面1: 何も選ばないと、▶ の所（「ずっと」の最後）に入る");
+  ok((await prog(page, "streetlight")).includes("  おわり\n  1 秒待つ\nおわり"), "場面①: 何も選ばないと、▶ の所（「ずっと」の最後）に入る");
   await page.click('.blk-wait button[title="べつの場所へ動かす"]');
   ok((await page.textContent(".blk-howto")).includes("を動かします"), "↔ を押すと、動かし方の説明が出る");
   await page.click('button:has-text("やめる")');

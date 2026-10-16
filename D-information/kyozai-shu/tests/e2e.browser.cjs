@@ -187,7 +187,7 @@ const check = (ok, label) => {
     await page.waitForTimeout(300);
     return fl.evaluate((f) => (f.contentDocument.querySelector("#view .kyozai-next") || {}).innerText || "");
   };
-  check(/1 ネットワークを組み立てる/.test(await nextText("network-sim", "#/")), "KS-08: ネットワーク通信シミュレータの「はじめに」に「つぎはこれ」が出る");
+  check(/① ネットワークを組み立てる/.test(await nextText("network-sim", "#/")), "KS-08: ネットワーク通信シミュレータの「はじめに」に「つぎはこれ」が出る");
   check(/デジタル化と情報量/.test(await nextText("security-lab", "#/")), "KS-08: 情報セキュリティ体験ラボの「はじめに」に「つぎはこれ」が出る");
   check(/ふりかえり・記録 →/.test(await nextText("security-lab", "#/check")), "KS-08: 理解度チェックのつぎは「ふりかえり・記録」");
   check(/つぎの教材「/.test(await nextText("security-lab", "#/records")), "KS-08: つぎの教材の案内は「ふりかえり・記録」のページに出る");

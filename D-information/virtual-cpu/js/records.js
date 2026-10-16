@@ -6,9 +6,9 @@ import { tierSummary, tierLabel } from "./tasks.js";
 // ふりかえりを書く場所（ページごと）
 export const REFLECT = [
   { id: "diagram", title: "① 図解: 5つの装置", prompt: "コンピュータの5つの装置は、それぞれどんな役割をしていた？ データはどの順に流れた？" },
-  { id: "sim", title: "② 仮想CPUを動かす", prompt: "CPUが命令を「取り出し → 解読 → 実行」するようすを見て、気づいたことは？" },
-  { id: "tasks", title: "③ 課題", prompt: "プログラムが思ったとおりに動かなかったとき、どこを見て、どう直した？" },
-  { id: "auto", title: "④ 手計算くらべ", prompt: "同じ計算を人とコンピュータでくらべて、処理を自動化するよさと注意することは何だと思う？" },
+  { id: "auto", title: "② 手計算くらべ", prompt: "同じ計算を人とコンピュータでくらべて、処理を自動化するよさと注意することは何だと思う？" },
+  { id: "sim", title: "③ 仮想CPUを動かす", prompt: "CPUが命令を「取り出し → 解読 → 実行」するようすを見て、気づいたことは？" },
+  { id: "tasks", title: "④ 課題", prompt: "プログラムが思ったとおりに動かなかったとき、どこを見て、どう直した？" },
 ];
 
 export function downloadFile(filename, text, type = "application/json") {

@@ -1,4 +1,4 @@
-// モジュール7: デジタルタトゥー／拡散シミュレーション
+// モジュール⑦: デジタルタトゥー／拡散シミュレーション
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz, threeSteps } from "../js/ui.js";
 import { consultCard } from "../js/consult.js";
 

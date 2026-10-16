@@ -6,7 +6,7 @@
   var hasG = !!(window.G && G.initApp);
   var current = null;
 
-  /* ---------- ⑥ まとめ・記録 ---------- */
+  /* ---------- まとめ・記録 ---------- */
   var record = null;
   var NOTE_IDS = ['nt1', 'nt2', 'nt3'];
   function fillNotes() {

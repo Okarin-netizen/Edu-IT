@@ -593,11 +593,6 @@ var TASKS = [
     checks: [{ t: '出力が60回/分', f: function (s) { return near(s.outRpm, 60); } }, { t: '入力と同じ向き', f: function (s) { return s.dir > 0; } }, { t: '歯車が3枚以上', f: function (s) { return s.wheels.length >= 3; } }],
     hints: ['かみ合うたびに向きが逆になる。2枚だと逆向き。', '間にもう1枚はさむと、向きはどうなる?', '入力と出力の歯数を同じにすると、同じ速さになる(間の歯車の歯数は関係ない)。'],
     learn: '間にはさんだ歯車(アイドラ)は、向きを変えるだけで速度伝達比には関係しない。入力20枚・出力20枚なら、間の歯車が何枚の歯数でも同じ速さになる。' }),
-  convTask({ id: 'jack', mech: 'screw', icon: '🛠️', title: 'ねじジャッキ', lead: '10回転で30mm',
-    story: 'ハンドルを<b>10回転</b>させると、ちょうど<b>30mm</b>上がるジャッキにしよう。',
-    checks: [{ t: '10回転で30mm進む', f: function (c) { return near(M.screwLead(c.p, c.n) * 10, 30); } }],
-    hints: ['30mm ÷ 10回 = 1回転で何mm進めばよい?', '1回転で進む距離(リード) = ピッチ × ' + rb('条数', 'じょうすう') + '。1条ねじなら、ピッチの分だけ進む。', 'ピッチ3mm・1条にしよう(ピッチ1.5mm・2条でもよい)。'],
-    learn: 'リード3mmなら10回転で30mm。リードが小さいほどゆっくり進むが、小さな力で大きな物を持ち上げられる。だからジャッキや万力にねじが使われる。' }),
   convTask({ id: 'wiper', mech: 'link', icon: '🚗', title: 'ワイパーをつくる', lead: 'てこクランクで約90°',
     story: 'モーターで<b>クランクを1回転</b>させ、ワイパー(てこ)が<b>80°〜100°</b>の範囲で往復するようにしよう。',
     checks: [{ t: 'クランクが1回転できる', f: function (c) { return M.fourBarSweep(c.a, c.b, c.c, c.d).full; } }, { t: 'てこが往復する(1回転しない)', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull; } }, { t: 'ゆれる角度が80°〜100°', f: function (c) { var s = M.fourBarSweep(c.a, c.b, c.c, c.d); return s.full && !s.outFull && s.swing >= 80 && s.swing <= 100; } }],
@@ -614,7 +609,12 @@ var TASKS = [
     stock: { gear: [10, 12, 15, 20, 30, 40, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 12)], links: [] }, best: 2,
     checks: [{ t: 'トルクが5倍以上', f: function (s) { return s.torque >= 5 - 1e-9; } }, { t: '出力が10回/分以上', f: function (s) { return s.outRpm >= 10 - 1e-9; } }],
     hints: ['ロスがあるので、トルクを5倍にするには、減速を5倍より少し大きくする。', 'でも減速しすぎると10回/分より遅くなる。減速は6倍(60 ÷ 6 = 10)まで。', '入力の歯車も変えられる。入力10枚 → 出力60枚(6倍)なら 6 × 0.95 = 5.7倍で、出力は10回/分。'],
-    learn: '減速すると回す力は大きくなるが、歯車1組ごとに約5%のロスがある。10→60(1/6減速)なら 6 × 0.95 = 5.7倍で、出力は10回/分。速さと力はトレードオフ(どちらかを取ると、もう一方が減る関係)。' })
+    learn: '減速すると回す力は大きくなるが、歯車1組ごとに約5%のロスがある。10→60(1/6減速)なら 6 × 0.95 = 5.7倍で、出力は10回/分。速さと力はトレードオフ(どちらかを取ると、もう一方が減る関係)。' }),
+  convTask({ id: 'jack', mech: 'screw', icon: '🛠️', title: 'ねじジャッキ', lead: '10回転で30mm',
+    story: 'ハンドルを<b>10回転</b>させると、ちょうど<b>30mm</b>上がるジャッキにしよう。',
+    checks: [{ t: '10回転で30mm進む', f: function (c) { return near(M.screwLead(c.p, c.n) * 10, 30); } }],
+    hints: ['30mm ÷ 10回 = 1回転で何mm進めばよい?', '1回転で進む距離(リード) = ピッチ × ' + rb('条数', 'じょうすう') + '。1条ねじなら、ピッチの分だけ進む。', 'ピッチ3mm・1条にしよう(ピッチ1.5mm・2条でもよい)。'],
+    learn: 'リード3mmなら10回転で30mm。リードが小さいほどゆっくり進むが、小さな力で大きな物を持ち上げられる。だからジャッキや万力にねじが使われる。' })
 ];
 function taskById(id) { for (var i = 0; i < TASKS.length; i++) if (TASKS[i].id === id) return TASKS[i]; return null; }
 
@@ -649,8 +649,8 @@ function buildShell() {
   var top = '<div class="e3-top"><h1>⚙️ 機構ラボ</h1>' +
     tb('build', '⚙️ <span class="lg">回転を伝える</span><span class="sh">伝える</span>', v === 'build' && !tk) +
     tb('conv', '🔄 <span class="lg">運動を変える</span><span class="sh">変える</span>', v === 'conv' && !tk) +
-    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
+    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
     '<div class="e3-stitle" data-ref="stitle"></div>' +
     '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
     '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
@@ -1822,8 +1822,8 @@ function showHowto(first) {
     '<div><b>⚙️ 回転を伝える</b><br>左の「歯車」「ベルト」「チェーン」で部品をつなぐ。部品を<b>タップ</b>すると、右で歯数や直径を変えられる。まちがえたら「↩ もどす」。</div>' +
     '<div><b>👆 手で回す</b><br>歯車やプーリーを<b>指でなぞる</b>と、その部品を手で回せる。赤い印を見ると、何回転したか数えやすい。</div>' +
     '<div><b>🔄 運動を変える</b><br>ラックとピニオン・カム・リンク・スライダクランク・ねじで、回転が直線や往復に変わるようすを見る。</div>' +
-    '<div><b>📦 ブラックボックス</b><br>入力と出力の回り方を見て、箱の中の歯車の歯数や、出力の回る速さ・向きを当てるクイズ。</div>' +
     '<div><b>📋 設計課題</b><br>「1/3に減速」「ワイパーのように往復」などの条件に合う機構を組み立てる。💡ヒントは押すたびにくわしくなる。</div>' +
+    '<div><b>📦 ブラックボックス</b><br>入力と出力の回り方を見て、箱の中の歯車の歯数や、出力の回る速さ・向きを当てるクイズ。</div>' +
     '<div><b>📄 設計図</b><br>部品表と' + rb('速度伝達比', 'そくどでんたつひ') + 'つきの設計図を、印刷したりファイルに保存したりできる。</div>' +
     '</div><div class="e3-reason tip">このアプリは「動きの形と速さの比」だけを計算するシミュレーションです(' + rb('運動学', 'うんどうがく') + 'という考え方)。実際の機械では、' + rb('摩擦', 'まさつ') + '・すべり・部品の強さも考えて設計します。<br>色のきまり: <b style="color:#2b7a4b">緑=入力(回す側)</b>、<b style="color:#c2410c">だいだい色=出力(回される側)</b>。</div>' +
     '<div class="acts"><button class="e3-btn primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');

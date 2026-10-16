@@ -80,7 +80,7 @@ const ok = (c, m) => {
     const sels = c.querySelectorAll("select");
     return [...sels].map((s) => s.options[s.selectedIndex].textContent).join(" ");
   });
-  ok(/^ボタン ＝（等しい） オン/.test(cond), "場面4: 足した「もし」は「ボタン ＝ オン」: " + cond);
+  ok(/^ボタン ＝（等しい） オン/.test(cond), "場面④: 足した「もし」は「ボタン ＝ オン」: " + cond);
   await page.click('button:has-text("元にもどす")');
 
   await go("#/s/door");
@@ -89,7 +89,7 @@ const ok = (c, m) => {
     const c = [...document.querySelectorAll(".blk-if .blk-cond")].at(-1);
     return c.textContent + " " + [...c.querySelectorAll("input")].map((i) => i.value).join(" ");
   });
-  ok(cond2.includes("50"), "場面2: 足した「もし」の数は、プログラムのしきい値（50）: " + cond2.replace(/\s+/g, " ").slice(0, 60));
+  ok(cond2.includes("50"), "場面②: 足した「もし」の数は、プログラムのしきい値（50）: " + cond2.replace(/\s+/g, " ").slice(0, 60));
   await page.click('button:has-text("元にもどす")');
 
   // フローチャートの記号

@@ -1,4 +1,4 @@
-// モジュール10: まとめ・行動宣言
+// モジュール⑩: まとめ・行動宣言
 import { h, explainCard, stepCard, reflectionBox, threeSteps, toast } from "../js/ui.js";
 import { store } from "../js/store.js";
 import { consultCard } from "../js/consult.js";

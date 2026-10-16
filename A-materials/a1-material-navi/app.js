@@ -682,7 +682,7 @@
   function setupTabs() {
     const tabs = Array.from(document.querySelectorAll('[role=tab]'));
     tabs.forEach((t, i) => {
-      t.innerHTML = '<span class="num">' + (i + 1) + '</span>' + rb(VIEWS[t.dataset.view].label);
+      t.innerHTML = '<span class="num">' + String.fromCharCode(0x2460 + i) + '</span>' + rb(VIEWS[t.dataset.view].label);  // ①②③④
       t.addEventListener('click', () => show(t.dataset.view));
       t.addEventListener('keydown', e => {
         let j = null;
