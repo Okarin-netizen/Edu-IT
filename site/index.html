@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>技術分野 教材集</title>
+<!-- 生徒用の入口ページ(GitHub Pages のトップ)。site/build.py が CSS・JS を中に入れ、教材へのリンクを公開用の名前にして _site/ に出す -->
+<link rel="stylesheet" href="../shared/eduit-frame.css">
+<style>
+  body { margin: 0; }
+  .site-main { max-width: 1040px; margin: 0 auto; padding: 18px 16px 8px; }
+  .site-lead { margin: 0 0 16px; font-size: 16px; line-height: 1.7; }
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .site-A { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }
+  .site-B { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }
+  .site-C { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }
+  .site-D { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }
+  .site-note { margin: 22px 0 0; padding: 14px 18px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); }
+  .site-note h2 { margin: 0 0 6px; font-size: 17px; }
+  .site-note ul { margin: 0; padding-left: 1.3em; line-height: 1.8; }
+</style>
+</head>
+<body class="ef-page">
+<header class="ef-header">
+  <h1 class="ef-title"><span class="ef-title-name">技術分野 教材集</span></h1>
+</header>
+<main class="site-main">
+  <p class="site-lead">学習する分野をえらんで「ひらく」を押してください。先生が指示した分野をひらきます。</p>
+  <div class="site-grid" id="site-cards"></div>
+  <section class="site-note" aria-labelledby="site-note-h">
+    <h2 id="site-note-h">使うときの注意</h2>
+    <ul>
+      <li>学習の記録は、<strong>この端末のこのブラウザの中だけ</strong>に保存されます。次も同じ端末・同じブラウザでひらくと、続きから使えます。</li>
+      <li>シークレット(プライベート)ウィンドウでひらくと、とじたときに記録が消えます。</li>
+      <li>提出するときは、教材の中の「書き出す」でできたファイルを、先生の指示どおりに出します。</li>
+      <li>名前などの個人情報は、先生の指示がないときは入力しないでください。</li>
+    </ul>
+  </section>
+</main>
+<div data-ef-footer></div>
+<script>
+  window.EDUIT_INFO = {
+    suite: '技術分野 教材集',
+    app: { name: '技術分野 教材集(入口)' },
+    safety: ['このページは、4つの分野の教材をひらくための入口です。教材はインターネットから読みこみますが、ひらいたあとは端末の中だけで動き、入力した内容や学習の記録をどこにも送りません。']
+  };
+</script>
+<script src="../shared/eduit-frame.js"></script>
+<script>
+  (function () {
+    // href は手元(リポジトリの中)で開いたときの場所。site/build.py が公開用の名前(a.html など)に書きかえる
+    var AREAS = [
+      { code: 'A', icon: '🪚', title: '材料と加工の技術', desc: '材料の性質、じょうぶな構造、製図、木取り、工具の安全を体験します。', range: 'A1〜A7', href: '../クラスルーム配布/生徒に配る/A_材料と加工_統一版.html' },
+      { code: 'B', icon: '🌱', title: '生物育成の技術', desc: '育てる環境の調整、動物の飼育・水産、栽培の計画、育成の記録を体験します。', range: 'B1〜B4', href: '../クラスルーム配布/生徒に配る/B_生物育成_統一版.html' },
+      { code: 'C', icon: '⚡', title: 'エネルギー変換の技術', desc: 'エネルギーの変換、電気回路、機構、保守点検、回路の設計を体験します。', range: 'C1〜C5', href: '../クラスルーム配布/生徒に配る/C_エネルギー変換_統一版.html' },
+      { code: 'D', icon: '💻', title: '情報の技術', desc: 'デジタル化、CPU、ネットワーク、情報セキュリティ、計測・制御、生成AIなどを体験します。', range: 'D1〜D9', href: '../クラスルーム配布/生徒に配る/D_情報の技術_統一版.html' }
+    ];
+    var box = document.getElementById('site-cards');
+    AREAS.forEach(function (a) {
+      var range = document.createElement('span');
+      range.textContent = '教材 ' + a.range;
+      var c = EduitFrame.card({ code: a.code, icon: a.icon, title: a.title, desc: a.desc, extra: [range], href: a.href });
+      c.classList.add('site-' + a.code);
+      box.appendChild(c);
+    });
+  })();
+</script>
+</body>
+</html>
