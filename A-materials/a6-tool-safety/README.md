@@ -16,7 +16,12 @@
 ## ファイル
 - `tools-data.js` … 手順・注意・図・クイズ・チェックリスト・KYT・ルーブリック・ルビ辞書(`window.A6_DATA`)。`file://` でも読めるように JS にしている
 - `tools.json` … 上と同じ内容。`tools-data.js` を直したら `node tests/sync-json.js` で作り直す
-- `figures.js` … 図の部品(作業台・板・のこぎり・かんな…・矢印・角度・手・目)と KYT の場面。手順の図はデータ側の `fig: [[部品名, {…}], …]` で組み立てる
+- `figures.js` … 図の部品と KYT の場面。手順の図はデータ側の `fig: [[部品名, {…}], …]` で組み立てる
+  - 工具: saw・plane・hammer・nail・awl・file・scriber・pencil・square・clamp・vise・brush。`hand: true` でその工具を正しくにぎった手もいっしょに描く(`s` で大きさ、`a` で角度)
+  - 手: grip(にぎる)・press(横からおさえる)・palm(上から見た手)・pinch(つまむ)。うでは画面の外へのびる
+  - 安全の印: warn(!の三角と注意のことば)・ng(手を近づけない場所)・panel(○よい/×だめの枠)・mark(○×の札)
+  - そのほか: bench・board(grain: 'h'・'slant'・'end' など)・lead(引き出し線つきの文字)・arrow・swing(行ったり来たり)・turn・angle・right(直角)・eye・face・pants・pocket・cover・curl
+- KYT の場面は横向きの人(`person`)で描く。絵は viewBox `0 30 400 230`。正解の場所(`regions`)は絵と同じ座標で書く
 - `logic.js` … 判定(KYT、ならべかえ、チェックリスト、評価)。画面に依存しない
 - `app.js` / `style.css` / `index.html`
 
