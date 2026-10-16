@@ -1,5 +1,5 @@
 // 画面の切りかえ（#/ … トップ、#/diagram ①図解、#/auto ②手計算くらべ、#/sim ③仮想CPU、#/tasks ④課題、#/task/ID、#/records ふりかえり・記録）
-import { h, explain } from "./ui.js";
+import { h, explain, REFLECT_ATTR, recordsTitle } from "./ui.js";
 import { loadData } from "./data.js";
 import { store } from "./store.js";
 import { renderDiagram } from "./diagram.js";
@@ -41,7 +41,7 @@ function renderNav() {
     link("/sim", "3", "仮想CPUを動かす", false),
     link("/tasks", "4", "課題", (() => { const c = tierCount(tasks, "must"); return c.total > 0 && c.done === c.total; })()),
     h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"),
-    link("/records", "✎", "ふりかえり・記録", false),
+    link("/records", "✎", recordsTitle(), false),
   );
   document.getElementById("chapter-nav").replaceChildren(h("nav", { "aria-label": "ページ" }, ol));
 }
@@ -76,7 +76,7 @@ function renderHome(view) {
         "ol",
         {},
         h("li", {}, "1時間目（前半 約25分）: ①図解で5つの装置とデータ・制御の流れを確認し、機器の仲間分けをする。"),
-        h("li", {}, "1時間目（後半 約25分）: ②手計算くらべで、同じ計算を人とプログラムでくらべ、処理の自動化をまとめる。ふりかえりを書き、記録（JSON）を書き出す。（ここまでが基本編）"),
+        h("li", {}, "1時間目（後半 約25分）: ②手計算くらべで、同じ計算を人とプログラムでくらべ、処理の自動化をまとめる。", h("span", REFLECT_ATTR, "ふりかえりを書き、"), "記録（JSON）を書き出す。（ここまでが基本編）"),
         h("li", {}, "発展（2時間目）: ③仮想CPUで「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し→解読→実行をたしかめる。④課題1〜4（必修。順次とくり返し）。終わった生徒は課題5〜7（発展）、課題8（チャレンジ）へ進む。"),
       ),
       h("p", {}, "課題の区分: 課題1〜4 が必修、5〜7 が発展、8 がチャレンジです。時間の目安は、必修1問 5〜8分、発展1問 8〜12分です（クラスに合わせて調整してください）。"),

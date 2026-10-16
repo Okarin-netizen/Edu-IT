@@ -254,7 +254,7 @@ html.kz-embed #b1-app .b1-head{ display:none; }
 @media print{
   #b1-app .b1-head, #b1-app .b1-tabs, #b1-app .b1-noprint, #b1-app .b1-toast{ display:none !important; }
   #b1-app .b1-sec{ display:none !important; }
-  #b1-app #b1-sec-reflect{ display:block !important; }
+  html:not([data-ef-furikaeri="off"]) #b1-app #b1-sec-reflect{ display:block !important; }
   #b1-app{ background:#fff; }
   #b1-app textarea{ border:1px solid #999; min-height:auto; height:auto; }
 }
@@ -282,7 +282,7 @@ html.kz-embed #b1-app .b1-head{ display:none; }
   <button type="button" class="b1-tab" role="tab" data-tab="grow">① そだてる</button>
   <button type="button" class="b1-tab" role="tab" data-tab="result">② 結果・原因さがし</button>
   <button type="button" class="b1-tab" role="tab" data-tab="compare">③ くらべる</button>
-  <button type="button" class="b1-tab" role="tab" data-tab="reflect">振り返り</button>
+  <button type="button" class="b1-tab" role="tab" data-tab="reflect" data-ef-reflect>振り返り</button>
 </nav>
 <main>
 
@@ -295,7 +295,7 @@ html.kz-embed #b1-app .b1-head{ display:none; }
       <li><b>① そだてる</b>:毎日の天気予報を見て、温度・光・水・肥料・見回りの操作を選び「次の日へ」。</li>
       <li><b>② 結果・原因さがし</b>:グラフと記録から「何が足りなかったか・多すぎたか」を調べ、もう一度挑戦。</li>
       <li><b>③ くらべる</b>:同じ作物を2つの環境で同時に育て、ちがいを比べる。</li>
-      <li><b>振り返り</b>:わかったことを書いて保存・書き出しする。</li>
+      <li data-ef-reflect><b>振り返り</b>:わかったことを書いて保存・書き出しする。</li>
     </ol>
     <div class="b1-note">これは学習用の<b>簡易モデル</b>です。本物の作物は、土・品種・風・病害虫などでもっと複雑に変わります。また、30日間は<b>栽培の前半だけ</b>(育ちはじめ〜花や実がつきはじめるころ)です。実際の栽培の記録(育成日誌)とくらべて考えましょう。</div>
   </div>
@@ -425,7 +425,7 @@ html.kz-embed #b1-app .b1-head{ display:none; }
 </section>
 
 <!-- 振り返り -->
-<section class="b1-sec" id="b1-sec-reflect" aria-label="振り返り">
+<section class="b1-sec" id="b1-sec-reflect" aria-label="振り返り" data-ef-reflect>
   <div class="b1-card">
     <h2>振り返り</h2>
     <p class="b1-small b1-noprint">書いた内容は、この端末に自動で保存されます。授業の最後に「書き出し」で提出用のファイルを作りましょう。</p>
@@ -2158,8 +2158,10 @@ function rfPrint(){
 
 /* ---------- タブ ---------- */
 var RENDER = { start:renderStart, grow:renderGrow, result:renderResult, compare:renderCompare, reflect:renderReflect };
+/* 振り返りを隠す設定(先生用): 振り返りのタブは開かない */
+var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
 function showTab(t){
-  if (!RENDER[t]) t = 'start';
+  if (!RENDER[t] || (FK_OFF && t === 'reflect')) t = 'start';
   S.tab = t; store.set('tab', t);
   $$('.b1-tab').forEach(function(b){ var on = b.dataset.tab === t; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
   $$('.b1-sec').forEach(function(s){ s.classList.toggle('b1-on', s.id === 'b1-sec-' + t); });
@@ -2268,7 +2270,7 @@ root.addEventListener('keydown', function(ev){
   if (ev.key === 'Escape') closeModal();
   var tab = ev.target.closest && ev.target.closest('.b1-tab');
   if (tab && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) {
-    var tabs = $$('.b1-tab'), i = tabs.indexOf(tab);
+    var tabs = $$('.b1-tab').filter(function(x){ return !(FK_OFF && x.hasAttribute('data-ef-reflect')); }), i = tabs.indexOf(tab);
     var n = tabs[(i + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
     n.focus(); showTab(n.dataset.tab);
   }

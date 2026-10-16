@@ -10,6 +10,10 @@ import { flowchartSvg, labelOf } from "./flow.js";
 import { drawChart } from "./chart.js";
 import { attachAutosave, flushAutosaves, AUTOSAVE_HINT, AUTOSAVE_DONE } from "./autosave.js";
 
+// 振り返りを隠す設定（先生用。shared/eduit-frame.js）。隠すときは、場面ごとの振り返り欄と記録の振り返りの列を出さない
+const FK_OFF = Boolean(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+const T_REC = FK_OFF ? "記録" : "ふりかえり・記録";
+
 const view = document.getElementById("view");
 const nav = document.getElementById("chapter-nav");
 let scenarios = [];
@@ -95,7 +99,7 @@ function renderHome() {
         h("li", {}, h("strong", {}, "プログラムを組む"), "：ブロック・フローチャート・テキストのどれでも見られます（ブロックとテキストで編集でき、3つは自動で同じ内容になります）。ブロックは「① 入れたい場所の「＋ ここに入れる」を押す → ② 命令のボタン（「＋もし〜なら」など）を押す」の順で入れます。入れたブロックは「↔」で、「もし」の中など、べつの場所へ動かせます。"),
         h("li", {}, h("strong", {}, "仮想世界で動かす"), "：スライダでセンサの値を変えたり、ケースを再生したりして動きを見る。「1ステップ」で1行ずつ確かめられます。"),
         h("li", {}, h("strong", {}, "テストで確かめる"), "：あらかじめ考えておいたケースで、合格か不合格かを自動で調べます。"),
-        h("li", {}, h("strong", {}, "直して記録する"), "：不合格の理由をグラフとログで調べて直し、「改善メモ」に残す。最後に、ページの下の「ふりかえり」を書こう（書いた文は自動で保存されます）。"),
+        h("li", {}, h("strong", {}, "直して記録する"), "：不合格の理由をグラフとログで調べて直し、「改善メモ」に残す。", FK_OFF ? "" : "最後に、ページの下の「ふりかえり」を書こう（書いた文は自動で保存されます）。"),
       ),
       explainCard("この教材について", "ブラウザの中だけで動き、インターネットには接続しません。作ったプログラムや記録は、この端末のブラウザの中にだけ保存されます。"),
     ),
@@ -231,7 +235,7 @@ function reflectionBox(s) {
   });
   return h(
     "section",
-    { class: "card reflection" },
+    { class: "card reflection", "data-ef-reflect": "" },
     h("h2", {}, "ふりかえり"),
     h("label", { for: id }, s.reflect || REFLECT_PROMPT),
     h("div", { class: "hint" }, "テストごとの「改善メモ」とは別に、この場面で学んだことを自分の言葉でまとめよう。"),
@@ -254,7 +258,7 @@ function renderRecords() {
   const summary = scenarios.map((s) => {
     const rs = store.recordsOf(s.id);
     const best = store.best(s.id);
-    return h("tr", {}, h("td", {}, `${s.icon} ${s.label} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", {}, store.getReflection(s.id) || "—"));
+    return h("tr", {}, h("td", {}, `${s.icon} ${s.label} ${s.title}`), h("td", {}, rs.length), h("td", {}, best ? `${best.passed}/${best.total}` : "—"), h("td", {}, rs.length ? `${rs.at(-1).passed}/${rs.at(-1).total}` : "—"), h("td", { "data-ef-reflect": "" }, store.getReflection(s.id) || "—"));
   });
   const list = recs.map((r) =>
     h(
@@ -302,9 +306,9 @@ function renderRecords() {
     exported(name);
   };
   view.replaceChildren(
-    h("h1", {}, "ふりかえり・記録"),
+    h("h1", {}, T_REC),
     h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, field("cls", "組", "8em"), field("num", "番号", "6em"), field("name", "名前", "16em")), h("p", { class: "hint" }, "名前はこの端末のブラウザと、書き出したファイルに入ります。ほかの人と端末を使うときは、最後に「この端末の記録をすべて消す」を押そう。")),
-    h("section", { class: "card" }, h("h2", {}, "場面ごとのまとめ"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "場面"), h("th", {}, "テストした回数"), h("th", {}, "最高"), h("th", {}, "最新"), h("th", {}, "ふりかえり"))), h("tbody", {}, summary))), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "JSONで書き出す（先生に出す）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す（表計算ソフト用）")), exportNote),
+    h("section", { class: "card" }, h("h2", {}, "場面ごとのまとめ"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "場面"), h("th", {}, "テストした回数"), h("th", {}, "最高"), h("th", {}, "最新"), h("th", { "data-ef-reflect": "" }, "ふりかえり"))), h("tbody", {}, summary))), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "JSONで書き出す（先生に出す）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す（表計算ソフト用）")), exportNote),
     h("section", { class: "card" }, h("h2", {}, `テストの記録（${recs.length}件、新しい順）`), recs.length ? h("ul", { class: "rec-list" }, list) : h("p", {}, "まだ記録がありません。場面の「テストを実行」を押すと、ここに残ります。"), recs.length ? h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn secondary small", onclick: () => { if (confirm("この端末のテストの記録をすべて消します。よろしいですか？")) { store.clearRecords(); renderRecords(); } } }, "テストの記録だけ消す")) : null),
     h("section", { class: "card" }, h("h2", {}, "記録を消す"), h("p", { class: "hint" }, "次の人に端末をわたすときに使います。名前・場面ごとのプログラム・テストの記録・ふりかえりをすべて消します。"), h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn secondary", onclick: () => { if (confirm("名前・プログラム・テストの記録・ふりかえりをすべて消します。よろしいですか？")) { store.reset(); store.setPref("seenScenes", []); undoHistories.clear(); toast("記録を消しました"); route(); } } }, "この端末の記録をすべて消す"))),
   );
@@ -830,7 +834,7 @@ function renderScenario(sid) {
     historyBox.replaceChildren(
       h("h3", {}, "この場面の改善の記録（新しい順）"),
       h("ol", { class: "mini-history" }, rs.map((r) => h("li", {}, h("span", { class: `status ${r.passed === r.total ? "good" : "warn"}` }, `${r.passed}/${r.total}`), " ", h("span", { class: "hint" }, fmtTime(r.at)), r.memo ? ` ${r.memo}` : ""))),
-      h("p", {}, h("a", { href: "#/records" }, "すべての記録を見る・書き出す（ふりかえり・記録）")),
+      h("p", {}, h("a", { href: "#/records" }, `すべての記録を見る・書き出す（${T_REC}）`)),
     );
   }
 
@@ -1074,7 +1078,7 @@ function renderNav(current) {
   }
   ol.append(group("調べる・記録する"));
   ol.append(link("#/guide", "?", "書き方ガイド", "guide", false));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", T_REC, "records", false));
   nav.replaceChildren(h("nav", { "aria-label": "ページ" }, ol));
 }
 

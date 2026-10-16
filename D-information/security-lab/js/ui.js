@@ -43,6 +43,15 @@ export function threeSteps(texts = {}) {
   );
 }
 
+// 振り返りを出すか（先生が「振り返りを隠す」設定にしたときは false。shared/eduit-frame.js の EduitFrame.furikaeri）
+export function furikaeriOn() {
+  return !(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+}
+// 振り返りの欄・文字に付ける属性（隠す設定のときは eduit-frame.css で出なくなる）
+export const REFLECT_ATTR = { "data-ef-reflect": "" };
+// 「ふりかえり・記録」のページの名前（隠す設定のときは「記録」）
+export const recordsTitle = () => (furikaeriOn() ? "ふりかえり・記録" : "記録");
+
 // ステップ枠。done() を呼ぶとチェックが付き、進捗に記録される
 export function stepCard(moduleId, step, index) {
   const check = h("span", { class: "check", "aria-live": "polite" });
@@ -54,7 +63,7 @@ export function stepCard(moduleId, step, index) {
     check,
   );
   const body = h("div");
-  const card = h("section", { class: "card", "aria-labelledby": `step-${moduleId}-${step.id}` }, head, body);
+  const card = h("section", { class: "card", "aria-labelledby": `step-${moduleId}-${step.id}`, "data-ef-reflect": step.id === "reflect" ? "" : null }, head, body);
   const refresh = () => {
     check.textContent = store.isStepDone(moduleId, step.id) ? "✓ できた" : "";
   };

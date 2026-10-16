@@ -1,5 +1,5 @@
 // 課題: 一覧と、1つの課題のページ（シミュレーター＋答え合わせ＋ヒント）
-import { h, explain, toast, requestReflectionFocus } from "./ui.js";
+import { h, explain, toast, requestReflectionFocus, furikaeriOn, REFLECT_ATTR, recordsTitle } from "./ui.js";
 import { store } from "./store.js";
 import { checkProgram, shortList } from "./vm.js";
 import { createSimulator, isaTable, readingCard } from "./sim.js";
@@ -58,8 +58,8 @@ export function renderTaskList(view, { tasks }) {
       ];
     }),
     h("p", { class: "hint concept-note" }, "考え方: 「順次」は上から順に1つずつ、「反復」はくり返し、「分岐」は条件によって進む道を変えることです（教科書の「順次・分岐・反復」）。"),
-    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、下のふりかえりを書いて、記録を書き出そう。"),
-    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, "次: ふりかえり・記録へ →")),
+    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、", h("span", REFLECT_ATTR, "下のふりかえりを書いて、"), "記録を書き出そう。"),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, `次: ${recordsTitle()}へ →`)),
   );
 }
 
@@ -125,7 +125,7 @@ export function renderTask(view, { tasks, isa }, id) {
       resultBox.append(
         explain(
           first ? "クリア！" : "正解です",
-          h("div", {}, h("p", {}, r.results.length > 1 ? `ちがう入力でためしても、すべて正しい答えが出ました。いちばん多いときで命令を ${Math.max(...r.results.map((x) => x.steps))} 回実行しています。` : `答えが正しく出ました。命令を ${r.results[0].steps} 回実行しています。`), nextTask ? h("a", { class: "btn", href: `#/task/${nextTask.id}` }, `次の課題「${nextTask.title}」へ →`) : h("a", { class: "btn", href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧へもどって、ふりかえりを書こう →")),
+          h("div", {}, h("p", {}, r.results.length > 1 ? `ちがう入力でためしても、すべて正しい答えが出ました。いちばん多いときで命令を ${Math.max(...r.results.map((x) => x.steps))} 回実行しています。` : `答えが正しく出ました。命令を ${r.results[0].steps} 回実行しています。`), nextTask ? h("a", { class: "btn", href: `#/task/${nextTask.id}` }, `次の課題「${nextTask.title}」へ →`) : furikaeriOn() ? h("a", { class: "btn", href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧へもどって、ふりかえりを書こう →") : h("a", { class: "btn", href: "#/tasks" }, "課題の一覧へもどる →")),
           "good",
         ),
       );
@@ -174,7 +174,7 @@ export function renderTask(view, { tasks, isa }, id) {
     h("div", { class: "card sim-card" }, h("div", { class: "check-bar" }, h("button", { class: "btn", type: "button", onclick: checkAndShow }, "答え合わせ"), h("p", { class: "hint" }, "結果はこのすぐ下に出ます。")), resultBox, sim.el),
     readingCard(false),
     isaTable(isa),
-    h("p", { class: "hint reflect-pointer" }, "④のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
+    h("p", { class: "hint reflect-pointer", ...REFLECT_ATTR }, "④のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
   );
   return () => {
     sim.stop();

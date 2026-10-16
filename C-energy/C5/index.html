@@ -480,6 +480,8 @@ var RUBY = {
   '負荷': ['ふか'], '炭素皮膜抵抗': ['たんそひまくていこう'], 'フィラメント': ['', '(光る細い金属の線)'], '実測': ['じっそく'],
   '改善案': ['かいぜんあん'], '達成': ['たっせい'], '振り返り': ['ふりかえり']
 };
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)なら false。④ 評価の振り返りの欄・印刷の「8 振り返り」を出さない(書いた内容は消さない・ファイルにも入る) */
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function rb(t, seen) {
   var h = esc(t); if (!seen) return h;
   Object.keys(RUBY).forEach(function (w) {
@@ -1495,11 +1497,11 @@ function renderEval() {
   }
   h += '</div>';
   var req = taskReq(a, n), ok = req.filter(function (g) { return g.ok; }).length;
-  h += '<div class="e5-col" style="flex:1"><h2>📝 ' + rb('振り返り', seen) + '</h2><div class="e5-card goal"><b>' + task().icon + ' 条件の' + rb('達成', seen) + '(設計):' + ok + ' / ' + req.length + (ok === req.length ? ' 🎉' : '') + '</b>';
+  h += '<div class="e5-col" style="flex:1"><h2>' + (fkOn() ? '📝 ' + rb('振り返り', seen) : '🎯 条件のチェック') + '</h2><div class="e5-card goal"><b>' + task().icon + ' 条件の' + rb('達成', seen) + '(設計):' + ok + ' / ' + req.length + (ok === req.length ? ' 🎉' : '') + '</b>';
   req.forEach(function (g) { h += '<div class="e5-goal' + (g.ok ? ' ok' : '') + '"><span class="m">' + (g.ok ? '✅' : '⬜') + '</span><span>' + rb(g.t, seen) + '</span></div>'; });
   h += '</div>';
-  h += '<div class="e5-field"><label for="e5-good">うまくいったこと・設計どおりだったこと</label><textarea id="e5-good" data-note="good">' + esc(n.good) + '</textarea></div>';
-  h += '<div class="e5-field"><label for="e5-imp">' + rb('改善案', seen) + '(もっとよくするには?)</label><small>例:電池を長もちさせるため、抵抗を大きくして電流を減らす。</small><textarea id="e5-imp" data-note="improve">' + esc(n.improve) + '</textarea></div>';
+  h += '<div class="e5-field" data-ef-reflect><label for="e5-good">うまくいったこと・設計どおりだったこと</label><textarea id="e5-good" data-note="good">' + esc(n.good) + '</textarea></div>';
+  h += '<div class="e5-field" data-ef-reflect><label for="e5-imp">' + rb('改善案', seen) + '(もっとよくするには?)</label><small>例:電池を長もちさせるため、抵抗を大きくして電流を減らす。</small><textarea id="e5-imp" data-note="improve">' + esc(n.improve) + '</textarea></div>';
   h += '<div class="e5-row"><button class="e5-btn primary" data-act="print">🖨️ 設計シートを印刷</button><button class="e5-btn" data-act="file">💾 ファイルに保存</button></div></div>';
   S.el.page.innerHTML = h;
 }
@@ -1533,7 +1535,7 @@ function printSheet() {
       return '<tr><td>' + esc(lblFull(a.L, r.p)) + '</td><td>' + mA(r.I) + ' mA</td><td>' + (m.I != null ? m.I + ' mA ' + diffInfo(r.I, m.I, 1000).t : '') + '</td><td>' + (r.noV ? '−' : r.V.toFixed(2) + ' V') + '</td><td>' + (!r.noV && m.V != null ? m.V + ' V ' + diffInfo(r.V, m.V, 1).t : '') + '</td></tr>';
     }).join('') + '</table></div>';
   }
-  h += '<div class="avoid"><h2>8 振り返り</h2><div class="two"><div><b>うまくいったこと</b><div class="box">' + esc(n.good) + '</div></div><div><b>改善案</b><div class="box">' + esc(n.improve) + '</div></div></div></div>';
+  if (fkOn()) h += '<div class="avoid" data-ef-reflect><h2>8 振り返り</h2><div class="two"><div><b>うまくいったこと</b><div class="box">' + esc(n.good) + '</div></div><div><b>改善案</b><div class="box">' + esc(n.improve) + '</div></div></div></div>';
   S.el.print.innerHTML = h;
   setTimeout(function () { window.print(); }, 60);
 }
@@ -1608,7 +1610,7 @@ function showHowto(first, openSet) {
     '<div><b>📝 ① 課題・構想</b><br>課題をえらび、目的と条件をたしかめる。どんな回路にするか、理由といっしょに書く(' + rb('構想', seen) + ')。</div>' +
     '<div><b>✏️ ② 回路図</b><br>記号をえらんで点と点の間をタップ(または引っぱる)。導線(〰️)は点から点へなぞる。スイッチはタップで入/切。「自動チェック」で まちがいが見つかる。「▶ 動かす」で電流の流れや明るさを確かめる。</div>' +
     '<div><b>📦 ③ 部品表・手順</b><br>部品表と製作手順が自動でできる。手順のとちゅうで、先生に配線を点検してもらう。</div>' +
-    '<div><b>📏 ④ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ、' + rb('改善案', seen) + 'を書く。</div></div>' +
+    '<div><b>📏 ④ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ' + (fkOn() ? '、' + rb('改善案', seen) + 'を書く' : 'る') + '。</div></div>' +
     '<h3>回路図記号のルール</h3>電池:長い線が+。電源装置:電池の記号を2組ならべた形。LED:三角の向きに電流が流れる(+はアノード=長い足、−はカソード=短い足)。● は導線が3本以上つながっている点。赤い○ は、つながっていない端子や、導線の切れ目。' +
     '<h3>「② 回路図」タブの数字の色</h3><span class="e5-badge">2</span> 赤:❌ まちがいがある(数) <span class="e5-badge y">1</span> 黄:⚠️ 注意がある(数) <span class="e5-badge g">✓</span> 緑:問題なし' +
     '<h3>ことば</h3><dl class="e5-gl"><dt>' + rb('定格', {}) + '</dt><dd>部品に決められた電圧・電流(豆電球 2.5V 0.3A など)</dd><dt>' + rb('規格', {}) + '</dt><dd>部品の種類や大きさの決まり</dd><dt>' + rb('負荷', {}) + '</dt><dd>電気を使う部品(豆電球・LED・モーター)</dd><dt>ショート</dt><dd>電源の+と−が、部品を通らずに導線だけでつながること。とても危険</dd></dl>' +

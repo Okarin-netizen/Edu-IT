@@ -1,5 +1,6 @@
 // モジュールの一覧と進み具合の計算
 import { store } from "./store.js";
+import { furikaeriOn } from "./ui.js";
 import { imageModule } from "../modules/image.js";
 import { soundModule } from "../modules/sound.js";
 import { binaryModule } from "../modules/binary.js";
@@ -17,7 +18,8 @@ export const CATALOG = [
 ].map((c) => ({ ...c, label: CIRCLED[c.num - 1] }));
 
 export function moduleProgress(entry) {
-  const steps = entry.module.steps;
+  // 振り返りを隠す設定のときは、ふりかえりのステップを数えない
+  const steps = furikaeriOn() ? entry.module.steps : entry.module.steps.filter((s) => s.id !== "reflect");
   const done = steps.filter((s) => store.isStepDone(entry.id, s.id)).length;
   return { done, total: steps.length, complete: done === steps.length };
 }

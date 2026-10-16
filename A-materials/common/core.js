@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.5.0';  // A-materials/eduit-info.js の version と合わせる
+  G.version = '2.6.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '羽生市立南中学校　技術　岡田';
   G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
@@ -366,9 +366,17 @@
   };
 
   // タブ: <div data-g-tabs> 内の [role=tab][data-tab=X] と [data-panel=X] を結ぶ
+  // 振り返りを隠す設定(EduitFrame.furikaeri === false)のときは、data-ef-reflect の付いたタブは選ばない
+  G.furikaeriOff = function () { return !!(window.EduitFrame && EduitFrame.furikaeri === false); };
   G.tabs = function (root, onChange) {
     var tabs = G.$$('[role=tab]', root);
+    function usable(t) { return !(G.furikaeriOff() && t.hasAttribute('data-ef-reflect')); }
     function show(name, focus) {
+      var want = G.$('[role=tab][data-tab="' + name + '"]', root);
+      if (want && !usable(want)) {
+        var alt = tabs.filter(usable)[0];
+        if (alt) name = alt.getAttribute('data-tab');
+      }
       tabs.forEach(function (t) {
         var on = t.getAttribute('data-tab') === name;
         t.setAttribute('aria-selected', String(on));
@@ -379,7 +387,7 @@
       try { sessionStorage.setItem('tab:' + (G.app || '') + location.pathname, name); } catch (e) {}
       if (onChange) onChange(name);
     }
-    tabs.forEach(function (t, i) {
+    tabs.forEach(function (t) {
       var name = t.getAttribute('data-tab');
       var panel = G.$('[data-panel="' + name + '"]', root);
       t.id = t.id || 'tab-' + name;
@@ -387,11 +395,12 @@
       if (panel) { panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', t.id); }
       t.addEventListener('click', function () { show(name); });
       t.addEventListener('keydown', function (e) {
+        var vis = tabs.filter(usable), k = vis.indexOf(t);
         var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (e.key === 'Home') d = -i; if (e.key === 'End') d = tabs.length - 1 - i;
-        if (!d) return;
+        if (e.key === 'Home') d = -k; if (e.key === 'End') d = vis.length - 1 - k;
+        if (!d || k < 0) return;
         e.preventDefault();
-        show(tabs[(i + d + tabs.length) % tabs.length].getAttribute('data-tab'), true);
+        show(vis[(k + d + vis.length) % vis.length].getAttribute('data-tab'), true);
       });
     });
     var first = tabs[0] && tabs[0].getAttribute('data-tab'), saved = null;

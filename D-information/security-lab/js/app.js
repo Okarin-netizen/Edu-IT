@@ -1,6 +1,6 @@
 // アプリ本体: 章ナビ、ルーティング、進捗表示、表示の切りかえ（ふりがな・やさしい日本語・文字の大きさ）
 import { store } from "./store.js";
-import { h, explainCard, threeSteps, flushReflections } from "./ui.js";
+import { h, explainCard, threeSteps, flushReflections, furikaeriOn, recordsTitle } from "./ui.js";
 import { availableModules, moduleProgress, GROUPS, EASY_STEPS, EASY_PAGES } from "./catalog.js";
 import { getConfig, pref, setPref, setRubyEnabled } from "./settings.js";
 import { renderRecords, renderTeacher } from "./records.js";
@@ -36,7 +36,7 @@ function renderNav(currentId) {
   }
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "確かめる・記録する"));
   ol.append(link("#/check", "?", "理解度チェック", "check", false));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", recordsTitle(), "records", false));
   // 先生用ページは章ナビに出さない（SEC-54）。先生はアドレスの最後に #/teacher を付けて開く
   const next = h("nav", { "aria-label": "章ナビゲーション" }, ol);
   // 中身が同じなら書きかえない（ふりかえりの自動保存のたびに、押そうとしたリンクやフォーカスが消えないように）
@@ -135,7 +135,7 @@ function renderHome() {
       threeSteps(),
       explainCard("安心して体験できます", "このラボはすべてこのブラウザの中だけで動きます。インターネット上のサイトには一切つながらず、入力した内容が外に送られることもありません。登場する会社名やアドレスはすべて架空のものです。", "good"),
     ),
-    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, "モジュールを①から順に体験して、最後にふりかえりを書く（⑪ ハッシュ体験は発展。先生に言われたときに取り組む）"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する"))),
+    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, furikaeriOn() ? "モジュールを①から順に体験して、最後にふりかえりを書く" : "モジュールを①から順に体験する", "（⑪ ハッシュ体験は発展。先生に言われたときに取り組む）"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, recordsTitle()), "からファイルを書き出して提出する"))),
     ...GROUPS.map((g) => {
       const list = available.map((c, i) => [c, cards[i]]).filter(([c]) => c.group === g.id);
       return list.length ? h("section", { class: "module-group" }, h("h2", {}, g.title), h("div", { class: "module-grid" }, list.map(([, card]) => card))) : "";
@@ -185,7 +185,7 @@ async function route() {
   else if (id === "check") await renderCheck(view, available, easyBox(EASY_PAGES.check));
   else renderHome();
   if (token !== routeToken) return;
-  const title = entry ? entry.title : { records: "ふりかえり・記録", teacher: "先生用ページ", check: "理解度チェック" }[id] || "はじめに";
+  const title = entry ? entry.title : { records: recordsTitle(), teacher: "先生用ページ", check: "理解度チェック" }[id] || "はじめに";
   document.title = `${title} | 情報セキュリティ体験ラボ`;
   if (!step) view.focus({ preventScroll: true });
 }
