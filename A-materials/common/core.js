@@ -7,14 +7,14 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.1.0';  // A-materials/eduit-info.js の version と合わせる
+  G.version = '2.2.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '技術　岡田';
   G.CREDIT_RUBY = '{技術|ぎじゅつ}　{岡田|おかだ}';
   // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
   G.LS_PREFIX = {
     'material-navi': ['material-navi.'], 'wood-lab': ['m2.'], 'structure-lab': ['structure-lab.'],
-    'drawing-trainer': ['drawing-trainer.'], 'kidori': ['kidori.'], 'tool-safety': ['tool-safety.']
+    'drawing-trainer': ['drawing-trainer.'], 'kidori': ['kidori.'], 'tool-safety': ['tool-safety.'], 'solid-maker': ['solid-maker.']
   };
 
   /* ---------- DOM ヘルパー ---------- */
