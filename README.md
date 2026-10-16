@@ -73,7 +73,7 @@ Edu-IT/
 
 生徒は URL を開くだけで、ダウンロードせずに使えます。公開するのは **入口ページ(A〜D の一覧)と4つの統一版だけ** で、先生用ガイドと `teacher-tools/` はホームページに出しません。
 
-- 公開されるもの: `index.html`(入口・[`site/index.html`](site/index.html))・`a.html`〜`d.html`(`クラスルーム配布/生徒に配る/` の統一版)
+- 公開されるもの: `index.html`(入口・[`site/index.html`](site/index.html))・`a.html`〜`d.html`(いちばん上に「◀ 分野をえらぶ」のバーがあり、その下に `apps/` に置いた `クラスルーム配布/生徒に配る/` の統一版を出す)
 - `main` に push すると、[`.github/workflows/pages.yml`](.github/workflows/pages.yml) が `python3 site/build.py` で `_site/` にまとめて公開します。
 - はじめに1回だけ: リポジトリの Settings → Pages → Source を「GitHub Actions」にします(無料プランではリポジトリを Public にする必要があります)。
 - 記録はホームページのアドレスごとに、その端末のブラウザの中に保存されます。ダウンロードしたファイルで使った記録とは別になります。
