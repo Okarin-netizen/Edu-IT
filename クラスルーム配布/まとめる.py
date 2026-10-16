@@ -80,9 +80,15 @@ def inline_page(src):
     return html
 
 
-def guide(src, key):
-    """先生用ガイドを先生用フォルダに入れる。先生用フォルダでは、どのガイドも上のバーは題名だけ(「◀ メニュー」は出さない)"""
-    html = re.sub(r'\s*<a class="ef-btn ef-back"[^>]*>.*?</a>', "", inline_page(src), count=1)
+def guide(src, key, built=False):
+    """先生用ガイドを先生用フォルダに入れる。先生用フォルダでは、どのガイドも上のバーは題名だけ(「◀ メニュー」は出さない)
+    built: 分野のビルドで CSS・JS がもう中に入っているファイル(B・C)"""
+    html = src.read_text(encoding="utf-8") if built else inline_page(src)
+    if "eg-sec" not in html:
+        raise SystemExit(f"{src}: 先生用ガイドの共通の形になっていません")
+    head, sep, body = html.partition("<body")
+    body = re.sub(r'(<header class="ef-header">)\s*<a class="ef-btn ef-back"[^>]*>.*?</a>', r"\1", body, count=1)
+    html = head + sep + body
     (teacher / TEACHER[key]).write_text(html, encoding="utf-8")
 
 
@@ -97,8 +103,8 @@ m7 = m7.replace("</head>", "<style>.ef-back { display: none !important; }</style
 
 # 分野ごとの先生用ガイド
 guide(repo / "A-materials/docs/先生用ガイド.html", "A")
-guide(repo / "B-bio/dist/先生用ガイド.html", "B")
-guide(repo / "C-energy/docs/先生用ガイド.html", "C")
+guide(repo / "B-bio/dist/先生用ガイド.html", "B", built=True)
+guide(repo / "C-energy/docs/先生用ガイド.html", "C", built=True)
 guide(info / "docs/先生用ガイド.html", "D")
 guide(info / "docs/情報セキュリティ体験ラボ_先生用ガイド.html", "D4")
 
