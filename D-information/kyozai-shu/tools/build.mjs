@@ -1,4 +1,4 @@
-// 6つの教材の1ファイル版（各フォルダの dist/）を、メニュー付きの1つのHTMLにまとめる。
+// 体験教材集に入れる教材（data/materials.json）の1ファイル版（各フォルダの dist/）を、メニュー付きの1つのHTMLにまとめる。
 // 実行: node tools/build.mjs  → ../dist/情報の技術_体験教材集.html（D-information/dist/ の配布用ファイル）
 // 元の教材フォルダは読むだけで、書きかえない。教材を直したら、先にその教材で npm run build してからこれを実行する。
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -16,7 +16,8 @@ const jsonForScript = (v) => JSON.stringify(v).replace(/<\//g, "<\\/").replace(/
 const iconData = (svg) => "data:image/svg+xml;base64," + Buffer.from(svg.replace(/<metadata>[\s\S]*?<\/metadata>/g, "")).toString("base64");
 
 const bridgeSrc = read(join(root, "src/bridge.js"));
-const hashLinksScript = `<script>\n${read(join(root, "src/hashlinks.js")).replace(/<\/(script)/gi, "<\\/$1")}</script>\n`;
+const hashLinksSrc = read(join(root, "src/hashlinks.js")).replace(/<\/(script)/gi, "<\\/$1");
+const hashLinksScript = (m) => `<script>\n${hashLinksSrc.replace("__PLAIN__", m.plainHash ? "true" : "false")}</script>\n`;
 const guideSrc = read(join(root, "src/guide.js"));
 const assistCss = read(join(root, "src/assist.css"));
 // ふりがなの言葉と読み: 情報セキュリティ体験ラボの一覧に、ほかの5教材の言葉（src/ruby-words.json）を足す
@@ -44,7 +45,7 @@ for (const m of data.materials) {
   {
     const at = html.lastIndexOf("</body>");
     if (at < 0) throw new Error(`${m.source}: </body> がありません`);
-    html = html.slice(0, at) + hashLinksScript + html.slice(at);
+    html = html.slice(0, at) + hashLinksScript(m) + html.slice(at);
   }
   // 見やすさの調整（教材集の中だけ）
   html = insertBefore(html, "</head>", `<style>\n${assistCss}</style>\n`, m.source);
@@ -62,7 +63,7 @@ for (const m of data.materials) {
   const guide = { ...(data.guides?.[m.id] || {}), nextMaterial: nextM ? { id: nextM.id, title: nextM.title } : null };
   html = insertBefore(html, "</body>", `<script>\n${guideSrc.replace("__GUIDE__", () => jsonForScript(guide))}</script>\n`, m.source);
   payloads.push(`  <script type="application/json" id="app-${m.id}">${jsonForScript(html)}</script>`);
-  const { source, icon, rubySkip, ownRuby, ...rest } = m;
+  const { source, icon, rubySkip, ownRuby, plainHash, ...rest } = m;
   menuData.materials.push({ ...rest, iconData: iconData(read(join(projects, icon))) });
   console.log(`  ${m.title}: ${Math.round(html.length / 1024)} KB`);
 }

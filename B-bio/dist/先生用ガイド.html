@@ -131,6 +131,31 @@
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
 /* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <script data-ef-info>
@@ -142,7 +167,7 @@ window.EDUIT_INFO = {
   domain: 'B',
   domainName: '生物育成の技術',
   suite: '生物育成の技術 教材集',
-  version: '1.2',
+  version: '1.3',
   updated: '2026-10-16',
   safety: [
     'B1 の写真は、この端末のブラウザの中(IndexedDB)だけに保存されます。人の顔や名札が写らないように撮りましょう。',
@@ -150,6 +175,10 @@ window.EDUIT_INFO = {
     'B2・B3 のシミュレーションは授業用の簡単なモデルです。数値は目安なので、本物の作物や生き物の観察(B1)とくらべて考えましょう。'
   ],
   history: [
+    { version: '1.3', date: '2026-10-16', items: [
+      'メニューを「基本編」「発展編」のタブに分けた: 学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(B1 の予測・B2 のくらべる など)を発展編にした',
+      'カードの「使うところ」に、その編で使うタブの名前を出すようにした(記録の保存のしかたは変わらない)'
+    ] },
     { version: '1.2', date: '2026-10-16', items: [
       'B4: 栽培計画を「計画書」にして、PDFに保存(印刷)・Googleドキュメント用(.docx)の書き出し・コピーができるようにした'
     ] },
@@ -170,6 +199,33 @@ window.EDUIT_INFO = {
       'Chromebook(1366×768)で見やすいように表示を調整した'
     ] }
   ]
+};
+
+/* 基本編・発展編(学習指導要領 技術分野「B 生物育成の技術」と教科書の内容から分けたもの)
+ * メニュー(build/menu.html)が EduitFrame.levels で使う。id は menu.html の APPS のキー(b1〜b4)。
+ * parts は生徒の画面のタブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'b2', parts: ['① はじめに', '② そだてる', '③ 結果・原因さがし', '⑤ 振り返り'], curr: 'B(1)イ', why: '温度・光・水・肥料など、育成環境を調節する技術は教科書の中心の内容' },
+      { id: 'b3', parts: ['① はじめに', '② 飼育シミュレーション', '③ 診断クイズ', '④ 飼育計画書', '⑤ 振り返り'], curr: 'B(1)ア・イ', why: '学習指導要領で作物の栽培・動物の飼育・水産生物の栽培のどれも扱うとされている' },
+      { id: 'b4', parts: ['① 作物をえらぶ', '② 計画をつくる', '③ カレンダー', '④ 記録と評価', '⑤ 振り返り'], curr: 'B(2)ア', why: '収穫の時期から逆算した育成計画(栽培暦)づくりは、教科書の基本の活動' },
+      { id: 'b1', parts: ['ホーム', '計画', '記録', 'グラフ', '写真', '診断', '評価', '振り返り'], curr: 'B(2)ア・イ・B(3)', why: '実際に育てながら記録・管理し、収穫後に評価・改善するのは問題解決の基本' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、条件をそろえた実験・予測・情報の技術を使う内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'b2', parts: ['④ くらべる(2つの環境で条件をそろえてくらべる)', '③ の費用(コスト)'], curr: 'B(1)イ・B(3)ア(発展)', why: '条件をそろえた比較実験や、費用からの評価は基本より先の内容' },
+      { id: 'b3', parts: ['② の水の汚れ・pH・費用の数値', '③ 診断クイズ「生態系と産業」'], curr: 'B(1)イ・B(3)ア(発展)', why: '水質の数値の読み取りや、生態系・産業への配慮はコラム・発展の内容' },
+      { id: 'b4', parts: ['② 地域・休業日に合わせた再計算', '③ カレンダーの CSV・ICS 書き出し'], curr: 'B(2)ア(発展)', why: '地域や学校の予定に合わせた計画の見直しと、情報の技術を使った管理は発展の内容' },
+      { id: 'b1', parts: ['予測(成長予測・「もしも〜なら?」)'], curr: 'B(2)イ(発展)', why: '記録から数値で成長を予測するのは、教科書の基本より先の内容' }
+    ]
+  }
 };
 </script>
 <script>EDUIT_INFO.app = { name: '先生用ガイド(生物育成の技術 教材集)' };</script>
@@ -192,7 +248,17 @@ window.EDUIT_INFO = {
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
  *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
 (function () {
   'use strict';
@@ -312,7 +378,67 @@ window.EDUIT_INFO = {
     else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -421,6 +547,11 @@ body{background:var(--ef-bg);}
 <p class="small">生物育成の技術 教材集(生物育成教材集.html)の先生用ガイドです。教材集のメニュー下「先生用」からも同じ内容を見られます。</p>
 <h2>👩‍🏫 先生用ガイド</h2>
 <p class="lead">中学校 技術・家庭(技術分野)「B 生物育成の技術」で使う、4つのオフライン教材をまとめたファイルです。インターネット接続・アカウント・インストールは不要です。</p>
+
+<section class="gsec">
+<h3>基本編と発展編</h3>
+<p>メニューの教材は「基本編」「発展編」のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(B1 の予測、B2 の「くらべる」、B3 の水質の数値・生態系と産業、B4 の地域・休業日の再計算と書き出し)を発展編にしています。カードの「使うところ」に、その編で使うタブの名前が出ます。くわしい一覧は、クラスルーム配布用フォルダの <b>先生用/全分野_基本編と発展編(先生用).html</b> にあります(配布用フォルダでは、この教材集は <b>B_生物育成_統一版.html</b> という名前です)。</p>
+</section>
 
 <section class="gsec">
 <h3>1. 配布と動作環境</h3>

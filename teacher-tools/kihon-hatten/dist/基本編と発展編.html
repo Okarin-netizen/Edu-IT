@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>基本編と発展編の分け方(先生用)</title>
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * <header class="ef-header">
+ *   <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *   <h1 class="ef-title"><span class="ef-icon">…</span>アプリ名</h1>
+ *   <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 などの .ef-btn </div>
+ * </header>
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">M1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+<script>
+/* 先生用の道具(4分野共通) の版・更新履歴
+ * 共通の枠 shared/eduit-frame.js が読む(classic script)。分野の色はつけない(既定の青)。
+ */
+window.EDUIT_INFO = {
+  domainName: '',
+  suite: '先生用の道具',
+  version: '1.3',
+  updated: '2026-10-16',
+  safety: [
+    '振り返り一覧は、先生が選んだファイルをこの画面の中だけで読みます。ファイルの内容はどこにも送らず、ブラウザにも保存しません。',
+    '生徒の名前や振り返りが入ったファイルや、保存した CSV は、学校の決まりに従って扱ってください。'
+  ],
+  history: [
+    {
+      version: '1.3', date: '2026-10-16',
+      items: [
+        '基本編と発展編の分け方(先生用)を追加した: 4分野の統一版のメニューの「基本編」「発展編」で、どの教材のどのタブ・ページがどちらに入るかを、学習指導要領の項目と理由つきで一覧にした',
+        '振り返り一覧: 情報の技術の統一版(第1.6版)の「記録まとめ」に入る、生成AI・ネット詐欺・ハッシュ化のラボのふりかえりも、問いの名前つきで読めるようにした'
+      ]
+    },
+    {
+      version: '1.2', date: '2026-10-16',
+      items: ['振り返り一覧: ハッシュ化体験ラボの書き出し(チャレンジの達成・クイズ・ふりかえり)も読めるようにした']
+    },
+    {
+      version: '1.1', date: '2026-10-15',
+      items: ['振り返り一覧: ネット詐欺 追体験ラボの書き出し(場面ごとのクリア・だまされた回数・ふりかえり)も読めるようにした']
+    },
+    {
+      version: '1.0', date: '2026-10-15',
+      items: [
+        '振り返り一覧: 4分野の教材が書き出した JSON をまとめて読み込み、振り返り・自己評価・成績を1つの表にした',
+        '提出状況(生徒 × 教材)の表と、CSV 保存・印刷を付けた'
+      ]
+    }
+  ]
+};
+
+</script>
+<script>EDUIT_INFO.app = { name: '基本編と発展編の分け方(先生用)' };</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
+<style>
+  body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.6; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  .lead { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 12px 18px; }
+  .lead li { margin: .2em 0; }
+  .dom { margin-top: 26px; }
+  .dom h2 { font-size: 20px; margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+  .dom h2 .file { font-size: 14px; font-weight: 400; color: var(--ef-muted); }
+  table { width: 100%; border-collapse: collapse; background: var(--ef-surface); font-size: 14px; }
+  th, td { border: 1px solid var(--ef-line); padding: 6px 8px; vertical-align: top; text-align: left; }
+  thead th { background: var(--ef-surface-2); white-space: nowrap; }
+  th.lv { text-align: center; white-space: nowrap; width: 4.5em; color: #fff; }
+  th.lv-basic { background: #2f6f3e; }
+  th.lv-advanced { background: #5b3fa8; }
+  td.app { font-weight: 700; white-space: nowrap; }
+  td.curr { white-space: nowrap; }
+  tr.advanced td { background: #f6f3fc; }
+  @media print { body { background: #fff; } main { max-width: none; padding: 0; } .dom { break-inside: avoid-page; } table { font-size: 11px; } }
+</style>
+</head>
+<body>
+<main>
+<h1>基本編と発展編の分け方(先生用)</h1>
+<div class="lead">
+<p>4つの分野の統一版(1分野につき1つのファイル)では、メニューが「基本編」「発展編」のタブに分かれています。分け方は次の考え方によります。</p>
+<ul>
+<li><b>基本編</b>: 中学校学習指導要領(平成29年告示)技術・家庭 技術分野の各内容の項目にあり、検定教科書(東京書籍・開隆堂・教育図書)で本文として扱われる内容。全員が学ぶ。</li>
+<li><b>発展編</b>: 教科書で「発展」「コラム」として扱われる内容や、数値での設計・計算、しくみの中まで調べる内容、新しい技術(3D CAD・3Dプリンタ・生成AI のしくみ など)。基本編を終えた生徒や、選択の課題に使う。</li>
+<li>1つの教材の中に基本と発展の両方があるときは、両方の編にカードが出ます。カードの「使うところ」に、その編で使うタブ・ページの名前が出ます(生徒のカードには学習指導要領の記号は出しません)。</li>
+<li>どちらの編から開いても、教材の中身・記録の保存場所・書き出すファイルは同じです。振り返り一覧(先生用)でそのまま読めます。</li>
+<li>この分け方は、学習指導要領の項目と教科書の一般的な扱いから判断した目安です(教科書のページごとの照合はしていません)。使っている教科書や授業の計画に合わせて変えるときは、各分野の <code>eduit-info.js</code> の <code>levels</code> を直して作り直します。</li>
+</ul>
+</div>
+<section class="dom">
+<h2>A 材料と加工の技術<span class="file">配るファイル: A_材料と加工_統一版.html(第2.3版)</span></h2>
+<table>
+<thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
+<tbody>
+<tr class="basic"><th rowspan="6" class="lv lv-basic">基本編</th><td class="app">M1 材料選択ナビ</td><td>材料カード・条件設定・比較結果・理由を書く</td><td class="curr">A(1)ア・A(2)ア</td><td>木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容</td></tr>
+<tr class="basic"><td class="app">M2 木材の繊維・収縮ラボ</td><td>断面ビューア・収縮ラボ・反りの予測・強度比較(繊維の向きと強さ)・集成材・合板・まとめ・記録</td><td class="curr">A(1)ア</td><td>柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本</td></tr>
+<tr class="basic"><td class="app">M3 構造強化ラボ</td><td>梁(はり)・枠と筋かい・接合</td><td class="curr">A(1)イ</td><td>断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本</td></tr>
+<tr class="basic"><td class="app">M4 製図トレーナー</td><td>三面図クイズ・立体づくり・三面図をかく・等角図をかく・線と記号・記録・ふりかえり</td><td class="curr">A(2)イ</td><td>等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本</td></tr>
+<tr class="basic"><td class="app">M5 木取り・構想シミュレータ</td><td>材料・部品・木取り・製作図・強度・ふりかえり</td><td class="curr">A(2)ア・イ</td><td>構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本</td></tr>
+<tr class="basic"><td class="app">M6 工具の使い方・安全トレーナー</td><td>工具の手順・作業前チェック・危険を見つける・手順ならべかえ・実技の評価・記録</td><td class="curr">A(2)イ</td><td>工具の安全で正しい使い方は、製作の前に全員が身に付ける内容</td></tr>
+<tr class="advanced"><th rowspan="4" class="lv lv-advanced">発展編</th><td class="app">M2 木材の繊維・収縮ラボ</td><td>強度比較(7つの力の数値くらべ)</td><td class="curr">A(1)ア(発展)</td><td>力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">M3 構造強化ラボ</td><td>梁(はり)の「くわしく見る(発展)」・設計課題(安全率を考えて、軽くて丈夫な構造を設計する)</td><td class="curr">A(1)イ・A(2)ア(発展)</td><td>応力・安全率・断面の数値を使う設計は、教科書では発展の扱い</td></tr>
+<tr class="advanced"><td class="app">M5 木取り・構想シミュレータ</td><td>木取りの歩留まり・材料費・強度の「発展」</td><td class="curr">A(2)ア・A(3)イ(発展)</td><td>材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容</td></tr>
+<tr class="advanced"><td class="app">M7 第三角法 立体メーカー</td><td>三面図をかく(三面図から立体をつくる)・立体を見る(3D)・図面・印刷(寸法の入った図面)・ふりかえり</td><td class="curr">A(2)イ・A(3)イ(発展)</td><td>三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術</td></tr>
+</tbody>
+</table>
+</section>
+<section class="dom">
+<h2>B 生物育成の技術<span class="file">配るファイル: B_生物育成_統一版.html(第1.3版)</span></h2>
+<table>
+<thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
+<tbody>
+<tr class="basic"><th rowspan="4" class="lv lv-basic">基本編</th><td class="app">B2 育成環境コントローラ体験</td><td>① はじめに・② そだてる・③ 結果・原因さがし・⑤ 振り返り</td><td class="curr">B(1)イ</td><td>温度・光・水・肥料など、育成環境を調節する技術は教科書の中心の内容</td></tr>
+<tr class="basic"><td class="app">B3 動物飼育・水産ミニシミュレータ</td><td>① はじめに・② 飼育シミュレーション・③ 診断クイズ・④ 飼育計画書・⑤ 振り返り</td><td class="curr">B(1)ア・イ</td><td>学習指導要領で作物の栽培・動物の飼育・水産生物の栽培のどれも扱うとされている</td></tr>
+<tr class="basic"><td class="app">B4 栽培暦ビルダー</td><td>① 作物をえらぶ・② 計画をつくる・③ カレンダー・④ 記録と評価・⑤ 振り返り</td><td class="curr">B(2)ア</td><td>収穫の時期から逆算した育成計画(栽培暦)づくりは、教科書の基本の活動</td></tr>
+<tr class="basic"><td class="app">B1 育成日誌＋成長予測</td><td>ホーム・計画・記録・グラフ・写真・診断・評価・振り返り</td><td class="curr">B(2)ア・イ・B(3)</td><td>実際に育てながら記録・管理し、収穫後に評価・改善するのは問題解決の基本</td></tr>
+<tr class="advanced"><th rowspan="4" class="lv lv-advanced">発展編</th><td class="app">B2 育成環境コントローラ体験</td><td>④ くらべる(2つの環境で条件をそろえてくらべる)・③ の費用(コスト)</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>条件をそろえた比較実験や、費用からの評価は基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">B3 動物飼育・水産ミニシミュレータ</td><td>② の水の汚れ・pH・費用の数値・③ 診断クイズ「生態系と産業」</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>水質の数値の読み取りや、生態系・産業への配慮はコラム・発展の内容</td></tr>
+<tr class="advanced"><td class="app">B4 栽培暦ビルダー</td><td>② 地域・休業日に合わせた再計算・③ カレンダーの CSV・ICS 書き出し</td><td class="curr">B(2)ア(発展)</td><td>地域や学校の予定に合わせた計画の見直しと、情報の技術を使った管理は発展の内容</td></tr>
+<tr class="advanced"><td class="app">B1 育成日誌＋成長予測</td><td>予測(成長予測・「もしも〜なら?」)</td><td class="curr">B(2)イ(発展)</td><td>記録から数値で成長を予測するのは、教科書の基本より先の内容</td></tr>
+</tbody>
+</table>
+</section>
+<section class="dom">
+<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.3版)</span></h2>
+<table>
+<thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
+<tbody>
+<tr class="basic"><th rowspan="5" class="lv lv-basic">基本編</th><td class="app">E1 エネルギー変換ゲーム</td><td>ステージ1 懐中電灯・ステージ2 自転車のライト・ステージ3 クレーン・ステージ4 火力発電所・ステージ5 再生可能エネルギー・ステージ7 町の電源・ステージ8 たこ足配線</td><td class="curr">C(1)ア・C(3)イ</td><td>エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容</td></tr>
+<tr class="basic"><td class="app">E2 電気回路ラボ</td><td>課題 豆電球・スイッチ・直列・並列・課題 モーターを逆に回そう・課題 ヒューズ・ブレーカー・安全体験(たこ足配線・漏電とアース・ショート)</td><td class="curr">C(1)ア・C(2)ア</td><td>電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本</td></tr>
+<tr class="basic"><td class="app">E3 機構ラボ</td><td>回転を伝える・運動を変える・設計課題(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)</td><td class="curr">C(1)ア・C(2)</td><td>歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本</td></tr>
+<tr class="basic"><td class="app">E4 保守点検ラボ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり</td><td class="curr">C(1)ア・C(2)イ</td><td>共通部品と保守点検は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><td class="app">E5 回路設計シート</td><td>① 課題・構想・② 回路図・③ 部品表・手順・④ 評価・課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td class="curr">C(2)ア・イ・C(3)</td><td>目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本</td></tr>
+<tr class="advanced"><th rowspan="4" class="lv lv-advanced">発展編</th><td class="app">E1 エネルギー変換ゲーム</td><td>ステージ6 蓄電池(昼も夜も電気を使いたい)・ステージ9 自由実験・💴 発電方法の値段くらべ</td><td class="curr">C(1)ア・C(3)イ(発展)</td><td>蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容</td></tr>
+<tr class="advanced"><td class="app">E2 電気回路ラボ</td><td>課題 電流計・電圧計ではかろう・課題 電池の持ちを比べる・課題 LEDと抵抗・電気料金</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">E3 機構ラボ</td><td>ブラックボックス・設計課題(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)</td><td class="curr">C(1)ア・C(2)(発展)</td><td>歯数の推理や、トルク・ねじの数値を使った設計は発展の内容</td></tr>
+<tr class="advanced"><td class="app">E5 回路設計シート</td><td>課題 LEDライト・LED常夜灯(抵抗値を決める)・課題 自由設計・④ 評価の実測とのくらべ</td><td class="curr">C(2)イ・C(3)(発展)</td><td>抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容</td></tr>
+</tbody>
+</table>
+</section>
+<section class="dom">
+<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第1.6版)</span></h2>
+<table>
+<thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
+<tbody>
+<tr class="basic"><th rowspan="8" class="lv lv-basic">基本編</th><td class="app">デジタル化ラボ</td><td>1 画像のデジタル化・2 音のデジタル化・3 2進数と文字コード・5 データ量の計算ドリル</td><td class="curr">D(1)ア</td><td>情報のデジタル化と情報の量は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><td class="app">仮想CPUラボ</td><td>1 図解: 5つの装置・4 手計算くらべ</td><td class="curr">D(1)ア・イ</td><td>コンピュータの構成(5つの装置)と、自動で処理するよさは基本</td></tr>
+<tr class="basic"><td class="app">ネットワーク通信シミュレータ</td><td>1 ネットワークを組み立てる・2 Webページが届くまで・3 回線が切れたら？・4 のぞき見と暗号化</td><td class="curr">D(1)ア</td><td>情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本</td></tr>
+<tr class="basic"><td class="app">情報セキュリティ体験ラボ</td><td>1 デジタル化と情報量・2 パスワード強度ラボ・3 暗号ラボ・5 フィッシング見分け・6 ネットワーク通信の模擬・7 SNS投稿の個人情報チェック・8 デジタルタトゥー・9 著作権・利用ルールクイズ・10 判断ロールプレイ・11 まとめ・行動宣言・理解度チェック</td><td class="curr">D(1)ア・D(4)ア</td><td>情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><td class="app">ネット詐欺 追体験ラボ</td><td>1 ワンクリック詐欺・2 「当選しました」メール・3 ウイルス付きメール・4 にせのウイルス警告・5 にせの通販サイト・6 まとめとふりかえり</td><td class="curr">D(1)ア・D(4)ア</td><td>ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本</td></tr>
+<tr class="basic"><td class="app">双方向コンテンツ制作スタジオ</td><td>作品・エディタ・実行・デバッグ・サーバーのデータ・ふりかえり・記録</td><td class="curr">D(2)ア・イ</td><td>ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容</td></tr>
+<tr class="basic"><td class="app">計測・制御シミュレータ</td><td>場面1 街灯・場面2 自動ドア・場面3 信号機・場面4 押しボタン式信号機</td><td class="curr">D(3)ア・イ</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容</td></tr>
+<tr class="basic"><td class="app">生成AIのしくみラボ</td><td>4 もっともらしいまちがい・7 個人情報が出てしまう？・8 クイズとふりかえり</td><td class="curr">D(4)ア・イ</td><td>生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容</td></tr>
+<tr class="advanced"><th rowspan="7" class="lv lv-advanced">発展編</th><td class="app">デジタル化ラボ</td><td>4 圧縮のしくみ</td><td class="curr">D(1)ア(発展)</td><td>教科書では圧縮があることを知る程度で、しくみをためすのは発展</td></tr>
+<tr class="advanced"><td class="app">仮想CPUラボ</td><td>2 仮想CPUを動かす・3 課題</td><td class="curr">D(1)ア(発展)</td><td>レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">ネットワーク通信シミュレータ</td><td>5 IPアドレス・ドリル</td><td class="curr">D(1)ア(発展)</td><td>教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展</td></tr>
+<tr class="advanced"><td class="app">情報セキュリティ体験ラボ</td><td>4 ハッシュ体験</td><td class="curr">D(1)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない</td></tr>
+<tr class="advanced"><td class="app">計測・制御シミュレータ</td><td>場面5 自由に作る(仮想マイコン)</td><td class="curr">D(3)イ(発展)</td><td>センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動</td></tr>
+<tr class="advanced"><td class="app">生成AIのしくみラボ</td><td>1 つぎの言葉あて・2 言葉のかけら(トークン)・3 ミニ文章AIを動かす・5 ノイズをまぜる(学習)・6 ノイズから絵をつくる</td><td class="curr">D(1)ア・D(4)イ(発展)</td><td>生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容</td></tr>
+<tr class="advanced"><td class="app">ハッシュ化体験ラボ</td><td>1 ハッシュ値を作ってみよう・2 1文字だけ変えると？・3 手作りハッシュの弱点・4 もとにもどせる？・5 パスワードの守り方・6 改ざんを見つける・7 クイズとふりかえり</td><td class="curr">D(1)ア・D(4)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展</td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<div data-ef-footer></div>
+</body>
+</html>

@@ -18,7 +18,17 @@ Edu-IT/
 └─ README.md         この文書
 ```
 
-**授業で配るだけなら [`クラスルーム配布/`](クラスルーム配布/) を見てください。** どれを配ればよいかは [`クラスルーム配布/README.md`](クラスルーム配布/README.md) にあります。
+**授業で配るだけなら [`クラスルーム配布/`](クラスルーム配布/) を見てください。** 1つの分野につき1つの「統一版」を配ります。どれを配ればよいかは [`クラスルーム配布/README.md`](クラスルーム配布/README.md) にあります。
+
+## 基本編と発展編
+
+4つの分野のどの統一版も、メニューが「基本編」「発展編」のタブに分かれています。
+学習指導要領(平成29年告示)の内容と教科書(東京書籍・開隆堂・教育図書)の内容から、全員が学ぶタブ・ページを基本編、
+教科書の「発展」「コラム」にあたるものや数値での設計・計算、新しい技術を使うものを発展編にしています。
+1つの教材が両方の編に出ることもあり、カードの「使うところ」にその編で使うタブ・ページの名前が出ます。
+
+- 分け方のもと: 各分野の `eduit-info.js` の `levels`(タブの部品は `shared/eduit-frame.js` の `EduitFrame.levels`)
+- 先生用の一覧(学習指導要領の項目と理由つき): [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) → `クラスルーム配布/先生用/全分野_基本編と発展編(先生用).html`
 
 ## 4つの分野の中は同じ形
 
@@ -38,13 +48,14 @@ Edu-IT/
 | [`A-materials/`](A-materials/) | A 材料と加工 | M1 材料選択ナビ・M2 木材ラボ・M3 構造強化ラボ・M4 製図トレーナー・M5 木取り・M6 工具の安全・M7 第三角法 立体メーカー・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
 | [`B-bio/`](B-bio/) | B 生物育成 | B1 育成日誌・B2 育成環境コントローラ・B3 動物飼育・水産・B4 栽培暦ビルダー | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
 | [`C-energy/`](C-energy/) | C エネルギー変換 | E1 エネルギー変換ゲーム・E2 電気回路ラボ・E3 機構ラボ・E4 保守点検ラボ・E5 回路設計シート | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
-| [`D-information/`](D-information/) | D 情報 | 体験教材集(デジタル化・仮想CPU・ネットワーク・セキュリティ・双方向・計測制御)・生成AIのしくみラボ・ネット詐欺 追体験ラボ・ハッシュ化体験ラボ | `情報の技術_体験教材集.html`・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html` | [`D-information/README.md`](D-information/README.md) の順に |
+| [`D-information/`](D-information/) | D 情報 | 体験教材集(デジタル化・仮想CPU・ネットワーク・セキュリティ・ネット詐欺・双方向・計測制御・生成AI・ハッシュ化の9教材) | `情報の技術_体験教材集.html`(9教材の統一版)・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html`(1つだけ配るとき) | [`D-information/README.md`](D-information/README.md) の順に |
 
 ## 先生用の道具 → [`teacher-tools/`](teacher-tools/)
 
 | フォルダ | 道具 |
 |---|---|
 | [`teacher-tools/furikaeri-ichiran/`](teacher-tools/furikaeri-ichiran/) | 振り返り一覧: 4分野の教材が書き出した JSON をまとめて読み込み、振り返り・自己評価・提出状況を一覧にして CSV で保存する |
+| [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) | 基本編と発展編の分け方: 4分野の統一版の「基本編」「発展編」に入るタブ・ページを、学習指導要領の項目と理由つきで一覧にする(`python3 teacher-tools/kihon-hatten/build.py`) |
 
 ## 4分野共通の枠 → [`shared/`](shared/)
 

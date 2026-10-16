@@ -49,6 +49,10 @@ body{overflow:hidden}
 .ea-card{grid-column:span 2;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:236px;touch-action:manipulation;position:relative}
 .ea-card:hover{border-color:var(--accent)}
 .ea-card:nth-child(4){grid-column:2 / span 2}
+.ea-card:nth-child(4):last-child{grid-column:3 / span 2}
+.ea-card .ef-level-parts{display:block;font-size:14px}
+.ef-levels[data-ref="cards"]{padding:6px 32px 0}
+.ef-levels .ea-cards{padding:6px 0 24px}
 .ea-card:active{transform:translateY(2px)}
 .ea-card .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff}
 .ea-card .no{margin:0;font-size:14px}
@@ -110,6 +114,8 @@ body{overflow:hidden}
   .ea-hd .ef-title{font-size:20px}
   .ea-flow{padding:4px 16px 10px}
   .ea-cards{gap:12px;padding:6px 16px 20px}
+  .ef-levels[data-ref="cards"]{padding:6px 16px 0}
+  .ef-levels .ea-cards{padding:6px 0 20px}
   .ea-foot{padding:0 16px 20px}
   .ea-chip{padding:0 8px}
   .ea-hbody{padding:6px 16px 40px}
@@ -120,7 +126,7 @@ body{overflow:hidden}
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-card,.ea-card:nth-child(4){grid-column:auto}
+  .ea-card,.ea-card:nth-child(4),.ea-card:nth-child(4):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
 @media (max-height:720px){ .ea-card{min-height:200px} }
@@ -145,8 +151,8 @@ body{overflow:hidden}
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
       </div>
     </header>
-    <div class="ea-flow">おすすめの順番:<b>E1</b> エネルギー変換 → <b>E2</b> 電気回路 → <b>E3</b> <ruby>機構<rt>きこう</rt></ruby> → <b>E4</b> 保守点検 → <b>E5</b> 回路の設計</div>
-    <div class="ea-cards" data-ref="cards"></div>
+    <div class="ea-flow">基本編のおすすめの順番:<b>E1</b> エネルギー変換 → <b>E2</b> 電気回路 → <b>E3</b> <ruby>機構<rt>きこう</rt></ruby> → <b>E4</b> 保守点検 → <b>E5</b> 回路の設計</div>
+    <div data-ref="cards"></div>
     <div class="ea-foot">学習の記録はこの端末のブラウザに自動で保存されます。カードには進み具合が出ます。アプリの中では、上の「🏠 トップ」でここにもどれます。</div>
     <div data-ef-footer></div>
   </section>
@@ -268,17 +274,37 @@ function progressHtml(a, p) {
 }
 
 /* ---- 画面を組み立てる ---- */
+function cardHtml(a) {
+  var p = progressOf(a.id);
+  return '<button class="ea-card ef-card" data-open="' + a.id + '">' +
+    '<div class="top"><span class="ic" style="background:' + a.color + '">' + a.icon + '</span>' +
+    '<div><div class="no ef-card-tag">' + a.id + '</div><div class="nm ef-card-title">' + esc(a.name) + '</div></div></div>' +
+    '<div class="ds">' + esc(a.sub) + '</div>' +
+    '<div class="tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
+    '<span class="parts-slot"></span>' +
+    progressHtml(a, p) +
+    '<span class="go ef-btn-primary">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
+}
+/* 基本編・発展編のタブ(分け方は C-energy/eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js) */
+var levelTabs = null;
 function renderCards() {
-  refs.cards.innerHTML = APPS.map(function (a) {
-    var p = progressOf(a.id);
-    return '<button class="ea-card ef-card" data-open="' + a.id + '">' +
-      '<div class="top"><span class="ic" style="background:' + a.color + '">' + a.icon + '</span>' +
-      '<div><div class="no ef-card-tag">' + a.id + '</div><div class="nm ef-card-title">' + esc(a.name) + '</div></div></div>' +
-      '<div class="ds">' + esc(a.sub) + '</div>' +
-      '<div class="tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
-      progressHtml(a, p) +
-      '<span class="go ef-btn-primary">' + (p && p.n > 0 ? '▶ つづきから' : '▶ はじめる') + '</span></button>';
-  }).join('');
+  if (levelTabs) { levelTabs.render(); return; }
+  if (window.EduitFrame && EduitFrame.levels && window.EDUIT_INFO && EDUIT_INFO.levels) {
+    levelTabs = EduitFrame.levels(refs.cards, {
+      gridClass: 'ea-cards',
+      card: function (item, parts) {
+        var a = byId(item.id); if (!a) return null;
+        var box = document.createElement('div');
+        box.innerHTML = cardHtml(a);
+        var c = box.firstChild, slot = c.querySelector('.parts-slot');
+        if (parts) { var sp = document.createElement('span'); sp.className = 'ef-level-parts'; sp.innerHTML = parts.innerHTML; slot.parentNode.replaceChild(sp, slot); } else slot.remove();
+        return c;
+      }
+    });
+    return;
+  }
+  refs.cards.className = 'ea-cards';
+  refs.cards.innerHTML = APPS.map(cardHtml).join('').replace(/<span class="parts-slot"><\/span>/g, '');
 }
 refs.chips.innerHTML = APPS.map(function (a) {
   return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +

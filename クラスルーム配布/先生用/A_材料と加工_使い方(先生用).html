@@ -145,6 +145,31 @@
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
 /* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -389,14 +414,21 @@ window.EDUIT_INFO = {
   domain: 'A',
   domainName: '材料と加工の技術',
   suite: '材料と加工 教材アプリ',
-  version: '2.2',
-  updated: '2026-10-15',
+  version: '2.3',
+  updated: '2026-10-16',
   safety: [
     '「工具の使い方・安全トレーナー」は、作業前の確認と手順を覚えるためのものです。実際の工具の使い方は、必ず先生の説明と実技の指導を受けてから使ってください。',
     '材料の強さ・たわみ・収縮などの数値は、文献の代表値を丸めた目安です。実物の観察や実験と合わせて考えてください。',
     '作品や記録は IndexedDB(使えないときは localStorage)に保存されます。メニューの「保存したデータ」から、ファイルに書き出したり消したりできます。'
   ],
   history: [
+    {
+      version: '2.3', date: '2026-10-16',
+      items: [
+        'メニューを「基本編」「発展編」のタブに分けた: 学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(M3 の設計課題・M7 第三角法 立体メーカーなど)を発展編にした',
+        'カードの「使うところ」に、その編で使うタブの名前を出すようにした(作品や記録の保存のしかたは変わらない)'
+      ]
+    },
     {
       version: '2.2', date: '2026-10-15',
       items: [
@@ -428,6 +460,35 @@ window.EDUIT_INFO = {
   ]
 };
 
+/* 基本編・発展編(学習指導要領 技術分野「A 材料と加工の技術」と教科書の内容から分けたもの)
+ * メニュー(index.html)が EduitFrame.levels で使う。id は common/apps.js の id。
+ * parts は生徒の画面のタブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順にならんでいます。',
+    items: [
+      { id: 'material-navi', parts: ['材料カード', '条件設定', '比較結果', '理由を書く'], curr: 'A(1)ア・A(2)ア', why: '木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容' },
+      { id: 'wood-lab', parts: ['断面ビューア', '収縮ラボ', '反りの予測', '強度比較(繊維の向きと強さ)', '集成材・合板', 'まとめ・記録'], curr: 'A(1)ア', why: '柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本' },
+      { id: 'structure-lab', parts: ['梁(はり)', '枠と筋かい', '接合'], curr: 'A(1)イ', why: '断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本' },
+      { id: 'drawing-trainer', parts: ['三面図クイズ', '立体づくり', '三面図をかく', '等角図をかく', '線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
+      { id: 'kidori', parts: ['材料・部品', '木取り', '製作図', '強度', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
+      { id: 'tool-safety', parts: ['工具の手順', '作業前チェック', '危険を見つける', '手順ならべかえ', '実技の評価', '記録'], curr: 'A(2)イ', why: '工具の安全で正しい使い方は、製作の前に全員が身に付ける内容' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、計算・設計・新しい技術を使う内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'wood-lab', parts: ['強度比較(7つの力の数値くらべ)'], curr: 'A(1)ア(発展)', why: '力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容' },
+      { id: 'structure-lab', parts: ['梁(はり)の「くわしく見る(発展)」', '設計課題(安全率を考えて、軽くて丈夫な構造を設計する)'], curr: 'A(1)イ・A(2)ア(発展)', why: '応力・安全率・断面の数値を使う設計は、教科書では発展の扱い' },
+      { id: 'kidori', parts: ['木取りの歩留まり・材料費', '強度の「発展」'], curr: 'A(2)ア・A(3)イ(発展)', why: '材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容' },
+      { id: 'solid-maker', parts: ['三面図をかく(三面図から立体をつくる)', '立体を見る(3D)', '図面・印刷(寸法の入った図面)', 'ふりかえり'], curr: 'A(2)イ・A(3)イ(発展)', why: '三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術' }
+    ]
+  }
+};
+
 </script>
 <script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '使い方(先生用) 材料と加工 教材アプリ' };</script>
 <script>
@@ -449,7 +510,17 @@ window.EDUIT_INFO = {
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
  *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; } })
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
 (function () {
   'use strict';
@@ -569,7 +640,67 @@ window.EDUIT_INFO = {
     else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount };
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (c) grid.appendChild(c);
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -584,13 +715,13 @@ window.EDUIT_INFO = {
 </head>
 <body>
 <header class="g-header ef-header">
-  <a class="ef-btn ef-back g-home" href="../生徒に配る/A_材料と加工_教材アプリ.html">◀ メニュー</a>
+  <a class="ef-btn ef-back g-home" href="../生徒に配る/A_材料と加工_統一版.html">◀ メニュー</a>
   <p class="ef-title g-title">使い方(先生用)</p>
 </header>
 <main>
   <h1>材料と加工 教材アプリ 使い方(先生用)</h1>
   <p class="g-muted">技術分野「材料と加工の技術」の授業で使う、オフラインで動く7つの学習アプリと、先生用の提出ファイル一覧ビューアです。10インチの Chromebook(1280×800)で使いやすいように作っています。</p>
-  <p class="go"><a class="btn primary" href="../生徒に配る/A_材料と加工_教材アプリ.html">アプリのメニューを開く ▶</a></p>
+  <p class="go"><a class="btn primary" href="../生徒に配る/A_材料と加工_統一版.html">アプリのメニューを開く ▶</a></p>
 
   <section class="card">
     <h2>1. 開き方</h2>
@@ -609,7 +740,7 @@ window.EDUIT_INFO = {
     </ol>
     <h3>C. 1つのファイルで配る方法(1ファイル版)</h3>
     <ol>
-      <li><code>A-materials/dist/材料と加工_教材アプリ.html</code> は、メニュー・6つのアプリ・先生用ビューア・この使い方を1つにまとめたファイルです。</li>
+      <li><code>A-materials/dist/材料と加工_教材アプリ.html</code> は、メニュー・7つのアプリ・先生用ビューア・この使い方を1つにまとめたファイル(統一版)です。クラスルーム配布用のフォルダでは <code>A_材料と加工_統一版.html</code> という名前です。</li>
       <li>Classroom などでこのファイル1つを配り、生徒は端末にダウンロードしてからダブルクリックで開きます。</li>
     </ol>
     <p class="g-muted">1ファイル版でできないこと: アプリとしてのインストール(B の方法)と、ネットから新しい版を自動で受け取ることはできません。直したときは、新しいファイルを配り直してください。
@@ -618,6 +749,7 @@ window.EDUIT_INFO = {
 
   <section class="card">
     <h2>2. アプリの一覧</h2>
+    <p>メニューのアプリは「基本編」「発展編」のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶタブを基本編、教科書の「発展」「コラム」にあたるタブ(M3 の設計課題、M7 第三角法 立体メーカーなど)を発展編にしています。1つのアプリが両方に出ることもあり、カードの「使うところ」にその編で使うタブの名前が出ます。一覧は <code>クラスルーム配布/先生用/全分野_基本編と発展編(先生用).html</code> にあります。</p>
     <div class="g-table-wrap"><table class="g-table">
       <thead><tr><th>アプリ</th><th>主な内容</th></tr></thead>
       <tbody>
