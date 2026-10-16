@@ -60,7 +60,7 @@ for n in range(1, 6):
     for i, code in enumerate(js):
         is_last = i == len(js) - 1
         if not is_last:
-            # 共有コア(回路コア・機構コア・E4データ)は1回だけ入れる
+            # 共有コア(回路コア・機構コア・C4データ)は1回だけ入れる
             if code in seen_cores:
                 continue
             seen_cores.add(code)
