@@ -24,14 +24,13 @@ html,body{margin:0;height:100%;background:var(--ef-bg);}
 body{overflow:hidden}
 .ea{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent);
   font-family:var(--ef-font);
-  color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:16px}
+  color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:calc(16px * var(--ea-fs, 1))}
 .ea *{box-sizing:border-box}
 .ea-view{flex:1;min-height:0;display:none;flex-direction:column}
 .ea-view.on{display:flex}
-/* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。文字の大きさは画面ごと拡大する(各アプリの文字は px で決めてあるため) */
+/* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。
+ * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
 .ea-noruby rt,.ea-noruby rp{display:none}
-.ea-pane>div,.ea-home>[data-ref="cards"],.ea-home>.ea-foot,.ea-hbody{zoom:var(--ea-z,1)}
-.ea-pane>div{height:calc(100% / var(--ea-z,1))}
 .ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
 .ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
@@ -47,26 +46,26 @@ body{overflow:hidden}
 .ea-hd{padding:6px 32px;flex:none}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
-.ea-hbody rt{font-size:12px}
+.ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
 /* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
 .ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
 .ea-cards>.ef-mcard:hover{border-color:var(--accent)}
 .ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
 .ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
-.ea-cards .ef-level-parts{display:block;font-size:14px}
+.ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
-.ea-cards .ef-mcard-desc{font-size:15px;color:var(--sub);line-height:1.5}
+.ea-cards .ef-mcard-desc{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.5}
 .ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
 .ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
-.ea-card-tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
-.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
-.ea-pg b{font-size:15px;color:var(--ink)}
+.ea-card-tg span{font-size:calc(13px * var(--ea-fs, 1));background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
+.ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
 .ea-pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .ea-pg .bar i{display:block;height:100%;border-radius:999px}
-.ea-pg .s2{font-size:13px;color:var(--sub)}
-.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:13px}
+.ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
+.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
@@ -85,7 +84,7 @@ body{overflow:hidden}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
 .ea-pane>div{height:100%}
-.ea-err{padding:30px;font-size:18px}
+.ea-err{padding:30px;font-size:calc(18px * var(--ea-fs, 1))}
 
 /* --- 使い方 --- */
 .ea-help{background:var(--ef-bg)}
@@ -93,21 +92,21 @@ body{overflow:hidden}
 .ea-help .bar h2{margin:0;font-size:20px;flex:1;white-space:nowrap}
 .ea-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .ea-tabs .ea-btn.on{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
-.ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:16.5px;-webkit-overflow-scrolling:touch}
-.ea-hbody h3{font-size:19px;margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
+.ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:calc(16.5px * var(--ea-fs, 1));-webkit-overflow-scrolling:touch}
+.ea-hbody h3{font-size:calc(19px * var(--ea-fs, 1));margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
 .ea-hbody li{margin:3px 0}
 .ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
-.ea-hcard h4{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
-.ea-hcard p{margin:4px 0;font-size:15px;line-height:1.6}
+.ea-hcard h4{margin:0 0 4px;font-size:calc(17px * var(--ea-fs, 1));display:flex;align-items:center;gap:8px}
+.ea-hcard p{margin:4px 0;font-size:calc(15px * var(--ea-fs, 1));line-height:1.6}
 .ea-hic{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
 .ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
 .ea-tbl{border-collapse:collapse;background:#fff}
-.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:15px;vertical-align:top}
+.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:calc(15px * var(--ea-fs, 1));vertical-align:top}
 .ea-tbl th{background:var(--ef-surface-2)}
 .ea-tools{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.ea-note{color:var(--sub);font-size:14px}
+.ea-note{color:var(--sub);font-size:calc(14px * var(--ea-fs, 1))}
 .ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;display:none}
 
 @media (max-width:900px){
@@ -231,19 +230,19 @@ if (window.EduitFrame) {
   $('[data-ref="about"]').appendChild(ab);
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
-/* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, z }) ---- */
-var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, z: 1 }, sizeUpds = [];
-try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.z > 0) prefs.z = +p0.z; } catch (e) {}
+/* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, fs }) ---- */
+var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, fs: 1 }, sizeUpds = [];
+try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
 function applyPrefs() {
   document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
-  document.documentElement.style.setProperty('--ea-z', String(prefs.z));
+  document.documentElement.style.setProperty('--ea-fs', String(prefs.fs));
   root.querySelectorAll('[data-ea="ruby"]').forEach(function (b) { b.setAttribute('aria-pressed', prefs.ruby ? 'true' : 'false'); });
   sizeUpds.forEach(function (f) { f(); });
   try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {}
   window.dispatchEvent(new Event('resize'));  // 図をかき直すアプリのため
 }
 if (window.EduitFrame && EduitFrame.sizeButton) root.querySelectorAll('[data-ea-size]').forEach(function (b) {
-  sizeUpds.push(EduitFrame.sizeButton(b, { steps: [[1, '中'], [1.15, '大'], [1.3, '特大']], get: function () { return prefs.z; }, set: function (v) { prefs.z = v; applyPrefs(); } }));
+  sizeUpds.push(EduitFrame.sizeButton(b, { steps: [[0.9, '小'], [1, '中'], [1.2, '大'], [1.4, '特大']], get: function () { return prefs.fs; }, set: function (v) { prefs.fs = v; applyPrefs(); } }));
 });
 applyPrefs();
 var mounted = {}, cur = null, fromHome = false, helpPushed = false, lastView = 'home';
