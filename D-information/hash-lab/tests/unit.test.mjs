@@ -59,3 +59,8 @@ test("クイズ: 正解の番号が選択肢の中にあり、位置がばらば
   assert.ok(new Set(D.quiz.map((q) => q.c)).size >= 3);
   assert.deepEqual(D.reflQ.map((r) => r.id), ["r1", "r2", "r3"]);
 });
+test("クイズ: いちばん長い選択肢を選べば正解、にならない(正解だけがいちばん長い問題は4割以下)", () => {
+  const len = (s) => [...s].length;
+  const hits = D.quiz.filter((q) => q.a.every((t, i) => i === q.c || len(q.a[q.c]) > len(t)));
+  assert.ok(hits.length / D.quiz.length <= 0.4, `正解だけがいちばん長い問題 ${hits.length}/${D.quiz.length}`);
+});
