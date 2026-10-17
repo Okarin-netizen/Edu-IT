@@ -647,7 +647,7 @@
   }
   function design(id) {
     var d = S.challenge.designs[id];
-    return d && Challenge.MATERIALS.indexOf(d.material) >= 0 ? d : { material: 'sugi', t: 24, ribs: 0 };
+    return d && Challenge.MATERIALS.indexOf(d.material) >= 0 ? d : { material: 'sugi', t: 9, ribs: 0 };
   }
   function bestStars(id) {
     return S.challenge.log.reduce(function (m, e) { return e.level === id ? Math.max(m, e.stars || 0) : m; }, 0);
@@ -664,7 +664,16 @@
     var c = $('#lv-conds'); c.innerHTML = '';
     c.appendChild(h('li', null, 'たわみ ' + lv.maxDeflection + 'mm 以下'));
     c.appendChild(h('li', null, '強さの余裕:安全率 ' + lv.minSafety + ' 以上(こわれにくさに' + lv.minSafety + '倍の余裕。「○ 余裕あり」になればよい)'));
+    if (lv.maxT) c.appendChild(h('li', null, '板の厚みは ' + lv.maxT + 'mm まで'));
+    if (Challenge.maxRibs(lv) === 0) c.appendChild(h('li', null, 'リブは付けない'));
     c.appendChild(h('li', null, 'そのうえで、できるだけ軽く(材料を少なく)する。軽いほど星がふえる。'));
+    // その課題で使えない厚み・リブの本数はえらべないようにする
+    var okT = Challenge.allowedThickness(lv), mr = Challenge.maxRibs(lv);
+    $$('#c-t option').forEach(function (o) { o.disabled = okT.indexOf(+o.value) < 0; });
+    $$('#c-ribs option').forEach(function (o) { o.disabled = +o.value > mr; });
+    if (okT.indexOf(ds.t) < 0) ds = { material: ds.material, t: okT[okT.length - 1], ribs: ds.ribs };
+    if (ds.ribs > mr) ds = { material: ds.material, t: ds.t, ribs: mr };
+    if (S.challenge.designs[lv.id]) S.challenge.designs[lv.id] = ds;
     $('#c-material').value = ds.material; $('#c-t').value = String(ds.t); $('#c-ribs').value = String(ds.ribs);
 
     var ev = Challenge.evaluate(lv, ds);

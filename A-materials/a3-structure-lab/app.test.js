@@ -49,6 +49,18 @@ test('レベル1: スギ15mmは合格、スギ6mmは不合格', () => {
   assert.equal(Challenge.stars(lv, Challenge.evaluate(lv, { material: 'sugi', t: 6, ribs: 0 })), 0);
 });
 
+test('課題ごとにいちばん軽い答えがちがい、はじめの設計(スギ9mm リブなし)ではどの課題も合格しない', () => {
+  const keys = Challenge.LEVELS.map(lv => { const b = Challenge.best(lv); return b.material + ':' + b.t + ':' + b.ribs; });
+  assert.equal(new Set(keys).size, Challenge.LEVELS.length, keys.join(' / '));
+  Challenge.LEVELS.forEach(lv => assert.equal(Challenge.evaluate(lv, { material: 'sugi', t: 9, ribs: 0 }).pass, false, lv.id));
+});
+
+test('課題の条件(リブの本数・厚みの上限)を守らない設計は合格しない', () => {
+  assert.equal(Challenge.evaluate(Challenge.level('lv2'), { material: 'sugi', t: 15, ribs: 1 }).pass, false);
+  assert.equal(Challenge.evaluate(Challenge.level('lv2'), { material: 'sugi', t: 15, ribs: 0 }).pass, true);
+  assert.equal(Challenge.evaluate(Challenge.level('lv3'), { material: 'sugi', t: 30, ribs: 3 }).pass, false);
+});
+
 test('課題の入力が不正でも例外を投げない', () => {
   const lv = Challenge.level('lv1');
   assert.equal(Challenge.evaluate(lv, { material: 'sugi', t: 0, ribs: 0 }).ok, false);
