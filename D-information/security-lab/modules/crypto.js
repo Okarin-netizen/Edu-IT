@@ -1,6 +1,6 @@
 // モジュール③: 暗号ラボ（シーザー暗号 → 総当たり → 頻度分析 ｜2回目｜ ヴィジュネル暗号 → 鍵の受け渡し → 素因数分解 → 発展: 公開鍵暗号RSA）
 // 2回の授業に分ける前提（1回目: ステップ1〜3、2回目: ステップ4〜）。RSA の計算は「発展」で、やらなくても完了になる。
-import { h, explainCard, stepCard, reflectionBox, choiceQuiz } from "../js/ui.js";
+import { h, explainCard, stepCard, reflectionBox, choiceQuiz, furikaeriOn } from "../js/ui.js";
 import { loadData } from "../js/data.js";
 import { caesar, vigenere, letterCounts, guessCaesarShift, rsaKeygen, rsaEncrypt, rsaDecrypt, freqHint, judgeFactor } from "../js/cryptolib.js";
 
@@ -301,7 +301,7 @@ export const cryptoModule = {
         h("div", { class: "math-line" }, "もどす: 143 ＝ ？ × ？ …… どの数でわればいい？"),
         factorChallenge(() => c.done()),
         explainCard("なぜ安全なの？", "けたが増えると、わり切れる数を探すのはどんどん大変になります。実際に使われる n は600けた以上もあり、今のコンピュータでも現実的な時間では分解できません。だから、n を公開しても安全なのです。"),
-        h("p", { class: "hint" }, "時間がある人は、ふりかえりのあとの「発展」で、RSA の計算をたどってみよう。"),
+        h("p", { class: "hint" }, `時間がある人は、${furikaeriOn() ? "ふりかえりのあと" : "このページのさいご"}の「発展」で、RSA の計算をたどってみよう。`),
       );
     }
 

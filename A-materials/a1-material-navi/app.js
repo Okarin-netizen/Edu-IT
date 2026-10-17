@@ -482,7 +482,7 @@
     const useName = (DATA.uses.find(u => u.id === state.useId) || {}).name || '';
     const snap = KEYS.filter(k => state.weights[k]).map(k => plain(propLabel(k)) + state.weights[k]).join('、');
     el.innerHTML =
-      '<h2>' + rb('{理由|りゆう}を{書|か}こう(ふりかえり)') + '</h2>' +
+      '<h2>' + rb('{理由|りゆう}を{書|か}こう') + '<span data-ef-reflect>' + rb('(ふりかえり)') + '</span></h2>' +
       '<p class="lead">' + rb('{点数|てんすう}が1{位|い}の{材料|ざいりょう}を{選|えら}ばなくてもよい。{条件|じょうけん}と{材料|ざいりょう}の{性質|せいしつ}を{結|むす}びつけて、{自分|じぶん}の{言葉|ことば}で{説明|せつめい}しよう。') + '</p>' +
       '<div class="snapshot">' + rb('いまの{条件|じょうけん}: ') + (useName ? rb(useName) + ' / ' : '') + esc(snap || '(重みなし)') +
       (r.length ? ' / ' + rb('1{位|い}: ') + rb(r[0].m.name) : '') + '</div>' +

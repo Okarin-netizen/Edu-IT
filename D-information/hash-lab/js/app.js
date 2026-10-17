@@ -3,6 +3,10 @@
   'use strict';
   var D = HashData, HL = HashLab;
   var APP = 'ハッシュ化体験ラボ';
+  // 振り返りを隠す設定(先生用。shared/eduit-frame.js)。隠すときは、⑦の振り返り欄・記録の振り返りを出さない
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
+  var T_QUIZ = FK_OFF ? 'クイズ' : 'クイズとふりかえり';
+  var T_REC = FK_OFF ? '記録' : 'ふりかえり・記録';
 
   if (window.EDUIT_INFO) {
     EDUIT_INFO.app = EDUIT_INFO.app || { name: APP };
@@ -91,6 +95,8 @@
     var kids = Array.prototype.slice.call(arguments, 1);
     return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
   }
+  // 振り返りを隠す設定のとき出さない要素の印
+  function reflectOnly(e) { e.setAttribute('data-ef-reflect', ''); return e; }
   function segmented(options, value, onChange, label) {
     return h('div', { class: 'seg', role: 'group', 'aria-label': label },
       options.map(function (o) {
@@ -167,8 +173,8 @@
     { id: 'oneway', group: 'ハッシュ関数の性質', no: '4', min: '15分', title: 'もとにもどせる？', desc: 'ハッシュ値から暗証番号を当てる。総当たりにかかる時間を調べる', render: renderOneway },
     { id: 'password', group: 'くらしの中のハッシュ', no: '5', min: '15分', title: 'パスワードの守り方', desc: 'サイトはパスワードをどう保存する？ もれたときに何が起きる？', render: renderPassword },
     { id: 'tamper', group: 'くらしの中のハッシュ', no: '6', min: '10分', title: '改ざんを見つける', desc: 'ハッシュ値をくらべて、書きかえられたファイルを見分ける', render: renderTamper },
-    { id: 'quiz', group: 'まとめ', no: '7', min: '10分', title: 'クイズとふりかえり', desc: 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
-    { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
+    { id: 'quiz', group: 'まとめ', no: '7', min: '10分', title: T_QUIZ, recTitle: 'クイズとふりかえり', desc: FK_OFF ? 'クイズで体験をたしかめる' : 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'records', group: '記録する', no: '', icon: '✎', title: T_REC, render: renderRecordsPage }
   ];
   // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
   SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
@@ -313,15 +319,15 @@
         h('ol', null,
           h('li', { text: '①〜④でハッシュ関数の性質を体験する(各ステップの「チャレンジ」に取り組もう)' }),
           h('li', { text: '⑤・⑥でパスワードの保存と、改ざんの見つけ方を体験する' }),
-          h('li', { text: '⑦でクイズとふりかえりを書く' }),
-          h('li', null, h('a', { href: '#records', text: 'ふりかえり・記録' }), 'からファイルを書き出して提出する')),
+          h('li', { text: FK_OFF ? '⑦でクイズに答える' : '⑦でクイズとふりかえりを書く' }),
+          h('li', null, h('a', { href: '#records', text: T_REC }), 'からファイルを書き出して提出する')),
         h('div', { class: 'lesson-plan' },
           h('h3', { text: '授業で行うときの例' }),
           h('ul', null,
             h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① ハッシュ値を作る・② 1文字だけ変える・③ 手作りハッシュ・④ もとにもどせる？」'),
-            h('li', null, h('strong', { text: '2時間目' }), '「⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ クイズとふりかえり」'),
+            h('li', null, h('strong', { text: '2時間目' }), '「⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ ' + T_QUIZ + '」'),
             h('li', null, h('strong', { text: '1時間で行うとき' }), 'は、①・②・④・⑤・⑦ を中心にする')),
-          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「ふりかえり・記録」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
+          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「' + T_REC + '」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
       h('section', { class: 'module-group' },
         h('h2', { text: 'ステップ' }),
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
@@ -785,14 +791,14 @@
 
     var refl = saved.refl || {};
     var status = h('p', { class: 'muted', 'aria-live': 'polite', text: '書いた内容は、この端末のブラウザの中だけに保存されます。' });
-    el.appendChild(card('ふりかえり', D.reflQ.map(function (r) {
+    el.appendChild(reflectOnly(card('ふりかえり', D.reflQ.map(function (r) {
       var ta = h('textarea', { id: 'refl-' + r.id, class: 'input', rows: 3, maxlength: '800' });
       ta.value = refl[r.id] || '';
       ta.addEventListener('input', function () { refl[r.id] = ta.value; save('refl', refl); status.textContent = '保存しました(この端末の中だけ)。'; });
       return h('label', { class: 'refl' }, h('span', { class: 'ctl-label', text: r.label }), ta);
-    }), status));
+    }), status)));
 
-    el.appendChild(h('p', { class: 'hint' }, '書きおわったら、', h('a', { href: '#records', text: 'ふりかえり・記録' }), 'でファイルに書き出して先生に出そう。'));
+    el.appendChild(h('p', { class: 'hint', 'data-ef-reflect': '' }, '書きおわったら、', h('a', { href: '#records', text: T_REC }), 'でファイルに書き出して先生に出そう。'));
   }
 
   // ---- 記録の書き出し(端末の中でファイルを作るだけ。送信はしない) ----
@@ -805,7 +811,7 @@
       app: APP,
       exportedAt: new Date().toISOString(),
       student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
-      steps: STEP_SECTIONS.map(function (x) { return { no: x.label, title: x.title, opened: !!visited[x.id] }; }),
+      steps: STEP_SECTIONS.map(function (x) { return { no: x.label, title: x.recTitle || x.title, opened: !!visited[x.id] }; }),
       challenges: MISSIONS.map(function (m) {
         var sec = SECTIONS.filter(function (x) { return x.id === m.step; })[0];
         return { id: m.id, no: sec.label, title: m.title, cleared: !!ms[m.id], at: (ms[m.id] || {}).at || '' };
@@ -891,12 +897,12 @@
     var refl = saved.refl || {};
     append(el, [
       h('div', { class: 'module-head' },
-        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
-        h('p', { class: 'meta', text: '進み具合・チャレンジ・ふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+        h('h1', { class: 'sec-title', text: T_REC }),
+        h('p', { class: 'meta', text: (FK_OFF ? '進み具合・チャレンジ' : '進み具合・チャレンジ・ふりかえり') + 'は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
       card('名前',
         h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
         h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
-      card('進み具合とふりかえり',
+      card(FK_OFF ? '進み具合' : '進み具合とふりかえり',
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: 'ステップ' }), h('th', { text: 'ひらいた' }), h('th', { text: 'チャレンジ・記録' }))),
           h('tbody', null, STEP_SECTIONS.map(function (x) {
@@ -904,10 +910,10 @@
             var rec = m ? (cleared(m.id) ? '✓ 達成' : 'まだ') : (r.quiz.answered ? 'クイズ ' + r.quiz.correct + ' / ' + r.quiz.total + ' 問正解' : '');
             return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: rec }));
           })))),
-        h('ul', { class: 'refl-list' }, D.reflQ.map(function (q, i) {
+        h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, D.reflQ.map(function (q, i) {
           return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + '(' + q.short + '): ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '⑦ クイズとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted', 'data-ef-reflect': '' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '⑦ クイズとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

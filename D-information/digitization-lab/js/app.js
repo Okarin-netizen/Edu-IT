@@ -1,6 +1,6 @@
 // アプリ本体: 章ナビ、ルーティング、進捗表示、文字の大きさの切りかえ
 import { store } from "./store.js";
-import { h, explainCard, flushReflections } from "./ui.js";
+import { h, explainCard, flushReflections, furikaeriOn, REFLECT_ATTR } from "./ui.js";
 import { CATALOG, moduleProgress } from "./catalog.js";
 import { renderRecords } from "./records.js";
 
@@ -27,9 +27,12 @@ function renderNav(currentId) {
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "体験する"));
   for (const c of CATALOG) ol.append(link(`#/${c.id}`, c.num, c.title, c.id, moduleProgress(c).complete));
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", recordsTitle(), "records", false));
   nav.replaceChildren(h("nav", { "aria-label": "章ナビゲーション" }, ol));
 }
+
+// 「ふりかえり・記録」のページの名前（振り返りを隠す設定のときは「記録」）
+const recordsTitle = () => (furikaeriOn() ? "ふりかえり・記録" : "記録");
 
 function renderOverall() {
   const all = CATALOG.map(moduleProgress);
@@ -101,7 +104,7 @@ function renderHome() {
       "section",
       { class: "card" },
       h("h2", {}, "すすめ方"),
-      h("ol", {}, h("li", {}, "①〜③のモジュールを順に体験し、それぞれのふりかえりを書く"), h("li", {}, "④の計算ドリルで、データ量の計算を練習する"), h("li", {}, "⑤の圧縮のしくみは発展。先生に言われたときや、早く終わったときに取り組む"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する")),
+      h("ol", {}, h("li", {}, "①〜③のモジュールを順に体験する", h("span", REFLECT_ATTR, "。それぞれのふりかえりを書く")), h("li", {}, "④の計算ドリルで、データ量の計算を練習する"), h("li", {}, "⑤の圧縮のしくみは発展。先生に言われたときや、早く終わったときに取り組む"), h("li", {}, h("a", { href: "#/records" }, recordsTitle()), "からファイルを書き出して提出する")),
       h(
         "div",
         { class: "lesson-plan" },
@@ -110,10 +113,10 @@ function renderHome() {
           "ul",
           {},
           h("li", {}, h("strong", {}, "1時間目"), "「はじめに・① 画像・② 音」"),
-          h("li", {}, h("strong", {}, "2時間目"), "「③ 2進数・④ ドリル・ふりかえり・記録」"),
+          h("li", {}, h("strong", {}, "2時間目"), `「③ 2進数・④ ドリル・${recordsTitle()}」`),
           h("li", {}, h("strong", {}, "⑤ 圧縮（発展）"), "は、早く終わった人や、次の時間に使う"),
         ),
-        h("p", { class: "hint" }, "時間の終わりには、ふりかえりを書いてから次へ進もう。"),
+        h("p", { class: "hint", ...REFLECT_ATTR }, "時間の終わりには、ふりかえりを書いてから次へ進もう。"),
       ),
     ),
     h("section", { class: "module-group" }, h("h2", {}, "モジュール"), h("div", { class: "module-grid" }, cards)),
@@ -132,7 +135,7 @@ async function renderModule(entry, stepId) {
     "div",
     { class: "btn-row" },
     prev ? h("a", { class: "btn secondary", href: `#/${prev.id}` }, "← 前のモジュール") : null,
-    next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, "ふりかえり・記録へ →"),
+    next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, `${recordsTitle()}へ →`),
   );
   await m.render(root);
   view.append(navRow);
@@ -152,7 +155,7 @@ async function route() {
   if (entry) await renderModule(entry, step);
   else if (id === "records") renderRecords(view, CATALOG);
   else renderHome();
-  document.title = `${entry ? entry.title : id === "records" ? "ふりかえり・記録" : "はじめに"} | デジタル化ラボ`;
+  document.title = `${entry ? entry.title : id === "records" ? recordsTitle() : "はじめに"} | デジタル化ラボ`;
   if (!step) view.focus({ preventScroll: true });
 }
 

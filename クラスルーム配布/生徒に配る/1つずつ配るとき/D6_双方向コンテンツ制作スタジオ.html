@@ -192,6 +192,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -873,8 +876,8 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -884,12 +887,16 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
         '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
         'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。',
-        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。'
+        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。',
+        '生成AIのしくみラボの「③ クイズとふりかえり」のクイズを、基本編の内容(もっともらしいまちがい・個人情報・使うときのルール)だけの6問にしました。'
       ] },
       { version: '1.6', date: '2026-10-16', items: [
         '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
@@ -983,7 +990,7 @@ window.EDUIT_INFO.levels = {
  *   version: '2.1', updated: '2026-10-15',
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
- *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
@@ -992,6 +999,13 @@ window.EDUIT_INFO.levels = {
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
@@ -1009,6 +1023,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -1226,7 +1259,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -4422,6 +4455,11 @@ function gotoLine(line) {
 }
 let pendingLine = 0;
 
+// 振り返りを隠す設定（先生用。shared/eduit-frame.js）。隠すときは、記録の画面の振り返り欄と表の振り返りの列を出さない
+const FK_OFF = Boolean(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+const T_REC = FK_OFF ? "記録" : "ふりかえり・記録";
+const MEMO_OR_REFL = FK_OFF ? "企画・改善メモ" : "企画・改善メモか、ふりかえり";
+
 // ---- 画面のわく ----
 const TABS = [
   { id: "works", label: "作品" },
@@ -4430,7 +4468,7 @@ const TABS = [
   { id: "debug", label: "デバッグ" },
   { id: "server", label: "サーバー", mark: "▦" },
   { id: "help", label: "ヘルプ", mark: "?" },
-  { id: "records", label: "ふりかえり・記録", mark: "✎" },
+  { id: "records", label: T_REC, mark: "✎" },
 ];
 
 // 左メニュー（ほかの教材と同じ形）
@@ -5362,7 +5400,7 @@ function viewDebug() {
     ),
     nextHere("思いどおりに動いたら、友だちに使ってもらい、集まったデータを見よう。", [
       ["#/server", "サーバーのデータを見る →"],
-      ["#/records", "ふりかえり・記録 →", "（サーバーを使わない作品）"],
+      ["#/records", `${T_REC} →`, "（サーバーを使わない作品）"],
     ]),
   );
   if (!["running", "paused", "waiting", "listening"].includes(run.state)) stage.setParts(work.ui);
@@ -5465,7 +5503,7 @@ function viewServer() {
     body,
     nextHere("改善点が見つかったら、エディタで直そう。直したら、もう一度動かして確かめよう。", [
       ["#/editor", "エディタへ →"],
-      ["#/records", "ふりかえり・記録 →"],
+      ["#/records", `${T_REC} →`],
     ]),
   );
 }
@@ -5599,11 +5637,11 @@ function viewRecords() {
               h("td", {}, w.title),
               h("td", {}, [w.plan.who, w.plan.problem].filter(Boolean).join("／") || "—"),
               h("td", {}, w.plan.improve || "—"),
-              h("td", {}, w.plan.reflect || "—"),
+              h("td", { "data-ef-reflect": "" }, w.plan.reflect || "—"),
               h("td", { class: "nowrap" }, serverCommands(w.code).length ? "あり" : "なし"),
             ),
           )
-        : [h("tr", {}, h("td", { colspan: "5", class: "hint" }, "まだありません。作品タブの「企画・改善メモ」か、上のふりかえりを書こう。"))]),
+        : [h("tr", {}, h("td", { colspan: FK_OFF ? "4" : "5", class: "hint" }, FK_OFF ? "まだありません。作品タブの「企画・改善メモ」を書こう。" : "まだありません。作品タブの「企画・改善メモ」か、上のふりかえりを書こう。"))]),
     );
   };
   drawTable();
@@ -5628,7 +5666,7 @@ function viewRecords() {
       return false;
     }
     if (!rows().length) {
-      say("まだ書き出す作品がありません。企画・改善メモか、ふりかえりを書こう", "warn");
+      say(`まだ書き出す作品がありません。${MEMO_OR_REFL}を書こう`, "warn");
       return false;
     }
     return true;
@@ -5651,11 +5689,11 @@ function viewRecords() {
   };
 
   view.append(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "module-head" }, h("h1", {}, T_REC), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
     card(h("h2", {}, "名前"), h("div", { class: "field-row" }, fields), h("p", { class: "hint" }, "名前は書き出したファイルに入ります。この端末にも残るので、みんなで使う端末では、最後に「この端末の記録をすべて消す」を押します。")),
     h(
       "section",
-      { class: "card reflection" },
+      { class: "card reflection", "data-ef-reflect": "" },
       h("h2", {}, `ふりかえり：${work.title}`),
       h("label", { for: "reflect-work" }, "この作品で、使う人とのやりとり（双方向性）をどう工夫した？ サーバーとのやりとり（通信）を、どこでどう使った？ 使ってもらって分かったことは？"),
       h("div", { class: "hint" }, "作品タブの「企画・改善メモ」とあわせて、学んだことを自分の言葉でまとめよう。別の作品のふりかえりは、作品タブで作品を切りかえてから書きます。"),
@@ -5666,11 +5704,11 @@ function viewRecords() {
     ),
     card(
       h("h2", {}, "作品ごとの記録"),
-      h("p", { class: "hint" }, "表と書き出すファイルに入るのは、企画・改善メモかふりかえりを書いた作品と、自分で作りかえた作品です（さわっただけの見本は入りません）。「サーバー」は、server の命令が入っているかどうかです。"),
+      h("p", { class: "hint" }, `表と書き出すファイルに入るのは、${FK_OFF ? "企画・改善メモ" : "企画・改善メモかふりかえり"}を書いた作品と、自分で作りかえた作品です（さわっただけの見本は入りません）。「サーバー」は、server の命令が入っているかどうかです。`),
       h(
         "div",
         { class: "table-wrap" },
-        h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "作品"), h("th", {}, "だれの・どんな問題"), h("th", {}, "直したこと"), h("th", {}, "ふりかえり"), h("th", {}, "サーバー"))), tbody),
+        h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "作品"), h("th", {}, "だれの・どんな問題"), h("th", {}, "直したこと"), h("th", { "data-ef-reflect": "" }, "ふりかえり"), h("th", {}, "サーバー"))), tbody),
       ),
       h("p", { class: "hint hand-in" }, "先生に出すのは JSON のファイルです（CSV は、表計算ソフトで見るときに使います）。"),
       h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "記録を書き出す（JSON）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す"), exportNote),

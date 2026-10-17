@@ -115,6 +115,22 @@ copy(repo / "teacher-tools/furikaeri-ichiran/dist/振り返り一覧.html", teac
 subprocess.run([sys.executable, str(repo / "teacher-tools/kihon-hatten/build.py")], check=True)
 copy(repo / "teacher-tools/kihon-hatten/dist/基本編と発展編.html", teacher / TEACHER["kihon"])
 
+# ---- 振り返りなし(生徒に配るものと同じ中身で、振り返りのタブ・欄・印を出さない版) ----
+# 振り返りを Google フォームなど別の方法で集めるときに配る。<head> のすぐあとに window.EDUIT_FURIKAERI = 'off' を入れるだけ
+# (shared/eduit-frame.js がこれを見て <html data-ef-furikaeri="off"> にする。iframe の中の教材も親の設定を引きつぐ)
+nofk = student / "振り返りなし"
+FK_TAG = "<script>window.EDUIT_FURIKAERI = 'off';</script>"
+for p in sorted(student.rglob("*.html")):
+    if nofk in p.parents:
+        continue
+    html = p.read_text(encoding="utf-8")
+    m = re.search(r"<head[^>]*>", html)
+    if not m or m.start() > 2000 or "window.EduitFrame" not in html:
+        raise SystemExit(f"{p}: 振り返りなし版を作れません(<head> か共通の枠が見つからない)")
+    out = nofk / p.relative_to(student)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(html[:m.end()] + FK_TAG + html[m.end():], encoding="utf-8")
+
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):
         print(f"{p.relative_to(here)}  ({p.stat().st_size // 1024} KB)")

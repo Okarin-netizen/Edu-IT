@@ -366,8 +366,11 @@
     };
     const status = DATA.materials.map((m) => {
       const s = summarize(m);
-      const bits = [s.reflections.length ? `ふりかえり ${s.reflections.length}` : "", s.progress.length ? `進み具合 ${s.progress.length}こ` : ""].filter(Boolean).join("・");
-      return h("li", { class: s.hasRecord ? "has" : "none" }, h("span", { class: "mark", "aria-hidden": "true" }, s.hasRecord ? "✓" : "—"), h("span", {}, `${m.code} ${m.title}: `, s.hasRecord ? `記録あり（${bits || "名前だけ"}）` : "まだ記録なし"));
+      // 振り返りを隠す設定のときは、ふりかえりの数を出さない（書き出すファイルには、いままでどおり入る）
+      const fkOff = Boolean(window.EduitFrame && EduitFrame.furikaeri === false);
+      const bits = [s.reflections.length && !fkOff ? `ふりかえり ${s.reflections.length}` : "", s.progress.length ? `進み具合 ${s.progress.length}こ` : ""].filter(Boolean).join("・");
+      const what = bits ? `記録あり（${bits}）` : fkOff && s.reflections.length ? "記録あり" : "記録あり（名前だけ）";
+      return h("li", { class: s.hasRecord ? "has" : "none" }, h("span", { class: "mark", "aria-hidden": "true" }, s.hasRecord ? "✓" : "—"), h("span", {}, `${m.code} ${m.title}: `, s.hasRecord ? what : "まだ記録なし"));
     });
     const run = (ext) => {
       const missing = ["cls", "num"].filter((k) => !st[k]);
@@ -390,7 +393,7 @@
       "section",
       { class: "note export", "aria-labelledby": "g-export" },
       h("h2", { id: "g-export" }, "記録をまとめて書き出す"),
-      h("p", {}, `${DATA.materials.length}つの教材の記録（進み具合・ふりかえりなど）を、1つのファイルにまとめて書き出します。組・番号・名前は、ここで1回入れればよいです。`),
+      h("p", {}, `${DATA.materials.length}つの教材の記録（進み具合`, h("span", { "data-ef-reflect": "" }, "・ふりかえり"), "など）を、1つのファイルにまとめて書き出します。組・番号・名前は、ここで1回入れればよいです。"),
       h("div", { class: "field-row" }, field("cls", "組", "cls", "6"), field("num", "番号", "num", "6"), field("name", "名前", "name", "16")),
       h("p", { class: "export-status-label", id: "ex-status-label" }, "教材ごとの記録（「まだ記録なし」の教材は、まだ使っていないか、何も保存されていません）"),
       h("ul", { class: "export-status", "aria-labelledby": "ex-status-label" }, status),

@@ -718,6 +718,8 @@ var GLOSS = { '放射性廃棄物': 'ほうしゃせいはいきぶつ', '再生
   '変圧器': 'へんあつき', '蓄電池': 'ちくでんち', '軸受け': 'じくうけ', '原子炉': 'げんしろ', '需要': 'じゅよう', '供給': 'きょうきゅう', '摩耗': 'まもう',
   '絶縁': 'ぜつえん', '定格': 'ていかく', '効率': 'こうりつ', '廃棄物': 'はいきぶつ', '火災': 'かさい' };
 var GLOSS_RE = new RegExp(Object.keys(GLOSS).sort(function (a, b) { return b.length - a.length; }).join('|'), 'g');
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)のときは、クイズの見出しを「ふりかえり」ではなく「たしかめ問題」にする(クイズは学習の一部なので出す) */
+function quizTitle() { return window.EduitFrame && window.EduitFrame.furikaeri === false ? 'たしかめ問題' : 'ふりかえり'; }
 function furi(s) { var seen = {}; return String(s).replace(GLOSS_RE, function (w) { if (seen[w]) return w; seen[w] = 1; return '<ruby>' + w + '<rt>' + GLOSS[w] + '</rt></ruby>'; }); }
 function pill(f, short) { return '<span class="e1-pill" style="background:' + FORMS[f].color + '">' + (short ? FORMS[f].ch : FORMS[f].name) + '</span>'; }
 function formPath(d) {
@@ -1100,7 +1102,7 @@ function showStages() {
     var sc = S.save.stars[st.id] || 0;
     h += '<button class="e1-stcard' + (i === S.si ? ' cur' : '') + '" data-act="go" data-i="' + i + '"><div class="no">' + (st.free ? '自由' : 'ステージ ' + (i + 1)) + '</div><div class="t">' + esc(st.title) + '</div><div class="l">' + esc(st.learn) + '</div>' +
       (st.stars.length ? '<div class="s" style="color:#f0a500">' + starStr(sc, st.stars.length) + '</div>' : '') +
-      (S.save.quiz[st.id] ? '<div class="q">🤔 ふりかえり ✓</div>' : '') + '</button>';
+      (S.save.quiz[st.id] ? '<div class="q">🤔 ' + quizTitle() + ' ✓</div>' : '') + '</button>';
   });
   h += '</div><div class="acts"><button class="e1-btn" data-act="close">とじる</button></div>';
   modal(h);
@@ -1228,7 +1230,7 @@ function showResult(win) {
   M.tips.slice(0, 2).forEach(function (r) { h += '<div class="e1-reason tip">' + esc(r) + '</div>'; });
   if (win && st.quiz) {
     var order = [0, 1, 2].sort(function () { return Math.random() - 0.5; });
-    h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ふりかえり</h3><p>' + furi(st.quiz.q) + '</p>';
+    h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ' + quizTitle() + '</h3><p>' + furi(st.quiz.q) + '</p>';
     order.forEach(function (i) { h += '<button class="e1-btn" data-act="quiz" data-i="' + i + '">' + st.quiz.c[i] + '</button>'; });
     h += '<div data-ref="qex"></div></div>';
   }

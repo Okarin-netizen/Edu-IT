@@ -25,6 +25,13 @@
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -41,6 +48,25 @@
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -258,6 +284,6 @@
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();

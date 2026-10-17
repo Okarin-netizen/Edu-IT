@@ -1,6 +1,6 @@
 // ふりかえり・記録: 名前の入力、進み具合とふりかえりの一覧、JSON/CSV の書き出し（端末内でファイルを作るだけ。送信はしない）
 import { store } from "./store.js";
-import { h, explainCard, downloadFile, toast } from "./ui.js";
+import { h, explainCard, downloadFile, toast, furikaeriOn, REFLECT_ATTR } from "./ui.js";
 import { moduleProgress } from "./catalog.js";
 import { drillBestText } from "./digilib.js";
 
@@ -20,7 +20,7 @@ export function renderRecords(view, catalog) {
       h("td", {}, `${c.label} ${c.title}`),
       h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`),
       h("td", {}, best ? `ドリル最高 ${best}` : ""),
-      h("td", {}, store.getReflection(c.id) || h("span", { class: "hint" }, "（まだ書いていません）")),
+      h("td", REFLECT_ATTR, store.getReflection(c.id) || h("span", { class: "hint" }, "（まだ書いていません）")),
     );
   });
 
@@ -60,9 +60,9 @@ export function renderRecords(view, catalog) {
   };
 
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "進み具合とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。")),
+    h("div", { class: "module-head" }, h("h1", {}, furikaeriOn() ? "ふりかえり・記録" : "記録"), h("p", { class: "meta" }, "進み具合", h("span", REFLECT_ATTR, "とふりかえり"), "は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。")),
     h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, field("rec-cls", "組", "cls", "8em"), field("rec-num", "番号", "num", "6em"), field("rec-name", "名前", "name"))),
-    h("section", { class: "card" }, h("h2", {}, "進み具合とふりかえり"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "ステップ"), h("th", {}, "記録"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows)))),
+    h("section", { class: "card" }, h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "ステップ"), h("th", {}, "記録"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, rows)))),
     h(
       "section",
       { class: "card" },

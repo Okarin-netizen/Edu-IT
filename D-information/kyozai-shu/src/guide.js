@@ -10,6 +10,17 @@
   if (!view) return;
   var steps = G.steps || [];
   var back = null;
+  // 先生が「振り返りを隠す」設定にしたとき（shared/eduit-frame.js の EduitFrame.furikaeri）は、
+  // 案内の「ふりかえり・記録」を「記録」にし、ふりかえりを書くよう言う文を変える（textNoReflect があればそれ）
+  var fkOff = Boolean(window.EduitFrame && window.EduitFrame.furikaeri === false);
+  function label(s) {
+    return fkOff ? String(s.label).replace("ふりかえり・記録", "記録") : s.label;
+  }
+  function text(s) {
+    if (!fkOff || !s.text || s.text.indexOf("ふりかえり") < 0) return s.text;
+    if (typeof s.textNoReflect === "string") return s.textNoReflect;
+    return s.hash === "#/records" ? "記録を確かめて、書き出そう。" : s.text;
+  }
 
   function current() {
     var h = location.hash || "#/";
@@ -39,8 +50,8 @@
     // 教材に同じ行き先の「次へ」ボタンがもうあるときは出さない
     if (next && !atEnd && view.querySelector('a.btn[href="' + next.hash + '"]')) return null;
     if (next && !atEnd) {
-      if (next.text) box.append(el("p", "", next.text));
-      var a = el("a", "btn", next.label + " →");
+      if (text(next)) box.append(el("p", "", text(next)));
+      var a = el("a", "btn", label(next) + " →");
       a.href = next.hash;
       // 教材集の中（srcdoc）では href だけだと移れないので、自分で移る
       a.addEventListener("click", function (e) {

@@ -264,6 +264,11 @@ function gotoLine(line) {
 }
 let pendingLine = 0;
 
+// 振り返りを隠す設定（先生用。shared/eduit-frame.js）。隠すときは、記録の画面の振り返り欄と表の振り返りの列を出さない
+const FK_OFF = Boolean(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+const T_REC = FK_OFF ? "記録" : "ふりかえり・記録";
+const MEMO_OR_REFL = FK_OFF ? "企画・改善メモ" : "企画・改善メモか、ふりかえり";
+
 // ---- 画面のわく ----
 const TABS = [
   { id: "works", label: "作品" },
@@ -272,7 +277,7 @@ const TABS = [
   { id: "debug", label: "デバッグ" },
   { id: "server", label: "サーバー", mark: "▦" },
   { id: "help", label: "ヘルプ", mark: "?" },
-  { id: "records", label: "ふりかえり・記録", mark: "✎" },
+  { id: "records", label: T_REC, mark: "✎" },
 ];
 
 // 左メニュー（ほかの教材と同じ形）
@@ -1204,7 +1209,7 @@ function viewDebug() {
     ),
     nextHere("思いどおりに動いたら、友だちに使ってもらい、集まったデータを見よう。", [
       ["#/server", "サーバーのデータを見る →"],
-      ["#/records", "ふりかえり・記録 →", "（サーバーを使わない作品）"],
+      ["#/records", `${T_REC} →`, "（サーバーを使わない作品）"],
     ]),
   );
   if (!["running", "paused", "waiting", "listening"].includes(run.state)) stage.setParts(work.ui);
@@ -1307,7 +1312,7 @@ function viewServer() {
     body,
     nextHere("改善点が見つかったら、エディタで直そう。直したら、もう一度動かして確かめよう。", [
       ["#/editor", "エディタへ →"],
-      ["#/records", "ふりかえり・記録 →"],
+      ["#/records", `${T_REC} →`],
     ]),
   );
 }
@@ -1441,11 +1446,11 @@ function viewRecords() {
               h("td", {}, w.title),
               h("td", {}, [w.plan.who, w.plan.problem].filter(Boolean).join("／") || "—"),
               h("td", {}, w.plan.improve || "—"),
-              h("td", {}, w.plan.reflect || "—"),
+              h("td", { "data-ef-reflect": "" }, w.plan.reflect || "—"),
               h("td", { class: "nowrap" }, serverCommands(w.code).length ? "あり" : "なし"),
             ),
           )
-        : [h("tr", {}, h("td", { colspan: "5", class: "hint" }, "まだありません。作品タブの「企画・改善メモ」か、上のふりかえりを書こう。"))]),
+        : [h("tr", {}, h("td", { colspan: FK_OFF ? "4" : "5", class: "hint" }, FK_OFF ? "まだありません。作品タブの「企画・改善メモ」を書こう。" : "まだありません。作品タブの「企画・改善メモ」か、上のふりかえりを書こう。"))]),
     );
   };
   drawTable();
@@ -1470,7 +1475,7 @@ function viewRecords() {
       return false;
     }
     if (!rows().length) {
-      say("まだ書き出す作品がありません。企画・改善メモか、ふりかえりを書こう", "warn");
+      say(`まだ書き出す作品がありません。${MEMO_OR_REFL}を書こう`, "warn");
       return false;
     }
     return true;
@@ -1493,11 +1498,11 @@ function viewRecords() {
   };
 
   view.append(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "module-head" }, h("h1", {}, T_REC), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
     card(h("h2", {}, "名前"), h("div", { class: "field-row" }, fields), h("p", { class: "hint" }, "名前は書き出したファイルに入ります。この端末にも残るので、みんなで使う端末では、最後に「この端末の記録をすべて消す」を押します。")),
     h(
       "section",
-      { class: "card reflection" },
+      { class: "card reflection", "data-ef-reflect": "" },
       h("h2", {}, `ふりかえり：${work.title}`),
       h("label", { for: "reflect-work" }, "この作品で、使う人とのやりとり（双方向性）をどう工夫した？ サーバーとのやりとり（通信）を、どこでどう使った？ 使ってもらって分かったことは？"),
       h("div", { class: "hint" }, "作品タブの「企画・改善メモ」とあわせて、学んだことを自分の言葉でまとめよう。別の作品のふりかえりは、作品タブで作品を切りかえてから書きます。"),
@@ -1508,11 +1513,11 @@ function viewRecords() {
     ),
     card(
       h("h2", {}, "作品ごとの記録"),
-      h("p", { class: "hint" }, "表と書き出すファイルに入るのは、企画・改善メモかふりかえりを書いた作品と、自分で作りかえた作品です（さわっただけの見本は入りません）。「サーバー」は、server の命令が入っているかどうかです。"),
+      h("p", { class: "hint" }, `表と書き出すファイルに入るのは、${FK_OFF ? "企画・改善メモ" : "企画・改善メモかふりかえり"}を書いた作品と、自分で作りかえた作品です（さわっただけの見本は入りません）。「サーバー」は、server の命令が入っているかどうかです。`),
       h(
         "div",
         { class: "table-wrap" },
-        h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "作品"), h("th", {}, "だれの・どんな問題"), h("th", {}, "直したこと"), h("th", {}, "ふりかえり"), h("th", {}, "サーバー"))), tbody),
+        h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "作品"), h("th", {}, "だれの・どんな問題"), h("th", {}, "直したこと"), h("th", { "data-ef-reflect": "" }, "ふりかえり"), h("th", {}, "サーバー"))), tbody),
       ),
       h("p", { class: "hint hand-in" }, "先生に出すのは JSON のファイルです（CSV は、表計算ソフトで見るときに使います）。"),
       h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: exportJson }, "記録を書き出す（JSON）"), h("button", { type: "button", class: "btn secondary", onclick: exportCsv }, "CSVで書き出す"), exportNote),

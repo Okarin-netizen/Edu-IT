@@ -192,6 +192,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -729,8 +732,8 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -740,6 +743,9 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
@@ -850,6 +856,13 @@ window.EDUIT_INFO.levels = {
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -866,6 +879,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -1083,7 +1115,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -1253,6 +1285,15 @@ function threeSteps(texts = {}) {
   );
 }
 
+// 振り返りを出すか（先生が「振り返りを隠す」設定にしたときは false。shared/eduit-frame.js の EduitFrame.furikaeri）
+function furikaeriOn() {
+  return !(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+}
+// 振り返りの欄・文字に付ける属性（隠す設定のときは eduit-frame.css で出なくなる）
+const REFLECT_ATTR = { "data-ef-reflect": "" };
+// 「ふりかえり・記録」のページの名前（隠す設定のときは「記録」）
+const recordsTitle = () => (furikaeriOn() ? "ふりかえり・記録" : "記録");
+
 // ステップ枠。done() を呼ぶとチェックが付き、進捗に記録される
 function stepCard(moduleId, step, index) {
   const check = h("span", { class: "check", "aria-live": "polite" });
@@ -1264,7 +1305,7 @@ function stepCard(moduleId, step, index) {
     check,
   );
   const body = h("div");
-  const card = h("section", { class: "card", "aria-labelledby": `step-${moduleId}-${step.id}` }, head, body);
+  const card = h("section", { class: "card", "aria-labelledby": `step-${moduleId}-${step.id}`, "data-ef-reflect": step.id === "reflect" ? "" : null }, head, body);
   const refresh = () => {
     check.textContent = store.isStepDone(moduleId, step.id) ? "✓ できた" : "";
   };
@@ -1441,7 +1482,7 @@ function downloadFile(filename, text, type = "application/json") {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-return { h, escapeHtml, explainCard, threeSteps, stepCard, REFLECTION_MIN, REFLECTION_AUTOSAVE_MS, REFLECTION_AUTOSAVE_HINT, saveReflectionText, flushReflections, reflectionBox, shuffled, QUIZ_MAX_TRIES, quizVerdict, choiceQuiz, toast, downloadFile };
+return { h, escapeHtml, explainCard, threeSteps, furikaeriOn, REFLECT_ATTR, recordsTitle, stepCard, REFLECTION_MIN, REFLECTION_AUTOSAVE_MS, REFLECTION_AUTOSAVE_HINT, saveReflectionText, flushReflections, reflectionBox, shuffled, QUIZ_MAX_TRIES, quizVerdict, choiceQuiz, toast, downloadFile };
 })();
 
 // ---- js/data.js ----
@@ -2475,7 +2516,7 @@ return { passwordModule };
 
 // ---- modules/crypto.js ----
 const __m_modules_crypto_js = (() => {
-const { h, explainCard, stepCard, reflectionBox, choiceQuiz } = __m_js_ui_js;
+const { h, explainCard, stepCard, reflectionBox, choiceQuiz, furikaeriOn } = __m_js_ui_js;
 const { loadData } = __m_js_data_js;
 const { caesar, vigenere, letterCounts, guessCaesarShift, rsaKeygen, rsaEncrypt, rsaDecrypt, freqHint, judgeFactor } = __m_js_cryptolib_js;
 // モジュール③: 暗号ラボ（シーザー暗号 → 総当たり → 頻度分析 ｜2回目｜ ヴィジュネル暗号 → 鍵の受け渡し → 素因数分解 → 発展: 公開鍵暗号RSA）
@@ -2780,7 +2821,7 @@ const cryptoModule = {
         h("div", { class: "math-line" }, "もどす: 143 ＝ ？ × ？ …… どの数でわればいい？"),
         factorChallenge(() => c.done()),
         explainCard("なぜ安全なの？", "けたが増えると、わり切れる数を探すのはどんどん大変になります。実際に使われる n は600けた以上もあり、今のコンピュータでも現実的な時間では分解できません。だから、n を公開しても安全なのです。"),
-        h("p", { class: "hint" }, "時間がある人は、ふりかえりのあとの「発展」で、RSA の計算をたどってみよう。"),
+        h("p", { class: "hint" }, `時間がある人は、${furikaeriOn() ? "ふりかえりのあと" : "このページのさいご"}の「発展」で、RSA の計算をたどってみよう。`),
       );
     }
 
@@ -4370,7 +4411,7 @@ return { BEST_SUFFIX, GRADE_NOTE, nextEndings, roleplayModule };
 
 // ---- modules/declare.js ----
 const __m_modules_declare_js = (() => {
-const { h, explainCard, stepCard, reflectionBox, threeSteps, toast } = __m_js_ui_js;
+const { h, explainCard, stepCard, reflectionBox, threeSteps, toast, furikaeriOn, REFLECT_ATTR } = __m_js_ui_js;
 const { store } = __m_js_store_js;
 const { consultCard } = __m_js_consult_js;
 // モジュール⑩: まとめ・行動宣言
@@ -4480,7 +4521,7 @@ const declareModule = {
     const past = Object.entries(store.state.reflections).filter(([k]) => k !== ID);
     cards[0].body.append(
       past.length
-        ? h("details", {}, h("summary", {}, `これまでのふりかえりを見る（${past.length}件）`), h("ul", { class: "feedback-list" }, past.map(([, r]) => h("li", {}, r.text))))
+        ? h("details", REFLECT_ATTR, h("summary", {}, `これまでのふりかえりを見る（${past.length}件）`), h("ul", { class: "feedback-list" }, past.map(([, r]) => h("li", {}, r.text))))
         : "",
       h("p", {}, "全部できたら理想ですが、まずは「確実に続けられる3つ」を選ぼう。"),
       ...groups,
@@ -4488,11 +4529,12 @@ const declareModule = {
       h("div", { class: "btn-row" }, saveBtn),
     );
     cards[1].body.append(cardView);
-    cards[2].body.append(
+    // 「続けるコツ」と相談先は、振り返りを隠す設定のときはステップ2（カード）の下に出す
+    (furikaeriOn() ? cards[2] : cards[1]).body.append(
       explainCard("続けるコツ", "家族にカードを見せて、宣言したことを一緒に確かめてもらおう。1か月後に、できているかふりかえってみよう。"),
       await consultCard(),
-      reflectionBox(ID, "その3つを選んだ理由と、どうやって続けるかを書こう。", () => cards[2].done()),
     );
+    cards[2].body.append(reflectionBox(ID, "その3つを選んだ理由と、どうやって続けるかを書こう。", () => cards[2].done()));
     updateCounter();
     drawCard();
     root.append(...cards.map((c) => c.el));
@@ -4832,6 +4874,7 @@ return { digitalModule };
 // ---- js/catalog.js ----
 const __m_js_catalog_js = (() => {
 const { store } = __m_js_store_js;
+const { furikaeriOn } = __m_js_ui_js;
 const { passwordModule } = __m_modules_password_js;
 const { cryptoModule } = __m_modules_crypto_js;
 const { hashModule } = __m_modules_hash_js;
@@ -4844,6 +4887,7 @@ const { roleplayModule } = __m_modules_roleplay_js;
 const { declareModule } = __m_modules_declare_js;
 const { digitalModule } = __m_modules_digital_js;
 // モジュールの一覧と進み具合の計算
+
 
 
 
@@ -4974,7 +5018,8 @@ function availableModules(config) {
 }
 
 function moduleProgress(entry) {
-  const steps = entry.module.steps;
+  // 振り返りを隠す設定のときは、ふりかえりのステップを数えない
+  const steps = furikaeriOn() ? entry.module.steps : entry.module.steps.filter((s) => s.id !== "reflect");
   const done = steps.filter((s) => store.isStepDone(entry.id, s.id)).length;
   return { done, total: steps.length, complete: done === steps.length };
 }
@@ -5214,7 +5259,7 @@ return { testPolicy, PRACTICE_MAX, practiceSet, orderByModules, renderCheck };
 // ---- js/records.js ----
 const __m_js_records_js = (() => {
 const { store } = __m_js_store_js;
-const { h, explainCard, toast, downloadFile } = __m_js_ui_js;
+const { h, explainCard, toast, downloadFile, REFLECT_ATTR, recordsTitle } = __m_js_ui_js;
 const { CATALOG, moduleProgress } = __m_js_catalog_js;
 const { loadData, loadDefaultData, setOverride, listOverrides, DATA_NAMES } = __m_js_data_js;
 const { resetConfigCache } = __m_js_settings_js;
@@ -5315,11 +5360,11 @@ function renderRecords(view, available, config, rerender, easy = "") {
   const progressRows = available.map((c) => {
     const p = moduleProgress(c);
     const r = s.reflections[c.id];
-    return h("tr", {}, h("td", {}, h("a", { href: `#/${c.id}` }, c.title)), h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`), h("td", {}, r ? r.text : h("span", { class: "hint" }, "まだ書いていません")));
+    return h("tr", {}, h("td", {}, h("a", { href: `#/${c.id}` }, c.title)), h("td", {}, p.complete ? "✓ 完了" : `${p.done} / ${p.total}`), h("td", REFLECT_ATTR, r ? r.text : h("span", { class: "hint" }, "まだ書いていません")));
   });
   const pre = s.modules.check?.score?.["事前テスト"];
   const post = s.modules.check?.score?.["事後テスト"];
-  progressRows.push(h("tr", {}, h("td", {}, h("a", { href: "#/check" }, "理解度チェック")), h("td", {}, `事前 ${pre || "まだ"}・事後 ${post || "まだ"}`), h("td", {}, h("span", { class: "hint" }, "テストの点も、書き出すファイルに入ります"))));
+  progressRows.push(h("tr", {}, h("td", {}, h("a", { href: "#/check" }, "理解度チェック")), h("td", {}, `事前 ${pre || "まだ"}・事後 ${post || "まだ"}`), h("td", REFLECT_ATTR, h("span", { class: "hint" }, "テストの点も、書き出すファイルに入ります"))));
 
   // 書き出し: 組と番号がないときは書き出さず、ボタンの横に知らせる
   const jsonMsg = h("span", { class: "export-msg", role: "status", "aria-live": "polite" });
@@ -5370,9 +5415,9 @@ function renderRecords(view, available, config, rerender, easy = "") {
   });
 
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されています。先生に提出するときは、ファイルに書き出してください。"), easy),
+    h("div", { class: "module-head" }, h("h1", {}, recordsTitle()), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されています。先生に提出するときは、ファイルに書き出してください。"), easy),
     h("section", { class: "card" }, h("h2", {}, "あなたの情報"), h("div", { class: "field-row" }, fields)),
-    h("section", { class: "card" }, h("h2", {}, "進み具合とふりかえり"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "進み具合"), h("th", {}, "ふりかえり"))), h("tbody", {}, progressRows)))),
+    h("section", { class: "card" }, h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "進み具合"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, progressRows)))),
     h(
       "section",
       { class: "card" },
@@ -5618,7 +5663,7 @@ return { exportEntries, buildExport, localDate, localDateTime, exportRows, toCsv
 // ---- js/app.js ----
 const __m_js_app_js = (() => {
 const { store } = __m_js_store_js;
-const { h, explainCard, threeSteps, flushReflections } = __m_js_ui_js;
+const { h, explainCard, threeSteps, flushReflections, furikaeriOn, recordsTitle } = __m_js_ui_js;
 const { availableModules, moduleProgress, GROUPS, EASY_STEPS, EASY_PAGES } = __m_js_catalog_js;
 const { getConfig, pref, setPref, setRubyEnabled } = __m_js_settings_js;
 const { renderRecords, renderTeacher } = __m_js_records_js;
@@ -5660,7 +5705,7 @@ function renderNav(currentId) {
   }
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "確かめる・記録する"));
   ol.append(link("#/check", "?", "理解度チェック", "check", false));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", recordsTitle(), "records", false));
   // 先生用ページは章ナビに出さない（SEC-54）。先生はアドレスの最後に #/teacher を付けて開く
   const next = h("nav", { "aria-label": "章ナビゲーション" }, ol);
   // 中身が同じなら書きかえない（ふりかえりの自動保存のたびに、押そうとしたリンクやフォーカスが消えないように）
@@ -5759,7 +5804,7 @@ function renderHome() {
       threeSteps(),
       explainCard("安心して体験できます", "このラボはすべてこのブラウザの中だけで動きます。インターネット上のサイトには一切つながらず、入力した内容が外に送られることもありません。登場する会社名やアドレスはすべて架空のものです。", "good"),
     ),
-    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, "モジュールを①から順に体験して、最後にふりかえりを書く（⑪ ハッシュ体験は発展。先生に言われたときに取り組む）"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, "ふりかえり・記録"), "からファイルを書き出して提出する"))),
+    h("section", { class: "card" }, h("h2", {}, "すすめ方"), h("ol", {}, h("li", {}, h("a", { href: "#/check" }, "理解度チェック"), "の「事前テスト」で、今の力を確かめる"), h("li", {}, furikaeriOn() ? "モジュールを①から順に体験して、最後にふりかえりを書く" : "モジュールを①から順に体験する", "（⑪ ハッシュ体験は発展。先生に言われたときに取り組む）"), h("li", {}, "「事後テスト」で伸びを確かめ、まちがえた問題を復習する"), h("li", {}, h("a", { href: "#/records" }, recordsTitle()), "からファイルを書き出して提出する"))),
     ...GROUPS.map((g) => {
       const list = available.map((c, i) => [c, cards[i]]).filter(([c]) => c.group === g.id);
       return list.length ? h("section", { class: "module-group" }, h("h2", {}, g.title), h("div", { class: "module-grid" }, list.map(([, card]) => card))) : "";
@@ -5809,7 +5854,7 @@ async function route() {
   else if (id === "check") await renderCheck(view, available, easyBox(EASY_PAGES.check));
   else renderHome();
   if (token !== routeToken) return;
-  const title = entry ? entry.title : { records: "ふりかえり・記録", teacher: "先生用ページ", check: "理解度チェック" }[id] || "はじめに";
+  const title = entry ? entry.title : { records: recordsTitle(), teacher: "先生用ページ", check: "理解度チェック" }[id] || "はじめに";
   document.title = `${title} | 情報セキュリティ体験ラボ`;
   if (!step) view.focus({ preventScroll: true });
 }

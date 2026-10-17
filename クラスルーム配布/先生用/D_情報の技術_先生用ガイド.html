@@ -184,6 +184,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -254,8 +257,8 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -265,6 +268,9 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
@@ -376,6 +382,13 @@ window.EDUIT_INFO.levels = {
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -392,6 +405,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -609,7 +641,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -666,6 +698,13 @@ window.EDUIT_INFO.levels = {
       <li>教材の中のページには、基本編のページから順に ①②③… の番号が付いています。発展編のページは、そのあとの続きの番号です（例: 仮想CPUラボは ① 図解・② 手計算くらべ が基本編、③ 仮想CPUを動かす・④ 課題 が発展編）。「はじめに」「ふりかえり・記録」「理解度チェック」には番号を付けていません。</li>
       <li>切りかえても、開いていた教材の作業はそのまま残ります。ふりかえりの文は書いている途中で自動で保存されるので、ページを再読みこみしても消えません。再読みこみをしても、それぞれの教材はさいごに開いていたページから始まります（同じタブの中だけ）。</li>
       <li>上のバーの「ふりがな」「大きな文字」は、9つの教材とメニューにまとめてかかります。漢字の言葉に読みがなが付き、文字が大きくなります。プログラムを書く欄・入力欄・図の中の文字には、ふりがなは付きません。この設定は「はじめからやり直す」でも消えません。教材集の中では、各教材にもともとある「ふりがな」「大きな文字」のボタンは、上のバーのボタンにまとめています（情報セキュリティ体験ラボの「やさしい日本語のまとめ」は教材の中に残ります）。</li>
+    </ul>
+    <h3>振り返りを隠すとき</h3>
+    <p>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返り（振り返りを書くページ・欄、記録の画面の振り返り、カードの「書いた」の印など）を出さないようにできます。</p>
+    <ul>
+      <li><b>Classroom で配るとき</b>：<code>生徒に配る/振り返りなし/</code> の中の、同じ名前のファイルを配ります。中身は同じで、振り返りだけが出ません。1つずつ配るときのファイルも <code>振り返りなし/1つずつ配るとき/</code> にあります。</li>
+      <li><b>生徒用サイトで使うとき</b>：アドレスの最後に <code>?furikaeri=off</code> を付けて開くよう、生徒に知らせます（例: <code>https://okarin-netizen.github.io/Edu-IT/?furikaeri=off</code>）。一度開くと、その端末で覚えています。<code>?furikaeri=on</code> を付けて開くと元にもどります。</li>
+      <li>隠しても、それまでに書いた振り返りは消えません（記録の書き出しにもそのまま入ります）。</li>
     </ul>
   </section>
 
@@ -780,6 +819,10 @@ window.EDUIT_INFO.levels = {
 
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
+    <h3>第1.8版（2026年10月17日）</h3>
+    <ul>
+      <li>振り返りを隠す設定(先生用)に対応しました。くわしくは「1. 配り方と開き方」の「振り返りを隠すとき」を見てください。</li>
+    </ul>
     <h3>第1.7版（2026年10月16日）</h3>
     <ul>
       <li>9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。</li>

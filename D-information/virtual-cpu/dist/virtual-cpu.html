@@ -192,6 +192,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -729,8 +732,8 @@ svg.five-units { max-height: max(50vh, 360px); }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -740,12 +743,16 @@ svg.five-units { max-height: max(50vh, 360px); }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
         '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
         'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。',
-        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。'
+        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。',
+        '生成AIのしくみラボの「③ クイズとふりかえり」のクイズを、基本編の内容(もっともらしいまちがい・個人情報・使うときのルール)だけの6問にしました。'
       ] },
       { version: '1.6', date: '2026-10-16', items: [
         '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
@@ -839,7 +846,7 @@ window.EDUIT_INFO.levels = {
  *   version: '2.1', updated: '2026-10-15',
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
- *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
@@ -848,6 +855,13 @@ window.EDUIT_INFO.levels = {
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
@@ -865,6 +879,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -1082,7 +1115,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -1128,6 +1161,15 @@ function h(tag, attrs = {}, ...children) {
   }
   return el;
 }
+
+// 振り返りを出すか（先生が「振り返りを隠す」設定にしたときは false。shared/eduit-frame.js の EduitFrame.furikaeri）
+function furikaeriOn() {
+  return !(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);
+}
+// 振り返りの欄・文字に付ける属性（隠す設定のときは eduit-frame.css で出なくなる）
+const REFLECT_ATTR = { "data-ef-reflect": "" };
+// 「ふりかえり・記録」のページの名前（隠す設定のときは「記録」）
+const recordsTitle = () => (furikaeriOn() ? "ふりかえり・記録" : "記録");
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 function s(tag, attrs = {}, ...children) {
@@ -1185,7 +1227,7 @@ function takeReflectionFocus() {
   return v;
 }
 
-return { h, s, explain, toast, reducedMotion, sleep, term, requestReflectionFocus, takeReflectionFocus };
+return { h, furikaeriOn, REFLECT_ATTR, recordsTitle, s, explain, toast, reducedMotion, sleep, term, requestReflectionFocus, takeReflectionFocus };
 })();
 
 // ---- js/data.js ----
@@ -2407,7 +2449,7 @@ return { DEVICES, wrongReasons, renderDiagram };
 
 // ---- js/tasks.js ----
 const __m_js_tasks_js = (() => {
-const { h, explain, toast, requestReflectionFocus } = __m_js_ui_js;
+const { h, explain, toast, requestReflectionFocus, furikaeriOn, REFLECT_ATTR, recordsTitle } = __m_js_ui_js;
 const { store } = __m_js_store_js;
 const { checkProgram, shortList } = __m_js_vm_js;
 const { createSimulator, isaTable, readingCard } = __m_js_sim_js;
@@ -2470,8 +2512,8 @@ function renderTaskList(view, { tasks }) {
       ];
     }),
     h("p", { class: "hint concept-note" }, "考え方: 「順次」は上から順に1つずつ、「反復」はくり返し、「分岐」は条件によって進む道を変えることです（教科書の「順次・分岐・反復」）。"),
-    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、下のふりかえりを書いて、記録を書き出そう。"),
-    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, "次: ふりかえり・記録へ →")),
+    h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、", h("span", REFLECT_ATTR, "下のふりかえりを書いて、"), "記録を書き出そう。"),
+    h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, `次: ${recordsTitle()}へ →`)),
   );
 }
 
@@ -2537,7 +2579,7 @@ function renderTask(view, { tasks, isa }, id) {
       resultBox.append(
         explain(
           first ? "クリア！" : "正解です",
-          h("div", {}, h("p", {}, r.results.length > 1 ? `ちがう入力でためしても、すべて正しい答えが出ました。いちばん多いときで命令を ${Math.max(...r.results.map((x) => x.steps))} 回実行しています。` : `答えが正しく出ました。命令を ${r.results[0].steps} 回実行しています。`), nextTask ? h("a", { class: "btn", href: `#/task/${nextTask.id}` }, `次の課題「${nextTask.title}」へ →`) : h("a", { class: "btn", href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧へもどって、ふりかえりを書こう →")),
+          h("div", {}, h("p", {}, r.results.length > 1 ? `ちがう入力でためしても、すべて正しい答えが出ました。いちばん多いときで命令を ${Math.max(...r.results.map((x) => x.steps))} 回実行しています。` : `答えが正しく出ました。命令を ${r.results[0].steps} 回実行しています。`), nextTask ? h("a", { class: "btn", href: `#/task/${nextTask.id}` }, `次の課題「${nextTask.title}」へ →`) : furikaeriOn() ? h("a", { class: "btn", href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧へもどって、ふりかえりを書こう →") : h("a", { class: "btn", href: "#/tasks" }, "課題の一覧へもどる →")),
           "good",
         ),
       );
@@ -2586,7 +2628,7 @@ function renderTask(view, { tasks, isa }, id) {
     h("div", { class: "card sim-card" }, h("div", { class: "check-bar" }, h("button", { class: "btn", type: "button", onclick: checkAndShow }, "答え合わせ"), h("p", { class: "hint" }, "結果はこのすぐ下に出ます。")), resultBox, sim.el),
     readingCard(false),
     isaTable(isa),
-    h("p", { class: "hint reflect-pointer" }, "④のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
+    h("p", { class: "hint reflect-pointer", ...REFLECT_ATTR }, "④のふりかえりは、", h("a", { href: "#/tasks", onclick: requestReflectionFocus }, "課題の一覧のいちばん下"), "で書きます。先生に言われたところまで終わったら書こう。"),
   );
   return () => {
     sim.stop();
@@ -2799,7 +2841,7 @@ return { CLOCKS, runSeconds, formatSeconds, renderAuto };
 
 // ---- js/records.js ----
 const __m_js_records_js = (() => {
-const { h, toast, takeReflectionFocus } = __m_js_ui_js;
+const { h, toast, takeReflectionFocus, REFLECT_ATTR, recordsTitle } = __m_js_ui_js;
 const { store } = __m_js_store_js;
 const { tierSummary, tierLabel } = __m_js_tasks_js;
 // ふりかえり・記録: 各ページのふりかえり欄と、名前・進み具合・ふりかえりの一覧、JSON/CSV の書き出し（端末内でファイルを作るだけ。送信はしない）
@@ -2873,7 +2915,7 @@ function reflectionBox(id) {
   });
   const box = h(
     "section",
-    { class: "card reflection" },
+    { class: "card reflection", ...REFLECT_ATTR },
     h("h2", {}, "ふりかえり"),
     h("label", { for: tid }, r.prompt),
     h("div", { class: "hint" }, "用語を覚えるだけでなく、「なぜそうなるのか」を自分の言葉で書こう。"),
@@ -2947,7 +2989,7 @@ function renderRecords(view, { tasks }, rerender) {
     input.addEventListener("change", () => store.setStudent({ [k]: input.value.trim() }));
     return h("div", { class: "field" }, h("label", { for: `stu-${k}` }, label), input);
   });
-  const rows = REFLECT.map((r) => h("tr", {}, h("td", {}, r.title), h("td", {}, progressText(r.id, tasks)), h("td", {}, store.getReflection(r.id) || "—")));
+  const rows = REFLECT.map((r) => h("tr", {}, h("td", {}, r.title), h("td", {}, progressText(r.id, tasks)), h("td", REFLECT_ATTR, store.getReflection(r.id) || "—")));
   const who = () => [st.student.cls, st.student.num, st.student.name].filter(Boolean).join("-") || "記録";
   const exportMsg = h("p", { class: "export-msg", role: "status", "aria-live": "polite" });
   // 書き出す前に、入力中の組・番号・名前も保存する（change を待たない）
@@ -2997,14 +3039,14 @@ function renderRecords(view, { tasks }, rerender) {
     rerender();
   });
   view.replaceChildren(
-    h("div", { class: "page-head" }, h("h2", {}, "ふりかえり・記録"), h("p", { class: "muted" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "page-head" }, h("h2", {}, recordsTitle()), h("p", { class: "muted" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
     h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, fields)),
     h(
       "section",
       { class: "card" },
-      h("h2", {}, "進み具合とふりかえり"),
-      h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ページ"), h("th", {}, "進み具合"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows))),
-      h("p", { class: "hint" }, "ふりかえりは、それぞれのページのいちばん下で書けます。"),
+      h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")),
+      h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ページ"), h("th", {}, "進み具合"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, rows))),
+      h("p", { class: "hint", ...REFLECT_ATTR }, "ふりかえりは、それぞれのページのいちばん下で書けます。"),
       h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "JSON には、課題ごとに書いたプログラムと、答えの例を見たかも入ります。CSV は表で見たいときに使います。"),
       h("div", { class: "btn-row" }, exportBtn, csvBtn, exportMsg),
     ),
@@ -3017,7 +3059,7 @@ return { REFLECT, downloadFile, flushReflection, reflectionBox, progressText, ex
 
 // ---- js/app.js ----
 const __m_js_app_js = (() => {
-const { h, explain } = __m_js_ui_js;
+const { h, explain, REFLECT_ATTR, recordsTitle } = __m_js_ui_js;
 const { loadData } = __m_js_data_js;
 const { store } = __m_js_store_js;
 const { renderDiagram } = __m_js_diagram_js;
@@ -3067,7 +3109,7 @@ function renderNav() {
     link("/sim", "3", "仮想CPUを動かす", false),
     link("/tasks", "4", "課題", (() => { const c = tierCount(tasks, "must"); return c.total > 0 && c.done === c.total; })()),
     h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"),
-    link("/records", "✎", "ふりかえり・記録", false),
+    link("/records", "✎", recordsTitle(), false),
   );
   document.getElementById("chapter-nav").replaceChildren(h("nav", { "aria-label": "ページ" }, ol));
 }
@@ -3102,7 +3144,7 @@ function renderHome(view) {
         "ol",
         {},
         h("li", {}, "1時間目（前半 約25分）: ①図解で5つの装置とデータ・制御の流れを確認し、機器の仲間分けをする。"),
-        h("li", {}, "1時間目（後半 約25分）: ②手計算くらべで、同じ計算を人とプログラムでくらべ、処理の自動化をまとめる。ふりかえりを書き、記録（JSON）を書き出す。（ここまでが基本編）"),
+        h("li", {}, "1時間目（後半 約25分）: ②手計算くらべで、同じ計算を人とプログラムでくらべ、処理の自動化をまとめる。", h("span", REFLECT_ATTR, "ふりかえりを書き、"), "記録（JSON）を書き出す。（ここまでが基本編）"),
         h("li", {}, "発展（2時間目）: ③仮想CPUで「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し→解読→実行をたしかめる。④課題1〜4（必修。順次とくり返し）。終わった生徒は課題5〜7（発展）、課題8（チャレンジ）へ進む。"),
       ),
       h("p", {}, "課題の区分: 課題1〜4 が必修、5〜7 が発展、8 がチャレンジです。時間の目安は、必修1問 5〜8分、発展1問 8〜12分です（クラスに合わせて調整してください）。"),
