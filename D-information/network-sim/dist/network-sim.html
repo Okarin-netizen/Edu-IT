@@ -729,7 +729,8 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
     ],
     history: [
       { version: '1.8', date: '2026-10-17', items: [
-        '振り返りを隠す設定(先生用)に対応'
+        '振り返りを隠す設定(先生用)に対応',
+        '答えをしぼりこめないようにした: 選択肢の中で正解だけが長いことが多かったクイズ(D4・D8・D9)の選択肢の長さをそろえた。D3 の2進数・IPアドレス・台数のドリル、D1 のドリルで、選択肢の形や大きさの順から答えがわかったのを直した。D2 の手計算くらべは1+…+N の N を毎回変える。D8 のもっともらしいまちがいは、5つの文すべてを本当かまちがいか判定する(「学習データと同じ・新しい文」は判定してから出る)'
       ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
@@ -2287,6 +2288,54 @@ function place(rng, correct, wrongs) {
 function weightParts(n) {
   return [128, 64, 32, 16, 8, 4, 2, 1].filter((w) => n & w);
 }
+// ---- 2進数の問題の「よくあるまちがい」 ----
+// 1ビットだけ変えたまちがいばかりだと、選択肢の各けたの多数決で正解がわかってしまう。
+// そこで、実際によくあるまちがい（けたの順を逆に書く・1ずれ・重みを1つずらす・2けたまちがえる・
+// 1を1つとなりに書く・0と1を逆にする）から選ぶ。
+const rev8 = (n) => parseInt([...toBinary8(n)].reverse().join(""), 2);
+const popcount = (n) => [...toBinary8(n)].filter((b) => b === "1").length;
+const hamming = (a, b) => popcount(a ^ b);
+function flipTwo(rng, n) {
+  const i = ri(rng, 0, 7);
+  let j = ri(rng, 0, 6);
+  if (j >= i) j++;
+  return n ^ (1 << i) ^ (1 << j);
+}
+function moveOneBit(rng, n) {
+  const opts = [];
+  for (let i = 0; i < 8; i++) for (const j of [i - 1, i + 1]) if (j >= 0 && j < 8 && n & (1 << i) && !(n & (1 << j))) opts.push(n ^ (1 << i) ^ (1 << j));
+  return opts.length ? pick(rng, opts) : -1;
+}
+function binaryMistakePool(rng, n) {
+  const pool = [rev8(n), n + 1, n - 1, (n << 1) & 255, n >> 1, flipTwo(rng, n), flipTwo(rng, n), flipTwo(rng, n), moveOneBit(rng, n), moveOneBit(rng, n), 255 - n];
+  return [...new Set(pool.filter((v) => v >= 1 && v <= 255 && v !== n))];
+}
+function sample3(rng, arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, 3);
+}
+// 正解が「みんなのまん中」（各けたの多数決・ほかとのちがいがいちばん少ないもの・10進数で真ん中の数）になっているか
+function isCenter(choices) {
+  let major = 0;
+  for (let b = 0; b < 8; b++) if (choices.filter((v) => v & (1 << b)).length * 2 > choices.length) major |= 1 << b;
+  const d = choices.map((v) => hamming(v, major));
+  const sum = choices.map((v) => choices.reduce((a, u) => a + hamming(u, v), 0));
+  const gap = choices.map((v) => choices.reduce((a, u) => a + Math.abs(u - v), 0));
+  return d[0] === Math.min(...d) || sum[0] === Math.min(...sum) || gap[0] === Math.min(...gap);
+}
+// まちがい3つ。正解がまん中になる組を少し減らして、多数決で当たる割合を4択の偶然（約25%）くらいにする
+function binaryWrongs(rng, n) {
+  const pool = binaryMistakePool(rng, n);
+  let w = sample3(rng, pool);
+  if (rng() < 0.6) return w;
+  for (let k = 0; k < 30 && isCenter([n, ...w]); k++) w = sample3(rng, pool);
+  return w;
+}
+
 const MASKS = { 24: "255.255.255.0", 25: "255.255.255.128", 28: "255.255.255.240" };
 function hostsQuestion(rng, p) {
   const ok = hostCount(p);
@@ -2304,18 +2353,61 @@ function hostsQuestion(rng, p) {
   };
 }
 
+// /24 のネットワークの例（家や学校で使う番号）
+function net24(rng) {
+  return pick(rng, [() => `192.168.${ri(rng, 0, 20)}`, () => `10.${ri(rng, 0, 255)}.${ri(rng, 0, 255)}`, () => `172.${ri(rng, 16, 31)}.${ri(rng, 0, 255)}`])();
+}
+const HOST_VARIANTS = [
+  // 1. 機器の最大台数 → 254
+  (rng) => hostsQuestion(rng, 24),
+  // 2. ホスト部の番号は何とおり → 256
+  (rng) => ({
+    question: "サブネットマスク 255.255.255.0（/24）のとき、最後の1つの数（ホスト部）は、0 から数えて全部で何とおりの番号を表せる？（使えない番号もふくめる）",
+    ...place(rng, 256, [254, 255, 8]),
+    explain: "ホスト部は8ビットなので、2の8乗 = 256とおり（0〜255）です。そのうち2つ（0と255）は機器に使えないので、機器に割り当てられるのは254台です。",
+  }),
+  // 3. ホスト部のビット数 → 8ビット
+  (rng) => ({
+    question: "サブネットマスク 255.255.255.0（/24）のとき、ホスト部（機器を見分ける部分）は何ビット？",
+    ...place(rng, "8ビット", ["24ビット", "32ビット", "16ビット"]),
+    explain: "IPv4アドレスは全部で32ビット。/24 は「前から24ビットがネットワーク部」なので、残りの 32 − 24 = 8ビット（最後の1つの数）がホスト部です。",
+  }),
+  // 4. 全員あての番号 → x.x.x.255
+  (rng) => {
+    const n = net24(rng);
+    return {
+      question: `ネットワーク ${n}.0/24 で、ネットワークの全員あての番号として決められていて、機器には使えないのはどれ？`,
+      ...place(rng, `${n}.255`, [`${n}.1`, `${n}.254`, `${n}.100`]),
+      explain: `/24 では最後の1つの数（ホスト部）で機器を見分けます。いちばん大きい番号 ${n}.255 は全員あての番号、いちばん小さい番号 ${n}.0 はネットワークそのものを表す番号なので、どちらも機器には使えません。`,
+    };
+  },
+  // 5. ネットワークそのものを表す番号 → x.x.x.0
+  (rng) => {
+    const n = net24(rng);
+    const host = `${n}.${ri(rng, 2, 253)}`;
+    return {
+      question: `サブネットマスクが 255.255.255.0（/24）で、IPアドレスが ${host} の機器があります。この機器のネットワークそのものを表す番号はどれ？`,
+      // 「後ろ2つを0にする」まちがい（3つ目がもともと0のときは、かわりに 254）
+      ...place(rng, `${n}.0`, [`${n}.255`, `${n}.1`, n.endsWith(".0") ? `${n}.254` : `${n.split(".").slice(0, 2).join(".")}.0.0`]),
+      explain: `/24 では前の3つの数（${n}）がネットワーク部です。ホスト部を0にした ${n}.0 が、ネットワークそのものを表す番号です（いちばん大きい ${n}.255 は全員あての番号）。`,
+    };
+  },
+];
+
 const GEN = {
   validIp(rng) {
-    const ok = `192.168.${ri(rng, 0, 9)}.${ri(rng, 1, 254)}`;
+    // 正解の始まり（10.／172.16〜31.／192.168.）は毎回変え、まちがいも同じ始まりにする（始まりだけで選べないように）
+    const head = pick(rng, [() => `10.${ri(rng, 0, 255)}`, () => `172.${ri(rng, 16, 31)}`, () => "192.168"])();
+    const ok = `${head}.${ri(rng, 0, 255)}.${ri(rng, 1, 254)}`;
     const bads = [
-      () => `192.168.${ri(rng, 0, 9)}.${ri(rng, 256, 300)}`,
-      () => `10.${ri(rng, 0, 255)}.${ri(rng, 0, 255)}`,
-      () => `172.16.${ri(rng, 0, 9)}.${ri(rng, 1, 99)}.${ri(rng, 1, 9)}`,
-      () => `${ri(rng, 300, 999)}.0.113.${ri(rng, 1, 254)}`,
-      () => `203,0,113,${ri(rng, 1, 254)}`,
+      () => `${head}.${ri(rng, 0, 255)}.${ri(rng, 256, 300)}`,
+      () => `${head}.${ri(rng, 256, 999)}.${ri(rng, 1, 254)}`,
+      () => `${head}.${ri(rng, 0, 255)}`,
+      () => `${head}.${ri(rng, 0, 255)}.${ri(rng, 1, 254)}.${ri(rng, 1, 9)}`,
+      () => `${head.replace(".", ",")},${ri(rng, 0, 255)},${ri(rng, 1, 254)}`,
     ];
     const wrongs = uniq(rng, () => pick(rng, bads)(), 3, new Set([ok])).filter((x) => !isValidIPv4(x));
-    return { kind: "validIp", question: "正しいIPアドレス（IPv4）の書き方になっているのはどれ？", ...place(rng, ok, wrongs), explain: "IPv4アドレスは、0〜255の数を4つ、点（.）で区切って書きます。256以上の数や、数が3つ・5つのものはまちがいです。" };
+    return { kind: "validIp", question: "正しいIPアドレス（IPv4）の書き方になっているのはどれ？", ...place(rng, ok, wrongs), explain: "IPv4アドレスは、0〜255の数を4つ、点（.）で区切って書きます。256以上の数や、数が3つ・5つのもの、点のかわりにコンマ（,）を使ったものはまちがいです。" };
   },
   sameNet(rng) {
     const c = ri(rng, 0, 9);
@@ -2332,7 +2424,7 @@ const GEN = {
   toBinary(rng) {
     const n = ri(rng, 1, 255);
     const ok = toBinary8(n);
-    const wrongs = uniq(rng, () => toBinary8(n ^ (1 << ri(rng, 0, 7))), 3, new Set([ok]));
+    const wrongs = binaryWrongs(rng, n).map(toBinary8);
     return {
       kind: "toBinary",
       question: `10進数の ${n} を、2進数8けたで表すとどれ？`,
@@ -2342,13 +2434,15 @@ const GEN = {
   },
   fromBinary(rng) {
     const n = ri(rng, 1, 255);
-    const wrongs = uniq(rng, () => n ^ (1 << ri(rng, 0, 7)), 3, new Set([String(n)]));
+    const wrongs = binaryWrongs(rng, n);
     const bits = toBinary8(n);
     return { kind: "fromBinary", question: `2進数の ${bits} を10進数で表すといくつ？`, ...place(rng, n, wrongs), explain: `1のところの重みを足します：${weightParts(n).join(" + ")} = ${n}` };
   },
-  // 機器の台数（/24 だけ。/25・/28 はチャレンジ問題 makeChallenge で出す）
+  // ホスト部の問題（/24 だけ。/25・/28 はチャレンジ問題 makeChallenge で出す）。
+  // いつも「254台」にならないように、聞き方を5種類から選ぶ
   hosts(rng) {
-    return hostsQuestion(rng, 24);
+    const v = pick(rng, HOST_VARIANTS);
+    return { ...v(rng), kind: "hosts", prefix: 24 };
   },
   role(rng) {
     const qs = [
@@ -2387,7 +2481,7 @@ function makeDrill(n = 10, rng = Math.random) {
   return order.slice(0, n).map((k) => makeQuestion(k, rng));
 }
 
-return { weightParts, DRILL_KINDS, makeQuestion, makeChallenge, makeDrill };
+return { weightParts, binaryWrongs, DRILL_KINDS, makeQuestion, makeChallenge, makeDrill };
 })();
 
 // ---- modules/build.js ----
