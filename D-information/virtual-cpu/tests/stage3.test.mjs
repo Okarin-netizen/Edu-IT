@@ -13,7 +13,7 @@ globalThis.localStorage = {
 const { assemble, checkProgram, numText, shortList } = await import("../js/vm.js");
 const { readInputs, parseInputs } = await import("../js/sim.js");
 const { DEVICES, wrongReasons } = await import("../js/diagram.js");
-const { CLOCKS, runSeconds } = await import("../js/auto.js");
+const { CLOCKS, runSeconds, randomManualN, sumTo, recordN, N_MIN, N_MAX } = await import("../js/auto.js");
 const isa = JSON.parse(readFileSync(new URL("../data/isa.json", import.meta.url)));
 const { tasks } = JSON.parse(readFileSync(new URL("../data/tasks.json", import.meta.url)));
 
@@ -68,4 +68,32 @@ test("CPU-20: ひらがなの命令は「英数モード」を知らせる。日
   assert.doesNotMatch(q.errors[0].message, /英数モード/);
   const ok = assemble("ループ: IN   ; にゅうりょく\n JZ おわり\n OUT\n JUMP ループ\nおわり: HALT", isa);
   assert.deepEqual(ok.errors, []);
+});
+
+test("手計算くらべ: N はスタートのたびに 15〜25 から選ばれ、答え合わせはその N の合計（いつも 210 ではない）", async () => {
+  const { createMachine, runToEnd } = await import("../js/vm.js");
+  let seed = 3;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  const counts = {};
+  let prev = null;
+  const N = 11000;
+  for (let i = 0; i < N; i++) {
+    const n = randomManualN(rand, prev);
+    assert.ok(Number.isInteger(n) && n >= N_MIN && n <= N_MAX);
+    assert.notEqual(n, prev, "やり直すと N が変わる");
+    counts[n] = (counts[n] || 0) + 1;
+    prev = n;
+  }
+  assert.equal(Object.keys(counts).length, 11);
+  for (const c of Object.values(counts)) assert.ok(c / N > 0.07 && c / N < 0.11, JSON.stringify(counts));
+  // 答え合わせの値は、仮想CPUのプログラムの答えと同じ
+  const prog = assemble(tasks.find((t) => t.id === "sumN").answer, isa);
+  for (let n = N_MIN; n <= N_MAX; n++) assert.equal(runToEnd(createMachine(prog, { inputs: [n], maxSteps: 1e6 })).outputs[0], sumTo(n));
+  assert.equal(sumTo(20), 210);
+  // 前の版の記録（n なし）は 20 として読む
+  assert.equal(recordN({ seconds: 30 }), 20);
+  assert.equal(recordN({ seconds: 30, n: 17 }), 17);
+  const src = readFileSync(new URL("../js/auto.js", import.meta.url), "utf8");
+  assert.ok(!src.includes("N_MANUAL"));
+  assert.ok(src.includes("sumTo(nManual)"));
 });

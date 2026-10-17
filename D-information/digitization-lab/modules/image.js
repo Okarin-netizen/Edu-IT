@@ -1,6 +1,6 @@
 // モジュール1: 画像のデジタル化（画素と符号化、解像度と階調、RGB）
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz, toast } from "../js/ui.js";
-import { imageBits, formatBits, unitSteps, COLOR_MODES, colorCount, applyColorMode, toBinary, wrongRows, wrongRowsMessage } from "../js/digilib.js";
+import { imageBits, formatBits, unitSteps, COLOR_MODES, colorCount, applyColorMode, toBinary, wrongRows, wrongRowsMessage, pickAround } from "../js/digilib.js";
 
 const ID = "image";
 const STEPS = [
@@ -363,7 +363,7 @@ export const imageModule = {
       c.body.append(
         choiceQuiz({ question: "画像の横と縦の画素の数を、それぞれ2倍にしました。データ量は何倍になる？", choices: ["4倍", "2倍", "8倍"], answer: 0, explain: "画素の数は 横 × 縦 なので、2 × 2 ＝ 4倍。データ量も4倍になります。" }, () => mark(1)),
         choiceQuiz({ question: "グレー16段階の画像を、グレー256段階にしました。1画素のビット数は？", choices: ["4ビット → 8ビット", "16ビット → 256ビット", "1ビット → 2ビット"], answer: 0, explain: "16段階は 2⁴（2×2×2×2）なので4ビット、256段階は 2⁸（2を8回かける）なので8ビット。データ量は2倍になります。" }, () => mark(2)),
-        choiceQuiz({ question: "横100 × 縦100画素・フルカラー（24ビット）の画像のデータ量は？", choices: ["30,000バイト", "10,000バイト", "240,000バイト"], answer: 0, explain: "100 × 100 × 24 ＝ 240,000ビット。8でわって 30,000バイト。さらに1024でわると、約29KBです。" }, () => mark(3)),
+        choiceQuiz({ question: "横100 × 縦100画素・フルカラー（24ビット）の画像のデータ量は？", choices: ["30,000バイト", ...pickAround(["3,750バイト", "10,000バイト"], ["240,000バイト", "1,920,000バイト"])], answer: 0, explain: "100 × 100 × 24 ＝ 240,000ビット。8でわって 30,000バイト。さらに1024でわると、約29KBです。" }, () => mark(3)),
       );
     }
 

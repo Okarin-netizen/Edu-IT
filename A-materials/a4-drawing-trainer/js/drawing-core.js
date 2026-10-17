@@ -425,6 +425,20 @@
     return null;
   }
 
+  /* 三面図 views に、kind と同じ種類のまちがいを入れた図(ふたご)。作れないときは null */
+  function twin(views, kind) {
+    if (kind === 'mirror') return { front: views.front, top: views.top, right: mirrorLines(views.right, views.right.dims.U) };
+    if (kind === 'flipTop') return { front: views.front, right: views.right, top: flipLines(views.top, views.top.dims.V) };
+    if (!hasHidden(views)) return null;
+    var out = {};
+    VIEWS.forEach(function (v) {
+      out[v] = kind === 'hiddenAsSolid'
+        ? { visible: views[v].visible.concat(views[v].hidden).sort(), hidden: [], dims: views[v].dims }
+        : { visible: views[v].visible, hidden: [], dims: views[v].dims };
+    });
+    return out;
+  }
+
   /* クイズ1問: 正解1つ + まちがい3つの三面図 */
   function makeQuiz(seed, s) {
     var r = rng(seed * 7919 + 13);
@@ -465,7 +479,16 @@
     }
     var shapes = cands.filter(function (c) { return c.kind === 'shape'; });
     var others = shuffle(r, cands.filter(function (c) { return c.kind !== 'shape'; }));
-    var pick = others.slice(0, 1).concat(shapes.slice(0, 2));
+    // 正解と「似たまちがい」だけが図を共有すると、共有の多い2つにしぼって当てられてしまう。
+    // 形のちがう立体にも同じ種類のまちがい(左右逆・上下逆・かくれ線)を付けた「ふたご」を作り、2組がそれぞれ図を共有するようにする
+    var pick = others.slice(0, 1);
+    var near = pick[0];
+    for (var si = 0; near && si < shapes.length && pick.length < 3; si++) {
+      var tw = twin(shapes[si].views, near.kind);
+      if (!tw || sameViews(tw, correct) || sameViews(tw, shapes[si].views) || sameViews(tw, near.views)) continue;
+      pick.push(shapes[si], { views: tw, kind: 'shape' }); // 形もちがうので、説明は「形がちがう」
+    }
+    if (pick.length < 3) pick = others.slice(0, 1).concat(shapes.slice(0, 2));
     for (var k = 0; pick.length < 3 && k < cands.length; k++) if (pick.indexOf(cands[k]) < 0) pick.push(cands[k]);
     var options = pick.slice(0, 3).concat([{ views: correct, kind: 'correct' }]);
     shuffle(r, options);

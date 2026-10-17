@@ -19,7 +19,7 @@
     if (!log.length) { A2.setR(el, 'まだ{記録|きろく}はありません。'); return; }
     var ok = log.filter(function (x) { return x.correct; }).length;
     var by = {};
-    log.forEach(function (x) { var k = x.board + '・' + x.faceUp + 'が上'; by[k] = by[k] || [0, 0]; by[k][0]++; if (x.correct) by[k][1]++; });
+    log.forEach(function (x) { var k = x.board === '柾目' ? '柾目' : x.board + '・' + x.faceUp + 'が上'; by[k] = by[k] || [0, 0]; by[k][0]++; if (x.correct) by[k][1]++; });
     var rows = Object.keys(by).map(function (k) { return '<li>' + A2.esc(k) + ':' + by[k][0] + '{問|もん}{中|ちゅう} ' + by[k][1] + '{問|もん}{正解|せいかい}</li>'; }).join('');
     A2.setR(el, '<p>{合計|ごうけい} ' + log.length + '{問|もん}{中|ちゅう} ' + ok + '{問|もん}{正解|せいかい}</p><ul>' + rows + '</ul>');
   }

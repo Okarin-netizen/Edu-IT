@@ -98,3 +98,8 @@ test("クイズ: 正解の位置が全部同じではない(読まずに当て�
   assert.ok(pos.size >= 3, `正解の位置 ${[...pos]}`);
   D.quiz.forEach((q) => assert.equal(new Set(q.a).size, q.a.length));
 });
+test("クイズ: いちばん長い選択肢を選べば正解、にならない(正解だけがいちばん長い問題は4割以下)", () => {
+  const len = (s) => [...s].length;
+  const hits = D.quiz.filter((q) => q.a.every((t, i) => i === q.c || len(q.a[q.c]) > len(t)));
+  assert.ok(hits.length / D.quiz.length <= 0.4, `正解だけがいちばん長い問題 ${hits.length}/${D.quiz.length}`);
+});

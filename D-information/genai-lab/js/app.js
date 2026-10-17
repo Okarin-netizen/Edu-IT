@@ -570,22 +570,26 @@
     append(el, h('p', { class: 'lead' }, '生成AIは、本当のことのように見えるまちがいを答えることがあります。これを',
       h('b', { text: 'ハルシネーション' }), '(もっともらしいまちがい)といいます。なぜ起きるのかを、ミニ文章AI(学習した文から、つぎに来そうな言葉を1つずつえらんで文をつくる小さなAI。しくみは発展の ⑥ でくわしく体験できます)でたしかめます。'));
 
-    // A: ミニAIで(学習データと同じ文を2本まで、新しい文を3本。新しい文だけを判定する)
-    var nNew = hs.results.filter(function (r) { return !r.old; }).length;
+    // A: ミニAIで(学習データと同じ文を2本まで、新しい文を3本。5本とも判定する)
+    // 判定するまでは「学習データと同じ／新しい文」の印を出さない(印を見ると答えがわかってしまうため)
+    var nAll = hs.results.length;
     var nJudged = Object.keys(hs.judged).length;
-    var allJudged = nNew > 0 && nJudged >= nNew;
+    var allJudged = nAll > 0 && nJudged >= nAll;
     var resList = h('ul', { class: 'gen-list' }, hs.results.map(function (r, i) {
       var j = hs.judged[i];
       var row = h('li', { class: 'gen-row' },
-        h('span', { class: 'badge ' + (r.old ? 'gray' : 'orange'), text: r.old ? '学習データと同じ' : '新しい文' }),
+        j ? h('span', { class: 'badge ' + (r.old ? 'gray' : 'orange'), text: r.old ? '学習データと同じ' : '新しい文' }) : null,
         h('span', { class: 'gen-text', text: r.text }));
-      if (!r.old) {
-        if (!j) {
-          row.appendChild(h('span', { class: 'judge' }, h('span', { class: 'muted', text: 'この文は' }),
-            btn('本当', function () { hs.judged[i] = 'true'; go('halluc'); }), btn('まちがい', function () { hs.judged[i] = 'false'; go('halluc'); })));
-        } else {
-          row.appendChild(h('span', { class: 'judge-res ' + (j === 'false' ? 'ok' : 'ng'), text: j === 'false' ? '○ そのとおり。事実ではありません' : '× じつは事実ではありません' }));
-        }
+      if (!j) {
+        row.appendChild(h('span', { class: 'judge' }, h('span', { class: 'muted', text: 'この文は' }),
+          btn('本当', function () { hs.judged[i] = 'true'; go('halluc'); }), btn('まちがい', function () { hs.judged[i] = 'false'; go('halluc'); })));
+      } else {
+        // 学習データと同じ文は本当(学習データは事実だけ)、新しい文は事実ではない
+        var right = r.old ? j === 'true' : j === 'false';
+        var msg = r.old
+          ? (right ? '○ そのとおり。学習データと同じ、本当の文です' : '× じつは学習データと同じ、本当の文です')
+          : (right ? '○ そのとおり。事実ではありません' : '× じつは事実ではありません');
+        row.appendChild(h('span', { class: 'judge-res ' + (right ? 'ok' : 'ng'), text: msg }));
       }
       return row;
     }));
@@ -607,10 +611,10 @@
         go('halluc');
       }, 'ef-btn-primary')),
       hs.results.length ? resList : null,
-      hs.results.length && !allJudged ? h('p', { class: 'hint' }, '「新しい文」が本当かまちがいか、自分で考えてからボタンをおしてください。(のこり ' + (nNew - nJudged) + ' 本)') : null));
+      hs.results.length && !allJudged ? h('p', { class: 'hint' }, 'それぞれの文が本当かまちがいか、自分で考えてからボタンをおしてください。(のこり ' + (nAll - nJudged) + ' 本)') : null));
     if (allJudged) {
       el.appendChild(h('div', { class: 'result warn' },
-        '学習データは本当のことだけなのに、「新しい文」はどれも事実ではありませんでした。AIは「日本 で いちばん」のあとに「高い」「大きい」「長い」などが来ることを覚えているだけなので、つなぎ方によっては、自然に読めるまちがいの文ができます。'));
+        (hs.results.some(function (r) { return r.old; }) ? '「学習データと同じ」文は本当でした。でも、' : '') + '学習データは本当のことだけなのに、学習データにない「新しい文」はどれも事実ではありませんでした。AIは「日本 で いちばん」のあとに「高い」「大きい」「長い」などが来ることを覚えているだけなので、つなぎ方によっては、自然に読めるまちがいの文ができます。'));
     }
 
     // B: AIの答えチェック
