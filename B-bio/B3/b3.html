@@ -206,9 +206,8 @@ html.kz-embed #b3-app .b3-head{display:none}
     <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
     <h1 class="ef-title"><span class="ef-code">B3</span> <span class="ef-title-name">栽培暦ビルダー</span></h1>
     <div class="b3-tools ef-tools">
-      <button type="button" class="ef-btn" id="b3-ruby" aria-pressed="true" title="ふりがなの表示を切りかえ">ふりがな</button>
-      <button type="button" class="ef-btn" id="b3-dec" aria-label="文字を小さく">A−</button>
-      <button type="button" class="ef-btn" id="b3-inc" aria-label="文字を大きく">A＋</button>
+      <button type="button" class="ef-btn ef-toggle" id="b3-ruby" aria-pressed="true" title="ふりがなの表示を切りかえ">ふりがな</button>
+      <button type="button" class="ef-btn ef-size" id="b3-size">文字</button>
     </div>
   </header>
   <nav class="b3-tabs" role="tablist" aria-label="ページ">
@@ -963,18 +962,18 @@ function msgHtml(ws,withFix){return ws.map(function(w){return '<div class="b3-ms
   (w.early&&withFix?' <button type="button" class="b3-btn b3-small" data-act="early" data-v="'+w.early+'">間に合うように早める</button>':'')+'</div>'}).join('')}
 
 /* ---------- ふりがな・文字サイズ(K1・K2・K3) ---------- */
-var btnRuby=root.querySelector('#b3-ruby'),btnDec=root.querySelector('#b3-dec'),btnInc=root.querySelector('#b3-inc');
+var btnRuby=root.querySelector('#b3-ruby'),sizeUpd=null;
 var FSMIN=14,FSMAX=26;
 function clampFs(n){return window.kzPrefs?kzPrefs.clampFs(n):Math.max(FSMIN,Math.min(FSMAX,Math.round((+n||18)/2)*2))}
 function applyPrefs(){root.classList.toggle('b3-noruby',!S.set.ruby);root.classList.toggle('b3-big',S.set.fs>=24);root.style.setProperty('--b3-fs',S.set.fs+'px');
-  btnRuby.setAttribute('aria-pressed',S.set.ruby?'true':'false');btnDec.disabled=S.set.fs<=FSMIN;btnInc.disabled=S.set.fs>=FSMAX}
+  btnRuby.setAttribute('aria-pressed',S.set.ruby?'true':'false');if(sizeUpd)sizeUpd()}
 function setPrefs(o){if(o.ruby!==undefined)S.set.ruby=!!o.ruby;if(o.fs!==undefined)S.set.fs=clampFs(o.fs);save();applyPrefs();
   if(window.kzPrefs)kzPrefs.set(o.fs!==undefined?{fs:S.set.fs}:{ruby:S.set.ruby})}
 function initPrefs(){S.set.fs=clampFs(S.set.fs);S.set.ruby=S.set.ruby!==false;
   if(window.kzPrefs){var p=kzPrefs.get();if(p.ruby!==null&&p.ruby!==undefined)S.set.ruby=p.ruby;if(p.fs!==null&&p.fs!==undefined)S.set.fs=clampFs(p.fs)}}
 btnRuby.addEventListener('click',function(){setPrefs({ruby:!S.set.ruby})});
-btnDec.addEventListener('click',function(){setPrefs({fs:S.set.fs-2})});
-btnInc.addEventListener('click',function(){setPrefs({fs:S.set.fs+2})});
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン(押すたびに 小 → 中 → 大 → 特大 → 小) */
+sizeUpd=EduitFrame.sizeButton(root.querySelector('#b3-size'),{steps:[[16, '小'], [18, '中'], [22, '大'], [26, '特大']],get:function(){return S&&S.set?S.set.fs:18},set:function(v){setPrefs({fs:v})}});
 if(window.kzPrefs)kzPrefs.on(function(p){var ch=false;
   if(p.ruby===true||p.ruby===false){if(S.set.ruby!==p.ruby){S.set.ruby=p.ruby;ch=true}}
   if(typeof p.fs==='number'){var f=clampFs(p.fs);if(S.set.fs!==f){S.set.fs=f;ch=true}}

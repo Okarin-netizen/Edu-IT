@@ -11,6 +11,7 @@
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
   --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
   --ef-bg: #f5f4f0;          /* 画面の地 */
   --ef-surface: #ffffff;     /* カード・ヘッダー */
@@ -74,6 +75,18 @@
 .ef-btn:hover { border-color: var(--ef-accent); }
 .ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
 .ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 0 20px;
@@ -187,6 +200,21 @@
 /* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
 html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -267,7 +295,7 @@ window.EDUIT_INFO = {
   history: [
     {
       version: '2.6', date: '2026-10-17',
-      items: ['振り返りを隠す設定(先生用)に対応', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた']
+      items: ['振り返りを隠す設定(先生用)に対応', '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)', 'スマホで使いやすくした: 上のバーを2行にしてアプリ名が見えるようにし、入力欄や表が画面の外へはみ出さないようにした', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた']
     },
     {
       version: '2.5', date: '2026-10-16',
@@ -383,6 +411,11 @@ window.EDUIT_INFO.levels = {
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ * 上のバーの表示の道具(4分野で同じ形):
+ *   ふりがな・くっきり: <button class="ef-btn ef-toggle" aria-pressed="true|false">ふりがな</button>(ON は分野の色で塗り、✓ が付く)
+ *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
+ *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
+ *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  *
  * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
  *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
@@ -643,7 +676,34 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  // ---- 文字の大きさのボタン(4分野で同じ形:「文字 中」。押すたびに次の大きさへ) ----
+  function sizeButton(btn, opt) {
+    var steps = opt.steps;
+    btn.classList.add('ef-btn', 'ef-size');
+    btn.type = 'button';
+    btn.textContent = '';
+    btn.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    v.setAttribute('data-noruby', '');
+    btn.appendChild(v);
+    function idx() {
+      var cur = opt.get(), best = 0;
+      for (var i = 1; i < steps.length; i++) if (Math.abs(steps[i][0] - cur) < Math.abs(steps[best][0] - cur)) best = i;
+      return best;
+    }
+    function update() {
+      var s = steps[idx()][1];
+      v.textContent = s;
+      btn.title = '文字の大きさ(いまは「' + s + '」。押すと変わる)';
+      btn.setAttribute('aria-label', '文字の大きさ: ' + s);
+    }
+    btn.addEventListener('click', function () { opt.set(steps[(idx() + 1) % steps.length][0]); update(); });
+    update();
+    return update;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -787,7 +847,7 @@ window.EDUIT_INFO.levels = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
-      <li><b>第2.6版(2026-10-17)</b>: 振り返りを隠す設定(先生用)に対応した(「1. 配り方と開き方」の「振り返りを隠すとき」)。</li>
+      <li><b>第2.6版(2026-10-17)</b>: 振り返りを隠す設定(先生用)に対応した(「1. 配り方と開き方」の「振り返りを隠すとき」)。上のバーの「ふりがな」「文字 中」のボタンを4分野で同じ形にした。スマホでは上のバーを2行にしてアプリ名が見えるようにし、入力欄や表が画面からはみ出さないようにした。</li>
       <li><b>第2.5版(2026-10-16)</b>: A6 工具の使い方・安全トレーナーの絵を描き直した。手の形でにぎり方・おさえ方が分かるようにし、手順の絵に安全の点(!の印・手を近づけない場所・○よい/×だめのくらべ)を入れた。危険を見つける3つの場面も描き直した。</li>
       <li><b>第2.4版(2026-10-16)</b>: アプリの記号を M1〜M7 から A1〜A7 に変えた(分野の A にそろえた)。番号の順が、おすすめの順・カードの順になっている。メニューのカードの形を4分野でそろえた: 記号・絵・名前・説明・使うところ・「ひらく ▶」の順。基本編の上に「おすすめの順番: A1 → A2 → …」を出した。メニューの上のバーを「A 材料と加工の技術 教材集」にし、右に「先生用」ボタンを付けた(メニューの下の先生用のところへ移る)。アプリの上のバーに、名前といっしょに記号(A2 など)を出した。アプリの中のタブの番号を ①②③ の書き方にそろえ、メニューの「使うところ」にも同じ番号を出した。「まとめ・記録」「記録」「ふりかえり」のタブは番号なしで、いつも最後にある。</li>
       <li><b>第2.3版(2026-10-16)</b>: メニューを「基本編」「発展編」のタブに分けた。カードの「使うところ」に、その編で使うタブの名前を出すようにした(作品や記録の保存のしかたは変わらない)。</li>

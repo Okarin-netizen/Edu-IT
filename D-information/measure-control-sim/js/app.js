@@ -1106,7 +1106,8 @@ function route() {
 function setupToggles() {
   const box = document.getElementById("display-toggles");
   const apply = () => document.documentElement.classList.toggle("large-text", Boolean(store.pref("largeText")));
-  const b = h("button", { type: "button", class: "toggle ef-btn", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "大きな文字");
+  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
+  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
   b.addEventListener("click", () => {
     store.setPref("largeText", !store.pref("largeText"));
     b.setAttribute("aria-pressed", store.pref("largeText") ? "true" : "false");

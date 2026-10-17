@@ -274,7 +274,7 @@ const check = (ok, label) => {
         shown: [...d.querySelectorAll("header button")].filter((b) => {
           const c = b.cloneNode(true);
           c.querySelectorAll("rt, rp").forEach((x) => x.remove());
-          return b.offsetParent && /^(大きな文字|ふりがな)$/.test(c.textContent.trim());
+          return b.offsetParent && /^(大きな文字|ふりがな)$/.test(b.getAttribute("data-kz-label") || c.textContent.trim());
         }).length,
       };
     }, SKIPSEL);

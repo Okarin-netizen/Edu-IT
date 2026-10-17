@@ -452,10 +452,10 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) process
   const [cd] = await Promise.all([q.waitForEvent('download'), q.click('button:has-text("CSVで書き出す")')]);
   ok(fs.readFileSync(await cd.path(), 'utf8').includes('"サーバーとのやりとり"'), 'records CSV has server column');
   // IS-16: 大きな文字（開き直しても残る）
-  await q.click('.display-toggles .toggle:has-text("大きな文字")');
+  await q.click('.display-toggles [data-kz-label="大きな文字"]');
   ok(await q.evaluate(() => document.documentElement.classList.contains('large-text') && getComputedStyle(document.documentElement).fontSize === '20px'), 'IS-16 large text on');
   await q.reload();
-  ok(await q.evaluate(() => document.documentElement.classList.contains('large-text')) && (await q.getAttribute('.display-toggles .toggle', 'aria-pressed')) === 'true', 'IS-16 large text remembered');
+  ok(await q.evaluate(() => document.documentElement.classList.contains('large-text')) && (await q.getAttribute('.display-toggles [data-kz-label="大きな文字"]', 'aria-pressed')) === 'true', 'IS-16 large text remembered');
   await q.click('#chapter-nav a[href="#/editor"]');
   ok(await q.evaluate(() => document.documentElement.scrollWidth) <= 1366, 'IS-16 no overflow with large text');
   await c2.close();

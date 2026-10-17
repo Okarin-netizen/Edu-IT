@@ -230,9 +230,8 @@ html.kz-embed .b4 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
       <h1 class="ttl ef-title"><span class="ef-code">B4</span> <span class="ef-title-name"><ruby>育<rt>いく</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>日<rt>にっ</rt></ruby><ruby>誌<rt>し</rt></ruby>＋<ruby>成<rt>せい</rt></ruby><ruby>長<rt>ちょう</rt></ruby><ruby>予<rt>よ</rt></ruby><ruby>測<rt>そく</rt></ruby></span></h1>
       <div class="ef-tools">
       <div class="pf" role="group" aria-label="表示の設定">
-        <button type="button" class="ef-btn pfb" id="b4-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
-        <button type="button" class="ef-btn pfb" id="b4-pf-dec" aria-label="文字を小さくする" title="文字を小さく">A−</button>
-        <button type="button" class="ef-btn pfb" id="b4-pf-inc" aria-label="文字を大きくする" title="文字を大きく">A＋</button>
+        <button type="button" class="ef-btn ef-toggle pfb" id="b4-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
+        <button type="button" class="ef-btn ef-size pfb" id="b4-pf-size">文字</button>
       </div>
       <button type="button" class="ef-btn who" data-act="who" id="b4-who">👤 ---</button>
       </div>
@@ -2215,7 +2214,9 @@ kzRuby(APP.querySelector('.top'), {skip:RUBY_SKIP}); kzRuby($('#b4-demobar'), {s
   if(hp.fs===null && lg.fs!==kzPrefs.FS_DEFAULT) o.fs=lg.fs;
   if(o.ruby!==undefined || o.fs!==undefined) kzPrefs.set(o);
 })();
-kzPrefs.bind($('#b4-pf-ruby'), $('#b4-pf-dec'), $('#b4-pf-inc'));
+kzPrefs.bind($('#b4-pf-ruby'));
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン */
+kzPrefs.on(EduitFrame.sizeButton($('#b4-pf-size'), { steps: [[16, '小'], [18, '中'], [22, '大'], [26, '特大']], get: function(){ return kzPrefs.get().fs || kzPrefs.FS_DEFAULT; }, set: function(v){ kzPrefs.set({fs: v}); } }));
 kzPrefs.on(function(){ applyPrefs(); try{ save(); }catch(e){} });
 PhotoDB.open().then(function(){
   applySettings(); renderTabs();

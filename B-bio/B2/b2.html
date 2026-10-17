@@ -214,9 +214,8 @@ html.kz-embed #b2app .b2-nav{margin-top:0}
       <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
       <h1 class="b2-title ef-title"><span class="ef-code">B2</span> <span class="ef-title-name">動物飼育・水産ミニシミュレータ</span></h1>
       <div class="b2-tools ef-tools">
-        <button type="button" class="ef-btn" id="b2-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" class="ef-btn" id="b2-fminus" aria-label="文字を小さく">A−</button>
-        <button type="button" class="ef-btn" id="b2-fplus" aria-label="文字を大きく">A＋</button>
+        <button type="button" class="ef-btn ef-toggle" id="b2-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="b2-size">文字</button>
       </div>
     </div>
     <nav class="b2-nav" role="tablist" aria-label="画面の切りかえ">
@@ -1196,7 +1195,9 @@ function applySettings(){
   store.set('settings',settings);
   measure();drawChart();
 }
-kzPrefs.bind($('#b2-ruby'),$('#b2-fminus'),$('#b2-fplus'));
+kzPrefs.bind($('#b2-ruby'));
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン */
+kzPrefs.on(EduitFrame.sizeButton($('#b2-size'),{steps:[[16, '小'], [18, '中'], [22, '大'], [26, '特大']],get:function(){return kzPrefs.get().fs||kzPrefs.FS_DEFAULT},set:function(v){kzPrefs.set({fs:v})}}));
 kzPrefs.on(function(){applySettings()});
 window.addEventListener('resize',function(){clearTimeout(measure._t);measure._t=setTimeout(function(){measure();drawChart()},150)});
 /* 振り返りを隠す設定(先生用): 振り返りのタブは開かない */

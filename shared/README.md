@@ -35,6 +35,12 @@
 - **アプリの上のバー** `.ef-header`: 白地・下に分野の色の線(3px)。左から「◀ メニュー」(`.ef-btn.ef-back`)→ 記号の印とアプリ名(`.ef-title`、「[A2] 木材の繊維・収縮ラボ」)→ 右寄せの道具(`.ef-tools`)。
   道具の並びは「ふりがな → 文字の大きさ → くっきり → 使い方 → そのアプリだけのボタン」。同じ分野の教材を切りかえるボタンにも記号を出す(「[D2] CPU」)。
 - **メニューの下の部分**: 基本編・発展編(カード)→ 記録(書き出し・データの管理)→ 先生用、の順。
+- **表示の道具**(4分野で同じ形): ふりがな・くっきりは `.ef-btn.ef-toggle`(`aria-pressed="true"` で分野の色に塗り、✓ が付く)。
+  文字の大きさは「文字 中」の1つのボタン `.ef-btn.ef-size`。段が3つ以上なら `EduitFrame.sizeButton(btn, { steps, get, set })`(押すたびに次の段へ)、
+  「中・大」の2段だけなら `<button class="ef-btn ef-size" aria-pressed>文字 <span class="ef-size-v"></span></button>`(「中」「大」は CSS が出す)。
+- **明るい画面だけ**: `eduit-frame.css` は `color-scheme: light`。端末がダークモードでも黒い画面にはしない(分野ごとの CSS にもダークモードの指定を書かない)。
+- **スマホ(幅 640px 以下)**: 上のバーは名前を1行目に、道具は入りきらなければ次の行へ(`.ef-title` は 9em 以上の幅を取る)。
+  横に長い表や道具の帯は、その部分だけ横にスクロールさせ、ページ全体が横にはみ出さないようにする。
 - **ボタン** `.ef-btn`(白地・丸い枠)、ON は `.is-on` か `aria-pressed="true"`(分野の色で塗る)。いちばん大事な操作は `.ef-btn-primary`。
 - **メニューのカード**: `EduitFrame.card({ code, icon, title, desc, parts, extra, href か onOpen, openAttrs })` で作る(`.ef-card.ef-mcard`)。
   記号・アイコン・名前・説明・使うところ・追加の欄(extra: B の目安時間・振り返りの印、C のタグ・進み具合 など)・「ひらく ▶」の順。カードのどこを押しても開く。

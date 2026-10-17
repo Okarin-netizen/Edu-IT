@@ -272,9 +272,8 @@ html.kz-embed #b1-app .b1-head{ display:none; }
   <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
   <h1 class="ef-title"><span class="ef-code">B1</span> <span class="ef-title-name">育成環境コントローラ体験</span></h1>
   <div class="b1-hbtns ef-tools">
-    <button type="button" class="ef-btn b1-hbtn" id="b1-rubybtn" aria-pressed="true">ふりがな</button>
-    <button type="button" class="ef-btn b1-hbtn" id="b1-fsdec" aria-label="文字を小さく">A−</button>
-    <button type="button" class="ef-btn b1-hbtn" id="b1-fsinc" aria-label="文字を大きく">A＋</button>
+    <button type="button" class="ef-btn ef-toggle b1-hbtn" id="b1-rubybtn" aria-pressed="true">ふりがな</button>
+    <button type="button" class="ef-btn ef-size b1-hbtn" id="b1-size">文字</button>
   </div>
 </header>
 <nav class="b1-tabs" role="tablist" aria-label="画面の切りかえ">
@@ -1135,6 +1134,12 @@ function prefsNow(){
            fs:(p.fs !== null && p.fs !== undefined) ? p.fs : 18 };
 }
 var prefsReady = false;
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン(押すたびに 小 → 中 → 大 → 特大 → 小) */
+var sizeUpd = null;
+function setFs(n){
+  if (KP) n = KP.set({ fs:n }).fs || n;
+  applyPrefs({ ruby:PREF.ruby, fs:n });
+}
 function applyPrefs(p){
   var fsChanged = p.fs !== PREF.fs;
   PREF = { ruby:!!p.ruby, fs:p.fs };
@@ -1142,21 +1147,13 @@ function applyPrefs(p){
   document.documentElement.style.fontSize = (PREF.fs * 16 / 17).toFixed(2) + 'px';
   var b = $('b1-rubybtn');
   if (b) b.setAttribute('aria-pressed', PREF.ruby ? 'true' : 'false');
-  var dec = $('b1-fsdec'), inc = $('b1-fsinc'), mn = KP ? KP.FS_MIN : 14, mx = KP ? KP.FS_MAX : 26;
-  if (dec) dec.disabled = PREF.fs <= mn;
-  if (inc) inc.disabled = PREF.fs >= mx;
+  if (sizeUpd) sizeUpd();
   if (fsChanged && prefsReady) redrawCharts();
 }
 function setRuby(on){
   store.set('ruby', on);
   if (KP) KP.set({ ruby:on });
   applyPrefs({ ruby:on, fs:PREF.fs });
-}
-function bumpFs(d){
-  var mn = KP ? KP.FS_MIN : 14, mx = KP ? KP.FS_MAX : 26;
-  var n = Math.max(mn, Math.min(mx, PREF.fs + d * 2));
-  if (KP) n = KP.set({ fs:n }).fs || n;
-  applyPrefs({ ruby:PREF.ruby, fs:n });
 }
 
 /* ---------- 小物 ---------- */
@@ -2178,8 +2175,6 @@ root.addEventListener('click', function(ev){
   if (b.dataset.tab) { showTab(b.dataset.tab); return; }
   if (b.dataset.goto) { showTab(b.dataset.goto); return; }
   if (b.id === 'b1-rubybtn') { setRuby(!PREF.ruby); return; }
-  if (b.id === 'b1-fsdec') { bumpFs(-1); return; }
-  if (b.id === 'b1-fsinc') { bumpFs(1); return; }
   if (b.dataset.pick) {
     S.pick[b.dataset.pick] = b.dataset.val;
     if (b.dataset.pick === 'crop') S.pick.season = CROPS[b.dataset.val].season;
@@ -2290,6 +2285,7 @@ window.addEventListener('resize', function(){
 window.addEventListener('pagehide', function(){ if (S.tab === 'reflect') rfSave(false); });
 
 /* ---------- 起動 ---------- */
+sizeUpd = EduitFrame.sizeButton($('b1-size'), { steps: [[16, '小'], [18, '中'], [22, '大'], [26, '特大']], get: function(){ return PREF.fs; }, set: setFs });
 applyRuby(root.querySelector('.b1-head'));
 applyRuby(root.querySelector('.b1-tabs'));
 applyPrefs(prefsNow());
