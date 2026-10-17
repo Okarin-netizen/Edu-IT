@@ -184,6 +184,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <style data-eg-css>
@@ -251,14 +254,17 @@ window.EDUIT_INFO = {
   domain: 'B',
   domainName: '生物育成の技術',
   suite: '生物育成の技術 教材集',
-  version: '1.4',
-  updated: '2026-10-16',
+  version: '1.5',
+  updated: '2026-10-17',
   safety: [
     'B4 の写真は、この端末のブラウザの中(IndexedDB)だけに保存されます。人の顔や名札が写らないように撮りましょう。',
     '飼育した生き物を川や池に放さないでください(外来種・生態系への配慮)。農薬を使うときは使用基準を守ります。',
     'B1・B2 のシミュレーションは授業用の簡単なモデルです。数値は目安なので、本物の作物や生き物の観察(B4)とくらべて考えましょう。'
   ],
   history: [
+    { version: '1.5', date: '2026-10-17', items: [
+      '振り返りを隠す設定(先生用)に対応'
+    ] },
     { version: '1.4', date: '2026-10-16', items: [
       '教材の番号を、おすすめの順番と同じにした: B1 育成環境コントローラ体験 → B2 動物飼育・水産ミニシミュレータ → B3 栽培暦ビルダー → B4 育成日誌＋成長予測(前の B2 が B1、B3 が B2、B4 が B3、B1 が B4 になった)',
       'メニューのカードと上のバーの形を、4つの分野の教材集でそろえた。上のバーに「先生用」ボタンを置き、教材を切りかえるボタンにも番号を出した',
@@ -350,6 +356,13 @@ window.EDUIT_INFO.levels = {
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -366,6 +379,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -583,7 +615,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -628,6 +660,13 @@ window.EDUIT_INFO.levels = {
         <tr><td>iPad</td><td>「ファイル」アプリのプレビューではプログラムが動きません。校内 Web サーバーなどに置いて Safari で開くか、HTML を実行できるアプリを使ってください。</td></tr>
       </tbody>
     </table></div>
+    <h3>振り返りを隠すとき</h3>
+    <p>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返り(振り返りのタブ・欄、メニューのカードの「振り返り」の印など)を出さないようにできます。</p>
+    <ul>
+      <li><b>Classroom で配るとき</b>: <code>生徒に配る/振り返りなし/</code> の中の、同じ名前のファイル(<code>B_生物育成_統一版.html</code>)を配ります。中身は同じで、振り返りだけが出ません。1つずつ配るときのファイルも <code>振り返りなし/1つずつ配るとき/</code> にあります。</li>
+      <li><b>生徒用サイトで使うとき</b>: アドレスの最後に <code>?furikaeri=off</code> を付けて開くよう、生徒に知らせてください(例: <code>https://okarin-netizen.github.io/Edu-IT/?furikaeri=off</code>)。一度開くと、その端末で覚えています。<code>?furikaeri=on</code> を付けて開くと元にもどります。</li>
+      <li>隠しても、それまでに書いた振り返りは消えません。</li>
+    </ul>
     <h3>画面のつくり</h3>
     <ul>
       <li><b>メニューの上のバー</b>: 左に「B 生物育成の技術 教材集」、右に「ふりがな」「A−」「A＋」(文字の大きさ)「使い方」「先生用」と、教材を切りかえるボタン「B1 環境」「B2 飼育」「B3 栽培暦」「B4 日誌」がならびます。「先生用」はメニューの下の先生用のところへ移ります。</li>
@@ -737,6 +776,7 @@ window.EDUIT_INFO.levels = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
+      <li><b>第1.5版(2026-10-17)</b>: 振り返りを隠す設定(先生用)に対応。</li>
       <li><b>第1.4版(2026-10-16)</b>: 教材の番号を、おすすめの順番と同じにした: B1 育成環境コントローラ体験 → B2 動物飼育・水産ミニシミュレータ → B3 栽培暦ビルダー → B4 育成日誌＋成長予測(前の B2 が B1、B3 が B2、B4 が B3、B1 が B4 になった)。メニューのカードと上のバーの形を、4つの分野の教材集でそろえた。上のバーに「先生用」ボタンを置き、教材を切りかえるボタンにも番号を出した。おすすめの順番は、基本編の上の1行(おすすめの順番: B1 → B2 → B3 → B4)で見られるようにした。メニューの下を、基本編・発展編 → 記録(書き出し・データの管理) → 先生用 の順にした。番号を付け直したので、前の版で保存した記録や書き出したファイルは読みこめません。教材の中のタブを基本編 → 発展編の順にし、学ぶ中身のタブに①②③…の続き番号を付けた(「はじめに」「振り返り」には番号を付けず、振り返りはいつも最後。B4 の「予測」は「評価」のあとへ)。</li>
       <li><b>第1.3版(2026-10-16)</b>: メニューを「基本編」「発展編」のタブに分けた。カードの「使うところ」に、その編で使うタブの名前を出すようにした(記録の保存のしかたは変わらない)。先生用ガイドの名前・章立て・見た目を4分野でそろえた。</li>
       <li><b>第1.2版(2026-10-16)</b>: B3 の栽培計画を「計画書」にして、PDF に保存(印刷)・Google ドキュメント用(.docx)の書き出し・コピーができるようにした。</li>

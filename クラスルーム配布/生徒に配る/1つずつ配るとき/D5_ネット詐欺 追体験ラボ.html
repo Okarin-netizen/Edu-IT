@@ -192,6 +192,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -536,8 +539,8 @@ button.sb-mail:hover { background: #eef3fb; }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '1.7',
-    updated: '2026-10-16',
+    version: '1.8',
+    updated: '2026-10-17',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -547,6 +550,9 @@ button.sb-mail:hover { background: #eef3fb; }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応'
+      ] },
       { version: '1.7', date: '2026-10-16', items: [
         '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
         'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
@@ -657,6 +663,13 @@ window.EDUIT_INFO.levels = {
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -673,6 +686,25 @@ window.EDUIT_INFO.levels = {
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -890,7 +922,7 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -1555,6 +1587,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
   'use strict';
   var D = ScamData, E = ScamEngine;
   var APP = 'ネット詐欺 追体験ラボ';
+  // 振り返りを隠す設定(先生用。shared/eduit-frame.js)。隠すときは、まとめの振り返り欄・記録の振り返りを出さない
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
 
   if (window.EDUIT_INFO) {
     EDUIT_INFO.app = EDUIT_INFO.app || { name: APP };
@@ -1604,6 +1638,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     var kids = Array.prototype.slice.call(arguments, 1);
     return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
   }
+  // 振り返りを隠す設定のとき出さない要素の印
+  function reflectOnly(e) { e.setAttribute('data-ef-reflect', ''); return e; }
 
   // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
   var RUBY = {
@@ -1669,12 +1705,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
       return { id: sc.id, group: '詐欺を体験する', no: sc.no, min: sc.min, title: sc.title, desc: sc.desc, sc: sc, render: renderScenario };
     }))
     .concat([
-      { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
-      { id: 'records', group: '記録する', no: '', icon: '✎', title: 'ふりかえり・記録', render: renderRecordsPage }
+      { id: 'matome', group: 'まとめる', no: '6', min: '10分', title: FK_OFF ? 'まとめ' : 'まとめとふりかえり', desc: 'どの詐欺にも共通する手口と、自分の行動のしかたをまとめる', render: renderMatome },
+      { id: 'records', group: '記録する', no: '', icon: '✎', title: FK_OFF ? '記録' : 'ふりかえり・記録', render: renderRecordsPage }
     ]);
   // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
   SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
   var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
+  // できた印を付けるステップ(まとめは振り返りを書くとできた印。振り返りを隠すときは数えない)
+  var DONE_SECTIONS = STEP_SECTIONS.filter(function (x) { return !(FK_OFF && x.id === 'matome'); });
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
   var current = null;
@@ -1701,8 +1739,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
   }
   // 上のバーの「進み具合」: クリアした場面と、まとめ(ふりかえり)の割合
   function renderOverall() {
-    var done = STEP_SECTIONS.filter(isDone).length;
-    var p = Math.round(done / STEP_SECTIONS.length * 100);
+    var done = DONE_SECTIONS.filter(isDone).length;
+    var p = Math.round(done / DONE_SECTIONS.length * 100);
     var el = document.getElementById('overall-progress');
     if (!el) return;
     el.textContent = '';
@@ -1714,7 +1752,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
   function markNav() {
     Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
       var sec = SECTIONS.filter(function (x) { return x.id === a.getAttribute('data-id'); })[0];
-      var done = !!(sec && sec.no && isDone(sec));
+      var done = !!(sec && sec.no && DONE_SECTIONS.indexOf(sec) >= 0 && isDone(sec));
       a.classList.toggle('is-done', done);
       a.parentNode.classList.toggle('done', done);
       a.querySelector('.num').textContent = done ? '✓' : (sec.no || sec.icon);
@@ -1808,7 +1846,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
             h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
-            h('span', { class: 'mc-state' + (done ? ' is-done' : ''), text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
+            h('span', { class: 'mc-state' + (done ? ' is-done' : ''), 'data-ef-reflect': x.sc ? null : '', text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));
         }))),
       h('div', { class: 'btn-row home-start' },
         h('a', { class: 'ef-btn-primary', href: '#oneclick', text: 'ステップ① ワンクリック詐欺からはじめよう →' }),
@@ -1932,7 +1970,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
       point('もし、だまされてしまったら', h('p', { text: sc.ifDone })),
       h('div', { class: 'btn-row' },
         nextSc ? h('a', { class: 'ef-btn-primary', href: '#' + nextSc.id, text: 'つぎの場面：' + nextSc.title + ' →' })
-          : h('a', { class: 'ef-btn-primary', href: '#matome', text: 'まとめとふりかえりへ →' }),
+          : h('a', { class: 'ef-btn-primary', href: '#matome', text: (FK_OFF ? 'まとめ' : 'まとめとふりかえり') + 'へ →' }),
         btn('この場面をもう一度', function () { resetTimers(sc); set(E.restart(sc, st)); })));
   }
 
@@ -2086,14 +2124,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
         h('ul', { class: 'consult' }, D.consult.lines.map(function (l) {
           return h('li', null, h('b', { text: l.name + '　' }), h('span', { class: 'tel', text: l.tel }), h('span', { class: 'muted', text: '　' + l.note }));
         }))),
-      card('ふりかえり',
+      reflectOnly(card('ふりかえり',
         h('p', { class: 'muted', text: 'クリアした場面: ' + cleared + ' / ' + D.scenarios.length + '。書いた文は、この端末の中だけに保存されます。' }),
         D.reflQ.map(function (q) {
           var ta = h('textarea', { id: 'refl-' + q.id, class: 'input', rows: 3, maxlength: '600' });
           ta.value = refl[q.id] || '';
           ta.addEventListener('input', function () { var r = saved.refl || {}; r[q.id] = ta.value; save('refl', r); markNav(); });
           return h('div', { class: 'field' }, h('label', { for: 'refl-' + q.id, text: q.label }), ta);
-        }))
+        })))
     ]);
   }
 
@@ -2185,21 +2223,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     var refl = saved.refl || {};
     append(el, [
       h('div', { class: 'module-head' },
-        h('h1', { class: 'sec-title', text: 'ふりかえり・記録' }),
-        h('p', { class: 'meta', text: 'クリアした場面とふりかえりは、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+        h('h1', { class: 'sec-title', text: FK_OFF ? '記録' : 'ふりかえり・記録' }),
+        h('p', { class: 'meta', text: (FK_OFF ? 'クリアした場面' : 'クリアした場面とふりかえり') + 'は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
       card('名前',
         h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
         h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
-      card('進み具合とふりかえり',
+      card(FK_OFF ? '進み具合' : '進み具合とふりかえり',
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: '場面' }), h('th', { text: 'クリア' }), h('th', { text: 'だまされた' }), h('th', { text: 'ヒント' }))),
           h('tbody', null, r.scenarios.map(function (x) {
             return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
           })))),
-        h('ul', { class: 'refl-list' }, D.reflQ.map(function (q, i) {
+        h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, D.reflQ.map(function (q, i) {
           return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + ': ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
         })),
-        h('p', { class: 'muted' }, 'ふりかえりは「', h('a', { href: '#matome', text: '⑥ まとめとふりかえり' }), '」で書きます。')),
+        h('p', { class: 'muted', 'data-ef-reflect': '' }, 'ふりかえりは「', h('a', { href: '#matome', text: '⑥ まとめとふりかえり' }), '」で書きます。')),
       card('書き出す',
         h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
         h('div', { class: 'btn-row' },

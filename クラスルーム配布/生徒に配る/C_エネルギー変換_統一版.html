@@ -186,6 +186,9 @@
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
 }
 
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <script>
@@ -198,14 +201,17 @@ window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
   suite: 'エネルギー変換の技術 教材集',
-  version: '1.4',
-  updated: '2026-10-16',
+  version: '1.5',
+  updated: '2026-10-17',
   safety: [
     'C2 電気回路ラボ・C5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
     'C3・C4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
     '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。C1 の発電の値段は、国の試算を丸めた概算です。'
   ],
   history: [
+    { version: '1.5', date: '2026-10-17', items: [
+      '振り返りを隠す設定(先生用)に対応'
+    ] },
     { version: '1.4', date: '2026-10-16', items: [
       'アプリの記号を、分野の文字にそろえて E1〜E5 から C1〜C5 にした(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)。番号の順がおすすめの順。',
       'メニューの形を4分野でそろえた。上のバーは「C エネルギー変換の技術 教材集」と「使い方」「先生用」。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の順で、基本編の上に「おすすめの順番: C1 → C2 → …」を出す。',
@@ -286,7 +292,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
  *   version: '2.1', updated: '2026-10-15',
  *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
  *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
- *   app: { name: 'M3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
@@ -295,6 +301,13 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
@@ -312,6 +325,25 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -529,7 +561,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -1675,6 +1707,13 @@ body{overflow:hidden}
 <li>想定画面は10インチタブレット(横 1280×800 前後)・タッチ操作です。<b>縦向きにも対応</b>しています(作業エリアが全幅になり、パネルは上下に並びます)。マウス・キーボードでも操作できます。</li>
 <li><b>効果音は最初はOFF</b>です(教室で30台が同時に鳴らないように)。生徒が各アプリの 🔇/🔊 ボタンで入れられます。設定は端末ごとに記録されます。</li>
 </ul>
+<h4>振り返りを隠すとき</h4>
+<ul>
+<li>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返りを出さないようにできます。このアプリでは、C5 の「④ 評価」の振り返りの欄(うまくいったこと・改善案)と、印刷した設計シートの「8 振り返り」が出なくなります。C1・C2 のクイズは学習の一部なので出したままにし、見出しを「ふりかえり」から「たしかめ問題」に変えます。</li>
+<li><b>Classroom で配るとき</b>:<code>生徒に配る/振り返りなし/</code> の中の、同じ名前のファイルを配ります(中身は同じで、振り返りだけ出ません)。1つずつ配るときのファイルも <code>振り返りなし/1つずつ配るとき/</code> にあります。</li>
+<li><b>生徒用サイトで使うとき</b>:アドレスの最後に <code>?furikaeri=off</code> を付けて開くよう、生徒に知らせてください(例: <code>https://okarin-netizen.github.io/Edu-IT/?furikaeri=off</code>)。一度開くと、その端末で覚えています。<code>?furikaeri=on</code> を付けて開くと元にもどります。</li>
+<li>隠しても、それまでに書いた振り返りは消えません(ファイルに保存したときにも入ります)。</li>
+</ul>
 
 <h3 id="t-ichiran">2. 教材の一覧(基本編・発展編)</h3>
 <p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「❓ 使い方」「🧑‍🏫 先生用」「🖥️ 全画面」のボタンがあります。アプリには <b>C1〜C5</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → C3 → C4 → C5」と出ます)。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C5 を切りかえるボタンが出ます。</p>
@@ -1733,6 +1772,10 @@ body{overflow:hidden}
 </dl>
 
 <h3 id="t-rireki">7. 更新履歴</h3>
+<h4>振り返りを隠す設定(2026-10-17・第1.5版)</h4>
+<ul>
+<li>振り返りを隠す設定(先生用)に対応しました。隠すときは、C5 の「④ 評価」の振り返りの欄と、印刷の「8 振り返り」を出さず、C1・C2 のクイズの見出しを「たしかめ問題」にします(くわしくは「1. 配り方と開き方」の「振り返りを隠すとき」)。書いた振り返りや保存データの形は変わりません。</li>
+</ul>
 <h4>記号と画面の統一(2026-10-16・第1.4版)</h4>
 <ul>
 <li>アプリの記号を、分野の文字にそろえて E1〜E5 から <b>C1〜C5</b> にしました(C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート)。番号の順がおすすめの順です。</li>
@@ -2314,6 +2357,8 @@ var GLOSS = { '放射性廃棄物': 'ほうしゃせいはいきぶつ', '再生
   '変圧器': 'へんあつき', '蓄電池': 'ちくでんち', '軸受け': 'じくうけ', '原子炉': 'げんしろ', '需要': 'じゅよう', '供給': 'きょうきゅう', '摩耗': 'まもう',
   '絶縁': 'ぜつえん', '定格': 'ていかく', '効率': 'こうりつ', '廃棄物': 'はいきぶつ', '火災': 'かさい' };
 var GLOSS_RE = new RegExp(Object.keys(GLOSS).sort(function (a, b) { return b.length - a.length; }).join('|'), 'g');
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)のときは、クイズの見出しを「ふりかえり」ではなく「たしかめ問題」にする(クイズは学習の一部なので出す) */
+function quizTitle() { return window.EduitFrame && window.EduitFrame.furikaeri === false ? 'たしかめ問題' : 'ふりかえり'; }
 function furi(s) { var seen = {}; return String(s).replace(GLOSS_RE, function (w) { if (seen[w]) return w; seen[w] = 1; return '<ruby>' + w + '<rt>' + GLOSS[w] + '</rt></ruby>'; }); }
 function pill(f, short) { return '<span class="e1-pill" style="background:' + FORMS[f].color + '">' + (short ? FORMS[f].ch : FORMS[f].name) + '</span>'; }
 function formPath(d) {
@@ -2696,7 +2741,7 @@ function showStages() {
     var sc = S.save.stars[st.id] || 0;
     h += '<button class="e1-stcard' + (i === S.si ? ' cur' : '') + '" data-act="go" data-i="' + i + '"><div class="no">' + (st.free ? '自由' : 'ステージ ' + (i + 1)) + '</div><div class="t">' + esc(st.title) + '</div><div class="l">' + esc(st.learn) + '</div>' +
       (st.stars.length ? '<div class="s" style="color:#f0a500">' + starStr(sc, st.stars.length) + '</div>' : '') +
-      (S.save.quiz[st.id] ? '<div class="q">🤔 ふりかえり ✓</div>' : '') + '</button>';
+      (S.save.quiz[st.id] ? '<div class="q">🤔 ' + quizTitle() + ' ✓</div>' : '') + '</button>';
   });
   h += '</div><div class="acts"><button class="e1-btn" data-act="close">とじる</button></div>';
   modal(h);
@@ -2824,7 +2869,7 @@ function showResult(win) {
   M.tips.slice(0, 2).forEach(function (r) { h += '<div class="e1-reason tip">' + esc(r) + '</div>'; });
   if (win && st.quiz) {
     var order = [0, 1, 2].sort(function () { return Math.random() - 0.5; });
-    h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ふりかえり</h3><p>' + furi(st.quiz.q) + '</p>';
+    h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ' + quizTitle() + '</h3><p>' + furi(st.quiz.q) + '</p>';
     order.forEach(function (i) { h += '<button class="e1-btn" data-act="quiz" data-i="' + i + '">' + st.quiz.c[i] + '</button>'; });
     h += '<div data-ref="qex"></div></div>';
   }
@@ -3998,8 +4043,10 @@ function showHint() {
   h += '<div class="acts">' + (S.hintN < ch.hints.length ? '<button class="e2-btn" data-act="hint">もう1つヒント</button>' : '') + '<button class="e2-btn primary" data-act="close">やってみる</button></div>';
   modal(h);
 }
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)のときは、クイズの見出しを「ふりかえり」ではなく「たしかめ問題」にする(クイズは学習の一部なので出す) */
+function quizTitle() { return window.EduitFrame && window.EduitFrame.furikaeri === false ? 'たしかめ問題' : 'ふりかえり'; }
 function quizHtml(id, qz) {
-  var h = '<div class="e2-quiz" data-qid="' + id + '"><h3>🤔 ふりかえり</h3><p>' + qz.q + '</p>';
+  var h = '<div class="e2-quiz" data-qid="' + id + '"><h3>🤔 ' + quizTitle() + '</h3><p>' + qz.q + '</p>';
   shuffle([0, 1, 2]).forEach(function (i) { h += '<button class="e2-btn" data-act="quiz" data-i="' + i + '">' + qz.c[i] + '</button>'; });
   return h + '<div data-ref="qex"></div></div>';
 }
@@ -8169,6 +8216,8 @@ var RUBY = {
   '負荷': ['ふか'], '炭素皮膜抵抗': ['たんそひまくていこう'], 'フィラメント': ['', '(光る細い金属の線)'], '実測': ['じっそく'],
   '改善案': ['かいぜんあん'], '達成': ['たっせい'], '振り返り': ['ふりかえり']
 };
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)なら false。④ 評価の振り返りの欄・印刷の「8 振り返り」を出さない(書いた内容は消さない・ファイルにも入る) */
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function rb(t, seen) {
   var h = esc(t); if (!seen) return h;
   Object.keys(RUBY).forEach(function (w) {
@@ -9184,11 +9233,11 @@ function renderEval() {
   }
   h += '</div>';
   var req = taskReq(a, n), ok = req.filter(function (g) { return g.ok; }).length;
-  h += '<div class="e5-col" style="flex:1"><h2>📝 ' + rb('振り返り', seen) + '</h2><div class="e5-card goal"><b>' + task().icon + ' 条件の' + rb('達成', seen) + '(設計):' + ok + ' / ' + req.length + (ok === req.length ? ' 🎉' : '') + '</b>';
+  h += '<div class="e5-col" style="flex:1"><h2>' + (fkOn() ? '📝 ' + rb('振り返り', seen) : '🎯 条件のチェック') + '</h2><div class="e5-card goal"><b>' + task().icon + ' 条件の' + rb('達成', seen) + '(設計):' + ok + ' / ' + req.length + (ok === req.length ? ' 🎉' : '') + '</b>';
   req.forEach(function (g) { h += '<div class="e5-goal' + (g.ok ? ' ok' : '') + '"><span class="m">' + (g.ok ? '✅' : '⬜') + '</span><span>' + rb(g.t, seen) + '</span></div>'; });
   h += '</div>';
-  h += '<div class="e5-field"><label for="e5-good">うまくいったこと・設計どおりだったこと</label><textarea id="e5-good" data-note="good">' + esc(n.good) + '</textarea></div>';
-  h += '<div class="e5-field"><label for="e5-imp">' + rb('改善案', seen) + '(もっとよくするには?)</label><small>例:電池を長もちさせるため、抵抗を大きくして電流を減らす。</small><textarea id="e5-imp" data-note="improve">' + esc(n.improve) + '</textarea></div>';
+  h += '<div class="e5-field" data-ef-reflect><label for="e5-good">うまくいったこと・設計どおりだったこと</label><textarea id="e5-good" data-note="good">' + esc(n.good) + '</textarea></div>';
+  h += '<div class="e5-field" data-ef-reflect><label for="e5-imp">' + rb('改善案', seen) + '(もっとよくするには?)</label><small>例:電池を長もちさせるため、抵抗を大きくして電流を減らす。</small><textarea id="e5-imp" data-note="improve">' + esc(n.improve) + '</textarea></div>';
   h += '<div class="e5-row"><button class="e5-btn primary" data-act="print">🖨️ 設計シートを印刷</button><button class="e5-btn" data-act="file">💾 ファイルに保存</button></div></div>';
   S.el.page.innerHTML = h;
 }
@@ -9222,7 +9271,7 @@ function printSheet() {
       return '<tr><td>' + esc(lblFull(a.L, r.p)) + '</td><td>' + mA(r.I) + ' mA</td><td>' + (m.I != null ? m.I + ' mA ' + diffInfo(r.I, m.I, 1000).t : '') + '</td><td>' + (r.noV ? '−' : r.V.toFixed(2) + ' V') + '</td><td>' + (!r.noV && m.V != null ? m.V + ' V ' + diffInfo(r.V, m.V, 1).t : '') + '</td></tr>';
     }).join('') + '</table></div>';
   }
-  h += '<div class="avoid"><h2>8 振り返り</h2><div class="two"><div><b>うまくいったこと</b><div class="box">' + esc(n.good) + '</div></div><div><b>改善案</b><div class="box">' + esc(n.improve) + '</div></div></div></div>';
+  if (fkOn()) h += '<div class="avoid" data-ef-reflect><h2>8 振り返り</h2><div class="two"><div><b>うまくいったこと</b><div class="box">' + esc(n.good) + '</div></div><div><b>改善案</b><div class="box">' + esc(n.improve) + '</div></div></div></div>';
   S.el.print.innerHTML = h;
   setTimeout(function () { window.print(); }, 60);
 }
@@ -9297,7 +9346,7 @@ function showHowto(first, openSet) {
     '<div><b>📝 ① 課題・構想</b><br>課題をえらび、目的と条件をたしかめる。どんな回路にするか、理由といっしょに書く(' + rb('構想', seen) + ')。</div>' +
     '<div><b>✏️ ② 回路図</b><br>記号をえらんで点と点の間をタップ(または引っぱる)。導線(〰️)は点から点へなぞる。スイッチはタップで入/切。「自動チェック」で まちがいが見つかる。「▶ 動かす」で電流の流れや明るさを確かめる。</div>' +
     '<div><b>📦 ③ 部品表・手順</b><br>部品表と製作手順が自動でできる。手順のとちゅうで、先生に配線を点検してもらう。</div>' +
-    '<div><b>📏 ④ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ、' + rb('改善案', seen) + 'を書く。</div></div>' +
+    '<div><b>📏 ④ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ' + (fkOn() ? '、' + rb('改善案', seen) + 'を書く' : 'る') + '。</div></div>' +
     '<h3>回路図記号のルール</h3>電池:長い線が+。電源装置:電池の記号を2組ならべた形。LED:三角の向きに電流が流れる(+はアノード=長い足、−はカソード=短い足)。● は導線が3本以上つながっている点。赤い○ は、つながっていない端子や、導線の切れ目。' +
     '<h3>「② 回路図」タブの数字の色</h3><span class="e5-badge">2</span> 赤:❌ まちがいがある(数) <span class="e5-badge y">1</span> 黄:⚠️ 注意がある(数) <span class="e5-badge g">✓</span> 緑:問題なし' +
     '<h3>ことば</h3><dl class="e5-gl"><dt>' + rb('定格', {}) + '</dt><dd>部品に決められた電圧・電流(豆電球 2.5V 0.3A など)</dd><dt>' + rb('規格', {}) + '</dt><dd>部品の種類や大きさの決まり</dd><dt>' + rb('負荷', {}) + '</dt><dd>電気を使う部品(豆電球・LED・モーター)</dd><dt>ショート</dt><dd>電源の+と−が、部品を通らずに導線だけでつながること。とても危険</dd></dl>' +

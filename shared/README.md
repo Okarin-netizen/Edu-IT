@@ -41,6 +41,16 @@
 - **フッター**: 画面の下に「作成: 技術 岡田 ・ 第◯版 ・ 安全と個人情報・ライセンス・更新履歴」。
   画面いっぱいを使うアプリは、ヘッダーの道具に `<span data-ef-about></span>` を置くと「ⓘ このアプリについて」ボタンになる。
 
+## 振り返りを隠す設定
+
+先生が振り返りを Google フォームなど別の方法で集めるときのために、教材の中の振り返りを出さないようにできます(既定は出す)。
+
+- `eduit-frame.js` が設定を読み、隠すときは `<html data-ef-furikaeri="off">` にして `EduitFrame.furikaeri = false` にします。
+  決め方(先のものが勝つ): アドレスの `?furikaeri=off|on`(自分か、同じサイトの親の画面。localStorage `eduit.furikaeri` に覚える)→ `window.EDUIT_FURIKAERI = 'off'|'on'`(自分か親の画面)→ localStorage `eduit.furikaeri`。
+- 振り返りのタブ・欄・カードの印などには **`data-ef-reflect`** を付けます。隠す設定のとき `eduit-frame.css` が出さなくします。
+- 振り返りを書かないと先へ進めない・前に開いていたタブが振り返り、のように JS で決めているところは `EduitFrame.furikaeri` を見て、隠すときは振り返りをとばします。
+- `クラスルーム配布/まとめる.py` は、生徒に配るファイルの `<head>` のすぐあとに `window.EDUIT_FURIKAERI = 'off'` を入れた版を `生徒に配る/振り返りなし/` に作ります。
+
 ## 基本編・発展編のタブ(メニュー用)
 
 `EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, gridClass, onRender })` で、

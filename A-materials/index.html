@@ -102,12 +102,24 @@
   function addCards(box, list) {
     list.forEach(function (a) { box.appendChild(makeCard(a)); });
   }
+  // 「使うところ」の「ふりかえり」に data-ef-reflect を付ける(振り返りを隠す設定のときは出さない)
+  function markReflect(p, list) {
+    if (!p || !list || !p.lastChild || p.lastChild.nodeType !== 3) return p;
+    p.removeChild(p.lastChild);
+    list.forEach(function (s, i) {
+      var sep = i ? '・' : '', m = /^(.*?)(・?ふりかえり)$/.exec(s);
+      if (!m) { p.appendChild(document.createTextNode(sep + s)); return; }
+      if (m[1]) p.appendChild(document.createTextNode(sep + m[1]));
+      p.appendChild(G.h('span', { 'data-ef-reflect': '' }, (m[1] ? '' : sep) + m[2]));
+    });
+    return p;
+  }
   // 基本編・発展編のタブ(分け方は eduit-info.js の levels。タブの切りかえは共通の枠 shared/eduit-frame.js)
   var appById = {};
   G.APPS.forEach(function (a) { appById[a.id] = a; });
   EduitFrame.levels(G.$('#apps'), {
     gridClass: 'apps',
-    card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], parts) : null; },
+    card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], markReflect(parts, item.parts)) : null; },
     code: function (item) { return appById[item.id] && appById[item.id].code; },
     onRender: function (panel) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(panel); } catch (e) {} }
   });

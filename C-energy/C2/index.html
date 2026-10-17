@@ -1156,8 +1156,10 @@ function showHint() {
   h += '<div class="acts">' + (S.hintN < ch.hints.length ? '<button class="e2-btn" data-act="hint">もう1つヒント</button>' : '') + '<button class="e2-btn primary" data-act="close">やってみる</button></div>';
   modal(h);
 }
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)のときは、クイズの見出しを「ふりかえり」ではなく「たしかめ問題」にする(クイズは学習の一部なので出す) */
+function quizTitle() { return window.EduitFrame && window.EduitFrame.furikaeri === false ? 'たしかめ問題' : 'ふりかえり'; }
 function quizHtml(id, qz) {
-  var h = '<div class="e2-quiz" data-qid="' + id + '"><h3>🤔 ふりかえり</h3><p>' + qz.q + '</p>';
+  var h = '<div class="e2-quiz" data-qid="' + id + '"><h3>🤔 ' + quizTitle() + '</h3><p>' + qz.q + '</p>';
   shuffle([0, 1, 2]).forEach(function (i) { h += '<button class="e2-btn" data-act="quiz" data-i="' + i + '">' + qz.c[i] + '</button>'; });
   return h + '<div data-ref="qex"></div></div>';
 }

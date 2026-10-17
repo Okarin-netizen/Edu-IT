@@ -1,6 +1,6 @@
 // アプリ本体: 章ナビ、ルーティング、進み具合、トップページ、記録ページ
 import { store } from "./store.js";
-import { h, explainCard, downloadFile, toast, flushDrafts } from "./ui.js";
+import { h, explainCard, downloadFile, toast, flushDrafts, furikaeriOn, REFLECT_ATTR } from "./ui.js";
 import { buildModule } from "../modules/build.js";
 import { flowModule } from "../modules/flow.js";
 import { faultModule } from "../modules/fault.js";
@@ -20,10 +20,14 @@ const nav = document.getElementById("chapter-nav");
 const overall = document.getElementById("overall-progress");
 const toggles = document.getElementById("display-toggles");
 
+// 振り返りを隠す設定のときは、ふりかえりのステップを数えない
 const progress = (m) => {
-  const done = m.steps.filter((s) => store.isStepDone(m.id, s.id)).length;
-  return { done, total: m.steps.length, complete: done === m.steps.length };
+  const steps = furikaeriOn() ? m.steps : m.steps.filter((s) => s.id !== "reflect");
+  const done = steps.filter((s) => store.isStepDone(m.id, s.id)).length;
+  return { done, total: steps.length, complete: done === steps.length };
 };
+// 「ふりかえり・記録」のページの名前（隠す設定のときは「記録」）
+const recordsTitle = () => (furikaeriOn() ? "ふりかえり・記録" : "記録");
 
 function renderNav(currentId) {
   const ol = h("ol");
@@ -37,7 +41,7 @@ function renderNav(currentId) {
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "体験する"));
   for (const m of MODULES) ol.append(link(`#/${m.id}`, m.num, m.title, m.id, progress(m).complete));
   ol.append(h("li", { class: "nav-group", "aria-hidden": "true" }, "記録する"));
-  ol.append(link("#/records", "✎", "ふりかえり・記録", "records", false));
+  ol.append(link("#/records", "✎", recordsTitle(), "records", false));
   nav.replaceChildren(h("nav", { "aria-label": "章ナビゲーション" }, ol));
 }
 
@@ -132,7 +136,7 @@ function renderHome() {
           }),
         ),
       ),
-      h("p", { class: "hint" }, "どのページも、終わりに「ふりかえり」を書きます。⑤のドリル（発展）の「チャレンジ問題」は、時間がある人だけでかまいません。"),
+      h("p", { class: "hint" }, h("span", REFLECT_ATTR, "どのページも、終わりに「ふりかえり」を書きます。"), "⑤のドリル（発展）の「チャレンジ問題」は、時間がある人だけでかまいません。"),
     ),
     grid,
     // ことばの一覧（読み方つき）（NW-13）
@@ -162,7 +166,7 @@ function renderRecords() {
   });
   const rows = MODULES.map((m) => {
     const p = progress(m);
-    return h("tr", {}, h("td", {}, `${m.label} ${m.title}`), h("td", {}, `${p.done} / ${p.total}`), h("td", {}, store.getReflection(m.id) || "—"));
+    return h("tr", {}, h("td", {}, `${m.label} ${m.title}`), h("td", {}, `${p.done} / ${p.total}`), h("td", REFLECT_ATTR, store.getReflection(m.id) || "—"));
   });
   // 書き出す前に、組と番号が入っているかを確かめる。書き出したら、ファイル名と出し方を知らせる（共通のきまり）
   const exportNote = h("p", { class: "export-note", "aria-live": "polite" });
@@ -220,9 +224,9 @@ function renderRecords() {
     route();
   });
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "ふりかえり・記録"), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "module-head" }, h("h1", {}, recordsTitle()), h("p", { class: "meta" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
     h("div", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, fields)),
-    h("div", { class: "card" }, h("h2", {}, "進み具合とふりかえり"), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "ステップ"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows))), h("p", {}, `IPアドレス・ドリルの最高点：${store.getScore("drill", "best") ?? "—"} / 10`), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, exportBtn, csvBtn), exportNote),
+    h("div", { class: "card" }, h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")), h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "モジュール"), h("th", {}, "ステップ"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, rows))), h("p", {}, `IPアドレス・ドリルの最高点：${store.getScore("drill", "best") ?? "—"} / 10`), h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "CSV は、表計算ソフトで見るためのものです。"), h("div", { class: "btn-row" }, exportBtn, csvBtn), exportNote),
     h("div", { class: "card" }, h("h2", {}, "記録を消す"), h("p", { class: "hint" }, "次の人に端末をわたすときに使います。"), h("div", { class: "btn-row" }, resetBtn)),
   );
 }
@@ -233,7 +237,7 @@ function renderModule(m) {
   m.render(view);
   const idx = MODULES.indexOf(m);
   const next = MODULES[idx + 1];
-  view.append(h("div", { class: "btn-row module-next" }, idx > 0 ? h("a", { class: "btn secondary", href: `#/${MODULES[idx - 1].id}` }, `← ${MODULES[idx - 1].title}`) : null, next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, "ふりかえり・記録へ →")));
+  view.append(h("div", { class: "btn-row module-next" }, idx > 0 ? h("a", { class: "btn secondary", href: `#/${MODULES[idx - 1].id}` }, `← ${MODULES[idx - 1].title}`) : null, next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, `${recordsTitle()}へ →`)));
 }
 
 let lastId = null;

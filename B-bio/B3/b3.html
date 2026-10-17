@@ -216,7 +216,7 @@ html.kz-embed #b3-app .b3-head{display:none}
     <button type="button" role="tab" data-act="tab" data-t="plan">② 計画<span class="b3-tl">をつくる</span></button>
     <button type="button" role="tab" data-act="tab" data-t="cal">③ カレンダー</button>
     <button type="button" role="tab" data-act="tab" data-t="eval">④ 記録<span class="b3-tl">と評価</span></button>
-    <button type="button" role="tab" data-act="tab" data-t="refl">振り返り</button>
+    <button type="button" role="tab" data-act="tab" data-t="refl" data-ef-reflect>振り返り</button>
   </nav>
   <main id="b3-main" role="tabpanel"></main>
   <input type="file" id="b3-file" accept=".json,application/json" class="b3-hidden">
@@ -982,13 +982,15 @@ if(window.kzPrefs)kzPrefs.on(function(p){var ch=false;
 
 /* ---------- 描画 ---------- */
 var TABS=['crop','plan','cal','eval','refl'];
+/* 振り返りを隠す設定(先生用): 振り返りのページは開かない・「次へ」で進まない */
+var FK_OFF=!!(window.EduitFrame&&EduitFrame.furikaeri===false);
 function render(){
   applyPrefs();
-  if(TABS.indexOf(S.set.tab)<0)S.set.tab='crop';
+  if(TABS.indexOf(S.set.tab)<0||(FK_OFF&&S.set.tab==='refl'))S.set.tab='crop';
   root.querySelectorAll('.b3-tabs [data-t]').forEach(function(b){b.setAttribute('aria-selected',b.getAttribute('data-t')===S.set.tab?'true':'false')});
   ({crop:rCrop,plan:rPlan,cal:rCal,eval:rEval,refl:rRefl})[S.set.tab]();
 }
-function nav(prev,next){return '<div class="b3-bottomnav b3-noprint">'+(prev?'<button type="button" class="b3-btn" data-act="tab" data-t="'+prev[0]+'">◀ '+prev[1]+'</button>':'<span></span>')+
+function nav(prev,next){if(FK_OFF&&next&&next[0]==='refl')next=null;return '<div class="b3-bottomnav b3-noprint">'+(prev?'<button type="button" class="b3-btn" data-act="tab" data-t="'+prev[0]+'">◀ '+prev[1]+'</button>':'<span></span>')+
   (next?'<button type="button" class="b3-btn b3-primary" data-act="tab" data-t="'+next[0]+'">'+next[1]+' ▶</button>':'')+'</div>'}
 function obsTag(t){return t.kind==='obs'?'<span class="b3-obs">観察</span>':''}
 function whenText(c,t){return t.off<0?(-t.off)+'日前':t.off===0?c.start+'の日':t.off+'日目ごろ'}
@@ -998,7 +1000,7 @@ function flowList(cid,region){var c=CROP[cid];return '<ol class="b3-flow">'+crop
 
 function rCrop(){var c=CROP[S.cropId],reg=S.draft.region,hasAutumn=c.win.some(function(w){return +w[0].slice(0,2)>=7});
   fill(main,'<h2>① 育てる作物をえらぼう</h2>'+
-  '<p class="b3-lead">このアプリでは、<b>「いつ収穫したいか」から逆算</b>して、種まきや手入れの日を決める栽培計画(栽培暦)をつくります。①→④の順に進み、最後に「振り返り」を書こう。まずは作物をタップしてえらんでね。</p>'+
+  '<p class="b3-lead">このアプリでは、<b>「いつ収穫したいか」から逆算</b>して、種まきや手入れの日を決める栽培計画(栽培暦)をつくります。①→④の順に進もう<span data-ef-reflect>。最後に「振り返り」を書こう</span>。まずは作物をタップしてえらんでね。</p>'+
   '<div class="b3-crops">'+ORDER.map(function(id){var k=CROP[id];return '<button type="button" class="b3-crop" data-act="crop" data-id="'+id+'" aria-pressed="'+(id===S.cropId)+'">'+badge(k)+
     '<span><b>'+cropName(id)+'</b><small>'+k.how+'</small><small>収穫まで 約'+hOff(id,'mid',1)+'日</small></span></button>'}).join('')+'</div>'+
   '<div class="b3-grid2"><div class="b3-card"><div class="b3-row">'+badge(c,true)+'<h3 style="margin:0">'+cropName(S.cropId)+'</h3></div>'+

@@ -1,5 +1,5 @@
 // モジュール⑩: まとめ・行動宣言
-import { h, explainCard, stepCard, reflectionBox, threeSteps, toast } from "../js/ui.js";
+import { h, explainCard, stepCard, reflectionBox, threeSteps, toast, furikaeriOn, REFLECT_ATTR } from "../js/ui.js";
 import { store } from "../js/store.js";
 import { consultCard } from "../js/consult.js";
 
@@ -106,7 +106,7 @@ export const declareModule = {
     const past = Object.entries(store.state.reflections).filter(([k]) => k !== ID);
     cards[0].body.append(
       past.length
-        ? h("details", {}, h("summary", {}, `これまでのふりかえりを見る（${past.length}件）`), h("ul", { class: "feedback-list" }, past.map(([, r]) => h("li", {}, r.text))))
+        ? h("details", REFLECT_ATTR, h("summary", {}, `これまでのふりかえりを見る（${past.length}件）`), h("ul", { class: "feedback-list" }, past.map(([, r]) => h("li", {}, r.text))))
         : "",
       h("p", {}, "全部できたら理想ですが、まずは「確実に続けられる3つ」を選ぼう。"),
       ...groups,
@@ -114,11 +114,12 @@ export const declareModule = {
       h("div", { class: "btn-row" }, saveBtn),
     );
     cards[1].body.append(cardView);
-    cards[2].body.append(
+    // 「続けるコツ」と相談先は、振り返りを隠す設定のときはステップ2（カード）の下に出す
+    (furikaeriOn() ? cards[2] : cards[1]).body.append(
       explainCard("続けるコツ", "家族にカードを見せて、宣言したことを一緒に確かめてもらおう。1か月後に、できているかふりかえってみよう。"),
       await consultCard(),
-      reflectionBox(ID, "その3つを選んだ理由と、どうやって続けるかを書こう。", () => cards[2].done()),
     );
+    cards[2].body.append(reflectionBox(ID, "その3つを選んだ理由と、どうやって続けるかを書こう。", () => cards[2].done()));
     updateCounter();
     drawCard();
     root.append(...cards.map((c) => c.el));

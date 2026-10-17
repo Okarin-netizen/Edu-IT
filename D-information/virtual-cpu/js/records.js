@@ -1,5 +1,5 @@
 // ふりかえり・記録: 各ページのふりかえり欄と、名前・進み具合・ふりかえりの一覧、JSON/CSV の書き出し（端末内でファイルを作るだけ。送信はしない）
-import { h, toast, takeReflectionFocus } from "./ui.js";
+import { h, toast, takeReflectionFocus, REFLECT_ATTR, recordsTitle } from "./ui.js";
 import { store } from "./store.js";
 import { tierSummary, tierLabel } from "./tasks.js";
 
@@ -70,7 +70,7 @@ export function reflectionBox(id) {
   });
   const box = h(
     "section",
-    { class: "card reflection" },
+    { class: "card reflection", ...REFLECT_ATTR },
     h("h2", {}, "ふりかえり"),
     h("label", { for: tid }, r.prompt),
     h("div", { class: "hint" }, "用語を覚えるだけでなく、「なぜそうなるのか」を自分の言葉で書こう。"),
@@ -144,7 +144,7 @@ export function renderRecords(view, { tasks }, rerender) {
     input.addEventListener("change", () => store.setStudent({ [k]: input.value.trim() }));
     return h("div", { class: "field" }, h("label", { for: `stu-${k}` }, label), input);
   });
-  const rows = REFLECT.map((r) => h("tr", {}, h("td", {}, r.title), h("td", {}, progressText(r.id, tasks)), h("td", {}, store.getReflection(r.id) || "—")));
+  const rows = REFLECT.map((r) => h("tr", {}, h("td", {}, r.title), h("td", {}, progressText(r.id, tasks)), h("td", REFLECT_ATTR, store.getReflection(r.id) || "—")));
   const who = () => [st.student.cls, st.student.num, st.student.name].filter(Boolean).join("-") || "記録";
   const exportMsg = h("p", { class: "export-msg", role: "status", "aria-live": "polite" });
   // 書き出す前に、入力中の組・番号・名前も保存する（change を待たない）
@@ -194,14 +194,14 @@ export function renderRecords(view, { tasks }, rerender) {
     rerender();
   });
   view.replaceChildren(
-    h("div", { class: "page-head" }, h("h2", {}, "ふりかえり・記録"), h("p", { class: "muted" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
+    h("div", { class: "page-head" }, h("h2", {}, recordsTitle()), h("p", { class: "muted" }, "記録はこの端末のブラウザの中だけに保存されます。提出するときは書き出したファイルを先生に渡します。")),
     h("section", { class: "card" }, h("h2", {}, "名前"), h("div", { class: "field-row" }, fields)),
     h(
       "section",
       { class: "card" },
-      h("h2", {}, "進み具合とふりかえり"),
-      h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ページ"), h("th", {}, "進み具合"), h("th", {}, "ふりかえり"))), h("tbody", {}, rows))),
-      h("p", { class: "hint" }, "ふりかえりは、それぞれのページのいちばん下で書けます。"),
+      h("h2", {}, "進み具合", h("span", REFLECT_ATTR, "とふりかえり")),
+      h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ページ"), h("th", {}, "進み具合"), h("th", REFLECT_ATTR, "ふりかえり"))), h("tbody", {}, rows))),
+      h("p", { class: "hint", ...REFLECT_ATTR }, "ふりかえりは、それぞれのページのいちばん下で書けます。"),
       h("p", { class: "hint" }, h("strong", {}, "先生に出すのは JSON のファイルです。"), "JSON には、課題ごとに書いたプログラムと、答えの例を見たかも入ります。CSV は表で見たいときに使います。"),
       h("div", { class: "btn-row" }, exportBtn, csvBtn, exportMsg),
     ),
