@@ -39,7 +39,7 @@
   var REC_ID = 'drawing-trainer-record';
   var rec = G.newArtifact(APP, '製図トレーナーの記録', emptyData(), 'progress');
   rec.id = REC_ID;
-  function emptyData() { return { name: '', quiz: {}, build: {}, draw: {}, iso: {}, terms: { best: null, history: [] }, reflect: { self: {}, learned: '', hard: '', use: '' } }; }
+  function emptyData() { return { name: '', quizSalt: Math.floor(Math.random() * 1e9), quiz: {}, build: {}, draw: {}, iso: {}, terms: { best: null, history: [] }, reflect: { self: {}, learned: '', hard: '', use: '' } }; }
   var saveTimer = null;
   function save() {
     clearTimeout(saveTimer);
@@ -152,11 +152,14 @@
   var quizState = { level: 1, idx: 0 };
   var quizCache = {};
   function quizOf(p) {
-    if (!quizCache[p.id]) {
+    if (!quizCache[p.id] || quizCache[p.id].salt !== rec.data.quizSalt) {
       var seed = p.level * 100 + Number(p.id.split('-')[1]) - 1; // tests/run-tests.js と同じ種
-      quizCache[p.id] = M.makeQuiz(seed, p.solid);
+      var q = M.makeQuiz(seed, p.solid);
+      // ア〜エの順は生徒ごとに変える(記録の quizSalt で決まるので、開き直しても同じ順)。「問1はア」のような答えの教え合いを防ぐ
+      var opts = M.shuffle(M.rng((rec.data.quizSalt >>> 0) + seed * 101), q.options.slice());
+      quizCache[p.id] = { salt: rec.data.quizSalt, q: { options: opts, answer: opts.findIndex(function (o) { return o.kind === 'correct'; }) } };
     }
-    return quizCache[p.id];
+    return quizCache[p.id].q;
   }
   var KIND_EXPLAIN = {
     mirror: '右側面図の左右が逆になっています。右から見ると、品物の正面(手前)は図の左側にきます。',

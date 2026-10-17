@@ -1,4 +1,4 @@
-/* ③ 反りシミュレーション:木表/木裏を選び、乾燥後に反る向きを予測 → 確認 */
+/* ③ 反りシミュレーション:問題ごとに板の種類と上の面(木表/木裏)が変わる。乾燥後に反る向きを予測 → 確認 */
 (function () {
   'use strict';
   var W = A2.wood, PI = Math.PI;
@@ -7,6 +7,9 @@
   var q = null;          // 今の問題
   var st = { faceUp: 'omote', s: 0, answered: null, hint: false };
   var session = { n: 0, ok: 0 };
+  // 出題の袋:答え(へこむ/ふくらむ/反らない)が同じ数ずつ出るように、3種類を2つずつ混ぜて順に出す
+  var KINDS = ['ita-omote', 'ita-ura', 'masa'];
+  var bag = [], lastKind = null;
 
   var CHOICES = [
     { id: 'concave', label: '{上|うえ}の{面|めん}がへこむ', svg: '<path d="M6 10 Q30 30 54 10" />' },
@@ -14,14 +17,27 @@
     { id: 'flat', label: 'ほとんど{反|そ}らない', svg: '<path d="M6 18 L54 18" />' }
   ];
 
+  function nextKind() {
+    if (!bag.length) {
+      bag = KINDS.concat(KINDS);
+      for (var i = bag.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = bag[i]; bag[i] = bag[j]; bag[j] = t; }
+      // 袋の切れ目で同じ種類が続かないように
+      if (bag[bag.length - 1] === lastKind) { var k = bag.pop(); bag.unshift(k); }
+    }
+    lastKind = bag.pop();
+    return lastKind;
+  }
+
   function newQuestion() {
-    var r = Math.random();
-    if (r < 0.75) {
+    var kind = nextKind();
+    if (kind !== 'masa') {
       var d = 0.42 + Math.random() * 0.25;
       q = { type: 'ita', cx: 0, cy: d, w: 0.9 - (d - 0.42) * 0.9, t: 0.17, phi0: PI / 2 };
+      st.faceUp = kind === 'ita-omote' ? 'omote' : 'ura';
     } else {
       var dm = 0.45 + Math.random() * 0.15;
       q = { type: 'masa', cx: dm, cy: 0, w: 0.62, t: 0.17, phi0: 0 };
+      st.faceUp = Math.random() < 0.5 ? 'omote' : 'ura';
     }
     q.poly = W.rectPoly(q.cx, q.cy, q.w, q.t, 0, 70);
     st.s = 0; st.answered = null;
@@ -38,11 +54,11 @@
   }
 
   function updateFaceButtons() {
-    var o = document.getElementById('faceUpOmote'), u = document.getElementById('faceUpUra');
-    o.setAttribute('aria-pressed', String(st.faceUp === 'omote'));
-    u.setAttribute('aria-pressed', String(st.faceUp === 'ura'));
-    var lock = !!st.answered;
-    o.disabled = u.disabled = lock;
+    var el = document.getElementById('quizSetup');
+    if (!el) return;
+    A2.setR(el, q.type === 'ita'
+      ? '{板目|いため}{板|いた}。{上|うえ}の{面|めん}は <b>' + (st.faceUp === 'omote' ? '{木表|きおもて}' : '{木裏|きうら}') + '</b>'
+      : '{柾目|まさめ}{板|いた}');
   }
 
   function renderChoices() {
@@ -78,7 +94,7 @@
       feedback(ok, choice, right);
     });
     A2.loadRecords().then(function (rec) {
-      rec.data.quizLog.push({ at: new Date().toISOString(), board: q.type === 'ita' ? '板目' : '柾目', faceUp: st.faceUp === 'omote' ? '木表' : '木裏', answer: choice, correct: ok });
+      rec.data.quizLog.push({ at: new Date().toISOString(), board: q.type === 'ita' ? '板目' : '柾目', faceUp: q.type === 'masa' ? '' : (st.faceUp === 'omote' ? '木表' : '木裏'), answer: choice, correct: ok });
       if (rec.data.quizLog.length > 500) rec.data.quizLog = rec.data.quizLog.slice(-500);
       return A2.saveRecords(rec);
     }).then(function () { if (A2.labs.notes) A2.labs.notes.refreshLog(); });
@@ -214,8 +230,6 @@
     init: function () {
       cv = document.getElementById('cvQuiz');
       redraw = A2.scheduler(draw);
-      document.getElementById('faceUpOmote').addEventListener('click', function () { if (!st.answered) { st.faceUp = 'omote'; updateFaceButtons(); redraw(); } });
-      document.getElementById('faceUpUra').addEventListener('click', function () { if (!st.answered) { st.faceUp = 'ura'; updateFaceButtons(); redraw(); } });
       document.getElementById('quizHint').addEventListener('change', function (e) { st.hint = e.target.checked; redraw(); });
       document.getElementById('quizNext').addEventListener('click', function () { if (stopAnim) stopAnim(); newQuestion(); });
       A2.setR('quizDesc', '{板|いた}を{木口|こぐち}({端|はし}の{断面|だんめん})から{見|み}た{図|ず}。{年輪|ねんりん}の{曲|ま}がり{方|かた}にも{注目|ちゅうもく}しよう。');

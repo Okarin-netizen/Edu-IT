@@ -14,14 +14,20 @@
   var RIB = { w: 15, h: 20 };                        // 補強リブ(角材)の断面
   var MATERIALS = ['sugi', 'hinoki', 'lauan', 'plywood'];
 
+  // 課題ごとに条件を変えて、いちばん軽い答えが課題ごとにちがうようにしている
+  // (課題1: スギ6mm+リブ1本 / 課題2: スギ12mm リブなし / 課題3: ヒノキ12mm+リブ3本)
+  // maxRibs: 付けてよいリブの本数、maxT: 使ってよい板の厚みの上限(mm)
   var LEVELS = [
     { id: 'lv1', title: '本棚の棚板', story: '両はしを支えた棚板の真ん中に、10kgの物をのせる。',
-      support: 'simple', loadType: 'point', span: 600, width: 200, loadKg: 10, maxDeflection: 3, minSafety: 3 },
-    { id: 'lv2', title: '壁から出た棚', story: '片方だけを壁に固定した棚の先に、5kgの物をのせる。',
-      support: 'cantilever', loadType: 'point', span: 300, width: 150, loadKg: 5, maxDeflection: 3, minSafety: 3 },
-    { id: 'lv3', title: '長い本棚', story: '両はしを支えた長い棚板に、本を合計20kg、全体にならべる。',
-      support: 'simple', loadType: 'uniform', span: 900, width: 250, loadKg: 20, maxDeflection: 4.5, minSafety: 3 }
+      support: 'simple', loadType: 'point', span: 600, width: 200, loadKg: 10, maxDeflection: 3, minSafety: 3, maxRibs: 3 },
+    { id: 'lv2', title: '壁から出た棚', story: '片方だけを壁に固定した棚の先に、5kgの物をのせる。下から見えるので、リブは付けない。',
+      support: 'cantilever', loadType: 'point', span: 300, width: 150, loadKg: 5, maxDeflection: 3, minSafety: 3, maxRibs: 0 },
+    { id: 'lv3', title: '長い本棚', story: '両はしを支えた長い棚板に、本を合計60kg、全体にならべる。棚のすき間をあけたいので、板の厚みは12mmまで。',
+      support: 'simple', loadType: 'uniform', span: 900, width: 250, loadKg: 60, maxDeflection: 3, minSafety: 3, maxRibs: 3, maxT: 12 }
   ];
+
+  function maxRibs(lv) { return lv.maxRibs == null ? 3 : lv.maxRibs; }
+  function allowedThickness(lv) { return THICKNESS.filter(function (t) { return !lv.maxT || t <= lv.maxT; }); }
 
   function level(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i]; return LEVELS[0]; }
 
@@ -37,15 +43,16 @@
       loadKg: lv.loadKg, support: lv.support, loadType: lv.loadType });
     if (!r.ok) return { ok: false, error: r.error, pass: false };
     var okD = r.deflection <= lv.maxDeflection, okS = r.safety >= lv.minSafety;
-    return { ok: true, result: r, okDeflection: okD, okSafety: okS, pass: okD && okS, massG: r.mass * 1000 };
+    var okL = (design.ribs || 0) <= maxRibs(lv) && (!lv.maxT || design.t <= lv.maxT);
+    return { ok: true, result: r, okDeflection: okD, okSafety: okS, okLimits: okL, pass: okD && okS && okL, massG: r.mass * 1000 };
   }
 
   // 条件を満たす中でいちばん軽い組み合わせ(星の基準に使う。生徒には答えとして見せない)
   function best(lv) {
     var b = null;
     MATERIALS.forEach(function (m) {
-      THICKNESS.forEach(function (t) {
-        for (var ribs = 0; ribs <= 3; ribs++) {
+      allowedThickness(lv).forEach(function (t) {
+        for (var ribs = 0; ribs <= maxRibs(lv); ribs++) {
           var e = evaluate(lv, { material: m, t: t, ribs: ribs });
           if (e.pass && (!b || e.massG < b.massG)) b = { material: m, t: t, ribs: ribs, massG: e.massG };
         }
@@ -65,5 +72,5 @@
   }
 
   return { LEVELS: LEVELS, THICKNESS: THICKNESS, RIB: RIB, MATERIALS: MATERIALS,
-    level: level, sectionOf: sectionOf, evaluate: evaluate, best: best, stars: stars };
+    level: level, maxRibs: maxRibs, allowedThickness: allowedThickness, sectionOf: sectionOf, evaluate: evaluate, best: best, stars: stars };
 });
