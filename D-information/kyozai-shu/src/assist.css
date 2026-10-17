@@ -38,10 +38,11 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color
 .app-header .display-toggles .toggle.ef-btn { min-height: 34px; }
 
 /* KS-02: タブレット縦など、はばがせまいときの左のメニュー。
-   横1列の帯（右が見えない）をやめて、折り返して全部のページを見せる */
+   横1列の帯（右が見えない）をやめて、折り返して全部のページを見せる（ページの名前そのものは折り返さない）。スマホ(640px 以下)はこの下 */
 @media (max-width: 860px) {
-  .chapter-nav ol { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); overflow-x: visible; padding-bottom: 0; gap: 4px; }
-  .chapter-nav a, .chapter-nav span.disabled { padding: 5px 8px; min-height: 40px; font-size: 0.88rem; line-height: 1.35; border: 1px solid var(--border); }
+  .chapter-nav ol { display: flex; flex-wrap: wrap; overflow-x: visible; padding-bottom: 0; gap: 4px; }
+  .chapter-nav li { flex: 1 1 auto; }
+  .chapter-nav a, .chapter-nav span.disabled { padding: 5px 8px; min-height: 40px; font-size: 0.88rem; line-height: 1.35; border: 1px solid var(--border); white-space: nowrap; }
   .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
   .chapter-nav .nav-group { display: none; }
 }
@@ -57,3 +58,19 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color
 .kyozai-back-bottom { margin: 18px 0 8px; }
 .kyozai-back .btn { min-height: 40px; }
 @media print { .kyozai-back, .kyozai-link { display: none; } }
+
+/* KS-04: スマホ(教材集の中も同じ): 教材の上のバーは固定せず、左のメニュー(ページのタブ)を1行にして横にスクロールし、上に固定する。
+   教材の名前とページの名前は折り返さない(入りきらない道具は次の行へ)。下へ読み進めるとメニューが隠れ、上へ戻すと出る(data-ef-autohide・shared/eduit-frame.js) */
+@media (max-width: 640px) {
+  .app-header { position: static; padding: 8px 12px; gap: 8px; }
+  .app-header .brand { flex: 0 0 auto; font-size: 1rem; white-space: nowrap; max-width: 100%; overflow: hidden; }
+  .app-header .ef-tools { margin-left: auto; }
+  main h1, .hero h1 { font-size: 1.35rem; }
+  .chapter-nav { position: sticky; top: 0; z-index: 4; max-height: none; overflow: visible; padding: 6px 0; background: var(--ef-bg); box-shadow: -16px 0 0 var(--ef-bg), 16px 0 0 var(--ef-bg); border-bottom: 1px solid var(--border); }
+  .chapter-nav ol { position: relative; display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; padding-bottom: 0; scrollbar-width: none; }
+  .chapter-nav ol::-webkit-scrollbar { display: none; }
+  .chapter-nav li { flex: none; }
+  .chapter-nav .nav-group { display: none; }
+  .chapter-nav a, .chapter-nav span.disabled { white-space: nowrap; min-height: 40px; padding: 5px 10px; border: 1px solid var(--border); }
+  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
+}
