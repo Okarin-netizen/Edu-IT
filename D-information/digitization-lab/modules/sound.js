@@ -1,6 +1,6 @@
 // モジュール2: 音のデジタル化（標本化・量子化を見る、聞きくらべる、データ量）
 import { h, explainCard, stepCard, reflectionBox, choiceQuiz, shuffled, toast } from "../js/ui.js";
-import { audioBits, formatBits, unitSteps, quantize } from "../js/digilib.js";
+import { audioBits, formatBits, unitSteps, quantize, pickAround } from "../js/digilib.js";
 
 const ID = "sound";
 const STEPS = [
@@ -527,7 +527,7 @@ export const soundModule = {
         explainCard("計算のしかた", "音のデータ量（ビット）＝ 標本化周波数 × 量子化ビット数 × 秒数 × チャンネル数<br>8ビット ＝ 1バイト、1024バイト ＝ 1KB、1024KB ＝ 1MB"),
         h("div", { class: "field-row" }, rate.el, depth.el, secs.el, chs.el),
         info,
-        choiceQuiz({ question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で1分間録音したときのデータ量は、およそいくら？", choices: ["約10MB", "約1MB", "約100MB"], answer: 0, explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット ＝ 10,584,000バイト。1024で2回わると約10MBです。" }, () => mark(1)),
+        choiceQuiz({ question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で1分間録音したときのデータ量は、およそいくら？", choices: ["約10MB", ...pickAround(["約1MB", "約100KB"], ["約100MB", "約1GB"])], answer: 0, explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット ＝ 10,584,000バイト。1024で2回わると約10MBです。" }, () => mark(1)),
         choiceQuiz({ question: "標本化周波数を2倍にすると、記録できる音とデータ量はどうなる？", choices: ["より高い音まで記録でき、データ量は2倍", "音は変わらず、データ量は2倍", "より高い音まで記録でき、データ量は変わらない"], answer: 0, explain: "1秒にはかる回数が2倍になるので、データ量も2倍。標本化周波数の半分までの高さの音を記録できるので、より高い音まで記録できます。" }, () => mark(2)),
       );
       update();

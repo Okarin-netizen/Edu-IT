@@ -357,7 +357,7 @@ test("NW-03: ドリル10問には /25・/28 の台数問題が出ない。チャ
     for (const q of makeDrill(10, rng)) {
       assert.ok(!/\/2[58]|255\.255\.255\.(128|240)/.test(q.question), q.question);
       assert.ok(!q.challenge);
-      if (q.kind === "hosts") assert.equal(q.choices[q.answer], "254");
+      if (q.kind === "hosts") assert.ok(["254", "256", "8ビット"].includes(q.choices[q.answer]) || /\.(0|255)$/.test(q.choices[q.answer]), q.choices[q.answer]);
     }
   }
   const ch = makeChallenge(rng);
@@ -508,4 +508,72 @@ test("サイト名は図の左右のはしで切れない向きに置く（NW-15
   const l = hostAnchor(40);
   assert.equal(l["text-anchor"], "start");
   assert.ok(40 + l.x >= 8 && l.x >= -40);
+});
+
+// ---- 2026-10-17 考えずに答えが当たる問題の修正の回帰テスト ----
+const seededRng = (seed) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+test("2進数の問題: 選択肢の各けたの多数決や「まん中の数」で正解が当たらない（4択の偶然くらい）", () => {
+  const rng = seededRng(11);
+  const ones = (x) => [...x.toString(2)].filter((b) => b === "1").length;
+  for (const kind of ["toBinary", "fromBinary"]) {
+    let maj = 0, mid = 0, oneBit = 0, total = 0;
+    const N = 6000;
+    for (let i = 0; i < N; i++) {
+      const q = makeQuestion(kind, rng);
+      const vals = q.choices.map((c) => (kind === "toBinary" ? parseInt(c, 2) : Number(c)));
+      assert.equal(new Set(vals).size, 4);
+      assert.ok(vals.every((v) => v >= 1 && v <= 255));
+      let m = 0;
+      for (let b = 0; b < 8; b++) if (vals.filter((v) => v & (1 << b)).length >= 3) m |= 1 << b;
+      if (m === vals[q.answer]) maj++;
+      const gap = vals.map((v) => vals.reduce((a, u) => a + Math.abs(u - v), 0));
+      if (gap[q.answer] === Math.min(...gap) && gap.filter((g) => g === Math.min(...gap)).length === 1) mid++;
+      for (const [i, v] of vals.entries()) if (i !== q.answer) { total++; if (ones(v ^ vals[q.answer]) === 1) oneBit++; }
+    }
+    assert.ok(maj / N < 0.3, `${kind}: 多数決で ${maj / N}`);
+    assert.ok(mid / N < 0.3, `${kind}: まん中の数で ${mid / N}`);
+    assert.ok(oneBit / total < 0.5, `${kind}: 1けただけちがうまちがいが多すぎる ${oneBit / total}`);
+  }
+});
+
+test("台数の問題: いつも254ではなく、聞き方が変わる（どれも /24 の範囲）", () => {
+  const rng = seededRng(5);
+  const answers = {};
+  const N = 5000;
+  for (let i = 0; i < N; i++) {
+    const q = makeQuestion("hosts", rng);
+    assert.equal(q.prefix, 24);
+    assert.ok(!/\/2[58]|\/26|\/30/.test(q.question), q.question);
+    const a = q.choices[q.answer];
+    const key = a.replace(/^\d+\.\d+\.\d+\./, "x.");
+    answers[key] = (answers[key] || 0) + 1;
+    if (key === "x.0" || key === "x.255") {
+      const ip = q.question.match(/\d+\.\d+\.\d+\.\d+/g).find((x) => x !== "255.255.255.0");
+      assert.ok(isValidIPv4(a));
+      assert.ok(sameNetwork(a, ip, 24), `${a} は ${ip} と同じネットワーク`);
+      assert.equal(networkAddress(a, 24) === a, key === "x.0");
+      assert.ok(q.explain.includes(a));
+    }
+    if (a === "254") assert.ok(q.explain.includes("254台"));
+    if (a === "256") assert.ok(q.explain.includes("256とおり"));
+  }
+  assert.deepEqual(Object.keys(answers).sort(), ["254", "256", "8ビット", "x.0", "x.255"].sort());
+  for (const v of Object.values(answers)) assert.ok(v / N > 0.15 && v / N < 0.25, JSON.stringify(answers));
+});
+
+test("IPアドレスの書き方の問題: 正解の始まり（192.168. など）で選べない", () => {
+  const rng = seededRng(9);
+  const heads = {};
+  const N = 5000;
+  for (let i = 0; i < N; i++) {
+    const q = makeQuestion("validIp", rng);
+    const ok = q.choices[q.answer];
+    assert.ok(isValidIPv4(ok));
+    const head = ok.split(".")[0];
+    heads[head] = (heads[head] || 0) + 1;
+    // まちがいも同じ始まり（コンマのものも同じ数で始まる）
+    for (const c of q.choices) assert.ok(c.startsWith(head + ".") || c.startsWith(head + ","), `${ok} / ${c}`);
+  }
+  for (const h of ["10", "172", "192"]) assert.ok(heads[h] / N > 0.28, JSON.stringify(heads));
 });

@@ -288,21 +288,67 @@ export function makeDrill(kind, rand = Math.random) {
   return { kind, ...make(rand) };
 }
 
-// 正解と「よくあるまちがい」から4つの選択肢を作る
-function choicesFrom(correct, wrongs) {
-  const list = [correct];
-  for (const w of wrongs) if (w && !list.includes(w) && list.length < 4) list.push(w);
-  return { choices: list, answer: 0 };
+// 正解と「よくあるまちがい」（数）の中から3つで、4つの選択肢を作る。正解が大きさの順で何番目になるかが
+// かたよらないように（いつも「いちばん小さい」などにならないように）、
+// 正解より小さいまちがいをいくつ入れるか（0〜3個）を先に決めてから選ぶ。
+// fmt: 数 → 選択肢の文字。ok(v): 選択肢に使ってよいまちがいか
+export function balancedChoices(rand, correct, wrongs, fmt, { ok = () => true, approx = null } = {}) {
+  const cs = fmt(correct);
+  const seen = new Set([cs]);
+  const lo = [];
+  const hi = [];
+  for (const w of wrongs) {
+    if (!(w > 0) || w === correct || !ok(w)) continue;
+    const s = fmt(w);
+    if (seen.has(s)) continue;
+    seen.add(s);
+    (w < correct ? lo : hi).push(s);
+  }
+  // 「約」が付くかどうかで正解がわからないように、正解と同じ書き方のものを先に使う
+  const take = (arr, k) => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    if (approx) {
+      const same = (t) => approx(t) === approx(cs);
+      a.sort((x, y) => Number(same(y)) - Number(same(x)));
+    }
+    return a.slice(0, k);
+  };
+  const feasible = [0, 1, 2, 3].filter((r) => lo.length >= r && hi.length >= 3 - r);
+  // まちがいが3つに足りないときは、あるものを全部使う
+  const nLo = feasible.length ? pick(feasible, rand) : lo.length;
+  const nHi = Math.min(hi.length, 3 - nLo);
+  return { choices: [cs, ...take(lo, nLo), ...take(hi, nHi)], answer: 0 };
+}
+
+// 決まった問題（ステップの確かめ）用: まちがいの選択肢を「正解より小さいもの」「大きいもの」から2つ選ぶ。
+// 正解がいつも真ん中にならないように、小さい方を2つ・1つ・0個のどれにするかを毎回ランダムに決める
+export function pickAround(lows, highs, rand = Math.random) {
+  const nLow = Math.min(lows.length, Math.floor(rand() * 3));
+  const sh = (a) => {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  };
+  return [...sh(lows).slice(0, nLow), ...sh(highs).slice(0, 2 - nLow)];
 }
 
 function drillUnit(rand) {
   const t = Math.floor(rand() * 3);
   if (t === 0) {
-    const bytes = pick([2, 3, 4, 5, 8, 10, 16, 32, 100], rand);
+    // 8の倍数のバイト数にして、「8で2回わった」などの小さいまちがいも整数にする
+    const bytes = pick([8, 16, 24, 32, 40, 48, 64, 128], rand);
     const bits = bytes * 8;
     return {
       question: `${fmtInt(bits)}ビットは何バイト？`,
-      ...choicesFrom(`${bytes}バイト`, [`${bits * 8}バイト`, `${bits}バイト`, `${bits / 2}バイト`, `${bytes * 10}バイト`]),
+      // 小さいまちがい: ÷64・÷32・÷16 / 大きいまちがい: わらない・×8・×10・÷2
+      ...balancedChoices(rand, bytes, [bytes / 8, bytes / 4, bytes / 2, bits, bits * 8, bytes * 10, bits / 2], (v) => `${fmtInt(v)}バイト`),
       explain: `8ビット ＝ 1バイトなので、${fmtInt(bits)} ÷ 8 ＝ ${bytes}バイト。`,
     };
   }
@@ -310,14 +356,16 @@ function drillUnit(rand) {
     const mb = pick([2, 3, 4, 5, 10], rand);
     return {
       question: `${mb}MBは何KB？`,
-      ...choicesFrom(`${fmtInt(mb * 1024)}KB`, [`${fmtInt(mb * 8)}KB`, `${fmtInt(mb * 100)}KB`, `${fmtInt(mb * 1024 * 8)}KB`]),
+      // 小さいまちがい: ×1000・×100・×10・×8 / 大きいまちがい: ×1024×8・×1024×1024・×1000×1000
+      ...balancedChoices(rand, mb * 1024, [mb * 1000, mb * 100, mb * 10, mb * 8, mb * 1024 * 8, mb * 1024 * 1024, mb * 1000 * 1000], (v) => `${fmtInt(v)}KB`),
       explain: `1MB ＝ 1024KBなので、${mb} × 1024 ＝ ${fmtInt(mb * 1024)}KB。`,
     };
   }
   const kb = pick([1, 2, 4, 8], rand);
   return {
     question: `${kb}KBは何ビット？`,
-    ...choicesFrom(`${fmtInt(kb * 1024 * 8)}ビット`, [`${fmtInt(kb * 1024)}ビット`, `${fmtInt(kb * 8)}ビット`, `${fmtInt(kb * 1000)}ビット`]),
+    // 小さいまちがい: ×8をわすれる・×1024をわすれる・×1000 / 大きいまちがい: ×1024×1024・×8を2回・×1024×1024×8
+    ...balancedChoices(rand, kb * 1024 * 8, [kb * 1024, kb * 8, kb * 1000, kb * 8000, kb * 1024 * 1024, kb * 1024 * 64, kb * 1024 * 1024 * 8], (v) => `${fmtInt(v)}ビット`),
     explain: `${kb}KB ＝ ${kb} × 1024 ＝ ${fmtInt(kb * 1024)}バイト。1バイト ＝ 8ビットなので × 8 で ${fmtInt(kb * 1024 * 8)}ビット。`,
   };
 }
@@ -331,7 +379,8 @@ function drillLevels(rand) {
   if (rand() < 0.5) {
     return {
       question: `${n}ビットで表せるのは何通り？`,
-      ...choicesFrom(`${fmtInt(2 ** n)}通り`, [`${n * 2}通り`, `${n * n}通り`, `${fmtInt(2 ** (n - 1))}通り`, `${fmtInt(2 ** (n + 1))}通り`]),
+      // 2 × n・n × n・1けたずれ（2ⁿ⁻¹, 2ⁿ⁺¹ …）・数え方のずれ（2ⁿ − 1, 2ⁿ ＋ 1）
+      ...balancedChoices(rand, 2 ** n, [n * 2, n * n, n, 2 ** (n - 1), 2 ** (n - 2), 2 ** n - 1, 2 ** n + 1, 2 ** (n + 1), 2 ** (n + 2)], (v) => `${fmtInt(v)}通り`),
       explain: `1ビット増えるごとに2倍。2を${n}回かけて ${pow2Text(n)} ＝ ${fmtInt(2 ** n)}通り。`,
     };
   }
@@ -340,17 +389,18 @@ function drillLevels(rand) {
   return {
     question: `${fmtInt(count)}通りを区別するには、少なくとも何ビット必要？`,
     // 「0ビット」は選択肢にも解き方にも出さない
-    ...choicesFrom(`${b}ビット`, [`${b + 1}ビット`, b > 1 ? `${b - 1}ビット` : "", `${Math.ceil(count / 8)}ビット`, `${b + 2}ビット`, `${b + 3}ビット`]),
+    ...balancedChoices(rand, b, [b - 1, b - 2, b - 3, b + 1, b + 2, b + 3, Math.ceil(count / 8)], (v) => `${v}ビット`, { ok: (v) => v >= 1 }),
     explain: b > 1 ? `${b - 1}ビットでは ${fmtInt(2 ** (b - 1))}通りまで、${b}ビットなら ${fmtInt(2 ** b)}通りまで表せるので、${b}ビット。` : `1ビットで 0 と 1 の 2通りを表せるので、1ビット。`,
   };
 }
 
 // 単位をそろえて選択肢にする。unit はちょうどよいもの
-function amountChoices(bits, unit, mistakes) {
-  return choicesFrom(
-    inUnit(bits, unit),
-    mistakes.map((m) => inUnit(m, unit)),
-  );
+// 正解の大きさの順位がかたよらないように選ぶ（balancedChoices）。0.1 より小さくなるものは使わない
+function amountChoices(rand, bits, unit, mistakes) {
+  return balancedChoices(rand, bits, mistakes, (v) => inUnit(v, unit), {
+    ok: (v) => v / unitOf(unit).bits >= 0.1,
+    approx: (t) => t.startsWith("約"),
+  });
 }
 function bestUnit(bits) {
   const bytes = bits / 8;
@@ -364,7 +414,7 @@ function drillImage(rand) {
   const unit = bestUnit(bits);
   return {
     question: `横${fmtInt(w)} × 縦${fmtInt(hgt)}画素、1画素${mode.bits}ビット（${mode.label}）の画像。圧縮しないときのデータ量は？`,
-    ...amountChoices(bits, unit, [bits * 8, bits / 1024, mode.bits === 24 ? bits / 3 : bits * 3, bits * 2, bits / 2]),
+    ...amountChoices(rand, bits, unit, [bits * 8, bits / 8, bits * 1024, bits / 1024, mode.bits === 24 ? bits / 3 : bits * 3, mode.bits > 1 ? bits / mode.bits : bits * 24, bits * 2, bits / 2, bits * 4, bits / 4]),
     explain: [`${fmtInt(w)} × ${fmtInt(hgt)} × ${mode.bits} ＝ ${fmtInt(bits)}ビット`, ...unitSteps(bits).slice(1)].join("　"),
   };
 }
@@ -378,7 +428,7 @@ function drillAudio(rand) {
   const unit = bestUnit(bits);
   return {
     question: `標本化周波数 ${fmtInt(rate)}Hz、量子化ビット数 ${depth}ビット、${ch === 2 ? "ステレオ（2チャンネル）" : "モノラル（1チャンネル）"}で ${sec}秒 録音。データ量は？`,
-    ...amountChoices(bits, unit, [bits * 8, ch === 2 ? bits / 2 : bits * 2, bits / sec, bits * 10, bits / 10]),
+    ...amountChoices(rand, bits, unit, [bits * 8, bits / 8, bits * 1024, bits / 1024, ch === 2 ? bits / 2 : bits * 2, depth === 16 ? bits / 2 : bits * 2, bits / sec, bits * 60, bits * 10, bits / 10]),
     explain: [`${fmtInt(rate)} × ${depth} × ${sec} × ${ch} ＝ ${fmtInt(bits)}ビット`, ...unitSteps(bits).slice(1)].join("　"),
   };
 }
@@ -391,7 +441,7 @@ function drillVideo(rand) {
   const unit = bestUnit(bits);
   return {
     question: `横${fmtInt(w)} × 縦${fmtInt(hgt)}画素・フルカラー（24ビット）の画像を、1秒に${fps}枚 切りかえる動画を ${sec}秒。圧縮しない（音なし）ときのデータ量は？`,
-    ...amountChoices(bits, unit, [bits / fps, bits * 8, bits / 3, bits / sec, bits * 10]),
+    ...amountChoices(rand, bits, unit, [bits / fps, bits / sec, bits / 3, bits / 8, bits / 1024, bits / 10, bits * 8, bits * 1024, bits * 10, bits * fps, bits * 2]),
     explain: [`${fmtInt(w)} × ${fmtInt(hgt)} × 24 × ${fps} × ${sec} ＝ ${fmtInt(bits)}ビット`, ...unitSteps(bits).slice(1)].join("　"),
   };
 }
