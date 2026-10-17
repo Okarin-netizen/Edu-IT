@@ -75,7 +75,7 @@ function renderOverall() {
 }
 
 // 表示の切りかえ。押しても画面は作り直さない（やりかけの入力・選んだもの・場所はそのまま: SEC-11）。
-// ボタン: #display-toggles button.toggle[data-pref="ruby" | "easy" | "largeText"]、今の状態は aria-pressed。
+// ボタン: #display-toggles button[data-pref="ruby" | "easy" | "largeText"]、今の状態は aria-pressed(文字の大きさは「文字 中/大」の .ef-size)。
 // 教材集などの外側からは、このボタンを click() すれば切りかわる（状態は localStorage "seclab.prefs" に残る）。
 async function renderToggles() {
   const items = [
@@ -86,7 +86,11 @@ async function renderToggles() {
   const buttons = await Promise.all(
     items.map(async ([key, label]) => {
       const on = Boolean(await pref(key));
-      const b = h("button", { type: "button", class: "toggle ef-btn", "data-pref": key, "aria-pressed": on ? "true" : "false" }, label);
+      // ふりがな・やさしい日本語は ✓ の付く切りかえ(.ef-toggle)、文字の大きさは4分野共通の「文字 中/大」ボタン(.ef-size)
+      const b =
+        key === "largeText"
+          ? h("button", { type: "button", class: "ef-btn ef-size", "data-pref": key, "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": on ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }))
+          : h("button", { type: "button", class: "toggle ef-btn ef-toggle", "data-pref": key, "aria-pressed": on ? "true" : "false" }, label);
       b.addEventListener("click", () => setDisplay(key, b.getAttribute("aria-pressed") !== "true"));
       return b;
     }),

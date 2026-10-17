@@ -72,10 +72,19 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 .g-header-tools { display: flex; gap: 6px; flex: none; flex-wrap: nowrap; margin-left: auto; }
 .g-header .ef-btn { min-height: 40px; padding: 0 12px; }
 .g-home { flex: none; }
-/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない) */
-[data-g-setting][aria-pressed="true"]::before { content: "✓ "; }
+/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない。4分野共通の .ef-toggle) */
 .ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
 @media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
+/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブは1行で横にスクロール */
+@media (max-width: 640px) {
+  .g-header { position: static; }
+  .g-header.ef-header { flex-wrap: wrap; padding: 4px 8px; row-gap: 4px; }
+  .g-title { flex: 1 1 9em; white-space: normal; line-height: 1.5; margin: 0 .2rem; }
+  .g-header-tools { flex-wrap: wrap; gap: 4px; }
+  .g-header .ef-btn { min-height: 36px; padding: 0 9px; font-size: 14px; }
+  .g-tablist { top: 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .g-tablist [role=tab] { flex: none; min-height: 44px; }
+}
 
 main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
 
@@ -129,7 +138,7 @@ h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
 .g-end { justify-content: flex-end; }
 .g-grid { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 .g-cols { display: grid; gap: .65rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
-@media (max-width: 760px) { .g-cols { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .g-cols { grid-template-columns: minmax(0, 1fr); } }
 .g-muted { color: var(--muted); font-size: .9rem; }
 .g-note { background: var(--warn-soft); border-left: 5px solid var(--warn); padding: .4rem .75rem; border-radius: 8px; font-size: .92rem; margin: .5rem 0; }
 .g-ok { color: var(--ok); } .g-ng { color: var(--ng); }
@@ -137,7 +146,7 @@ h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
 .badge.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 .badge.ng { background: var(--ng-soft); border-color: var(--ng); color: var(--ng); }
 .badge.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; contain: paint; }
 
 /* フォーム */
 label { cursor: pointer; }
@@ -146,7 +155,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 input[type=number] { width: 6em; }
 input[type=checkbox], input[type=radio] { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex: none; }
 textarea { width: 100%; line-height: 1.6; }
-.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; }
+.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; min-width: 0; max-width: 100%; }
+.g-field input, .g-field select { min-width: 0; max-width: 100%; box-sizing: border-box; }
 .g-field > span:first-child, .g-field > label:first-child { font-size: .9rem; color: var(--muted); }
 input[aria-invalid="true"] { border-color: var(--ng); background: var(--ng-soft); }
 .g-check { display: flex; align-items: center; gap: .6rem; min-height: var(--tap); padding: .1rem 0; }
@@ -184,7 +194,7 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 .g-table th, .g-table td { border: 1px solid var(--line); padding: .3rem .45rem; text-align: left; vertical-align: middle; }
 .g-table th { background: var(--panel-2); font-weight: bold; font-size: .9rem; }
 .g-table td.num, .g-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.g-table-wrap { overflow-x: auto; }
+.g-table-wrap { overflow-x: auto; position: relative; max-width: 100%; }
 
 /* 問題解決の型 */
 .g-ps ol { display: flex; flex-wrap: wrap; gap: .25rem; list-style: none; padding: 0; margin: .25rem 0; counter-reset: ps; }

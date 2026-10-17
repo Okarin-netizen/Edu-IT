@@ -24,10 +24,14 @@ html,body{margin:0;height:100%;background:var(--ef-bg);}
 body{overflow:hidden}
 .ea{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent);
   font-family:var(--ef-font);
-  color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:16px}
+  color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:calc(16px * var(--ea-fs, 1))}
 .ea *{box-sizing:border-box}
 .ea-view{flex:1;min-height:0;display:none;flex-direction:column}
 .ea-view.on{display:flex}
+/* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。
+ * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
+.ea-noruby rt,.ea-noruby rp{display:none}
+.ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
 .ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
@@ -42,26 +46,26 @@ body{overflow:hidden}
 .ea-hd{padding:6px 32px;flex:none}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
-.ea-hbody rt{font-size:12px}
+.ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
 /* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
 .ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
 .ea-cards>.ef-mcard:hover{border-color:var(--accent)}
 .ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
 .ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
-.ea-cards .ef-level-parts{display:block;font-size:14px}
+.ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
-.ea-cards .ef-mcard-desc{font-size:15px;color:var(--sub);line-height:1.5}
+.ea-cards .ef-mcard-desc{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.5}
 .ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
 .ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
-.ea-card-tg span{font-size:13px;background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
-.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--sub)}
-.ea-pg b{font-size:15px;color:var(--ink)}
+.ea-card-tg span{font-size:calc(13px * var(--ea-fs, 1));background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
+.ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
 .ea-pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .ea-pg .bar i{display:block;height:100%;border-radius:999px}
-.ea-pg .s2{font-size:13px;color:var(--sub)}
-.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:13px}
+.ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
+.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
@@ -80,7 +84,7 @@ body{overflow:hidden}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
 .ea-pane>div{height:100%}
-.ea-err{padding:30px;font-size:18px}
+.ea-err{padding:30px;font-size:calc(18px * var(--ea-fs, 1))}
 
 /* --- 使い方 --- */
 .ea-help{background:var(--ef-bg)}
@@ -88,21 +92,21 @@ body{overflow:hidden}
 .ea-help .bar h2{margin:0;font-size:20px;flex:1;white-space:nowrap}
 .ea-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .ea-tabs .ea-btn.on{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
-.ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:16.5px;-webkit-overflow-scrolling:touch}
-.ea-hbody h3{font-size:19px;margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
+.ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:calc(16.5px * var(--ea-fs, 1));-webkit-overflow-scrolling:touch}
+.ea-hbody h3{font-size:calc(19px * var(--ea-fs, 1));margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
 .ea-hbody li{margin:3px 0}
 .ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
-.ea-hcard h4{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px}
-.ea-hcard p{margin:4px 0;font-size:15px;line-height:1.6}
+.ea-hcard h4{margin:0 0 4px;font-size:calc(17px * var(--ea-fs, 1));display:flex;align-items:center;gap:8px}
+.ea-hcard p{margin:4px 0;font-size:calc(15px * var(--ea-fs, 1));line-height:1.6}
 .ea-hic{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
 .ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
 .ea-tbl{border-collapse:collapse;background:#fff}
-.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:15px;vertical-align:top}
+.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:calc(15px * var(--ea-fs, 1));vertical-align:top}
 .ea-tbl th{background:var(--ef-surface-2)}
 .ea-tools{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.ea-note{color:var(--sub);font-size:14px}
+.ea-note{color:var(--sub);font-size:calc(14px * var(--ea-fs, 1))}
 .ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;display:none}
 
 @media (max-width:900px){
@@ -117,6 +121,25 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C5) */
+@media (max-width:640px){
+  .ea-cards{grid-template-columns:minmax(0,1fr)!important}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto!important;min-height:0!important}
+  .ef-levels[data-ref="cards"]{padding:6px 12px 0}
+  .ea-hd{padding:6px 10px}
+  .ea-hd .ef-title{font-size:18px}
+  .ea-foot{padding:0 12px 16px}
+  .ea-bar{height:auto;flex-wrap:wrap;row-gap:4px;padding:4px 6px}
+  .ea-bar .ea-btn{min-height:38px;font-size:14px;padding:0 9px}
+  .ea-bar .ea-apptitle{display:flex!important;flex:1 1 calc(100% - 140px);min-width:0;white-space:normal;font-size:16px;line-height:1.35}
+  .ea-bar-tools{order:3;gap:4px}
+  .ea [data-ea="fs"]{display:none!important}
+  .ea-chips{order:4;flex:1 1 0}
+  .ea-chip{min-height:40px;padding:0 9px}
+  /* 各アプリの道具の帯(.e1-top〜.e5-top): ボタンの字を切らずに、帯だけ横にスクロール */
+  .e1-top,.e2-top,.e3-top,.e4-top,.e5-top{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .e1-top>*,.e2-top>*,.e3-top>*,.e4-top>*,.e5-top>*{flex:none!important;min-width:auto!important;max-width:none!important}
+}
 @media (max-width:1100px){ .ea-apptitle{display:none} }
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
@@ -142,6 +165,8 @@ body{overflow:hidden}
     <header class="ef-header ea-hd">
       <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
         <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生用</button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
@@ -158,8 +183,12 @@ body{overflow:hidden}
       <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
       <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
-      <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
-      <span data-ref="about"></span>
+      <div class="ea-bar-tools">
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
+        <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+        <span data-ref="about"></span>
+      </div>
     </div>
     <div class="ea-panes" data-ref="panes"></div>
   </section>
@@ -201,6 +230,21 @@ if (window.EduitFrame) {
   $('[data-ref="about"]').appendChild(ab);
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
+/* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, fs }) ---- */
+var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, fs: 1 }, sizeUpds = [];
+try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
+function applyPrefs() {
+  document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
+  document.documentElement.style.setProperty('--ea-fs', String(prefs.fs));
+  root.querySelectorAll('[data-ea="ruby"]').forEach(function (b) { b.setAttribute('aria-pressed', prefs.ruby ? 'true' : 'false'); });
+  sizeUpds.forEach(function (f) { f(); });
+  try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {}
+  window.dispatchEvent(new Event('resize'));  // 図をかき直すアプリのため
+}
+if (window.EduitFrame && EduitFrame.sizeButton) root.querySelectorAll('[data-ea-size]').forEach(function (b) {
+  sizeUpds.push(EduitFrame.sizeButton(b, { steps: [[0.9, '小'], [1, '中'], [1.2, '大'], [1.4, '特大']], get: function () { return prefs.fs; }, set: function (v) { prefs.fs = v; applyPrefs(); } }));
+});
+applyPrefs();
 var mounted = {}, cur = null, fromHome = false, helpPushed = false, lastView = 'home';
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -371,6 +415,7 @@ root.addEventListener('click', function (ev) {
   else if (act === 'back') { if (helpPushed) { helpPushed = false; history.back(); } else setHash(lastView === 'home' ? '' : lastView, false); }
   else if (act === 'tab-s' || act === 'tab-t') { setHash(act === 'tab-t' ? 'help-t' : 'help', false); }
   else if (act === 'fs') toggleFull();
+  else if (act === 'ruby') { prefs.ruby = !prefs.ruby; applyPrefs(); }
   else if (act === 'export') exportAll();
   else if (act === 'import') $('[data-ea-file]').click();
 });

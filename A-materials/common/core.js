@@ -93,7 +93,7 @@
       var k = b.getAttribute('data-g-setting');
       if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', true)));
       if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
-      if (k === 'size') b.setAttribute('data-value', G.settings.get('size', 'm'));
+      if (k === 'size') { b.setAttribute('data-value', G.settings.get('size', 'm')); if (G._sizeUpd) G._sizeUpd(); }
     });
   };
 
@@ -535,14 +535,16 @@
     // 4分野共通の枠(shared/eduit-frame.css の .ef-header / .ef-btn)
     header.classList.add('g-header', 'ef-header');
     header.innerHTML = '';
-    var sizes = { s: '小', m: '中', l: '大', xl: '特大' };
-    var sizeBtn = G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'size', title: '文字の大きさを変える', onclick: function () {
-      var order = ['s', 'm', 'l', 'xl'];
-      var cur = G.settings.get('size', 'm');
-      var next = order[(order.indexOf(cur) + 1) % order.length];
-      G.settings.set('size', next);
-      sizeBtn.lastChild.textContent = sizes[next];
-    } }, '文字 ', G.h('span', { 'data-noruby': true }, sizes[G.settings.get('size', 'm')]));
+    // 文字の大きさ: 4分野共通の「文字 中」ボタン(EduitFrame.sizeButton)。押すたびに 小 → 中 → 大 → 特大 → 小
+    var sizeBtn = G.h('button', { class: 'ef-btn ef-size', type: 'button', 'data-g-setting': 'size' });
+    var order = ['s', 'm', 'l', 'xl'];
+    if (window.EduitFrame && window.EduitFrame.sizeButton) {
+      G._sizeUpd = window.EduitFrame.sizeButton(sizeBtn, {
+        steps: [[0, '小'], [1, '中'], [2, '大'], [3, '特大']],
+        get: function () { return Math.max(0, order.indexOf(G.settings.get('size', 'm'))); },
+        set: function (i) { G.settings.set('size', order[i]); }
+      });
+    }
     // 道具の並び: ふりがな → 文字の大きさ → くっきり → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
     var help = null;
     if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
@@ -556,11 +558,11 @@
       code ? ' ' : null, opt.title || document.title);
     header.appendChild(title);
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
-      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
+      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
         G.settings.set('ruby', !G.settings.get('ruby', true));
       } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
       sizeBtn,
-      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
+      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
         G.settings.set('contrast', !G.settings.get('contrast', false));
       } }, 'くっきり'),
       help,

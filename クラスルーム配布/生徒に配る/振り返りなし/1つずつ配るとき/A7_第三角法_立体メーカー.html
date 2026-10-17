@@ -23,6 +23,7 @@
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
   --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
   --ef-bg: #f5f4f0;          /* 画面の地 */
   --ef-surface: #ffffff;     /* カード・ヘッダー */
@@ -86,6 +87,18 @@
 .ef-btn:hover { border-color: var(--ef-accent); }
 .ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
 .ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 0 20px;
@@ -199,6 +212,21 @@
 /* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
 html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
 </style>
@@ -277,10 +305,19 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 .g-header-tools { display: flex; gap: 6px; flex: none; flex-wrap: nowrap; margin-left: auto; }
 .g-header .ef-btn { min-height: 40px; padding: 0 12px; }
 .g-home { flex: none; }
-/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない) */
-[data-g-setting][aria-pressed="true"]::before { content: "✓ "; }
+/* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない。4分野共通の .ef-toggle) */
 .ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
 @media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
+/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブは1行で横にスクロール */
+@media (max-width: 640px) {
+  .g-header { position: static; }
+  .g-header.ef-header { flex-wrap: wrap; padding: 4px 8px; row-gap: 4px; }
+  .g-title { flex: 1 1 9em; white-space: normal; line-height: 1.5; margin: 0 .2rem; }
+  .g-header-tools { flex-wrap: wrap; gap: 4px; }
+  .g-header .ef-btn { min-height: 36px; padding: 0 9px; font-size: 14px; }
+  .g-tablist { top: 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .g-tablist [role=tab] { flex: none; min-height: 44px; }
+}
 
 main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
 
@@ -334,7 +371,7 @@ h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
 .g-end { justify-content: flex-end; }
 .g-grid { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 .g-cols { display: grid; gap: .65rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
-@media (max-width: 760px) { .g-cols { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .g-cols { grid-template-columns: minmax(0, 1fr); } }
 .g-muted { color: var(--muted); font-size: .9rem; }
 .g-note { background: var(--warn-soft); border-left: 5px solid var(--warn); padding: .4rem .75rem; border-radius: 8px; font-size: .92rem; margin: .5rem 0; }
 .g-ok { color: var(--ok); } .g-ng { color: var(--ng); }
@@ -342,7 +379,7 @@ h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
 .badge.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 .badge.ng { background: var(--ng-soft); border-color: var(--ng); color: var(--ng); }
 .badge.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; contain: paint; }
 
 /* フォーム */
 label { cursor: pointer; }
@@ -351,7 +388,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 input[type=number] { width: 6em; }
 input[type=checkbox], input[type=radio] { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex: none; }
 textarea { width: 100%; line-height: 1.6; }
-.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; }
+.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; min-width: 0; max-width: 100%; }
+.g-field input, .g-field select { min-width: 0; max-width: 100%; box-sizing: border-box; }
 .g-field > span:first-child, .g-field > label:first-child { font-size: .9rem; color: var(--muted); }
 input[aria-invalid="true"] { border-color: var(--ng); background: var(--ng-soft); }
 .g-check { display: flex; align-items: center; gap: .6rem; min-height: var(--tap); padding: .1rem 0; }
@@ -389,7 +427,7 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 .g-table th, .g-table td { border: 1px solid var(--line); padding: .3rem .45rem; text-align: left; vertical-align: middle; }
 .g-table th { background: var(--panel-2); font-weight: bold; font-size: .9rem; }
 .g-table td.num, .g-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.g-table-wrap { overflow-x: auto; }
+.g-table-wrap { overflow-x: auto; position: relative; max-width: 100%; }
 
 /* 問題解決の型 */
 .g-ps ol { display: flex; flex-wrap: wrap; gap: .25rem; list-style: none; padding: 0; margin: .25rem 0; counter-reset: ps; }
@@ -449,7 +487,7 @@ input.narrow { width: 4.5em; }
 /* 1 三面図をかく */
 .a7-draw { display: grid; gap: .65rem; grid-template-columns: minmax(0, 1.75fr) minmax(270px, 1fr); align-items: start; }
 @media (max-width: 1000px) { .a7-draw { grid-template-columns: minmax(0, 1.5fr) minmax(250px, 1fr); } }
-@media (max-width: 700px) { .a7-draw { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .a7-draw { grid-template-columns: minmax(0, 1fr); } }
 .a7-tools { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: .45rem 0 .3rem; }
 .a7-tool {
   font: inherit; font-size: .92rem; cursor: pointer; min-height: var(--tap); min-width: var(--tap); padding: .2rem .55rem;
@@ -503,7 +541,7 @@ input.narrow { width: 4.5em; }
 
 /* 3 図面・印刷 */
 .a7-sheet { display: grid; gap: .65rem; grid-template-columns: minmax(250px, 1fr) minmax(0, 2.3fr); align-items: start; }
-@media (max-width: 900px) { .a7-sheet { grid-template-columns: 1fr; } .a7-sheet-preview { order: -1; } }
+@media (max-width: 900px) { .a7-sheet { grid-template-columns: minmax(0, 1fr); } .a7-sheet-preview { order: -1; } }
 .a7-sheet-form .g-field { margin-bottom: .3rem; }
 .a7-sheet-form input[type=text] { width: 100%; }
 .a7-sheet-form input.narrow { width: 4.5em; }
@@ -547,7 +585,7 @@ window.EDUIT_INFO = {
   history: [
     {
       version: '2.6', date: '2026-10-17',
-      items: ['振り返りを隠す設定(先生用)に対応', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた']
+      items: ['振り返りを隠す設定(先生用)に対応', '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)', 'スマホで使いやすくした: 上のバーを2行にしてアプリ名が見えるようにし、入力欄や表が画面の外へはみ出さないようにした', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた']
     },
     {
       version: '2.5', date: '2026-10-16',
@@ -663,6 +701,11 @@ window.EDUIT_INFO.levels = {
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ * 上のバーの表示の道具(4分野で同じ形):
+ *   ふりがな・くっきり: <button class="ef-btn ef-toggle" aria-pressed="true|false">ふりがな</button>(ON は分野の色で塗り、✓ が付く)
+ *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
+ *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
+ *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  *
  * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
  *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
@@ -923,7 +966,34 @@ window.EDUIT_INFO.levels = {
     return c;
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle };
+  // ---- 文字の大きさのボタン(4分野で同じ形:「文字 中」。押すたびに次の大きさへ) ----
+  function sizeButton(btn, opt) {
+    var steps = opt.steps;
+    btn.classList.add('ef-btn', 'ef-size');
+    btn.type = 'button';
+    btn.textContent = '';
+    btn.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    v.setAttribute('data-noruby', '');
+    btn.appendChild(v);
+    function idx() {
+      var cur = opt.get(), best = 0;
+      for (var i = 1; i < steps.length; i++) if (Math.abs(steps[i][0] - cur) < Math.abs(steps[best][0] - cur)) best = i;
+      return best;
+    }
+    function update() {
+      var s = steps[idx()][1];
+      v.textContent = s;
+      btn.title = '文字の大きさ(いまは「' + s + '」。押すと変わる)';
+      btn.setAttribute('aria-label', '文字の大きさ: ' + s);
+    }
+    btn.addEventListener('click', function () { opt.set(steps[(idx() + 1) % steps.length][0]); update(); });
+    update();
+    return update;
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -2131,7 +2201,7 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
       var k = b.getAttribute('data-g-setting');
       if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', true)));
       if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
-      if (k === 'size') b.setAttribute('data-value', G.settings.get('size', 'm'));
+      if (k === 'size') { b.setAttribute('data-value', G.settings.get('size', 'm')); if (G._sizeUpd) G._sizeUpd(); }
     });
   };
 
@@ -2573,14 +2643,16 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
     // 4分野共通の枠(shared/eduit-frame.css の .ef-header / .ef-btn)
     header.classList.add('g-header', 'ef-header');
     header.innerHTML = '';
-    var sizes = { s: '小', m: '中', l: '大', xl: '特大' };
-    var sizeBtn = G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'size', title: '文字の大きさを変える', onclick: function () {
-      var order = ['s', 'm', 'l', 'xl'];
-      var cur = G.settings.get('size', 'm');
-      var next = order[(order.indexOf(cur) + 1) % order.length];
-      G.settings.set('size', next);
-      sizeBtn.lastChild.textContent = sizes[next];
-    } }, '文字 ', G.h('span', { 'data-noruby': true }, sizes[G.settings.get('size', 'm')]));
+    // 文字の大きさ: 4分野共通の「文字 中」ボタン(EduitFrame.sizeButton)。押すたびに 小 → 中 → 大 → 特大 → 小
+    var sizeBtn = G.h('button', { class: 'ef-btn ef-size', type: 'button', 'data-g-setting': 'size' });
+    var order = ['s', 'm', 'l', 'xl'];
+    if (window.EduitFrame && window.EduitFrame.sizeButton) {
+      G._sizeUpd = window.EduitFrame.sizeButton(sizeBtn, {
+        steps: [[0, '小'], [1, '中'], [2, '大'], [3, '特大']],
+        get: function () { return Math.max(0, order.indexOf(G.settings.get('size', 'm'))); },
+        set: function (i) { G.settings.set('size', order[i]); }
+      });
+    }
     // 道具の並び: ふりがな → 文字の大きさ → くっきり → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
     var help = null;
     if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
@@ -2594,11 +2666,11 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
       code ? ' ' : null, opt.title || document.title);
     header.appendChild(title);
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
-      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
+      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
         G.settings.set('ruby', !G.settings.get('ruby', true));
       } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
       sizeBtn,
-      G.h('button', { class: 'ef-btn', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
+      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
         G.settings.set('contrast', !G.settings.get('contrast', false));
       } }, 'くっきり'),
       help,
