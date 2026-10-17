@@ -99,6 +99,10 @@
 .ef-size[aria-pressed]::before { content: none; }
 .ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
 .ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 0 20px;
@@ -308,15 +312,13 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 /* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない。4分野共通の .ef-toggle) */
 .ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
 @media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
-/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブは1行で横にスクロール */
+/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブはこの下(.g-tablist のあと) */
 @media (max-width: 640px) {
   .g-header { position: static; }
   .g-header.ef-header { flex-wrap: wrap; padding: 4px 8px; row-gap: 4px; }
   .g-title { flex: 1 1 9em; white-space: normal; line-height: 1.5; margin: 0 .2rem; }
   .g-header-tools { flex-wrap: wrap; gap: 4px; }
   .g-header .ef-btn { min-height: 36px; padding: 0 9px; font-size: 14px; }
-  .g-tablist { top: 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-  .g-tablist [role=tab] { flex: none; min-height: 44px; }
 }
 
 main, .g-main { max-width: 1280px; margin: 0 auto; padding: .6rem .75rem 1.5rem; }
@@ -360,6 +362,12 @@ textarea { min-height: 5.5em; }
 /* タブの番号は丸数字(①②③…)をそのまま書く(4分野共通)。はじめに・まとめ・記録・ふりかえりのタブには番号を付けない */
 .g-tablist [role=tab] .num { display: inline-block; margin-right: .3em; font-weight: bold; }
 @media (max-width: 1100px) { .g-tablist [role=tab] { padding: .2rem .7rem; font-size: .92rem; } }
+/* スマホ: タブは折り返さず1行にして横にスクロール(タブの名前も折り返さない)。下へ読み進めると隠れ、上へ戻すと出る(data-ef-autohide) */
+@media (max-width: 640px) {
+  .g-tablist { top: 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .g-tablist::-webkit-scrollbar { display: none; }
+  .g-tablist [role=tab] { flex: none; min-height: 44px; white-space: nowrap; }
+}
 
 /* カード・レイアウト */
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; box-shadow: var(--shadow); margin-bottom: .65rem; }
@@ -585,7 +593,7 @@ window.EDUIT_INFO = {
   history: [
     {
       version: '2.6', date: '2026-10-17',
-      items: ['振り返りを隠す設定(先生用)に対応', '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)', 'スマホで使いやすくした: 上のバーを2行にしてアプリ名が見えるようにし、入力欄や表が画面の外へはみ出さないようにした', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた']
+      items: ['振り返りを隠す設定(先生用)に対応', '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)', 'スマホで使いやすくした: 上のバーを2行にしてアプリ名が見えるようにし、入力欄や表が画面の外へはみ出さないようにした', '答えが毎回同じにならないようにした: A2 反りの予測は問題ごとに上の面(木表・木裏)と板の種類が変わる。A3 設計課題は課題ごとに条件を変え、いちばん軽い答えが課題ごとにちがう。A4 三面図クイズは図が似ているかどうかだけでは当たらないようにし、ア〜エの順を生徒ごとに変えた', 'アプリの中のタブの帯は、下へ読み進めると上へ隠れ、少し上へ戻すと出てくるようにした。スマホではタブを1行にして横にスクロールし、タブの名前が2段・3段に折り返さないようにした']
     },
     {
       version: '2.5', date: '2026-10-16',
@@ -706,6 +714,8 @@ window.EDUIT_INFO.levels = {
  *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
  *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
+ *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *
  * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
  *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
@@ -992,6 +1002,55 @@ window.EDUIT_INFO.levels = {
     update();
     return update;
   }
+
+  // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
+  function autoHide() {
+    var lastY = window.pageYOffset || 0, ticking = false;
+    function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
+    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function run() {
+      ticking = false;
+      var y = window.pageYOffset || 0, dy = y - lastY;
+      if (Math.abs(dy) < 6 && y > 0) return;
+      lastY = y;
+      Array.prototype.forEach.call(bars(), function (el) {
+        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
+        if (el.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+        // 上に固定されている(画面の上にはりついている)ときだけ隠す
+        if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        if (el.getBoundingClientRect().top > top + 1) return;
+        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
+        el.classList.add('ef-ah-hide');
+      });
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (el) show(el);
+    });
+    // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
+    function reveal() {
+      Array.prototype.forEach.call(bars(), function (el) {
+        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+        if (!t) return;
+        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+          if (sc.scrollWidth > sc.clientWidth + 1) {
+            var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
+            if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
+            else if (r.right > b.right) sc.scrollLeft += r.right - b.right + 12;
+            return;
+          }
+        }
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-ef-autohide]')) setTimeout(reveal, 50);
+    });
+    window.addEventListener('hashchange', function () { setTimeout(reveal, 50); });
+    window.addEventListener('load', function () { setTimeout(reveal, 300); });
+  }
+  autoHide();
 
   window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
@@ -2708,6 +2767,8 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
     }
     // (リンクの付けかえは build-single.py が各ページに入れるスクリプトが行う)
     var start = function () {
+      // タブの帯は、下へ読み進めると隠れ、上へ戻すと出る(shared/eduit-frame.js)
+      Array.prototype.forEach.call(document.querySelectorAll('.g-tablist'), function (t) { t.setAttribute('data-ef-autohide', ''); });
       G.ruby.apply(document.body);
       G.ruby.observe();
     };

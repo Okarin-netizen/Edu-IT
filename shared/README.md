@@ -41,6 +41,8 @@
 - **明るい画面だけ**: `eduit-frame.css` は `color-scheme: light`。端末がダークモードでも黒い画面にはしない(分野ごとの CSS にもダークモードの指定を書かない)。
 - **スマホ(幅 640px 以下)**: 上のバーは名前を1行目に、道具は入りきらなければ次の行へ(`.ef-title` は 9em 以上の幅を取る)。
   横に長い表や道具の帯は、その部分だけ横にスクロールさせ、ページ全体が横にはみ出さないようにする。
+- **アプリの中のタブの帯**: 上に固定(`position: sticky`)し、`data-ef-autohide` を付ける。下へ読み進めると隠れ、上へ戻すと出る(`eduit-frame.js`)。
+  スマホではタブの名前を折り返さず(`white-space: nowrap`)、帯を1行にして横にスクロールさせる。
 - **ボタン** `.ef-btn`(白地・丸い枠)、ON は `.is-on` か `aria-pressed="true"`(分野の色で塗る)。いちばん大事な操作は `.ef-btn-primary`。
 - **メニューのカード**: `EduitFrame.card({ code, icon, title, desc, parts, extra, href か onOpen, openAttrs })` で作る(`.ef-card.ef-mcard`)。
   記号・アイコン・名前・説明・使うところ・追加の欄(extra: B の目安時間・振り返りの印、C のタグ・進み具合 など)・「ひらく ▶」の順。カードのどこを押しても開く。

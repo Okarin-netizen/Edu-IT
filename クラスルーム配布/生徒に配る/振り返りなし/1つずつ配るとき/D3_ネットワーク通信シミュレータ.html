@@ -95,6 +95,10 @@
 .ef-size[aria-pressed]::before { content: none; }
 .ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
 .ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 0 20px;
@@ -674,6 +678,21 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
 .app-footer .ef-footer { margin: 0; }
 /* 暗い画面の設定のときは、共通の枠の色も教材の暗い色に合わせる */
 
+/* スマホ: 教材の上のバーは固定せず、左のメニュー(ページのタブ)を1行にして横にスクロールし、上に固定する。
+   教材の名前とページの名前は折り返さない(入りきらない道具は次の行へ)。下へ読み進めるとメニューが隠れ、上へ戻すと出る(data-ef-autohide・shared/eduit-frame.js) */
+@media (max-width: 640px) {
+  .app-header { position: static; padding: 8px 12px; gap: 8px; }
+  .app-header .brand { flex: 0 0 auto; font-size: 1rem; white-space: nowrap; max-width: 100%; overflow: hidden; }
+  .app-header .ef-tools { margin-left: auto; }
+  main h1, .hero h1 { font-size: 1.35rem; }
+  .chapter-nav { position: sticky; top: 0; z-index: 4; max-height: none; overflow: visible; padding: 6px 0; background: var(--ef-bg); box-shadow: -16px 0 0 var(--ef-bg), 16px 0 0 var(--ef-bg); border-bottom: 1px solid var(--border); }
+  .chapter-nav ol { position: relative; display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; padding-bottom: 0; scrollbar-width: none; }
+  .chapter-nav ol::-webkit-scrollbar { display: none; }
+  .chapter-nav li { flex: none; }
+  .chapter-nav .nav-group { display: none; }
+  .chapter-nav a, .chapter-nav span.disabled { white-space: nowrap; min-height: 40px; padding: 5px 10px; border: 1px solid var(--border); }
+  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
+}
 
 </style>
   <script id="eduit-info">
@@ -699,6 +718,7 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
     history: [
       { version: '1.8', date: '2026-10-17', items: [
         '振り返りを隠す設定(先生用)に対応',
+        'アプリの中のタブの帯は、下へ読み進めると上へ隠れ、少し上へ戻すと出てくるようにした。スマホではタブを1行にして横にスクロールし、タブの名前が2段・3段に折り返さないようにした。教材の名前と大きな見出しもスマホで1行に入るようにした',
         '端末がダークモードのとき画面が黒くなっていたのをやめ、ほかの分野と同じ明るい画面にした',
         '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)。「大きな文字」のボタンは「文字 中」(押すと「文字 大」)にした',
         'スマホで使いやすくした: メニューの名前を切らずに出し、上のバーのボタンを押しやすい大きさにした',
@@ -818,6 +838,8 @@ window.EDUIT_INFO.levels = {
  *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
  *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
+ *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *
  * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
  *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
@@ -1105,6 +1127,55 @@ window.EDUIT_INFO.levels = {
     return update;
   }
 
+  // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
+  function autoHide() {
+    var lastY = window.pageYOffset || 0, ticking = false;
+    function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
+    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function run() {
+      ticking = false;
+      var y = window.pageYOffset || 0, dy = y - lastY;
+      if (Math.abs(dy) < 6 && y > 0) return;
+      lastY = y;
+      Array.prototype.forEach.call(bars(), function (el) {
+        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
+        if (el.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+        // 上に固定されている(画面の上にはりついている)ときだけ隠す
+        if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        if (el.getBoundingClientRect().top > top + 1) return;
+        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
+        el.classList.add('ef-ah-hide');
+      });
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (el) show(el);
+    });
+    // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
+    function reveal() {
+      Array.prototype.forEach.call(bars(), function (el) {
+        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+        if (!t) return;
+        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+          if (sc.scrollWidth > sc.clientWidth + 1) {
+            var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
+            if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
+            else if (r.right > b.right) sc.scrollLeft += r.right - b.right + 12;
+            return;
+          }
+        }
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-ef-autohide]')) setTimeout(reveal, 50);
+    });
+    window.addEventListener('hashchange', function () { setTimeout(reveal, 50); });
+    window.addEventListener('load', function () { setTimeout(reveal, 300); });
+  }
+  autoHide();
+
   window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
@@ -1121,7 +1192,7 @@ window.EDUIT_INFO.levels = {
     </div>
   </header>
   <div class="layout">
-    <aside class="chapter-nav" id="chapter-nav"></aside>
+    <aside class="chapter-nav" id="chapter-nav" data-ef-autohide></aside>
     <main id="view" tabindex="-1">
       <noscript><p>この教材を使うには JavaScript を有効にしてください。</p></noscript>
     </main>
