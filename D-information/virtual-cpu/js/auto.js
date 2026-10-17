@@ -3,7 +3,18 @@ import { h, explain } from "./ui.js";
 import { store } from "./store.js";
 import { assemble, createMachine, runToEnd } from "./vm.js";
 
-const N_MANUAL = 20;
+// 手計算の N は、スタートを押すたびに 15〜25 から選ぶ（答えを覚えて入力するだけにならないように）
+export const N_MIN = 15;
+export const N_MAX = 25;
+export function randomManualN(rand = Math.random, prev = null) {
+  let n;
+  do n = N_MIN + Math.floor(rand() * (N_MAX - N_MIN + 1));
+  while (n === prev);
+  return n;
+}
+export const sumTo = (n) => (n * (n + 1)) / 2;
+// 前の版の記録には n がない（そのころは 20 で固定だった）
+export const recordN = (rec) => (rec && Number.isInteger(rec.n) ? rec.n : 20);
 // hz: 1秒の合図（クロック）の回数、cpi: 1命令にかかる合図の回数（目安）
 export const CLOCKS = [
   { label: "人がボタンで1命令ずつ進める", hz: 1, cpi: 1, note: "1秒に1命令" },
@@ -57,9 +68,14 @@ export function renderAuto(view, { tasks, isa }) {
   const doneBtn = h("button", { class: "btn", type: "button", disabled: true }, "できた");
   const manualMsg = h("div", { "aria-live": "polite" });
   const prevRec = store.state.manual;
-  if (prevRec) manualMsg.append(explain("前回の記録", `${prevRec.seconds.toFixed(1)}秒で正解しました。`, "good"));
+  if (prevRec) manualMsg.append(explain("前回の記録", `1 から ${recordN(prevRec)} までの合計を ${prevRec.seconds.toFixed(1)}秒で正解しました。`, "good"));
+  // N はスタートを押したときに決まる（先に計算しておけないように）
+  let nManual = null;
+  const manualTitle = h("h3", {}, "1. 手で計算: 1 + 2 + 3 + … + N は？");
 
   startBtn.addEventListener("click", () => {
+    nManual = randomManualN(Math.random, nManual);
+    manualTitle.textContent = `1. 手で計算: 1 + 2 + 3 + … + ${nManual} は？`;
     startAt = performance.now();
     clearInterval(timer);
     timer = setInterval(() => (clock.textContent = `${((performance.now() - startAt) / 1000).toFixed(1)} 秒`), 100);
@@ -74,15 +90,16 @@ export function renderAuto(view, { tasks, isa }) {
     if (!timer) return;
     const v = Number(answer.value.normalize("NFKC").trim());
     const sec = (performance.now() - startAt) / 1000;
-    if (v === (N_MANUAL * (N_MANUAL + 1)) / 2) {
+    if (v === sumTo(nManual)) {
       clearInterval(timer);
       timer = null;
       clock.textContent = `${sec.toFixed(1)} 秒`;
       answer.disabled = true;
       doneBtn.disabled = true;
-      store.setManual({ seconds: sec, at: new Date().toISOString() });
+      store.setManual({ seconds: sec, n: nManual, at: new Date().toISOString() });
       manualMsg.replaceChildren(explain("正解！", `${sec.toFixed(1)}秒かかりました。下で、同じ計算をプログラムにさせるとどうなるか見てみよう。`, "good"));
-      nSelect.value = String(N_MANUAL);
+      setManualOption(nManual);
+      nSelect.value = String(nManual);
       renderCompare();
       updateDone();
     } else {
@@ -93,7 +110,14 @@ export function renderAuto(view, { tasks, isa }) {
   answer.addEventListener("keydown", (e) => e.key === "Enter" && finish());
 
   // ---- 2. プログラムなら ----
-  const nSelect = h("select", { "aria-label": "N の大きさ" }, [20, 100, 1000, 10000, 100000, 1000000].map((n) => h("option", { value: n }, `1 から ${n.toLocaleString("ja-JP")} まで`)));
+  // いちばん上の選択肢は、手計算で正解したときの N（記録がなければ 20）
+  const manualOpt = h("option", {});
+  const setManualOption = (n) => {
+    manualOpt.value = String(n);
+    manualOpt.textContent = `1 から ${n} まで`;
+  };
+  setManualOption(recordN(store.state.manual));
+  const nSelect = h("select", { "aria-label": "N の大きさ" }, manualOpt, [100, 1000, 10000, 100000, 1000000].map((n) => h("option", { value: n }, `1 から ${n.toLocaleString("ja-JP")} まで`)));
   const compareBox = h("div", { "aria-live": "polite" });
 
   function renderCompare() {
@@ -118,7 +142,7 @@ export function renderAuto(view, { tasks, isa }) {
           h(
             "tbody",
             {},
-            n === N_MANUAL && manual ? h("tr", { class: "you" }, h("td", {}, "あなた（手計算）"), h("td", {}, "—"), h("td", {}, `${manual.seconds.toFixed(1)}秒`)) : null,
+            manual && n === recordN(manual) ? h("tr", { class: "you" }, h("td", {}, "あなた（手計算）"), h("td", {}, "—"), h("td", {}, `${manual.seconds.toFixed(1)}秒`)) : null,
             CLOCKS.map((c) => h("tr", {}, h("td", {}, c.label), h("td", {}, c.note), h("td", {}, formatSeconds(runSeconds(steps, c))))),
           ),
         ),
@@ -150,8 +174,8 @@ export function renderAuto(view, { tasks, isa }) {
     h(
       "div",
       { class: "card" },
-      h("h3", {}, `1. 手で計算: 1 + 2 + 3 + … + ${N_MANUAL} は？`),
-      h("p", {}, "電卓を使わずに、頭の中か紙で計算します。「スタート」を押すと時間をはかります。"),
+      manualTitle,
+      h("p", {}, `電卓を使わずに、頭の中か紙で計算します。「スタート」を押すと N（${N_MIN}〜${N_MAX} のどれか）が決まり、時間をはかりはじめます。`),
       h("div", { class: "manual-row" }, clock, h("div", { class: "btn-row" }, startBtn, answer, doneBtn)),
       manualMsg,
     ),
