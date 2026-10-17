@@ -4,6 +4,7 @@
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
   --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
   --ef-bg: #f5f4f0;          /* 画面の地 */
   --ef-surface: #ffffff;     /* カード・ヘッダー */
@@ -67,6 +68,18 @@
 .ef-btn:hover { border-color: var(--ef-accent); }
 .ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
 .ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 0 20px;
@@ -179,5 +192,20 @@
 
 /* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
 html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }

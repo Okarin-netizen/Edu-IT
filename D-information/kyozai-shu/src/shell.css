@@ -20,40 +20,6 @@
   --font: var(--ef-font);
   --bar-h: 40px;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #121211;
-    --surface-1: #1a1a19;
-    --surface-2: #242422;
-    --border: #3a3936;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --text-muted: #a3a29a;
-    --accent: #5598e7;
-    --accent-ink: #0b0b0b;
-    --accent-soft: #1c2b40;
-    --good: #5fc27a;
-    --good-soft: #17301f;
-    --shadow: none;
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #121211;
-  --surface-1: #1a1a19;
-  --surface-2: #242422;
-  --border: #3a3936;
-  --text-primary: #f0efec;
-  --text-secondary: #c3c2b7;
-  --text-muted: #a3a29a;
-  --accent: #5598e7;
-  --accent-ink: #0b0b0b;
-  --accent-soft: #1c2b40;
-  --good: #5fc27a;
-  --good-soft: #17301f;
-  --shadow: none;
-}
 
 * { box-sizing: border-box; }
 html { font-size: 17px; }
@@ -84,13 +50,16 @@ a { color: var(--accent); }
 #back-link { display: none; }
 .app-mode #back-link { display: inline-flex; }
 .shell-header .ef-btn { min-height: 32px; padding: 0 12px; font-size: 14px; }
+/* メニューのときは、ほかの分野のメニューと同じ高さ・ボタンの大きさにする(細くするのは教材を開いたときだけ) */
+.home-mode { --bar-h: 52px; }
+.home-mode .shell-header .ef-btn { min-height: 40px; padding: 0 14px; font-size: 15px; }
+.home-mode .bar-title { font-size: 18px; }
 
 /* ふりがな・大きな文字（6つの教材とメニューにかかる） */
 .shell-toggles { display: flex; gap: 6px; flex: none; }
-.shell-toggle, .switch-btn { font-weight: 700; border-color: #8c8a82; }
-.shell-toggle::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; border: 1.5px solid currentColor; vertical-align: 1px; }
-.shell-toggle[aria-pressed="true"]::before { background: currentColor; }
-.shell-toggle:hover, .switch-btn:hover { border-color: var(--accent); }
+.switch-btn { font-weight: 700; border-color: #8c8a82; }
+/* 「ふりがな」「文字 中」は4分野共通の形(shared/eduit-frame.css の .ef-toggle・.ef-size) */
+.switch-btn:hover { border-color: var(--accent); }
 
 /* 教材の切りかえ（KS-04: アイコンに短い名前を付ける。はばがせまいときは「教材をかえる ▾」で名前の一覧を出す） */
 .switch-wrap { position: relative; flex: none; }
@@ -104,7 +73,6 @@ a { color: var(--accent); }
 .switcher a .ef-code { font-size: 12px; min-width: 0; }
 /* 教材を開いているときは、上のバーに「D2 仮想CPUラボ」の名前が入るよう、切りかえとボタンを少しつめる */
 .app-mode .switcher a { padding: 0 5px 0 3px; gap: 4px; font-size: 12.5px; }
-.app-mode .shell-toggle::before { display: none; }
 .app-mode .shell-header .shell-toggle { padding: 0 10px; }
 .app-mode .bar-title { flex: 1 1 auto; }
 .switcher .full { display: none; }
@@ -173,9 +141,19 @@ a { color: var(--accent); }
   .app-mode .bar-title .ef-title-name { display: none; }
   .shell-header { gap: 6px; padding: 0 8px; }
   .shell-header .shell-toggle, .shell-header .switch-btn { padding: 0 8px; font-size: 13px; }
-  .shell-toggle::before { display: none; }
   #menu { padding: 20px 16px 8px; }
   .grid { grid-template-columns: minmax(0, 1fr); }
+}
+/* スマホ: ほかの分野と同じくらいの押しやすさにする */
+@media (max-width: 640px) {
+  :root { --bar-h: 48px; }
+  .shell-header .ef-btn { min-height: 36px; }
+  .shell-header .shell-toggles { gap: 4px; }
+  /* メニューのときは、名前を切らずに出す(道具は入りきらなければ次の行へ) */
+  .home-mode .shell-header.ef-header { height: auto; min-height: var(--bar-h); flex-wrap: wrap; row-gap: 4px; padding: 6px 10px; }
+  .home-mode .bar-title { flex: 1 1 9em; white-space: normal; font-size: 16px; }
+  .home-mode .shell-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .home-mode .shell-header .ef-tools { margin-left: auto; }
 }
 @media (max-width: 420px) {
   .switch-btn-label { font-size: 0; }
@@ -219,10 +197,7 @@ html.large-text { font-size: 20px; }
 .note.export .export-msg { margin: 10px 0 0; font-weight: 700; color: var(--good); }
 .note.export .export-msg.warn { color: #b3261e; }
 .export-msg:empty { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .note.export .export-msg.warn { color: #ff8a80; }
-  :root:not([data-theme="light"]) .field-row input[aria-invalid="true"] { border-color: #ff8a80; }
-}
+
 /* ふりがな（ruby.js） */
 ruby.kz-ruby { ruby-align: center; }
 ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-select: none; -webkit-user-select: none; }
@@ -230,15 +205,5 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-
 /* KS-09: 学習指導要領との対応（先生へ） */
 .note .curriculum .curr-key { display: block; font-size: 0.82rem; color: var(--text-muted); }
 
-
 /* 暗い画面の設定のときは、共通の枠の色も教材集の暗い色に合わせる（第1.5版） */
-@media (prefers-color-scheme: dark) {
-  :root[data-ef-domain]:not([data-theme="light"]) {
-    --ef-bg: #121211; --ef-surface: #1a1a19; --ef-surface-2: #242422; --ef-line: #3a3936;
-    --ef-text: #f0efec; --ef-muted: #c3c2b7; --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
-  }
-}
-:root[data-ef-domain][data-theme="dark"] {
-  --ef-bg: #121211; --ef-surface: #1a1a19; --ef-surface-2: #242422; --ef-line: #3a3936;
-  --ef-text: #f0efec; --ef-muted: #c3c2b7; --ef-accent: #5598e7; --ef-accent-ink: #0b0b0b; --ef-accent-soft: #1c2b40;
-}
+

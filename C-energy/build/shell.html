@@ -28,6 +28,11 @@ body{overflow:hidden}
 .ea *{box-sizing:border-box}
 .ea-view{flex:1;min-height:0;display:none;flex-direction:column}
 .ea-view.on{display:flex}
+/* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。文字の大きさは画面ごと拡大する(各アプリの文字は px で決めてあるため) */
+.ea-noruby rt,.ea-noruby rp{display:none}
+.ea-pane>div,.ea-home>[data-ref="cards"],.ea-home>.ea-foot,.ea-hbody{zoom:var(--ea-z,1)}
+.ea-pane>div{height:calc(100% / var(--ea-z,1))}
+.ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
 .ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
@@ -117,6 +122,25 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
+/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C5) */
+@media (max-width:640px){
+  .ea-cards{grid-template-columns:minmax(0,1fr)!important}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto!important;min-height:0!important}
+  .ef-levels[data-ref="cards"]{padding:6px 12px 0}
+  .ea-hd{padding:6px 10px}
+  .ea-hd .ef-title{font-size:18px}
+  .ea-foot{padding:0 12px 16px}
+  .ea-bar{height:auto;flex-wrap:wrap;row-gap:4px;padding:4px 6px}
+  .ea-bar .ea-btn{min-height:38px;font-size:14px;padding:0 9px}
+  .ea-bar .ea-apptitle{display:flex!important;flex:1 1 calc(100% - 140px);min-width:0;white-space:normal;font-size:16px;line-height:1.35}
+  .ea-bar-tools{order:3;gap:4px}
+  .ea [data-ea="fs"]{display:none!important}
+  .ea-chips{order:4;flex:1 1 0}
+  .ea-chip{min-height:40px;padding:0 9px}
+  /* 各アプリの道具の帯(.e1-top〜.e5-top): ボタンの字を切らずに、帯だけ横にスクロール */
+  .e1-top,.e2-top,.e3-top,.e4-top,.e5-top{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .e1-top>*,.e2-top>*,.e3-top>*,.e4-top>*,.e5-top>*{flex:none!important;min-width:auto!important;max-width:none!important}
+}
 @media (max-width:1100px){ .ea-apptitle{display:none} }
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
@@ -142,6 +166,8 @@ body{overflow:hidden}
     <header class="ef-header ea-hd">
       <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
         <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生用</button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
@@ -158,8 +184,12 @@ body{overflow:hidden}
       <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
       <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
-      <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
-      <span data-ref="about"></span>
+      <div class="ea-bar-tools">
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
+        <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+        <span data-ref="about"></span>
+      </div>
     </div>
     <div class="ea-panes" data-ref="panes"></div>
   </section>
@@ -201,6 +231,21 @@ if (window.EduitFrame) {
   $('[data-ref="about"]').appendChild(ab);
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
+/* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, z }) ---- */
+var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, z: 1 }, sizeUpds = [];
+try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.z > 0) prefs.z = +p0.z; } catch (e) {}
+function applyPrefs() {
+  document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
+  document.documentElement.style.setProperty('--ea-z', String(prefs.z));
+  root.querySelectorAll('[data-ea="ruby"]').forEach(function (b) { b.setAttribute('aria-pressed', prefs.ruby ? 'true' : 'false'); });
+  sizeUpds.forEach(function (f) { f(); });
+  try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {}
+  window.dispatchEvent(new Event('resize'));  // 図をかき直すアプリのため
+}
+if (window.EduitFrame && EduitFrame.sizeButton) root.querySelectorAll('[data-ea-size]').forEach(function (b) {
+  sizeUpds.push(EduitFrame.sizeButton(b, { steps: [[1, '中'], [1.15, '大'], [1.3, '特大']], get: function () { return prefs.z; }, set: function (v) { prefs.z = v; applyPrefs(); } }));
+});
+applyPrefs();
 var mounted = {}, cur = null, fromHome = false, helpPushed = false, lastView = 'home';
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -371,6 +416,7 @@ root.addEventListener('click', function (ev) {
   else if (act === 'back') { if (helpPushed) { helpPushed = false; history.back(); } else setHash(lastView === 'home' ? '' : lastView, false); }
   else if (act === 'tab-s' || act === 'tab-t') { setHash(act === 'tab-t' ? 'help-t' : 'help', false); }
   else if (act === 'fs') toggleFull();
+  else if (act === 'ruby') { prefs.ruby = !prefs.ruby; applyPrefs(); }
   else if (act === 'export') exportAll();
   else if (act === 'import') $('[data-ea-file]').click();
 });

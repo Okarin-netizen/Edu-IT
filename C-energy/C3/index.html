@@ -156,6 +156,13 @@ html,body{margin:0;height:100%;background:#f1f3ee;}
   .e3-modal .acts.stk{margin:12px -16px -16px;padding:10px 16px 14px;bottom:-16px}
   .e3-steps{grid-template-columns:1fr}
 }
+/* スマホ: 盤面の高さを先に取り、下の説明は画面ごとスクロールして読む(盤面がつぶれないように) */
+@media (max-width:640px){
+  .e3-main{overflow-y:auto}
+  .e3-center{flex:none}
+  .e3-cvbox{flex:none;height:min(62vh,420px);min-height:260px}
+  .e3-side{max-height:none;overflow:visible}
+}
 @media print{
   html,body{height:auto;background:#fff}
   body *{visibility:hidden}
@@ -1052,7 +1059,7 @@ function spinArrow(c, x, y, R, dir, col) {
 
 /* ---------- 歯車・プーリーの絵 ---------- */
 function gearShape(c, x, y, r, z, ang, m, sharp) {
-  var tip = r + m * 0.85, root = r - m * 1.0, hp = Math.PI / z, k1 = sharp ? 0.55 : 0.62, k2 = sharp ? 0.12 : 0.3;
+  var tip = r + m * 0.85, root = Math.max(1, r - m * 1.0), hp = Math.PI / z, k1 = sharp ? 0.55 : 0.62, k2 = sharp ? 0.12 : 0.3;
   c.beginPath();
   for (var j = 0; j < z; j++) {
     var cc = ang + TAU * j / z;

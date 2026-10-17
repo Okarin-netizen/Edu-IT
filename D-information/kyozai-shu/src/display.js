@@ -24,7 +24,8 @@
   }
   function findToggle(label) {
     var bs = document.querySelectorAll("header button, .display-toggles button");
-    for (var i = 0; i < bs.length; i++) if (labelOf(bs[i]) === label) return bs[i];
+    // 「文字 中/大」の形のボタンは data-kz-label="大きな文字" で見分ける
+    for (var i = 0; i < bs.length; i++) if ((bs[i].getAttribute("data-kz-label") || labelOf(bs[i])) === label) return bs[i];
     return null;
   }
   // 教材のボタンを、教材集の設定に合わせる。押したのにまだ切りかわっていないボタンは、もう一度押さない

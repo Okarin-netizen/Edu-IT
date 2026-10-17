@@ -67,7 +67,7 @@ body{background:var(--ef-bg);}
 #hub .chip.done{border-color:var(--pri);background:var(--pri-l);color:var(--pri-d);font-weight:700;}
 #hub .chip.todo{border-color:var(--warn);background:var(--warn-l);color:#6b3a00;font-weight:700;}
 #hub .chip.part{border-color:#1565c0;background:#e8f0fb;color:#0d3c78;font-weight:700;}
-/* ふつうのボタン: 共通の枠 .ef-btn と同じ形(白地・丸い枠)。文字の大きさは A−/A＋ に合わせる */
+/* ふつうのボタン: 共通の枠 .ef-btn と同じ形(白地・丸い枠)。文字の大きさは「文字 中」のボタンに合わせる */
 #hub .btn{min-height:48px;padding:0 18px;border-radius:999px;border:1px solid var(--ef-line);background:var(--ef-surface);color:var(--ef-text);font-weight:700;}
 #hub .btn:hover{border-color:var(--ef-accent);}
 #hub .btn.danger{border-color:var(--bad);color:var(--bad);}
@@ -95,8 +95,17 @@ body{background:var(--ef-bg);}
 #hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:12px;z-index:60;max-width:90vw;}
 #hub .toast[hidden]{display:none;}
 @media (max-width:900px){#hub .bar .lbl{display:none;} #hub .bar{gap:6px;}}
-@media (max-width:640px){#hub .bar .ttl{display:none;} #hub .bar .ef-tools{flex:1;justify-content:flex-end;} #hub .bar .sw .ef-btn{min-width:46px;}}
-@media (max-width:560px){#hub .bar .sep,#hub .bar .use{display:none;} #hub .bar{gap:4px;padding-left:6px;padding-right:6px;} #hub .bar .ef-tools,#hub .bar .sw,#hub .bar .pf{gap:4px;} #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-width:36px;padding:0 6px;}}
+/* スマホ: 上のバーを2行にする(1行目 = ◀ と名前、2行目 = 道具と B1〜B4)。入りきらないときは2行目だけ横にスクロール */
+@media (max-width:640px){
+  #hub{--bar:96px;}
+  #hub .bar{flex-wrap:wrap;align-content:center;row-gap:4px;column-gap:6px;padding-top:4px;padding-bottom:4px;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}
+  #hub .bar .ttl{flex:1 1 0;font-size:16px;}
+  #hub .bar .ef-tools{flex:1 1 100%;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:none;}
+  #hub .bar .sep,#hub .bar .use{display:none;}
+  #hub .bar .sw,#hub .bar .pf{gap:4px;}
+  #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-height:38px;min-width:0;padding:0 8px;font-size:14px;}
+}
+@media (max-width:420px){#hub .bar .tch{display:none;}}
 @media print{
   #hub .bar,#hub .gtools,#hub .noprint{display:none !important;}
   #hub .page{padding:0;}
@@ -106,7 +115,7 @@ body{background:var(--ef-bg);}
 <!-- 先生用ガイドの見た目: rebuild.js が shared/eduit-guide.css の .eg の部分に #hub を付けて入れる(body などの決まりは入れない) -->
 <style data-eg-css></style>
 <style>
-/* 先生用ガイドをメニューの中で見るときの調整(文字の大きさは A−/A＋ に合わせる。目次から飛んだ見出しが上のバーに隠れないように) */
+/* 先生用ガイドをメニューの中で見るときの調整(文字の大きさは「文字 中」のボタンに合わせる。目次から飛んだ見出しが上のバーに隠れないように) */
 #hub .eg{font-size:1em;padding:0 0 20px;}
 #hub .eg-sec{scroll-margin-top:calc(var(--bar) + 10px);}
 #hub .eg-toc li{margin:0;}
@@ -120,9 +129,8 @@ body{background:var(--ef-bg);}
     <h1 class="ttl ef-title" id="hub-ttl">生物育成の技術 教材集</h1>
     <div class="ef-tools">
       <div class="pf" role="group" aria-label="ふりがなと文字の大きさ(教材集ぜんぶで同じ)">
-        <button type="button" class="ef-btn" id="hub-pf-ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
-        <button type="button" class="ef-btn" id="hub-pf-dec" aria-label="文字を小さくする" title="文字を小さく">A−</button>
-        <button type="button" class="ef-btn" id="hub-pf-inc" aria-label="文字を大きくする" title="文字を大きく">A＋</button>
+        <button type="button" class="ef-btn ef-toggle" id="hub-pf-ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="hub-pf-size">文字</button>
       </div>
       <button type="button" class="ef-btn use" data-go="student" aria-label="使い方" title="この教材集の使い方">📖<span class="lbl"> 使い方</span></button>
       <button type="button" class="ef-btn tch" id="hub-to-teacher" aria-label="先生用" title="メニューの下の先生用のところへ">👩‍🏫<span class="lbl"> 先生用</span></button>
@@ -184,7 +192,7 @@ body{background:var(--ef-bg);}
 <li>教材の中では、上の緑のタブで画面を切りかえます。<br><b>B1・B2・B3</b> は「① そだてる」「② 結果・原因さがし」のように、学ぶ中身のタブに番号がついていて、番号の順に進みます(「はじめに」<span data-ef-reflect>と「振り返り」</span>には番号がありません<span data-ef-reflect>。振り返りはいつも最後です</span>)。<b>基本編</b>のタブのあとに<b>発展編</b>のタブがならんでいます。<br><b>B4</b> は「🏠ホーム」「✏️記録」「📈グラフ」などの絵のタブで、育てているあいだ、必要な画面を行き来します。</li>
 <li>メニューにもどるときは、いちばん上の「◀ メニュー」をタップします。<br>書いている<ruby>途中<rt>とちゅう</rt></ruby>の内容は消えません。</li>
 <li>上のバーの「B1」〜「B4」で、ほかの教材へすぐ移れます。</li>
-<li>上のバーの右の「ふりがな」でふりがなのあり・なし、「A−」「A＋」で文字の大きさを変えられます。<b>文字の大きさ・ふりがなは、教材集ぜんぶで同じ設定になります。</b></li>
+<li>上のバーの右の「ふりがな」でふりがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大)を変えられます。<b>文字の大きさ・ふりがなは、教材集ぜんぶで同じ設定になります。</b></li>
 </ol>
 </section>
 
@@ -249,7 +257,7 @@ body{background:var(--ef-bg);}
 <h3>6. こまったときは</h3>
 <dl class="faq">
 <dt>画面が動かない・おかしい</dt><dd>「◀ メニュー」にもどってから、もう一度教材をひらく。それでもだめなら、ページを<ruby>再読<rt>さいよ</rt></ruby>みこみする(記録は消えません)。</dd>
-<dt>文字が小さい・ふりがなを消したい</dt><dd>いちばん上のバーの「A＋」「A−」で文字の大きさ、「ふりがな」でふりがなのあり・なしを変えられます。どの教材を開いているときでも使えます。文字の大きさ・ふりがなは、教材集ぜんぶで同じ設定になります。</dd>
+<dt>文字が小さい・ふりがなを消したい</dt><dd>いちばん上のバーの「文字 中」で文字の大きさ、「ふりがな」でふりがなのあり・なしを変えられます。どの教材を開いているときでも使えます。文字の大きさ・ふりがなは、教材集ぜんぶで同じ設定になります。</dd>
 <dt>前に書いた記録がない</dt><dd>ちがうタブレット、またはちがうブラウザでひらいていないか確かめよう。B4は、登録した名前をえらび直してみよう。</dd>
 <dt>まちがえて消してしまった</dt><dd>すぐに先生に相談しよう。バックアップがあれば、もとにもどせることがあります。</dd>
 </dl>
@@ -626,7 +634,9 @@ function applyPrefs(){
   hub.classList.toggle('noruby', p.ruby === false);
   hub.style.fontSize = (p.fs || kzPrefs.FS_DEFAULT) + 'px';
 }
-kzPrefs.bind($('#hub-pf-ruby'), $('#hub-pf-dec'), $('#hub-pf-inc'));
+kzPrefs.bind($('#hub-pf-ruby'));
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン(押すたびに 小 → 中 → 大 → 特大 → 小) */
+kzPrefs.on(EduitFrame.sizeButton($('#hub-pf-size'), { steps: [[16, '小'], [18, '中'], [22, '大'], [26, '特大']], get: function(){ return kzPrefs.get().fs || kzPrefs.FS_DEFAULT; }, set: function(v){ kzPrefs.set({fs: v}); } }));
 kzPrefs.on(applyPrefs);
 applyPrefs();
 function addRuby(el){ if (el && window.kzRuby) { try { kzRuby(el); } catch(e) {} } }

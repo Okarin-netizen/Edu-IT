@@ -64,7 +64,8 @@ function renderToggles() {
     on = localStorage.getItem(LARGE_KEY) === "1";
   } catch {}
   document.documentElement.classList.toggle("large-text", on);
-  const b = h("button", { type: "button", class: "toggle ef-btn", "aria-pressed": on ? "true" : "false" }, "大きな文字");
+  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
+  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": on ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
   b.addEventListener("click", () => {
     try {
       localStorage.setItem(LARGE_KEY, on ? "0" : "1");

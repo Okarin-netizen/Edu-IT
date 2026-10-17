@@ -718,7 +718,10 @@
     [['furigana', 'ふりがな', 'show-ruby'], ['big', '大きな文字', 'big-text']].forEach(function (t) {
       var on = !!saved[t[0]];
       document.documentElement.classList.toggle(t[2], on);
-      var b = h('button', { type: 'button', class: 'toggle ef-btn', 'aria-pressed': String(on) }, t[1]);
+      // ふりがなは ✓ の付く切りかえ(.ef-toggle)、文字の大きさは4分野共通の「文字 中/大」ボタン(.ef-size)
+      var b = t[0] === 'big'
+        ? h('button', { type: 'button', class: 'ef-btn ef-size', 'data-kz-label': '大きな文字', 'aria-label': '文字の大きさ(大きな文字)', 'aria-pressed': String(on) }, '文字 ', h('span', { class: 'ef-size-v' }))
+        : h('button', { type: 'button', class: 'toggle ef-btn ef-toggle', 'aria-pressed': String(on) }, t[1]);
       b.addEventListener('click', function () {
         on = !on;
         save(t[0], on);
