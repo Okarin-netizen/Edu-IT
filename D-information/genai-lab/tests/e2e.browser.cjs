@@ -48,16 +48,19 @@ const check = (ok, label) => {
   const pos = await p.evaluate(() => GenaiData.quiz.map((q) => q.c));
   check(new Set(pos).size >= 3, `クイズの正解の位置がばらばら (${pos.join(",")})`);
 
-  // GL-03・GL-10: 判定する前に答えのまとめが出ない。新しい文は3本だけ判定
+  // GL-03・GL-10: 判定する前に答えのまとめが出ない。5本とも判定し、判定するまで「新しい文」などの印は出さない
   await go("halluc");
   await p.click("text=AIに文を5本つくらせる");
   check((await p.locator(".gen-row").count()) === 5, "文を5本つくる");
   check((await p.locator(".result.warn").count()) === 0, "判定する前は答えのまとめが出ない");
+  check((await p.locator(".gen-row .badge").count()) === 0, "判定する前は「新しい文」などの印が出ない");
   const judges = p.locator(".gen-row .judge");
   const n = await judges.count();
-  check(n === 3, `判定するのは新しい文の3本 (${n})`);
+  check(n === 5, `判定するのは5本すべて (${n})`);
   for (let i = 0; i < n; i++) await p.locator(".gen-row .judge").first().locator("text=まちがい").click();
-  check((await p.locator(".result.warn").count()) === 1, "3本判定すると答えのまとめが出る");
+  check((await p.locator(".gen-row .badge").count()) === 5, "判定したあとは印が出る");
+  check((await p.locator(".judge-res.ok").count()) === (await p.locator(".gen-row .badge.orange").count()), "「まちがい」は新しい文だけ正解");
+  check((await p.locator(".result.warn").count()) === 1, "5本判定すると答えのまとめが出る");
   check((await p.locator("text=前の言葉をいくつ見る").count()) === 0, "このページには1語/2語の切りかえがない");
   // GL-05: AIの答えの文に印がつく
   const line = p.locator(".line").first();

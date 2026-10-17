@@ -83,3 +83,38 @@ test("DL-14 ドリルの最高点は種類ごとに残る", () => {
   assert.equal(L.drillBestText({ best: { correct: 9, total: 10 } }), "9 / 10問（種類の記録なし）");
   assert.equal(L.drillBestText({}), "");
 });
+
+test("ドリル: 正解が大きさの順でいつも同じ位置にならない（いちばん小さい・真ん中などで当てられない）", () => {
+  const rand = seeded(17);
+  const val = (s) => Number(s.replace(/[約,]/g, "").match(/[\d.]+/)[0]);
+  const ranks = {};
+  for (const kind of ["unit", "levels", "image", "audio", "video"]) {
+    for (let i = 0; i < 6000; i++) {
+      const p = L.makeDrill(kind, rand);
+      const sub = `${kind}:${p.question.replace(/[\d,.]+/g, "#").slice(0, 12)}`;
+      const vs = p.choices.map(val);
+      const r = vs.filter((v) => v < vs[p.answer]).length;
+      (ranks[sub] ??= [0, 0, 0, 0])[r]++;
+    }
+  }
+  for (const [sub, c] of Object.entries(ranks)) {
+    const t = c.reduce((a, b) => a + b);
+    // 「何ビット必要？」は 2通り・4通りで小さいまちがいが作れないので、少しだけゆるめる
+    const max = sub.includes("区別") ? 0.42 : 0.32;
+    for (const x of c) {
+      assert.ok(x / t <= max && x / t >= 0.15, `${sub}: 正解の順位がかたよっている ${c}`);
+    }
+  }
+});
+
+test("ステップの確かめ: pickAround で正解が真ん中に固定されない", () => {
+  const rand = seeded(23);
+  const counts = [0, 0, 0];
+  for (let i = 0; i < 6000; i++) {
+    const w = L.pickAround([1, 2], [100, 1000], rand);
+    assert.equal(w.length, 2);
+    assert.equal(new Set(w).size, 2);
+    counts[w.filter((v) => v < 10).length]++;
+  }
+  for (const c of counts) assert.ok(c / 6000 > 0.28 && c / 6000 < 0.39, `${counts}`);
+});
