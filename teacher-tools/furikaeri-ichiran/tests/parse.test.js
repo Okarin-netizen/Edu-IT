@@ -63,6 +63,19 @@ test('B: 自己評価の数値・記号を言葉にする', () => {
   assert.strictEqual(b3.rows.filter((x) => x.type === '自己評価').length, 2);  // 0 は未記入
 });
 
+test('B5: 振り返り・自己評価・レーダーチャート・成績', () => {
+  const r = load('B5_データ_2-15_山田花子_2026-10-18.json');
+  assert.strictEqual(r.format, 'B5 植物工場の自動化');
+  const b5 = r.entries[0];
+  assert.strictEqual(b5.app, 'B5 植物工場の自動化');
+  assert.deepStrictEqual(b5.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(b5, 'センサとプログラムで育成環境を自動で調節するしくみが分かった'), '◎ よくできた');
+  assert.strictEqual(val(b5, '品質・収量・費用・安全性・環境への配慮(1〜5)'), '品質 5 / 収量 4 / 費用 3 / 安全性 5 / 環境への配慮 3');
+  assert.strictEqual(b5.rows.filter((x) => x.type === 'ふりかえり').length, 3);  // 空の問いは入れない(q1・q3・えらんだ理由)
+  assert.strictEqual(val(b5, '最高点(試した回数)'), '88 点(2 回)');
+  assert.strictEqual(val(b5, '仕分けクイズ'), '7 / 8 問');
+});
+
 test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
   const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
