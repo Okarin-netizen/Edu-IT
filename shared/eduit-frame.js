@@ -22,6 +22,10 @@
  * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  * 上のバーの表示の道具(4分野で同じ形):
@@ -166,6 +170,28 @@
     if (!dlg) build();
     dlg._select(typeof tab === 'number' ? tab : 0);
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
   }
 
   function aboutButton(cls) {
@@ -390,6 +416,6 @@
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
