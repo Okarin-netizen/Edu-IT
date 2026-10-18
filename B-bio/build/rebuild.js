@@ -1,9 +1,9 @@
 // 使い方(リポジトリのいちばん上で): node B-bio/build/rebuild.js
-//   (フォルダを省くと、このファイルの1つ上 = B-bio を使う。B1..B4/、eduit-info.js、docs/、build/ がある。共通の枠は ../shared/)
+//   (フォルダを省くと、このファイルの1つ上 = B-bio を使う。B1..B5/、eduit-info.js、docs/、build/ がある。共通の枠は ../shared/)
 // 元のファイル: build/menu.html(メニュー)・docs/先生用ガイド.html(先生用ガイド)・B?/b?.html(教材)
 // できるファイル(dist/ は作ったものだけ。手で直さない):
 // 1. dist/生物育成教材集.html … menu.html に、共通の枠(shared/eduit-frame.css・eduit-frame.js と B-bio/eduit-info.js)・
-//    先生用ガイド・B1〜B4(共通の枠の読み込みを中身に置きかえたもの)を SRC 行に入れて、1ファイルで動くようにする
+//    先生用ガイド・B1〜B5(共通の枠の読み込みを中身に置きかえたもの)を SRC 行に入れて、1ファイルで動くようにする
 // 2. dist/先生用ガイド.html … 印刷しやすい先生用ガイド(docs/先生用ガイド.html に共通の枠と shared/eduit-guide.css を入れたもの)
 // 3. dist/生物育成教材集.zip … 生物育成教材集.html・先生用ガイド.html・はじめにお読みください.txt
 // 何回作りなおしても同じ中身になる(zip の日時は eduit-info.js の updated にそろえる)
@@ -91,7 +91,7 @@ const sec=gsrc.slice(ga+'<!-- guide:start -->'.length,gb).trim();
 h=once(h,'<!-- 先生用ガイド: docs/先生用ガイド.html の中身を rebuild.js が入れる -->',sec,'hub guide');
 const lines=h.split('\n');
 const i=lines.findIndex(l=>l.startsWith('var SRC = '));
-const SRC={}; for(const k of ['b1','b2','b3','b4']) SRC[k]=inlineEf(read(path.join(D,k.toUpperCase(),k+'.html')),k);
+const SRC={}; for(const k of ['b1','b2','b3','b4','b5']) SRC[k]=inlineEf(read(path.join(D,k.toUpperCase(),k+'.html')),k);
 lines[i]='var SRC = '+JSON.stringify(SRC).replace(/<\//g,'<\\/').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')+';';
 h=lines.join('\n'); fs.writeFileSync(H,h);
 // check
