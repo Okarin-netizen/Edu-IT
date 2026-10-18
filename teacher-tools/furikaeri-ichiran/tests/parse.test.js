@@ -144,3 +144,15 @@ test('A: A7 第三角法 立体メーカーの書き出し(組・番号・名前
   assert.strictEqual(val(e, 'むずかしかったこと・次にがんばりたいこと'), '斜めのマスの向きをそろえるのがむずかしかった');
   assert.strictEqual(e.rows[0].part, 'L形ブラケット');
 });
+
+test('A: A8 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r = load('問題解決ノート_2組15番.json');
+  const e = find(r, 'A8 問題解決ノート');
+  assert.deepStrictEqual(e.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e, '課題'), '机の横に、教科書を立てて入れられる木の本立てを作る');
+  assert.strictEqual(val(e, '問題?課題? クイズ'), '5 / 6');
+  assert.strictEqual(val(e, '観点ごとの評価(5段階)の平均'), '3.5(4 観点)');
+  assert.strictEqual(val(e, '改善・修正の方法'), '加工: 角をやすりで丸くする');
+  assert.strictEqual(val(e, '身の回りから問題を見つけ、問題と課題を分けて書けた'), 'できた');
+  assert.strictEqual(val(e, 'これからの問題解決に生かしたいこと'), '観点を先に決めてから構想する');
+});

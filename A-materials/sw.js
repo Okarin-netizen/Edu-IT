@@ -4,7 +4,7 @@
  * - それ以外の同じオリジンのファイルも、一度開けばキャッシュされる(キャッシュ優先)
  * 内容を更新して配り直すときは VERSION を上げる。
  */
-var VERSION = 'gijutsu-v17';
+var VERSION = 'gijutsu-v18';
 var CORE = [
   './',
   './index.html',
@@ -22,7 +22,7 @@ var CORE = [
   './docs/先生用ガイド.html'
 ];
 // 4分野共通の枠(A-materials の1つ上の shared/)。置いていないときもインストールは止めない
-var SHARED = ['../shared/eduit-frame.css', '../shared/eduit-frame.js'];
+var SHARED = ['../shared/eduit-frame.css', '../shared/eduit-frame.js', '../shared/mondai-note/mondai-note.css', '../shared/mondai-note/mondai-note.js', '../shared/mondai-note/mondai-note-data.js'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) {
