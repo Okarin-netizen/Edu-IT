@@ -2,7 +2,7 @@
 """一つのHTML版を作る: python3 build/build-single.py [出力ファイル.html]
 (出力先を省くと A-materials/dist/材料と加工_教材アプリ.html)
 
-メニュー・7つのアプリ・先生用ビューア・使い方を、CSS と JS を中に入れた形で1つのファイルにまとめる。
+メニュー・8つのアプリ・先生用ビューア・使い方を、CSS と JS を中に入れた形で1つのファイルにまとめる。
 4分野共通の枠(../shared/eduit-frame.css・eduit-frame.js)と eduit-info.js も各ページの中に入れる。
 各ページは iframe(srcdoc)で開き、メニューへ戻るなどのリンクは親ページ(window.GSingle)が受け持つ。
 """
@@ -21,6 +21,7 @@ PAGES = [
     ('a5-kidori', 'a5-kidori/index.html'),
     ('a6-tool-safety', 'a6-tool-safety/index.html'),
     ('a7-solid-maker', 'a7-solid-maker/index.html'),
+    ('a8-mondai-note', 'a8-mondai-note/index.html'),
     ('teacher-viewer', 'teacher-viewer/index.html'),
     ('guide', 'docs/先生用ガイド.html'),
 ]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""C1〜C5 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
+"""C1〜C8 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
 import json, os, re, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 import help as H
@@ -16,6 +16,12 @@ EF_CSS = open(os.path.join(SHARED, 'eduit-frame.css'), encoding='utf-8').read().
 EF_JS = open(os.path.join(SHARED, 'eduit-frame.js'), encoding='utf-8').read().strip()
 EG_CSS = open(os.path.join(SHARED, 'eduit-guide.css'), encoding='utf-8').read().strip()  # 先生用ガイドの見た目
 EF_INFO = open(os.path.join(SRC, 'eduit-info.js'), encoding='utf-8').read().strip()
+# C8 問題解決ノートの本体(4分野共通 shared/mondai-note/)。C8/index.html は <link>・<script src> で読むので、統合版にはここで中身を入れる
+MN_DIR = os.path.join(SHARED, 'mondai-note')
+MN_CSS = open(os.path.join(MN_DIR, 'mondai-note.css'), encoding='utf-8').read().strip()
+MN_DATA = open(os.path.join(MN_DIR, 'mondai-note-data.js'), encoding='utf-8').read().strip().replace('</script', '<\\/script')
+MN_JS = open(os.path.join(MN_DIR, 'mondai-note.js'), encoding='utf-8').read().strip().replace('</script', '<\\/script')
+assert '</style' not in MN_CSS and '</script' not in MN_DATA + MN_JS
 # <script> の中に入れるので、コメントなどの </script を <\/script にする(JS としては同じ意味)
 EF_JS = EF_JS.replace('</script', '<\\/script')
 EF_INFO = EF_INFO.replace('</script', '<\\/script')
@@ -29,7 +35,7 @@ def ef_inline(text):
     return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
-# 各アプリの CSS・DOM の接頭辞(.e1〜.e5・e1-app など)は記号ではない中の名前なので、C1〜C5 にしても e1〜e5 のまま
+# 各アプリの CSS・DOM の接頭辞(.e1〜.e8・e1-app など)は記号ではない中の名前なので、C1〜C8 にしても e1〜e8 のまま
 def parts(n):
     s = open('%s/C%d/index.html' % (SRC, n), encoding='utf-8').read()
     css = re.findall(r'<style>(.*?)</style>', s, re.S)
@@ -47,7 +53,7 @@ def must_replace(text, old, new, count=1):
 
 css_all, js_all = [], []
 seen_cores = set()
-for n in range(1, 6):
+for n in range(1, 9):
     css, js = parts(n)
     # 各アプリの html,body 指定はシェルが持つので外す(印刷用の指定は残す)
     css = must_replace(css, re.search(r'^html,body\{[^}]*\}\n', css, re.M).group(0), '')
@@ -56,6 +62,12 @@ for n in range(1, 6):
         css = must_replace(css, '  body *{visibility:hidden}', '  body.ea-on-C%d *{visibility:hidden}' % n)
         css = must_replace(css, '  .e%d-printarea,.e%d-printarea *{visibility:visible}' % (n, n),
                            '  body.ea-on-C%d .e%d-printarea,body.ea-on-C%d .e%d-printarea *{visibility:visible}' % (n, n, n, n))
+    if n == 8:
+        # 問題解決ノートの本体(見た目はすべて .mn- で始まるので、ほかのアプリには効かない)
+        assert 'mondai-note/mondai-note.css' in open('%s/C8/index.html' % SRC, encoding='utf-8').read()
+        css_all.append('/* ---------- C8 問題解決ノートの本体(shared/mondai-note/mondai-note.css) ---------- */\n' + MN_CSS)
+        js_all.append('<script>/* ===== C8 問題解決ノートの本体: データ(shared/mondai-note/mondai-note-data.js) ===== */\n' + MN_DATA + '</script>')
+        js_all.append('<script>/* ===== C8 問題解決ノートの本体(shared/mondai-note/mondai-note.js) ===== */\n' + MN_JS + '</script>')
     css_all.append('/* ---------- C%d ---------- */\n%s' % (n, css.strip()))
     for i, code in enumerate(js):
         is_last = i == len(js) - 1

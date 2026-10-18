@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C8 問題解決ノート</title>
+<!-- 共通の枠(4分野共通の色・ヘッダー・作成者・安全と個人情報・ライセンス・更新履歴)。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<!-- 問題解決ノートの本体(4分野共通)。分野ごとの例と観点は mondai-note-data.js の C。統合版では build.py が中に入れる -->
+<link rel="stylesheet" href="../../shared/mondai-note/mondai-note.css">
+<script src="../eduit-info.js"></script>
+<script data-ef-app>EDUIT_INFO.app = { name: 'C8 問題解決ノート' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<script src="../../shared/mondai-note/mondai-note-data.js"></script>
+<script src="../../shared/mondai-note/mondai-note.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#eef3f8;}
+.e8{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;
+  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(17px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;line-height:1.6}
+.e8 *{box-sizing:border-box}
+.e8 button{touch-action:manipulation}
+.e8 ruby rt{font-size:.55em;font-weight:normal}
+.e8-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
+.e8-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e8-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
+.e8-tabs::-webkit-scrollbar{display:none}
+.e8-tab{flex:none;min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font:inherit;font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1));color:inherit}
+.e8-tab:hover{border-color:var(--ef-accent,#b45309)}
+.e8-tab.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e8-tab.adv{border-style:dashed}
+.e8-tab.adv.on{border-style:solid}
+.e8-tab .ck{color:#1a9b5b;margin-left:3px}
+.e8-tab.on .ck{color:#fff}
+.e8-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e8-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
+.e8-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
+.e8-wrap{max-width:1240px;margin:0 auto}
+.e8-wrap > section[hidden]{display:none!important}
+.e8-saved{color:var(--sub);font-size:.85em;margin:.3em 0}
+.e8-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;z-index:30;display:none;max-width:90%;text-align:center}
+@media (max-width:760px){ .e8-top h1 .lg{display:none} }
+@media (max-width:640px){
+  .e8-top{padding:0 6px}
+  .e8-body{padding:10px 8px 40px}
+}
+@media print{ .e8-top,.e8-toast{display:none!important} }
+</style>
+</head>
+<body>
+<div id="e8-app" class="e8"></div>
+<script>
+/* ===================================================================
+   C8 問題解決ノート — window.EnergyApps.C8
+   中身は4分野共通の shared/mondai-note/(window.MondaiNote)。分野ごとの例と観点は mondai-note-data.js の C
+   (教科書 3編2章1「問題の発見と課題の設定」・4「問題解決の評価、改善・修正」・3章1「エネルギー変換の技術の最適化」)。
+   このスクリプトは C のアダプタ: 上の帯(タブ)・保存(localStorage energyApps.C8.v1)・ファイルの書き出しと読み込み・ふりがな。
+   書き出し: { schema: 'energyApps.artifact', app: 'C8', type: 'mondai-note', version: 1, savedAt, who, data: { note } }
+   =================================================================== */
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+var STORE_KEY = 'energyApps.C8.v1';
+var MN = window.MondaiNote;
+
+function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
+function p2(n) { return (n < 10 ? '0' : '') + n; }
+
+/* ---------- ふりがな(このノートで使う語。ふりがなを消すのはシェルの .ea-noruby) ---------- */
+var RUBY = {
+  '問題解決': 'もんだいかいけつ', '付箋': 'ふせん', '課題': 'かだい', '観点': 'かんてん', '最適化': 'さいてきか', '折り合い': 'おりあい', '制約条件': 'せいやくじょうけん',
+  '評価': 'ひょうか', '改善': 'かいぜん', '修正': 'しゅうせい', '構想': 'こうそう', '製作品': 'せいさくひん', '過程': 'かてい',
+  '利便性': 'りべんせい', '費用': 'ひよう', '安全性': 'あんぜんせい', '配慮': 'はいりょ', '環境': 'かんきょう', '経済': 'けいざい',
+  '負荷': 'ふか', '効率': 'こうりつ', '変換': 'へんかん',
+  '燃料': 'ねんりょう', '二酸化炭素': 'にさんかたんそ', '排出': 'はいしゅつ', '資源': 'しげん', '持続可能': 'じぞくかのう', '蛍光灯': 'けいこうとう', '白熱': 'はくねつ', '水銀': 'すいぎん',
+  '寿命': 'じゅみょう', '感電': 'かんでん', '廃棄': 'はいき', '保守点検': 'ほしゅてんけん', '災害': 'さいがい', '祖母': 'そぼ', '夜道': 'よみち', '足元': 'あしもと', '試作': 'しさく', '給油': 'きゅうゆ', '停電': 'ていでん', '適切': 'てきせつ', '機構': 'きこう', '天候': 'てんこう', '左右': 'さゆう', '発電機': 'はつでんき', '燃焼': 'ねんしょう',
+  '当事者': 'とうじしゃ', '立場': 'たちば', '重み': 'おもみ', '候補': 'こうほ', '具体的': 'ぐたいてき', '達成': 'たっせい', '不便': 'ふべん', '身の回り': 'みのまわり',
+  '振り返り': 'ふりかえり', '振り返': 'ふりかえ',
+  '騒音': 'そうおん', '維持': 'いじ', '整備': 'せいび', '燃費': 'ねんぴ'
+};
+var KANJI = /[㐀-鿿々]/, rubyRe = null;
+function rubyBuild() {
+  var keys = Object.keys(RUBY).sort(function (a, b) { return b.length - a.length; });
+  rubyRe = new RegExp(keys.map(function (k) { return k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+}
+/* 語と読みのかなの部分をそろえて、漢字の部分だけにふりがなを付ける(「振り返り」→ 振(ふ)り返(かえ)り) */
+function rubyNodes(word, reading) {
+  var parts = word.match(/[぀-ゟ]+|[^぀-ゟ]+/g) || [word], frag = document.createDocumentFragment();
+  var m = new RegExp('^' + parts.map(function (p) { return /^[぀-ゟ]+$/.test(p) ? '(' + p + ')' : '(.+?)'; }).join('') + '$').exec(reading);
+  function mk(b, r) { var el = document.createElement('ruby'); el.appendChild(document.createTextNode(b)); var rt = document.createElement('rt'); rt.textContent = r; el.appendChild(rt); return el; }
+  if (!m) { frag.appendChild(mk(word, reading)); return frag; }
+  parts.forEach(function (p, i) { frag.appendChild(/^[぀-ゟ]+$/.test(p) ? document.createTextNode(p) : mk(p, m[i + 1])); });
+  return frag;
+}
+var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, SELECT: 1, OPTION: 1, RUBY: 1, RT: 1, CODE: 1, svg: 1, SVG: 1 };
+function skipped(n, root) {
+  for (var p = n.parentNode; p && p !== root.parentNode; p = p.parentNode) {
+    if (p.nodeType === 1 && (SKIP[p.nodeName] || p.namespaceURI === 'http://www.w3.org/2000/svg' || p.isContentEditable)) return true;
+  }
+  return false;
+}
+function rb(root) {
+  if (!root || !root.nodeType) return;
+  if (!rubyRe) rubyBuild();
+  var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), list = [], n;
+  while ((n = w.nextNode())) list.push(n);
+  list.forEach(function (t) {
+    var s = t.nodeValue;
+    if (!s || !KANJI.test(s) || skipped(t, root)) return;
+    rubyRe.lastIndex = 0;
+    var m, last = 0, frag = null;
+    while ((m = rubyRe.exec(s))) {
+      if (!frag) frag = document.createDocumentFragment();
+      if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+      frag.appendChild(rubyNodes(m[0], RUBY[m[0]]));
+      last = rubyRe.lastIndex;
+    }
+    if (!frag) return;
+    if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+    t.parentNode.replaceChild(frag, t);
+  });
+}
+
+/* ---------- 保存 ---------- */
+var S = { root: null, tab: 'intro', save: null, el: {}, note: null };
+function blank() { return { v: 1, tab: 'intro', note: null }; }
+function loadSave() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
+  if (!isObj(s)) return blank();
+  if (typeof s.tab !== 'string') s.tab = 'intro';
+  if (!isObj(s.note)) s.note = null;
+  return s;
+}
+function persist() {
+  if (S.note) S.save.note = S.note.data;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); return true; } catch (e) { return false; }
+}
+var timer = null;
+function changed() {
+  clearTimeout(timer);
+  timer = setTimeout(function () {
+    var ok = persist(), d = new Date(), el = S.root && S.root.querySelector('[data-ref="saved"]');
+    if (el) el.textContent = ok ? '✓ 自動保存しました ' + p2(d.getHours()) + ':' + p2(d.getMinutes()) : '保存できませんでした(このひらき方では記録が残りません)';
+    renderTabs();
+  }, 600);
+}
+/* ほかのアプリ(C5・C6・C7)で入れた「組・番号」(例: 2組15番)と名前を、まだ入れていなければ使う */
+function fillStudent(d) {
+  var st = d.student || (d.student = { cls: '', no: '', name: '' });
+  if (st.cls || st.no || st.name) return d;
+  ['C7', 'C6', 'C5'].some(function (id) {
+    var o = null; try { o = JSON.parse(localStorage.getItem('energyApps.' + id + '.v1') || 'null'); } catch (e) {}
+    var w = o && isObj(o.who) ? o.who : null;
+    if (!w || !(w.cls || w.name)) return false;
+    var m = /(\d+)\s*組\s*(\d+)\s*番?/.exec(String(w.cls || ''));
+    if (m) { st.cls = m[1]; st.no = m[2]; } else st.cls = String(w.cls || '');
+    st.name = String(w.name || '');
+    return true;
+  });
+  return d;
+}
+
+/* ---------- 書き出し・読み込み ---------- */
+function toast(msg) {
+  var t = S.el.toast; if (!t) return;
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = 'none'; }, 2600);
+}
+function exportObj() {
+  var d = S.note.data, st = d.student || {};
+  var cls = (st.cls ? st.cls + (/^\d+$/.test(st.cls) ? '組' : '') : '') + (st.no ? st.no + (/^\d+$/.test(st.no) ? '番' : '') : '');
+  return { schema: 'energyApps.artifact', app: 'C8', type: 'mondai-note', version: 1, savedAt: new Date().toISOString(), who: { cls: cls, name: String(st.name || '') }, data: { note: d } };
+}
+function saveFile() {
+  persist();
+  var t = new Date(), name = 'C8-mondai-note-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  var blob = new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast('「' + name + '」を保存しました。ダウンロードのフォルダを見てね。');
+}
+function loadFile(f) {
+  var rd = new FileReader();
+  rd.onload = function () {
+    var o = null; try { o = JSON.parse(rd.result); } catch (e) {}
+    if (!isObj(o) || o.schema !== 'energyApps.artifact' || o.app !== 'C8' || !isObj(o.data) || !isObj(o.data.note)) { toast('このファイルは読みこめません(C8 のファイルではありません)'); return; }
+    if (!confirm('いまの C8 のノートを、読みこんだファイルで置きかえます。いまのノートは消えます。よろしいですか?')) return;
+    S.note.setData(MN.normalize(o.data.note, 'C')); persist(); toast('読みこみました'); go('rec');
+  };
+  rd.readAsText(f);
+}
+function btn(label, fn, pri) { var b = document.createElement('button'); b.type = 'button'; b.className = 'mn-btn' + (pri ? ' mn-btn-primary' : ''); b.textContent = label; b.addEventListener('click', fn); return b; }
+function recordTools() {
+  var w = document.createElement('span'); w.className = 'mn-row';
+  w.appendChild(btn('💾 ファイルに書き出す(.json)', saveFile));
+  w.appendChild(btn('📂 ファイルを読みこむ', function () { S.el.file.click(); }));
+  return w;
+}
+
+/* ---------- タブ ---------- */
+var TABS = [
+  { id: 'intro', lg: '🏁 はじめに' },
+  { id: 'find', lg: '① 問題の発見' },
+  { id: 'eval', lg: '② 評価、改善・修正' },
+  { id: 'opt', lg: '③ 技術の最適化', adv: 1 },
+  { id: 'refl', lg: '✏️ 振り返り', reflect: 1 },
+  { id: 'rec', lg: '💾 記録' }
+];
+/* 「やったこと」(メニューのカードの進み具合と、タブの ✓) */
+var STEPS = [
+  { id: 'find', name: '① 課題を決めた', ok: function (d) { return !!String(d.task.kadai || '').trim(); } },
+  { id: 'eval', name: '② 観点ごとに評価した', ok: function (d) { return Object.keys(d.ev.res).some(function (k) { return d.ev.res[k]; }); } },
+  { id: 'opt', name: '③ 重みを変えて1位を入れかえた', ok: function (d) { return Object.keys(d.opt.wins).some(function (k) { return Array.isArray(d.opt.wins[k]) && d.opt.wins[k].length > 1; }); } },
+  { id: 'refl', name: '振り返りを書いた', ok: function (d) { return !!(String(d.refl.learned || '').trim() || String(d.refl.next || '').trim()); } }
+];
+function stepsOf(d) { d = MN.normalize(JSON.parse(JSON.stringify(d || {})), 'C'); return STEPS.filter(function (s) { return s.id !== 'refl' || fkOn(); }).map(function (s) { var r = false; try { r = s.ok(d); } catch (e) {} return { id: s.id, name: s.name, done: r }; }); }
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function renderTabs() {
+  var nav = S.el.tabs; if (!nav) return;
+  var done = {}; if (S.note) stepsOf(S.note.data).forEach(function (s) { done[s.id] = s.done; });
+  nav.innerHTML = TABS.map(function (t) {
+    var on = S.tab === t.id;
+    return '<button class="e8-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (done[t.id] ? '<span class="ck">✓</span>' : '') + '</button>';
+  }).join('');
+  rb(nav);
+}
+function go(tab) {
+  if (!TABS.some(function (t) { return t.id === tab; })) tab = 'intro';
+  if (tab === 'refl' && !fkOn()) tab = 'rec';
+  S.tab = tab; S.save.tab = tab; persist();
+  [].forEach.call(S.el.wrap.querySelectorAll('section[data-sec]'), function (s) { s.hidden = s.getAttribute('data-sec') !== tab; });
+  if (tab === 'rec' && S.note) S.note.render('rec');
+  renderTabs();
+  S.el.body.scrollTop = 0;
+}
+
+function mount(root) {
+  S.root = root; root.classList.add('e8');
+  S.save = loadSave();
+  root.innerHTML = '<div class="e8-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>📝 <span class="lg">問題解決ノート</span></h1>') + '<nav class="e8-tabs" data-ref="tabs" aria-label="C8 のページ"></nav>' + efSlot() + '</div>' +
+    '<div class="e8-body" data-ref="body"><div class="e8-wrap" data-ref="wrap">' +
+    TABS.map(function (t) { return '<section data-sec="' + t.id + '"' + (t.reflect ? ' data-ef-reflect' : '') + ' hidden></section>'; }).join('') +
+    '<p class="e8-saved" data-ref="saved" aria-live="polite"></p></div></div>' +
+    '<div class="e8-toast" data-ref="toast" role="status"></div><input type="file" data-ref="file" accept=".json,application/json" hidden>';
+  S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
+  S.el.file.addEventListener('change', function (ev) { var f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (f) loadFile(f); });
+  var panels = {}; TABS.forEach(function (t) { panels[t.id] = S.el.wrap.querySelector('[data-sec="' + t.id + '"]'); });
+  S.note = MN.mount({
+    domain: 'C', data: fillStudent(MN.normalize(S.save.note, 'C')), panels: panels,
+    onChange: changed, go: go, recordTools: recordTools,
+    furikaeri: fkOn, afterRender: rb
+  });
+  go(S.save.tab);
+}
+
+NS.C8 = {
+  mount: mount,
+  _test: { S: S, STEPS: STEPS, TABS: TABS, stepsOf: stepsOf, exportObj: exportObj, go: go, RUBY: RUBY }
+};
+var auto = document.getElementById('e8-app');
+if (auto && !auto.getAttribute('data-manual')) mount(auto);
+})();
+</script>
+</body>
+</html>

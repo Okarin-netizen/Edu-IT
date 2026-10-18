@@ -1,6 +1,6 @@
 # common/ 共通基盤の使い方
 
-材料と加工の各アプリ(A1〜A7)が共有する部品です。持ち主は共通基盤スレッドです。
+材料と加工の各アプリ(A1〜A8)が共有する部品です。持ち主は共通基盤スレッドです。
 不具合や追加してほしい機能があれば、編集せずに共通基盤スレッドへ伝えてください
 (例外: `beam.js` は A3 スレッドが直接直してよい)。
 
@@ -14,7 +14,7 @@ A-materials/
   eduit-info.js         版と更新履歴(4分野共通の枠が読む)
   icons/
   common/               ← この部品
-  a1-material-navi/  a2-wood-lab/  a3-structure-lab/  a4-drawing-trainer/  a5-kidori/  a6-tool-safety/  a7-solid-maker/   (A1〜A7。番号の順 = おすすめの順)
+  a1-material-navi/  a2-wood-lab/  a3-structure-lab/  a4-drawing-trainer/  a5-kidori/  a6-tool-safety/  a7-solid-maker/  a8-mondai-note/   (A1〜A8。番号の順 = おすすめの順)
   teacher-viewer/       先生用 提出ファイル一覧ビューア(共通基盤スレッド)
   docs/先生用ガイド.html    先生用ガイド
   build/build-single.py     1ファイル版を作る(python3 build/build-single.py → dist/)
@@ -78,7 +78,7 @@ G.initApp({
 G.tabs(G.$('[data-g-tabs]'));
 ```
 
-app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(A5) / `tool-safety` / `solid-maker`(A7)
+app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `structure-lab` / `drawing-trainer` / `kidori`(A5) / `tool-safety` / `solid-maker`(A7) / `mondai-note`(A8)
 
 - アプリの一覧は `apps.js` の `G.APPS`(`id`・`icon`・`code`・`dir`・`title`・`desc`)。メニューのカード・上のバー・提出ファイル一覧ビューアがこれを使う。
 - `G.initApp` は `app` と同じ `id` を `G.APPS` から探し、その `code` を上のバーの名前の前に `.ef-code` の印で出す(`code` で上書き、`code: ''` で出さない)。

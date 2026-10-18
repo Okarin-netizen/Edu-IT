@@ -138,6 +138,17 @@
       reflected: !!(trim(r.learned) || trim(r.hard) || trim(r.use))
     };
   };
+  S['mondai-note'] = function (d) {
+    var t = d.task || {}, ev = d.ev || {}, op = d.opt || {}, rf = d.refl || {}, q = (d.quiz || {}).last;
+    var res = ev.res || {}, keys = Object.keys(res).filter(function (k) { return res[k]; });
+    return {
+      fields: [['付箋', (d.cards || []).length ? (d.cards || []).length + ' まい' : ''], ['問題?課題? クイズ', q && q.total ? q.score + ' / ' + q.total : ''],
+        ['作ったもの', trim(ev.title)], ['評価の平均(5段階)', keys.length ? String(Math.round(keys.reduce(function (s, k) { return s + (+res[k] || 0); }, 0) / keys.length * 10) / 10) + '(' + keys.length + ' 観点)' : '']],
+      texts: texts([['問題', t.problem], ['課題', t.kadai], ['よかった点', ev.good], ['改善・修正の方法', ev.improve], ['新たに見つけた問題', ev.newProblem],
+        ['最適化で気づいたこと', op.notice], ['自分の問題解決と社会の問題解決', op.compare], ['分かったこと', rf.learned], ['これからに生かしたいこと', rf.next]]),
+      reflected: !!(trim(rf.learned) || trim(rf.next) || trim(ev.improve))
+    };
+  };
   function countTrueBy(o, k) { return Object.keys(o || {}).filter(function (x) { return o[x] && o[x][k]; }).length; }
   S.kidori = function (d) {
     var st = d.stock || {}, rv = d.review || {};

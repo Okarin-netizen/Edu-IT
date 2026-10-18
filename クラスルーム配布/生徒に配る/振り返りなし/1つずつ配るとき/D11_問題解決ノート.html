@@ -1,0 +1,2508 @@
+<!doctype html>
+<html lang="ja">
+<head><script>window.EDUIT_FURIKAERI = 'off';</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>問題解決ノート</title>
+  <meta name="description" content="中学校技術科「情報の技術」向け。付箋で問題を見つけて課題を決め、作ったコンテンツや計測・制御システムを観点ごとに評価し、社会の情報の技術の最適化をためす問題解決ノート(4分野で同じ形)。">
+  <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="author" content="羽生市立南中学校　技術　岡田">
+  <meta name="eduit-app" content="D11 問題解決ノート">
+  <meta name="theme-color" content="#1a5fc8">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cmVjdCB4PSIxNCIgeT0iMTAiIHdpZHRoPSIzNCIgaGVpZ2h0PSI0NCIgcng9IjQiIGZpbGw9IiNmZmZmZmYiLz48cmVjdCB4PSIyMCIgeT0iMTgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIzIiByeD0iMS41IiBmaWxsPSIjOWZiOGUwIi8+PHJlY3QgeD0iMjAiIHk9IjI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMyIgcng9IjEuNSIgZmlsbD0iIzlmYjhlMCIvPjxyZWN0IHg9IjIwIiB5PSIzMiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjMiIHJ4PSIxLjUiIGZpbGw9IiM5ZmI4ZTAiLz48cmVjdCB4PSIzNCIgeT0iMzQiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiNmZmQ0M2IiIHRyYW5zZm9ybT0icm90YXRlKC04IDQzIDQyKSIvPjxwYXRoIGQ9Ik0zOCA0NCBsMyAzIGw2IC03IiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTVmYzgiIHN0cm9rZS13aWR0aD0iMi42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4K" type="image/svg+xml">
+  <!-- 4分野共通の枠（色・ヘッダー・ボタン・フッター・このアプリについて）。1ファイル版では中に入れる -->
+  <style id="eduit-frame-css">
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+</style>
+  <!-- 問題解決ノートの本体（4分野共通。D の観点と例は mondai-note-data.js の D）。1ファイル版では中に入れる -->
+  <style>
+/* 問題解決ノート(4分野共通)の見た目。4分野共通の枠 eduit-frame.css の --ef-* を使う(分野の色は --ef-accent)。
+ * クラスはすべて .mn- で始まる。文字の大きさは em(まわりの文字の大きさ = 各分野の「文字」ボタンに合わせて変わる)。明るい画面だけ。 */
+.mn-card { background: var(--ef-surface, #fff); border: 1px solid var(--ef-line, #d6d3cb); border-radius: var(--ef-radius, 12px); padding: .8em 1em; margin: 0 0 .7em; box-shadow: var(--ef-shadow, none); min-width: 0; }
+.mn-card > h2 { font-size: 1.15em; margin: 0 0 .35em; padding-left: .55em; border-left: 5px solid var(--ef-accent, #985a26); line-height: 1.45; }
+.mn-card h3 { font-size: 1em; margin: .7em 0 .3em; }
+.mn-lead { margin: .2em 0 .6em; }
+.mn-help { color: var(--ef-muted, #565d68); font-size: .88em; margin: .2em 0; }
+.mn-empty { color: var(--ef-muted, #565d68); font-style: normal; opacity: .8; }
+.mn-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.mn-row { display: flex; flex-wrap: wrap; gap: .5em; align-items: center; }
+.mn-grow { flex: 1 1 auto; }
+.mn-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .3em 1em; }
+.mn-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .7em; }
+
+/* ボタン */
+.mn-btn { font: inherit; font-size: .95em; min-height: 44px; padding: .3em 1em; border-radius: var(--ef-radius-s, 8px); border: 1.5px solid var(--ef-line, #d6d3cb);
+  background: var(--ef-surface, #fff); color: var(--ef-text, #1f2328); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .3em; touch-action: manipulation; }
+.mn-btn:hover { border-color: var(--ef-accent, #985a26); }
+.mn-btn-primary { background: var(--ef-accent, #985a26); border-color: var(--ef-accent, #985a26); color: var(--ef-accent-ink, #fff); font-weight: bold; }
+.mn-btn-primary:hover { filter: brightness(1.08); }
+.mn-btn-primary rt { color: inherit; opacity: .9; }
+.mn-btn-s { min-height: 40px; padding: .1em .7em; font-size: .88em; }
+.mn-btn:disabled { opacity: .45; cursor: not-allowed; }
+.mn-next { display: flex; justify-content: flex-end; margin: .4em 0 1em; }
+[aria-pressed="true"] rt { color: inherit; opacity: .9; }
+
+/* 入力 */
+.mn-field { display: flex; flex-direction: column; gap: .15em; margin: 0 0 .55em; min-width: 0; }
+.mn-field > label, .mn-label { font-size: .92em; font-weight: bold; color: var(--ef-text, #1f2328); }
+.mn-field input[type=text], .mn-field textarea, .mn-note-in { font: inherit; width: 100%; max-width: 100%; box-sizing: border-box; min-height: 44px; padding: .3em .55em;
+  border: 1.5px solid var(--ef-line, #d6d3cb); border-radius: 8px; background: #fff; color: var(--ef-text, #1f2328); line-height: 1.6; }
+.mn-field textarea { min-height: 4.2em; resize: vertical; }
+.mn-check { display: flex; align-items: center; gap: .55em; min-height: 44px; cursor: pointer; }
+.mn-check input { width: 24px; height: 24px; flex: none; margin: 0; accent-color: var(--ef-accent, #985a26); }
+.mn-checks { display: flex; flex-direction: column; gap: .1em; margin: .3em 0; }
+
+/* はじめに */
+.mn-flow { list-style: none; display: flex; flex-wrap: wrap; gap: .3em; padding: 0; margin: .4em 0 .1em; }
+.mn-flow li { padding: .2em .75em; border-radius: 999px; border: 1px solid var(--ef-line, #d6d3cb); background: var(--ef-bg, #f5f4f0); font-size: .9em; color: var(--ef-muted, #565d68); }
+.mn-flow li:not(:last-child)::after { content: " →"; }
+.mn-flow li.on { background: var(--ef-accent-soft, #f5e9dc); border-color: var(--ef-accent, #985a26); color: var(--ef-text, #1f2328); font-weight: bold; }
+.mn-flow-n { font-weight: bold; }
+.mn-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6em; margin-top: .6em; }
+.mn-step { font: inherit; text-align: left; display: flex; flex-direction: column; gap: .2em; padding: .7em .8em; border: 1.5px solid var(--ef-line, #d6d3cb); border-radius: var(--ef-radius, 12px);
+  background: var(--ef-surface, #fff); color: var(--ef-text, #1f2328); cursor: pointer; }
+.mn-step:hover { border-color: var(--ef-accent, #985a26); background: var(--ef-accent-soft, #f5e9dc); }
+.mn-step-n { font-size: 1.5em; color: var(--ef-accent, #985a26); line-height: 1.2; }
+.mn-step-t { font-size: .9em; color: var(--ef-muted, #565d68); }
+.mn-def { border-radius: 10px; padding: .5em .8em; border: 2px solid; }
+.mn-def h3 { margin: 0 0 .2em; }
+.mn-def p { margin: .2em 0; }
+.mn-def-mondai { border-color: #d9a400; background: #fff8dc; }
+.mn-def-kadai { border-color: #2d6aa8; background: #eaf2fb; }
+.mn-eg { font-size: .9em; }
+.mn-vplist { list-style: none; padding: 0; margin: .2em 0; display: grid; gap: .3em; }
+
+/* 観点のアイコン */
+.mn-vp { display: inline-flex; align-items: center; gap: .25em; padding: .05em .55em; border-radius: 999px; border: 1.5px solid; font-size: .9em; font-weight: bold; white-space: nowrap; background: #fff; }
+.mn-vp-s { font-size: .8em; padding: 0 .45em; margin: 0 .15em .15em 0; }
+.mn-vp-society { border-color: #c2410c; color: #9a3412; }
+.mn-vp-safety { border-color: #b91c1c; color: #991b1b; }
+.mn-vp-env { border-color: #15803d; color: #166534; }
+.mn-vp-economy { border-color: #1d4ed8; color: #1e40af; }
+.mn-vpbtns { display: flex; flex-wrap: wrap; gap: .35em; align-items: center; }
+.mn-vpbtn { font: inherit; font-size: .92em; min-height: 44px; padding: .1em .75em; border-radius: 999px; border: 2px solid; background: #fff; cursor: pointer; display: inline-flex; gap: .3em; align-items: center; }
+.mn-vpbtn[aria-pressed="true"] { color: #fff; }
+.mn-vpbtn[aria-pressed="true"]::after { content: "✓"; }
+.mn-vpbtn.mn-vp-society[aria-pressed="true"] { background: #c2410c; }
+.mn-vpbtn.mn-vp-safety[aria-pressed="true"] { background: #b91c1c; }
+.mn-vpbtn.mn-vp-env[aria-pressed="true"] { background: #15803d; }
+.mn-vpbtn.mn-vp-economy[aria-pressed="true"] { background: #1d4ed8; }
+
+/* 付箋 */
+.mn-noteform { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45em .6em; align-items: center; }
+.mn-noteform .mn-note-in { grid-column: 1 / -1; font-size: 1.05em; }
+.mn-chips { display: flex; flex-wrap: wrap; gap: .35em; align-items: center; margin: .5em 0; }
+.mn-chip { font: inherit; font-size: .88em; min-height: 40px; padding: .1em .75em; border-radius: 999px; border: 1.5px dashed var(--ef-line, #c9c4b8); background: var(--ef-bg, #f5f4f0); color: var(--ef-text, #1f2328); cursor: pointer; text-align: left; max-width: 100%; }
+.mn-chip:hover { border-color: var(--ef-accent, #985a26); }
+.mn-chip.mn-toggle { border-style: solid; background: #fff; }
+.mn-chip.mn-toggle[aria-pressed="true"] { background: var(--ef-accent, #985a26); border-color: var(--ef-accent, #985a26); color: var(--ef-accent-ink, #fff); }
+.mn-chip.mn-toggle[aria-pressed="true"]::before { content: "✓ "; }
+.mn-boardbar { display: flex; justify-content: space-between; align-items: center; gap: .5em; flex-wrap: wrap; margin-top: .4em; }
+.mn-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .7em; padding: .7em; margin: .3em 0;
+  background: repeating-linear-gradient(0deg, #f3efe4 0 1px, transparent 1px 28px), #faf7ef; border: 1px solid var(--ef-line, #d6d3cb); border-radius: 10px; min-height: 120px; }
+.mn-board-empty { grid-column: 1 / -1; align-self: center; text-align: center; }
+.mn-note { position: relative; background: #fff7b8; border-radius: 3px 3px 12px 3px; padding: .35em .5em .3em; box-shadow: 0 2px 4px rgba(60, 45, 0, .18); cursor: grab;
+  display: flex; flex-direction: column; min-height: 130px; touch-action: none; user-select: none; transition: box-shadow .15s, transform .15s; border-top: 6px solid #e5c740; }
+.mn-note:nth-child(3n+1) { transform: rotate(-.8deg); }
+.mn-note:nth-child(3n+2) { transform: rotate(.6deg); }
+.mn-note-society { background: #ffe9d6; border-top-color: #ea8a4a; }
+.mn-note-safety { background: #ffe1e1; border-top-color: #e26b6b; }
+.mn-note-env { background: #e2f5df; border-top-color: #6cbf63; }
+.mn-note-economy { background: #e1ecff; border-top-color: #6c95e6; }
+.mn-note.is-star { box-shadow: 0 0 0 3px var(--ef-accent, #985a26), 0 3px 8px rgba(0, 0, 0, .2); }
+.mn-note.is-new { animation: mn-pop .35s ease-out; }
+.mn-note.is-drag { z-index: 5; box-shadow: 0 10px 20px rgba(0, 0, 0, .25); cursor: grabbing; transition: none; }
+.mn-note.mn-drop-b { box-shadow: -6px 0 0 var(--ef-accent, #985a26), 0 2px 4px rgba(0, 0, 0, .18); }
+.mn-note.mn-drop-a { box-shadow: 6px 0 0 var(--ef-accent, #985a26), 0 2px 4px rgba(0, 0, 0, .18); }
+@keyframes mn-pop { from { transform: scale(.6) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.mn-note-t { margin: .2em 0; flex: 1 1 auto; font-size: .98em; line-height: 1.55; word-break: break-word; }
+.mn-note-vps { display: flex; gap: 2px; }
+.mn-note-vp { font-size: 1em; width: 34px; height: 34px; min-height: 0; border-radius: 50%; border: 1.5px dashed rgba(0, 0, 0, .25); background: transparent; cursor: pointer; padding: 0; opacity: .45; filter: grayscale(1); }
+.mn-note-vp.on { opacity: 1; filter: none; border: 2px solid rgba(0, 0, 0, .45); background: #fff; }
+.mn-note-bar { display: flex; gap: 2px; align-items: center; }
+.mn-note-b { font: inherit; min-height: 34px; min-width: 34px; padding: 0 .3em; border: 0; border-radius: 6px; background: rgba(255, 255, 255, .6); cursor: pointer; color: var(--ef-text, #1f2328); }
+.mn-note-b:disabled { opacity: .3; }
+.mn-star { font-size: 1.15em; color: #a16207; }
+.mn-star[aria-pressed="true"] { background: #fff; color: #b45309; }
+.mn-del:hover { background: #fde8e5; color: #b91c1c; }
+
+/* クイズ */
+.mn-quiz { border: 2px dashed var(--ef-line, #d6d3cb); border-radius: 12px; padding: .7em .9em; background: var(--ef-bg, #f5f4f0); }
+.mn-qtext { font-size: 1.2em; font-weight: bold; margin: .3em 0 .6em; line-height: 1.6; }
+.mn-qbtns { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; margin-bottom: .5em; }
+.mn-qbtn { font: inherit; font-size: 1.2em; font-weight: bold; min-height: 64px; border-radius: 12px; border: 2.5px solid; cursor: pointer; }
+.mn-qbtn-mondai { border-color: #d9a400; background: #fff8dc; color: #6b4e00; }
+.mn-qbtn-kadai { border-color: #2d6aa8; background: #eaf2fb; color: #1d4a7a; }
+.mn-qbtn:disabled { cursor: default; opacity: .55; }
+.mn-qbtn.is-right { opacity: 1; box-shadow: 0 0 0 4px #1d7a3a; }
+.mn-qbtn.is-right::before { content: "○ "; }
+.mn-qbtn.is-wrong { opacity: 1; box-shadow: 0 0 0 4px #c0392b; }
+.mn-qbtn.is-wrong::before { content: "× "; }
+.mn-qfb { padding: .4em .7em; border-radius: 8px; margin: .3em 0 .5em; }
+.mn-qfb.is-right { background: #e1f4e5; border-left: 5px solid #1d7a3a; }
+.mn-qfb.is-wrong { background: #fde8e5; border-left: 5px solid #c0392b; }
+.mn-big { font-size: 1.4em; font-weight: bold; margin: .2em 0; }
+
+/* 課題カード */
+.mn-taskcard { border: 2px solid var(--ef-accent, #985a26); border-radius: 12px; padding: .6em .8em; background: linear-gradient(var(--ef-accent-soft, #f5e9dc), #fff 3.2em); }
+.mn-tc-row, .mn-tc-kadai { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: .4em; padding: .3em 0; border-bottom: 1px dashed var(--ef-line, #d6d3cb); }
+.mn-tc-kadai { font-size: 1.05em; }
+.mn-tc-k { font-size: .85em; color: var(--ef-muted, #565d68); font-weight: bold; }
+.mn-tc-v { word-break: break-word; }
+
+/* 評価 */
+.mn-seg { display: flex; flex-wrap: wrap; gap: .35em; align-items: center; margin: .2em 0 .5em; }
+.mn-seg-b { font: inherit; min-height: 44px; padding: .1em .9em; border-radius: 999px; border: 1.5px solid var(--ef-line, #d6d3cb); background: #fff; cursor: pointer; }
+.mn-seg-b[aria-pressed="true"] { border-color: var(--ef-accent, #985a26); box-shadow: inset 0 0 0 2px var(--ef-accent, #985a26); font-weight: bold; background: var(--ef-accent-soft, #f5e9dc); }
+.mn-evgrid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, 1fr); gap: 1em; align-items: start; }
+.mn-evside { position: sticky; top: 7.5em; }
+.mn-crit { display: flex; flex-direction: column; }
+.mn-crit-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .3em .8em; align-items: center; padding: .4em 0; border-bottom: 1px solid var(--ef-line, #e6e2d8); }
+.mn-crit-l { display: flex; flex-direction: column; min-width: 0; }
+.mn-crit-l .mn-help { margin: 0; }
+.mn-crit-b { display: flex; align-items: center; gap: .4em; flex-wrap: wrap; }
+.mn-lvs { display: flex; gap: 3px; }
+.mn-lv { font: inherit; width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--ef-line, #d6d3cb); background: #fff; cursor: pointer; font-weight: bold; color: var(--ef-muted, #565d68); }
+.mn-lv.fill { background: var(--ef-accent-soft, #f5e9dc); border-color: var(--ef-accent, #985a26); color: var(--ef-text, #1f2328); }
+.mn-lv[aria-pressed="true"] { background: var(--ef-accent, #985a26); color: var(--ef-accent-ink, #fff); }
+.mn-crit-v { min-width: 5.5em; font-size: .88em; }
+.mn-crit-v small { display: block; color: var(--ef-muted, #565d68); }
+.mn-radar-wrap { text-align: center; }
+.mn-radar { width: 100%; max-width: 380px; height: auto; display: block; margin: 0 auto; }
+.mn-radar-s .mn-radar { max-width: 330px; }
+.mn-legend { list-style: none; padding: 0; margin: .2em 0; display: flex; flex-wrap: wrap; gap: .2em 1em; justify-content: center; font-size: .88em; }
+.mn-legend-m { font-weight: bold; white-space: nowrap; }
+.mn-hints { margin-top: .3em; }
+.mn-hint { padding: .35em .6em; border-radius: 8px; margin: .3em 0; display: flex; flex-wrap: wrap; align-items: center; gap: .3em; }
+.mn-hint-good { background: #e1f4e5; }
+.mn-hint-bad { background: #fff3d6; }
+
+/* 最適化 */
+.mn-prods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6em; }
+.mn-prod { font: inherit; display: flex; flex-direction: column; align-items: center; gap: .1em; padding: .5em; min-height: 88px; border-radius: 12px; border: 2px solid var(--ef-line, #d6d3cb); background: #fff; cursor: pointer; font-weight: bold; }
+.mn-prod small { font-weight: normal; color: var(--ef-muted, #565d68); font-size: .8em; }
+.mn-prod-i { font-size: 2em; line-height: 1.2; }
+.mn-prod[aria-pressed="true"] { border-color: var(--ef-accent, #985a26); background: var(--ef-accent-soft, #f5e9dc); box-shadow: 0 3px 0 var(--ef-accent, #985a26); }
+.mn-optgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 1em; align-items: start; }
+.mn-weights { display: flex; flex-direction: column; gap: .1em; }
+.mn-w { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 6.5em; gap: .5em; align-items: center; min-height: 48px; }
+.mn-w label { font-weight: bold; }
+.mn-w input[type=range] { width: 100%; min-width: 0; height: 44px; accent-color: var(--ef-accent, #985a26); }
+.mn-w-out { font-size: .88em; color: var(--ef-muted, #565d68); }
+.mn-opt-head { font-weight: bold; font-size: 1.08em; padding: .45em .7em; border-radius: 10px; background: var(--ef-accent-soft, #f5e9dc); margin: 0 0 .5em; }
+.mn-opt-head.is-swap { animation: mn-flash .9s ease-out; }
+@keyframes mn-flash { 0% { background: #ffd54a; transform: scale(1.03); } 100% { background: var(--ef-accent-soft, #f5e9dc); transform: none; } }
+.mn-rank { list-style: none; padding: 0; margin: 0 0 .5em; display: flex; flex-direction: column; gap: .4em; }
+.mn-rank-i { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: .4em; align-items: start; padding: .4em .55em; border-radius: 10px; border: 1.5px solid var(--ef-line, #d6d3cb); background: #fff; animation: mn-slide .3s ease-out; }
+@keyframes mn-slide { from { opacity: .4; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.mn-rank-i.is-best { border-color: #d9a400; background: #fffbea; box-shadow: 0 2px 0 #d9a400; }
+.mn-rank-i.is-out { opacity: .65; background: repeating-linear-gradient(135deg, #f5f4f0 0 8px, #fff 8px 16px); }
+.mn-rank-m { font-size: 1.6em; line-height: 1.2; text-align: center; }
+.mn-rank-t { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2em .6em; }
+.mn-rank-s { font-weight: bold; font-variant-numeric: tabular-nums; }
+.mn-rank-key { margin-left: auto; font-weight: bold; }
+.mn-rank-b .mn-help { margin: .15em 0 0; }
+.mn-out { color: #b91c1c; }
+.mn-bar { height: 10px; border-radius: 5px; background: #ece9e1; overflow: hidden; margin-top: .2em; }
+.mn-bar span { display: block; height: 100%; border-radius: 5px; transition: width .35s ease; }
+.mn-challenge { margin-top: .5em; padding: .45em .7em; border-radius: 10px; border: 2px dashed #d9a400; background: #fffbea; }
+.mn-challenge.is-done { border-style: solid; background: #e1f4e5; border-color: #1d7a3a; }
+.mn-badges { display: inline-flex; flex-wrap: wrap; gap: .3em; margin-top: .2em; }
+.mn-badge { padding: 0 .55em; border-radius: 999px; border: 1px solid var(--ef-line, #d6d3cb); background: #fff; font-size: .85em; }
+.mn-badge.on { border-color: #1d7a3a; color: #14532d; background: #e1f4e5; font-weight: bold; }
+
+/* 振り返り・記録 */
+.mn-self { display: flex; flex-direction: column; gap: .3em; }
+.mn-self-f { border: 1px solid var(--ef-line, #d6d3cb); border-radius: 10px; padding: .3em .8em .2em; margin: 0; min-width: 0; }
+.mn-self-f legend { font-weight: bold; padding: 0 .3em; }
+.mn-self-f .mn-check { display: inline-flex; margin-right: 1.2em; }
+.mn-who .mn-field { flex: 1 1 6em; }
+.mn-who .mn-field:last-child { flex: 3 1 12em; }
+.mn-rec-tools { margin: .4em 0; }
+.mn-table-wrap { overflow-x: auto; max-width: 100%; }
+.mn-table { border-collapse: collapse; width: 100%; font-size: .92em; }
+.mn-table th, .mn-table td { border: 1px solid var(--ef-line, #d6d3cb); padding: .3em .5em; text-align: left; vertical-align: top; white-space: pre-wrap; word-break: break-word; }
+.mn-table th { background: var(--ef-bg, #f5f4f0); width: 12em; }
+
+/* 画面のはば */
+@media (max-width: 900px) {
+  .mn-evgrid, .mn-optgrid { grid-template-columns: minmax(0, 1fr); }
+  .mn-evside { position: static; }
+}
+@media (max-width: 640px) {
+  .mn-card { padding: .65em .7em; }
+  .mn-cols, .mn-two, .mn-steps { grid-template-columns: minmax(0, 1fr); }
+  .mn-prods { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35em; }
+  .mn-prod { font-size: .85em; min-height: 80px; padding: .35em .2em; }
+  .mn-board { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5em; padding: .5em; }
+  .mn-note { min-height: 120px; }
+  .mn-crit-row { grid-template-columns: minmax(0, 1fr); }
+  .mn-lv { width: 40px; height: 44px; }
+  .mn-w { grid-template-columns: 5.5em minmax(0, 1fr); }
+  .mn-w-out { grid-column: 2; margin-top: -.6em; }
+  .mn-table th { width: 7em; }
+  .mn-qtext { font-size: 1.08em; }
+}
+
+/* 印刷(問題解決シート)。印刷するときだけ .mn-sheet を出し、ほかの画面は出さない */
+.mn-sheet { display: none; }
+@media print {
+  html.mn-printing body > *:not(.mn-sheet) { display: none !important; }
+  html.mn-printing body { background: #fff !important; }
+  html.mn-printing .mn-sheet { display: block; padding: 0 2px; box-sizing: border-box; } /* 表の右の線が紙の端で切れないように */
+  @page { size: A4 portrait; margin: 11mm 12mm; }
+}
+.mn-sheet { color: #000; font-size: 10.5pt; line-height: 1.45; }
+.mn-ps-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1em; border-bottom: 2.5px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
+.mn-ps-head h1 { margin: 0; font-size: 18pt; }
+.mn-ps-sub { font-size: 9pt; }
+.mn-ps-who { font-size: 10pt; }
+.mn-ps-box { display: inline-block; min-width: 3em; border-bottom: 1px solid #000; padding: 0 4px; }
+.mn-ps-name { min-width: 10em; }
+.mn-ps-wide { min-width: 22em; }
+.mn-ps-sec { break-inside: avoid; margin: 6px 0 8px; }
+.mn-ps-sec h2 { font-size: 12pt; margin: 4px 0; padding: 1px 6px; background: #eee; border-left: 5px solid #555; }
+.mn-ps-sec h3 { font-size: 10pt; margin: 3px 0; }
+.mn-ps-cards { columns: 2; margin: 2px 0 4px; padding-left: 1.2em; }
+.mn-ps-cards li { break-inside: avoid; }
+.mn-ps-cards li.star { font-weight: bold; }
+.mn-ps-t { border-collapse: collapse; width: 100%; margin: 3px 0; }
+.mn-ps-t th, .mn-ps-t td { border: 1px solid #555; padding: 2px 5px; text-align: left; vertical-align: top; }
+.mn-ps-t th { width: 9.5em; background: #f4f4f4; font-weight: bold; }
+.mn-ps-score th { width: auto; }
+.mn-ps-self th { width: 50%; }
+.mn-ps-score td.num { text-align: center; }
+.mn-ps-text { white-space: pre-wrap; min-height: 1.4em; }
+.mn-ps-line { border-bottom: 1px dotted #888; height: 1.55em; }
+.mn-ps-evgrid { display: grid; grid-template-columns: 62mm 1fr; gap: 6px; align-items: center; }
+.mn-ps-radar .mn-radar { max-width: 62mm; }
+.mn-ps-radar .mn-legend { font-size: 8pt; }
+.mn-ps-proc { font-size: 9pt; }
+.mn-ps-foot { font-size: 8pt; text-align: right; color: #444; margin-top: 4px; }
+
+</style>
+  <style>
+/* D11 問題解決ノート: D のアダプタの見た目(上のバー・タブ・保存の表示)。ノートの中身の見た目は shared/mondai-note/mondai-note.css */
+html { font-size: 17px; }
+html.large-text { font-size: 20px; }
+@media (max-width: 700px) { html.large-text { font-size: 18px; } }
+body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.7; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.skip-link { position: absolute; left: -999px; top: 0; }
+.skip-link:focus { left: 8px; z-index: 10; background: var(--ef-surface); padding: 6px 10px; }
+.app-header { position: sticky; top: 0; z-index: 6; flex-wrap: wrap; }
+.brand { text-decoration: none; color: inherit; }
+.display-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+/* タブの帯(下へ読み進めると上へ隠れる: data-ef-autohide) */
+.mnd-tabs { position: sticky; top: var(--mnd-head, 60px); z-index: 5; display: flex; gap: 6px; padding: 8px 16px; background: var(--ef-bg); border-bottom: 1px solid var(--ef-line); overflow-x: auto; scrollbar-width: none; }
+.mnd-tabs::-webkit-scrollbar { display: none; }
+.mnd-tabs a { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--ef-line); background: var(--ef-surface); color: var(--ef-text); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.mnd-tabs a:hover { border-color: var(--ef-accent); }
+.mnd-tabs a.adv { border-style: dashed; }
+.mnd-tabs a[aria-current="page"] { background: var(--ef-accent); border-color: var(--ef-accent); border-style: solid; color: var(--ef-accent-ink, #fff); }
+.mnd-main { display: block; max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; outline: none; }
+.mnd-main > section[hidden] { display: none !important; }
+.mnd-saved { color: var(--ef-muted); font-size: .85em; margin: .3em 0; }
+.app-footer { text-align: center; font-size: .85rem; color: var(--ef-muted); padding: 24px 16px 40px; }
+.app-note { margin: 0 0 8px; }
+.mnd-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-text); color: #fff; padding: 10px 18px; border-radius: 99px; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.mnd-toast.show { opacity: 1; }
+@media (max-width: 640px) {
+  .mnd-tabs { padding: 6px 8px; }
+  .mnd-tabs a { padding: 0 10px; }
+  .mnd-main { padding: 10px 8px 40px; }
+}
+@media print { .app-header, .mnd-tabs, .app-footer, .mnd-toast { display: none !important; } }
+
+</style>
+  <script id="eduit-info">
+// 情報の技術(D)の版・更新履歴・この分野だけの安全の説明(4分野共通の枠 shared/eduit-frame.js が読む)
+// アプリの名前は、各ページの <meta name="eduit-app" content="…"> から取る(なければ教材集の名前)。
+// 版を上げたら: version・updated と history の先頭を書きかえ、各教材と教材集を作り直す(kyozai-shu/README.md)。
+(function () {
+  var meta = document.querySelector('meta[name="eduit-app"]');
+  window.EDUIT_INFO = {
+    domain: 'D',
+    domainName: '情報の技術',
+    suite: '情報の技術 教材集',
+    version: '2.0',
+    updated: '2026-10-18',
+    app: meta && meta.content ? { name: meta.content } : undefined,
+    safety: [
+      '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
+      'フィッシングのメールやページ、SNS投稿チェックの写真は、学習のために作った模型です。会社名・アドレス・地名・学校名はすべて架空で、リンクやボタンを押してもどこにも移動しません。',
+      'デジタル化ラボで読み込んだ写真や録音した声は、その画面の中だけで使い、保存も送信もしません。マイクは「3秒録音する」を押したときだけ使い、録音が終わると止めます。',
+      'ネットワーク通信シミュレータは、ブラウザの中の模型のネットワークです。本物のネットワークにはつながりません。サイト名・IPアドレスは説明用の架空のものです。',
+      '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
+    ],
+    history: [
+      { version: '2.0', date: '2026-10-18', items: [
+        'D11 問題解決ノートを足した(4分野で同じ形の教材。教科書 4編2章 2・5、3章 2・5、4章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
+        'D11: ② 作ったコンテンツや計測・制御システムを、機能・使いやすさ・安全性・他者の権利・費用・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
+        'D11: ③(発展)スマートフォンのロック・車の運転・動画の配信で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(情報の技術の最適化)。ノートは問題解決シートとして印刷できる',
+        'メニューのカードは11枚になった(D11 は基本編と発展編の両方に出る)'
+      ] },
+      { version: '1.9', date: '2026-10-18', items: [
+        'D10 火星探査ロボット・シミュレータを足した(教科書の統合的な問題解決「未知の場所への調査ロボットを開発しよう」と、計測・制御のプログラミング)。上から見た火星のフィールドで、距離センサ・色センサと左右のモーターを付けたロボットを設計し、計測・制御シミュレータ(D7)と同じブロックのプログラムで動かす。① まっすぐ走って止まる・② 岩の前で止まる・よける・③ 迷路のような谷を探査する(基本編)、④ 色センサで線をたどる・⑤ 自由なコースで記録に挑戦(発展編)、レーダーチャートの評価と振り返り',
+        'メニューのカードは10枚になった(D10 は基本編と発展編の両方に出る)'
+      ] },
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応',
+        'アプリの中のタブの帯は、下へ読み進めると上へ隠れ、少し上へ戻すと出てくるようにした。スマホではタブを1行にして横にスクロールし、タブの名前が2段・3段に折り返さないようにした。教材の名前と大きな見出しもスマホで1行に入るようにした',
+        '端末がダークモードのとき画面が黒くなっていたのをやめ、ほかの分野と同じ明るい画面にした',
+        '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)。「大きな文字」のボタンは「文字 中」(押すと「文字 大」)にした',
+        'スマホで使いやすくした: メニューの名前を切らずに出し、上のバーのボタンを押しやすい大きさにした',
+        '答えをしぼりこめないようにした: 選択肢の中で正解だけが長いことが多かったクイズ(D4・D8・D9)の選択肢の長さをそろえた。D3 の2進数・IPアドレス・台数のドリル、D1 のドリルで、選択肢の形や大きさの順から答えがわかったのを直した。D2 の手計算くらべは1+…+N の N を毎回変える。D8 のもっともらしいまちがいは、5つの文すべてを本当かまちがいか判定する(「学習データと同じ・新しい文」は判定してから出る)'
+      ] },
+      { version: '1.7', date: '2026-10-16', items: [
+        '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
+        'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
+        '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
+        'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。',
+        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。',
+        '生成AIのしくみラボの「③ クイズとふりかえり」のクイズを、基本編の内容(もっともらしいまちがい・個人情報・使うときのルール)だけの6問にしました。'
+      ] },
+      { version: '1.6', date: '2026-10-16', items: [
+        '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
+        'ネット詐欺 追体験ラボ・生成AIのしくみラボ・ハッシュ化体験ラボを体験教材集に入れ、9つの教材を1つのファイル(統一版)で使えるようにしました。記録の保存場所は変わらないので、前の記録もそのまま使えます。',
+        '「記録をまとめて書き出す」「はじめからやり直す」も9つの教材が対象になりました。',
+        '先生用ガイドの名前・章立て・見た目を4分野でそろえました(「先生用の手引き」から「先生用ガイド」に名前を変えました)。'
+      ] },
+      { version: '1.5', date: '2026-10-15', items: [
+        'ハッシュ化体験ラボを足しました(ハッシュ値の性質・総当たり・パスワードの保存・改ざんの見つけ方)。',
+        '画面の枠(ヘッダー・ボタン・カード・色)を、4つの分野(材料と加工・生物育成・エネルギー変換・情報)で共通にしました。教材の中身や記録には変わりはありません。',
+        'どの教材からも、作成者・安全と個人情報・ライセンス・更新履歴を見られるようにしました(画面の下の「安全と個人情報・ライセンス・更新履歴」)。'
+      ] },
+      { version: '1.4', date: '2026-10-15', items: [
+        '11インチのChromebook(1366×768・タッチ)で使いやすいように見た目を調整しました。',
+        '6教材のスライダーのつまみを大きくし、小さかった見出しや札の文字を大きくしました。',
+        'ネットワーク図・CPUの図解・SNS投稿の写真の文字を大きくし、仮想CPUのプログラム欄を広げました。',
+        '計測・制御シミュレータで、プログラムを下へたどっても仮想世界と実行ボタンが画面に残るようにしました。'
+      ] },
+      { version: '1.3', date: '2026-10-13', items: [
+        'レビューで「直すともっとよくなる」とした所(30件)を直しました。',
+        '教材集で、再読みこみしてもさいごに開いていたページから始まるようにしました。学習指導要領の記号は「先生へ」にまとめました。',
+        '仮想CPUラボの手計算くらべの時間の計算、計測・制御シミュレータの不合格の時刻の表示などを直しました。'
+      ] },
+      { version: '1.2', date: '2026-10-13', items: [
+        '教材集の上のバーに「ふりがな」「大きな文字」を付け、6教材にまとめてかかるようにしました。',
+        '6教材の記録を1つのファイルで出せる「記録をまとめて書き出す」を足しました。',
+        '多くの生徒がつまずく・迷う所(ヒント、クイズのやり直し、ブロックを入れる場所など)を直しました。'
+      ] },
+      { version: '1.1', date: '2026-10-13', items: [
+        'ふりかえりを書いている途中で自動で保存するようにしました。',
+        'まちがった答えが合格になる判定や、全角で入れた答えの判定を直しました。',
+        '双方向コンテンツ制作スタジオで作品が消える問題を直しました。'
+      ] },
+      { version: '1.0', date: '', items: [
+        '6つの体験教材(デジタル化ラボ・仮想CPUラボ・ネットワーク通信シミュレータ・情報セキュリティ体験ラボ・双方向コンテンツ制作スタジオ・計測・制御シミュレータ)と、メニュー付きの教材集を作りました。'
+      ] }
+    ]
+  };
+})();
+
+/* 基本編・発展編(学習指導要領 技術分野「D 情報の技術」と教科書の内容から分けたもの)
+ * 体験教材集のメニュー(kyozai-shu/src/shell.js)が EduitFrame.levels で使う。id は kyozai-shu/data/materials.json の id。
+ * parts は生徒の画面のページの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順(記号の番号の順)にならんでいます。授業の進め方に合わせて、どこから始めてもかまいません。',
+    items: [
+      { id: 'digitization-lab', parts: ['① 画像のデジタル化', '② 音のデジタル化', '③ 2進数と文字コード', '④ データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
+      { id: 'virtual-cpu', parts: ['① 図解: 5つの装置', '② 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
+      { id: 'network-sim', parts: ['① ネットワークを組み立てる', '② Webページが届くまで', '③ 回線が切れたら？', '④ のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
+      { id: 'security-lab', parts: ['① デジタル化と情報量', '② パスワード強度ラボ', '③ 暗号ラボ', '④ フィッシング見分け', '⑤ ネットワーク通信の模擬', '⑥ SNS投稿の個人情報チェック', '⑦ デジタルタトゥー', '⑧ 著作権・利用ルールクイズ', '⑨ 判断ロールプレイ', '⑩ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'scam-lab', parts: ['① ワンクリック詐欺', '② 「当選しました」メール', '③ ウイルス付きメール', '④ にせのウイルス警告', '⑤ にせの通販サイト', '⑥ まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
+      { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
+      { id: 'measure-control-sim', parts: ['① 街灯', '② 自動ドア', '③ 信号機', '④ 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
+      { id: 'genai-lab', parts: ['① もっともらしいまちがい', '② 個人情報が出てしまう？', '③ クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' },
+      { id: 'mars-rover', parts: ['① まっすぐ走って止まる', '② 岩の前で止まる・よける', '③ 迷路のような谷を探査する', '評価・振り返り'], curr: 'D(3)ア・イ、統合的な問題解決', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容' },
+      { id: 'mondai-note', parts: ['はじめに', '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', '振り返り', '記録'], curr: 'D(2)イ・D(3)イ', why: '生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、しくみの中まで入って調べる内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'digitization-lab', parts: ['⑤ 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
+      { id: 'virtual-cpu', parts: ['③ 仮想CPUを動かす', '④ 課題'], curr: 'D(1)ア(発展)', why: 'レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容' },
+      { id: 'network-sim', parts: ['⑤ IPアドレス・ドリル'], curr: 'D(1)ア(発展)', why: '教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展' },
+      { id: 'security-lab', parts: ['⑪ ハッシュ体験'], curr: 'D(1)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない' },
+      { id: 'measure-control-sim', parts: ['⑤ 自由に作る(仮想マイコン)'], curr: 'D(3)イ(発展)', why: 'センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動' },
+      { id: 'genai-lab', parts: ['④ つぎの言葉あて', '⑤ 言葉のかけら(トークン)', '⑥ ミニ文章AIを動かす', '⑦ ノイズをまぜる(学習)', '⑧ ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
+      { id: 'mars-rover', parts: ['④ 色センサで線をたどる', '⑤ 自由なコースで記録に挑戦'], curr: 'D(3)イ、統合的な問題解決(発展)', why: '色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動' },
+      { id: 'hash-lab', parts: ['① ハッシュ値を作ってみよう', '② 1文字だけ変えると？', '③ 手作りハッシュの弱点', '④ もとにもどせる？', '⑤ パスワードの守り方', '⑥ 改ざんを見つける', '⑦ クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' },
+      { id: 'mondai-note', parts: ['③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)'], curr: 'D(4)ア(発展)', why: '情報の技術が、利便性・セキュリティ・回線への負荷などの折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、4章1「情報の技術の最適化」を数値で深める発展' }
+    ]
+  }
+};
+
+/* 教科書との対応(メニューのカードを教科書の章ごとに見出しで区切り、カードに「教科書 4編…」の行を出す。shared/eduit-frame.js の EduitFrame.levels が使う)
+ * g は区切り(groups の key)、ref はカードに出す教科書の編・章・節。先生用の一覧(teacher-tools/kihon-hatten)にも出る。
+ */
+window.EDUIT_INFO.textbook = {
+  groups: [
+    { key: 'know', ch: '1章', title: '生活や社会を支える技術(しくみを知る)' },
+    { key: 'solve', ch: '2章・3章', title: '技術による問題解決(つくる)' },
+    { key: 'future', ch: '4章', title: '社会の発展と技術(これからの技術)' }
+  ],
+  items: {
+    'digitization-lab': { g: 'know', ref: '4編1章 3' },
+    'virtual-cpu': { g: 'know', ref: '4編1章 2' },
+    'network-sim': { g: 'know', ref: '4編1章 4' },
+    'security-lab': { g: 'know', ref: '4編1章 5・6' },
+    'scam-lab': { g: 'know', ref: '4編1章 6' },
+    'hash-lab': { g: 'know', ref: '4編1章 5' },
+    'interactive-studio': { g: 'solve', ref: '4編2章' },
+    'measure-control-sim': { g: 'solve', ref: '4編3章' },
+    'mars-rover': { g: 'solve', ref: '4編3章・統合的な問題解決' },
+    'mondai-note': { g: 'solve', ref: '4編2章 2・5、3章 2・5、4章 1' },
+    'genai-lab': { g: 'future', ref: '4編4章 2' }
+  }
+};
+
+</script>
+  <script id="eduit-frame">
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ * 上のバーの表示の道具(4分野で同じ形):
+ *   ふりがな・くっきり: <button class="ef-btn ef-toggle" aria-pressed="true|false">ふりがな</button>(ON は分野の色で塗り、✓ が付く)
+ *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
+ *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
+ *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
+ *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  var FK_KEY = 'eduit.furikaeri';
+  function furikaeriSetting() {
+    var w = window, v = null;
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
+        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
+    return v !== 'off';
+  }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  // ---- 文字の大きさのボタン(4分野で同じ形:「文字 中」。押すたびに次の大きさへ) ----
+  function sizeButton(btn, opt) {
+    var steps = opt.steps;
+    btn.classList.add('ef-btn', 'ef-size');
+    btn.type = 'button';
+    btn.textContent = '';
+    btn.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    v.setAttribute('data-noruby', '');
+    btn.appendChild(v);
+    function idx() {
+      var cur = opt.get(), best = 0;
+      for (var i = 1; i < steps.length; i++) if (Math.abs(steps[i][0] - cur) < Math.abs(steps[best][0] - cur)) best = i;
+      return best;
+    }
+    function update() {
+      var s = steps[idx()][1];
+      v.textContent = s;
+      btn.title = '文字の大きさ(いまは「' + s + '」。押すと変わる)';
+      btn.setAttribute('aria-label', '文字の大きさ: ' + s);
+    }
+    btn.addEventListener('click', function () { opt.set(steps[(idx() + 1) % steps.length][0]); update(); });
+    update();
+    return update;
+  }
+
+  // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
+  function autoHide() {
+    var lastY = window.pageYOffset || 0, ticking = false;
+    function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
+    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function run() {
+      ticking = false;
+      var y = window.pageYOffset || 0, dy = y - lastY;
+      if (Math.abs(dy) < 6 && y > 0) return;
+      lastY = y;
+      Array.prototype.forEach.call(bars(), function (el) {
+        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
+        if (el.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+        // 上に固定されている(画面の上にはりついている)ときだけ隠す
+        if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        if (el.getBoundingClientRect().top > top + 1) return;
+        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
+        el.classList.add('ef-ah-hide');
+      });
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (el) show(el);
+    });
+    // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
+    function reveal() {
+      Array.prototype.forEach.call(bars(), function (el) {
+        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+        if (!t) return;
+        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+          if (sc.scrollWidth > sc.clientWidth + 1) {
+            var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
+            if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
+            else if (r.right > b.right) sc.scrollLeft += r.right - b.right + 12;
+            return;
+          }
+        }
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-ef-autohide]')) setTimeout(reveal, 50);
+    });
+    window.addEventListener('hashchange', function () { setTimeout(reveal, 50); });
+    window.addEventListener('load', function () { setTimeout(reveal, 300); });
+  }
+  autoHide();
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+</script>
+</head>
+<body>
+  <a class="skip-link" href="#view">本文へ移動</a>
+  <header class="app-header ef-header">
+    <a class="brand ef-title" href="#/"><img class="ef-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cmVjdCB4PSIxNCIgeT0iMTAiIHdpZHRoPSIzNCIgaGVpZ2h0PSI0NCIgcng9IjQiIGZpbGw9IiNmZmZmZmYiLz48cmVjdCB4PSIyMCIgeT0iMTgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIzIiByeD0iMS41IiBmaWxsPSIjOWZiOGUwIi8+PHJlY3QgeD0iMjAiIHk9IjI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMyIgcng9IjEuNSIgZmlsbD0iIzlmYjhlMCIvPjxyZWN0IHg9IjIwIiB5PSIzMiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjMiIHJ4PSIxLjUiIGZpbGw9IiM5ZmI4ZTAiLz48cmVjdCB4PSIzNCIgeT0iMzQiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiNmZmQ0M2IiIHRyYW5zZm9ybT0icm90YXRlKC04IDQzIDQyKSIvPjxwYXRoIGQ9Ik0zOCA0NCBsMyAzIGw2IC03IiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTVmYzgiIHN0cm9rZS13aWR0aD0iMi42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4K" alt="" width="28" height="28"><span class="ef-code">D11</span>問題解決ノート</a>
+    <div class="ef-tools">
+      <div class="display-toggles" id="display-toggles" role="group" aria-label="表示の切りかえ"></div>
+    </div>
+  </header>
+  <nav class="mnd-tabs" id="tabs" aria-label="問題解決ノートのページ" data-ef-autohide>
+    <a href="#/" data-tab="intro">はじめに</a>
+    <a href="#/find" data-tab="find">① 問題の発見</a>
+    <a href="#/eval" data-tab="eval">② 評価、改善・修正</a>
+    <a href="#/opt" data-tab="opt" class="adv" title="発展編">③ 技術の最適化</a>
+    <a href="#/refl" data-tab="refl" data-ef-reflect>振り返り</a>
+    <a href="#/rec" data-tab="rec">記録</a>
+  </nav>
+  <main id="view" class="mnd-main" tabindex="-1">
+    <section data-sec="intro"></section>
+    <section data-sec="find" hidden></section>
+    <section data-sec="eval" hidden></section>
+    <section data-sec="opt" hidden></section>
+    <section data-sec="refl" hidden data-ef-reflect></section>
+    <section data-sec="rec" hidden></section>
+    <p class="mnd-saved" id="saved" aria-live="polite"></p>
+    <noscript><p>この教材を使うには JavaScript を有効にしてください。</p></noscript>
+  </main>
+  <div class="app-footer" data-ef-footer>
+    <p class="app-note">この教材はブラウザの中だけで動き、外部のサイトには接続しません。書いたノートは、この端末のブラウザの中にだけ保存されます。</p>
+  </div>
+  <div class="mnd-toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+  <script>
+/* 問題解決ノート(4分野共通)の分野ごとのデータ
+ * shared/mondai-note/mondai-note.js(本体)が読む。分野は EDUIT_INFO.domain('A'|'B'|'C'|'D')で決まる。
+ * 教科書(各編の 2章「問題の発見と課題の設定」「問題解決の評価、改善・修正」、3章(D は 4章)「技術の最適化」)に合わせている。
+ *
+ * 分野ごとに持つもの:
+ *   name・work(作ったもの)・make(作る/育てる)・lets(レッツスタートの問い)
+ *   samples   … ① 付箋のヒント(text と観点 vp)
+ *   quiz      … ① 「問題?課題?」クイズ(t: 'mondai' | 'kadai'、why: 解説)
+ *   evalCrit  … ② 評価の観点(k・label・hint)。教科書の各編の評価の観点
+ *   process   … ② 過程(製作・育成・制作)の評価のチェック
+ *   optCrit   … ③ 最適化の観点(製品ごとに crit で変えられる)
+ *   presets   … ③ 立場ごとの重み(製品ごとに presets で変えられる)
+ *   products  … ③ 社会の製品・技術(options の s は観点ごとの 1〜5 の目安の点。limits は制約条件)
+ * 点は授業で考えるための目安で、製品の実際の性能を表すものではない。
+ */
+(function (root) {
+  'use strict';
+  var MN = (root.MondaiNote = root.MondaiNote || {});
+
+  // 技術の見方・考え方の4つの観点(付箋に付けるアイコン)。教科書: 社会からの要求・安全性・環境への負荷・経済性
+  MN.VP = [
+    { k: 'society', label: '社会', icon: '🏘️', hint: '社会からの要求・使う人の願い' },
+    { k: 'safety', label: '安全', icon: '⛑️', hint: '安全性・けがや事故を防ぐ' },
+    { k: 'env', label: '環境', icon: '🌳', hint: '環境への負荷・資源やエネルギー' },
+    { k: 'economy', label: '経済', icon: '💴', hint: '経済性・費用や時間' }
+  ];
+
+  MN.DOMAINS = {
+    /* ================= A 材料と加工の技術 ================= */
+    A: {
+      name: '材料と加工の技術', short: '材料と加工', work: '製作品', make: '作る', ref: '1編2章 1・5、3章 1',
+      lets: '学校の机や椅子など、身の回りの物を使っていて「こうだったらいいのにな」「不便だな」と思うことを挙げましょう。',
+      titleHint: '例: 木の本立て', kadaiHint: '例: 机の横で教科書を立てて入れられる、じょうぶな木の本立てを作る',
+      samples: [
+        { text: '机の上が教科書やプリントでいっぱいになる', vp: ['society'] },
+        { text: '体育館シューズの置き場がなく、ろうかにちらかる', vp: ['society', 'safety'] },
+        { text: '本だなの本がすぐにたおれてしまう', vp: ['society'] },
+        { text: 'タブレットを立てて見たいが、すぐたおれる', vp: ['society', 'safety'] },
+        { text: '使わなくなった板や木の切れはしがたくさんある', vp: ['env', 'economy'] },
+        { text: '買うと高いので、安く作れる入れ物がほしい', vp: ['economy'] }
+      ],
+      quiz: [
+        { t: 'mondai', text: '教科書やノートが机の上に広がり、作業する場所がせまい', why: '「こまっていること」なので問題です。これをどうすれば解決するかを考えて、課題にします。' },
+        { t: 'kadai', text: '机の横に、教科書を立てて入れられる木の本立てを作る', why: '問題を解決するために「何を、どうするか」を決めているので課題です。' },
+        { t: 'mondai', text: '雨の日、げた箱の前がかさのしずくでぬれてすべりやすい', why: '「不便・危ない」と感じていることなので問題です。' },
+        { t: 'kadai', text: 'ぬれたかさを立てて、しずくを受けられるかさ立てを作る', why: '解決の方法を具体的に決めているので課題です。' },
+        { t: 'mondai', text: '家の工具がばらばらにしまってあり、すぐに見つからない', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: '工具の形に合わせた仕切りのある、木の工具箱を作る', why: '何を作って解決するかを決めているので課題です。' }
+      ],
+      evalCrit: [
+        { k: 'func', label: '機能', hint: '目的どおりに使えるか(物が入る・立つ など)' },
+        { k: 'struct', label: '構造', hint: '使っても、がたついたりこわれたりしないか' },
+        { k: 'mat', label: '材料', hint: '使う目的や場所に合った材料を選べたか' },
+        { k: 'craft', label: '加工', hint: '図面と照合して、寸法どおり・ていねいに仕上がったか' },
+        { k: 'cost', label: '費用', hint: '材料のむだが少なく、決めた費用や時間の中で作れたか' },
+        { k: 'safety', label: '安全性', hint: '角やささくれでけがをしないか、たおれにくいか' },
+        { k: 'env', label: '環境への配慮', hint: '材料を大切に使い、使わなくなったときの処分も考えたか' }
+      ],
+      process: [
+        '材料取り図どおりに材料を取れた',
+        '製作工程表の順番と時間を守って作業できた',
+        '工程ごとに図面と照合し、検査・修正をした',
+        '工具や機器を、安全に正しく使えた'
+      ],
+      optCrit: [
+        { k: 'func', label: '機能' }, { k: 'strong', label: '丈夫さ' }, { k: 'cost', label: '費用' },
+        { k: 'safety', label: '安全性' }, { k: 'env', label: '環境' }
+      ],
+      presets: [
+        { label: '使う人', icon: '🙋', w: { func: 3, strong: 2, cost: 1, safety: 2, env: 0 } },
+        { label: '作って売る会社', icon: '🏭', w: { func: 1, strong: 1, cost: 3, safety: 1, env: 0 } },
+        { label: '安全第一', icon: '⛑️', w: { func: 0, strong: 2, cost: 0, safety: 3, env: 0 } },
+        { label: '地球の環境', icon: '🌏', w: { func: 0, strong: 0, cost: 0, safety: 1, env: 3 } }
+      ],
+      products: [
+        {
+          id: 'bottle', icon: '🧴', name: '飲み物の容器', q: '飲み物を入れて売る容器は、どの材料がよいだろう?',
+          options: [
+            { id: 'glass', name: 'ガラスびん', s: { func: 3, strong: 2, cost: 2, safety: 2, env: 5 }, note: '洗ってくり返し使える。重く、落とすと割れる' },
+            { id: 'pet', name: 'ペットボトル', s: { func: 5, strong: 4, cost: 4, safety: 4, env: 2 }, note: '軽くて割れにくく、ふたができる。ごみが多くなりやすい' },
+            { id: 'can', name: 'アルミ缶', s: { func: 3, strong: 3, cost: 3, safety: 4, env: 4 }, note: '割れず、リサイクルしやすい。一度開けるとふたができない' }
+          ],
+          limits: [
+            { label: '割れてはいけない(丈夫さが3以上)', k: 'strong', min: 3 },
+            { label: '材料費を安くしたい(費用が3以上)', k: 'cost', min: 3 }
+          ]
+        },
+        {
+          id: 'chair', icon: '🪑', name: '学校の椅子', q: '教室で毎日使う椅子は、どの作り方がよいだろう?',
+          options: [
+            { id: 'solid', name: '無垢材の椅子', s: { func: 3, strong: 4, cost: 2, safety: 4, env: 5 }, note: '1本の木から切り出した材料。手ざわりがよく長く使えるが、高い' },
+            { id: 'ply', name: '合板・集成材の椅子', s: { func: 3, strong: 4, cost: 4, safety: 4, env: 4 }, note: '小さな木を貼り合わせた材料。反りにくく、材料をむだなく使える' },
+            { id: 'steel', name: '鉄のパイプと樹脂の椅子', s: { func: 5, strong: 5, cost: 4, safety: 2, env: 2 }, note: '軽くて重ねられる。すき間に指をはさむおそれがある' }
+          ],
+          limits: [
+            { label: '重ねて片付けたい(機能が4以上)', k: 'func', min: 4 },
+            { label: '木の材料を使う(環境が4以上)', k: 'env', min: 4 }
+          ]
+        },
+        {
+          id: 'bag', icon: '🛍️', name: '買い物の袋', q: 'お店で買った物を入れる袋は、どれがよいだろう?',
+          options: [
+            { id: 'paper', name: '紙袋', s: { func: 2, strong: 2, cost: 4, safety: 5, env: 4 }, note: '燃やしても有害な物が出にくい。水にぬれると弱い' },
+            { id: 'poly', name: 'レジ袋(ポリエチレン)', s: { func: 4, strong: 3, cost: 5, safety: 3, env: 1 }, note: '安くて水に強い。海に流れるとごみとして長く残る' },
+            { id: 'cloth', name: '布のエコバッグ', s: { func: 4, strong: 5, cost: 2, safety: 5, env: 4 }, note: '何回も使える。作るときの材料やエネルギーは多い' }
+          ],
+          limits: [
+            { label: '雨の日も使う(機能が3以上)', k: 'func', min: 3 }
+          ]
+        }
+      ]
+    },
+
+    /* ================= B 生物育成の技術 ================= */
+    B: {
+      name: '生物育成の技術', short: '生物育成', work: '育てた生物(作物など)', make: '育てる', ref: '2編2章 1・4、3章 1',
+      lets: '持続可能な社会のために、生物育成の技術でどのような問題を解決できるか考えましょう。身の回りの「こうだったらいいのに」「不便だな」を挙げましょう。',
+      titleHint: '例: ミニトマト', kadaiHint: '例: 日当たりの悪いベランダでも、プランターの置き場所を工夫してミニトマトを育てる',
+      samples: [
+        { text: '夏休みに水やりができず、野菜がかれてしまう', vp: ['society'] },
+        { text: 'ベランダがせまく、野菜を育てる場所がない', vp: ['society'] },
+        { text: '地域の畑で、働く人が足りなくなっている', vp: ['society', 'economy'] },
+        { text: '農薬をなるべく使わずに、害虫を防ぎたい', vp: ['safety', 'env'] },
+        { text: '肥料や水を使いすぎると、環境に負荷がかかる', vp: ['env'] },
+        { text: '野菜の値段が高く、毎日買うのが大変', vp: ['economy'] }
+      ],
+      quiz: [
+        { t: 'mondai', text: 'ベランダが日かげになりやすく、ミニトマトの実が少ない', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: '日の当たる時間を調べて、プランターの置き場所を決めて育てる', why: '問題を解決するために「何を、どうするか」を決めているので課題です。' },
+        { t: 'mondai', text: '暑い日に土がすぐかわき、葉がしおれてしまう', why: '「不便だ・こまった」と感じていることなので問題です。' },
+        { t: 'kadai', text: '土の表面をおおうマルチングをして、土のかわきをおさえる', why: '解決の方法を具体的に決めているので課題です。' },
+        { t: 'mondai', text: 'アブラムシが増えて、葉がちぢれたり弱ったりする', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: '防虫ネットをかけて、農薬にたよらずに害虫を防ぐ', why: '何をして解決するかを決めているので課題です。' }
+      ],
+      evalCrit: [
+        { k: 'quality', label: '品質', hint: '味・形・大きさ・色などがよいか' },
+        { k: 'yield', label: '収量', hint: '目標とくらべて、どれだけ収穫できたか' },
+        { k: 'cost', label: '費用', hint: '種・苗・肥料・水などにかかった費用は適切か' },
+        { k: 'safety', label: '安全性', hint: '安全・安心に食べられるか、作業は安全だったか' },
+        { k: 'env', label: '環境への配慮', hint: '肥料・農薬・水を使いすぎず、環境への負荷が小さいか' }
+      ],
+      process: [
+        '育成計画どおりに管理作業を進められた',
+        '成長のようすを写真や文章で記録した',
+        '成長段階に合わせて、水やり・追肥などを調節した',
+        '道具や肥料・薬品を、安全に正しく使った'
+      ],
+      optCrit: [
+        { k: 'quality', label: '品質' }, { k: 'yield', label: '収量' }, { k: 'cost', label: '費用' },
+        { k: 'safety', label: '安全性' }, { k: 'env', label: '環境' }
+      ],
+      presets: [
+        { label: '食べる人', icon: '🍽️', w: { quality: 3, yield: 0, cost: 1, safety: 3, env: 0 } },
+        { label: '生産者(農家)', icon: '👩‍🌾', w: { quality: 1, yield: 3, cost: 3, safety: 0, env: 0 } },
+        { label: '安全・安心', icon: '⛑️', w: { quality: 0, yield: 0, cost: 0, safety: 3, env: 1 } },
+        { label: '地球の環境', icon: '🌏', w: { quality: 0, yield: 0, cost: 0, safety: 1, env: 3 } }
+      ],
+      products: [
+        {
+          id: 'lettuce', icon: '🥬', name: 'レタスの育て方', q: 'レタスを育てて売るには、どの育て方がよいだろう?',
+          options: [
+            { id: 'field', name: '露地栽培(畑)', s: { quality: 3, yield: 2, cost: 5, safety: 3, env: 4 }, note: '太陽と雨で育てる。天気によって収量が大きく変わる' },
+            { id: 'house', name: 'ハウス栽培', s: { quality: 5, yield: 4, cost: 3, safety: 3, env: 3 }, note: 'ビニールハウスで寒さや雨を防ぐ。暖房などに費用がかかる' },
+            { id: 'factory', name: '植物工場', s: { quality: 4, yield: 5, cost: 1, safety: 5, env: 2 }, note: 'LED の光と養液で、1年中同じように育てる。電気を多く使う' }
+          ],
+          limits: [
+            { label: '1年中とどけたい(収量が4以上)', k: 'yield', min: 4 },
+            { label: 'かけられるお金が少ない(費用が3以上)', k: 'cost', min: 3 }
+          ]
+        },
+        {
+          id: 'fish', icon: '🐟', name: '魚をとどける方法', q: '食卓に魚をとどけるには、どの方法がよいだろう?',
+          options: [
+            { id: 'catch', name: '海で魚をとる(漁業)', s: { quality: 4, yield: 2, cost: 4, safety: 4, env: 2 }, note: '育てる費用はかからない。とりすぎると魚が減ってしまう' },
+            { id: 'farm', name: '養殖', s: { quality: 4, yield: 5, cost: 2, safety: 4, env: 2 }, note: 'いけすで大きくなるまで育てる。えさ代がかかり、海がよごれることもある' },
+            { id: 'release', name: '栽培漁業(稚魚を放流)', s: { quality: 4, yield: 3, cost: 3, safety: 4, env: 5 }, note: '卵からかえした稚魚を海に放し、育ってからとる。資源を守れる' }
+          ],
+          limits: [
+            { label: '魚を減らさない(環境が3以上)', k: 'env', min: 3 }
+          ]
+        },
+        {
+          id: 'pest', icon: '🐛', name: '害虫の防ぎ方', q: '野菜につく害虫は、どの方法で防ぐのがよいだろう?',
+          options: [
+            { id: 'chem', name: '農薬をまく', s: { quality: 4, yield: 5, cost: 4, safety: 2, env: 2 }, note: 'よく効いて手間が少ない。使う量や時期を守る必要がある' },
+            { id: 'net', name: '防虫ネットをかける', s: { quality: 4, yield: 4, cost: 3, safety: 5, env: 4 }, note: '虫が入らないようにおおう。ネットを張る手間と費用がかかる' },
+            { id: 'enemy', name: '天敵の虫を使う', s: { quality: 4, yield: 3, cost: 2, safety: 5, env: 5 }, note: '害虫を食べる虫(テントウムシなど)を使う。効くまで時間がかかる' }
+          ],
+          limits: [
+            { label: '農薬を使わない(安全性が4以上)', k: 'safety', min: 4 }
+          ]
+        }
+      ]
+    },
+
+    /* ================= C エネルギー変換の技術 ================= */
+    C: {
+      name: 'エネルギー変換の技術', short: 'エネルギー変換', work: '製作品(電気回路・機構モデル)', make: '作る', ref: '3編2章 1・4、3章 1',
+      lets: '家庭生活や学校生活の中で、光・熱・動力などに目を向けて「あったらいいな」「不便だな」と思うことを挙げましょう。',
+      titleHint: '例: 手回し発電ライト', kadaiHint: '例: 停電のときでも使える、手回し発電でつくLEDライトを作る',
+      samples: [
+        { text: '停電のとき、家の中が真っ暗になる', vp: ['safety', 'society'] },
+        { text: '自転車のライトが暗く、夜道がこわい', vp: ['safety'] },
+        { text: '祖母が夜にトイレへ行くとき、足元が見えない', vp: ['society', 'safety'] },
+        { text: '教室の照明やエアコンの消し忘れが多い', vp: ['env', 'economy'] },
+        { text: 'スマートフォンの充電がすぐなくなる', vp: ['society'] },
+        { text: '重い荷物を運ぶのが大変', vp: ['society', 'safety'] }
+      ],
+      quiz: [
+        { t: 'mondai', text: '災害で停電すると、スマートフォンを充電できなくなる', why: '「こまること」なので問題です。' },
+        { t: 'kadai', text: '手回し発電機で、スマートフォンを充電できる装置を作る', why: '問題を解決するために「何を、どうするか」を決めているので課題です。' },
+        { t: 'mondai', text: '夜、ろうかの電灯のスイッチがどこにあるか分からない', why: '「不便だ」と感じていることなので問題です。' },
+        { t: 'kadai', text: '人が近づくと自動で点灯する、足元を照らす明かりを作る', why: '解決の方法を具体的に決めているので課題です。' },
+        { t: 'mondai', text: 'ペットボトルのごみを、手でつぶすのに大きな力がいる', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: 'てこやリンク機構を使い、軽い力でつぶせる道具を作る', why: '何を作って解決するかを決めているので課題です。' }
+      ],
+      evalCrit: [
+        { k: 'func', label: '機能', hint: '目的とした動き・明るさなどが実現できたか' },
+        { k: 'conv', label: '利便性', hint: '使う人にとって便利で、使いやすいか' },
+        { k: 'cost', label: '費用', hint: '部品や電気代など、かかった費用は適切か' },
+        { k: 'safety', label: '安全性', hint: '感電・発熱・けがのおそれはないか、保守点検しやすいか' },
+        { k: 'env', label: '環境への配慮', hint: 'エネルギーのむだが少なく、廃棄まで考えたか' }
+      ],
+      process: [
+        '回路図・製作図どおりに製作できた',
+        '試作(プロトタイピング)で動きを確かめ、調整した',
+        '完成後に点検をして、安全に使えることを確かめた',
+        '使い方の注意や保守点検の方法を考えた'
+      ],
+      optCrit: [
+        { k: 'func', label: '機能' }, { k: 'conv', label: '利便性' }, { k: 'cost', label: '費用' },
+        { k: 'safety', label: '安全性' }, { k: 'env', label: '環境' }
+      ],
+      presets: [
+        { label: '使う人', icon: '🙋', w: { func: 2, conv: 3, cost: 1, safety: 1, env: 0 } },
+        { label: 'お金を安く', icon: '💴', w: { func: 0, conv: 0, cost: 3, safety: 0, env: 0 } },
+        { label: '安全第一', icon: '⛑️', w: { func: 0, conv: 0, cost: 0, safety: 3, env: 1 } },
+        { label: '地球の環境', icon: '🌏', w: { func: 0, conv: 0, cost: 0, safety: 1, env: 3 } }
+      ],
+      products: [
+        {
+          id: 'light', icon: '💡', name: '部屋の明かり', q: '部屋の電灯には、どの電球がよいだろう?',
+          options: [
+            { id: 'bulb', name: '白熱電球', s: { func: 3, conv: 2, cost: 4, safety: 2, env: 1 }, note: '本体が安く、あたたかい色の光。熱くなり、寿命が短い' },
+            { id: 'fl', name: '電球形蛍光灯', s: { func: 5, conv: 3, cost: 3, safety: 3, env: 3 }, note: '広く明るく照らす。中に少しの水銀が入っている' },
+            { id: 'led', name: 'LED電球', s: { func: 4, conv: 5, cost: 2, safety: 4, env: 5 }, note: '電気をあまり使わず、寿命が長い。本体の値段は高め' }
+          ],
+          limits: [
+            { label: '本体を安く買いたい(費用が3以上)', k: 'cost', min: 3 }
+          ]
+        },
+        {
+          id: 'car', icon: '🚗', name: '自動車', q: '毎日の移動に使う自動車は、どれがよいだろう?',
+          options: [
+            { id: 'gas', name: 'ガソリン車', s: { func: 4, conv: 5, cost: 4, safety: 4, env: 1 }, note: 'すぐに給油でき、長く走れる。二酸化炭素を多く出す' },
+            { id: 'hv', name: 'ハイブリッド車', s: { func: 4, conv: 5, cost: 3, safety: 4, env: 3 }, note: 'エンジンとモータを使い分け、燃料を節約する' },
+            { id: 'ev', name: '電気自動車', s: { func: 3, conv: 2, cost: 2, safety: 4, env: 5 }, note: '走るときに二酸化炭素を出さない。充電に時間がかかる' }
+          ],
+          limits: [
+            { label: '遠くまで走る(機能が4以上)', k: 'func', min: 4 },
+            { label: '二酸化炭素を減らす(環境が3以上)', k: 'env', min: 3 }
+          ]
+        },
+        {
+          id: 'power', icon: '⚡', name: '発電の方法', q: '町の電気をつくるには、どの発電方法がよいだろう?',
+          options: [
+            { id: 'thermal', name: '火力発電', s: { func: 5, conv: 4, cost: 2, safety: 4, env: 1 }, note: '天気に関係なく安定して発電できる。燃料費がかかり、二酸化炭素を出す' },
+            { id: 'solar', name: '太陽光発電', s: { func: 2, conv: 4, cost: 3, safety: 5, env: 5 }, note: '屋根にも置ける。夜や雨の日は発電できない' },
+            { id: 'wind', name: '風力発電', s: { func: 3, conv: 2, cost: 5, safety: 4, env: 4 }, note: '燃料がいらない。風の強い場所にしか建てられない' }
+          ],
+          limits: [
+            { label: 'いつでも電気がほしい(機能が3以上)', k: 'func', min: 3 }
+          ]
+        }
+      ]
+    },
+
+    /* ================= D 情報の技術 ================= */
+    D: {
+      name: '情報の技術', short: '情報', work: '作品(コンテンツ・計測・制御システム)', make: '作る', ref: '4編2章 2・5、3章 2・5、4章 1',
+      lets: '生活や社会の中で、自分や周りの人が困っていることや「こうだったらいいな」「大変だな」と思っていることを挙げましょう。',
+      titleHint: '例: 教室の暑さお知らせシステム', kadaiHint: '例: 温度センサで教室の暑さを計測し、暑くなったら音と光で知らせるシステムを作る',
+      samples: [
+        { text: '部活動の連絡が、全員にとどかないことがある', vp: ['society'] },
+        { text: '図書室の本が、どこにあるか分からない', vp: ['society'] },
+        { text: '暑い日、教室の温度が上がっても気づかない', vp: ['safety'] },
+        { text: '休みの日に、植物の水やりができない', vp: ['society', 'env'] },
+        { text: 'パスワードを忘れたり、人に見られたりする', vp: ['safety'] },
+        { text: 'だれもいない部屋の電気がついたままになる', vp: ['env', 'economy'] }
+      ],
+      quiz: [
+        { t: 'mondai', text: '委員会のお知らせが、全校生徒にうまく伝わらない', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: 'クイズに答えながらお知らせが読める、双方向性のあるコンテンツを作る', why: '問題を解決するために「何を、どうするか」を決めているので課題です。' },
+        { t: 'mondai', text: '暑い日に教室の温度が上がっても、気づかず具合が悪くなる', why: '「こまっていること」なので問題です。' },
+        { t: 'kadai', text: '温度センサで計測し、暑くなったら音と光で知らせるシステムを作る', why: '解決の方法を具体的に決めているので課題です。' },
+        { t: 'mondai', text: '夜、玄関のかぎ穴が暗くて見えにくい', why: '「不便だ」と感じていることなので問題です。' },
+        { t: 'kadai', text: '明るさセンサで暗くなったことを計測し、LEDを自動で点灯させる', why: '何を作って解決するかを決めているので課題です。' }
+      ],
+      evalCrit: [
+        { k: 'func', label: '機能', hint: '設計した機能を、すべて実現できたか' },
+        { k: 'use', label: '使いやすさ', hint: '使う人にとって分かりやすく、便利か' },
+        { k: 'safety', label: '安全性', hint: '人や物を傷つけないか、情報セキュリティは守られているか' },
+        { k: 'rights', label: '他者の権利', hint: '著作権や個人情報など、ほかの人の権利を守れたか' },
+        { k: 'cost', label: '費用', hint: '部品・時間・手間など、かかった費用は適切か' },
+        { k: 'env', label: '環境への配慮', hint: '電気やネットワークに、むだな負荷をかけないか' }
+      ],
+      process: [
+        '設計(フローチャートなど)どおりにプログラムを作れた',
+        '少しずつ動かして確かめ、デバッグできた',
+        '使う人の立場で試してもらい、意見を聞いた',
+        '著作物の利用や個人情報に気をつけた'
+      ],
+      optCrit: [
+        { k: 'func', label: '機能' }, { k: 'use', label: '使いやすさ' }, { k: 'cost', label: '費用' },
+        { k: 'safety', label: '安全性' }, { k: 'env', label: '環境' }
+      ],
+      presets: [
+        { label: '使う人', icon: '🙋', w: { func: 1, use: 3, cost: 1, safety: 1, env: 0 } },
+        { label: 'お金を安く', icon: '💴', w: { func: 0, use: 0, cost: 3, safety: 0, env: 0 } },
+        { label: '安全第一', icon: '⛑️', w: { func: 0, use: 0, cost: 0, safety: 3, env: 0 } },
+        { label: '地球の環境', icon: '🌏', w: { func: 0, use: 0, cost: 0, safety: 1, env: 3 } }
+      ],
+      products: [
+        {
+          id: 'lock', icon: '📱', name: 'スマートフォンのロック', q: 'スマートフォンのロックは、どの方法がよいだろう?',
+          crit: [{ k: 'safe', label: '破られにくさ' }, { k: 'use', label: '使いやすさ' }, { k: 'cost', label: '費用' }, { k: 'sure', label: 'どんな時も使える' }, { k: 'privacy', label: '個人情報' }],
+          presets: [
+            { label: '使う人', icon: '🙋', w: { safe: 1, use: 3, cost: 1, sure: 1, privacy: 0 } },
+            { label: 'お金を安く', icon: '💴', w: { safe: 0, use: 0, cost: 3, sure: 1, privacy: 0 } },
+            { label: '安全第一', icon: '🔐', w: { safe: 3, use: 0, cost: 0, sure: 0, privacy: 1 } },
+            { label: 'プライバシー', icon: '🙈', w: { safe: 1, use: 0, cost: 0, sure: 0, privacy: 3 } }
+          ],
+          options: [
+            { id: 'pin', name: '4けたの暗証番号', s: { safe: 2, use: 4, cost: 5, sure: 5, privacy: 4 }, note: '覚えやすく、すぐ入力できる。のぞき見や推測で破られやすい' },
+            { id: 'pass', name: '長いパスワード', s: { safe: 5, use: 1, cost: 5, sure: 4, privacy: 4 }, note: '破られにくい。毎回入力するのが大変で、忘れやすい' },
+            { id: 'bio', name: '生体認証(指紋・顔)', s: { safe: 4, use: 5, cost: 2, sure: 3, privacy: 2 }, note: 'さわる・見るだけで開く。読み取る部品が必要で、顔や指紋のデータを使う' }
+          ],
+          limits: [
+            { label: 'マスクや手ぶくろでも使う(どんな時も使えるが4以上)', k: 'sure', min: 4 }
+          ]
+        },
+        {
+          id: 'drive', icon: '🚙', name: '車の運転', q: 'これからの車の運転は、どれがよいだろう?',
+          options: [
+            { id: 'human', name: '人が運転する', s: { func: 4, use: 2, cost: 5, safety: 2, env: 3 }, note: '今ある車で走れる。疲れや見落としによる事故がおきることがある' },
+            { id: 'assist', name: '運転支援(自動ブレーキなど)', s: { func: 4, use: 3, cost: 4, safety: 4, env: 3 }, note: 'センサで危険を見つけ、ブレーキなどを助ける。運転するのは人' },
+            { id: 'auto', name: '自動運転', s: { func: 3, use: 5, cost: 1, safety: 4, env: 4 }, note: 'センサとコンピュータがすべて運転する。想定外の場面への対応が課題' }
+          ],
+          limits: [
+            { label: 'どの道でも走れる(機能が4以上)', k: 'func', min: 4 }
+          ]
+        },
+        {
+          id: 'video', icon: '🎬', name: '動画の配信', q: '動画をネットワークで配信するとき、どの画質がよいだろう?',
+          crit: [{ k: 'view', label: '見やすさ' }, { k: 'speed', label: 'すぐ再生' }, { k: 'cost', label: '通信料' }, { k: 'net', label: '回線の負荷' }, { k: 'env', label: '電力' }],
+          presets: [
+            { label: '見る人', icon: '🙋', w: { view: 3, speed: 2, cost: 0, net: 0, env: 0 } },
+            { label: '通信料を安く', icon: '💴', w: { view: 0, speed: 0, cost: 3, net: 0, env: 0 } },
+            { label: '回線を守る', icon: '🌐', w: { view: 0, speed: 1, cost: 0, net: 3, env: 0 } },
+            { label: '地球の環境', icon: '🌏', w: { view: 0, speed: 0, cost: 0, net: 1, env: 3 } }
+          ],
+          options: [
+            { id: 'high', name: '高画質', s: { view: 5, speed: 2, cost: 1, net: 1, env: 2 }, note: 'こまかい所まできれい。データ量が多く、回線に負荷がかかる' },
+            { id: 'std', name: '標準画質', s: { view: 4, speed: 4, cost: 3, net: 3, env: 3 }, note: '多くの画面で十分きれい。データ量はほどほど' },
+            { id: 'low', name: '低画質', s: { view: 2, speed: 5, cost: 5, net: 5, env: 4 }, note: 'データ量が少なく、すぐ再生できる。文字が読みにくいこともある' }
+          ],
+          limits: [
+            { label: '黒板の文字が読める(見やすさが3以上)', k: 'view', min: 3 }
+          ]
+        }
+      ]
+    }
+  };
+})(typeof self !== 'undefined' ? self : typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+  <script>
+/* 問題解決ノート(4分野共通の本体)
+ * 先に mondai-note-data.js を読む。見た目は mondai-note.css(4分野共通の枠 eduit-frame.css の --ef-* を使う)。
+ * classic script。外部通信なし。分野ごとのちがい(例・観点・製品)はデータ(MondaiNote.DOMAINS)で持つ。
+ *
+ * 使い方(各分野のページ = 「アダプタ」が受け持つもの: 上のバー・タブの切りかえ・保存・ファイルの書き出し)
+ *   var note = MondaiNote.mount({
+ *     domain: EDUIT_INFO.domain,          // 'A' | 'B' | 'C' | 'D'
+ *     data: 保存していた中身(なければ null → 新しいノート),
+ *     panels: { intro, find, eval, opt, refl, rec },   // タブの中身を入れる要素(MondaiNote.TABS の id)
+ *     onChange: function (data) { 保存する },          // 何か変わるたびに呼ばれる(アダプタで間をあけて保存する)
+ *     go: function (tabId) { そのタブを開く },        // 「次へ」ボタンが使う
+ *     recordTools: 要素 または function () { return 要素; },  // 記録タブに置く、書き出し・読み込みなどのボタン
+ *     furikaeri: function () { return 振り返りを出すなら true },  // 省くと EduitFrame.furikaeri を見る
+ *     confirm: function (msg) { return Promise<true|false> },     // 省くと window.confirm
+ *     afterRender: function (el) { ふりがなを付けるなど }         // 画面を作ったあと・書きかえたあとに呼ぶ(省いてよい)
+ *   });
+ *   note.setData(data) … 読み込んだノートに入れかえる / note.data … 今の中身 / note.render(tabId) / note.print()
+ * 画面のない所(node のテスト・振り返り一覧)では、下の「計算」の関数だけを使える。
+ */
+(function (root) {
+  'use strict';
+  var MN = (root.MondaiNote = root.MondaiNote || {});
+
+  MN.VERSION = 1;
+  // アプリの中のタブ(この順・この名前)。reflect は振り返り(data-ef-reflect を付ける)
+  MN.TABS = [
+    { id: 'intro', label: 'はじめに' },
+    { id: 'find', num: '①', label: '問題の発見', level: 'basic' },
+    { id: 'eval', num: '②', label: '評価、改善・修正', level: 'basic' },
+    { id: 'opt', num: '③', label: '技術の最適化', level: 'advanced' },
+    { id: 'refl', label: '振り返り', reflect: true },
+    { id: 'rec', label: '記録' }
+  ];
+  MN.LEVEL_WORDS = ['', 'もう少し', 'やや足りない', 'ふつう', 'よい', 'とてもよい'];
+  MN.WEIGHT_WORDS = ['気にしない', '少し', '大事', 'とても大事'];
+  MN.LIMIT_CHIPS = ['時間', '費用', '材料・部品', '道具・機器', '大きさ', '場所', '安全'];
+  MN.SELF = [
+    { k: 'find', label: '身の回りから問題を見つけ、問題と課題を分けて書けた' },
+    { k: 'eval', label: '観点を決めて評価し、改善・修正の方法を考えられた' },
+    { k: 'opt', label: '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった' }
+  ];
+  MN.SELF_LV = [['3', 'できた'], ['2', 'だいたいできた'], ['1', 'もう少し']];
+
+  /* ================= 計算(画面がなくても使える) ================= */
+  MN.dom = function (d) { return (MN.DOMAINS && (MN.DOMAINS[d] || MN.DOMAINS.A)) || null; };
+  MN.critOf = function (dom, p) { return (p && p.crit) || dom.optCrit; };
+  MN.presetsOf = function (dom, p) { return (p && p.presets) || dom.presets; };
+  MN.product = function (dom, id) {
+    for (var i = 0; i < dom.products.length; i++) if (dom.products[i].id === id) return dom.products[i];
+    return dom.products[0];
+  };
+  function str(v) { return v == null ? '' : String(v); }
+  function obj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+  function arr(v) { return Array.isArray(v) ? v : []; }
+
+  MN.defaults = function (domain) {
+    var dom = MN.dom(domain);
+    return {
+      v: MN.VERSION, domain: domain || 'A',
+      cards: [],
+      quiz: { order: [], i: 0, ans: {}, last: null, best: null },
+      task: { problem: '', who: '', goal: '', kadai: '', limits: [], limitNote: '', vp: [] },
+      ev: { title: '', mode: 'res', res: {}, tgt: {}, process: {}, good: '', improve: '', newProblem: '' },
+      opt: { product: dom ? dom.products[0].id : '', weights: {}, limits: {}, wins: {}, notice: '', compare: '' },
+      refl: { self: {}, learned: '', next: '' },
+      student: { cls: '', no: '', name: '' }
+    };
+  };
+  // 読み込んだ中身の足りないところをうめる(こわれた値は直す)
+  MN.normalize = function (data, domain) {
+    var d = obj(data), base = MN.defaults(domain || d.domain);
+    Object.keys(base).forEach(function (k) {
+      var b = base[k];
+      if (b && typeof b === 'object' && !Array.isArray(b)) {
+        var cur = obj(d[k]);
+        Object.keys(b).forEach(function (kk) { if (cur[kk] === undefined || (Array.isArray(b[kk]) && !Array.isArray(cur[kk]))) cur[kk] = b[kk]; });
+        d[k] = cur;
+      } else if (Array.isArray(b)) d[k] = arr(d[k]);
+      else if (d[k] === undefined) d[k] = b;
+    });
+    d.domain = domain || d.domain || 'A';
+    d.cards = d.cards.filter(function (c) { return c && typeof c === 'object'; }).map(function (c) {
+      return { id: str(c.id) || uid(), text: str(c.text), vp: arr(c.vp).map(str), star: !!c.star };
+    });
+    return d;
+  };
+  function uid() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  MN.uid = uid;
+
+  // 重み(0〜3)。決めていない観点は 1
+  MN.weightsOf = function (data, dom, p) {
+    var w = obj(obj(data.opt).weights)[p.id] || {}, out = {};
+    MN.critOf(dom, p).forEach(function (c) { var v = +w[c.k]; out[c.k] = isFinite(v) && w[c.k] !== undefined ? Math.max(0, Math.min(3, Math.round(v))) : 1; });
+    return out;
+  };
+  // 点数(100点満点)と順位。limitsOn は使う制約条件の番号の配列
+  MN.rank = function (dom, p, weights, limitsOn) {
+    var crit = MN.critOf(dom, p), sumW = 0;
+    crit.forEach(function (c) { sumW += weights[c.k] || 0; });
+    var lim = arr(limitsOn).map(function (i) { return (p.limits || [])[i]; }).filter(Boolean);
+    var list = p.options.map(function (o, idx) {
+      var raw = 0;
+      crit.forEach(function (c) { raw += (weights[c.k] || 0) * (o.s[c.k] || 0); });
+      var fails = lim.filter(function (l) { return (o.s[l.k] || 0) < l.min; });
+      return { id: o.id, idx: idx, name: o.name, opt: o, score: sumW ? Math.round(raw / (sumW * 5) * 100) : 0, raw: raw, ok: !fails.length, fails: fails };
+    });
+    list.sort(function (a, b) { return (b.ok - a.ok) || (b.raw - a.raw) || (a.idx - b.idx); });
+    var top = list[0];
+    // 1位がほかと同じ点(同点)なら「1位」は決まらない
+    var tie = list.length > 1 && list[1].ok === top.ok && list[1].raw === top.raw;
+    list.forEach(function (r, i) { r.rank = i + 1; });
+    return { list: list, best: top.ok && sumW && !tie ? top.id : '', tie: tie && !!sumW, none: !top.ok, sumW: sumW };
+  };
+
+  // 記録・印刷・先生用の一覧に出す要約: [{ title, rows: [[見出し, 値]] }]
+  MN.summary = function (data, domain) {
+    var d = MN.normalize(JSON.parse(JSON.stringify(data || {})), domain || (data && data.domain));
+    var dom = MN.dom(d.domain), out = [];
+    var vpName = {}; MN.VP.forEach(function (v) { vpName[v.k] = v.label; });
+    var q = d.quiz.last;
+    out.push({ title: '① 問題の発見と課題の設定', rows: [
+      ['集めた付箋', d.cards.length ? d.cards.map(function (c) { return (c.star ? '★' : '・') + c.text + (c.vp.length ? '(' + c.vp.map(function (k) { return vpName[k] || k; }).join('・') + ')' : ''); }).join('\n') : ''],
+      ['問題?課題? クイズ', q ? q.score + ' / ' + q.total + (d.quiz.best != null ? '(最高 ' + d.quiz.best + ')' : '') : ''],
+      ['問題', d.task.problem], ['困っている人', d.task.who], ['どうなれば解決するか', d.task.goal], ['課題', d.task.kadai],
+      ['観点', d.task.vp.map(function (k) { return vpName[k] || k; }).join('・')],
+      ['制約条件', d.task.limits.join('・') + (d.task.limitNote ? (d.task.limits.length ? '/' : '') + d.task.limitNote : '')]
+    ] });
+    var ev = d.ev;
+    var sc = dom.evalCrit.map(function (c) {
+      var r = ev.res[c.k], t = ev.tgt[c.k];
+      return r || t ? c.label + ' ' + (r || '-') + (t ? '(目標 ' + t + ')' : '') : '';
+    }).filter(Boolean).join('、');
+    var pr = dom.process.filter(function (x, i) { return ev.process[i]; });
+    out.push({ title: '② 評価、改善・修正', rows: [
+      [dom.work, ev.title], ['観点ごとの評価(5段階)', sc],
+      ['過程の評価', pr.length ? pr.join('\n') + '(' + pr.length + ' / ' + dom.process.length + ')' : ''],
+      ['よかった点', ev.good], ['改善・修正の方法', ev.improve], ['新たに見つけた問題', ev.newProblem]
+    ] });
+    var tried = dom.products.filter(function (p) { return arr(d.opt.wins[p.id]).length || d.opt.weights[p.id]; });
+    var optRows = tried.map(function (p) {
+      var w = MN.weightsOf(d, dom, p), r = MN.rank(dom, p, w, d.opt.limits[p.id]);
+      var crit = MN.critOf(dom, p);
+      var won = arr(d.opt.wins[p.id]).map(function (id) { for (var i = 0; i < p.options.length; i++) if (p.options[i].id === id) return p.options[i].name; return id; });
+      return [p.name, '重み: ' + crit.map(function (c) { return c.label + '×' + w[c.k]; }).join(' ') +
+        '\n1位: ' + (r.best ? r.list[0].name + '(' + r.list[0].score + '点)' : r.tie ? '同点' : '-') +
+        (won.length ? '\n1位にできた案: ' + won.join('・') + '(' + won.length + ' / ' + p.options.length + ')' : '')];
+    });
+    out.push({ title: '③ 技術の最適化', rows: optRows.concat([
+      ['重みや制約条件を変えて気づいたこと', d.opt.notice], ['自分の問題解決と社会の問題解決', d.opt.compare]
+    ]) });
+    var self = MN.SELF.map(function (s) {
+      var lv = MN.SELF_LV.filter(function (x) { return x[0] === d.refl.self[s.k]; })[0];
+      return lv ? s.label + ': ' + lv[1] : '';
+    }).filter(Boolean).join('\n');
+    out.push({ title: '振り返り', reflect: true, rows: [['自己評価', self], ['分かったこと・できるようになったこと', d.refl.learned], ['これからの問題解決に生かしたいこと', d.refl.next]] });
+    return out;
+  };
+
+  /* ---------- レーダーチャート(SVG の文字列。色・線の形・印の形で系列を区別する) ---------- */
+  MN.SERIES = [
+    { color: '#1f6feb', dash: '', marker: 'circle', mark: '●' },
+    { color: '#c2410c', dash: '7 4', marker: 'square', mark: '■' },
+    { color: '#15803d', dash: '2 4', marker: 'triangle', mark: '▲' }
+  ];
+  function esc(s) { return str(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  MN.esc = esc;
+  MN.radarSVG = function (axes, series, opt) {
+    opt = opt || {};
+    var n = axes.length, max = opt.max || 5, R = 100, cx = 200, cy = 140, W = 400, H = 285;
+    function pt(i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + Math.cos(a) * R * v / max, cy + Math.sin(a) * R * v / max]; }
+    function poly(vals) { return vals.map(function (v, i) { var p = pt(i, Math.max(0, Math.min(max, +v || 0))); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    var s = '<svg class="mn-radar" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opt.label || 'レーダーチャート') + '" xmlns="http://www.w3.org/2000/svg">';
+    for (var lv = 1; lv <= max; lv++) {
+      var ring = []; for (var i = 0; i < n; i++) ring.push(lv);
+      s += '<polygon points="' + poly(ring) + '" fill="' + (lv === max ? '#fbfaf7' : 'none') + '" stroke="#d6d3cb" stroke-width="1"/>';
+    }
+    for (i = 0; i < n; i++) {
+      var o = pt(i, max), lp = pt(i, max * 1.2), anchor = Math.abs(lp[0] - cx) < 8 ? 'middle' : lp[0] > cx ? 'start' : 'end';
+      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + o[0].toFixed(1) + '" y2="' + o[1].toFixed(1) + '" stroke="#d6d3cb"/>';
+      s += '<text x="' + lp[0].toFixed(1) + '" y="' + (lp[1] + 5).toFixed(1) + '" text-anchor="' + anchor + '" font-size="14" fill="#1f2328">' + esc(axes[i]) + '</text>';
+    }
+    for (lv = 1; lv <= max; lv++) { var lb = pt(0, lv); s += '<text x="' + (lb[0] + 4) + '" y="' + (lb[1] + 4) + '" font-size="10" fill="#8a8f98">' + lv + '</text>'; }
+    (series || []).forEach(function (se, si) {
+      var st = MN.SERIES[(se.style != null ? se.style : si) % MN.SERIES.length];
+      if (!se.values.some(function (v) { return +v > 0; })) return;
+      s += '<polygon points="' + poly(se.values) + '" fill="' + st.color + '" fill-opacity="' + (se.fill != null ? se.fill : 0.1) + '" stroke="' + st.color + '" stroke-width="' + (se.bold ? 3.5 : 2.5) + '"' + (st.dash ? ' stroke-dasharray="' + st.dash + '"' : '') + ' stroke-linejoin="round"/>';
+      se.values.forEach(function (v, i) {
+        var p = pt(i, Math.max(0, Math.min(max, +v || 0))), x = p[0], y = p[1], r = 5;
+        if (st.marker === 'square') s += '<rect x="' + (x - r) + '" y="' + (y - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="' + st.color + '"/>';
+        else if (st.marker === 'triangle') s += '<polygon points="' + x + ',' + (y - r * 1.3) + ' ' + (x + r * 1.15) + ',' + (y + r * 0.8) + ' ' + (x - r * 1.15) + ',' + (y + r * 0.8) + '" fill="' + st.color + '"/>';
+        else s += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + st.color + '"/>';
+      });
+    });
+    return s + '</svg>';
+  };
+
+  if (typeof document === 'undefined') return;  // ここから下は画面の部品
+
+  /* ================= 画面 ================= */
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if (k === 'value') el.value = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+    return el;
+  }
+  function add(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+    el.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  MN.h = h;
+  function btn(label, onclick, cls, attrs) {
+    var a = { type: 'button', class: 'mn-btn' + (cls ? ' ' + cls : ''), onclick: onclick };
+    if (attrs) Object.keys(attrs).forEach(function (k) { a[k] = attrs[k]; });
+    return h('button', a, label);
+  }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var seq = 0;
+
+  MN.mount = function (opts) {
+    var dom = MN.dom(opts.domain);
+    var P = opts.panels || {};
+    var D = MN.normalize(opts.data ? JSON.parse(JSON.stringify(opts.data)) : null, opts.domain);
+    var api = { data: D };
+    var idp = 'mn' + (++seq) + '-';
+    var vpBy = {}; MN.VP.forEach(function (v) { vpBy[v.k] = v; });
+    function reflOn() { if (opts.furikaeri) return !!opts.furikaeri(); return !(root.EduitFrame && root.EduitFrame.furikaeri === false); }
+    function changed() { if (opts.onChange) opts.onChange(D); }
+    function go(id) { if (opts.go) opts.go(id); }
+    function tabName(id) { for (var i = 0; i < MN.TABS.length; i++) if (MN.TABS[i].id === id) return (MN.TABS[i].num ? MN.TABS[i].num + ' ' : '') + MN.TABS[i].label; return id; }
+    function nextBar(id, label) {
+      if (id === 'refl' && !reflOn()) id = 'rec';
+      return h('div', { class: 'mn-next' }, btn((label || '次へ: ' + tabName(id)) + ' ▶', function () { go(id); scrollTop(); }, 'mn-btn-primary'));
+    }
+    function scrollTop() { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } }
+    function field(label, key, objRef, o) {
+      o = o || {};
+      var id = idp + key + '-' + Math.random().toString(36).slice(2, 6);
+      var inp = o.rows === 0
+        ? h('input', { id: id, type: 'text', maxlength: o.max || 60, value: objRef[key] || '', placeholder: o.ph || null })
+        : h('textarea', { id: id, rows: o.rows || 3, maxlength: o.max || 600, placeholder: o.ph || null });
+      if (inp.tagName === 'TEXTAREA') inp.value = objRef[key] || '';
+      inp.addEventListener('input', function () { objRef[key] = inp.value; changed(); if (o.oninput) o.oninput(); });
+      return h('div', { class: 'mn-field' }, h('label', { for: id }, label), o.help ? h('p', { class: 'mn-help' }, o.help) : null, inp);
+    }
+    function card(title, lead) {
+      var c = h('section', { class: 'mn-card' });
+      if (title) c.appendChild(h('h2', null, title));
+      if (lead) c.appendChild(h('p', { class: 'mn-lead' }, lead));
+      for (var i = 2; i < arguments.length; i++) add(c, arguments[i]);
+      return c;
+    }
+    function vpIcon(k, small) {
+      var v = vpBy[k]; if (!v) return null;
+      return h('span', { class: 'mn-vp mn-vp-' + k + (small ? ' mn-vp-s' : ''), title: v.hint }, h('span', { 'aria-hidden': 'true', class: 'mn-vp-i' }, v.icon), v.label);
+    }
+
+    /* ---------- はじめに ---------- */
+    function renderIntro() {
+      var el = P.intro; if (!el) return; el.innerHTML = '';
+      var flow = [['問題の発見', 'find'], ['課題の設定', 'find'], ['構想', ''], [dom.make === '育てる' ? '育成' : '製作', ''], ['評価', 'eval'], ['改善・修正', 'eval']];
+      el.appendChild(card('問題解決ノートで、すること',
+        dom.name + 'で学んだことを生かして、自分の問題解決をノートにまとめます。最後に、社会の技術の問題解決とくらべます。',
+        h('ol', { class: 'mn-flow', 'aria-label': '問題解決の流れ' }, flow.map(function (f, i) {
+          return h('li', { class: f[1] ? 'on' : '' }, h('span', { class: 'mn-flow-n' }, (f[1] ? '▶ ' : '') + (i + 1)), ' ' + f[0]);
+        })),
+        h('p', { class: 'mn-help' }, '▶ = このノートでとりくむ段階(構想と' + (dom.make === '育てる' ? '育成' : '製作') + 'は、ほかの教材や実習でとりくみます)'),
+        h('div', { class: 'mn-steps' },
+          stepBox('①', '問題の発見', '「こうだったらいいのに」「不便だな」を付箋に書いて集め、問題と課題を分けて、自分の課題を1つ決めます。', 'find'),
+          stepBox('②', '評価、改善・修正', '作った' + dom.work + 'を観点ごとに5段階で評価し、レーダーチャートにします。よかった点・改善点を書きます。', 'eval'),
+          stepBox('③', '技術の最適化', '社会の製品をえらび、観点の重みを変えると「いちばんよい案」が入れかわることを試します。', 'opt'))));
+      el.appendChild(card('問題と課題のちがい', null,
+        h('div', { class: 'mn-two' },
+          h('div', { class: 'mn-def mn-def-mondai' }, h('h3', null, '問題'), h('p', null, '生活の中で「こうだったらいいのにな」と思ったり、不便さを感じたりすること。'), h('p', { class: 'mn-eg' }, '例: ' + dom.quiz[0].text)),
+          h('div', { class: 'mn-def mn-def-kadai' }, h('h3', null, '課題'), h('p', null, '問題を解決するために、何を、どのようにするかを具体的に決めたもの。'), h('p', { class: 'mn-eg' }, '例: ' + dom.quiz[1].text))),
+        h('h3', null, '技術の見方・考え方の観点'),
+        h('p', null, '問題を見つけるときや評価するときは、次の観点から考えます。付箋にもアイコンを付けます。'),
+        h('ul', { class: 'mn-vplist' }, MN.VP.map(function (v) { return h('li', null, vpIcon(v.k), ' ', h('span', { class: 'mn-help' }, v.hint)); }))));
+      el.appendChild(nextBar('find', '① 問題の発見から始める'));
+    }
+    function stepBox(n, title, text, tab) {
+      return h('button', { type: 'button', class: 'mn-step', onclick: function () { go(tab); scrollTop(); } },
+        h('span', { class: 'mn-step-n' }, n), h('b', null, title), h('span', { class: 'mn-step-t' }, text));
+    }
+
+    /* ---------- ① 問題の発見 ---------- */
+    var findBoard = null, findPreview = null, quizBox = null, problemInput = null;
+    function renderFind() {
+      var el = P.find; if (!el) return; el.innerHTML = '';
+      // 付箋を書く
+      var txt = h('input', { type: 'text', id: idp + 'note', maxlength: 60, placeholder: '例: ' + dom.samples[0].text, class: 'mn-note-in' });
+      var pick = [];
+      var vpBtns = MN.VP.map(function (v) {
+        var b = h('button', { type: 'button', class: 'mn-vpbtn mn-vp-' + v.k, 'aria-pressed': 'false', title: v.hint, onclick: function () {
+          var i = pick.indexOf(v.k); if (i >= 0) pick.splice(i, 1); else pick.push(v.k);
+          b.setAttribute('aria-pressed', String(pick.indexOf(v.k) >= 0));
+        } }, h('span', { 'aria-hidden': 'true' }, v.icon), v.label);
+        return b;
+      });
+      function addNote() {
+        var t = txt.value.trim();
+        if (!t) { txt.focus(); return; }
+        D.cards.push({ id: uid(), text: t, vp: pick.slice(), star: false });
+        txt.value = ''; pick.length = 0; vpBtns.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+        changed(); drawBoard(true); txt.focus();
+      }
+      txt.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); addNote(); } });
+      var hints = h('div', { class: 'mn-chips' }, h('span', { class: 'mn-help' }, 'ヒント(押すと書く欄に入ります):'), dom.samples.map(function (s) {
+        return h('button', { type: 'button', class: 'mn-chip', onclick: function () {
+          txt.value = s.text; pick.length = 0; s.vp.forEach(function (k) { pick.push(k); });
+          vpBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', String(pick.indexOf(MN.VP[i].k) >= 0)); });
+          txt.focus();
+        } }, s.text);
+      }));
+      findBoard = h('div', { class: 'mn-board', 'aria-label': '集めた付箋' });
+      el.appendChild(card('1. 「こうだったらいいのに」「不便だな」を集めよう', dom.lets,
+        h('div', { class: 'mn-noteform' },
+          h('label', { for: idp + 'note', class: 'mn-sr' }, '付箋に書くこと'), txt,
+          h('div', { class: 'mn-vpbtns', role: 'group', 'aria-label': 'どの観点から見た問題か' }, h('span', { class: 'mn-help' }, '観点:'), vpBtns),
+          btn('＋ 付箋をはる', addNote, 'mn-btn-primary')),
+        hints,
+        h('div', { class: 'mn-boardbar' },
+          h('span', { class: 'mn-help', id: idp + 'count' }),
+          btn('観点ごとに並べる', function () {
+            var order = MN.VP.map(function (v) { return v.k; });
+            var rank = function (c) { var r = c.vp.length ? Math.min.apply(null, c.vp.map(function (k) { var i = order.indexOf(k); return i < 0 ? 9 : i; })) : 9; return r; };
+            D.cards = D.cards.map(function (c, i) { return [c, i]; }).sort(function (a, b) { return rank(a[0]) - rank(b[0]) || a[1] - b[1]; }).map(function (x) { return x[0]; });
+            changed(); drawBoard();
+          }, 'mn-btn-s')),
+        findBoard,
+        h('p', { class: 'mn-help' }, '付箋はドラッグ(または ◀ ▶)で並べかえられます。観点のアイコンを押すと付けたり外したりできます。いちばん解決したい付箋に ★ を付けましょう。')));
+      drawBoard();
+
+      // 問題?課題? クイズ
+      quizBox = h('div', { class: 'mn-quiz', 'aria-live': 'polite' });
+      el.appendChild(card('2. これは問題? 課題? クイズ', '「問題」は不便さや「こうだったらいいのに」と思うこと、「課題」は問題を解決するために何をどうするかを決めたものです。', quizBox));
+      drawQuiz();
+
+      // 自分の課題を決める
+      var T = D.task;
+      findPreview = h('div', { class: 'mn-taskcard' });
+      var pf = field('問題(★を付けた付箋が入ります。書きかえてもよい)', 'problem', T, { rows: 2, max: 200, oninput: drawPreview });
+      problemInput = pf.querySelector('textarea');
+      var kf = field('課題(何を、どのように' + dom.make + 'か)', 'kadai', T, { rows: 3, max: 300, ph: dom.kadaiHint, oninput: drawPreview });
+      var kadaiInput = kf.querySelector('textarea');
+      var tmpl = btn('文の形を入れる', function () {
+        var put = function () {
+          kadaiInput.value = '(　　　)が(　　　)ように、(　　　)を' + dom.make + '。';
+          T.kadai = kadaiInput.value; changed(); drawPreview(); kadaiInput.focus();
+        };
+        if (kadaiInput.value.trim()) confirmAsk('今書いてある課題を、文の形に入れかえますか?', put); else put();
+      }, 'mn-btn-s');
+      var lim = h('div', { class: 'mn-chips', role: 'group', 'aria-label': '制約条件' }, MN.LIMIT_CHIPS.map(function (c) {
+        var on = T.limits.indexOf(c) >= 0;
+        var b = h('button', { type: 'button', class: 'mn-chip mn-toggle', 'aria-pressed': String(on), onclick: function () {
+          var i = T.limits.indexOf(c); if (i >= 0) T.limits.splice(i, 1); else T.limits.push(c);
+          b.setAttribute('aria-pressed', String(T.limits.indexOf(c) >= 0)); changed(); drawPreview();
+        } }, c);
+        return b;
+      }));
+      var vps = h('div', { class: 'mn-vpbtns', role: 'group', 'aria-label': '課題の観点' }, MN.VP.map(function (v) {
+        var b = h('button', { type: 'button', class: 'mn-vpbtn mn-vp-' + v.k, 'aria-pressed': String(T.vp.indexOf(v.k) >= 0), title: v.hint, onclick: function () {
+          var i = T.vp.indexOf(v.k); if (i >= 0) T.vp.splice(i, 1); else T.vp.push(v.k);
+          b.setAttribute('aria-pressed', String(T.vp.indexOf(v.k) >= 0)); changed(); drawPreview();
+        } }, h('span', { 'aria-hidden': 'true' }, v.icon), v.label);
+        return b;
+      }));
+      el.appendChild(card('3. 自分の課題を1つ決めよう', '問題を感じている人に話を聞いたり、ようすを観察したりして、どうなれば解決するかを考えます。それから、何を、どのように' + dom.make + 'かを決めて、課題にします。',
+        h('div', { class: 'mn-cols' },
+          h('div', null, pf,
+            field('困っている人(だれが)', 'who', T, { rows: 0, max: 60, ph: '例: 自分・家族・クラスのみんな', oninput: drawPreview }),
+            field('どうなれば解決するか', 'goal', T, { rows: 2, max: 200, oninput: drawPreview }),
+            kf, h('div', { class: 'mn-row' }, tmpl),
+            h('div', { class: 'mn-field' }, h('span', { class: 'mn-label' }, '大事にしたい観点'), vps),
+            h('div', { class: 'mn-field' }, h('span', { class: 'mn-label' }, '制約条件(守らなければならない条件)'), lim),
+            field('制約条件のくわしいこと', 'limitNote', T, { rows: 0, max: 100, ph: '例: 費用は500円まで・授業4時間で作る', oninput: drawPreview })),
+          h('div', null, h('h3', null, 'わたしの課題カード'), findPreview))));
+      drawPreview();
+      el.appendChild(nextBar('eval'));
+    }
+    // たしかめる(分野のページが opts.confirm(msg) → Promise<true|false> を渡せば、それを使う)
+    function confirmAsk(msg, then) {
+      if (opts.confirm) { opts.confirm(msg).then(function (ok) { if (ok) then(); }); return; }
+      var ok = true; try { ok = window.confirm(msg); } catch (e) {}
+      if (ok) then();
+    }
+    function drawPreview() {
+      if (!findPreview) return;
+      var T = D.task; findPreview.innerHTML = '';
+      var row = function (k, v) { return h('div', { class: 'mn-tc-row' }, h('span', { class: 'mn-tc-k' }, k), h('span', { class: 'mn-tc-v' + (v ? '' : ' mn-empty') }, v || 'まだ書いていません')); };
+      add(findPreview, [row('問題', T.problem.trim()), row('だれが', T.who.trim()), row('解決したすがた', T.goal.trim()),
+        h('div', { class: 'mn-tc-kadai' }, h('span', { class: 'mn-tc-k' }, '課題'), h('b', { class: T.kadai.trim() ? '' : 'mn-empty' }, T.kadai.trim() || 'まだ書いていません')),
+        h('div', { class: 'mn-tc-row' }, h('span', { class: 'mn-tc-k' }, '観点'), h('span', { class: 'mn-tc-v' }, T.vp.length ? T.vp.map(function (k) { return vpIcon(k, true); }) : h('span', { class: 'mn-empty' }, 'えらんでいません'))),
+        row('制約条件', T.limits.join('・') + (T.limitNote ? (T.limits.length ? '/' : '') + T.limitNote : ''))]);
+    }
+    var drag = null;
+    function drawBoard(newLast) {
+      if (!findBoard) return;
+      findBoard.innerHTML = '';
+      var cnt = document.getElementById(idp + 'count');
+      if (cnt) cnt.textContent = '付箋 ' + D.cards.length + ' まい' + (D.cards.length < 3 ? '(3まい以上書いてみよう)' : '');
+      if (!D.cards.length) { findBoard.appendChild(h('p', { class: 'mn-empty mn-board-empty' }, 'まだ付箋がありません。上の欄に書いて「付箋をはる」を押しましょう。')); return; }
+      D.cards.forEach(function (c, i) {
+        var main = c.vp[0] || 'none';
+        var note = h('div', { class: 'mn-note mn-note-' + main + (c.star ? ' is-star' : '') + (newLast && i === D.cards.length - 1 ? ' is-new' : ''), 'data-id': c.id },
+          h('div', { class: 'mn-note-vps' }, MN.VP.map(function (v) {
+            var on = c.vp.indexOf(v.k) >= 0;
+            return h('button', { type: 'button', class: 'mn-note-vp' + (on ? ' on' : ''), 'aria-pressed': String(on), title: v.label + '(' + v.hint + ')', 'aria-label': v.label, onclick: function () {
+              var j = c.vp.indexOf(v.k); if (j >= 0) c.vp.splice(j, 1); else c.vp.push(v.k);
+              changed(); drawBoard();
+            } }, v.icon);
+          })),
+          h('p', { class: 'mn-note-t' }, c.text),
+          h('div', { class: 'mn-note-bar' },
+            h('button', { type: 'button', class: 'mn-note-b mn-star', 'aria-pressed': String(c.star), title: 'いちばん解決したい', onclick: function () { setStar(c); } }, c.star ? '★' : '☆'),
+            h('span', { class: 'mn-grow' }),
+            h('button', { type: 'button', class: 'mn-note-b', 'aria-label': '前へ', disabled: i === 0, onclick: function () { move(i, i - 1); } }, '◀'),
+            h('button', { type: 'button', class: 'mn-note-b', 'aria-label': '後ろへ', disabled: i === D.cards.length - 1, onclick: function () { move(i, i + 1); } }, '▶'),
+            h('button', { type: 'button', class: 'mn-note-b mn-del', 'aria-label': '付箋を消す', onclick: function () { D.cards.splice(i, 1); changed(); drawBoard(); } }, '✕')));
+        note.addEventListener('pointerdown', function (e) { startDrag(e, note, c.id); });
+        findBoard.appendChild(note);
+      });
+    }
+    function setStar(c) {
+      var was = c.star, prev = null;
+      D.cards.forEach(function (x) { if (x.star) prev = x; x.star = false; });
+      c.star = !was;
+      // 問題の欄が空か、前の★の付箋のままなら、新しい★の付箋を入れる
+      if (c.star && (!D.task.problem.trim() || (prev && D.task.problem === prev.text))) {
+        D.task.problem = c.text;
+        if (problemInput) problemInput.value = c.text;
+        drawPreview();
+      }
+      changed(); drawBoard();
+    }
+    function move(from, to) {
+      if (to < 0 || to >= D.cards.length) return;
+      var c = D.cards.splice(from, 1)[0]; D.cards.splice(to, 0, c); changed(); drawBoard();
+    }
+    function startDrag(e, note, id) {
+      if (e.button > 0 || (e.target.closest && e.target.closest('button'))) return;
+      drag = { id: id, note: note, x: e.clientX, y: e.clientY, on: false, target: null, after: false };
+      var moveH = function (ev) {
+        if (!drag) return;
+        var dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+        if (!drag.on && Math.abs(dx) + Math.abs(dy) < 8) return;
+        if (!drag.on) { drag.on = true; note.classList.add('is-drag'); try { note.setPointerCapture(ev.pointerId); } catch (x) {} }
+        ev.preventDefault();
+        note.style.transform = 'translate(' + dx + 'px,' + dy + 'px) rotate(2deg)';
+        note.style.pointerEvents = 'none';
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        note.style.pointerEvents = '';
+        var t = under && under.closest && under.closest('.mn-note');
+        Array.prototype.forEach.call(findBoard.querySelectorAll('.mn-drop-b,.mn-drop-a'), function (n) { n.classList.remove('mn-drop-b', 'mn-drop-a'); });
+        if (t && t !== note) {
+          var r = t.getBoundingClientRect(); drag.after = ev.clientX > r.left + r.width / 2; drag.target = t.getAttribute('data-id');
+          t.classList.add(drag.after ? 'mn-drop-a' : 'mn-drop-b');
+        } else drag.target = null;
+      };
+      var up = function () {
+        document.removeEventListener('pointermove', moveH); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+        var d = drag; drag = null;
+        if (!d || !d.on) return;
+        note.style.transform = ''; note.classList.remove('is-drag');
+        if (d.target) {
+          var from = idx(d.id), c = D.cards.splice(from, 1)[0], to = idx(d.target) + (d.after ? 1 : 0);
+          D.cards.splice(to, 0, c); changed();
+        }
+        drawBoard();
+      };
+      document.addEventListener('pointermove', moveH); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+    }
+    function idx(id) { for (var i = 0; i < D.cards.length; i++) if (D.cards[i].id === id) return i; return -1; }
+
+    function drawQuiz() {
+      if (!quizBox) return;
+      var Q = D.quiz, items = dom.quiz;
+      if (!Q.order.length || Q.order.length !== items.length) { Q.order = shuffle(items.map(function (x, i) { return i; })); Q.i = 0; Q.ans = {}; }
+      quizBox.innerHTML = '';
+      if (Q.i >= items.length) {
+        var ok = Q.order.filter(function (k) { return Q.ans[k] === items[k].t; }).length;
+        quizBox.appendChild(h('div', { class: 'mn-quiz-end' },
+          h('p', { class: 'mn-big' }, ok === items.length ? '🎉 全問正解!' : ok + ' / ' + items.length + ' 問 正解'),
+          h('p', null, '「問題」は困っていることや願い、「課題」はそれを解決するために何をどうするかを決めたもの。自分の付箋も、問題か課題かを見直してみましょう。'),
+          btn('もう一度(順番が変わります)', function () { Q.order = []; changed(); drawQuiz(); })));
+        return;
+      }
+      var k = Q.order[Q.i], it = items[k], ans = Q.ans[k];
+      var choose = function (t) {
+        if (Q.ans[k]) return;
+        Q.ans[k] = t;
+        if (Q.i === items.length - 1) {
+          var ok2 = Q.order.filter(function (j) { return Q.ans[j] === items[j].t; }).length;
+          Q.last = { score: ok2, total: items.length }; Q.best = Math.max(Q.best || 0, ok2);
+        }
+        changed(); drawQuiz();
+      };
+      var mk = function (t, label) {
+        var cls = 'mn-qbtn mn-qbtn-' + t;
+        if (ans) cls += t === it.t ? ' is-right' : ans === t ? ' is-wrong' : '';
+        return h('button', { type: 'button', class: cls, disabled: !!ans, onclick: function () { choose(t); } }, label);
+      };
+      quizBox.appendChild(h('p', { class: 'mn-help' }, (Q.i + 1) + ' / ' + items.length + ' 問目'));
+      quizBox.appendChild(h('p', { class: 'mn-qtext' }, '「' + it.text + '」'));
+      quizBox.appendChild(h('div', { class: 'mn-qbtns' }, mk('mondai', '問題'), mk('kadai', '課題')));
+      if (ans) {
+        quizBox.appendChild(h('p', { class: 'mn-qfb ' + (ans === it.t ? 'is-right' : 'is-wrong') }, (ans === it.t ? '○ 正解! ' : '× ざんねん。 ') + it.why));
+        quizBox.appendChild(btn(Q.i === items.length - 1 ? '結果を見る ▶' : '次の問題 ▶', function () { Q.i++; changed(); drawQuiz(); }, 'mn-btn-primary'));
+      }
+    }
+
+    /* ---------- ② 評価、改善・修正 ---------- */
+    var evRadar = null, evHints = null, evRows = {};
+    function renderEval() {
+      var el = P.eval; if (!el) return; el.innerHTML = '';
+      var E = D.ev;
+      var modeBtns = [['res', 'できあがり(評価)'], ['tgt', 'はじめの目標']].map(function (m) {
+        return h('button', { type: 'button', class: 'mn-seg-b', 'aria-pressed': String(E.mode === m[0]), onclick: function () { E.mode = m[0]; changed(); renderEval(); } },
+          h('span', { 'aria-hidden': 'true', style: 'color:' + MN.SERIES[m[0] === 'res' ? 0 : 1].color }, MN.SERIES[m[0] === 'res' ? 0 : 1].mark + ' '), m[1]);
+      });
+      var list = h('div', { class: 'mn-crit' });
+      evRows = {};
+      dom.evalCrit.forEach(function (c) {
+        var cur = E[E.mode][c.k] || 0, other = E[E.mode === 'res' ? 'tgt' : 'res'][c.k];
+        var btns = [1, 2, 3, 4, 5].map(function (n) {
+          return h('button', { type: 'button', class: 'mn-lv' + (n <= cur ? ' fill' : ''), 'aria-pressed': String(n === cur), 'aria-label': c.label + ' ' + n + '(' + MN.LEVEL_WORDS[n] + ')', title: MN.LEVEL_WORDS[n], onclick: function () {
+            E[E.mode][c.k] = E[E.mode][c.k] === n ? 0 : n; changed(); renderEval();
+          } }, String(n));
+        });
+        list.appendChild(h('div', { class: 'mn-crit-row' },
+          h('div', { class: 'mn-crit-l' }, h('b', null, c.label), h('span', { class: 'mn-help' }, c.hint)),
+          h('div', { class: 'mn-crit-b' }, h('div', { class: 'mn-lvs', role: 'group', 'aria-label': c.label }, btns),
+            h('span', { class: 'mn-crit-v' }, cur ? MN.LEVEL_WORDS[cur] : '—', other ? h('small', null, (E.mode === 'res' ? ' 目標 ' : ' 評価 ') + other) : null))));
+      });
+      evRadar = h('div', { class: 'mn-radar-wrap' });
+      evHints = h('div', { class: 'mn-hints' });
+      var good = field('よかった点', 'good', E, { rows: 3 }), imp = field('改善・修正の方法(どこを、どのように直すか)', 'improve', E, { rows: 3 });
+      el.appendChild(card('1. ' + dom.work + 'を観点ごとに評価しよう', '設定した課題を達成できたか、問題を解決できたかを、観点ごとに 1〜5 の5段階で評価します。「はじめの目標」も入れると、目標とくらべられます。',
+        field(dom.work + 'の名前', 'title', E, { rows: 0, max: 40, ph: dom.titleHint || '' }),
+        h('div', { class: 'mn-seg', role: 'group', 'aria-label': '入れる点' }, h('span', { class: 'mn-help' }, '入れる点:'), modeBtns),
+        h('div', { class: 'mn-evgrid' }, list, h('div', { class: 'mn-evside' }, evRadar, evHints))));
+      drawEvalRadar();
+      var pr = h('div', { class: 'mn-checks' }, dom.process.map(function (t, i) {
+        var id = idp + 'pr' + i;
+        var cb = h('input', { type: 'checkbox', id: id, onchange: function () { E.process[i] = cb.checked; changed(); } });
+        cb.checked = !!E.process[i];
+        return h('label', { class: 'mn-check', for: id }, cb, h('span', null, t));
+      }));
+      el.appendChild(card('2. ' + (dom.make === '育てる' ? '育成' : '製作') + 'の過程をふり返ろう', 'できあがりだけでなく、計画や作業の進め方が適切だったかも評価します。できたことにチェックを入れましょう。', pr));
+      el.appendChild(card('3. よかった点と改善・修正の方法を書こう', '評価をもとに、構想したとおりにならなかったところや、よりよくしたいところを見つけて、改善・修正の方法を考えます。',
+        h('div', { class: 'mn-cols' }, good, imp),
+        field('新たに見つけた問題(次の問題解決につなげる)', 'newProblem', E, { rows: 2 })));
+      el.appendChild(nextBar('opt'));
+    }
+    function drawEvalRadar() {
+      if (!evRadar) return;
+      var E = D.ev, axes = dom.evalCrit.map(function (c) { return c.label; });
+      var res = dom.evalCrit.map(function (c) { return E.res[c.k] || 0; }), tgt = dom.evalCrit.map(function (c) { return E.tgt[c.k] || 0; });
+      evRadar.innerHTML = MN.radarSVG(axes, [{ values: res, style: 0, bold: true }, { values: tgt, style: 1, fill: 0.03 }], { label: '評価のレーダーチャート' });
+      evRadar.appendChild(legend([['できあがり(評価)', 0], ['はじめの目標', 1]]));
+      evHints.innerHTML = '';
+      var filled = dom.evalCrit.filter(function (c) { return E.res[c.k]; });
+      if (filled.length < 2) { evHints.appendChild(h('p', { class: 'mn-help' }, '点を入れると、よかった点と改善点の候補がここに出ます。')); return; }
+      var max = Math.max.apply(null, filled.map(function (c) { return E.res[c.k]; }));
+      var min = Math.min.apply(null, filled.map(function (c) { return E.res[c.k]; }));
+      var goodC = filled.filter(function (c) { return E.res[c.k] === max && max >= 3; });
+      var badC = filled.filter(function (c) { return (E.res[c.k] === min && min < max) || (E.tgt[c.k] && E.res[c.k] < E.tgt[c.k]); });
+      var addTo = function (key, list, label) {
+        var cur = (D.ev[key] || '').trim();
+        var line = list.map(function (c) { return c.label + ': '; }).join('\n');
+        D.ev[key] = (cur ? cur + '\n' : '') + line;
+        var ta = P.eval.querySelectorAll('textarea')[key === 'good' ? 0 : 1];
+        if (ta) { ta.value = D.ev[key]; ta.focus(); }
+        changed();
+      };
+      if (goodC.length) evHints.appendChild(h('p', { class: 'mn-hint mn-hint-good' }, '👍 よかった点の候補: ', h('b', null, goodC.map(function (c) { return c.label; }).join('・')), ' ',
+        btn('書き足す', function () { addTo('good', goodC); }, 'mn-btn-s')));
+      if (badC.length) evHints.appendChild(h('p', { class: 'mn-hint mn-hint-bad' }, '🔧 改善点の候補: ', h('b', null, badC.map(function (c) { return c.label + (E.tgt[c.k] && E.res[c.k] < E.tgt[c.k] ? '(目標より ' + (E.tgt[c.k] - E.res[c.k]) + ' 低い)' : ''); }).join('・')), ' ',
+        btn('書き足す', function () { addTo('improve', badC); }, 'mn-btn-s')));
+      var avg = filled.reduce(function (s, c) { return s + E.res[c.k]; }, 0) / filled.length;
+      evHints.appendChild(h('p', { class: 'mn-help' }, '平均 ' + (Math.round(avg * 10) / 10) + ' 点(' + filled.length + ' / ' + dom.evalCrit.length + ' 観点)'));
+    }
+    function legend(items) {
+      return h('ul', { class: 'mn-legend' }, items.map(function (it) {
+        var st = MN.SERIES[it[1] % MN.SERIES.length];
+        return h('li', null, h('span', { 'aria-hidden': 'true', class: 'mn-legend-m', style: 'color:' + st.color }, st.mark + (st.dash ? ' - - -' : ' ───')), ' ', it[0]);
+      }));
+    }
+
+    /* ---------- ③ 技術の最適化 ---------- */
+    var optRes = null, lastBest = {};
+    function renderOpt() {
+      var el = P.opt; if (!el) return; el.innerHTML = '';
+      var O = D.opt, p = MN.product(dom, O.product), crit = MN.critOf(dom, p);
+      var tabs = h('div', { class: 'mn-prods', role: 'group', 'aria-label': '社会の製品・技術をえらぶ' }, dom.products.map(function (q) {
+        var won = arr(O.wins[q.id]).length;
+        return h('button', { type: 'button', class: 'mn-prod', 'aria-pressed': String(q.id === p.id), onclick: function () { O.product = q.id; changed(); renderOpt(); } },
+          h('span', { class: 'mn-prod-i', 'aria-hidden': 'true' }, q.icon), h('span', null, q.name), won ? h('small', null, '1位にできた案 ' + won + '/' + q.options.length) : null);
+      }));
+      if (!O.weights[p.id]) O.weights[p.id] = MN.weightsOf(D, dom, p);
+      var W = O.weights[p.id];
+      if (!Array.isArray(O.limits[p.id])) O.limits[p.id] = [];
+      var sliders = h('div', { class: 'mn-weights' }, crit.map(function (c) {
+        var id = idp + 'w-' + c.k;
+        var out = h('output', { for: id, class: 'mn-w-out' }, MN.WEIGHT_WORDS[W[c.k]] + ' ×' + W[c.k]);
+        var r = h('input', { type: 'range', id: id, min: 0, max: 3, step: 1, value: W[c.k] });
+        r.addEventListener('input', function () { W[c.k] = +r.value; out.textContent = MN.WEIGHT_WORDS[W[c.k]] + ' ×' + W[c.k]; changed(); drawOpt(); });
+        return h('div', { class: 'mn-w' }, h('label', { for: id }, c.label), r, out);
+      }));
+      var presets = h('div', { class: 'mn-chips', role: 'group', 'aria-label': '立場を決めて重みを入れる' }, h('span', { class: 'mn-help' }, 'だれの立場で考える?'), MN.presetsOf(dom, p).map(function (ps) {
+        return h('button', { type: 'button', class: 'mn-chip', onclick: function () {
+          crit.forEach(function (c) { W[c.k] = ps.w[c.k] != null ? ps.w[c.k] : 1; });
+          changed(); renderOpt();
+        } }, h('span', { 'aria-hidden': 'true' }, ps.icon + ' '), ps.label);
+      }).concat([h('button', { type: 'button', class: 'mn-chip', onclick: function () { crit.forEach(function (c) { W[c.k] = 1; }); changed(); renderOpt(); } }, '⚖️ 同じ重み')]));
+      var limits = (p.limits || []).length ? h('div', { class: 'mn-checks' }, h('span', { class: 'mn-label' }, '制約条件(これを守れない案は選べない)'), p.limits.map(function (l, i) {
+        var id = idp + 'lim' + i;
+        var cb = h('input', { type: 'checkbox', id: id, onchange: function () {
+          var a = O.limits[p.id], j = a.indexOf(i); if (cb.checked && j < 0) a.push(i); if (!cb.checked && j >= 0) a.splice(j, 1);
+          changed(); drawOpt();
+        } });
+        cb.checked = O.limits[p.id].indexOf(i) >= 0;
+        return h('label', { class: 'mn-check', for: id }, cb, h('span', null, l.label));
+      })) : null;
+      optRes = h('div', { class: 'mn-optres' });
+      el.appendChild(card('1. 社会の製品・技術をえらぼう', '社会の製品や技術も、いろいろな条件の折り合いをつけながら最適化されています。観点の重み(どれを大事にするか)を変えて、「いちばんよい案」がどう変わるか試しましょう。', tabs));
+      el.appendChild(card(p.icon + ' ' + p.q, null,
+        h('div', { class: 'mn-optgrid' },
+          h('div', null, presets, h('h3', null, '観点の重み'), sliders, limits),
+          optRes),
+        h('p', { class: 'mn-help' }, '点は、授業で考えるための目安です。実際の製品の性能は、種類や使い方によって変わります。')));
+      drawOpt();
+      el.appendChild(card('2. 気づいたことをまとめよう', null,
+        field('重みや制約条件を変えて気づいたこと(どこで折り合いをつけたか)', 'notice', O, { rows: 3 }),
+        field('自分の問題解決と、社会の問題解決の共通点とちがい', 'compare', O, { rows: 3, help: '自分が' + dom.work + 'を' + dom.make + 'ときにも、時間や費用などの制約条件の中で、何かを大事にして何かをあきらめましたか。' })));
+      el.appendChild(nextBar('refl'));
+    }
+    function drawOpt() {
+      if (!optRes) return;
+      var O = D.opt, p = MN.product(dom, O.product), crit = MN.critOf(dom, p), W = O.weights[p.id];
+      var r = MN.rank(dom, p, W, O.limits[p.id]);
+      var wins = O.wins[p.id] = arr(O.wins[p.id]);
+      var newWin = r.best && wins.indexOf(r.best) < 0;
+      if (newWin) { wins.push(r.best); changed(); }
+      var swapped = lastBest[p.id] !== undefined && r.best && lastBest[p.id] !== r.best;
+      lastBest[p.id] = r.best;
+      optRes.innerHTML = '';
+      var medals = ['🥇', '🥈', '🥉'];
+      var head = r.sumW === 0 ? '重みをどれか1つ以上「少し」以上にしましょう'
+        : r.none ? 'どの案も制約条件に合いません。条件を見直しましょう'
+        : r.tie ? '1位が同点です。重みを変えてみましょう'
+        : '今のいちばんよい案: ' + r.list[0].name;
+      optRes.appendChild(h('p', { class: 'mn-opt-head' + (swapped ? ' is-swap' : ''), 'aria-live': 'polite' }, swapped ? '🔄 1位が入れかわった! ' : '', head));
+      var ul = h('ol', { class: 'mn-rank' });
+      r.list.forEach(function (it, i) {
+        ul.appendChild(h('li', { class: 'mn-rank-i' + (it.ok ? '' : ' is-out') + (it.id === r.best ? ' is-best' : '') },
+          h('span', { class: 'mn-rank-m', 'aria-hidden': 'true' }, it.ok ? medals[i] || '' : '🚫'),
+          h('div', { class: 'mn-rank-b' },
+            h('div', { class: 'mn-rank-t' }, h('b', null, it.name), h('span', { class: 'mn-rank-s' }, it.ok ? it.score + ' 点' : '制約条件に合わない'),
+              h('span', { class: 'mn-rank-key', 'aria-hidden': 'true', style: 'color:' + MN.SERIES[it.idx % 3].color }, MN.SERIES[it.idx % 3].mark)),
+            h('div', { class: 'mn-bar' }, h('span', { style: 'width:' + (it.ok ? it.score : 0) + '%;background:' + MN.SERIES[it.idx % 3].color })),
+            h('p', { class: 'mn-help' }, it.opt.note, it.fails.length ? h('b', { class: 'mn-out' }, '(' + it.fails.map(function (f) { return f.label; }).join('・') + ')') : null))));
+      });
+      optRes.appendChild(ul);
+      var radar = h('div', { class: 'mn-radar-wrap mn-radar-s' });
+      radar.innerHTML = MN.radarSVG(crit.map(function (c) { return c.label; }), p.options.map(function (o, i) {
+        return { values: crit.map(function (c) { return o.s[c.k]; }), style: i, bold: o.id === r.best, fill: o.id === r.best ? 0.16 : 0.04 };
+      }), { label: p.name + 'の案のレーダーチャート' });
+      radar.appendChild(legend(p.options.map(function (o, i) { return [o.name, i]; })));
+      optRes.appendChild(radar);
+      optRes.appendChild(h('div', { class: 'mn-challenge' + (wins.length === p.options.length ? ' is-done' : '') },
+        h('b', null, wins.length === p.options.length ? '🏆 チャレンジ達成! ' : '🎯 チャレンジ: '),
+        '重みや制約条件を変えて、' + p.options.length + 'つの案をそれぞれ1位にしてみよう ',
+        h('span', { class: 'mn-badges' }, p.options.map(function (o) {
+          var w = wins.indexOf(o.id) >= 0;
+          return h('span', { class: 'mn-badge' + (w ? ' on' : '') }, (w ? '✓ ' : '・') + o.name);
+        }))));
+      // 製品をえらぶボタンの「1位にできた案」の数も新しくする
+      if (newWin) {
+        var pb = P.opt.querySelectorAll('.mn-prod')[dom.products.indexOf(p)];
+        if (pb) { var sm = pb.querySelector('small') || pb.appendChild(h('small')); sm.textContent = '1位にできた案 ' + wins.length + '/' + p.options.length; }
+      }
+    }
+
+    /* ---------- 振り返り ---------- */
+    function renderRefl() {
+      var el = P.refl; if (!el) return; el.innerHTML = '';
+      var R = D.refl;
+      var self = h('div', { class: 'mn-self' }, MN.SELF.map(function (s) {
+        return h('fieldset', { class: 'mn-self-f' }, h('legend', null, s.label), MN.SELF_LV.map(function (lv) {
+          var id = idp + 's-' + s.k + lv[0];
+          var rb = h('input', { type: 'radio', id: id, name: idp + 'self-' + s.k, value: lv[0], onchange: function () { R.self[s.k] = lv[0]; changed(); } });
+          rb.checked = R.self[s.k] === lv[0];
+          return h('label', { class: 'mn-check', for: id }, rb, h('span', null, lv[1]));
+        }));
+      }));
+      el.appendChild(card('今回の問題解決を振り返ろう', null, h('h3', null, '自己評価'), self,
+        field('分かったこと・できるようになったこと', 'learned', R, { rows: 3 }),
+        field('これからの問題解決に生かしたいこと', 'next', R, { rows: 3, help: '教科書: 今回の問題解決の学習を振り返り、今後の問題解決に生かしたいことを挙げましょう。' })));
+      el.appendChild(nextBar('rec'));
+    }
+
+    /* ---------- 記録 ---------- */
+    function renderRec() {
+      var el = P.rec; if (!el) return; el.innerHTML = '';
+      var S = D.student;
+      var who = h('div', { class: 'mn-row mn-who' },
+        field('組', 'cls', S, { rows: 0, max: 6 }), field('番号', 'no', S, { rows: 0, max: 4 }), field('名前', 'name', S, { rows: 0, max: 20 }));
+      var tools = typeof opts.recordTools === 'function' ? opts.recordTools() : opts.recordTools;
+      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは「ファイルに書き出す」、紙で出すときは「印刷する」を使います。',
+        who, h('div', { class: 'mn-row mn-rec-tools' }, btn('🖨 印刷する(問題解決シート)', function () { api.print(); }, 'mn-btn-primary'), tools || null),
+        h('p', { class: 'mn-help' }, '印刷すると、書いていない欄は線だけのわくになります。紙に書きこんで使うこともできます。')));
+      var sum = MN.summary(D, D.domain), box = card('ノートのまとめ', null);
+      sum.forEach(function (sec) {
+        if (sec.reflect && !reflOn()) return;
+        var tb = h('table', { class: 'mn-table' });
+        sec.rows.forEach(function (r) { tb.appendChild(h('tr', null, h('th', null, r[0]), h('td', { class: r[1] ? '' : 'mn-empty' }, r[1] || '—'))); });
+        box.appendChild(h('h3', null, sec.title)); box.appendChild(h('div', { class: 'mn-table-wrap' }, tb));
+      });
+      el.appendChild(box);
+    }
+
+    /* ---------- 印刷(問題解決シート) ---------- */
+    function lines(text, n) {
+      text = str(text).trim();
+      if (text) return h('div', { class: 'mn-ps-text' }, text);
+      var d = h('div', { class: 'mn-ps-lines' }); for (var i = 0; i < (n || 2); i++) d.appendChild(h('div', { class: 'mn-ps-line' })); return d;
+    }
+    function buildSheet() {
+      var S = D.student, T = D.task, E = D.ev, O = D.opt;
+      var info = root.EDUIT_INFO || {};
+      var sheet = h('div', { class: 'mn-sheet', 'aria-hidden': 'true' });
+      sheet.appendChild(h('div', { class: 'mn-ps-head' },
+        h('div', null, h('div', { class: 'mn-ps-sub' }, dom.name + '(' + (info.domain || D.domain) + ')'), h('h1', null, '問題解決シート')),
+        h('div', { class: 'mn-ps-who' }, '組 ', h('span', { class: 'mn-ps-box' }, S.cls), ' 番号 ', h('span', { class: 'mn-ps-box' }, S.no), ' 名前 ', h('span', { class: 'mn-ps-box mn-ps-name' }, S.name))));
+      // 1
+      var cards = D.cards.length ? h('ul', { class: 'mn-ps-cards' }, D.cards.map(function (c) {
+        return h('li', { class: c.star ? 'star' : '' }, (c.star ? '★ ' : '') + c.text, c.vp.length ? h('small', null, ' [' + c.vp.map(function (k) { return vpBy[k] ? vpBy[k].icon + vpBy[k].label : k; }).join(' ') + ']') : null);
+      })) : lines('', 3);
+      sheet.appendChild(h('section', { class: 'mn-ps-sec' }, h('h2', null, '1 問題の発見と課題の設定'),
+        h('h3', null, '「こうだったらいいのに」「不便だな」(観点: ' + MN.VP.map(function (v) { return v.icon + v.label; }).join(' ') + ')'), cards,
+        h('table', { class: 'mn-ps-t' },
+          psRow('問題', T.problem), psRow('困っている人', T.who), psRow('どうなれば解決するか', T.goal),
+          psRow('課題', T.kadai, 2), psRow('観点', T.vp.map(function (k) { return vpBy[k] ? vpBy[k].label : k; }).join('・')),
+          psRow('制約条件', T.limits.join('・') + (T.limitNote ? (T.limits.length ? '/' : '') + T.limitNote : '')))));
+      // 2
+      var rad = h('div', { class: 'mn-ps-radar' });
+      rad.innerHTML = MN.radarSVG(dom.evalCrit.map(function (c) { return c.label; }), [
+        { values: dom.evalCrit.map(function (c) { return E.res[c.k] || 0; }), style: 0, bold: true },
+        { values: dom.evalCrit.map(function (c) { return E.tgt[c.k] || 0; }), style: 1, fill: 0.03 }], { label: '評価' });
+      rad.appendChild(legend([['できあがり(評価)', 0], ['はじめの目標', 1]]));
+      var et = h('table', { class: 'mn-ps-t mn-ps-score' }, h('tr', null, h('th', null, '観点'), h('th', null, '目標'), h('th', null, '評価')),
+        dom.evalCrit.map(function (c) { return h('tr', null, h('td', null, c.label), h('td', { class: 'num' }, E.tgt[c.k] || ''), h('td', { class: 'num' }, E.res[c.k] || '')); }));
+      sheet.appendChild(h('section', { class: 'mn-ps-sec' }, h('h2', null, '2 評価、改善・修正'),
+        h('p', null, dom.work + 'の名前: ', h('span', { class: 'mn-ps-box mn-ps-wide' }, E.title)),
+        h('div', { class: 'mn-ps-evgrid' }, rad, et),
+        h('p', { class: 'mn-ps-proc' }, '過程の評価: ', dom.process.map(function (t, i) { return (E.process[i] ? '☑ ' : '☐ ') + t; }).join('  ')),
+        h('table', { class: 'mn-ps-t' }, psRow('よかった点', E.good, 2), psRow('改善・修正の方法', E.improve, 2), psRow('新たに見つけた問題', E.newProblem))));
+      // 3
+      var p = MN.product(dom, O.product), crit = MN.critOf(dom, p), W = MN.weightsOf(D, dom, p), r = MN.rank(dom, p, W, O.limits[p.id]);
+      var ot = h('table', { class: 'mn-ps-t mn-ps-score' },
+        h('tr', null, h('th', null, '案'), crit.map(function (c) { return h('th', null, c.label + ' ×' + W[c.k]); }), h('th', null, '点')),
+        p.options.map(function (o) {
+          var it = r.list.filter(function (x) { return x.id === o.id; })[0];
+          return h('tr', null, h('td', null, (o.id === r.best ? '🥇 ' : '') + o.name), crit.map(function (c) { return h('td', { class: 'num' }, o.s[c.k]); }), h('td', { class: 'num' }, it.ok ? it.score : '×'));
+        }));
+      sheet.appendChild(h('section', { class: 'mn-ps-sec' }, h('h2', null, '3 技術の最適化: ' + p.name),
+        ot, h('table', { class: 'mn-ps-t' }, psRow('気づいたこと(折り合い)', O.notice, 2), psRow('自分の問題解決と社会の問題解決', O.compare, 2))));
+      // 振り返り
+      if (reflOn()) {
+        sheet.appendChild(h('section', { class: 'mn-ps-sec', 'data-ef-reflect': '' }, h('h2', null, '振り返り'),
+          h('table', { class: 'mn-ps-t mn-ps-self' }, MN.SELF.map(function (s) {
+            return h('tr', null, h('th', null, s.label), h('td', null, MN.SELF_LV.map(function (lv) { return (D.refl.self[s.k] === lv[0] ? '◉ ' : '○ ') + lv[1]; }).join('  ')));
+          }), psRow('分かったこと・できるようになったこと', D.refl.learned, 2), psRow('これからの問題解決に生かしたいこと', D.refl.next, 2))));
+      }
+      sheet.appendChild(h('p', { class: 'mn-ps-foot' }, '問題解決ノート ・ ' + (info.suite || dom.name) + (info.version ? ' 第' + info.version + '版' : '')));
+      return sheet;
+    }
+    function psRow(k, v, n) { return h('tr', null, h('th', null, k), h('td', null, lines(v, n || 1))); }
+    var sheetEl = null;
+    function attachSheet() {
+      if (sheetEl) sheetEl.remove();
+      sheetEl = buildSheet(); document.body.appendChild(sheetEl);
+      if (opts.afterRender) { try { opts.afterRender(sheetEl); } catch (e) {} }
+      document.documentElement.classList.add('mn-printing');
+    }
+    function detachSheet() { document.documentElement.classList.remove('mn-printing'); if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
+    window.addEventListener('beforeprint', function () { if (!sheetEl) attachSheet(); });
+    window.addEventListener('afterprint', detachSheet);
+    api.print = function () { attachSheet(); setTimeout(function () { window.print(); }, 60); };
+    api.sheet = buildSheet;
+
+    /* ---------- 全体 ---------- */
+    var R = { intro: renderIntro, find: renderFind, eval: renderEval, opt: renderOpt, refl: renderRefl, rec: renderRec };
+    api.render = function (id) { if (id) { if (R[id]) R[id](); } else Object.keys(R).forEach(function (k) { R[k](); }); };
+    api.setData = function (data) { D = api.data = MN.normalize(JSON.parse(JSON.stringify(data || {})), opts.domain); lastBest = {}; api.render(); };
+    // 画面を書きかえたら afterRender(ふりがな など)を呼ぶ。書きかえが続いても1回にまとめる
+    if (opts.afterRender && window.MutationObserver) {
+      Object.keys(P).forEach(function (k) {
+        var el = P[k]; if (!el) return;
+        var busy = false, mo = new MutationObserver(function () {
+          if (busy) return; busy = true;
+          setTimeout(function () { mo.disconnect(); try { opts.afterRender(el); } catch (e) {} mo.observe(el, { childList: true, subtree: true }); busy = false; }, 0);
+        });
+        mo.observe(el, { childList: true, subtree: true });
+      });
+    }
+    api.render();
+    return api;
+  };
+})(typeof self !== 'undefined' ? self : typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+  <script>
+// D11 問題解決ノート(情報の技術): D のアダプタ
+// 中身は4分野共通の shared/mondai-note/(window.MondaiNote)。D の観点と例は mondai-note-data.js の D
+// (教科書 4編2章 2・5、3章 2・5「問題の発見と課題の設定」「問題解決の評価、改善・修正」、4章 1「情報の技術の最適化」)。
+// このファイルは、上のバー(文字の大きさ)・タブ(アドレスの #/find など)・保存・ファイルの書き出しと読み込みだけを受け持つ。
+// 保存: localStorage 'mondainote.v1' = { v, note, student, refl, visited }
+//   student・refl・visited は、教材集の「記録をまとめて書き出す」が読むための写し(中身は note と同じ)。
+// 書き出し: { app: '問題解決ノート', version: 1, exportedAt, student: { cls, num, name }, note }
+(function () {
+  'use strict';
+  var APP = '問題解決ノート';
+  var KEY = 'mondainote.v1';
+  var MN = window.MondaiNote;
+  var DOMAIN = (window.EDUIT_INFO && EDUIT_INFO.domain) || 'D';
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
+  var TABS = ['intro', 'find', 'eval', 'opt', 'refl', 'rec'];
+  var NAMES = { intro: 'はじめに', find: '① 問題の発見', eval: '② 評価、改善・修正', opt: '③ 技術の最適化', refl: '振り返り', rec: '記録' };
+  var $ = function (s) { return document.querySelector(s); };
+  function isObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+
+  if (window.EDUIT_INFO) {
+    EDUIT_INFO.app = EDUIT_INFO.app || { name: 'D11 ' + APP };
+    EDUIT_INFO.app.safety = ['問題解決ノートに書いた文と組・番号・名前は、この端末のブラウザの中にだけ保存します。どこにも送りません。'];
+  }
+
+  // ---- 端末の中だけの保存(使えなくても動く) ----
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  if (!isObj(saved)) saved = {};
+  var note = null, timer = null;
+  function persist() {
+    if (!note) return false;
+    var d = note.data, st = d.student || {}, r = d.refl || {};
+    saved.v = 1;
+    saved.note = d;
+    saved.student = { cls: String(st.cls || ''), num: String(st.no || ''), name: String(st.name || '') };
+    saved.refl = { learned: String(r.learned || ''), next: String(r.next || '') };
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); return true; } catch (e) { return false; }
+  }
+  function changed() {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var ok = persist(), t = new Date();
+      $('#saved').textContent = ok ? '✓ 自動保存しました ' + t.getHours() + ':' + ('0' + t.getMinutes()).slice(-2) : '保存できませんでした(このひらき方では記録が残りません)';
+    }, 600);
+  }
+
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  // ---- 書き出し・読み込み ----
+  function exportObj() {
+    var st = note.data.student || {};
+    return { app: APP, version: 1, exportedAt: new Date().toISOString(),
+      student: { cls: String(st.cls || ''), num: String(st.no || ''), name: String(st.name || '') }, note: note.data };
+  }
+  function fileName() {
+    var st = note.data.student || {};
+    var who = [st.cls, st.no, st.name].map(function (x) { return String(x || '').trim(); }).filter(Boolean).join('_') || '記録';
+    return (APP + '_情報_' + who + '.json').replace(/[\\/:*?"<>|\s]/g, '_');
+  }
+  function exportFile() {
+    persist();
+    var name = fileName();
+    try {
+      var url = URL.createObjectURL(new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }));
+      var a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+      toast('「' + name + '」を書き出しました');
+    } catch (e) { toast('ファイルを作れませんでした'); }
+  }
+  $('#file').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var o = null;
+      try { o = JSON.parse(rd.result); } catch (e) { o = null; }
+      if (!isObj(o) || o.app !== APP || !isObj(o.note)) { toast('このファイルは読みこめません(問題解決ノートのファイルではありません)'); return; }
+      if (!window.confirm('いまのノートを、読みこんだファイルで置きかえます。いまのノートは消えます。よろしいですか?')) return;
+      note.setData(MN.normalize(o.note, DOMAIN));
+      persist();
+      toast('読みこみました');
+      go('rec');
+    };
+    rd.readAsText(f);
+  });
+  function btn(label, fn, cls) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mn-btn' + (cls ? ' ' + cls : '');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  }
+  function recordTools() {
+    var w = document.createElement('span');
+    w.className = 'mn-row';
+    w.appendChild(btn('ファイルに書き出す(.json)', exportFile));
+    w.appendChild(btn('書き出したファイルを読みこむ', function () { $('#file').click(); }));
+    w.appendChild(btn('この端末のノートを消す', function () {
+      if (!window.confirm('この端末の問題解決ノートをすべて消します。もとにもどせません。提出がまだなら、先に「ファイルに書き出す」でファイルにしておこう。消しますか?')) return;
+      try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
+      var keep = { largeText: saved.largeText };
+      saved = keep;
+      note.setData(MN.defaults(DOMAIN));
+      persist();
+      toast('消しました');
+      go('intro');
+    }));
+    return w;
+  }
+
+  // ---- タブ(アドレスの #/find など。教材集の中でも、この形で中の場所を覚える) ----
+  function tabOf(hash) {
+    var id = String(hash || '').replace(/^#\/?/, '') || 'intro';
+    if (TABS.indexOf(id) < 0) id = 'intro';
+    if (id === 'refl' && FK_OFF) id = 'rec';
+    return id;
+  }
+  function go(id) {
+    var h = id === 'intro' ? '#/' : '#/' + id;
+    if (location.hash === h || (id === 'intro' && !location.hash)) show(id);
+    else location.hash = h;
+  }
+  function show(id) {
+    Array.prototype.forEach.call(document.querySelectorAll('#view > section[data-sec]'), function (s) { s.hidden = s.getAttribute('data-sec') !== id; });
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs a'), function (a) {
+      if (a.getAttribute('data-tab') === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    if (id === 'rec' && note) note.render('rec');
+    var v = isObj(saved.visited) ? saved.visited : (saved.visited = {});
+    if (id !== 'intro') v[id] = true;
+    persist();
+    document.title = (id === 'intro' ? '' : NAMES[id] + ' | ') + APP;
+    window.scrollTo(0, 0);
+    var cur = document.querySelector('#tabs a[aria-current]');
+    if (cur && cur.scrollIntoView) try { cur.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* 古いブラウザ */ }
+  }
+  window.addEventListener('hashchange', function () { show(tabOf(location.hash)); });
+
+  // ---- 文字の大きさ(4分野共通の「文字 中/大」ボタン。教材集の中では教材集のボタンがこれを押す) ----
+  (function setupToggles() {
+    var box = $('#display-toggles');
+    var on = !!saved.largeText;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'ef-btn ef-size';
+    b.setAttribute('data-kz-label', '大きな文字');
+    b.setAttribute('aria-label', '文字の大きさ(大きな文字)');
+    b.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    b.appendChild(v);
+    function apply() {
+      b.setAttribute('aria-pressed', String(on));
+      document.documentElement.classList.toggle('large-text', on);
+    }
+    b.addEventListener('click', function () { on = !on; saved.largeText = on; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ } apply(); });
+    apply();
+    box.appendChild(b);
+  })();
+  // タブの帯を上のバーのすぐ下に止める(上のバーの高さはスマホで2行になる)
+  function headH() { var hd = $('.app-header'); if (hd) document.documentElement.style.setProperty('--mnd-head', hd.offsetHeight + 'px'); }
+  window.addEventListener('resize', headH);
+  headH();
+
+  // ---- ノートの本体 ----
+  var panels = {};
+  TABS.forEach(function (id) { panels[id] = document.querySelector('#view > section[data-sec="' + id + '"]'); });
+  note = MN.mount({
+    domain: DOMAIN, data: isObj(saved.note) ? saved.note : null, panels: panels,
+    onChange: changed, go: go, recordTools: recordTools,
+    furikaeri: function () { return !FK_OFF; }
+  });
+  show(tabOf(location.hash));
+
+  // テスト用
+  window.MondaiNoteD = { exportObj: exportObj, KEY: KEY, note: function () { return note; } };
+})();
+
+</script>
+</body>
+</html>
