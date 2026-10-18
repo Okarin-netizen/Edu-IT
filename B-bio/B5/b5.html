@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B5 植物工場の自動化</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B5 植物工場の自動化' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<style>
+body{margin:0;background:var(--ef-bg)}
+#b5app{
+  /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
+  --b5-bg:var(--ef-bg);--b5-card:var(--ef-surface);--b5-ink:var(--ef-text);--b5-sub:var(--ef-muted);--b5-line:#cfdccc;
+  --b5-main:var(--ef-accent);--b5-main-d:#1b5e20;--b5-soft:#e8f5e9;--b5-ok:#2e7d32;--b5-warn:#a86400;--b5-bad:#b23b3b;
+  --b5-fs:18px;
+  font-family:var(--ef-font);
+  font-size:var(--b5-fs);line-height:1.65;color:var(--b5-ink);background:var(--b5-bg);
+  min-height:100vh;-webkit-text-size-adjust:100%;
+}
+#b5app *{box-sizing:border-box}
+#b5app.b5-noruby rt{display:none}
+#b5app rt{font-size:.55em;color:var(--b5-sub)}
+#b5app h1,#b5app h2,#b5app h3{line-height:1.4;margin:.3em 0 .5em}
+#b5app h1{font-size:1.3em}
+#b5app h2{font-size:1.2em;color:var(--b5-main-d)}
+#b5app h3{font-size:1.05em}
+#b5app p{margin:.4em 0}
+#b5app button,#b5app select,#b5app input,#b5app textarea{font:inherit;color:inherit}
+#b5app button{cursor:pointer;touch-action:manipulation}
+/* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
+#b5app .b5-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+#b5app .b5-head-row{flex-wrap:wrap}
+#b5app .b5-title{flex:1 1 auto;min-width:200px;margin:0;font-size:18px;line-height:1.3}
+#b5app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
+#b5app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b5app .b5-tools button{min-height:44px;min-width:48px}
+/* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする */
+html.kz-embed #b5app .b5-head-row{display:none}
+html.kz-embed #b5app .b5-head{padding-top:6px}
+html.kz-embed #b5app .b5-nav{margin-top:0}
+#b5app .b5-nav{display:flex;gap:4px;margin-top:8px;padding:0 14px}
+#b5app .b5-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#fff;padding:8px 6px;min-height:52px;border-radius:12px 12px 0 0;font-weight:700;font-size:min(.88em,19px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+#b5app .b5-nav button[aria-selected="true"]{background:var(--b5-bg);color:var(--b5-main-d)}
+#b5app .b5-nav rt{color:inherit;opacity:.85}
+/* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
+@media (max-width:900px){#b5app .b5-nav{overflow-x:auto;scrollbar-width:none;padding:0 8px}#b5app .b5-nav::-webkit-scrollbar{display:none}#b5app .b5-nav button{flex:0 0 auto;white-space:nowrap;min-height:48px;padding:6px 10px}}
+#b5app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b5app section[hidden]{display:none!important}
+#b5app .b5-card{background:var(--b5-card);border:1px solid var(--b5-line);border-radius:14px;padding:14px 16px;margin-bottom:14px;min-width:0}
+#b5app .b5-note{background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:10px 14px;margin:10px 0}
+#b5app .b5-tip{background:#eef7ee;border:1px solid #b9d8bb;border-radius:12px;padding:10px 14px;margin:10px 0}
+#b5app .b5-bad{background:#fbeaea;border:1px solid #e5b3b3;border-radius:12px;padding:10px 14px;margin:10px 0}
+#b5app .b5-btn{display:inline-block;text-align:center;vertical-align:middle;min-height:48px;line-height:1.5;padding:8px 18px;border-radius:12px;border:2px solid var(--b5-main);background:#fff;color:var(--b5-main-d);font-weight:700}
+#b5app .b5-btn.b5-pri{background:var(--b5-main);color:#fff}
+#b5app .b5-btn.b5-pri rt{color:#e8f5e9}
+#b5app .b5-btn:disabled{opacity:.45;cursor:not-allowed}
+#b5app .b5-btn:active:not(:disabled){transform:translateY(1px)}
+#b5app .b5-btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;align-items:center}
+#b5app :focus-visible{outline:3px solid #f0a020;outline-offset:2px}
+#b5app .b5-small{font-size:.85em;color:var(--b5-sub)}
+#b5app .b5-seg{display:flex;flex-wrap:wrap;gap:4px}
+#b5app .b5-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--b5-line);background:#fff;border-radius:10px;padding:4px 6px;font-size:.9em;line-height:1.25}
+#b5app .b5-seg button[aria-pressed="true"]{border-color:var(--b5-main);background:var(--b5-main);color:#fff;font-weight:700}
+#b5app .b5-seg button[aria-pressed="true"] rt{color:#e8f5e9}
+#b5app .b5-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+#b5app .b5-num{display:inline-flex;align-items:center;gap:4px}
+#b5app .b5-num button{width:44px;height:44px;border-radius:10px;border:2px solid var(--b5-line);background:#fff;font-size:1.2em;font-weight:700;flex:none;padding:0}
+#b5app .b5-num input{width:3.6em;min-height:44px;text-align:center;border:2px solid var(--b5-line);border-radius:10px;font-weight:700;padding:0 4px;background:#fff}
+#b5app .b5-grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:900px){#b5app .b5-grid2{grid-template-columns:1fr}}
+/* はじめに */
+#b5app .b5-comic{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0}
+@media (max-width:760px){#b5app .b5-comic{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#b5app .b5-koma{border:2px solid #3a4a3a;border-radius:10px;background:#fff;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:150px;text-align:center}
+#b5app .b5-koma .b5-face{font-size:2.2em;line-height:1.1}
+#b5app .b5-koma .b5-say{background:#fff8e6;border:1px solid #ecd59c;border-radius:12px;padding:4px 8px;font-size:.85em}
+#b5app .b5-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0;padding:0;list-style:none}
+@media (max-width:760px){#b5app .b5-flow{grid-template-columns:1fr}}
+#b5app .b5-flow li{background:var(--b5-soft);border-radius:10px;padding:8px 10px;font-size:.88em;position:relative}
+#b5app .b5-flow li b{display:block;color:var(--b5-main-d)}
+#b5app .b5-sys{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:8px 0}
+#b5app .b5-sys>div{flex:1 1 150px;border-radius:12px;padding:8px 12px;border:2px solid}
+#b5app .b5-sys .b5-in{border-color:#2a78d6;background:#e6f0fc}
+#b5app .b5-sys .b5-pg{border-color:#e07b00;background:#ffeedd}
+#b5app .b5-sys .b5-ot{border-color:#1baf7a;background:#e2f6ee}
+#b5app .b5-sys .b5-arrow{flex:0 0 auto;border:0;align-self:center;font-size:1.5em;padding:0}
+#b5app .b5-mis{display:grid;gap:6px;margin:6px 0;padding:0;list-style:none}
+#b5app .b5-mis li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px solid var(--b5-line);border-radius:12px;padding:8px 12px;background:#fff}
+#b5app .b5-mis li .b5-go{margin-left:auto;min-height:44px;padding:4px 14px}
+#b5app .b5-stars{color:#d39b00;letter-spacing:2px;font-size:1.1em;white-space:nowrap}
+#b5app .b5-lv{display:inline-block;font-size:.75em;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--b5-soft);color:var(--b5-main-d)}
+#b5app .b5-lv.adv{background:#efe6f8;color:#5b2d8a}
+/* ブロックのプログラム(D7 計測・制御シミュレータに似せる) */
+#b5app .b5-prog{font-size:.95em}
+#b5app .b5-blk{border-radius:10px;border:2px solid;border-left-width:8px;margin:4px 0;padding:4px 8px}
+#b5app .b5-bh{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;font-weight:700}
+#b5app .b5-inner{margin-left:16px;padding:2px 0}
+#b5app .b5-forever{border-color:#e07b00;background:#ffeedd}
+#b5app .b5-if{border-color:#e2a400;background:#fff6dc}
+#b5app .b5-out{border-color:#2a78d6;background:#e6f0fc;font-weight:700}
+#b5app .b5-out .b5-bh{font-weight:700}
+#b5app .b5-blk select{min-height:44px;border:2px solid #b9b2a0;border-radius:8px;background:#fff;padding:2px 6px;font-weight:700;max-width:100%}
+#b5app .b5-blk select:disabled{opacity:1;color:var(--b5-ink);background:#f6f3ea;-webkit-appearance:none;appearance:none;border-style:dashed}
+#b5app .b5-tm{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;background:#e2f6ee;border:2px solid #1baf7a;border-radius:8px;padding:2px 6px}
+#b5app .b5-mini{min-height:44px;min-width:44px;border-radius:8px;border:1px solid var(--b5-line);background:#fff;font-size:.85em;padding:0 8px}
+#b5app .b5-tools2{margin-left:auto;display:inline-flex;gap:4px}
+#b5app .b5-eval{font-size:.8em;font-weight:700;padding:2px 8px;border-radius:99px;background:#fff;border:1px solid var(--b5-line);min-width:6.5em;text-align:center}
+#b5app .b5-eval.t{background:#2e7d32;color:#fff;border-color:#2e7d32}
+#b5app .b5-eval.f{background:#eee;color:#555}
+#b5app .b5-add{border:2px dashed #e2a400;background:#fffbea;border-radius:10px;min-height:48px;width:100%;font-weight:700;color:#7a5a00;margin-top:4px}
+/* 棚のようす */
+#b5app .b5-view{position:relative}
+#b5app svg.b5-shelf{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--b5-line);background:#f3efe6}
+#b5app .b5-io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;margin-top:8px}
+#b5app .b5-io h4{margin:0 0 4px;font-size:.85em}
+#b5app .b5-io-col{background:#fff;border:1px solid var(--b5-line);border-radius:10px;padding:6px 8px;font-size:.85em;min-width:0}
+#b5app .b5-io-mid{font-size:.8em;text-align:center;color:var(--b5-sub);line-height:1.3}
+#b5app .b5-io-mid b{display:block;font-size:1.6em;color:#e07b00}
+#b5app .b5-sv{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dashed #e2e8df;padding:1px 0}
+#b5app .b5-sv:last-child{border-bottom:0}
+#b5app .b5-sv b{font-variant-numeric:tabular-nums;white-space:nowrap}
+#b5app .b5-lamp{display:inline-block;min-width:3em;text-align:center;border-radius:99px;padding:0 6px;font-weight:700;font-size:.9em;background:#e5e5e5;color:#666}
+#b5app .b5-lamp.on{background:#f0b400;color:#3a2a00}
+#b5app .b5-lamp.dim{opacity:.4}
+@media (max-width:520px){#b5app .b5-io{grid-template-columns:1fr}#b5app .b5-io-mid b{transform:rotate(90deg)}}
+#b5app .b5-play{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+#b5app .b5-play .b5-seg{flex:1 1 220px}
+#b5app [data-speed],#b5app [data-s4],#b5app [data-cs]{white-space:nowrap;flex:1 0 auto!important;min-width:0!important;padding:4px 10px!important}
+#b5app .b5-prog-bar{height:10px;background:#dfe8dc;border-radius:6px;overflow:hidden;flex:1 1 140px;min-width:100px}
+#b5app .b5-prog-bar i{display:block;height:100%;width:0;background:var(--b5-main)}
+/* グラフ */
+#b5app .b5-chart{width:100%;overflow:hidden;margin:4px 0 10px}
+#b5app .b5-chart svg{display:block;width:100%;height:auto}
+#b5app .b5-chart h4{margin:4px 0;font-size:.92em}
+#b5app .b5-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8em;color:var(--b5-sub)}
+#b5app .b5-legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:4px}
+#b5app .b5-legend i.band{height:10px;border:0;border-radius:2px}
+/* 結果 */
+#b5app .b5-res{border:3px solid var(--b5-main);background:#f3faf3}
+#b5app .b5-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}
+#b5app .b5-kpi div{background:#fff;border:1px solid var(--b5-line);border-radius:10px;padding:6px 10px}
+#b5app .b5-kpi b{display:block;font-size:1.25em;font-variant-numeric:tabular-nums}
+#b5app .b5-kpi span{font-size:.8em;color:var(--b5-sub)}
+#b5app .b5-kpi .bad b{color:var(--b5-bad)}
+#b5app .b5-tbl-wrap{overflow-x:auto;max-width:100%}
+#b5app table.b5-tbl{border-collapse:collapse;width:100%;font-size:.9em;margin:6px 0}
+#b5app table.b5-tbl th,#b5app table.b5-tbl td{border:1px solid var(--b5-line);padding:4px 8px;text-align:right;white-space:nowrap}
+#b5app table.b5-tbl th:first-child,#b5app table.b5-tbl td:first-child{text-align:left;white-space:normal}
+#b5app table.b5-tbl thead th{background:var(--b5-soft)}
+#b5app table.b5-tbl tr.b5-me td{background:#fff6dc;font-weight:700}
+@media (max-width:640px){#b5app table.b5-tbl th,#b5app table.b5-tbl td{white-space:normal;padding:4px 6px}}
+/* ① くらべる */
+#b5app .b5-vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:640px){#b5app .b5-vs{grid-template-columns:1fr}}
+#b5app .b5-vs h3{margin:0 0 4px}
+#b5app .b5-vs svg{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--b5-line)}
+#b5app .b5-wbar{height:12px;border-radius:6px;background:#e3ebe1;overflow:hidden;margin:4px 0}
+#b5app .b5-wbar i{display:block;height:100%;background:var(--b5-main)}
+#b5app .b5-sort{display:grid;gap:8px;margin:8px 0}
+#b5app .b5-sort-item{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border:1px solid var(--b5-line);border-radius:12px;padding:6px 10px;background:#fff}
+@media (max-width:700px){#b5app .b5-sort-item{grid-template-columns:1fr}}
+#b5app .b5-sort-item.ok{border-color:var(--b5-ok);background:#e9f6ea}
+#b5app .b5-sort-item.ng{border-color:var(--b5-bad);background:#fbeaea}
+#b5app .b5-sort-item .b5-exp{grid-column:1/-1;font-size:.88em}
+/* ⑤ スマート農業 */
+#b5app .b5-shelves{display:flex;flex-wrap:wrap;gap:8px}
+#b5app .b5-shelves button{flex:1 1 100px;min-height:56px;border-radius:12px;border:3px solid var(--b5-line);background:#fff;font-weight:700}
+#b5app .b5-shelves button[aria-pressed="true"]{border-color:var(--b5-main);background:var(--b5-soft)}
+#b5app .b5-choices{display:grid;gap:8px;margin-top:8px}
+#b5app .b5-choices button{min-height:52px;text-align:left;padding:8px 14px;border-radius:12px;border:2px solid var(--b5-line);background:#fff}
+#b5app .b5-choices button.right,#b5app .b5-shelves button.right{border-color:var(--b5-ok);background:#e9f6ea}
+#b5app .b5-choices button.wrong,#b5app .b5-shelves button.wrong{border-color:var(--b5-bad);background:#fbeaea}
+#b5app .b5-ai{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+#b5app .b5-ai div{border:1px solid var(--b5-line);border-radius:12px;padding:8px 12px;background:#fff}
+#b5app .b5-ai b{display:block}
+/* 振り返り */
+#b5app label.b5-f{display:block;font-weight:700;margin:10px 0 4px}
+#b5app input[type=text],#b5app textarea{width:100%;min-height:48px;border:2px solid var(--b5-line);border-radius:10px;padding:8px 10px;background:#fff}
+#b5app textarea{min-height:110px;resize:vertical;line-height:1.6}
+#b5app .b5-who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px}
+@media (max-width:520px){#b5app .b5-who{grid-template-columns:1fr 1fr}#b5app .b5-who>div:last-child{grid-column:1/-1}}
+#b5app .b5-evr{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--b5-line);padding:6px 0}
+@media (max-width:700px){#b5app .b5-evr{grid-template-columns:1fr}}
+#b5app .b5-radar-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center}
+@media (max-width:700px){#b5app .b5-radar-wrap{grid-template-columns:1fr}}
+#b5app svg.b5-radar{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+#b5app .b5-rs{display:grid;gap:4px}
+#b5app .b5-rs>div{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--b5-line);padding:2px 0}
+#b5app .b5-saved{font-size:.85em;color:var(--b5-ok);min-height:1.4em}
+#b5app .b5-pval{display:none}
+#b5app .b5-summary{background:#f5f9f4;border-radius:10px;padding:8px 12px;font-size:.92em}
+#b5app .b5-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f3320;color:#fff;padding:10px 18px;border-radius:12px;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
+#b5app .b5-toast.show{opacity:1}
+#b5app details{border:1px solid var(--b5-line);border-radius:12px;padding:8px 12px;background:#fff;margin:8px 0}
+#b5app summary{font-weight:700;cursor:pointer;min-height:44px;display:list-item;padding:8px 0}
+/* アニメーション */
+#b5app .b5-spin{animation:b5spin 1s linear infinite;transform-box:fill-box;transform-origin:center}
+#b5app .b5-drop{animation:b5drop .8s linear infinite}
+@keyframes b5spin{to{transform:rotate(360deg)}}
+@keyframes b5drop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(16px);opacity:0}}
+@media (prefers-reduced-motion:reduce){#b5app .b5-spin,#b5app .b5-drop{animation:none}}
+@media print{
+  #b5app{min-height:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #b5app .b5-head,#b5app .b5-btns,#b5app .b5-noprint,#b5app .b5-toast{display:none!important}
+  #b5app main{padding:0}
+  #b5app .b5-card{break-inside:auto;border-color:#999}
+  #b5app input[type=text]{display:none!important}
+  #b5app .b5-pval{display:block;border:1px solid #999;border-radius:6px;padding:4px 8px;min-height:2em;white-space:pre-wrap}
+}
+</style>
+</head>
+<body>
+<div id="b5app">
+  <header class="b5-head" id="b5-head" data-ef-autohide>
+    <div class="b5-head-row ef-header">
+      <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+      <h1 class="b5-title ef-title"><span class="ef-code">B5</span> <span class="ef-title-name">植物工場の自動化</span></h1>
+      <div class="b5-tools ef-tools">
+        <button type="button" class="ef-btn ef-toggle" id="b5-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="b5-size">文字</button>
+      </div>
+    </div>
+    <nav class="b5-nav" role="tablist" aria-label="画面の切りかえ">
+      <button type="button" role="tab" data-tab="home">はじめに</button>
+      <button type="button" role="tab" data-tab="cmp">① くらべる</button>
+      <button type="button" role="tab" data-tab="light">② 照明を自動に</button>
+      <button type="button" role="tab" data-tab="water">③ 水やりを自動に</button>
+      <button type="button" role="tab" data-tab="all">④ 全部を自動に</button>
+      <button type="button" role="tab" data-tab="smart">⑤ スマート農業</button>
+      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
+      <button type="button" role="tab" data-tab="rec">記録</button>
+    </nav>
+  </header>
+  <main>
+    <section data-sec="home"></section>
+    <section data-sec="cmp" hidden></section>
+    <section data-sec="light" hidden></section>
+    <section data-sec="water" hidden></section>
+    <section data-sec="all" hidden></section>
+    <section data-sec="smart" hidden></section>
+    <section data-sec="refl" hidden data-ef-reflect></section>
+    <section data-sec="rec" hidden></section>
+  </main>
+  <div class="b5-toast" id="b5-toast" role="status" aria-live="polite"></div>
+  <input type="file" id="b5-file" accept=".json,application/json" hidden>
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<!--
+  kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzRuby だけ):
+    kzRuby(root, opts)   root(要素。省略時 document.body)の下の文字に <ruby>語<rt>よみ</rt></ruby> を付ける。
+                         ・長い語から先に当てる(「積算温度」は「積算」より先)
+                         ・ruby, rt, rp, textarea, input, select, option, script, style, svg, canvas, code,
+                           noscript, [contenteditable], class="kz-norb" の要素の中はとばす
+                         ・何度よんでも二重にならない(ruby の中はとばすため)。描画のたびによんでよい
+                         opts.skip : とばす要素を CSS セレクタで追加(例 '.b3-cal')
+                         戻り値: 付けた ruby の数
+    kzRuby.str(html)     HTML 文字列のタグの外の文字にだけ ruby を付けた文字列を返す
+                         (innerHTML に入れる前に使う場合。ruby/textarea/script/style/code の中はとばす)
+    kzRuby.plain(html)   ruby の読み(rt・rp)とタグを取りのぞいた文字だけを返す(テキスト書き出し・コピー用)。
+                         <br> は改行、&amp; などは元の文字にもどす
+    kzRuby.dict          辞書の配列 [語, よみ]。よみは文字列、または区切り配列
+                         例 ['分げつ', [['分','ぶん'],'げつ']](かなの部分にはよみを付けない)
+                         文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
+    kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
+
+  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
+-->
+<style data-kz-ruby>
+ruby.kzr{ruby-position:over;}
+</style>
+<script data-kz-ruby>
+(function(){
+  if (window.kzRuby) return;
+  var DICT = [["徒長","とちょう"],["摘芯","てきしん"],["摘心","てきしん"],["摘芽","てきが"],["芽かき","めかき"],["わき芽かき","わきめかき"],["わき芽","わきめ"],["誘引","ゆういん"],["支柱","しちゅう"],["支柱立て","しちゅうたて"],["出穂","しゅっすい"],["穂肥","ほごえ"],["分げつ",[["分","ぶん"],"げつ"]],["積算温度","せきさんおんど"],["有効積算温度","ゆうこうせきさんおんど"],["基準温度","きじゅんおんど"],["積算水温","せきさんすいおん"],["積算","せきさん"],["間引き","まびき"],["間引","まび"],["追肥","ついひ"],["元肥","もとごえ"],["土寄せ","つちよせ"],["土寄","つちよ"],["畝立て","うねたて"],["畝","うね"],["定植","ていしょく"],["植えつけ","うえつけ"],["植えかえ","うえかえ"],["収穫","しゅうかく"],["収穫量","しゅうかくりょう"],["播種","はしゅ"],["発芽","はつが"],["芽出し","めだし"],["逆算","ぎゃくさん"],["適期","てきき"],["適温","てきおん"],["適量","てきりょう"],["連作障害","れんさくしょうがい"],["連作","れんさく"],["休業日","きゅうぎょうび"],["区画","くかく"],["栽培","さいばい"],["栽培暦","さいばいごよみ"],["露地","ろじ"],["温室","おんしつ"],["遮光","しゃこう"],["換気","かんき"],["加温","かおん"],["保温","ほおん"],["暖房","だんぼう"],["苗","なえ"],["苗床","なえどこ"],["育苗","いくびょう"],["茎","くき"],["稲","いね"],["稲刈り","いねかり"],["田植え","たうえ"],["中干し","なかぼし"],["種もみ","たねもみ"],["種いも","たねいも"],["浸種","しんしゅ"],["湛水","たんすい"],["水田","すいでん"],["本葉","ほんば"],["子葉","しよう"],["生長点","せいちょうてん"],["光合成","こうごうせい"],["開花","かいか"],["結実","けつじつ"],["受粉","じゅふん"],["人工授粉","じんこうじゅふん"],["着果","ちゃっか"],["番花","ばんか"],["結球","けっきゅう"],["草丈","くさたけ"],["葉数","ようすう"],["株元","かぶもと"],["密植","みっしょく"],["移植","いしょく"],["肥料","ひりょう"],["肥料やけ",[["肥料","ひりょう"],"やけ"]],["化学肥料","かがくひりょう"],["有機物","ゆうきぶつ"],["窒素","ちっそ"],["堆肥","たいひ"],["石灰","せっかい"],["苦土石灰","くどせっかい"],["腐葉土","ふようど"],["液肥","えきひ"],["養分","ようぶん"],["根粒菌","こんりゅうきん"],["根腐れ","ねぐされ"],["根ぐされ",[["根","ね"],"ぐされ"]],["尻腐れ症","しりぐされしょう"],["尻腐れ","しりぐされ"],["青枯病","あおがれびょう"],["白点病","はくてんびょう"],["病害虫","びょうがいちゅう"],["害虫","がいちゅう"],["益虫","えきちゅう"],["天敵","てんてき"],["捕殺","ほさつ"],["防除","ぼうじょ"],["防虫","ぼうちゅう"],["農薬","のうやく"],["殺菌","さっきん"],["斑点","はんてん"],["細菌","さいきん"],["微生物","びせいぶつ"],["食害","しょくがい"],["幼虫","ようちゅう"],["雑草","ざっそう"],["除草","じょそう"],["乾燥","かんそう"],["蒸発","じょうはつ"],["排水","はいすい"],["日照不足","にっしょうぶそく"],["直射日光","ちょくしゃにっこう"],["日陰","ひかげ"],["半日陰","はんひかげ"],["高温障害","こうおんしょうがい"],["寒冷地","かんれいち"],["温暖地","おんだんち"],["暖地","だんち"],["中間地","ちゅうかんち"],["品種","ひんしゅ"],["品種改良","ひんしゅかいりょう"],["鉢","はち"],["二十日大根","はつかだいこん"],["湿度","しつど"],["濃度","のうど"],["促進","そくしん"],["飼育","しいく"],["飼育密度","しいくみつど"],["飼料","しりょう"],["配合飼料","はいごうしりょう"],["給餌","きゅうじ"],["自動給餌器","じどうきゅうじき"],["餌","えさ"],["衛生","えいせい"],["不衛生","ふえいせい"],["稚魚","ちぎょ"],["成魚","せいぎょ"],["産卵","さんらん"],["繁殖","はんしょく"],["水替え","みずかえ"],["水替","みずか"],["床材","ゆかざい"],["敷きわら","しきわら"],["溶存酸素","ようぞんさんそ"],["塩素","えんそ"],["中和剤","ちゅうわざい"],["調整剤","ちょうせいざい"],["水質","すいしつ"],["過密","かみつ"],["密度","みつど"],["家畜化","かちくか"],["家畜","かちく"],["畜産業","ちくさんぎょう"],["畜産","ちくさん"],["観賞魚","かんしょうぎょ"],["変温動物","へんおんどうぶつ"],["恒温動物","こうおんどうぶつ"],["外来生物","がいらいせいぶつ"],["外来種","がいらいしゅ"],["特定外来生物","とくていがいらいせいぶつ"],["条件付特定外来生物","じょうけんつきとくていがいらいせいぶつ"],["動物由来感染症","どうぶつゆらいかんせんしょう"],["感染症","かんせんしょう"],["動物福祉","どうぶつふくし"],["栽培漁業","さいばいぎょぎょう"],["養殖","ようしょく"],["養殖業","ようしょくぎょう"],["遠洋漁業","えんようぎょぎょう"],["沖合漁業","おきあいぎょぎょう"],["沿岸漁業","えんがんぎょぎょう"],["漁業","ぎょぎょう"],["水産","すいさん"],["赤潮","あかしお"],["生態系","せいたいけい"],["遺伝子","いでんし"],["放流","ほうりゅう"],["呼吸器","こきゅうき"],["羽毛","うもう"],["牧草","ぼくそう"],["体色","たいしょく"],["食欲","しょくよく"],["排水口","はいすいこう"],["治療","ちりょう"],["症状","しょうじょう"],["消毒","しょうどく"],["清掃","せいそう"],["掃除","そうじ"],["洗剤","せんざい"],["個体","こたい"],["殻","から"],["寄生虫","きせいちゅう"],["振り返り","ふりかえり"],["振り返る","ふりかえる"],["振り返","ふりかえ"],["育成","いくせい"],["育成日誌","いくせいにっし"],["日誌","にっし"],["環境","かんきょう"],["調節","ちょうせつ"],["診断","しんだん"],["端末","たんまつ"],["共用","きょうよう"],["削除","さくじょ"],["完了","かんりょう"],["選択","せんたく"],["挑戦","ちょうせん"],["再挑戦","さいちょうせん"],["途中","とちゅう"],["範囲","はんい"],["影響","えいきょう"],["配慮","はいりょ"],["比較","ひかく"],["交換","こうかん"],["匿名","とくめい"],["項目","こうもく"],["根拠","こんきょ"],["傾向","けいこう"],["一緒","いっしょ"],["一般的","いっぱんてき"],["極端","きょくたん"],["特徴","とくちょう"],["販売","はんばい"],["間隔","かんかく"],["新鮮","しんせん"],["変更","へんこう"],["被害","ひがい"],["交互","こうご"],["実施","じっし"],["制御","せいぎょ"],["終了","しゅうりょう"],["欄","らん"],["粘着","ねんちゃく"],["透明","とうめい"],["手袋","てぶくろ"],["刃物","はもの"],["距離","きょり"],["面倒","めんどう"],["紀伊半島","きいはんとう"],["最小二乗法","さいしょうにじょうほう"],["汚れ","よごれ"],["汚す","よごす"],["汚い","きたない"],["遅れ","おくれ"],["遅い","おそい"],["遅く","おそく"],["遅め","おそめ"],["押","お"],["抜","ぬ"],["伸","の"],["乾","かわ"],["替","か"],["込","こ"],["与","あた"],["離","はな"],["逃","に"],["倒","たお"],["茂","しげ"],["甘","あま"],["咲","さ"],["枯","か"],["埋","う"],["扱","あつか"],["汗","あせ"],["腐","くさ"],["促","うなが"],["溺","おぼ"],["穂","ほ"],["芯","しん"],["掘","ほ"],["刈","か"],["泥","どろ"],["菌","きん"],["芋","いも"],["狭","せま"],["渇","かわ"],["飢","う"],["幅","はば"],["軸","じく"],["粒","つぶ"],["濃","こ"],["湿","しめ"],["渡","わた"],["多湿","たしつ"],["高温多湿","こうおんたしつ"],["植木鉢","うえきばち"],["地下茎","ちかけい"],["水稲","すいとう"],["跳ね","はね"],["跳ぶ","とぶ"],["跳び","とび"],["捕まえ","つかまえ"],["前倒し","まえだおし"],["言葉","ことば"],["読込","よみこみ"]];
+  var KANA_RUN = /[ぁ-ゟ゠-ヿ]+|[^ぁ-ゟ゠-ヿ]+/g;
+  var IS_KANA = /^[ぁ-ゟ゠-ヿ]/;
+  var SKIP = 'ruby,rt,rp,textarea,input,select,option,script,style,svg,canvas,code,noscript,[contenteditable],.kz-norb';
+  var map = {}, re = null;
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function segs(w, r){
+    if (typeof r !== 'string') return r;
+    var runs = w.match(KANA_RUN) || [w];
+    if (runs.length === 1) return IS_KANA.test(w) ? [w] : [[w, r]];
+    var pat = '^';
+    for (var i = 0; i < runs.length; i++) pat += IS_KANA.test(runs[i]) ? escRe(runs[i]) : '(.+?)';
+    var m = new RegExp(pat + '$').exec(r);
+    if (!m) return [[w, r]];
+    var out = [], g = 1;
+    for (var j = 0; j < runs.length; j++) out.push(IS_KANA.test(runs[j]) ? runs[j] : [runs[j], m[g++]]);
+    return out;
+  }
+  function compile(){
+    map = {};
+    var words = [];
+    for (var i = 0; i < DICT.length; i++) { var w = DICT[i][0]; if (!map[w]) words.push(w); map[w] = segs(w, DICT[i][1]); }
+    words.sort(function(a, b){ return b.length - a.length; });
+    re = words.length ? new RegExp(words.map(escRe).join('|'), 'g') : null;
+  }
+  function escH(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function rubyHtml(word){
+    var p = map[word], h = '';
+    for (var i = 0; i < p.length; i++) h += (typeof p[i] === 'string') ? escH(p[i]) : '<ruby class="kzr">' + escH(p[i][0]) + '<rt>' + escH(p[i][1]) + '</rt></ruby>';
+    return h;
+  }
+  function rubyFrag(word){
+    var p = map[word], f = document.createDocumentFragment();
+    for (var i = 0; i < p.length; i++) {
+      if (typeof p[i] === 'string') { f.appendChild(document.createTextNode(p[i])); continue; }
+      var r = document.createElement('ruby'); r.className = 'kzr';
+      r.appendChild(document.createTextNode(p[i][0]));
+      var rt = document.createElement('rt'); rt.appendChild(document.createTextNode(p[i][1])); r.appendChild(rt);
+      f.appendChild(r);
+    }
+    return f;
+  }
+
+  function kzRuby(root, opts){
+    root = root || document.body;
+    if (!root || !re) return 0;
+    var skip = SKIP + (opts && opts.skip ? ',' + opts.skip : '');
+    if (root.nodeType === 1 && root.closest && root.closest(skip)) return 0;
+    var list = [], n, w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || v.length < 1) continue;
+      re.lastIndex = 0;
+      if (!re.test(v)) continue;
+      var par = n.parentNode;
+      if (!par || par.nodeType !== 1 || (par.closest && par.closest(skip))) continue;
+      list.push(n);
+    }
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], s = t.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        f.appendChild(rubyFrag(m[0])); count++;
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(f, t);
+    }
+    return count;
+  }
+
+  /* HTML 文字列版: タグの外の文字にだけ付ける */
+  kzRuby.str = function(html){
+    if (!re) return String(html);
+    var parts = String(html).split(/(<[^>]*>)/), depth = 0, out = '';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.charAt(0) === '<') {
+        var m = /^<(\/?)([a-zA-Z0-9]+)/.exec(p);
+        if (m && /^(ruby|textarea|script|style|code|svg|select|option)$/i.test(m[2])) depth += m[1] ? -1 : 1;
+        if (depth < 0) depth = 0;
+        out += p; continue;
+      }
+      if (depth > 0 || !p) { out += p; continue; }
+      re.lastIndex = 0;
+      out += p.replace(re, rubyHtml);
+    }
+    return out;
+  };
+  kzRuby.plain = function(html){
+    return String(html == null ? '' : html)
+      .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, '').replace(/<rp[^>]*>[\s\S]*?<\/rp>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#0*39;/g, "'").replace(/&#x0*27;/gi, "'").replace(/&amp;/g, '&');
+  };
+  kzRuby.add = function(list){
+    for (var i = 0; i < (list || []).length; i++) {
+      var found = false;
+      for (var j = 0; j < DICT.length; j++) if (DICT[j][0] === list[i][0]) { DICT[j] = list[i]; found = true; break; }
+      if (!found) DICT.push(list[i]);
+    }
+    compile();
+  };
+  kzRuby.dict = DICT;
+  compile();
+  window.kzRuby = kzRuby;
+})();
+</script>
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var root=document.getElementById('b5app');
+function $(s,el){return (el||root).querySelector(s)}
+function $$(s,el){return Array.prototype.slice.call((el||root).querySelectorAll(s))}
+var store={
+  get:function(k,d){try{var v=localStorage.getItem('b5_'+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem('b5_'+k,JSON.stringify(v));return true}catch(e){return false}},
+  del:function(k){try{localStorage.removeItem('b5_'+k)}catch(e){}}
+};
+function isObj(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function num(v,d){v=+v;return isFinite(v)?v:d}
+/* ふりがな(共通の用語辞書 kzRuby)。B5 だけで使う語を追加する */
+if(window.kzRuby)kzRuby.add([['植物工場','しょくぶつこうじょう'],['露地栽培','ろじさいばい'],['施設栽培','しせつさいばい'],['自動化','じどうか'],['自動','じどう'],['照明','しょうめい'],
+  ['収量','しゅうりょう'],['費用','ひよう'],['品質','ひんしつ'],['安全性','あんぜんせい'],['配慮','はいりょ'],['計測','けいそく'],['制御','せいぎょ'],['出力','しゅつりょく'],['入力','にゅうりょく'],
+  ['条件','じょうけん'],['温度','おんど'],['冷房','れいぼう'],['電気代','でんきだい'],['点灯','てんとう'],['遠隔','えんかく'],['監視','かんし'],['異常','いじょう'],['点検','てんけん'],
+  ['最適化','さいてきか'],['折り合い','おりあい'],['天候','てんこう'],['病害虫','びょうがいちゅう'],['効率','こうりつ'],['大量','たいりょう'],['農地','のうち'],['設備','せつび'],['維持','いじ'],
+  ['負荷','ふか'],['人工知能','じんこうちのう'],['省力化','しょうりょくか'],['削減','さくげん'],['担い手','にないて'],['酸素','さんそ'],['連休','れんきゅう'],['株','かぶ'],['棚','たな'],
+  ['窓','まど'],['葉','は'],['夜','よる'],['平日','へいじつ'],['出荷','しゅっか'],['判断','はんだん'],['散布図','さんぷず'],['基準','きじゅん'],['改善','かいぜん'],['評価','ひょうか'],
+  ['時刻','じこく'],['必要','ひつよう'],['光','ひかり'],['根','ね'],['害虫','がいちゅう'],['台風','たいふう'],['大雨','おおあめ'],['手間','てま'],['作業','さぎょう'],['設定','せってい'],
+  ['乾燥','かんそう'],['水分','すいぶん'],['電気','でんき'],['機器','きき'],['回路','かいろ'],['課題','かだい'],['構想','こうそう'],['制作','せいさく'],['修正','しゅうせい'],['発見','はっけん'],
+  ['倍','ばい'],['夏休','なつやす'],['季節','きせつ'],['天気','てんき'],['番号','ばんごう'],['送','おく'],['実行','じっこう'],['試','ため'],['結果','けっか'],['状態','じょうたい'],
+  ['足','た'],['数値','すうち'],['途中','とちゅう'],['休','やす'],['夕方','ゆうがた'],['朝','あさ'],['昼','ひる'],['重ね','かさね'],['重','おも'],['姿','すがた'],['農業','のうぎょう'],['救','すく'],['日本','にほん']]);
+function plain(h){return window.kzRuby?kzRuby.plain(h):String(h==null?'':h).replace(/<rt>[\s\S]*?<\/rt>/g,'').replace(/<br\s*\/?>/g,'\n').replace(/<[^>]+>/g,'')}
+function rb(el){if(window.kzRuby&&el){try{kzRuby(el)}catch(e){}}}
+function toast(msg){var t=$('#b5-toast');t.textContent=plain(msg);t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show')},2600)}
+function download(name,text,type){
+  try{var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);toast('「'+name+'」を書き出しました')}catch(e){toast('書き出しできませんでした。コピーを使ってください')}
+}
+function copyText(text){
+  function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();toast(ok?'コピーしました':'コピーできませんでした')}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){toast('コピーしました')},fallback)}else fallback();
+}
+function p2(n){return ('0'+n).slice(-2)}
+function today(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function nowStamp(){var d=new Date();return today()+' '+p2(d.getHours())+':'+p2(d.getMinutes())}
+function savedLabel(stamp){if(!stamp)return '';var m=/^(\d{4}-\d\d-\d\d) (\d\d:\d\d)$/.exec(stamp);if(!m)return '';
+  return '✓ 最後に保存 '+(m[1]===today()?m[2]:(+m[1].slice(5,7))+'/'+(+m[1].slice(8))+' '+m[2])}
+function yen(n){return Math.round(n).toLocaleString('ja-JP')+'円'}
+function stars(n,max){max=max||3;return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,max-n)}
+function printVals(el){
+  $$('input[type=text]',el||root).forEach(function(i){
+    var d=i.nextElementSibling;
+    if(!d||!d.classList||!d.classList.contains('b5-pval')){d=document.createElement('div');d.className='b5-pval';d.setAttribute('aria-hidden','true');i.parentNode.insertBefore(d,i.nextSibling)}
+    d.textContent=i.value.replace(/\s+/g,'')?i.value:'(未記入)';
+  });
+}
+function printSync(el){printVals(el);if(window.kzPrintText)kzPrintText(el||root)}
+window.addEventListener('beforeprint',function(){printSync(root)});
+
+/* ================= シミュレーションのモデル(授業用の簡単なモデル。数値は目安) ================= */
+function rng(seed){var a=(seed>>>0)||1;return function(){a=(a+0x6D2B79F5)>>>0;var t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}}
+var SEASON={
+  spring:{name:'春(4月)',t:15,amp:5,rise:6,set:18,pest:0.07,storm:0},
+  summer:{name:'夏(8月)',t:27,amp:5,rise:5,set:19,pest:0.1,storm:0.05},
+  winter:{name:'冬(1月)',t:4,amp:4,rise:7,set:17,pest:0.01,storm:0}
+};
+var WX={sun:{name:'晴れ',ic:'☀️',peak:85,dt:2,field:14},cloud:{name:'くもり',ic:'☁️',peak:40,dt:0,field:8},rain:{name:'雨',ic:'☔',peak:20,dt:-2,field:4}};
+var LED_LIGHT=65;            /* LED が当てる光の強さ(0〜100) */
+var NEED=10;                 /* 1日に必要な光の量(明るさ100が1時間で1) */
+var PLANTS=12;               /* 棚で育てる株の数 */
+var SHIP=80;                 /* 出荷できる重さ(g) */
+var PRICE={led:1.5,pump:0.3,heat:6,cool:4};   /* 1時間の電気代(円)の目安 */
+var PUMP_L=2;                /* ポンプが1時間で出す水(L) */
+var DOW=['日','月','火','水','木','金','土'];
+var SENSORS={light:{name:'明るさ',unit:'',min:0,max:100,step:5},temp:{name:'温度',unit:'℃',min:0,max:40,step:1},moist:{name:'土の水分',unit:'%',min:0,max:100,step:5},time:{name:'時刻',unit:'時',min:0,max:23,step:1}};
+var DEVICES={led:{name:'LED(照明)',short:'LED',ic:'💡'},pump:{name:'ポンプ(水やり)',short:'ポンプ',ic:'🚿'},heat:{name:'ヒーター',short:'ヒーター',ic:'🔥'},cool:{name:'冷房(ファン)',short:'冷房',ic:'🌀'}};
+function weathers(seed,days,season){
+  var r=rng(seed*7919+(season==='summer'?101:season==='winter'?202:0)),a=[];
+  for(var i=0;i<days;i++){var x=r();a.push(x<0.5?'sun':x<0.78?'cloud':'rain')}
+  return a;
+}
+function sunAt(season,wx,h){var s=SEASON[season];if(h<s.rise||h>=s.set)return 0;var p=(h+0.5-s.rise)/(s.set-s.rise);return Math.round(WX[wx].peak*Math.sin(Math.PI*p))}
+function outTemp(season,wx,h,off){var s=SEASON[season];return s.t+WX[wx].dt+off+s.amp*Math.cos((h-14)/24*2*Math.PI)}
+function lin(x,x0,y0,x1,y1){if(x<=x0)return y0;if(x>=x1)return y1;return y0+(y1-y0)*(x-x0)/(x1-x0)}
+function fTemp(T){if(T<5)return 0.1;if(T<10)return lin(T,5,0.1,10,0.5);if(T<15)return lin(T,10,0.5,15,1);if(T<=22)return 1;if(T<=28)return lin(T,22,1,28,0.5);if(T<=32)return lin(T,28,0.5,32,0.2);return 0.1}
+function fMoist(m){if(m<20)return 0.2;if(m<40)return lin(m,20,0.2,40,1);if(m<=80)return 1;if(m<=90)return lin(m,80,1,90,0.8);return 0.6}
+function grow(w,f){return w+0.16*w*(1-w/160)*f}
+function cmp(a,op,b){return op==='<'?a<b:op==='>'?a>b:op==='<='?a<=b:a>=b}
+function inTime(h,a,b){a=+a;b=+b;if(a===b)return true;return a<b?(h>=a&&h<b):(h>=a||h<b)}
+/* プログラム(ルールの配列)を1回実行して、機器の ON/OFF を決める。同じ機器を動かすルールが2つあると、下のルールが勝つ */
+function runProg(prog,sens,dev){
+  for(var i=0;i<prog.length;i++){var r=prog[i];if(!r||!DEVICES[r.dev]||!SENSORS[r.s])continue;
+    var c=cmp(sens[r.s],r.op,+r.v);if(r.tm)c=c&&inTime(sens.time,r.ta,r.tb);
+    dev[r.dev]=c?(r.a?1:0):(r.b?1:0);}
+  return dev;
+}
+/* o: {season, seed, days, prog, manual(人が平日の朝に水やり), startDow, fault, w0, m0} */
+function simulate(o){
+  var days=o.days||7,season=o.season||'spring',seed=o.seed||1,prog=o.prog||[],fault=o.fault||'';
+  var wx=weathers(seed,days,season),r=rng(seed*31+7),off=[];
+  for(var i=0;i<days;i++)off.push(Math.round((r()*4-2)*10)/10);
+  var T=o.T0!=null?o.T0:outTemp(season,wx[0],0,off[0])+4,m=o.m0==null?60:o.m0,w=o.w0||3,q=100;
+  var log=[],dlog=[],tot={led:0,pump:0,heat:0,cool:0,cost:0,water:0,wilt:0,wet:0,hot:0,cold:0,nodark:0,overflow:0,both:0,lackDays:0};
+  var dow0=o.startDow==null?1:o.startDow;
+  for(var d=0;d<days;d++){
+    var L=0,dark=0,sT=0,sW=0,cost=0,water=0,dow=(dow0+d)%7,weekday=dow>=1&&dow<=5&&!(o.holidays&&o.holidays.indexOf(d)>=0),ledH=0;
+    for(var h=0;h<24;h++){
+      var sun=sunAt(season,wx[d],h);
+      var sens={light:sun,temp:Math.round(T*10)/10,moist:Math.round(m),time:h};
+      if(fault==='msensor')sens.moist=100;
+      var dev=runProg(prog,sens,{led:0,pump:0,heat:0,cool:0});
+      if(o.manual&&weekday&&h===8){var add=Math.min(45,100-m);m+=add;water+=6}
+      var eff={led:dev.led&&fault!=='led',pump:dev.pump&&fault!=='pump',heat:dev.heat&&fault!=='heat',cool:dev.cool&&fault!=='cool'};
+      var light=Math.min(100,sun+(eff.led?LED_LIGHT:0));L+=light/100;if(light<5)dark++;
+      var target=outTemp(season,wx[d],h,off[d])+4+(weekday&&h>=8&&h<17?2:0);
+      T+=(target-T)*0.3+(eff.heat?2.5:0)-(eff.cool?3:0)+(eff.led?0.3:0);
+      m-=0.35+0.05*Math.max(0,T-15)+0.004*light;
+      if(eff.pump){m+=15;water+=PUMP_L}
+      if(m>100){tot.overflow++;m=100}
+      if(m<0)m=0;
+      ['led','pump','heat','cool'].forEach(function(k){if(dev[k]){tot[k]++;cost+=PRICE[k]}});
+      if(dev.led)ledH++;
+      if(dev.heat&&dev.cool)tot.both++;
+      var ft=fTemp(T),fw=fMoist(m);sT+=ft;sW+=fw;
+      if(m<20){q-=0.4;tot.wilt++}
+      if(m>90){q-=0.15;tot.wet++}
+      if(T>32){q-=0.3;tot.hot++}
+      if(T<4){q-=0.2;tot.cold++}
+      log.push({d:d,dow:dow,h:h,sun:sun,light:light,T:Math.round(T*10)/10,m:Math.round(m*10)/10,sm:sens.moist,dev:dev,eff:eff,wx:wx[d]});
+    }
+    if(dark<6){q-=2;tot.nodark++}
+    var fL=Math.min(1,L/NEED);if(L<NEED*0.9)tot.lackDays++;
+    var f=fL*(sT/24)*(sW/24);w=grow(w,f);if(q<0)q=0;
+    tot.cost+=cost;tot.water+=water;
+    dlog.push({d:d,wx:wx[d],dow:dow,L:Math.round(L*10)/10,dark:dark,f:Math.round(f*100)/100,fL:fL,fT:sT/24,fW:sW/24,w:Math.round(w*10)/10,q:Math.round(q),cost:Math.round(cost*10)/10,water:water,ledH:ledH});
+  }
+  tot.cost=Math.round(tot.cost);
+  var ship=(w>=SHIP&&q>=60)?PLANTS:0;
+  return {log:log,days:dlog,tot:tot,w:Math.round(w*10)/10,q:Math.max(0,Math.round(q)),ship:ship,yieldG:Math.round(w*PLANTS),wx:wx};
+}
+/* ① 露地栽培と植物工場(1m² あたり)。1日ずつの簡単なモデル */
+function compareSim(season,seed){
+  var S=SEASON[season],wx=weathers(seed,60,season),r=rng(seed*53+season.length);
+  var F={w:3,q:100,m:70,day:0,water:0,labor:0,cost:0,events:[],done:false,hist:[]};
+  var P={w:3,q:100,day:0,water:0,labor:0,cost:0,done:false,hist:[]};
+  for(var d=0;d<60;d++){
+    var x=wx[d],dow=(1+d)%7,weekday=dow>=1&&dow<=5;
+    if(!F.done){
+      var T=S.t+WX[x].dt+(r()*4-2),fL=Math.min(1,WX[x].field/NEED),ev='';
+      if(x==='rain')F.m=Math.min(95,F.m+35);else F.m-=(x==='sun'?18+Math.max(0,T-20):9);
+      F.labor+=0.15;
+      if(F.m<40&&weekday){F.m+=45;F.water+=20;F.labor+=0.3}
+      if(F.m<0)F.m=0;
+      var pr=r();
+      if(pr<S.pest){F.q-=8;ev='虫'}
+      else if(pr<S.pest+S.storm){F.q-=15;ev='大雨・台風'}
+      if(T>30){F.q-=2;ev=ev||'暑さ'}
+      if(T<3){F.q-=1;ev=ev||'霜'}
+      F.w=grow(F.w,fL*fTemp(T)*fMoist(F.m));if(F.q<0)F.q=0;
+      F.hist.push({w:F.w,wx:x,ev:ev,T:Math.round(T)});
+      if(ev)F.events.push((d+1)+'日目 '+ev);
+      if(F.w>=100){F.done=true;F.day=d+1}
+    }
+    if(!P.done){
+      P.cost+=60;P.water+=1;P.labor+=0.05;
+      P.w=grow(P.w,1);P.hist.push({w:P.w,wx:x});
+      if(P.w>=100){P.done=true;P.day=d+1}
+    }
+  }
+  if(!F.done)F.day=0;
+  return {season:season,seed:seed,wx:wx,field:F,factory:P,fieldPer:16,factoryPer:64};
+}
+
+/* ================= 保存しているもの ================= */
+function defLight(){return {s:'light',op:'<',v:50,dev:'led',a:1,b:0,tm:0,ta:6,tb:20}}
+function defWater(){return {s:'moist',op:'<',v:30,dev:'pump',a:1,b:0,tm:0,ta:6,tb:20}}
+function normRule(r){
+  if(!isObj(r)||!SENSORS[r.s]||!DEVICES[r.dev])return null;
+  var S=SENSORS[r.s];
+  return {s:r.s,op:['<','>'].indexOf(r.op)>=0?r.op:'<',v:clamp(Math.round(num(r.v,S.min)),S.min,S.max),dev:r.dev,a:r.a?1:0,b:r.b?1:0,tm:r.tm?1:0,ta:clamp(Math.round(num(r.ta,6)),0,23),tb:clamp(Math.round(num(r.tb,20)),0,24)};
+}
+function normProg(p,def){if(!Array.isArray(p))return def;var o=p.map(normRule).filter(Boolean).slice(0,6);return o.length?o:def}
+function defState(){return {prog2:[defLight()],prog3:[defWater()],prog4:null,seed2:1,seed3:1,seed4:1,season4:'spring',cmpSeason:'spring',cmpSeed:1,
+  cmpRuns:[],sort:null,best2:0,best3:0,last2:null,last3:null,trials:[],smartBest:null,smartW:{y:3,q:3,c:3,e:3},pick:null,pickReason:'',tab:'home'}}
+function normState(o){
+  var d=defState();if(!isObj(o))return d;
+  d.prog2=normProg(o.prog2,d.prog2);d.prog3=normProg(o.prog3,d.prog3);d.prog4=o.prog4?normProg(o.prog4,null):null;
+  ['seed2','seed3','seed4','cmpSeed'].forEach(function(k){d[k]=clamp(Math.round(num(o[k],1)),1,99)});
+  if(SEASON[o.season4])d.season4=o.season4;if(SEASON[o.cmpSeason])d.cmpSeason=o.cmpSeason;
+  if(Array.isArray(o.cmpRuns))d.cmpRuns=o.cmpRuns.filter(isObj).slice(-12);
+  if(isObj(o.sort))d.sort=o.sort;
+  d.best2=clamp(Math.round(num(o.best2,0)),0,3);d.best3=clamp(Math.round(num(o.best3,0)),0,3);
+  if(isObj(o.last2))d.last2=o.last2;if(isObj(o.last3))d.last3=o.last3;
+  if(Array.isArray(o.trials))d.trials=o.trials.filter(function(t){return isObj(t)&&SEASON[t.season]&&isFinite(t.score)}).slice(-30);
+  if(isObj(o.smartBest))d.smartBest=o.smartBest;
+  if(isObj(o.smartW))['y','q','c','e'].forEach(function(k){d.smartW[k]=clamp(Math.round(num(o.smartW[k],3)),0,5)});
+  if(o.pick!=null)d.pick=o.pick;if(typeof o.pickReason==='string')d.pickReason=o.pickReason;
+  if(typeof o.tab==='string')d.tab=o.tab;
+  return d;
+}
+var ST=normState(store.get('state',null));
+function save(){if(!store.set('state',ST))toast('保存できませんでした(このひらき方では記録が残りません)')}
+
+/* ================= 共通: 設定・タブ ================= */
+(function(){ var s=store.get('settings',null);var p=kzPrefs.get(),o={};
+  if(isObj(s)){if(p.ruby===null&&s.ruby===false)o.ruby=false;if(p.fs===null&&s.fs&&s.fs!==18)o.fs=s.fs}
+  if(o.ruby!==undefined||o.fs!==undefined)kzPrefs.set(o);})();
+var curTab='home';
+function applySettings(){
+  var p=kzPrefs.get(),ruby=p.ruby!==false,fs=p.fs||kzPrefs.FS_DEFAULT;
+  root.classList.toggle('b5-noruby',!ruby);
+  root.style.setProperty('--b5-fs',fs+'px');
+  store.set('settings',{ruby:ruby,fs:fs});
+  redrawCharts();
+}
+kzPrefs.bind($('#b5-ruby'));
+/* 文字の大きさ: 4分野共通の「文字 中」ボタン */
+kzPrefs.on(EduitFrame.sizeButton($('#b5-size'),{steps:[[16,'小'],[18,'中'],[22,'大'],[26,'特大']],get:function(){return kzPrefs.get().fs||kzPrefs.FS_DEFAULT},set:function(v){kzPrefs.set({fs:v})}}));
+kzPrefs.on(function(){applySettings()});
+/* 振り返りを隠す設定(先生用): 振り返りのタブは開かない */
+var FK_OFF=!!(window.EduitFrame&&EduitFrame.furikaeri===false);
+var RENDER={};
+function showTab(tab){
+  if(!RENDER[tab]||(FK_OFF&&tab==='refl'))tab='home';
+  stopPlayer();
+  curTab=tab;ST.tab=tab;save();
+  $$('.b5-nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false')});
+  $$('main > section').forEach(function(s){s.hidden=s.dataset.sec!==tab});
+  RENDER[tab]($('[data-sec="'+tab+'"]'));
+  window.scrollTo(0,0);
+}
+$$('.b5-nav button').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
+root.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){showTab(g.getAttribute('data-go'))}});
+
+/* ================= グラフ(SVG) ================= */
+var chartJobs=[];
+function redrawCharts(){chartJobs.forEach(function(j){if(j.el&&j.el.isConnected)j.draw()});chartJobs=chartJobs.filter(function(j){return j.el&&j.el.isConnected})}
+window.addEventListener('resize',function(){clearTimeout(redrawCharts._t);redrawCharts._t=setTimeout(redrawCharts,150)});
+/* o: {n(点の数), ymin, ymax, series:[{vals,color,dash,w}], bands:[{i0,i1,color}], ybands:[{y0,y1,color}], hlines:[{y,color,label}], xl:[{i,t}], unit, bars:{vals,colors}, h} */
+function chartSVG(el,o){
+  var W=Math.max(280,Math.round(el.clientWidth||600)),H=o.h||Math.round(clamp(W*0.36,170,240)),fs=Math.round(clamp(W/50,11,14));
+  var L=fs*2.6,R=8,T=8,B=fs*1.9,pw=W-L-R,ph=H-T-B,n=Math.max(2,o.n),y0=o.ymin,y1=o.ymax;
+  function X(i){return L+pw*i/(n-1)}function Y(v){return T+ph*(1-(clamp(v,y0,y1)-y0)/(y1-y0))}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(o.label||'グラフ')+'" font-size="'+fs+'" font-family="inherit">';
+  s+='<rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="#fff" stroke="#cfdccc"/>';
+  (o.ybands||[]).forEach(function(b){s+='<rect x="'+L+'" y="'+Y(b.y1)+'" width="'+pw+'" height="'+(Y(b.y0)-Y(b.y1))+'" fill="'+b.color+'"/>'});
+  (o.bands||[]).forEach(function(b){var x0=X(b.i0)-pw/(n-1)/2,x1=X(b.i1)+pw/(n-1)/2;x0=Math.max(L,x0);x1=Math.min(L+pw,x1);s+='<rect x="'+x0.toFixed(1)+'" y="'+T+'" width="'+(x1-x0).toFixed(1)+'" height="'+ph+'" fill="'+b.color+'"/>'});
+  for(var k=0;k<=4;k++){var v=y0+(y1-y0)*k/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+y+'" y2="'+y+'" stroke="#e3e9e1"/><text x="'+(L-4)+'" y="'+(y+fs*0.35)+'" text-anchor="end" fill="#5a6a5a">'+(Math.round(v*10)/10)+'</text>'}
+  if(o.bars){var bw=pw/n*0.7;o.bars.vals.forEach(function(v,i){if(v==null)return;var x=L+pw*(i+0.5)/n-bw/2;s+='<rect x="'+x.toFixed(1)+'" y="'+Y(v)+'" width="'+bw.toFixed(1)+'" height="'+(Y(y0)-Y(v)).toFixed(1)+'" fill="'+(o.bars.colors?o.bars.colors[i]:'#66a86a')+'"/>'})}
+  (o.hlines||[]).forEach(function(h){var y=Y(h.y);s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+y+'" y2="'+y+'" stroke="'+h.color+'" stroke-width="2" stroke-dasharray="6 4"/>'+(h.label?'<text x="'+(L+pw-4)+'" y="'+(y-4)+'" text-anchor="end" fill="'+h.color+'" font-weight="700">'+esc(h.label)+'</text>':'')});
+  (o.series||[]).forEach(function(se){var pts=[];se.vals.forEach(function(v,i){if(v!=null)pts.push((o.bars?L+pw*(i+0.5)/n:X(i)).toFixed(1)+','+Y(v).toFixed(1))});
+    if(pts.length)s+='<polyline fill="none" stroke="'+se.color+'" stroke-width="'+(se.w||2.5)+'" stroke-linejoin="round"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' points="'+pts.join(' ')+'"/>'});
+  (o.xl||[]).forEach(function(x){var xx=o.bars?L+pw*(x.i+0.5)/n:X(x.i);s+='<text x="'+xx.toFixed(1)+'" y="'+(H-fs*0.5)+'" text-anchor="middle" fill="#5a6a5a">'+esc(x.t)+'</text>'});
+  if(o.unit)s+='<text x="'+(L+4)+'" y="'+(T+fs)+'" fill="#5a6a5a">'+esc(o.unit)+'</text>';
+  return s+'</svg>';
+}
+function chart(el,fn){if(!el)return null;var job=null;for(var i=0;i<chartJobs.length;i++)if(chartJobs[i].el===el){job=chartJobs[i];break}
+  if(!job){job={el:el};chartJobs.push(job)}job.draw=function(){el.innerHTML=chartSVG(el,fn())};job.draw();return job}
+function chartRaw(el,draw){if(!el)return;chartJobs=chartJobs.filter(function(j){return j.el!==el});var job={el:el,draw:draw};chartJobs.push(job);draw()}
+function dayLabels(nDays,perDay,wx){var a=[],step=nDays>20?7:nDays>10?2:1;for(var d=0;d<nDays;d+=step)a.push({i:d*perDay+(perDay>1?perDay/2:0),t:(d+1)+'日'+(wx&&nDays<=10?WX[wx[d]].ic:'')});return a}
+
+/* ================= 棚のようす(SVG) ================= */
+function shelfSVG(){
+  var s='<svg class="b5-shelf" viewBox="0 0 360 230" role="img" aria-label="教室の棚で育てているリーフレタスのようす">';
+  s+='<rect x="0" y="0" width="360" height="230" fill="#f3efe6"/>';
+  s+='<rect data-k="sky" x="12" y="22" width="80" height="120" rx="4" fill="#bfe3ff" stroke="#8a7a62" stroke-width="5"/><line x1="52" y1="22" x2="52" y2="142" stroke="#8a7a62" stroke-width="3"/><line x1="12" y1="82" x2="92" y2="82" stroke="#8a7a62" stroke-width="3"/>';
+  s+='<text data-k="wx" x="52" y="62" font-size="26" text-anchor="middle">☀️</text>';
+  s+='<text data-k="clock" x="52" y="166" font-size="13" text-anchor="middle" fill="#3a4a3a" font-weight="700">1日目 0時</text>';
+  s+='<text data-k="sens" x="52" y="186" font-size="11" text-anchor="middle" fill="#3a4a3a">センサ</text>';
+  s+='<rect x="108" y="30" width="6" height="190" fill="#9a8a72"/><rect x="346" y="30" width="6" height="190" fill="#9a8a72"/><rect x="104" y="36" width="252" height="7" fill="#b9a98f"/><rect x="104" y="202" width="252" height="8" fill="#b9a98f"/>';
+  s+='<polygon data-k="cone" points="124,52 336,52 350,200 110,200" fill="#fff4a3" opacity="0"/>';
+  s+='<rect data-k="led" x="124" y="44" width="212" height="8" rx="3" fill="#d9d9d9" stroke="#999"/>';
+  s+='<path d="M330 44 V30 H356" stroke="#5a9bd5" stroke-width="3" fill="none"/>';
+  for(var i=0;i<4;i++){var x=148+i*56;
+    s+='<g data-k="drops'+i+'" opacity="0"><circle class="b5-drop" cx="'+(x-6)+'" cy="58" r="2.5" fill="#3b8fd9"/><circle class="b5-drop" cx="'+(x+6)+'" cy="62" r="2.5" fill="#3b8fd9" style="animation-delay:.4s"/></g>';
+    s+='<g data-k="plant'+i+'" transform="translate('+x+',176) scale(1)">'+
+      '<ellipse cx="-11" cy="-8" rx="13" ry="6" transform="rotate(-25 -11 -8)"/><ellipse cx="11" cy="-8" rx="13" ry="6" transform="rotate(25 11 -8)"/>'+
+      '<ellipse cx="-7" cy="-16" rx="11" ry="6" transform="rotate(-55 -7 -16)"/><ellipse cx="7" cy="-16" rx="11" ry="6" transform="rotate(55 7 -16)"/><ellipse cx="0" cy="-19" rx="7" ry="10"/></g>';
+    s+='<path d="M'+(x-14)+' 176 h28 l-4 24 h-20 z" fill="#c2703d"/>';
+  }
+  s+='<text data-k="heat" x="120" y="226" font-size="18" opacity=".15">🔥</text>';
+  s+='<g data-k="cool" opacity=".15"><text class="b5-spin" x="322" y="226" font-size="18">🌀</text></g>';
+  s+='<rect data-k="night" x="0" y="0" width="360" height="230" fill="#0b1630" opacity="0" pointer-events="none"/>';
+  return s+'</svg>';
+}
+function ioHTML(){
+  var h='<div class="b5-io"><div class="b5-io-col"><h4>入力(センサ)</h4>';
+  ['light','temp','moist','time'].forEach(function(k){h+='<div class="b5-sv"><span>'+SENSORS[k].name+'</span><b data-io="'+k+'">-</b></div>'});
+  h+='</div><div class="b5-io-mid">プログラム<b>➡</b>判断</div><div class="b5-io-col"><h4>出力(機器)</h4>';
+  ['led','pump','heat','cool'].forEach(function(k){h+='<div class="b5-sv"><span>'+DEVICES[k].ic+' '+DEVICES[k].short+'</span><span class="b5-lamp" data-lamp="'+k+'">OFF</span></div>'});
+  return h+'</div></div>';
+}
+function mixColor(a,b,t){t=clamp(t,0,1);var pa=[1,3,5].map(function(i){return parseInt(a.substr(i,2),16)}),pb=[1,3,5].map(function(i){return parseInt(b.substr(i,2),16)});
+  return '#'+pa.map(function(v,i){var x=Math.round(v+(pb[i]-v)*t).toString(16);return x.length<2?'0'+x:x}).join('')}
+function updateShelf(view,rec,w,q,uses){
+  if(!view||!rec)return;
+  var sv=$('svg',view);if(!sv)return;
+  function k(n){return sv.querySelector('[data-k="'+n+'"]')}
+  var day=rec.sun>0,sunT=rec.sun/85;
+  k('sky').setAttribute('fill',day?mixColor(rec.wx==='sun'?'#9fc7ea':'#aab4bf',rec.wx==='sun'?'#bfe3ff':'#d5dbe1',sunT):'#26345a');
+  k('wx').textContent=day?WX[rec.wx].ic:(rec.wx==='rain'?'☔':'🌙');
+  k('clock').textContent=(rec.d+1)+'日目('+DOW[rec.dow]+') '+rec.h+'時';
+  k('sens').textContent='明るさ '+rec.sun;
+  var led=!!rec.eff.led;
+  k('led').setAttribute('fill',led?'#fff7b0':'#d9d9d9');k('cone').setAttribute('opacity',led?'.55':'0');
+  k('night').setAttribute('opacity',String(clamp(0.45-(rec.light/100)*0.6,0,0.45)));
+  k('heat').setAttribute('opacity',rec.eff.heat?'1':'.15');k('cool').setAttribute('opacity',rec.eff.cool?'1':'.15');
+  var sc=0.45+Math.sqrt(clamp(w,0,160)/160)*0.85,wilt=rec.m<20,col=mixColor(wilt?'#9aa65a':'#3f9b3a','#b49a52',clamp((100-q)/100,0,1));
+  for(var i=0;i<4;i++){var g=k('plant'+i);g.setAttribute('transform','translate('+(148+i*56)+',176) scale('+(sc*(1+((i%2)?0.04:-0.03))).toFixed(3)+','+(sc*(wilt?0.62:1)).toFixed(3)+')');g.setAttribute('fill',col);
+    k('drops'+i).setAttribute('opacity',rec.eff.pump&&!(uses&&uses.indexOf('pump')<0)?'1':'0')}
+  var io={light:rec.sun,temp:rec.T.toFixed(1)+'℃',moist:Math.round(rec.sm)+'%',time:rec.h+'時'};
+  Object.keys(io).forEach(function(n){var e=view.querySelector('[data-io="'+n+'"]');if(e)e.textContent=io[n]});
+  Object.keys(DEVICES).forEach(function(n){var e=view.querySelector('[data-lamp="'+n+'"]');if(!e)return;var on=!!rec.dev[n]&&!(uses&&uses.indexOf(n)<0);e.textContent=on?'ON':'OFF';e.classList.toggle('on',on);e.classList.toggle('dim',uses&&uses.indexOf(n)<0)});
+}
+
+/* ================= ブロックのプログラム ================= */
+/* opt: {lockS:true(センサを変えられない), lockDev:true, canAdd:true(ルールを足せる), canTime:true(時刻の条件)} */
+function progHTML(prog,opt){
+  var h='<div class="b5-prog"><div class="b5-blk b5-forever"><div class="b5-bh">🔁 ずっと(くり返す)</div><div class="b5-inner">';
+  prog.forEach(function(r,i){
+    var S=SENSORS[r.s];
+    h+='<div class="b5-blk b5-if" data-ri="'+i+'"><div class="b5-bh">もし '+
+      '<select data-f="s" aria-label="センサ"'+(opt.lockS?' disabled':'')+'>'+Object.keys(SENSORS).map(function(k){return '<option value="'+k+'"'+(r.s===k?' selected':'')+'>'+SENSORS[k].name+'</option>'}).join('')+'</select>'+
+      '<select data-f="op" aria-label="くらべ方"><option value="<"'+(r.op==='<'?' selected':'')+'>&lt;(より小さい)</option><option value=">"'+(r.op==='>'?' selected':'')+'>&gt;(より大きい)</option></select>'+
+      '<span class="b5-num"><button type="button" data-step="-1" aria-label="へらす">−</button><input type="number" data-f="v" inputmode="numeric" min="'+S.min+'" max="'+S.max+'" step="'+S.step+'" value="'+r.v+'" aria-label="くらべる数"><button type="button" data-step="1" aria-label="ふやす">＋</button></span>'+(S.unit?'<span>'+S.unit+'</span>':'');
+    if(r.tm)h+='<span class="b5-tm">かつ 時刻が <select data-f="ta" aria-label="はじめの時刻">'+hours(r.ta,0,23)+'</select>時から <select data-f="tb" aria-label="おわりの時刻">'+hours(r.tb,1,24)+'</select>時まで <button type="button" class="b5-mini" data-act="tmoff" aria-label="時刻の条件をはずす">✕</button></span>';
+    h+=' なら <span class="b5-eval" data-eval="'+i+'">-</span>';
+    if(opt.canAdd)h+='<span class="b5-tools2"><button type="button" class="b5-mini" data-act="up" aria-label="上へ"'+(i===0?' disabled':'')+'>↑</button><button type="button" class="b5-mini" data-act="down" aria-label="下へ"'+(i===prog.length-1?' disabled':'')+'>↓</button><button type="button" class="b5-mini" data-act="del" aria-label="このルールを消す">🗑</button></span>';
+    h+='</div><div class="b5-inner"><div class="b5-blk b5-out"><div class="b5-bh">'+devSel(r,opt)+' を <select data-f="a" aria-label="成り立つとき">'+onoff(r.a)+'</select> にする</div></div></div>';
+    h+='<div class="b5-bh">でなければ</div><div class="b5-inner"><div class="b5-blk b5-out"><div class="b5-bh"><span>'+DEVICES[r.dev].ic+' '+DEVICES[r.dev].short+'</span> を <select data-f="b" aria-label="成り立たないとき">'+onoff(r.b)+'</select> にする</div></div></div>';
+    if(opt.canTime&&!r.tm)h+='<button type="button" class="b5-add" data-act="tmon">＋「かつ 時刻が ○時から○時まで」の条件を足す</button>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+  if(opt.canAdd&&prog.length<6)h+='<button type="button" class="b5-add" data-act="add">＋「もし〜なら〜でなければ」のブロックを足す</button>';
+  return h+'</div>';
+  function hours(v,a,b){var s='';for(var x=a;x<=b;x++)s+='<option value="'+x+'"'+(+v===x?' selected':'')+'>'+x+'</option>';return s}
+  function onoff(v){return '<option value="1"'+(v?' selected':'')+'>ON</option><option value="0"'+(!v?' selected':'')+'>OFF</option>'}
+  function devSel(r,opt){return '<select data-f="dev" aria-label="動かす機器"'+(opt.lockDev?' disabled':'')+'>'+Object.keys(DEVICES).map(function(k){return '<option value="'+k+'"'+(r.dev===k?' selected':'')+'>'+DEVICES[k].ic+' '+DEVICES[k].short+'</option>'}).join('')+'</select>'}
+}
+function bindProg(el,prog,opt,changed){
+  function rerender(){el.innerHTML=progHTML(prog,opt);rb(el);changed()}
+  el.innerHTML=progHTML(prog,opt);rb(el);
+  el.addEventListener('change',function(e){
+    var t=e.target,b=t.closest('[data-ri]');if(!b||!t.dataset.f)return;var r=prog[+b.dataset.ri],f=t.dataset.f;
+    if(f==='v'){var S=SENSORS[r.s];r.v=clamp(Math.round(num(t.value,r.v)),S.min,S.max);t.value=r.v}
+    else if(f==='s'){r.s=t.value;var S2=SENSORS[r.s];r.v=clamp(r.v,S2.min,S2.max);if(r.s==='time'&&r.v>23)r.v=12;rerender();return}
+    else if(f==='dev'){r.dev=t.value;rerender();return}
+    else if(f==='a'||f==='b'||f==='ta'||f==='tb')r[f]=+t.value;
+    else r[f]=t.value;
+    changed();
+  });
+  el.addEventListener('click',function(e){
+    var t=e.target.closest('button');if(!t)return;var b=t.closest('[data-ri]'),i=b?+b.dataset.ri:-1;
+    if(t.dataset.step){var r=prog[i],S=SENSORS[r.s];r.v=clamp(r.v+S.step*(+t.dataset.step),S.min,S.max);var inp=b.querySelector('[data-f="v"]');if(inp)inp.value=r.v;changed();return}
+    var a=t.dataset.act;if(!a)return;
+    if(a==='tmon'){prog[i].tm=1;rerender()}
+    else if(a==='tmoff'){prog[i].tm=0;rerender()}
+    else if(a==='up'&&i>0){var x=prog.splice(i,1)[0];prog.splice(i-1,0,x);rerender()}
+    else if(a==='down'&&i<prog.length-1){var y=prog.splice(i,1)[0];prog.splice(i+1,0,y);rerender()}
+    else if(a==='del'){if(prog.length<=1){toast('ブロックは1つは必要です');return}prog.splice(i,1);rerender()}
+    else if(a==='add'){prog.push({s:'temp',op:'>',v:25,dev:'cool',a:1,b:0,tm:0,ta:6,tb:20});rerender()}
+  });
+}
+function evalMarks(el,prog,rec){
+  if(!el)return;var sens={light:rec.sun,temp:rec.T,moist:rec.sm,time:rec.h};
+  prog.forEach(function(r,i){var e=el.querySelector('[data-eval="'+i+'"]');if(!e)return;var c=cmp(sens[r.s],r.op,+r.v);if(r.tm)c=c&&inTime(rec.h,r.ta,r.tb);
+    e.textContent=c?'○ 成り立つ':'× 成り立たない';e.className='b5-eval '+(c?'t':'f')});
+}
+function progText(prog){
+  return prog.map(function(r){var S=SENSORS[r.s];return 'もし '+S.name+' '+r.op+' '+r.v+S.unit+(r.tm?' かつ '+r.ta+'時から'+r.tb+'時まで':'')+' なら '+DEVICES[r.dev].short+'を'+(r.a?'ON':'OFF')+' でなければ '+(r.b?'ON':'OFF')}).join(' / ');
+}
+
+/* ================= 早送り(再生) ================= */
+var player=null;
+function stopPlayer(){if(player){player.stop=true;player=null}}
+/* res(simulate の結果)を時間の順に見せる。speed: 1日あたりの秒 */
+function play(res,o){
+  stopPlayer();
+  var p={stop:false},n=res.log.length,i=0,last=0,acc=0;player=p;
+  var spd=o.speed;
+  if(spd===0){o.frame(n-1);o.end();player=null;return}
+  function step(t){
+    if(p.stop)return;
+    if(!last)last=t;var dt=Math.min(100,t-last);last=t;acc+=dt/1000*24/spd;
+    var k=Math.floor(acc);if(k>0){acc-=k;i=Math.min(n-1,i+k);o.frame(i)}
+    if(i>=n-1){player=null;o.end();return}
+    requestAnimationFrame(step);
+  }
+  o.frame(0);requestAnimationFrame(step);
+}
+var SPEEDS=[['ゆっくり',2],['ふつう',0.8],['はやい',0.25],['結果だけ',0]];
+var speedIdx=store.get('speed',1);if(!(speedIdx>=0&&speedIdx<4))speedIdx=1;
+function speedHTML(){return '<div class="b5-seg" role="group" aria-label="早送りの速さ">'+SPEEDS.map(function(s,i){return '<button type="button" data-speed="'+i+'" aria-pressed="'+(i===speedIdx)+'">'+s[0]+'</button>'}).join('')+'</div>'}
+function bindSpeed(el){$$('[data-speed]',el).forEach(function(b){b.addEventListener('click',function(){speedIdx=+b.dataset.speed;store.set('speed',speedIdx);$$('[data-speed]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})})}
+function seedHTML(id,v){return '<span class="b5-row" style="gap:6px"><span>天気の番号</span><span class="b5-num"><button type="button" data-seedstep="-1" aria-label="番号をへらす">−</button><input type="number" id="'+id+'" min="1" max="99" value="'+v+'" inputmode="numeric" aria-label="天気の番号(1〜99)"><button type="button" data-seedstep="1" aria-label="番号をふやす">＋</button></span><button type="button" class="b5-mini" data-seedrand aria-label="番号をくじで決める">🎲</button></span>'}
+function bindSeed(el,id,get,set){
+  var inp=$('#'+id,el);
+  function put(v){v=clamp(Math.round(num(v,1)),1,99);inp.value=v;set(v)}
+  inp.addEventListener('change',function(){put(inp.value)});
+  $$('[data-seedstep]',el).forEach(function(b){b.addEventListener('click',function(){var v=get()+(+b.dataset.seedstep);if(v<1)v=99;if(v>99)v=1;put(v)})});
+  var r=$('[data-seedrand]',el);if(r)r.addEventListener('click',function(){put(1+Math.floor(Math.random()*99))});
+}
+function seasonHTML(cur,attr){return '<div class="b5-seg" role="group" aria-label="季節">'+Object.keys(SEASON).map(function(k){return '<button type="button" '+attr+'="'+k+'" aria-pressed="'+(cur===k)+'">'+SEASON[k].name+'</button>'}).join('')+'</div>'}
+function wxStrip(res,days){return res.wx.slice(0,days).map(function(w,i){return '<span title="'+(i+1)+'日目 '+WX[w].name+'">'+WX[w].ic+'</span>'}).join('')}
+
+/* ================= はじめに ================= */
+RENDER.home=function(el){
+  var h='<div class="b5-card"><h1>植物工場の自動化 ― 日本の農業を救うのは?</h1>';
+  h+='<div class="b5-comic">'+
+    koma('🧑‍🏫','教室でリーフレタスを育てたけど、管理作業ができないなあ。')+
+    koma('👧','教室を植物工場にするってこと?')+
+    koma('👦','暗くなったら自動で明るくしたり、水やりも自動でできたらいいな。')+
+    koma('🧑‍🌾','自動化しても、ずっと見ていたら意味がないと思うんだけど…')+'</div>';
+  h+='<p><b>問題</b>:リーフレタスを、手間をかけずに安定して収穫したい。<br><b>課題</b>:教室の棚で、リーフレタスの育成環境の調節(照明・温度・水やり)を自動にする。</p>';
+  h+='<div class="b5-sys"><div class="b5-in"><b>入力(センサ)</b><br>明るさ・温度・土の水分を測る</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-pg"><b>プログラム</b><br>「もし〜なら」で判断する</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-ot"><b>出力(機器)</b><br>LED・ポンプ・ヒーター・冷房を動かす</div></div>';
+  h+='<p class="b5-small">センサで測り、プログラムで判断して、機器を動かすしくみを「計測・制御」といいます。情報の技術(D)で学ぶしくみを、生物育成に使います。</p>';
+  h+='<ol class="b5-flow"><li><b>1 問題の発見・課題の設定</b>① くらべる</li><li><b>2 解決策の構想</b>② ③ プログラムを考える</li><li><b>3 制作</b>②〜④ ためして直す</li><li><b>4 評価・改善</b>④ レーダーチャート</li><li><b>5 これからの技術</b>⑤ スマート農業</li></ol>';
+  h+='<div class="b5-note">🥬 これは授業用のかんたんなシミュレーションです。数値(重さ・電気代など)は目安です。本物の作物を育てるときの考え方に生かしましょう。</div></div>';
+  h+='<div class="b5-card"><h2>ミッション</h2><ul class="b5-mis">';
+  var c1=(ST.cmpRuns.length?1:0)+(ST.sort&&ST.sort.score>=6?1:0)+(ST.cmpRuns.map(function(r){return r.season}).filter(function(v,i,a){return a.indexOf(v)===i}).length>=2?1:0);
+  var best4=ST.trials.reduce(function(m,t){return Math.max(m,t.score)},0),s4=best4>=85?3:best4>=70?2:best4>=50?1:0;
+  var s5=ST.smartBest?(ST.smartBest.score>=6?3:ST.smartBest.score>=4?2:1):0;
+  h+=mis('cmp','① 露地栽培と植物工場をくらべ、仕分けクイズで6問以上正解する(2つ以上の季節でくらべると★3)',c1,'基本');
+  h+=mis('light','② 明るさセンサで照明を自動にして、7日とも光を足りるようにする',ST.best2,'基本');
+  h+=mis('water','③ 土の水分センサで水やりを自動にして、連休中もしおれさせない',ST.best3,'基本');
+  h+=mis('all','④ 照明・水やり・温度を全部自動にして、電気代と収量の折り合いをつける(点数 50・70・85)',s4,'発展');
+  h+=mis('smart','⑤ スマート農業のデータを見て、異常のある棚と対策を見つける',s5,'発展');
+  h+='</ul></div>';
+  el.innerHTML=h;rb(el);
+  function koma(f,t){return '<div class="b5-koma"><div class="b5-face" aria-hidden="true">'+f+'</div><div class="b5-say">'+t+'</div></div>'}
+  function mis(tab,t,n,lv){return '<li><span class="b5-lv'+(lv==='発展'?' adv':'')+'">'+lv+'</span><span>'+t+'</span><span class="b5-stars" aria-label="星'+n+'つ">'+stars(n)+'</span><button type="button" class="b5-btn b5-go" data-go="'+tab+'">ひらく ▶</button></li>'}
+};
+
+/* ================= ① くらべる ================= */
+var SORT=[
+  {t:'天候や季節に関係なく育てられる',a:'f',e:'植物工場は、光・温度・水を人工的に調節するので、天気や季節に左右されにくい。'},
+  {t:'広い農地で、効率よくたくさん育てられる',a:'o',e:'露地栽培は、広い畑で大型の機械を使い、たくさんの作物を効率よく育てられる。'},
+  {t:'病害虫の被害を受けにくい',a:'f',e:'植物工場は閉じた部屋で育てるので、虫や病気が入りにくい。'},
+  {t:'太陽の光や雨を、そのまま利用できる',a:'o',e:'露地栽培は、太陽の光や雨を使うので、照明や水の費用が少ない。'},
+  {t:'照明や空調を動かす電気代がかかる',a:'f',e:'植物工場は、LED・空調・ポンプなどを動かす電気が必要。'},
+  {t:'畑や設備を保つのに費用がかかる',a:'b',e:'教科書にあるとおり、どちらも畑や設備を維持するのに費用がかかる。'},
+  {t:'環境に負荷をかけることがある',a:'b',e:'露地栽培は肥料や農薬が流れ出ること、植物工場は電気をたくさん使うことなど、どちらにも環境への負荷がある。'},
+  {t:'台風や大雨で被害を受けることがある',a:'o',e:'露地栽培は外で育てるので、台風・大雨・暑さなどの天候の影響を受ける。'}
+];
+var SORT_L={o:'露地栽培',f:'植物工場',b:'両方'};
+var cmpRes=null;
+RENDER.cmp=function(el){
+  var h='<div class="b5-card"><h1>① 露地栽培と植物工場をくらべよう</h1>';
+  h+='<p><b>露地栽培</b>は、畑で太陽の光や雨を利用して育てる方法です。<b>植物工場</b>は、建物の中で、光(LED)・温度・水や養分を人工的に調節して育てる方法(施設栽培の1つ)です。同じリーフレタスを1m²で育てて、収穫までの日数や、とれる量、費用をくらべてみよう。</p>';
+  h+='<div class="b5-row"><span>季節</span>'+seasonHTML(ST.cmpSeason,'data-cs')+seedHTML('b5-cseed',ST.cmpSeed)+'</div>';
+  h+='<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-crun">▶ 育ててくらべる</button>'+speedHTML()+'</div>';
+  h+='<div class="b5-vs"><div><h3>🌤️ 露地栽培(畑)</h3><div id="b5-cfield"></div><div class="b5-wbar"><i id="b5-cfw"></i></div><div id="b5-cft" class="b5-small">-</div></div>'+
+     '<div><h3>🏭 植物工場</h3><div id="b5-cfac"></div><div class="b5-wbar"><i id="b5-cpw"></i></div><div id="b5-cpt" class="b5-small">-</div></div></div>';
+  h+='<div id="b5-cres"></div></div>';
+  h+='<div class="b5-card"><h2>仕分けクイズ:どちらの特徴かな?</h2><p>それぞれの文は「露地栽培」「植物工場」「両方」のどれにあてはまるかな。全部えらんだら「答え合わせ」を押そう。</p><div class="b5-sort" id="b5-sort"></div>'+
+    '<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-scheck">答え合わせ</button><button type="button" class="b5-btn" id="b5-sagain">もう一度(順番を変える)</button></div><div id="b5-sres"></div></div>';
+  h+='<div class="b5-card"><h2>考えよう</h2><p>植物工場は、どんな場所・どんな人の役に立つでしょうか。反対に、露地栽培のほうがよいのはどんなときでしょうか。結果の数字を使って、振り返りに書きましょう。</p><p class="b5-small">教科書(2編1章6)のように、技術は「品質・収量・費用・安全性・環境への配慮」などの制約条件の中で選ばれています。</p></div>';
+  el.innerHTML=h;
+  $('#b5-cfield').innerHTML=fieldSVG();$('#b5-cfac').innerHTML=factorySVG();
+  rb(el);bindSpeed(el);
+  $$('[data-cs]',el).forEach(function(b){b.addEventListener('click',function(){ST.cmpSeason=b.dataset.cs;save();$$('[data-cs]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})});
+  bindSeed(el,'b5-cseed',function(){return ST.cmpSeed},function(v){ST.cmpSeed=v;save()});
+  $('#b5-crun').addEventListener('click',runCmp);
+  sortRender(false);
+  $('#b5-scheck').addEventListener('click',function(){sortRender(true)});
+  $('#b5-sagain').addEventListener('click',function(){ST.sort=null;save();sortRender(false)});
+  var lastRun=ST.cmpRuns[ST.cmpRuns.length-1];
+  if(lastRun){cmpRes=compareSim(lastRun.season,lastRun.seed);drawCmpFrame(59,true);cmpResult()}
+};
+function fieldSVG(){
+  var s='<svg viewBox="0 0 300 170" role="img" aria-label="畑で育つリーフレタス"><rect data-k="sky" width="300" height="110" fill="#bfe3ff"/><text data-k="wx" x="262" y="40" font-size="28" text-anchor="middle">☀️</text>';
+  s+='<rect y="110" width="300" height="60" fill="#8a5a33"/><rect y="104" width="300" height="10" fill="#7aa55a"/>';
+  for(var i=0;i<4;i++){var x=45+i*70;s+='<g data-k="fp'+i+'" transform="translate('+x+',120)"><ellipse cx="-10" cy="-6" rx="12" ry="6" fill="#3f9b3a" transform="rotate(-25 -10 -6)"/><ellipse cx="10" cy="-6" rx="12" ry="6" fill="#3f9b3a" transform="rotate(25 10 -6)"/><ellipse cx="0" cy="-14" rx="7" ry="10" fill="#4caf50"/></g>'}
+  s+='<text data-k="ev" x="10" y="30" font-size="15" font-weight="700" fill="#7a2a00"></text><text data-k="day" x="10" y="160" font-size="14" font-weight="700" fill="#fff">1日目</text></svg>';
+  return s;
+}
+function factorySVG(){
+  var s='<svg viewBox="0 0 300 170" role="img" aria-label="植物工場で育つリーフレタス"><rect width="300" height="170" fill="#e9eef3"/>';
+  for(var r=0;r<3;r++){var y=40+r*44;s+='<rect x="20" y="'+(y-30)+'" width="260" height="5" fill="#d8b4fe" opacity=".9"/><polygon points="20,'+(y-25)+' 280,'+(y-25)+' 286,'+(y+4)+' 14,'+(y+4)+'" fill="#f0d8ff" opacity=".45"/><rect x="14" y="'+(y+4)+'" width="272" height="5" fill="#9aa8b5"/>';
+    for(var i=0;i<6;i++){var x=38+i*44;s+='<g data-k="pp" data-r="'+r+'" transform="translate('+x+','+(y+4)+')"><ellipse cx="-7" cy="-4" rx="8" ry="4" fill="#3f9b3a" transform="rotate(-25 -7 -4)"/><ellipse cx="7" cy="-4" rx="8" ry="4" fill="#3f9b3a" transform="rotate(25 7 -4)"/><ellipse cx="0" cy="-9" rx="5" ry="7" fill="#4caf50"/></g>'}}
+  s+='<text data-k="day" x="10" y="164" font-size="14" font-weight="700" fill="#3a4a3a">1日目</text></svg>';
+  return s;
+}
+function runCmp(){
+  cmpRes=compareSim(ST.cmpSeason,ST.cmpSeed);
+  ST.cmpRuns.push({season:ST.cmpSeason,seed:ST.cmpSeed,fDay:cmpRes.field.day,pDay:cmpRes.factory.day,fKg:fieldKg(cmpRes),pKg:facKg(cmpRes),at:nowStamp()});ST.cmpRuns=ST.cmpRuns.slice(-12);save();
+  $('#b5-cres').innerHTML='';
+  stopPlayer();
+  var d=0,spd=SPEEDS[speedIdx][1],p={stop:false};player=p;
+  if(spd===0){drawCmpFrame(59,true);cmpResult();player=null;return}
+  var per=Math.max(60,spd*1000/4);
+  (function tick(){if(p.stop)return;drawCmpFrame(d,false);d++;if(d>=60){player=null;cmpResult();return}setTimeout(tick,per)})();
+}
+function fieldKg(r){return r.field.day?Math.round(r.fieldPer*r.field.w*r.field.q/100)/1000:0}
+function facKg(r){return Math.round(r.factoryPer*r.factory.w)/1000}
+function drawCmpFrame(d,fin){
+  var r=cmpRes;if(!r)return;
+  var F=r.field,P=r.factory,fh=F.hist[Math.min(d,F.hist.length-1)],ph=P.hist[Math.min(d,P.hist.length-1)];
+  var fs=$('#b5-cfield svg'),ps=$('#b5-cfac svg');if(!fs||!ps)return;
+  var fd=Math.min(d+1,F.hist.length),pd=Math.min(d+1,P.hist.length);
+  fs.querySelector('[data-k="wx"]').textContent=WX[fh.wx].ic;
+  fs.querySelector('[data-k="sky"]').setAttribute('fill',fh.wx==='sun'?'#bfe3ff':fh.wx==='cloud'?'#cfd6dd':'#9fabb8');
+  fs.querySelector('[data-k="ev"]').textContent=fh.ev?(fh.ev==='虫'?'🐛 害虫が出た!':fh.ev==='暑さ'?'🥵 暑すぎる':fh.ev==='霜'?'❄️ 霜がおりた':'🌀 大雨・台風!'):'';
+  fs.querySelector('[data-k="day"]').textContent=fd+'日目'+(F.done&&fd>=F.day?' 収穫!':'');
+  var fsc=0.4+Math.sqrt(fh.w/160)*1.0;
+  for(var i=0;i<4;i++)fs.querySelector('[data-k="fp'+i+'"]').setAttribute('transform','translate('+(45+i*70)+',120) scale('+fsc.toFixed(3)+')');
+  var psc=0.4+Math.sqrt(ph.w/160)*0.9;
+  $$('[data-k="pp"]',ps).forEach(function(g,j){var x=38+(j%6)*44,y=44+(+g.getAttribute('data-r'))*44;g.setAttribute('transform','translate('+x+','+y+') scale('+psc.toFixed(3)+')')});
+  ps.querySelector('[data-k="day"]').textContent=pd+'日目'+(P.done&&pd>=P.day?' 収穫!':'');
+  $('#b5-cfw').style.width=clamp(fh.w,0,100)+'%';$('#b5-cpw').style.width=clamp(ph.w,0,100)+'%';
+  $('#b5-cft').textContent='1株 '+Math.round(fh.w)+'g・品質 '+Math.round(F.q)+(fin?'':'');
+  $('#b5-cpt').textContent='1株 '+Math.round(ph.w)+'g・品質 100';
+}
+function cmpResult(){
+  var r=cmpRes,F=r.field,P=r.factory,el=$('#b5-cres');if(!el)return;
+  var h='<h2>結果(1m² あたり・'+SEASON[r.season].name+'・天気の番号 '+r.seed+')</h2><div class="b5-small">60日間の天気:'+r.wx.join('').replace(/sun/g,'☀️').replace(/cloud/g,'☁️').replace(/rain/g,'☔')+'</div>';
+  h+='<div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>くらべること</th><th>露地栽培</th><th>植物工場</th></tr></thead><tbody>';
+  h+='<tr><td>収穫(1株100g)までの日数</td><td>'+(F.day?F.day+'日':'60日で育ちきらない')+'</td><td>'+P.day+'日</td></tr>';
+  h+='<tr><td>植える株の数(1m²)</td><td>16株(1段)</td><td>64株(4段に重ねる)</td></tr>';
+  h+='<tr><td>出荷できる量</td><td>'+fieldKg(r).toFixed(2)+'kg</td><td>'+facKg(r).toFixed(2)+'kg</td></tr>';
+  h+='<tr><td>品質(虫食い・傷みのなさ)</td><td>'+Math.round(F.q)+'</td><td>100</td></tr>';
+  h+='<tr><td>電気代</td><td>0円</td><td>'+yen(P.cost)+'</td></tr>';
+  h+='<tr><td>使った水</td><td>'+F.water+'L</td><td>'+P.day+'L(水をくり返し使う)</td></tr>';
+  h+='<tr><td>人の作業時間</td><td>'+F.labor.toFixed(1)+'時間</td><td>'+(P.day*0.05).toFixed(1)+'時間</td></tr>';
+  h+='<tr><td>天候・害虫の影響</td><td>'+(F.events.length?F.events.length+'回('+esc(F.events.slice(0,4).join('、'))+(F.events.length>4?' など':'')+')':'なし')+'</td><td>なし</td></tr>';
+  h+='<tr><td>建物・設備のお金</td><td>少ない(畑・農機具)</td><td>とても多い(建物・LED・空調)</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<p class="b5-tip">💡 季節や天気の番号を変えてくらべてみよう。夏や冬は、露地栽培の結果が大きく変わります。植物工場は、いつも同じように育ちますが、電気代がかかります。</p>';
+  el.innerHTML=h;rb(el);
+}
+function sortRender(check){
+  var el=$('#b5-sort');if(!el)return;
+  if(!ST.sort||!Array.isArray(ST.sort.order)){var ord=SORT.map(function(_,i){return i});for(var i=ord.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=ord[i];ord[i]=ord[j];ord[j]=t}ST.sort={order:ord,ans:{},checked:false,score:0};save()}
+  var S=ST.sort;if(check){var miss=S.order.filter(function(i){return !S.ans[i]}).length;if(miss){toast('まだえらんでいない文が '+miss+' こあります');check=false}else{S.checked=true;S.score=S.order.filter(function(i){return S.ans[i]===SORT[i].a}).length;S.at=nowStamp();save()}}
+  var h='';
+  S.order.forEach(function(i){var it=SORT[i],a=S.ans[i],cls=S.checked?(a===it.a?' ok':' ng'):'';
+    h+='<div class="b5-sort-item'+cls+'"><div>'+it.t+'</div><div class="b5-seg" role="group" aria-label="'+esc(it.t)+'">'+['o','f','b'].map(function(k){return '<button type="button" data-si="'+i+'" data-sv="'+k+'" aria-pressed="'+(a===k)+'"'+(S.checked?' disabled':'')+'>'+SORT_L[k]+'</button>'}).join('')+'</div>'+
+      (S.checked?'<div class="b5-exp">'+(a===it.a?'⭕ 正解':'❌ 答えは「'+SORT_L[it.a]+'」')+':'+it.e+'</div>':'')+'</div>'});
+  el.innerHTML=h;rb(el);
+  $$('[data-si]',el).forEach(function(b){b.addEventListener('click',function(){S.ans[b.dataset.si]=b.dataset.sv;save();$$('[data-si="'+b.dataset.si+'"]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})});
+  var r=$('#b5-sres');if(r){r.innerHTML=S.checked?'<p class="'+(S.score>=6?'b5-tip':'b5-note')+'"><b>'+S.score+' / '+SORT.length+' 問 正解</b>。'+(S.score>=6?'よくできました!':'説明を読んで、もう一度ためしてみよう。')+'</p>':'';rb(r)}
+}
+
+/* ================= ② 照明を自動に ================= */
+var WATER_OK=[{s:'moist',op:'<',v:50,dev:'pump',a:1,b:0,tm:0,ta:6,tb:20}];  /* ② では水やりはうまくいっている(③で自動にする) */
+var refCache={};
+function lightRef(seed){
+  if(refCache[seed])return refCache[seed];var best=Infinity;
+  for(var a=4;a<=8;a++)for(var b=16;b<=22;b++)for(var v=0;v<=100;v+=10){var r=simulate({season:'spring',seed:seed,days:7,prog:[{s:'light',op:'<',v:v,dev:'led',a:1,b:0,tm:1,ta:a,tb:b}].concat(WATER_OK),w0:20});
+    if(r.tot.lackDays===0&&r.tot.nodark===0&&r.tot.cost<best)best=r.tot.cost}
+  return (refCache[seed]=best);
+}
+function starsLight(r,seed){var t=r.tot,n=0;if(t.lackDays===0){n=1;if(t.nodark===0){n=2;if(t.cost<=Math.ceil(lightRef(seed)*1.15))n=3}}return n}
+RENDER.light=function(el){
+  var h='<div class="b5-card"><h1>② 明るさセンサで照明を自動にしよう</h1>';
+  h+='<p>教室の窓ぎわの棚でリーフレタスを育てます(4月)。くもりや雨の日は光が足りません。<b>明るさセンサ</b>で窓の外の明るさを測り、暗いときだけ <b>LED</b> をつけるプログラムをつくろう。教科書のプログラムは「ずっと / もし 明るさ &lt; 50 なら LED を ON / でなければ OFF」です。</p>';
+  h+='<p class="b5-small">リーフレタスは、1日に「明るさ100で10時間ぶん」くらいの光が必要とします(このシミュレーションの目安)。夜は暗くして休ませることも大切です。水やりは、ここでは人がしています(③で自動にします)。</p></div>';
+  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p2"></div>';
+  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s2',ST.seed2)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run2">▶ 7日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar2"></i></div></div></div>';
+  h+='<div class="b5-card b5-view" id="b5-v2"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>窓の外の明るさ(センサの値)と LED</h4><div id="b5-g2a"></div><div class="b5-legend"><span><i style="border-color:#e0a000"></i>明るさ</span><span><i style="border-color:#c62828;border-top-style:dashed"></i>プログラムの数(しきい値)</span><span><i class="band" style="background:#fff0a0"></i>LED が ON</span></div></div>';
+  h+='<div class="b5-chart"><h4>1日の光の量(植物に当たった光)</h4><div id="b5-g2b"></div><div class="b5-legend"><span><i class="band" style="background:#66a86a"></i>足りた日</span><span><i class="band" style="background:#e08a3a"></i>足りない日</span><span><i style="border-color:#c62828;border-top-style:dashed"></i>必要な量</span></div></div></div>';
+  h+='<div class="b5-card b5-res" id="b5-r2" hidden></div>';
+  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10・50・90 に変えると、LED がつく時間はどう変わるかな。</li><li>「&lt;」を「&gt;」にすると、どうなるかな。(わざとまちがえて、グラフで確かめよう)</li><li>夜のあいだ、LED はどうなっているかな。夜も明るいままだと、どんな問題があるかな。→「かつ 時刻が〜」の条件を足してみよう。</li></ul>'+
+    '<p class="b5-small">★1:7日とも光が足りた ★2:そのうえ、毎日 暗い時間(6時間以上)がある ★3:そのうえ、電気代がとても少ない</p></div>';
+  el.innerHTML=h;rb(el);bindSpeed(el);
+  bindProg($('#b5-p2'),ST.prog2,{lockS:true,lockDev:true,canTime:true},function(){save();$('#b5-r2').hidden=true});
+  bindSeed(el,'b5-s2',function(){return ST.seed2},function(v){ST.seed2=v;save()});
+  $('#b5-run2').addEventListener('click',run2);
+  var res0=simulate({season:'spring',seed:ST.seed2,days:7,prog:ST.prog2.concat(WATER_OK),w0:20});
+  updateShelf($('#b5-v2'),res0.log[12],20,100,['led']);
+  if(ST.last2)run2(true);
+};
+function draw2(res,upto,thr){
+  var n=res.log.length,lg=res.log.slice(0,upto+1);
+  chart($('#b5-g2a'),function(){var bands=[],st=-1;lg.forEach(function(x,i){if(x.dev.led&&st<0)st=i;if((!x.dev.led||i===lg.length-1)&&st>=0){bands.push({i0:st,i1:x.dev.led?i:i-1,color:'#fff0a0'});st=-1}});
+    return {n:n,ymin:0,ymax:100,series:[{vals:lg.map(function(x){return x.sun}),color:'#e0a000'}],bands:bands,hlines:thr!=null?[{y:thr,color:'#c62828',label:'しきい値 '+thr}]:[],xl:dayLabels(7,24,res.wx),label:'明るさと LED のグラフ'}});
+  var dn=Math.floor(upto/24)+((upto%24)===23?1:0);
+  chart($('#b5-g2b'),function(){var v=res.days.map(function(d,i){return i<dn?d.L:null});
+    return {n:7,ymin:0,ymax:20,bars:{vals:v,colors:res.days.map(function(d){return d.L>=NEED*0.9?'#66a86a':'#e08a3a'})},hlines:[{y:NEED,color:'#c62828',label:'必要な量'}],xl:dayLabels(7,1,res.wx),label:'1日の光の量のグラフ'}});
+}
+function run2(quiet){
+  var prog=ST.prog2,res=simulate({season:'spring',seed:ST.seed2,days:7,prog:prog.concat(WATER_OK),w0:20}),thr=prog[0].s==='light'?prog[0].v:null,view=$('#b5-v2');
+  $('#b5-r2').hidden=true;
+  play(res,{speed:quiet===true?0:SPEEDS[speedIdx][1],frame:function(i){var rec=res.log[i],d=rec.d;updateShelf(view,rec,d?res.days[d-1].w:20,res.days[d].q,['led']);evalMarks($('#b5-p2'),prog,rec);draw2(res,i,thr);$('#b5-bar2').style.width=((i+1)/res.log.length*100)+'%'},
+    end:function(){var n=starsLight(res,ST.seed2),t=res.tot;
+      if(quiet!==true){ST.best2=Math.max(ST.best2,n);ST.last2={stars:n,cost:t.cost,led:t.led,lack:t.lackDays,nodark:t.nodark,prog:progText(prog),seed:ST.seed2,at:nowStamp()};save()}
+      var el=$('#b5-r2');if(!el)return;
+      var h='<h2>結果 <span class="b5-stars">'+stars(n)+'</span></h2><div class="b5-kpi">'+
+        kpi('光が足りた日',(7-t.lackDays)+' / 7日',t.lackDays>0)+kpi('LED がついた時間',t.led+'時間')+kpi('暗い時間がない日',t.nodark+'日',t.nodark>0)+kpi('7日の電気代',yen(t.cost))+'</div>';
+      var msg=[];
+      if(t.lackDays>0)msg.push('光が足りない日がありました。しきい値を大きくして、くもりや雨の日にも LED がつくようにしよう。');
+      if(t.nodark>0)msg.push('夜のあいだも LED がついたままです。暗い夜は「明るさ &lt; しきい値」が成り立つからです。植物にも暗い時間が必要で、電気代もむだになります。「かつ 時刻が〜」の条件を足してみよう。');
+      if(!msg.length&&n<3)msg.push('光は足りていて、夜は暗くできています。LED をつける時間をもう少しへらせないかな(しきい値・時刻を調整しよう)。');
+      if(n===3)msg.push('すばらしい!必要なときだけ LED をつける、むだの少ないプログラムです。');
+      h+='<div class="'+(n===3?'b5-tip':'b5-note')+'">'+msg.join('<br>')+'</div>';
+      el.innerHTML=h;el.hidden=false;rb(el);
+    }});
+}
+function kpi(l,v,bad){return '<div'+(bad?' class="bad"':'')+'><span>'+l+'</span><b>'+v+'</b></div>'}
+
+/* ================= ③ 水やりを自動に ================= */
+var LIGHT_OK=[{s:'light',op:'<',v:50,dev:'led',a:1,b:0,tm:1,ta:6,tb:20}];
+var HOLI=[1,2,3,4,5,6];   /* 金曜日から始めて、土・日と連休(水やりができない日) */
+function sim3(prog,manual){return simulate({season:'spring',seed:ST.seed3,days:10,prog:LIGHT_OK.concat(manual?[]:prog),manual:manual,startDow:5,holidays:HOLI,w0:30})}
+function starsWater(r){var t=r.tot;if(t.wilt>0)return 0;var n=1;if(t.wet===0&&t.overflow===0){n=2;if(r.w>=74)n=3}return n}
+RENDER.water=function(el){
+  var h='<div class="b5-card"><h1>③ 水やり(かん水)を自動にしよう</h1>';
+  h+='<p>5月の連休をはさむ10日間です。<b>1日目は金曜日</b>で、土・日と連休のあいだ(2〜7日目)は、だれも水やりができません。<b>土の水分センサ</b>で土のかわき方を測り、かわいたら <b>ポンプ</b> で水をやるプログラムをつくろう。</p>';
+  h+='<p class="b5-small">土の水分が20%より少ないと、しおれて傷みます。90%より多いと、根が酸素不足になって傷みます。40〜80%がちょうどよい範囲です。ポンプは1時間で2Lの水をやります。</p></div>';
+  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p3"></div>';
+  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s3',ST.seed3)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run3">▶ 10日間 早送りで実行</button><button type="button" class="b5-btn" id="b5-man3">人が水やりすると?(平日の朝だけ)</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar3"></i></div></div></div>';
+  h+='<div class="b5-card b5-view" id="b5-v3"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>土の水分(%)</h4><div id="b5-g3"></div><div class="b5-legend"><span><i style="border-color:#1e6fd9"></i>土の水分</span><span><i style="border-color:#888;border-top-style:dashed"></i>人が水やり(くらべるとき)</span><span><i class="band" style="background:#e3f3e3"></i>ちょうどよい範囲</span><span><i class="band" style="background:#cfe4ff"></i>ポンプが ON</span><span><i class="band" style="background:#eee"></i>連休(水やりできない日)</span></div></div></div>';
+  h+='<div class="b5-card b5-res" id="b5-r3" hidden></div>';
+  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10・30・50・70・95 に変えると、しおれ・根の傷み・水の量はどう変わるかな。</li><li>「人が水やりすると?」とくらべて、自動にするよさを説明しよう。</li><li>教科書の例のように、夏休みのかん水作業を自動にするとき、ほかに気をつけることは何かな(水がなくなる・ホースがはずれる など)。</li></ul>'+
+    '<p class="b5-small">★1:しおれなかった ★2:そのうえ、水が多すぎて根が傷まなかった ★3:そのうえ、レタスがよく育った(1株 74g 以上)</p></div>';
+  el.innerHTML=h;rb(el);bindSpeed(el);
+  bindProg($('#b5-p3'),ST.prog3,{lockS:true,lockDev:true,canTime:true},function(){save();$('#b5-r3').hidden=true});
+  bindSeed(el,'b5-s3',function(){return ST.seed3},function(v){ST.seed3=v;save()});
+  $('#b5-run3').addEventListener('click',function(){run3(false)});
+  $('#b5-man3').addEventListener('click',function(){run3(true)});
+  var r0=sim3(ST.prog3,false);updateShelf($('#b5-v3'),r0.log[12],30,100,['pump']);
+  if(ST.last3)run3(false,true);
+};
+var man3=null;
+function draw3(res,upto,thr,cmpRes){
+  var n=res.log.length,lg=res.log.slice(0,upto+1);
+  chart($('#b5-g3'),function(){var bands=[{i0:24,i1:24*7-1,color:'#eeeeee'}],st=-1;
+    lg.forEach(function(x,i){if(x.dev.pump){bands.push({i0:i,i1:i,color:'#cfe4ff'})}});
+    var se=[{vals:lg.map(function(x){return x.m}),color:'#1e6fd9'}];if(cmpRes)se.unshift({vals:cmpRes.log.slice(0,upto+1).map(function(x){return x.m}),color:'#888',dash:'6 4',w:2});
+    return {n:n,ymin:0,ymax:100,ybands:[{y0:40,y1:80,color:'#e3f3e3'}],bands:bands,series:se,hlines:thr!=null?[{y:thr,color:'#c62828',label:'しきい値 '+thr}]:[],xl:dayLabels(10,24,res.wx).map(function(x,i){x.t=x.t.replace(/日/,'日'+DOW[(5+i)%7]);return x}),label:'土の水分のグラフ'}});
+}
+function run3(manual,quiet){
+  var prog=ST.prog3,res=sim3(prog,manual),thr=manual?null:(prog[0].s==='moist'?prog[0].v:null),view=$('#b5-v3');
+  if(manual)man3=res;
+  $('#b5-r3').hidden=true;
+  var other=manual?null:man3;
+  play(res,{speed:quiet?0:SPEEDS[speedIdx][1],frame:function(i){var rec=res.log[i],d=rec.d;updateShelf(view,rec,d?res.days[d-1].w:30,res.days[d].q,['pump','led']);if(!manual)evalMarks($('#b5-p3'),prog,rec);draw3(res,i,thr,other);$('#b5-bar3').style.width=((i+1)/res.log.length*100)+'%'},
+    end:function(){var t=res.tot,n=manual?0:starsWater(res);
+      if(!manual&&!quiet){ST.best3=Math.max(ST.best3,n);ST.last3={stars:n,water:t.water,wilt:t.wilt,wet:t.wet,w:res.w,prog:progText(prog),seed:ST.seed3,at:nowStamp()};save()}
+      var el=$('#b5-r3');if(!el)return;
+      var h='<h2>'+(manual?'人が水やりしたとき(平日の朝8時だけ)':'結果 <span class="b5-stars">'+stars(n)+'</span>')+'</h2><div class="b5-kpi">'+
+        kpi('しおれた時間',t.wilt+'時間',t.wilt>0)+kpi('水が多すぎた時間',t.wet+'時間',t.wet>0)+kpi('水があふれた回数',t.overflow+'回',t.overflow>0)+kpi('使った水',t.water+'L')+kpi('1株の重さ',Math.round(res.w)+'g')+kpi('品質',res.q)+'</div>';
+      var msg=[];
+      if(manual)msg.push('連休のあいだ水やりができず、土がかわいてしおれてしまいました。もう一度「▶ 10日間 早送りで実行」を押すと、自動の結果と灰色の点線でくらべられます。');
+      else{if(t.wilt>0)msg.push('土がかわいてしおれた時間がありました。しきい値を大きくして、早めに水をやるようにしよう。');
+        if(t.wet>0||t.overflow>0)msg.push('水が多すぎて、根が傷んだり、水があふれたりしました。しきい値を小さくしよう。'+(t.overflow>0?'水があふれると、床がぬれて危険です(安全性)。':''));
+        if(!msg.length&&n<3)msg.push('しおれも根の傷みもありません。もう少し水分の多いところを保つと、レタスがもっと育つかもしれません。');
+        if(n===3)msg.push('すばらしい!連休中も、ちょうどよい水分を保てました。');}
+      h+='<div class="'+(n===3?'b5-tip':'b5-note')+'">'+msg.join('<br>')+'</div>';
+      el.innerHTML=h;el.hidden=false;rb(el);
+    }});
+}
+
+/* ================= ④ 全部を自動に ================= */
+var COST_BASE={spring:500,summer:3000,winter:2400};
+function scoreOf(res,season){
+  var t=res.tot,yP=Math.min(1,res.w/100)*35,qP=res.q/100*25,base=COST_BASE[season];
+  var g=clamp(res.w/SHIP,0,1)*clamp(res.q/60,0,1);/* 育たなかったときは、費用・環境の点も低くする(何もしないのがいちばん安いので) */
+  var cP=20*g*clamp((base*2-t.cost)/(base*1.5),0,1),wP=5*g*clamp((200-t.water)/150,0,1),eP=5*g*clamp((base*2-t.cost)/(base*1.5),0,1);
+  var sIss=(t.overflow>0?4:0)+(t.both>0?3:0)+(t.hot>5?3:0)+(t.cold>5?2:0),sP=Math.max(0,10-sIss);
+  qP*=clamp(res.w/SHIP,0,1);
+  var score=Math.round(yP+qP+cP+wP+eP+sP);
+  var radar={quality:clamp(Math.round(res.q/20),1,5),yield:clamp(Math.round(Math.min(1.2,res.w/100)/1.2*5),1,5),cost:clamp(Math.round(cP/4),1,5),safety:clamp(Math.round(sP/2),1,5),env:clamp(Math.round((wP+eP)/2),1,5)};
+  return {score:score,radar:radar,parts:{y:Math.round(yP),q:Math.round(qP),c:Math.round(cP),e:Math.round(wP+eP),s:sP}};
+}
+var RADAR_AX=[['quality','品質'],['yield','収量'],['cost','費用'],['safety','安全性'],['env','環境への配慮']];
+function radarSVG(sets){
+  var W=320,cx=160,cy=150,R=100,s='<svg class="b5-radar" viewBox="0 0 '+W+' 290" role="img" aria-label="評価のレーダーチャート" font-size="14">';
+  function pt(i,v){var a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*R*v/5,cy+Math.sin(a)*R*v/5]}
+  for(var lv=1;lv<=5;lv++){s+='<polygon points="'+RADAR_AX.map(function(_,i){return pt(i,lv).join(',')}).join(' ')+'" fill="none" stroke="#c9c1d9"/>'}
+  RADAR_AX.forEach(function(a,i){var p=pt(i,5),q=pt(i,6.1);s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#c9c1d9"/><text x="'+q[0]+'" y="'+(q[1]+5)+'" text-anchor="middle" fill="#3a2a5a" font-weight="700">'+a[1]+'</text>'});
+  sets.forEach(function(st){if(!st||!st.v)return;s+='<polygon points="'+RADAR_AX.map(function(a,i){return pt(i,clamp(st.v[a[0]]||0,0,5)).join(',')}).join(' ')+'" fill="'+st.fill+'" stroke="'+st.color+'" stroke-width="2.5"'+(st.dash?' stroke-dasharray="6 4"':'')+'/>'});
+  return s+'</svg>';
+}
+var last4=null;
+function prog4(){if(!ST.prog4)ST.prog4=JSON.parse(JSON.stringify(ST.prog2.concat(ST.prog3)));return ST.prog4}
+RENDER.all=function(el){
+  var prog=prog4();
+  var h='<div class="b5-card"><h1>④ 照明・水やり・温度を全部自動にしよう</h1>';
+  h+='<p>35日間育てて、リーフレタスを収穫します(12株)。②・③でつくったプログラムに、<b>温度</b>のルール(ヒーター・冷房)を足して、全部を自動にしよう。<b>収量や品質を上げると、電気代がふえることがあります</b>。どこで折り合いをつけるかを考えよう(最適化)。</p>';
+  h+='<p class="b5-small">リーフレタスは 15〜22℃くらいがよく育ちます。32℃より暑いと葉の先が傷み、4℃より寒いと傷みます。1株 80g 以上で品質 60 以上なら出荷できます。電気代の目安(1時間):LED '+PRICE.led+'円・ポンプ '+PRICE.pump+'円・ヒーター '+PRICE.heat+'円・冷房 '+PRICE.cool+'円。</p></div>';
+  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p4"></div>';
+  h+='<div class="b5-row" style="margin-top:8px"><span>季節</span>'+seasonHTML(ST.season4,'data-s4')+'</div><div class="b5-row" style="margin-top:6px">'+seedHTML('b5-s4',ST.seed4)+'</div>';
+  h+='<div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run4">▶ 35日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar4"></i></div></div>';
+  h+='<p class="b5-small">同じ機器を2つのブロックで動かすと、下のブロックの決めたことが使われます。</p></div>';
+  h+='<div class="b5-card b5-view" id="b5-v4"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>1株の重さ(g)</h4><div id="b5-g4a"></div></div><div class="b5-chart"><h4>棚の温度(℃)</h4><div id="b5-g4b"></div><div class="b5-legend"><span><i style="border-color:#d84315"></i>温度</span><span><i class="band" style="background:#e3f3e3"></i>よく育つ温度(15〜22℃)</span></div></div><div class="b5-chart"><h4>電気代のたし算(円)</h4><div id="b5-g4c"></div></div></div>';
+  h+='<div class="b5-card b5-res" id="b5-r4" hidden></div>';
+  h+='<div class="b5-card"><h2>ランキング(自分の試した結果)</h2><div id="b5-rank"></div><p class="b5-small">点数(100点)= 収量 35 + 品質 25 + 費用 20 + 環境(水・電気) 10 + 安全 10。費用の点は季節ごとの目安とくらべます。</p></div>';
+  el.innerHTML=h;rb(el);bindSpeed(el);
+  bindProg($('#b5-p4'),prog,{canAdd:true,canTime:true},function(){save();$('#b5-r4').hidden=true});
+  $$('[data-s4]',el).forEach(function(b){b.addEventListener('click',function(){ST.season4=b.dataset.s4;save();$$('[data-s4]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});$('#b5-r4').hidden=true})});
+  bindSeed(el,'b5-s4',function(){return ST.seed4},function(v){ST.seed4=v;save()});
+  $('#b5-run4').addEventListener('click',function(){run4(false)});
+  rankRender();
+  var r0=simulate({season:ST.season4,seed:ST.seed4,days:1,prog:prog,w0:3});updateShelf($('#b5-v4'),r0.log[12],3,100,null);
+  if(last4&&last4.season===ST.season4&&last4.seed===ST.seed4)run4(true);
+};
+function draw4(res,upto){
+  var lg=res.log.slice(0,upto+1),dn=Math.floor(upto/24)+((upto%24)===23?1:0),days=res.days.length;
+  chart($('#b5-g4a'),function(){return {n:days+1,ymin:0,ymax:160,series:[{vals:[3].concat(res.days.map(function(d,i){return i<dn?d.w:null})),color:'#2e7d32',w:3}],hlines:[{y:SHIP,color:'#c62828',label:'出荷できる重さ '+SHIP+'g'}],xl:[0,7,14,21,28,35].map(function(d){return {i:d,t:d+'日'}}),label:'重さのグラフ'}});
+  chart($('#b5-g4b'),function(){var vs=lg.map(function(x){return x.T});return {n:res.log.length,ymin:0,ymax:40,ybands:[{y0:15,y1:22,color:'#e3f3e3'}],series:[{vals:vs,color:'#d84315',w:1.5}],xl:[0,7,14,21,28].map(function(d){return {i:d*24,t:(d+1)+'日'}}),label:'温度のグラフ'}});
+  chart($('#b5-g4c'),function(){var c=0,vs=[0];res.days.forEach(function(d,i){c+=d.cost;vs.push(i<dn?c:null)});var mx=Math.max(500,Math.ceil(res.tot.cost/500)*500);return {n:days+1,ymin:0,ymax:mx,series:[{vals:vs,color:'#b45309',w:3}],xl:[0,7,14,21,28,35].map(function(d){return {i:d,t:d+'日'}}),label:'電気代のグラフ'}});
+}
+function run4(quiet){
+  var prog=prog4(),season=ST.season4,seed=ST.seed4,res=simulate({season:season,seed:seed,days:35,prog:prog,w0:3}),view=$('#b5-v4');
+  $('#b5-r4').hidden=true;
+  var uses=prog.map(function(r){return r.dev});
+  play(res,{speed:quiet?0:SPEEDS[speedIdx][1],frame:function(i){var rec=res.log[i],d=rec.d;updateShelf(view,rec,d?res.days[d-1].w:3,res.days[d].q,uses);evalMarks($('#b5-p4'),prog,rec);if(quiet||i%3===0||i===res.log.length-1)draw4(res,i);$('#b5-bar4').style.width=((i+1)/res.log.length*100)+'%'},
+    end:function(){
+      var sc=scoreOf(res,season),t=res.tot;
+      last4={season:season,seed:seed};
+      var trial=null;
+      if(!quiet){trial={no:(ST.trials.length?ST.trials[ST.trials.length-1].no:0)+1,at:nowStamp(),season:season,seed:seed,prog:progText(prog),progData:JSON.parse(JSON.stringify(prog)),w:res.w,q:res.q,ship:res.ship,cost:t.cost,water:t.water,score:sc.score,radar:sc.radar,parts:sc.parts,
+        iss:{overflow:t.overflow,both:t.both,hot:t.hot,cold:t.cold,wilt:t.wilt,wet:t.wet,nodark:t.nodark}};ST.trials.push(trial);ST.trials=ST.trials.slice(-30);save();rankRender(trial.no)}
+      var el=$('#b5-r4');if(!el)return;
+      var h='<h2>結果:'+sc.score+' 点</h2><div class="b5-kpi">'+kpi('1株の重さ',Math.round(res.w)+'g',res.w<SHIP)+kpi('出荷できた株',res.ship+' / '+PLANTS+'株',res.ship===0)+kpi('品質',res.q,res.q<60)+kpi('35日の電気代',yen(t.cost))+kpi('使った水',t.water+'L')+'</div>';
+      var iss=[];
+      if(t.lackDays)iss.push('光が足りない日が '+t.lackDays+'日ありました。');
+      if(t.nodark)iss.push('夜も明るい日(暗い時間がない日)が '+t.nodark+'日ありました。');
+      if(t.wilt)iss.push('土がかわいてしおれた時間が '+t.wilt+'時間ありました。');
+      if(t.wet)iss.push('水が多すぎて根が傷んだ時間が '+t.wet+'時間ありました。');
+      if(t.overflow)iss.push('水があふれたことが '+t.overflow+'回ありました(安全性)。');
+      if(t.hot)iss.push('32℃より暑い時間が '+t.hot+'時間ありました。');
+      if(t.cold)iss.push('4℃より寒い時間が '+t.cold+'時間ありました。');
+      if(t.both)iss.push('ヒーターと冷房が同時に動いた時間が '+t.both+'時間ありました(電気のむだ・安全性)。');
+      h+='<div class="'+(iss.length?'b5-note':'b5-tip')+'">'+(iss.length?iss.join('<br>'):'大きな問題はありませんでした。電気代や水をへらせないか、さらに考えてみよう。')+'</div>';
+      h+='<div class="b5-radar-wrap"><div>'+radarSVG([{v:sc.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.18)'}])+'</div><div><h3>評価(5段階)</h3><div class="b5-rs">'+RADAR_AX.map(function(a){return '<div><span>'+a[1]+'</span><b>'+stars(sc.radar[a[0]],5)+'</b></div>'}).join('')+'</div>'+
+        '<p class="b5-small">点数の内わけ:収量 '+sc.parts.y+'・品質 '+sc.parts.q+'・費用 '+sc.parts.c+'・環境 '+sc.parts.e+'・安全 '+sc.parts.s+'</p></div></div>';
+      h+='<p class="b5-small">新たな問題の発見:たとえば「近くにいないと、急な対応ができない」「電気代が高い」など。⑤ スマート農業で、データを見て決める方法を考えよう。</p>';
+      el.innerHTML=h;el.hidden=false;rb(el);
+    }});
+}
+function rankRender(hl){
+  var el=$('#b5-rank');if(!el)return;
+  if(!ST.trials.length){el.innerHTML='<p class="b5-small">まだ試していません。「▶ 35日間 早送りで実行」を押すと、ここに記録が残ります。</p>';return}
+  var list=ST.trials.slice().sort(function(a,b){return b.score-a.score||a.cost-b.cost}).slice(0,8);
+  var h='<div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>順位・試した回</th><th>点数</th><th>季節</th><th>1株</th><th>品質</th><th>電気代</th><th>水</th><th></th></tr></thead><tbody>';
+  list.forEach(function(t,i){h+='<tr'+(t.no===hl?' class="b5-me"':'')+'><td>'+(i+1)+'位(第'+t.no+'回)</td><td>'+t.score+'</td><td>'+SEASON[t.season].name.replace(/\(.*\)/,'')+'</td><td>'+Math.round(t.w)+'g</td><td>'+t.q+'</td><td>'+yen(t.cost)+'</td><td>'+t.water+'L</td><td><button type="button" class="b5-mini" data-load="'+t.no+'">プログラムを使う</button></td></tr>'});
+  h+='</tbody></table></div><div class="b5-btns"><button type="button" class="b5-btn" id="b5-rclear">ランキングを消す</button></div>';
+  el.innerHTML=h;rb(el);
+  $$('[data-load]',el).forEach(function(b){b.addEventListener('click',function(){var t=ST.trials.filter(function(x){return x.no===+b.dataset.load})[0];if(!t||!t.progData)return;
+    ST.prog4=normProg(t.progData,prog4());ST.season4=t.season;ST.seed4=t.seed;save();RENDER.all($('[data-sec="all"]'));toast('第'+t.no+'回のプログラムにもどしました')})});
+  $('#b5-rclear').addEventListener('click',function(){kzConfirm('④ のランキング(試した記録 '+ST.trials.length+' 回分)を消します。よろしいですか?',{ok:'消す',danger:true}).then(function(ok){if(!ok)return;ST.trials=[];save();rankRender()})});
+}
+
+/* ================= ⑤ スマート農業 ================= */
+var GOODP=[{s:'light',op:'<',v:50,dev:'led',a:1,b:0,tm:1,ta:6,tb:20},{s:'moist',op:'<',v:45,dev:'pump',a:1,b:0,tm:0,ta:6,tb:20},{s:'temp',op:'<',v:14,dev:'heat',a:1,b:0,tm:0,ta:6,tb:20},{s:'temp',op:'>',v:25,dev:'cool',a:1,b:0,tm:0,ta:6,tb:20}];
+var CASES=[
+  {k:'pump',season:'spring',fault:'pump',act:'ポンプやホースがつまっていないか調べる',exp:'プログラムはポンプを ON にしているのに、土の水分が下がり続けています。ポンプが動いていないか、ホースがつまっていると考えられます。'},
+  {k:'cool',season:'summer',fault:'cool',act:'冷房(ファン)がこわれていないか調べる',exp:'昼になると、この棚だけ温度がとても高くなっています。冷房(ファン)が動いていないと考えられます。'},
+  {k:'led',season:'spring',fault:'led',act:'LED が切れていないか調べて取りかえる',exp:'朝と夕方、ほかの棚は LED の光が当たっているのに、この棚だけ暗いままです。LED が切れていると考えられます。'},
+  {k:'msensor',season:'spring',fault:'msensor',act:'水分センサの差しこみ方や線を調べる',exp:'土の水分のセンサの値が、ずっと 100% のままで動きません。それなのに AI の判断では葉がしおれています。センサがぬけている・水につかっているなど、センサの異常と考えられます。'},
+  {k:'heatprog',season:'winter',prog:{2:{v:3}},act:'ヒーターを動かす温度の設定を上げる',exp:'ほかの棚は夜も 14℃くらいを保っているのに、この棚だけ寒くなっています。ヒーターを動かす温度(しきい値)が低すぎると考えられます。'},
+  {k:'led24',season:'spring',prog:{0:{tm:0}},act:'LED のブロックに時刻の条件を入れ直す',exp:'この棚だけ、夜も LED がついたままで、電気代が高くなっています。LED のブロックの「時刻」の条件がなくなっていると考えられます。'}
+];
+var SH=['A','B','C','D'],SH_COL=['#1a5fc8','#b45309','#7b3fa0','#00796b'],SH_DASH=['','8 4','3 3','12 4 3 4'];
+var quiz5=null;
+function newQuiz5(){var ks=CASES.map(function(_,i){return i});for(var i=ks.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=ks[i];ks[i]=ks[j];ks[j]=t}
+  quiz5={rounds:ks.slice(0,3).map(function(ci){return {ci:ci,bad:Math.floor(Math.random()*4),seed:1+Math.floor(Math.random()*99),opts:optsFor(ci),sh:null,act:null}}),cur:0,score:0}}
+function optsFor(ci){var o=[ci],rest=CASES.map(function(_,i){return i}).filter(function(i){return i!==ci});while(o.length<4){o.push(rest.splice(Math.floor(Math.random()*rest.length),1)[0])}
+  for(var i=o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=o[i];o[i]=o[j];o[j]=t}return o}
+function roundData(r){
+  var c=CASES[r.ci];
+  return SH.map(function(_,i){var p=JSON.parse(JSON.stringify(GOODP)),f='';
+    if(i===r.bad){if(c.fault)f=c.fault;if(c.prog)Object.keys(c.prog).forEach(function(k){var ch=c.prog[k];Object.keys(ch).forEach(function(x){p[k][x]=ch[x]})})}
+    return simulate({season:c.season,seed:r.seed,days:3,prog:p,fault:f,w0:40,m0:55,T0:18})});
+}
+function leafAI(res){var t=res.tot;if(t.wilt>0)return '😣 しおれている';if(t.hot>0)return '🟤 葉の先が傷んでいる';if(t.cold>0)return '🥶 寒さで傷んでいる';if(t.lackDays>0)return '🌱 育ちがおそい';var f=res.days.reduce(function(a,d){return a+d.f},0)/res.days.length;return f<0.6?'🌱 育ちがおそい':'😊 元気'}
+RENDER.smart=function(el){
+  var h='<div class="b5-card"><h1>⑤ スマート農業 ― データを見て決めよう</h1>';
+  h+='<p>農業の担い手がへっています。そこで、<b>IoT</b>(いろいろな物をインターネットにつなぐ)、<b>AI</b>(人工知能)、<b>農業用ロボット</b>を使う「スマート農業」が進んでいます。センサのデータを遠くからスマートフォンで見たり、AI がカメラの画像から葉のようすを判断したりして、省力化・コスト削減・品質の向上につなげています。</p>';
+  h+='<div class="b5-ai"><div><b>📡 IoT</b>センサの値を、学校の外からでも見られる。異常があればお知らせが届く。</div><div><b>🤖 AI</b>カメラの画像から、葉のようすや収穫の時期を判断する。</div><div><b>🦾 ロボット</b>種まき・収穫・運ぶ作業などを自動で行う。</div></div></div>';
+  h+='<div class="b5-card" id="b5-q5"></div>';
+  h+='<div class="b5-card" id="b5-d5"></div>';
+  el.innerHTML=h;rb(el);
+  if(!quiz5)newQuiz5();
+  q5Render();d5Render();
+};
+function q5Render(){
+  var el=$('#b5-q5');if(!el)return;var Q=quiz5;
+  if(Q.cur>=Q.rounds.length){
+    var best=ST.smartBest&&ST.smartBest.score>Q.score?ST.smartBest.score:Q.score;
+    el.innerHTML='<h2>遠隔監視のチャレンジ:おわり</h2><p class="'+(Q.score>=5?'b5-tip':'b5-note')+'"><b>'+Q.score+' / 6 点</b>(いちばんよい点:'+best+' 点)</p><p>データ(数値・グラフ)を見ると、その場にいなくても異常に気づけます。ただし、最後に原因を確かめて直すのは人です。</p><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-q5again">もう一度(ちがう問題)</button></div>';
+    rb(el);$('#b5-q5again').addEventListener('click',function(){newQuiz5();q5Render()});return;
+  }
+  var r=Q.rounds[Q.cur],data=roundData(r),c=CASES[r.ci];
+  var h='<h2>遠隔監視のチャレンジ('+(Q.cur+1)+' / '+Q.rounds.length+')</h2><p>学校の植物工場の4つの棚(A〜D)のデータが、スマートフォンに届きました('+SEASON[c.season].name+'・3日間)。<b>1つの棚だけ</b>に異常があります。どの棚か見つけて、対策をえらぼう。</p>';
+  h+='<div class="b5-legend">'+SH.map(function(s,i){return '<span><i style="border-color:'+SH_COL[i]+';'+(SH_DASH[i]?'border-top-style:dashed':'')+'"></i>棚 '+s+'</span>'}).join('')+'</div>';
+  h+='<div class="b5-grid2"><div class="b5-chart"><h4>🌡️ 温度(℃)</h4><div id="b5-q5t"></div></div><div class="b5-chart"><h4>💧 土の水分(センサの値 %)</h4><div id="b5-q5m"></div></div><div class="b5-chart"><h4>💡 植物に当たる光</h4><div id="b5-q5l"></div></div>';
+  h+='<div><h4>🤖 AI の判断と電気代(3日間)</h4><div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>棚</th><th>AI による葉のようす</th><th>電気代</th></tr></thead><tbody>'+data.map(function(d,i){return '<tr><td>棚 '+SH[i]+'</td><td>'+leafAI(d)+'</td><td>'+yen(d.tot.cost)+'</td></tr>'}).join('')+'</tbody></table></div></div></div>';
+  h+='<h3>1. 異常があるのはどの棚?</h3><div class="b5-shelves">'+SH.map(function(s,i){var cls=r.sh!=null?(i===r.bad?' right':(i===r.sh?' wrong':'')):'';return '<button type="button" data-sh="'+i+'" class="'+cls.trim()+'" aria-pressed="'+(r.sh===i)+'"'+(r.act!=null?' disabled':'')+'>棚 '+s+'</button>'}).join('')+'</div>';
+  h+='<h3>2. どんな対策をする?</h3><div class="b5-choices">'+r.opts.map(function(ci){var cls=r.act!=null?(ci===r.ci?'right':(ci===r.act?'wrong':'')):'';return '<button type="button" data-act5="'+ci+'" class="'+cls+'"'+(r.act!=null?' disabled':'')+'>'+CASES[ci].act+'</button>'}).join('')+'</div>';
+  if(r.act!=null){h+='<div class="'+(r.pt===2?'b5-tip':'b5-note')+'"><b>'+(r.pt===2?'⭕ 2点':r.pt===1?'△ 1点':'❌ 0点')+'</b> 答え:棚 '+SH[r.bad]+'・'+c.act+'<br>'+c.exp+'</div><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-q5next">'+(Q.cur+1<Q.rounds.length?'次の問題へ':'結果を見る')+'</button></div>'}
+  el.innerHTML=h;rb(el);
+  var n=data[0].log.length,xl=[{i:12,t:'1日'},{i:36,t:'2日'},{i:60,t:'3日'}];
+  function lines(f){return data.map(function(d,i){return {vals:d.log.map(f),color:SH_COL[i],dash:SH_DASH[i],w:2}})}
+  chart($('#b5-q5t'),function(){return {n:n,ymin:0,ymax:40,series:lines(function(x){return x.T}),xl:xl,label:'4つの棚の温度'}});
+  chart($('#b5-q5m'),function(){return {n:n,ymin:0,ymax:100,series:lines(function(x){return x.sm}),xl:xl,label:'4つの棚の土の水分'}});
+  chart($('#b5-q5l'),function(){return {n:n,ymin:0,ymax:100,series:lines(function(x){return x.light}),xl:xl,label:'4つの棚の光'}});
+  $$('[data-sh]',el).forEach(function(b){b.addEventListener('click',function(){r.sh=+b.dataset.sh;$$('[data-sh]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})});
+  $$('[data-act5]',el).forEach(function(b){b.addEventListener('click',function(){if(r.sh==null){toast('先に、異常がある棚をえらぼう');return}
+    r.act=+b.dataset.act5;r.pt=(r.sh===r.bad?1:0)+(r.act===r.ci?1:0);Q.score+=r.pt;
+    if(Q.cur===Q.rounds.length-1){if(!ST.smartBest||Q.score>ST.smartBest.score){ST.smartBest={score:Q.score,at:nowStamp()};save()}}
+    q5Render()})});
+  var nx=$('#b5-q5next');if(nx)nx.addEventListener('click',function(){Q.cur++;q5Render();var q=$('#b5-q5');if(q&&q.scrollIntoView)q.scrollIntoView({block:'start'})});
+}
+function d5Render(){
+  var el=$('#b5-d5');if(!el)return;
+  var tr=ST.trials,h='<h2>データを見て決める:自分の植物工場の「いちばんよい」設定は?</h2>';
+  if(tr.length<2){el.innerHTML=h+'<p>④ で2回以上ためすと、ここに結果の散布図が出ます。<button type="button" class="b5-btn" data-go="all">④ をひらく</button></p>';rb(el);return}
+  h+='<p>④ でためした結果を、横に電気代、たてに1株の重さ(収量)をとった<b>散布図</b>にしました。何を大事にするか(重み)を決めると、AI が点数を計算して「おすすめ」を出します。</p>';
+  h+='<div class="b5-chart" id="b5-sc"></div>';
+  h+='<div class="b5-row">'+[['y','収量'],['q','品質'],['c','費用の少なさ'],['e','環境への配慮']].map(function(a){return '<span class="b5-row" style="gap:6px"><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-w="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'の重みをへらす">−</button><input type="number" readonly value="'+ST.smartW[a[0]]+'" aria-label="'+a[1]+'の重み"><button type="button" data-w="'+a[0]+'" data-d="1" aria-label="'+a[1]+'の重みをふやす">＋</button></span></span>'}).join('')+'</div>';
+  var best=aiPick();
+  h+='<p class="b5-tip">🤖 AI のおすすめ:<b>第'+best.no+'回</b>('+SEASON[best.season].name+'・1株 '+Math.round(best.w)+'g・品質 '+best.q+'・電気代 '+yen(best.cost)+')<br><span class="b5-small">AI は、人が決めた重みのとおりに計算しているだけです。何を大事にするかを決めるのは人です。</span></p>';
+  h+='<label class="b5-f" for="b5-pick">自分がえらぶ設定</label><select id="b5-pick" style="min-height:48px;border:2px solid var(--b5-line);border-radius:10px;padding:4px 8px;max-width:100%"><option value="">えらぶ</option>'+tr.map(function(t){return '<option value="'+t.no+'"'+(ST.pick===t.no?' selected':'')+'>第'+t.no+'回 '+SEASON[t.season].name+' '+Math.round(t.w)+'g・'+yen(t.cost)+'・'+t.score+'点</option>'}).join('')+'</select>';
+  h+='<label class="b5-f" for="b5-preason">えらんだ理由(AI のおすすめと同じでも、ちがっても書こう)</label><textarea id="b5-preason" placeholder="例:電気代は少し高いが、冬でも全部の株を出荷できるので第3回をえらぶ。">'+esc(ST.pickReason)+'</textarea>';
+  el.innerHTML=h;rb(el);printSync(el);
+  var sc=$('#b5-sc');chartRaw(sc,function(){sc.innerHTML=scatterSVG(sc,tr,best)});
+  $$('[data-w]',el).forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.w;ST.smartW[k]=clamp(ST.smartW[k]+(+b.dataset.d),0,5);save();d5Render()})});
+  $('#b5-pick').addEventListener('change',function(e){ST.pick=e.target.value?+e.target.value:null;save()});
+  $('#b5-preason').addEventListener('input',function(e){ST.pickReason=e.target.value;save()});
+}
+function aiPick(){var w=ST.smartW,b=null,bs=-1;ST.trials.forEach(function(t){var p=t.parts||{y:0,q:0,c:0,e:0};var s=w.y*p.y/35+w.q*p.q/25+w.c*p.c/20+w.e*p.e/10;if(s>bs){bs=s;b=t}});return b}
+function scatterSVG(el,tr,best){
+  var W=Math.max(280,Math.round(el.clientWidth||600)),H=Math.round(clamp(W*0.5,200,300)),fs=Math.round(clamp(W/50,11,14)),L=fs*3,B=fs*2.4,T=10,R=12,pw=W-L-R,ph=H-T-B;
+  var mx=Math.max.apply(null,tr.map(function(t){return t.cost}))*1.1||100,ymx=160;
+  function X(v){return L+pw*v/mx}function Y(v){return T+ph*(1-clamp(v,0,ymx)/ymx)}
+  var col={spring:'#2e7d32',summer:'#d84315',winter:'#1a5fc8'};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-size="'+fs+'" role="img" aria-label="電気代と1株の重さの散布図"><rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="#fff" stroke="#cfdccc"/>';
+  for(var k=0;k<=4;k++){var yv=ymx*k/4,xv=mx*k/4;s+='<text x="'+(L-4)+'" y="'+(Y(yv)+4)+'" text-anchor="end" fill="#5a6a5a">'+Math.round(yv)+'</text><text x="'+X(xv)+'" y="'+(T+ph+fs+2)+'" text-anchor="middle" fill="#5a6a5a">'+Math.round(xv)+'</text>'}
+  s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+Y(SHIP)+'" y2="'+Y(SHIP)+'" stroke="#c62828" stroke-dasharray="6 4"/>';
+  s+='<text x="'+(L+pw)+'" y="'+(H-2)+'" text-anchor="end" fill="#5a6a5a">電気代(円)→</text><text x="'+(L+4)+'" y="'+(T+fs)+'" fill="#5a6a5a">↑ 1株の重さ(g)</text>';
+  tr.forEach(function(t){var x=X(t.cost),y=Y(t.w),b=best&&t.no===best.no;s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(b?9:6)+'" fill="'+col[t.season]+'" fill-opacity=".75" stroke="'+(b?'#000':'#fff')+'" stroke-width="'+(b?3:1)+'"/><text x="'+(x+8).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" fill="#333">'+t.no+'</text>'});
+  s+='</svg><div class="b5-legend"><span><i style="border-color:#2e7d32"></i>春</span><span><i style="border-color:#d84315"></i>夏</span><span><i style="border-color:#1a5fc8"></i>冬</span><span>大きな黒わくの点 = AI のおすすめ・数字 = 試した回</span></div>';
+  return s;
+}
+
+/* ================= 振り返り ================= */
+var RQ=[
+ {k:'q1',t:'露地栽培と植物工場をくらべて、それぞれのよいところと課題は何ですか。数字を使って書きましょう。',ph:'例:植物工場は30日で収穫でき、1m²で露地栽培の約5倍とれたが、電気代が約1800円かかった。'},
+ {k:'q2',t:'センサとプログラムで照明や水やりを自動にして、分かったことは何ですか(しきい値や条件を変えたときの変化など)。',ph:'例:明るさのしきい値を大きくすると、くもりの日も光が足りたが、夜もLEDがついたので時刻の条件を足した。'},
+ {k:'q3',t:'収量・品質と、電気代・水の量の折り合いを、どのようにつけましたか。',ph:'例:冬はヒーターを使わないと育たないが、15℃にすると電気代が高いので12℃にした。'},
+ {k:'q4',t:'評価して見つかった新しい問題と、それを解決する改善のアイデアを書きましょう。',ph:'例:近くにいないと急な対応ができないので、異常があるとスマートフォンに知らせるしくみをつくる。'},
+ {k:'q5',t:'スマート農業など、これからの生物育成の技術でどんなことができるとよいと思いますか。社会や環境への影響も考えて書きましょう。',ph:''}
+];
+var EV=[
+ {k:'e1',t:'センサとプログラムで、育成環境を自動で調節するしくみが分かった'},
+ {k:'e2',t:'データ(グラフや数値)をもとに、プログラムを改善できた'},
+ {k:'e3',t:'社会や環境への影響を考えて、生物育成の技術を評価できた'}
+];
+var EVL=['◎ よくできた','○ できた','△ もう少し'];
+var reflData=null;
+function getRefl(){
+  if(!reflData){var o=store.get('refl',{});reflData=isObj(o)?o:{};if(!isObj(reflData.ev))reflData.ev={};if(!isObj(reflData.radar))reflData.radar=null;
+    ['cls','no','name'].concat(RQ.map(function(q){return q.k})).forEach(function(k){if(typeof reflData[k]!=='string')reflData[k]=reflData[k]==null?'':String(reflData[k])})}
+  return reflData;
+}
+function saveRefl(){var d=getRefl();d.date=today();d.saved=nowStamp();var ok=store.set('refl',d);writeReflStat(d);return ok}
+function writeReflStat(d){var f=0;RQ.forEach(function(q){if(d&&typeof d[q.k]==='string'&&d[q.k].replace(/\s+/g,''))f++});try{localStorage.setItem('b5_reflstat',JSON.stringify({filled:f,total:RQ.length}))}catch(e){}}
+function whoFile(){var d=getRefl();return (d.cls||'')+(d.no?'-'+d.no:'')+(d.name?'_'+d.name:'')}
+function whoLine(){var d=getRefl();return '組:'+(d.cls||'')+' 番号:'+(d.no||'')+' 名前:'+(d.name||'')}
+function bestTrial(){return ST.trials.slice().sort(function(a,b){return b.score-a.score})[0]||null}
+RENDER.refl=function(el){
+  var d=getRefl(),bt=bestTrial(),auto=bt?bt.radar:null;
+  if(!d.radar)d.radar=auto?JSON.parse(JSON.stringify(auto)):{quality:3,yield:3,cost:3,safety:3,env:3};
+  var h='<div class="b5-card"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>';
+  h+='<div class="b5-who"><div><label class="b5-f" for="b5-r-cls">組</label><input type="text" id="b5-r-cls" data-who="cls" value="'+esc(d.cls)+'"></div><div><label class="b5-f" for="b5-r-no">番号</label><input type="text" id="b5-r-no" data-who="no" value="'+esc(d.no)+'" inputmode="numeric"></div><div><label class="b5-f" for="b5-r-name">名前</label><input type="text" id="b5-r-name" data-who="name" value="'+esc(d.name)+'"></div></div></div>';
+  h+='<div class="b5-card"><h2>学習の記録(自動)</h2><div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
+  h+='<div class="b5-card"><h2>評価のレーダーチャート</h2><p>自分がつくった植物工場(④でいちばん点数の高い設定)を、5つの観点で評価しよう(1〜5)。点線はシミュレーションの点数から出した目安です。</p><div class="b5-radar-wrap"><div id="b5-rd">'+radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}])+'</div><div class="b5-rs">'+
+    RADAR_AX.map(function(a){return '<div><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-rd="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'を下げる">−</button><input type="number" readonly value="'+d.radar[a[0]]+'" data-rv="'+a[0]+'" aria-label="'+a[1]+'"><button type="button" data-rd="'+a[0]+'" data-d="1" aria-label="'+a[1]+'を上げる">＋</button></span></div>'}).join('')+'</div></div></div>';
+  h+='<div class="b5-card"><h2>ふり返りを書こう</h2>';
+  RQ.forEach(function(q,i){h+='<label class="b5-f" for="b5-r-'+q.k+'">'+(i+1)+'. '+q.t+'</label><textarea id="b5-r-'+q.k+'" data-r="'+q.k+'" placeholder="'+esc(q.ph)+'">'+esc(d[q.k]||'')+'</textarea>'});
+  h+='</div><div class="b5-card"><h2>自己評価</h2>';
+  EV.forEach(function(e){h+='<div class="b5-evr"><div>'+e.t+'</div><div class="b5-seg" data-ev="'+e.k+'" role="group" aria-label="'+esc(e.t)+'">'+EVL.map(function(l,i){return '<button type="button" data-v="'+i+'" aria-pressed="'+(d.ev[e.k]===i?'true':'false')+'">'+l+'</button>'}).join('')+'</div></div>'});
+  h+='</div><div class="b5-card b5-noprint"><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-r-txt">テキストで書き出す(.txt)</button><button type="button" class="b5-btn" id="b5-r-copy">コピーする</button><button type="button" class="b5-btn" id="b5-r-print">印刷する</button><button type="button" class="b5-btn" id="b5-r-json">データで書き出す(.json)</button></div><div class="b5-saved" id="b5-r-saved">'+savedLabel(d.saved)+'</div></div>';
+  el.innerHTML=h;rb(el);printSync(el);
+  function sv(){var ok=saveRefl();$('#b5-r-saved',el).textContent=ok?savedLabel(d.saved):'保存できませんでした'}
+  $$('[data-who]',el).forEach(function(i){i.addEventListener('input',function(){d[i.dataset.who]=i.value;sv()})});
+  $$('[data-r]',el).forEach(function(i){i.addEventListener('input',function(){d[i.dataset.r]=i.value;sv()})});
+  $$('[data-ev]',el).forEach(function(g){g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;d.ev[g.dataset.ev]=+b.dataset.v;$$('button',g).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});sv()})});
+  $$('[data-rd]',el).forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.rd;d.radar[k]=clamp((d.radar[k]||3)+(+b.dataset.d),1,5);$('[data-rv="'+k+'"]',el).value=d.radar[k];
+    $('#b5-rd',el).innerHTML=radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}]);sv()})});
+  $('#b5-r-txt',el).addEventListener('click',function(){download('B5_振り返り_'+whoFile()+'.txt','\ufeff'+reflText(),'text/plain;charset=utf-8')});
+  $('#b5-r-copy',el).addEventListener('click',function(){copyText(reflText())});
+  $('#b5-r-print',el).addEventListener('click',function(){printSync(el);window.print()});
+  $('#b5-r-json',el).addEventListener('click',exportAll);
+};
+function autoSummary(){
+  var t='';
+  t+='① くらべる:'+(ST.cmpRuns.length?ST.cmpRuns.length+'回('+ST.cmpRuns.slice(-3).map(function(r){return SEASON[r.season].name+' 露地 '+(r.fDay?r.fDay+'日':'育ちきらない')+'・工場 '+r.pDay+'日'}).join('/')+')':'まだ')+'\n';
+  t+='   仕分けクイズ:'+(ST.sort&&ST.sort.checked?ST.sort.score+' / '+SORT.length+' 問':'まだ')+'\n';
+  t+='② 照明の自動化:'+(ST.last2?stars(ST.best2)+'(最後:LED '+ST.last2.led+'時間・電気代 '+yen(ST.last2.cost)+'・プログラム「'+ST.last2.prog+'」)':'まだ')+'\n';
+  t+='③ 水やりの自動化:'+(ST.last3?stars(ST.best3)+'(最後:水 '+ST.last3.water+'L・しおれ '+ST.last3.wilt+'時間・プログラム「'+ST.last3.prog+'」)':'まだ')+'\n';
+  var bt=bestTrial();
+  t+='④ 全部を自動に:'+(bt?ST.trials.length+'回 ためした。いちばんよい点 '+bt.score+'点(第'+bt.no+'回 '+SEASON[bt.season].name+'・1株 '+Math.round(bt.w)+'g・品質 '+bt.q+'・電気代 '+yen(bt.cost)+'・水 '+bt.water+'L)\n   プログラム「'+bt.prog+'」':'まだ')+'\n';
+  t+='⑤ スマート農業:'+(ST.smartBest?'遠隔監視のチャレンジ '+ST.smartBest.score+' / 6 点':'まだ')+(ST.pick?'。自分がえらんだ設定:第'+ST.pick+'回':'');
+  return t;
+}
+function reflText(){
+  var d=getRefl(),t='【B5 植物工場の自動化 振り返り】\n日付:'+today()+'\n'+whoLine()+'\n\n■学習の記録\n'+autoSummary()+'\n\n';
+  t+='■評価(1〜5)\n'+RADAR_AX.map(function(a){return a[1]+':'+(d.radar?d.radar[a[0]]:'')}).join(' / ')+'\n\n';
+  RQ.forEach(function(q,i){t+='■'+(i+1)+'. '+q.t+'\n'+(d[q.k]||'')+'\n\n'});
+  if(ST.pickReason)t+='■⑤ えらんだ設定の理由\n'+ST.pickReason+'\n\n';
+  t+='■自己評価\n';EV.forEach(function(e){t+='・'+e.t+':'+(d.ev[e.k]!=null&&EVL[d.ev[e.k]]?EVL[d.ev[e.k]]:'未記入')+'\n'});
+  return plain(t);
+}
+
+/* ================= 記録(書き出し・読み込み) ================= */
+RENDER.rec=function(el){
+  var h='<div class="b5-card"><h1>記録</h1><p>この教材の記録は、この端末のブラウザの中に保存されています。先生の指示があったら、データで書き出して提出しましょう。</p>';
+  h+='<div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div>';
+  h+='<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-x-json">データで書き出す(.json)</button><button type="button" class="b5-btn" id="b5-x-imp">書き出したファイルを読みこむ</button><button type="button" class="b5-btn" id="b5-x-del">この教材の記録をすべて消す</button></div>';
+  h+='<p class="b5-small">書き出したファイル(B5_データ_…json)は、先生用の「振り返り一覧」で読みこめます。</p></div>';
+  el.innerHTML=h;rb(el);
+  $('#b5-x-json').addEventListener('click',exportAll);
+  $('#b5-x-imp').addEventListener('click',function(){$('#b5-file').click()});
+  $('#b5-x-del').addEventListener('click',function(){kzConfirm('B5 の記録(①〜⑤の結果・ランキング・プログラム・振り返り)をすべて消します。もとにもどせません。よろしいですか?',{ok:'すべて消す',danger:true}).then(function(ok){if(!ok)return;
+    ['state','refl','reflstat','speed'].forEach(store.del);ST=defState();reflData=null;quiz5=null;last4=null;man3=null;toast('消しました');showTab('rec')})});
+};
+function exportAll(){
+  var data={app:'B5',version:1,exported:new Date().toISOString(),data:{state:ST,refl:getRefl()}};
+  download('B5_データ_'+(whoFile()?whoFile()+'_':'')+today()+'.json',JSON.stringify(data,null,1),'application/json');
+}
+$('#b5-file').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){
+    var o;try{o=JSON.parse(rd.result)}catch(err){o=null}
+    if(!isObj(o)||o.app!=='B5'||!isObj(o.data)){toast('このファイルは読み込めません(B5のデータではありません)');return}
+    kzConfirm('いまの B5 の記録を、読み込んだデータで置きかえます。いまの記録は消えます。よろしいですか?',{ok:'置きかえる',danger:true}).then(function(yes){if(!yes)return;
+      ST=normState(o.data.state);save();if(isObj(o.data.refl)){store.set('refl',o.data.refl);reflData=null;writeReflStat(getRefl())}
+      quiz5=null;last4=null;man3=null;toast('読み込みました');showTab('rec');
+    });
+  };
+  rd.readAsText(f);e.target.value='';
+});
+
+if(store.get('refl',null)!==null){try{if(localStorage.getItem('b5_reflstat')===null)writeReflStat(getRefl())}catch(e){}}
+applySettings();
+rb($('.b5-nav'));
+showTab(ST.tab&&RENDER[ST.tab]?ST.tab:'home');
+// テスト用に計算部分を公開(画面には影響しません)
+window.B5SIM={simulate:simulate,compareSim:compareSim,scoreOf:scoreOf,starsLight:starsLight,starsWater:starsWater,lightRef:lightRef,CASES:CASES,GOODP:GOODP};
+})();
+</script>
+</body>
+</html>

@@ -188,6 +188,29 @@
     return [{ domain: 'B', app: 'B3 栽培暦ビルダー', student: student(r.kumi, r.ban, r.name), rows: R.rows }];
   }
 
+  var B5_Q = [['q1', '露地栽培と植物工場のよいところと課題'], ['q2', 'センサとプログラムで照明や水やりを自動にして分かったこと'], ['q3', '収量・品質と電気代・水の量の折り合いのつけ方'],
+    ['q4', '評価して見つかった新しい問題と改善のアイデア'], ['q5', 'これからの生物育成の技術でできるとよいこと']];
+  var B5_EV = [['e1', 'センサとプログラムで育成環境を自動で調節するしくみが分かった'], ['e2', 'データをもとにプログラムを改善できた'], ['e3', '社会や環境への影響を考えて生物育成の技術を評価できた']];
+  var B5_RADAR = [['quality', '品質'], ['yield', '収量'], ['cost', '費用'], ['safety', '安全性'], ['env', '環境への配慮']];
+  function parseB5(obj) {
+    var d = obj.data || {}, r = isObj(d.refl) ? d.refl : {}, st = isObj(d.state) ? d.state : {}, ev = r.ev || {}, R = Rows(r.saved || obj.exported);
+    B5_EV.forEach(function (e) { R.add('自己評価', '', e[1], B2_LV[ev[e[0]]]); });
+    if (isObj(r.radar)) R.add('自己評価', '評価のレーダーチャート', '品質・収量・費用・安全性・環境への配慮(1〜5)',
+      B5_RADAR.map(function (x) { return x[1] + ' ' + (r.radar[x[0]] != null ? r.radar[x[0]] : '-'); }).join(' / '));
+    B5_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
+    if (st.pickReason) R.add('ふりかえり', '⑤ スマート農業', 'えらんだ設定と理由', (st.pick ? '第' + st.pick + '回: ' : '') + st.pickReason);
+    if (isObj(st.sort) && st.sort.checked) R.add('成績', '① くらべる', '仕分けクイズ', st.sort.score + ' / 8 問', st.sort.at);
+    if (st.best2) R.add('成績', '② 照明を自動に', 'ミッション', '★' + st.best2);
+    if (st.best3) R.add('成績', '③ 水やりを自動に', 'ミッション', '★' + st.best3);
+    var tr = Array.isArray(st.trials) ? st.trials.filter(isObj) : [];
+    if (tr.length) {
+      var b = tr.reduce(function (m, t) { return !m || t.score > m.score ? t : m; }, null);
+      R.add('成績', '④ 全部を自動に', '最高点(試した回数)', b.score + ' 点(' + tr.length + ' 回)', b.at);
+    }
+    if (isObj(st.smartBest)) R.add('成績', '⑤ スマート農業', '遠隔監視のチャレンジ(最高)', st.smartBest.score + ' / 6 点', st.smartBest.at);
+    return [{ domain: 'B', app: 'B5 植物工場の自動化', student: student(r.cls, r.no, r.name), rows: R.rows }];
+  }
+
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
   var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート' };
   function parseC(obj) {
@@ -338,6 +361,7 @@
     ['B4 育成日誌', function (o) { return o.app === 'B4' && isObj(o.profile); }, parseB4],
     ['B2 動物飼育・水産', function (o) { return o.app === 'B2' && isObj(o.data); }, parseB2],
     ['B3 栽培暦ビルダー', function (o) { return o.app === 'B3' && (isObj(o.reflection) || isObj(o.state)); }, parseB3],
+    ['B5 植物工場の自動化', function (o) { return o.app === 'B5' && isObj(o.data); }, parseB5],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
     ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
     ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],

@@ -196,6 +196,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -311,6 +315,11 @@ window.EDUIT_INFO = {
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -488,9 +497,26 @@ window.EDUIT_INFO = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -498,7 +524,8 @@ window.EDUIT_INFO = {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -828,6 +855,29 @@ window.EDUIT_INFO = {
     return [{ domain: 'B', app: 'B3 栽培暦ビルダー', student: student(r.kumi, r.ban, r.name), rows: R.rows }];
   }
 
+  var B5_Q = [['q1', '露地栽培と植物工場のよいところと課題'], ['q2', 'センサとプログラムで照明や水やりを自動にして分かったこと'], ['q3', '収量・品質と電気代・水の量の折り合いのつけ方'],
+    ['q4', '評価して見つかった新しい問題と改善のアイデア'], ['q5', 'これからの生物育成の技術でできるとよいこと']];
+  var B5_EV = [['e1', 'センサとプログラムで育成環境を自動で調節するしくみが分かった'], ['e2', 'データをもとにプログラムを改善できた'], ['e3', '社会や環境への影響を考えて生物育成の技術を評価できた']];
+  var B5_RADAR = [['quality', '品質'], ['yield', '収量'], ['cost', '費用'], ['safety', '安全性'], ['env', '環境への配慮']];
+  function parseB5(obj) {
+    var d = obj.data || {}, r = isObj(d.refl) ? d.refl : {}, st = isObj(d.state) ? d.state : {}, ev = r.ev || {}, R = Rows(r.saved || obj.exported);
+    B5_EV.forEach(function (e) { R.add('自己評価', '', e[1], B2_LV[ev[e[0]]]); });
+    if (isObj(r.radar)) R.add('自己評価', '評価のレーダーチャート', '品質・収量・費用・安全性・環境への配慮(1〜5)',
+      B5_RADAR.map(function (x) { return x[1] + ' ' + (r.radar[x[0]] != null ? r.radar[x[0]] : '-'); }).join(' / '));
+    B5_Q.forEach(function (q) { R.add('ふりかえり', '', q[1], r[q[0]]); });
+    if (st.pickReason) R.add('ふりかえり', '⑤ スマート農業', 'えらんだ設定と理由', (st.pick ? '第' + st.pick + '回: ' : '') + st.pickReason);
+    if (isObj(st.sort) && st.sort.checked) R.add('成績', '① くらべる', '仕分けクイズ', st.sort.score + ' / 8 問', st.sort.at);
+    if (st.best2) R.add('成績', '② 照明を自動に', 'ミッション', '★' + st.best2);
+    if (st.best3) R.add('成績', '③ 水やりを自動に', 'ミッション', '★' + st.best3);
+    var tr = Array.isArray(st.trials) ? st.trials.filter(isObj) : [];
+    if (tr.length) {
+      var b = tr.reduce(function (m, t) { return !m || t.score > m.score ? t : m; }, null);
+      R.add('成績', '④ 全部を自動に', '最高点(試した回数)', b.score + ' 点(' + tr.length + ' 回)', b.at);
+    }
+    if (isObj(st.smartBest)) R.add('成績', '⑤ スマート農業', '遠隔監視のチャレンジ(最高)', st.smartBest.score + ' / 6 点', st.smartBest.at);
+    return [{ domain: 'B', app: 'B5 植物工場の自動化', student: student(r.cls, r.no, r.name), rows: R.rows }];
+  }
+
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
   var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート' };
   function parseC(obj) {
@@ -978,6 +1028,7 @@ window.EDUIT_INFO = {
     ['B4 育成日誌', function (o) { return o.app === 'B4' && isObj(o.profile); }, parseB4],
     ['B2 動物飼育・水産', function (o) { return o.app === 'B2' && isObj(o.data); }, parseB2],
     ['B3 栽培暦ビルダー', function (o) { return o.app === 'B3' && (isObj(o.reflection) || isObj(o.state)); }, parseB3],
+    ['B5 植物工場の自動化', function (o) { return o.app === 'B5' && isObj(o.data); }, parseB5],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
     ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
     ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
