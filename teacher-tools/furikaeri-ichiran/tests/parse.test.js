@@ -85,6 +85,19 @@ test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りな�
   assert.strictEqual(e3.entries[0].rows.length, 0);
 });
 
+test('C: C6・C7 は振り返り3つ・やったこと・最高点', () => {
+  const e6 = load('C6-fuuryoku-20261018-1405.json').entries[0];
+  assert.strictEqual(e6.app, 'C6 風力発電の羽根ラボ');
+  assert.deepStrictEqual(e6.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e6, 'やったこと'), '8 / 8');
+  assert.strictEqual(e6.rows.filter((x) => x.type === 'ふりかえり').length, 2);  // 空の振り返りは入れない
+  assert.ok(/W\)$/.test(val(e6, 'ランキング1位の羽根')));
+  const e7 = load('C7-souden-20261018-1410.json').entries[0];
+  assert.strictEqual(e7.app, 'C7 直流・交流と送電ラボ');
+  assert.strictEqual(val(e7, '高い電圧で電気を送るわけ'), '電流が小さくなって損失が減るから');
+  assert.strictEqual(val(e7, '計算ドリル(最高)'), '5 / 5');
+});
+
 test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(val(load('仮想CPU_2-15-山田花子.json').entries[0], 'クリアした課題'), '1 / 2');
   assert.strictEqual(load('デジタル化ラボ_2_15_山田花子.json').entries[0].rows.length, 2);
