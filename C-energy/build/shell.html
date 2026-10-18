@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>エネルギー変換の技術 教材集</title>
-<!-- C1〜C5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
+<!-- C1〜C8 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
 <!-- ===== 4分野共通の枠(shared/eduit-frame.css・C-energy/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
 <style>
 {{EF_CSS}}
@@ -47,12 +47,12 @@ body{overflow:hidden}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
 .ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
-/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
+/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
 .ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
 .ea-cards>.ef-mcard:hover{border-color:var(--accent)}
-.ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
-.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
+.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2){grid-column:2 / span 2}
+.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:3 / span 2}
 .ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
@@ -121,10 +121,10 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
-/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C5) */
+/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
   .ea-cards{grid-template-columns:minmax(0,1fr)!important}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto!important;min-height:0!important}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto!important;min-height:0!important}
   .ef-levels[data-ref="cards"]{padding:6px 12px 0}
   .ea-hd{padding:6px 10px}
   .ea-hd .ef-title{font-size:18px}
@@ -145,7 +145,7 @@ body{overflow:hidden}
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
 @media (max-height:720px){ .ea-cards>.ef-mcard{min-height:200px} }
@@ -299,6 +299,25 @@ var PROG = {
     var n = countIds(ids, ds, function (v) { return v && Array.isArray(v.parts) && v.parts.length > 0; }), cur = '';
     if (tasks && d.task) tasks.forEach(function (x) { if (x.id === d.task) cur = 'いまの課題: ' + (x.icon ? x.icon + ' ' : '') + x.title; });
     return tasks ? { n: n, t: ids.length, main: '回路図をかいた課題', end: '', sub: cur } : null;
+  },
+  /* C6・C7 は「やったこと」(STEPS)の数。保存の done・mis を読む */
+  C6: function (d) {
+    var t = appTest('C6'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['gen', 'quiz', 'cmp', 'm1', 'm2', 'm3', 'meth', 'day'];
+    var dn = isObj(d.done) ? d.done : {}, ms = isObj(d.mis) ? d.mis : {};
+    var n = ids.filter(function (k) { return /^m\d$/.test(k) ? !!ms[k] : !!dn[k]; }).length;
+    var r = Array.isArray(d.rank) && d.rank[0] && isFinite(d.rank[0].p) ? d.rank[0].p : 0;
+    return { n: n, t: ids.length, main: 'やったこと', end: '', sub: r > 0 ? 'ランキング1位 ' + (r < 1 ? Math.round(r * 1000) + ' mW' : r.toFixed(2) + ' W') : '' };
+  },
+  C7: function (d) {
+    var t = appTest('C7'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['dcac', 'sort', 'route', 'mesh', 'trans', 'line', 'calcq', 'freq'];
+    var dn = isObj(d.done) ? d.done : {};
+    return { n: countIds(ids, dn, truthy), t: ids.length, main: 'やったこと', end: '', sub: +d.calcBest > 0 ? '計算ドリル 最高 ' + (+d.calcBest) + ' / 5' : '' };
+  },
+  /* C8 問題解決ノートは「やったこと」(課題・評価・最適化・振り返り)の数。保存の note(ノートの中身)を C8 の stepsOf で見る */
+  C8: function (d) {
+    var t = appTest('C8'); if (!t || !t.stepsOf || !isObj(d.note)) return { n: 0, t: 0 };
+    var st = t.stepsOf(d.note), k = String(d.note.task && d.note.task.kadai || '').trim();
+    return { n: st.filter(function (x) { return x.done; }).length, t: st.length, main: 'やったこと', end: '', sub: k ? '課題: ' + (k.length > 24 ? k.slice(0, 24) + '…' : k) : '' };
   }
 };
 function progressOf(id) {
@@ -348,7 +367,7 @@ refs.chips.innerHTML = APPS.map(function (a) {
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
-/* ---- 表示切りかえ(URLの #C1〜#C5 / #help で決まる) ---- */
+/* ---- 表示切りかえ(URLの #C1〜#C8 / #help で決まる) ---- */
 function setView(v) {
   [].forEach.call(root.querySelectorAll('.ea-view'), function (el) { el.classList.toggle('on', el.getAttribute('data-view') === v); });
 }
@@ -467,7 +486,7 @@ $('[data-ea-file]').addEventListener('change', function (ev) {
   rd.onload = function () {
     var j = null; try { j = JSON.parse(rd.result); } catch (e) {}
     if (!j || j.schema !== 'energyApps.backup' || !j.data || typeof j.data !== 'object') { alert('このファイルは学習記録のファイルではありません。\n(「全アプリの記録をファイルに書き出す」で作ったファイルをえらんでください)'); return; }
-    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
+    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-8]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
     if (!keys.length) { alert('読み込める記録がありませんでした。'); return; }
     if (!confirm(keys.map(function (k) { return k.split('.')[1]; }).join('・') + ' の記録を読み込みます。\nこの端末の今の記録は上書きされます。よろしいですか?')) return;
     try { keys.forEach(function (k) { localStorage.setItem(k, j.data[k]); }); } catch (e) { alert('保存できませんでした: ' + e.message); return; }

@@ -63,6 +63,50 @@ test('B: 自己評価の数値・記号を言葉にする', () => {
   assert.strictEqual(b3.rows.filter((x) => x.type === '自己評価').length, 2);  // 0 は未記入
 });
 
+test('B5: 振り返り・自己評価・レーダーチャート・成績', () => {
+  const r = load('B5_データ_2-15_山田花子_2026-10-18.json');
+  assert.strictEqual(r.format, 'B5 植物工場の自動化');
+  const b5 = r.entries[0];
+  assert.strictEqual(b5.app, 'B5 植物工場の自動化');
+  assert.deepStrictEqual(b5.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(b5, 'センサとプログラムで育成環境を自動で調節するしくみが分かった'), '◎ よくできた');
+  assert.strictEqual(val(b5, '品質・収量・費用・安全性・環境への配慮(1〜5)'), '品質 5 / 収量 4 / 費用 3 / 安全性 5 / 環境への配慮 3');
+  assert.strictEqual(b5.rows.filter((x) => x.type === 'ふりかえり').length, 3);  // 空の問いは入れない(q1・q3・えらんだ理由)
+  assert.strictEqual(val(b5, '最高点(試した回数)'), '88 点(2 回)');
+  assert.strictEqual(val(b5, '仕分けクイズ'), '7 / 8 問');
+});
+
+test('B6・C8 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r6 = load('B6_データ_2-15_山田花子_2026-10-18.json');
+  assert.strictEqual(r6.format, 'B6 問題解決ノート');
+  const b6 = r6.entries[0];
+  assert.strictEqual(b6.domain, 'B');
+  assert.deepStrictEqual(b6.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(b6, '課題'), '土の水分を毎日はかり、水やりの量を決めてミニトマトを育てる');
+  assert.strictEqual(val(b6, '観点ごとの評価(5段階)の平均'), '4(4 観点)');
+  assert.strictEqual(val(b6, '改善・修正の方法'), '収量: 追肥の時期を早める');
+  assert.strictEqual(val(b6, 'これからの問題解決に生かしたいこと'), '評価の観点を先に決めておく');
+  const c8 = load('C8-mondai-note-20261018-1500.json').entries[0];
+  assert.strictEqual(c8.app, 'C8 問題解決ノート');
+  assert.strictEqual(c8.domain, 'C');
+  assert.deepStrictEqual(c8.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(c8, '問題?課題? クイズ'), '6 / 6');
+  assert.strictEqual(val(c8, '重みや制約条件を変えて気づいたこと'), '費用を大事にすると蛍光灯が1位になった');
+  assert.strictEqual(val(c8, '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった'), 'だいたいできた');
+});
+
+test('D11 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r = load('問題解決ノート_情報_2_15_山田花子.json');
+  assert.strictEqual(r.format, 'D11 問題解決ノート');
+  const d = r.entries[0];
+  assert.strictEqual(d.domain, 'D');
+  assert.deepStrictEqual(d.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(d, '課題'), '予定を入れると全員が見られる、部活動の連絡ページを作る');
+  assert.strictEqual(val(d, '観点ごとの評価(5段階)の平均'), '4(4 観点)');
+  assert.strictEqual(val(d, '問題?課題? クイズ'), '4 / 6');
+  assert.strictEqual(val(d, '分かったこと・できるようになったこと'), '使う人の立場で評価することが大切だと分かった');
+});
+
 test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
   const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
@@ -70,6 +114,19 @@ test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りな�
   const e3 = load('C3-kikou-20261015-1405.json');
   assert.ok(e3.ok);
   assert.strictEqual(e3.entries[0].rows.length, 0);
+});
+
+test('C: C6・C7 は振り返り3つ・やったこと・最高点', () => {
+  const e6 = load('C6-fuuryoku-20261018-1405.json').entries[0];
+  assert.strictEqual(e6.app, 'C6 風力発電の羽根ラボ');
+  assert.deepStrictEqual(e6.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e6, 'やったこと'), '8 / 8');
+  assert.strictEqual(e6.rows.filter((x) => x.type === 'ふりかえり').length, 2);  // 空の振り返りは入れない
+  assert.ok(/W\)$/.test(val(e6, 'ランキング1位の羽根')));
+  const e7 = load('C7-souden-20261018-1410.json').entries[0];
+  assert.strictEqual(e7.app, 'C7 直流・交流と送電ラボ');
+  assert.strictEqual(val(e7, '高い電圧で電気を送るわけ'), '電流が小さくなって損失が減るから');
+  assert.strictEqual(val(e7, '計算ドリル(最高)'), '5 / 5');
 });
 
 test('D: 各教材の振り返りと成績', () => {
@@ -96,6 +153,15 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
   assert.strictEqual(val(hash, '正解'), '6 / 8');
   assert.strictEqual(val(hash, 'パスワードを守るために、サービスを作る側と自分ができること'), 'サービスごとにちがう長いパスワードにする');
+  const rover = load('火星探査ロボット_記録_215.json').entries[0];
+  assert.strictEqual(rover.app, 'D10 火星探査ロボット・シミュレータ');
+  assert.deepStrictEqual(rover.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(rover.rows.find((x) => x.part === '② 岩の前で止まる・よける').value, '3 / 3');
+  assert.match(val(rover, '記録に挑戦(コースB 長い谷)'), /^638点/);
+  assert.strictEqual(val(rover, '機能(改善の前)'), '2 / 5');
+  assert.strictEqual(val(rover, '機能(改善のあと)'), '4 / 5');
+  assert.strictEqual(val(rover, '動作確認・デバッグ(動かなかったところと直し方)'), '速く走るとぶつかったので、止まる距離を大きくした');
+  assert.ok(val(rover, '課題の設定'));
 });
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
@@ -143,4 +209,16 @@ test('A: A7 第三角法 立体メーカーの書き出し(組・番号・名前
   assert.strictEqual(val(e, 'わかったこと・できるようになったこと'), '正面図と平面図の幅がそろうことがわかった');
   assert.strictEqual(val(e, 'むずかしかったこと・次にがんばりたいこと'), '斜めのマスの向きをそろえるのがむずかしかった');
   assert.strictEqual(e.rows[0].part, 'L形ブラケット');
+});
+
+test('A: A8 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r = load('問題解決ノート_2組15番.json');
+  const e = find(r, 'A8 問題解決ノート');
+  assert.deepStrictEqual(e.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e, '課題'), '机の横に、教科書を立てて入れられる木の本立てを作る');
+  assert.strictEqual(val(e, '問題?課題? クイズ'), '5 / 6');
+  assert.strictEqual(val(e, '観点ごとの評価(5段階)の平均'), '3.5(4 観点)');
+  assert.strictEqual(val(e, '改善・修正の方法'), '加工: 角をやすりで丸くする');
+  assert.strictEqual(val(e, '身の回りから問題を見つけ、問題と課題を分けて書けた'), 'できた');
+  assert.strictEqual(val(e, 'これからの問題解決に生かしたいこと'), '観点を先に決めてから構想する');
 });

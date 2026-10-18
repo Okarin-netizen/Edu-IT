@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B6 問題解決ノート</title>
+<link rel="stylesheet" href="../../shared/eduit-frame.css">
+<link rel="stylesheet" href="../../shared/mondai-note/mondai-note.css">
+<script src="../eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: 'B6 問題解決ノート' };</script>
+<script src="../../shared/eduit-frame.js"></script>
+<!-- 問題解決ノートの中身は4分野共通の shared/mondai-note/(分野ごとの例と観点は mondai-note-data.js の B)。このページは B のアダプタ(上のバー・タブ・保存・書き出し) -->
+<style>
+body{margin:0;background:var(--ef-bg)}
+#b6app{--b6-fs:18px;font-family:var(--ef-font);font-size:var(--b6-fs);line-height:1.65;color:var(--ef-text);background:var(--ef-bg);min-height:100vh;-webkit-text-size-adjust:100%}
+#b6app *{box-sizing:border-box}
+#b6app.b6-noruby rt{display:none}
+#b6app rt{font-size:.55em;color:var(--ef-muted)}
+#b6app h1,#b6app h2,#b6app h3{line-height:1.4}
+#b6app button,#b6app select,#b6app input,#b6app textarea{font:inherit;color:inherit}
+#b6app button{cursor:pointer;touch-action:manipulation}
+/* 見出しは共通の枠(.ef-header)。タブの帯は分野の色(B5 と同じ形) */
+#b6app .b6-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+#b6app .b6-head-row{flex-wrap:wrap}
+#b6app .b6-title{flex:1 1 auto;min-width:200px;margin:0;font-size:18px;line-height:1.3}
+#b6app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
+#b6app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b6app .b6-tools button{min-height:44px;min-width:48px}
+/* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする */
+html.kz-embed #b6app .b6-head-row{display:none}
+html.kz-embed #b6app .b6-head{padding-top:6px}
+html.kz-embed #b6app .b6-nav{margin-top:0}
+#b6app .b6-nav{display:flex;gap:4px;margin-top:8px;padding:0 14px}
+#b6app .b6-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#fff;padding:8px 6px;min-height:52px;border-radius:12px 12px 0 0;font-weight:700;font-size:min(.88em,19px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+#b6app .b6-nav button[aria-selected="true"]{background:var(--ef-bg);color:#1b5e20}
+#b6app .b6-nav rt{color:inherit;opacity:.85}
+/* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
+@media (max-width:900px){#b6app .b6-nav{overflow-x:auto;scrollbar-width:none;padding:0 8px}#b6app .b6-nav::-webkit-scrollbar{display:none}#b6app .b6-nav button{flex:0 0 auto;white-space:nowrap;min-height:48px;padding:6px 10px}}
+#b6app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b6app main > section[hidden]{display:none!important}
+#b6app .b6-saved{color:var(--ef-muted);font-size:.85em;margin:.3em 0}
+#b6app .b6-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 18px;border-radius:12px;font-size:16px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:92vw}
+#b6app .b6-toast.show{opacity:1}
+@media (max-width:640px){#b6app main{padding:10px 8px 60px}}
+@media print{#b6app .b6-head,#b6app .b6-toast{display:none!important}}
+</style>
+</head>
+<body>
+<div id="b6app">
+  <header class="b6-head" id="b6-head" data-ef-autohide>
+    <div class="b6-head-row ef-header">
+      <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
+      <h1 class="b6-title ef-title"><span class="ef-code">B6</span> <span class="ef-title-name">問題解決ノート</span></h1>
+      <div class="b6-tools ef-tools">
+        <button type="button" class="ef-btn ef-toggle" id="b6-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="b6-size">文字</button>
+      </div>
+    </div>
+    <nav class="b6-nav" role="tablist" aria-label="画面の切りかえ">
+      <button type="button" role="tab" data-tab="intro">はじめに</button>
+      <button type="button" role="tab" data-tab="find">① 問題の発見</button>
+      <button type="button" role="tab" data-tab="eval">② 評価、改善・修正</button>
+      <button type="button" role="tab" data-tab="opt">③ 技術の最適化</button>
+      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
+      <button type="button" role="tab" data-tab="rec">記録</button>
+    </nav>
+  </header>
+  <main>
+    <section data-sec="intro"></section>
+    <section data-sec="find" hidden></section>
+    <section data-sec="eval" hidden></section>
+    <section data-sec="opt" hidden></section>
+    <section data-sec="refl" hidden data-ef-reflect></section>
+    <section data-sec="rec" hidden></section>
+    <p class="b6-saved" id="b6-saved" aria-live="polite"></p>
+  </main>
+  <div class="b6-toast" id="b6-toast" role="status" aria-live="polite"></div>
+  <input type="file" id="b6-file" accept=".json,application/json" hidden>
+</div>
+<!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
+<style>
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:16px;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
+.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:12px;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
+.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
+.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+@media print{.kzd-back{display:none !important;}}
+</style>
+<script>
+(function(){
+  if (window.kzConfirm) return;
+  var queue = Promise.resolve();
+  function open(msg, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      var back = document.createElement('div');
+      back.className = 'kzd-back';
+      back.setAttribute('role', 'alertdialog'); back.setAttribute('aria-modal', 'true');
+      var box = document.createElement('div'); box.className = 'kzd-box';
+      var p = document.createElement('p'); p.className = 'kzd-msg'; p.id = 'kzd-msg-' + Date.now(); p.textContent = String(msg);
+      back.setAttribute('aria-describedby', p.id);
+      var btns = document.createElement('div'); btns.className = 'kzd-btns';
+      var cancel = null;
+      if (!opt.alert) {
+        cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'kzd-cancel';
+        cancel.textContent = opt.cancel || 'キャンセル'; btns.appendChild(cancel);
+      }
+      var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'kzd-ok' + (opt.danger ? ' kzd-danger' : '');
+      ok.textContent = opt.ok || 'OK'; btns.appendChild(ok);
+      box.appendChild(p); box.appendChild(btns); back.appendChild(box);
+      var prev = document.activeElement;
+      function done(v){
+        document.removeEventListener('keydown', onKey, true);
+        back.remove();
+        try { if (prev && prev.focus) prev.focus({preventScroll:true}); } catch(e) {}
+        resolve(v);
+      }
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Tab') { var f = cancel ? [cancel, ok] : [ok]; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus(); }
+      }
+      ok.addEventListener('click', function(){ done(true); });
+      if (cancel) cancel.addEventListener('click', function(){ done(false); });
+      document.addEventListener('keydown', onKey, true);
+      (document.body || document.documentElement).appendChild(back);
+      ((opt.danger && cancel) ? cancel : ok).focus({preventScroll:true});
+    });
+  }
+  /* 1つずつ順番に出す */
+  window.kzConfirm = function(msg, opt){ var r = queue.then(function(){ return open(msg, opt); }); queue = r.catch(function(){}); return r; };
+  window.kzAlert = function(msg, opt){ opt = opt || {}; opt.alert = true; return window.kzConfirm(msg, opt); };
+})();
+</script>
+<!--
+  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
+          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
+
+  保存キー(localStorage):
+    hub_ruby  '1' = ふりがなあり / '0' = なし
+    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
+
+  API (グローバルは window.kzPrefs だけ):
+    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
+                               キーが無い(まだ一度も設定していない)ときは null。
+                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
+    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
+                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
+                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
+    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
+                               (storage イベント / postMessage)のときに呼ばれる。
+                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
+    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
+    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
+    kzPrefs.bind(rubyBtn, decBtn, incBtn)
+                             → K2 の3つのボタンをつなぐ(どれか null 可)。
+                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
+    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
+                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
+    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
+
+  教材側の使い方の例:
+    var p = kzPrefs.get();
+    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
+    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
+    apply(ruby, fs);
+    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
+    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+-->
+<script data-kz-prefs>
+(function(){
+  if (window.kzPrefs) return;
+  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
+  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
+  var fns = [], last = '';
+  var embed = false;
+  try { embed = window.self !== window.top; } catch (e) { embed = true; }
+  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
+
+  function clampFs(n){
+    n = Number(n);
+    if (!isFinite(n)) return DEF;
+    n = Math.round(n / STEP) * STEP;
+    return n < MIN ? MIN : (n > MAX ? MAX : n);
+  }
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
+  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function get(){
+    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
+    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
+    return o;
+  }
+  function notify(p){
+    var key = String(p.ruby) + '|' + String(p.fs);
+    if (key === last) return;
+    last = key;
+    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
+  }
+  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
+  function broadcast(p, except){
+    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
+    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
+    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
+  }
+  function set(o){
+    o = o || {};
+    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
+    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    broadcast(p, null);
+    return p;
+  }
+  function on(fn){
+    if (typeof fn === 'function') fns.push(fn);
+    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
+  }
+  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
+  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
+  function bind(rb, dec, inc){
+    function upd(){
+      var c = cur();
+      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
+      if (dec) dec.disabled = c.fs <= MIN;
+      if (inc) inc.disabled = c.fs >= MAX;
+    }
+    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
+    if (dec) dec.addEventListener('click', function(){ bump(-1); });
+    if (inc) inc.addEventListener('click', function(){ bump(1); });
+    on(upd); upd();
+    return upd;
+  }
+
+  window.addEventListener('storage', function(e){
+    if (e.key !== KR && e.key !== KF && e.key !== null) return;
+    notify(get());
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
+    var q = d.kzPrefs;
+    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
+    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
+    var p = get();
+    if (p.ruby === null) p.ruby = mem.ruby;
+    if (p.fs === null) p.fs = mem.fs;
+    notify(p);
+    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
+    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
+  });
+
+  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
+  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
+    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+})();
+</script>
+<!--
+  kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzRuby だけ):
+    kzRuby(root, opts)   root(要素。省略時 document.body)の下の文字に <ruby>語<rt>よみ</rt></ruby> を付ける。
+                         ・長い語から先に当てる(「積算温度」は「積算」より先)
+                         ・ruby, rt, rp, textarea, input, select, option, script, style, svg, canvas, code,
+                           noscript, [contenteditable], class="kz-norb" の要素の中はとばす
+                         ・何度よんでも二重にならない(ruby の中はとばすため)。描画のたびによんでよい
+                         opts.skip : とばす要素を CSS セレクタで追加(例 '.b3-cal')
+                         戻り値: 付けた ruby の数
+    kzRuby.str(html)     HTML 文字列のタグの外の文字にだけ ruby を付けた文字列を返す
+                         (innerHTML に入れる前に使う場合。ruby/textarea/script/style/code の中はとばす)
+    kzRuby.plain(html)   ruby の読み(rt・rp)とタグを取りのぞいた文字だけを返す(テキスト書き出し・コピー用)。
+                         <br> は改行、&amp; などは元の文字にもどす
+    kzRuby.dict          辞書の配列 [語, よみ]。よみは文字列、または区切り配列
+                         例 ['分げつ', [['分','ぶん'],'げつ']](かなの部分にはよみを付けない)
+                         文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
+    kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
+
+  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
+-->
+<style data-kz-ruby>
+ruby.kzr{ruby-position:over;}
+</style>
+<script data-kz-ruby>
+(function(){
+  if (window.kzRuby) return;
+  var DICT = [["徒長","とちょう"],["摘芯","てきしん"],["摘心","てきしん"],["摘芽","てきが"],["芽かき","めかき"],["わき芽かき","わきめかき"],["わき芽","わきめ"],["誘引","ゆういん"],["支柱","しちゅう"],["支柱立て","しちゅうたて"],["出穂","しゅっすい"],["穂肥","ほごえ"],["分げつ",[["分","ぶん"],"げつ"]],["積算温度","せきさんおんど"],["有効積算温度","ゆうこうせきさんおんど"],["基準温度","きじゅんおんど"],["積算水温","せきさんすいおん"],["積算","せきさん"],["間引き","まびき"],["間引","まび"],["追肥","ついひ"],["元肥","もとごえ"],["土寄せ","つちよせ"],["土寄","つちよ"],["畝立て","うねたて"],["畝","うね"],["定植","ていしょく"],["植えつけ","うえつけ"],["植えかえ","うえかえ"],["収穫","しゅうかく"],["収穫量","しゅうかくりょう"],["播種","はしゅ"],["発芽","はつが"],["芽出し","めだし"],["逆算","ぎゃくさん"],["適期","てきき"],["適温","てきおん"],["適量","てきりょう"],["連作障害","れんさくしょうがい"],["連作","れんさく"],["休業日","きゅうぎょうび"],["区画","くかく"],["栽培","さいばい"],["栽培暦","さいばいごよみ"],["露地","ろじ"],["温室","おんしつ"],["遮光","しゃこう"],["換気","かんき"],["加温","かおん"],["保温","ほおん"],["暖房","だんぼう"],["苗","なえ"],["苗床","なえどこ"],["育苗","いくびょう"],["茎","くき"],["稲","いね"],["稲刈り","いねかり"],["田植え","たうえ"],["中干し","なかぼし"],["種もみ","たねもみ"],["種いも","たねいも"],["浸種","しんしゅ"],["湛水","たんすい"],["水田","すいでん"],["本葉","ほんば"],["子葉","しよう"],["生長点","せいちょうてん"],["光合成","こうごうせい"],["開花","かいか"],["結実","けつじつ"],["受粉","じゅふん"],["人工授粉","じんこうじゅふん"],["着果","ちゃっか"],["番花","ばんか"],["結球","けっきゅう"],["草丈","くさたけ"],["葉数","ようすう"],["株元","かぶもと"],["密植","みっしょく"],["移植","いしょく"],["肥料","ひりょう"],["肥料やけ",[["肥料","ひりょう"],"やけ"]],["化学肥料","かがくひりょう"],["有機物","ゆうきぶつ"],["窒素","ちっそ"],["堆肥","たいひ"],["石灰","せっかい"],["苦土石灰","くどせっかい"],["腐葉土","ふようど"],["液肥","えきひ"],["養分","ようぶん"],["根粒菌","こんりゅうきん"],["根腐れ","ねぐされ"],["根ぐされ",[["根","ね"],"ぐされ"]],["尻腐れ症","しりぐされしょう"],["尻腐れ","しりぐされ"],["青枯病","あおがれびょう"],["白点病","はくてんびょう"],["病害虫","びょうがいちゅう"],["害虫","がいちゅう"],["益虫","えきちゅう"],["天敵","てんてき"],["捕殺","ほさつ"],["防除","ぼうじょ"],["防虫","ぼうちゅう"],["農薬","のうやく"],["殺菌","さっきん"],["斑点","はんてん"],["細菌","さいきん"],["微生物","びせいぶつ"],["食害","しょくがい"],["幼虫","ようちゅう"],["雑草","ざっそう"],["除草","じょそう"],["乾燥","かんそう"],["蒸発","じょうはつ"],["排水","はいすい"],["日照不足","にっしょうぶそく"],["直射日光","ちょくしゃにっこう"],["日陰","ひかげ"],["半日陰","はんひかげ"],["高温障害","こうおんしょうがい"],["寒冷地","かんれいち"],["温暖地","おんだんち"],["暖地","だんち"],["中間地","ちゅうかんち"],["品種","ひんしゅ"],["品種改良","ひんしゅかいりょう"],["鉢","はち"],["二十日大根","はつかだいこん"],["湿度","しつど"],["濃度","のうど"],["促進","そくしん"],["飼育","しいく"],["飼育密度","しいくみつど"],["飼料","しりょう"],["配合飼料","はいごうしりょう"],["給餌","きゅうじ"],["自動給餌器","じどうきゅうじき"],["餌","えさ"],["衛生","えいせい"],["不衛生","ふえいせい"],["稚魚","ちぎょ"],["成魚","せいぎょ"],["産卵","さんらん"],["繁殖","はんしょく"],["水替え","みずかえ"],["水替","みずか"],["床材","ゆかざい"],["敷きわら","しきわら"],["溶存酸素","ようぞんさんそ"],["塩素","えんそ"],["中和剤","ちゅうわざい"],["調整剤","ちょうせいざい"],["水質","すいしつ"],["過密","かみつ"],["密度","みつど"],["家畜化","かちくか"],["家畜","かちく"],["畜産業","ちくさんぎょう"],["畜産","ちくさん"],["観賞魚","かんしょうぎょ"],["変温動物","へんおんどうぶつ"],["恒温動物","こうおんどうぶつ"],["外来生物","がいらいせいぶつ"],["外来種","がいらいしゅ"],["特定外来生物","とくていがいらいせいぶつ"],["条件付特定外来生物","じょうけんつきとくていがいらいせいぶつ"],["動物由来感染症","どうぶつゆらいかんせんしょう"],["感染症","かんせんしょう"],["動物福祉","どうぶつふくし"],["栽培漁業","さいばいぎょぎょう"],["養殖","ようしょく"],["養殖業","ようしょくぎょう"],["遠洋漁業","えんようぎょぎょう"],["沖合漁業","おきあいぎょぎょう"],["沿岸漁業","えんがんぎょぎょう"],["漁業","ぎょぎょう"],["水産","すいさん"],["赤潮","あかしお"],["生態系","せいたいけい"],["遺伝子","いでんし"],["放流","ほうりゅう"],["呼吸器","こきゅうき"],["羽毛","うもう"],["牧草","ぼくそう"],["体色","たいしょく"],["食欲","しょくよく"],["排水口","はいすいこう"],["治療","ちりょう"],["症状","しょうじょう"],["消毒","しょうどく"],["清掃","せいそう"],["掃除","そうじ"],["洗剤","せんざい"],["個体","こたい"],["殻","から"],["寄生虫","きせいちゅう"],["振り返り","ふりかえり"],["振り返る","ふりかえる"],["振り返","ふりかえ"],["育成","いくせい"],["育成日誌","いくせいにっし"],["日誌","にっし"],["環境","かんきょう"],["調節","ちょうせつ"],["診断","しんだん"],["端末","たんまつ"],["共用","きょうよう"],["削除","さくじょ"],["完了","かんりょう"],["選択","せんたく"],["挑戦","ちょうせん"],["再挑戦","さいちょうせん"],["途中","とちゅう"],["範囲","はんい"],["影響","えいきょう"],["配慮","はいりょ"],["比較","ひかく"],["交換","こうかん"],["匿名","とくめい"],["項目","こうもく"],["根拠","こんきょ"],["傾向","けいこう"],["一緒","いっしょ"],["一般的","いっぱんてき"],["極端","きょくたん"],["特徴","とくちょう"],["販売","はんばい"],["間隔","かんかく"],["新鮮","しんせん"],["変更","へんこう"],["被害","ひがい"],["交互","こうご"],["実施","じっし"],["制御","せいぎょ"],["終了","しゅうりょう"],["欄","らん"],["粘着","ねんちゃく"],["透明","とうめい"],["手袋","てぶくろ"],["刃物","はもの"],["距離","きょり"],["面倒","めんどう"],["紀伊半島","きいはんとう"],["最小二乗法","さいしょうにじょうほう"],["汚れ","よごれ"],["汚す","よごす"],["汚い","きたない"],["遅れ","おくれ"],["遅い","おそい"],["遅く","おそく"],["遅め","おそめ"],["押","お"],["抜","ぬ"],["伸","の"],["乾","かわ"],["替","か"],["込","こ"],["与","あた"],["離","はな"],["逃","に"],["倒","たお"],["茂","しげ"],["甘","あま"],["咲","さ"],["枯","か"],["埋","う"],["扱","あつか"],["汗","あせ"],["腐","くさ"],["促","うなが"],["溺","おぼ"],["穂","ほ"],["芯","しん"],["掘","ほ"],["刈","か"],["泥","どろ"],["菌","きん"],["芋","いも"],["狭","せま"],["渇","かわ"],["飢","う"],["幅","はば"],["軸","じく"],["粒","つぶ"],["濃","こ"],["湿","しめ"],["渡","わた"],["多湿","たしつ"],["高温多湿","こうおんたしつ"],["植木鉢","うえきばち"],["地下茎","ちかけい"],["水稲","すいとう"],["跳ね","はね"],["跳ぶ","とぶ"],["跳び","とび"],["捕まえ","つかまえ"],["前倒し","まえだおし"],["言葉","ことば"],["読込","よみこみ"]];
+  var KANA_RUN = /[ぁ-ゟ゠-ヿ]+|[^ぁ-ゟ゠-ヿ]+/g;
+  var IS_KANA = /^[ぁ-ゟ゠-ヿ]/;
+  var SKIP = 'ruby,rt,rp,textarea,input,select,option,script,style,svg,canvas,code,noscript,[contenteditable],.kz-norb';
+  var map = {}, re = null;
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function segs(w, r){
+    if (typeof r !== 'string') return r;
+    var runs = w.match(KANA_RUN) || [w];
+    if (runs.length === 1) return IS_KANA.test(w) ? [w] : [[w, r]];
+    var pat = '^';
+    for (var i = 0; i < runs.length; i++) pat += IS_KANA.test(runs[i]) ? escRe(runs[i]) : '(.+?)';
+    var m = new RegExp(pat + '$').exec(r);
+    if (!m) return [[w, r]];
+    var out = [], g = 1;
+    for (var j = 0; j < runs.length; j++) out.push(IS_KANA.test(runs[j]) ? runs[j] : [runs[j], m[g++]]);
+    return out;
+  }
+  function compile(){
+    map = {};
+    var words = [];
+    for (var i = 0; i < DICT.length; i++) { var w = DICT[i][0]; if (!map[w]) words.push(w); map[w] = segs(w, DICT[i][1]); }
+    words.sort(function(a, b){ return b.length - a.length; });
+    re = words.length ? new RegExp(words.map(escRe).join('|'), 'g') : null;
+  }
+  function escH(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function rubyHtml(word){
+    var p = map[word], h = '';
+    for (var i = 0; i < p.length; i++) h += (typeof p[i] === 'string') ? escH(p[i]) : '<ruby class="kzr">' + escH(p[i][0]) + '<rt>' + escH(p[i][1]) + '</rt></ruby>';
+    return h;
+  }
+  function rubyFrag(word){
+    var p = map[word], f = document.createDocumentFragment();
+    for (var i = 0; i < p.length; i++) {
+      if (typeof p[i] === 'string') { f.appendChild(document.createTextNode(p[i])); continue; }
+      var r = document.createElement('ruby'); r.className = 'kzr';
+      r.appendChild(document.createTextNode(p[i][0]));
+      var rt = document.createElement('rt'); rt.appendChild(document.createTextNode(p[i][1])); r.appendChild(rt);
+      f.appendChild(r);
+    }
+    return f;
+  }
+
+  function kzRuby(root, opts){
+    root = root || document.body;
+    if (!root || !re) return 0;
+    var skip = SKIP + (opts && opts.skip ? ',' + opts.skip : '');
+    if (root.nodeType === 1 && root.closest && root.closest(skip)) return 0;
+    var list = [], n, w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || v.length < 1) continue;
+      re.lastIndex = 0;
+      if (!re.test(v)) continue;
+      var par = n.parentNode;
+      if (!par || par.nodeType !== 1 || (par.closest && par.closest(skip))) continue;
+      list.push(n);
+    }
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], s = t.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        f.appendChild(rubyFrag(m[0])); count++;
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(f, t);
+    }
+    return count;
+  }
+
+  /* HTML 文字列版: タグの外の文字にだけ付ける */
+  kzRuby.str = function(html){
+    if (!re) return String(html);
+    var parts = String(html).split(/(<[^>]*>)/), depth = 0, out = '';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.charAt(0) === '<') {
+        var m = /^<(\/?)([a-zA-Z0-9]+)/.exec(p);
+        if (m && /^(ruby|textarea|script|style|code|svg|select|option)$/i.test(m[2])) depth += m[1] ? -1 : 1;
+        if (depth < 0) depth = 0;
+        out += p; continue;
+      }
+      if (depth > 0 || !p) { out += p; continue; }
+      re.lastIndex = 0;
+      out += p.replace(re, rubyHtml);
+    }
+    return out;
+  };
+  kzRuby.plain = function(html){
+    return String(html == null ? '' : html)
+      .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, '').replace(/<rp[^>]*>[\s\S]*?<\/rp>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#0*39;/g, "'").replace(/&#x0*27;/gi, "'").replace(/&amp;/g, '&');
+  };
+  kzRuby.add = function(list){
+    for (var i = 0; i < (list || []).length; i++) {
+      var found = false;
+      for (var j = 0; j < DICT.length; j++) if (DICT[j][0] === list[i][0]) { DICT[j] = list[i]; found = true; break; }
+      if (!found) DICT.push(list[i]);
+    }
+    compile();
+  };
+  kzRuby.dict = DICT;
+  compile();
+  window.kzRuby = kzRuby;
+})();
+</script>
+<!--
+  kz-print : 印刷のとき、textarea の文章を切らずに全部出す (K5)
+  ------------------------------------------------------------------
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <style> と <script> を貼る。
+          2回入れても害はない(window.kzPrintText があれば何もしない)。ES5。外部通信なし。
+
+  API (グローバルは window.kzPrintText だけ):
+    kzPrintText(root)     root(省略時 document)の下のすべての textarea の直後に
+                          <div class="kz-ptext" aria-hidden="true"> を1つだけ用意し、textarea の値を写す。
+                          空のときは「(未記入)」。placeholder(例文)は印刷しない。
+                          画面を描きなおしたあと(innerHTML を入れたあと)に毎回よぶ。何度よんでもよい。
+    kzPrintText.sync(root) すでにある .kz-ptext の中身を今の値に合わせる(root 省略時 document)。
+                          JS で textarea.value を書きかえたあとによぶ。
+  自動で同期するとき: textarea の input / change、window の beforeprint、
+                    matchMedia('print') の変化(beforeprint がない古い Safari 用)。
+  CSS: 画面では .kz-ptext は表示しない。印刷では textarea を隠し、.kz-ptext を全文表示する。
+       見た目を変えたいときは、教材側で .kz-ptext を上書きしてよい(印刷用のみ)。
+-->
+<style data-kz-print>
+.kz-ptext{display:none}
+@media print{
+  textarea{display:none !important}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:6px;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
+  .kz-ptext.kz-empty{color:#666}
+}
+</style>
+<script data-kz-print>
+(function(){
+  if (window.kzPrintText) return;
+  var EMPTY = '(未記入)';
+  function fill(ta, d){
+    var v = ta.value || '';
+    var empty = !v.replace(/\s+/g, '');
+    var txt = empty ? EMPTY : v;
+    if (d.textContent !== txt) d.textContent = txt;
+    if (empty) { if (!/\bkz-empty\b/.test(d.className)) d.className += ' kz-empty'; }
+    else d.className = d.className.replace(/\s*\bkz-empty\b/g, '');
+  }
+  function mirrorOf(ta){
+    var d = ta.nextElementSibling;
+    return (d && d.className && /\bkz-ptext\b/.test(d.className)) ? d : null;
+  }
+  function kzPrintText(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) {
+      var ta = tas[i], d = mirrorOf(ta);
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'kz-ptext';
+        d.setAttribute('aria-hidden', 'true');
+        if (ta.parentNode) ta.parentNode.insertBefore(d, ta.nextSibling);
+      }
+      fill(ta, d);
+    }
+    if (root.nodeType === 1 && root.tagName === 'TEXTAREA') { var d2 = mirrorOf(root); if (d2) fill(root, d2); }
+  }
+  kzPrintText.sync = function(root){
+    root = root || document;
+    var tas = root.getElementsByTagName ? root.getElementsByTagName('textarea') : [];
+    for (var i = 0; i < tas.length; i++) { var d = mirrorOf(tas[i]); if (d) fill(tas[i], d); }
+  };
+  function onInput(e){
+    var t = e.target;
+    if (t && t.tagName === 'TEXTAREA') { var d = mirrorOf(t); if (d) fill(t, d); }
+  }
+  document.addEventListener('input', onInput, true);
+  document.addEventListener('change', onInput, true);
+  window.addEventListener('beforeprint', function(){ kzPrintText.sync(); });
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) { var cb = function(m){ if (m.matches) kzPrintText.sync(); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  } catch (e) {}
+  window.kzPrintText = kzPrintText;
+})();
+</script>
+<script src="../../shared/mondai-note/mondai-note-data.js"></script>
+<script src="../../shared/mondai-note/mondai-note.js"></script>
+<script>
+/* B6 問題解決ノート: B のアダプタ
+ * 保存: localStorage b6_note(ノートの中身)・b6_tab(開いていたタブ)・b6_reflstat(メニューの「振り返り」の印)
+ * 書き出し: { app: 'B6', version: 1, exported, data: { note } } → B6_データ_組-番号_名前_日付.json(振り返り一覧で読める)
+ */
+(function(){
+'use strict';
+var root=document.getElementById('b6app');
+function $(s,el){return (el||root).querySelector(s)}
+function $$(s,el){return Array.prototype.slice.call((el||root).querySelectorAll(s))}
+var store={
+  get:function(k,d){try{var v=localStorage.getItem('b6_'+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem('b6_'+k,JSON.stringify(v));return true}catch(e){return false}},
+  del:function(k){try{localStorage.removeItem('b6_'+k)}catch(e){}}
+};
+function isObj(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
+function p2(n){return ('0'+n).slice(-2)}
+function today(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function toast(msg){var t=$('#b6-toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show')},2600)}
+function download(name,text){
+  try{var blob=new Blob([text],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);toast('「'+name+'」を書き出しました')}catch(e){toast('書き出しできませんでした')}
+}
+/* ふりがな(共通の用語辞書 kzRuby)。問題解決ノートで使う語を足す */
+if(window.kzRuby)kzRuby.add([['問題解決','もんだいかいけつ'],['付箋','ふせん'],['課題','かだい'],['観点','かんてん'],['最適化','さいてきか'],['折り合い','おりあい'],['制約条件','せいやくじょうけん'],
+  ['評価','ひょうか'],['改善','かいぜん'],['修正','しゅうせい'],['収量','しゅうりょう'],['品質','ひんしつ'],['費用','ひよう'],['安全性','あんぜんせい'],['配慮','はいりょ'],['負荷','ふか'],
+  ['露地栽培','ろじさいばい'],['植物工場','しょくぶつこうじょう'],['養殖','ようしょく'],['栽培漁業','さいばいぎょぎょう'],['稚魚','ちぎょ'],['放流','ほうりゅう'],['天敵','てんてき'],['防虫','ぼうちゅう'],
+  ['農薬','のうやく'],['害虫','がいちゅう'],['資源','しげん'],['持続可能','じぞくかのう'],['生産者','せいさんしゃ'],['管理作業','かんりさぎょう'],['育成計画','いくせいけいかく'],['追肥','ついひ'],
+  ['当事者','とうじしゃ'],['経済','けいざい'],['環境','かんきょう'],['社会','しゃかい'],['過程','かてい'],['立場','たちば'],['重み','おもみ'],['候補','こうほ'],['具体的','ぐたいてき'],['達成','たっせい'],['不便','ふべん']]);
+function rb(el){if(window.kzRuby&&el){try{kzRuby(el)}catch(e){}}}
+
+/* ---- ふりがな・文字の大きさ(教材集ぜんぶで共通: hub_ruby / hub_fs) ---- */
+function applySettings(){var p=kzPrefs.get();root.classList.toggle('b6-noruby',p.ruby===false);root.style.setProperty('--b6-fs',(p.fs||kzPrefs.FS_DEFAULT)+'px')}
+kzPrefs.bind($('#b6-ruby'));
+kzPrefs.on(EduitFrame.sizeButton($('#b6-size'),{steps:[[16,'小'],[18,'中'],[22,'大'],[26,'特大']],get:function(){return kzPrefs.get().fs||kzPrefs.FS_DEFAULT},set:function(v){kzPrefs.set({fs:v})}}));
+kzPrefs.on(applySettings);
+applySettings();
+
+/* ---- 保存 ---- */
+var FK_OFF=!!(window.EduitFrame&&EduitFrame.furikaeri===false);
+function writeReflStat(d){var r=d.refl||{},f=0;['learned','next'].forEach(function(k){if(typeof r[k]==='string'&&r[k].replace(/\s+/g,''))f++});try{localStorage.setItem('b6_reflstat',JSON.stringify({filled:f,total:2}))}catch(e){}}
+var timer=null;
+function save(){
+  clearTimeout(timer);
+  timer=setTimeout(function(){
+    var ok=store.set('note',note.data);writeReflStat(note.data);
+    var d=new Date();$('#b6-saved').textContent=ok?'✓ 自動保存しました '+p2(d.getHours())+':'+p2(d.getMinutes()):'保存できませんでした(このひらき方では記録が残りません)';
+  },600);
+}
+function whoFile(){var s=note.data.student||{};return (s.cls||'')+(s.no?'-'+s.no:'')+(s.name?'_'+s.name:'')}
+function exportAll(){
+  store.set('note',note.data);
+  download('B6_データ_'+(whoFile()?whoFile()+'_':'')+today()+'.json',JSON.stringify({app:'B6',version:1,exported:new Date().toISOString(),data:{note:note.data}},null,1));
+}
+function btn(label,fn,pri){var b=document.createElement('button');b.type='button';b.className='mn-btn'+(pri?' mn-btn-primary':'');b.textContent=label;b.addEventListener('click',fn);return b}
+function recordTools(){
+  var w=document.createElement('span');w.className='mn-row';
+  w.appendChild(btn('データで書き出す(.json)',exportAll));
+  w.appendChild(btn('書き出したファイルを読みこむ',function(){$('#b6-file').click()}));
+  w.appendChild(btn('この教材の記録をすべて消す',function(){
+    kzConfirm('B6 の問題解決ノートをすべて消します。もとにもどせません。よろしいですか?',{ok:'すべて消す',danger:true}).then(function(ok){if(!ok)return;
+      ['note','reflstat','tab'].forEach(store.del);note.setData(MondaiNote.defaults('B'));toast('消しました');showTab('intro')})}));
+  return w;
+}
+$('#b6-file').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){
+    var o;try{o=JSON.parse(rd.result)}catch(err){o=null}
+    if(!isObj(o)||o.app!=='B6'||!isObj(o.data)||!isObj(o.data.note)){toast('このファイルは読み込めません(B6のデータではありません)');return}
+    kzConfirm('いまの B6 のノートを、読み込んだデータで置きかえます。いまのノートは消えます。よろしいですか?',{ok:'置きかえる',danger:true}).then(function(yes){if(!yes)return;
+      note.setData(o.data.note);store.set('note',note.data);writeReflStat(note.data);toast('読み込みました');showTab('rec')});
+  };
+  rd.readAsText(f);e.target.value='';
+});
+
+/* ---- タブ ---- */
+var cur='intro';
+function showTab(tab){
+  if(!$('[data-sec="'+tab+'"]')||(FK_OFF&&tab==='refl'))tab=FK_OFF&&tab==='refl'?'rec':'intro';
+  cur=tab;store.set('tab',tab);
+  $$('.b6-nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false')});
+  $$('main > section').forEach(function(s){s.hidden=s.dataset.sec!==tab});
+  if(tab==='rec'&&note)note.render('rec');
+  window.scrollTo(0,0);
+}
+$$('.b6-nav button').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
+
+var note=MondaiNote.mount({
+  domain:'B',data:store.get('note',null),
+  panels:{intro:$('[data-sec="intro"]'),find:$('[data-sec="find"]'),eval:$('[data-sec="eval"]'),opt:$('[data-sec="opt"]'),refl:$('[data-sec="refl"]'),rec:$('[data-sec="rec"]')},
+  onChange:save,go:showTab,recordTools:recordTools,
+  furikaeri:function(){return !FK_OFF},
+  confirm:function(msg){return kzConfirm(msg,{ok:'はい'})},
+  afterRender:rb
+});
+rb($('.b6-nav'));
+var t0=store.get('tab','intro');
+showTab(typeof t0==='string'?t0:'intro');
+})();
+</script>
+</body>
+</html>
