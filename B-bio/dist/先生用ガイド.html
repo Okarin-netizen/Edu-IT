@@ -37,7 +37,7 @@
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
- *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
@@ -172,6 +172,9 @@
 .ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
 .ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
 .ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
 .ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
@@ -299,6 +302,8 @@ window.EDUIT_INFO = {
   ],
   history: [
     { version: '1.7', date: '2026-10-18', items: [
+      'ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)',
+      'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「B1 環境」〜「B6 ノート」の切りかえは教材を開いたときだけ出す',
       'B6 問題解決ノートを追加した(4分野で同じ形の教材。教科書 2編2章 1・4、3章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
       'B6: ② 育てた作物や生き物を、品質・収量・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
       'B6: ③(発展)レタスの育て方・魚をとどける方法・害虫の防ぎ方で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(技術の最適化)。ノートは問題解決シートとして印刷できる',
@@ -427,6 +432,10 @@ window.EDUIT_INFO.textbook = {
  * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  * 上のバーの表示の道具(4分野で同じ形):
@@ -571,6 +580,28 @@ window.EDUIT_INFO.textbook = {
     if (!dlg) build();
     dlg._select(typeof tab === 'number' ? tab : 0);
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
   }
 
   function aboutButton(cls) {
@@ -795,7 +826,7 @@ window.EDUIT_INFO.textbook = {
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -849,7 +880,7 @@ window.EDUIT_INFO.textbook = {
     </ul>
     <h3>画面のつくり</h3>
     <ul>
-      <li><b>メニューの上のバー</b>: 左に「B 生物育成の技術 教材集」、右に「ふりがな」「文字 中」(文字の大きさ)「使い方」「先生用」と、教材を切りかえるボタン「B1 環境」「B2 飼育」「B3 栽培暦」「B4 日誌」「B5 工場」「B6 ノート」がならびます。「先生用」はメニューの下の先生用のところへ移ります。</li>
+      <li><b>メニューの上のバー</b>: 左に「B 生物育成の技術 教材集」、右に「ふりがな」「文字 中」(文字の大きさ)「使い方」「先生用」がならびます(4分野で同じ並び・同じ表記です)。「先生用」はメニューの下の先生用のところへ移ります。教材を切りかえるボタン「B1 環境」「B2 飼育」「B3 栽培暦」「B4 日誌」「B5 工場」「B6 ノート」は、教材を開いたときに上のバーに出ます。</li>
       <li><b>メニュー</b>: 「基本編」「発展編」のタブの中に、B1〜B6 のカードが番号順にならびます(教科書の章ごとに見出しで区切られ、B6 は2章「技術による問題解決」、B5 は3章「社会の発展と技術」の見出しの下)。基本編の上に「おすすめの順番: B1 → B2 → B3 → B4 → B5 → B6」の1行が出ます。カードには記号・名前・説明・使うところ・目安の時間・振り返りの書きぐあいがあり、カードのどこを押しても教材が開きます。</li>
       <li><b>メニューの下</b>: 基本編・発展編のカード → 「💾 記録(書き出し・データの管理)」 → 「👩‍🏫 先生用(ガイド)」の順です。</li>
       <li><b>教材を開いたとき</b>: 上のバーの左に「◀ メニュー」と「B1 育成環境コントローラ体験」のような記号と名前が出ます。教材の中のタブは、基本編のタブ → 発展編のタブの順で、学ぶ中身のタブに ①②③… の番号が付いています(「はじめに」「振り返り」には番号がなく、振り返りはいつも最後)。B4 はタブに番号のない絵のタブで、育てているあいだ必要な画面を行き来します。</li>
@@ -967,7 +998,7 @@ window.EDUIT_INFO.textbook = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
-      <li><b>第1.7版(2026-10-18)</b>: B6 問題解決ノートを追加した(4分野で同じ形の教材。基本編: ① 問題の発見・② 評価、改善・修正、発展編: ③ 技術の最適化。問題解決シートとして印刷できる)。メニュー・上のバー・使い方・このガイド・振り返り一覧を B6 に対応させた。</li>
+      <li><b>第1.7版(2026-10-18)</b>: ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)。メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「B1 環境」〜「B6 ノート」の切りかえは教材を開いたときだけ出す。B6 問題解決ノートを追加した(4分野で同じ形の教材。基本編: ① 問題の発見・② 評価、改善・修正、発展編: ③ 技術の最適化。問題解決シートとして印刷できる)。メニュー・上のバー・使い方・このガイド・振り返り一覧を B6 に対応させた。</li>
       <li><b>第1.6版(2026-10-18)</b>: B5 植物工場の自動化を追加した(基本編: ① くらべる・② 照明を自動に・③ 水やりを自動に、発展編: ④ 全部を自動に・⑤ スマート農業)。メニュー・上のバー・使い方・このガイド・振り返り一覧を B5 に対応させた。</li>
       <li><b>第1.5版(2026-10-17)</b>: 振り返りを隠す設定(先生用)に対応。文字の大きさの「A−」「A＋」を「文字 中」の1つのボタンにまとめ(押すたびに 小 → 中 → 大 → 特大)、「ふりがな」とともに4分野で同じ形にした。スマホでは上のバーを2行にして、教材の名前が見えるようにした。</li>
       <li><b>第1.4版(2026-10-16)</b>: 教材の番号を、おすすめの順番と同じにした: B1 育成環境コントローラ体験 → B2 動物飼育・水産ミニシミュレータ → B3 栽培暦ビルダー → B4 育成日誌＋成長予測(前の B2 が B1、B3 が B2、B4 が B3、B1 が B4 になった)。メニューのカードと上のバーの形を、4つの分野の教材集でそろえた。上のバーに「先生用」ボタンを置き、教材を切りかえるボタンにも番号を出した。おすすめの順番は、基本編の上の1行(おすすめの順番: B1 → B2 → B3 → B4)で見られるようにした。メニューの下を、基本編・発展編 → 記録(書き出し・データの管理) → 先生用 の順にした。番号を付け直したので、前の版で保存した記録や書き出したファイルは読みこめません。教材の中のタブを基本編 → 発展編の順にし、学ぶ中身のタブに①②③…の続き番号を付けた(「はじめに」「振り返り」には番号を付けず、振り返りはいつも最後。B4 の「予測」は「評価」のあとへ)。</li>

@@ -43,8 +43,10 @@ body{overflow:hidden}
 
 /* --- トップ画面 --- */
 .ea-home{overflow:auto;background:var(--ef-bg)}
-.ea-hd{padding:6px 32px;flex:none}
-.ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
+/* 上のバーは4分野で同じ大きさ(名前 18px・ボタンの高さ 40px。スマホは 16px・36px) */
+.ea-hd{padding:6px 14px;flex:none}
+.ea-hd .ef-title{font-size:18px;flex-wrap:wrap;column-gap:8px}
+.ea-hd .ef-btn{min-height:40px}
 .ea-hd .ef-sub{font-size:14px}
 .ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
 /* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる */
@@ -110,8 +112,6 @@ body{overflow:hidden}
 .ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;display:none}
 
 @media (max-width:900px){
-  .ea-hd{padding:6px 16px}
-  .ea-hd .ef-title{font-size:20px}
   .ea-cards{gap:12px;padding:6px 16px 20px}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:6px 0 20px}
@@ -127,7 +127,8 @@ body{overflow:hidden}
   .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto!important;min-height:0!important}
   .ef-levels[data-ref="cards"]{padding:6px 12px 0}
   .ea-hd{padding:6px 10px}
-  .ea-hd .ef-title{font-size:18px}
+  .ea-hd .ef-title{font-size:16px}
+  .ea-hd .ef-btn{min-height:36px;padding:0 10px;font-size:14px}
   .ea-foot{padding:0 12px 16px}
   .ea-bar{height:auto;flex-wrap:wrap;row-gap:4px;padding:4px 6px}
   .ea-bar .ea-btn{min-height:38px;font-size:14px;padding:0 9px}
@@ -162,14 +163,14 @@ body{overflow:hidden}
 <div class="ea" id="ea">
   <!-- トップ画面 -->
   <section class="ea-view ea-home" data-view="home" aria-label="メニュー">
+    <!-- 上のバー(4分野共通): 左に「C エネルギー変換の技術 教材集」、右に ふりがな・文字・使い方・先生用(全画面はアプリの中のバーだけ) -->
     <header class="ef-header ea-hd">
       <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
-        <button class="ea-btn ef-btn" data-ea="help">❓ 使い方</button>
-        <button class="ea-btn ef-btn" data-ea="help-t">🧑‍🏫 先生用</button>
-        <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+        <button class="ea-btn ef-btn" data-ea="help">使い方</button>
+        <button class="ea-btn ef-btn" data-ea="help-t">先生用</button>
       </div>
     </header>
     <div data-ref="cards"></div>
@@ -184,7 +185,7 @@ body{overflow:hidden}
       <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
       <div class="ea-bar-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
         <span data-ref="about"></span>
@@ -231,8 +232,8 @@ if (window.EduitFrame) {
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
 /* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, fs }) ---- */
-var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, fs: 1 }, sizeUpds = [];
-try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
+var PKEY = 'energyApps.prefs.v1', prefs = { ruby: false, fs: 1 }, sizeUpds = [];
+try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === true) prefs.ruby = true; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
 function applyPrefs() {
   document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
   document.documentElement.style.setProperty('--ea-fs', String(prefs.fs));

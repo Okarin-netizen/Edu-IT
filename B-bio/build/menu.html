@@ -32,7 +32,7 @@ body{background:var(--ef-bg);}
 #hub .bar{position:fixed;top:0;left:0;right:0;height:var(--bar);z-index:50;flex-wrap:nowrap;gap:8px;
   padding:0 10px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));
   box-shadow:0 2px 6px rgba(0,0,0,.08);}
-#hub .bar .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text);min-height:44px;}
+#hub .bar .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text);min-height:40px;}
 #hub .bar .ef-btn[aria-pressed="true"],#hub .bar .ef-btn[aria-current="page"]{background:var(--ef-accent);border-color:var(--ef-accent);color:var(--ef-accent-ink);}
 #hub .bar .ef-btn:disabled{opacity:.4;cursor:default;}
 #hub .bar .home{color:var(--ef-accent);}
@@ -42,9 +42,11 @@ body{background:var(--ef-bg);}
 #hub .bar .ef-tools{flex:0 0 auto;flex-wrap:nowrap;}
 #hub .bar .sw,#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
 #hub .bar .sw .ef-btn{min-width:52px;padding:0 10px;}
-#hub .bar .pf .ef-btn{min-width:48px;padding:0 12px;}
+#hub .bar .pf .ef-btn{min-width:48px;padding:0 14px;}
 #hub .bar{font-size:17px;line-height:1.4;}
 #hub .bar .sep{flex:0 0 1px;align-self:stretch;margin:10px 2px;background:var(--ef-line);}
+/* メニュー・使い方・先生用ガイドの画面では、上のバーは4分野共通の「ふりがな・文字・使い方・先生用」だけ。B1〜B6 の切りかえは教材を開いたときだけ出す */
+#hub:not(.in-app) .bar .sw,#hub:not(.in-app) .bar .sep{display:none;}
 #hub .page{padding:calc(var(--bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
 #hub .page[hidden]{display:none;}
 #hub h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
@@ -95,17 +97,18 @@ body{background:var(--ef-bg);}
 #hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:12px;z-index:60;max-width:90vw;}
 #hub .toast[hidden]{display:none;}
 @media (max-width:900px){#hub .bar .lbl{display:none;} #hub .bar{gap:6px;}}
-/* スマホ: 上のバーを2行にする(1行目 = ◀ と名前、2行目 = 道具と B1〜B6)。入りきらないときは2行目だけ横にスクロール */
+/* スマホ: 上のバーを2行にする(1行目 = ◀ と名前、2行目 = 道具と、教材を開いているときは B1〜B6)。入りきらないときは2行目だけ横にスクロール */
 @media (max-width:640px){
-  #hub{--bar:96px;}
+  #hub{--bar:88px;}
   #hub .bar{flex-wrap:wrap;align-content:center;row-gap:4px;column-gap:6px;padding-top:4px;padding-bottom:4px;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}
   #hub .bar .ttl{flex:1 1 0;font-size:16px;}
   #hub .bar .ef-tools{flex:1 1 100%;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:none;}
-  #hub .bar .sep,#hub .bar .use{display:none;}
+  #hub.in-app .bar .sep,#hub.in-app .bar .use{display:none;}
+  #hub:not(.in-app) .bar .ef-tools{justify-content:flex-end;}
   #hub .bar .sw,#hub .bar .pf{gap:4px;}
-  #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-height:38px;min-width:0;padding:0 8px;font-size:14px;}
+  #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-height:36px;min-width:0;padding:0 10px;font-size:14px;}
 }
-@media (max-width:420px){#hub .bar .tch{display:none;}}
+@media (max-width:420px){#hub.in-app .bar .tch{display:none;}}
 @media print{
   #hub .bar,#hub .gtools,#hub .noprint{display:none !important;}
   #hub .page{padding:0;}
@@ -129,11 +132,11 @@ body{background:var(--ef-bg);}
     <h1 class="ttl ef-title" id="hub-ttl">生物育成の技術 教材集</h1>
     <div class="ef-tools">
       <div class="pf" role="group" aria-label="ふりがなと文字の大きさ(教材集ぜんぶで同じ)">
-        <button type="button" class="ef-btn ef-toggle" id="hub-pf-ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button type="button" class="ef-btn ef-toggle" id="hub-pf-ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button type="button" class="ef-btn ef-size" id="hub-pf-size">文字</button>
       </div>
-      <button type="button" class="ef-btn use" data-go="student" aria-label="使い方" title="この教材集の使い方">📖<span class="lbl"> 使い方</span></button>
-      <button type="button" class="ef-btn tch" id="hub-to-teacher" aria-label="先生用" title="メニューの下の先生用のところへ">👩‍🏫<span class="lbl"> 先生用</span></button>
+      <button type="button" class="ef-btn use" data-go="student" title="この教材集の使い方">使い方</button>
+      <button type="button" class="ef-btn tch" id="hub-to-teacher" title="メニューの下の先生用のところへ">先生用</button>
       <span class="sep" aria-hidden="true"></span>
       <nav class="sw" aria-label="教材を切りかえる">
         <button type="button" class="ef-btn" data-go="b1" title="B1 育成環境コントローラ体験"><span class="ef-code">B1</span><span class="lbl"> 環境</span></button>
@@ -195,7 +198,7 @@ body{background:var(--ef-bg);}
 <li>メニューの教材カードの「ひらく ▶」をタップします。</li>
 <li>教材の中では、上の緑のタブで画面を切りかえます。<br><b>B1・B2・B3・B5・B6</b> は「① そだてる」「② 結果・原因さがし」のように、学ぶ中身のタブに番号がついていて、番号の順に進みます(「はじめに」<span data-ef-reflect>と「振り返り」</span>には番号がありません<span data-ef-reflect>。振り返りはいつも最後です</span>)。<b>基本編</b>のタブのあとに<b>発展編</b>のタブがならんでいます。<br><b>B4</b> は「🏠ホーム」「✏️記録」「📈グラフ」などの絵のタブで、育てているあいだ、必要な画面を行き来します。</li>
 <li>メニューにもどるときは、いちばん上の「◀ メニュー」をタップします。<br>書いている<ruby>途中<rt>とちゅう</rt></ruby>の内容は消えません。</li>
-<li>上のバーの「B1」〜「B6」で、ほかの教材へすぐ移れます。</li>
+<li>教材を開いているときは、上のバーの「B1」〜「B6」で、ほかの教材へすぐ移れます。</li>
 <li>上のバーの右の「ふりがな」でふりがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大)を変えられます。<b>文字の大きさ・ふりがなは、教材集ぜんぶで同じ設定になります。</b></li>
 </ol>
 </section>
@@ -410,6 +413,7 @@ body{background:var(--ef-bg);}
   function get(){
     var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
     if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
+    if (o.ruby === null) o.ruby = false;  /* ふりがなは、はじめはなし(4分野で同じ) */
     if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
     return o;
   }
@@ -757,6 +761,7 @@ function focusFrame(f){ try { if (f.contentDocument && f.contentDocument.readySt
 function show(id, push){
   if (!PAGES[id] && !APPS[id]) id = 'menu';
   current = id;
+  hub.classList.toggle('in-app', !!APPS[id]);
   ['menu','student','teacher'].forEach(function(p){ $('#pg-' + p).hidden = (p !== id); });
   Object.keys(frames).forEach(function(k){ frames[k].hidden = (k !== id); });
   if (APPS[id]) {

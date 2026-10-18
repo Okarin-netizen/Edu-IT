@@ -44,7 +44,7 @@
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
- *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
@@ -179,6 +179,9 @@
 .ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
 .ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
 .ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
 .ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
@@ -280,7 +283,7 @@ a { color: var(--accent); }
 .bar-title { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: 6px; }
 .bar-title .ef-title-name { overflow: hidden; text-overflow: ellipsis; }
 .bar-title .ef-code { flex: none; }
-/* 「先生用」はメニューのときだけ（教材のときは教材の切りかえを出す） */
+/* 「使い方」「先生用」はメニューのときだけ（教材のときは教材の切りかえを出す） */
 .app-mode .teacher-btn { display: none; }
 /* 「◀ メニュー」は教材を開いているときだけ */
 #back-link { display: none; }
@@ -480,6 +483,8 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-
     ],
     history: [
       { version: '2.0', date: '2026-10-18', items: [
+        'ふりがなは、はじめはなし(オフ)のまま。4分野で同じにした',
+        'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューの上のバーに「使い方」を足した',
         'D11 問題解決ノートを足した(4分野で同じ形の教材。教科書 4編2章 2・5、3章 2・5、4章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
         'D11: ② 作ったコンテンツや計測・制御システムを、機能・使いやすさ・安全性・他者の権利・費用・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
         'D11: ③(発展)スマートフォンのロック・車の運転・動画の配信で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(情報の技術の最適化)。ノートは問題解決シートとして印刷できる',
@@ -632,6 +637,10 @@ window.EDUIT_INFO.textbook = {
  * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  * 上のバーの表示の道具(4分野で同じ形):
@@ -776,6 +785,28 @@ window.EDUIT_INFO.textbook = {
     if (!dlg) build();
     dlg._select(typeof tab === 'number' ? tab : 0);
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
   }
 
   function aboutButton(cls) {
@@ -1000,7 +1031,7 @@ window.EDUIT_INFO.textbook = {
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -1017,7 +1048,8 @@ window.EDUIT_INFO.textbook = {
         <button type="button" class="shell-toggle ef-btn ef-toggle" id="tg-ruby" aria-pressed="false">ふりがな</button>
         <button type="button" class="shell-toggle ef-btn ef-size" id="tg-large" aria-pressed="false" aria-label="文字の大きさ(大きな文字)" title="文字の大きさ(押すと「中」と「大」が切りかわる)">文字 <span class="ef-size-v"></span></button>
       </div>
-      <button type="button" class="ef-btn teacher-btn" id="go-teacher">先生用</button>
+      <button type="button" class="ef-btn teacher-btn" id="go-howto" title="この教材集の使い方">使い方</button>
+      <button type="button" class="ef-btn teacher-btn" id="go-teacher" title="メニューの下の先生用のところへ">先生用</button>
       <div class="switch-wrap" id="switch-wrap">
         <button type="button" class="switch-btn ef-btn" id="switch-btn" aria-expanded="false" aria-controls="switcher"><span class="switch-btn-label">教材をかえる</span> <span aria-hidden="true">▾</span></button>
         <nav class="switcher" id="switcher" aria-label="教材の切りかえ"></nav>
@@ -1347,7 +1379,8 @@ function kyozaiRuby(doc, words, skip) {
         card: (item, parts) => (byId.has(item.id) ? card(byId.get(item.id), parts) : null),
         // 基本編の上に「おすすめの順番: D1 → D2 → …」の1行
         code: (item) => (byId.has(item.id) ? byId.get(item.id).code : null),
-        onRender: (panel) => shellRuby.set(prefs.ruby, panel),
+        // ふりがなは applyPrefs が body 全体に付ける（タブを切りかえたときも body の見はりで付く）。
+        // ここで panel だけに set すると、読みこみ直したときにメニューにふりがなが付かなかった
       });
     } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null))));
     return box;
@@ -1678,6 +1711,22 @@ function kyozaiRuby(doc, words, skip) {
     barTitle.replaceChildren(codeEl(m), h("span", { class: "ef-title-name" }, m.title));
     barTitle.title = `${m.code} ${m.title}`;
   }
+  // 「使い方」: この教材集の使い方をダイアログで出す（4分野共通の EduitFrame.howto）
+  document.getElementById("go-howto").addEventListener("click", () => {
+    const n = DATA.materials.length;
+    const html =
+      "<h3>はじめかた</h3><ol>" +
+      `<li>メニューの「基本編」のカードから、学びたい教材をタップします。はじめは「おすすめの順番」（D1 → D2 → …）のとおりに進めましょう。「発展編」は、先生の指示があったら取り組みます。</li>` +
+      "<li>教材の中では、上のタブで画面を切りかえます。タブの番号（①②③…）の順に進みます。</li>" +
+      "<li>メニューにもどるときは、いちばん上の「◀ メニュー」をタップします。教材を開いているときは、上のバーの教材の名前（はばがせまい画面では「教材をかえる ▾」）で、ほかの教材へすぐ移れます。切りかえても、開いていた教材の作業は消えません。</li></ol>" +
+      "<h3>上のバーのボタン</h3><ul>" +
+      `<li><b>ふりがな</b>：むずかしい言葉の読みがなを出す・消す。<b>文字 中</b>：押すと「文字 大」になって文字が大きくなります。${n}つの教材とこのメニューで同じ設定になります。</li>` +
+      "<li><b>先生用</b>：メニューのいちばん下の、先生用のところへ移ります。</li></ul>" +
+      "<h3>記録（保存）について</h3><ul>" +
+      "<li>入力した内容や記録は、このパソコンのブラウザの中にだけ保存されます。インターネットにつながっていなくても使えます。</li>" +
+      `<li>提出するときは、メニューの「記録をまとめて書き出す」で、${n}つの教材の記録を1つのファイルにして、先生の指示どおりに出します。</li></ul>`;
+    if (window.EduitFrame && EduitFrame.howto) EduitFrame.howto(html);
+  });
   // 「先生用」: メニューの下の先生用のところへ移る
   document.getElementById("go-teacher").addEventListener("click", () => {
     const go = () => {
