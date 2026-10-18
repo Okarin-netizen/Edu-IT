@@ -28,6 +28,15 @@ def e(s):
     return html.escape(str(s), quote=False)
 
 
+def tb(d, id):
+    """教科書の編・章・節(各分野の eduit-info.js の textbook)"""
+    T = d.get("textbook") or {}
+    t = (T.get("items") or {}).get(id)
+    if not t:
+        return ""
+    return t.get("ref", "")
+
+
 sections = []
 for d in data:
     rows = []
@@ -36,11 +45,11 @@ for d in data:
         for i, it in enumerate(items):
             head = f'<th rowspan="{len(items)}" class="lv lv-{key}">{label}</th>' if i == 0 else ""
             rows.append(f'<tr class="{key}">{head}<td class="app">{e(d["names"][it["id"]])}</td>'
-                        f'<td>{e("・".join(it.get("parts", [])))}</td><td class="curr">{e(it.get("curr", ""))}</td><td>{e(it.get("why", ""))}</td></tr>')
+                        f'<td class="tb">{e(tb(d, it["id"]))}</td><td>{e("・".join(it.get("parts", [])))}</td><td class="curr">{e(it.get("curr", ""))}</td><td>{e(it.get("why", ""))}</td></tr>')
     sections.append(f'''<section class="dom">
 <h2>{e(d["domain"])} {e(d["domainName"])}<span class="file">配るファイル: {e(FILES[d["domain"]])}(第{e(d["version"])}版)</span></h2>
 <table>
-<thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
+<thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
 {chr(10).join(rows)}
 </tbody>
@@ -76,6 +85,7 @@ page = f'''<!doctype html>
   th.lv-advanced {{ background: #5b3fa8; }}
   td.app {{ font-weight: 700; white-space: nowrap; }}
   td.curr {{ white-space: nowrap; }}
+  td.tb {{ white-space: nowrap; }}
   tr.advanced td {{ background: #f6f3fc; }}
   @media print {{ body {{ background: #fff; }} main {{ max-width: none; padding: 0; }} .dom {{ break-inside: avoid-page; }} table {{ font-size: 11px; }} }}
 </style>
@@ -90,7 +100,8 @@ page = f'''<!doctype html>
 <li><b>発展編</b>: 教科書で「発展」「コラム」として扱われる内容や、数値での設計・計算、しくみの中まで調べる内容、新しい技術(3D CAD・3Dプリンタ・生成AI のしくみ など)。基本編を終えた生徒や、選択の課題に使う。</li>
 <li>1つの教材の中に基本と発展の両方があるときは、両方の編にカードが出ます。カードの「使うところ」に、その編で使うタブ・ページの名前が出ます(生徒のカードには学習指導要領の記号は出しません)。</li>
 <li>どちらの編から開いても、教材の中身・記録の保存場所・書き出すファイルは同じです。振り返り一覧(先生用)でそのまま読めます。</li>
-<li>この分け方は、学習指導要領の項目と教科書の一般的な扱いから判断した目安です(教科書のページごとの照合はしていません)。使っている教科書や授業の計画に合わせて変えるときは、各分野の <code>eduit-info.js</code> の <code>levels</code> を直して作り直します。</li>
+<li>「教科書」の列は、学校で使っている教科書の編・章・節です(本文と照らし合わせて決めました)。メニューのカードは、この章ごとに見出しで区切られ、カードにも同じ編・章・節が出ます。もとは各分野の <code>eduit-info.js</code> の <code>textbook</code> です。</li>
+<li>基本編・発展編の分け方は、学習指導要領の項目と教科書の一般的な扱いから判断した目安です。使っている教科書や授業の計画に合わせて変えるときは、各分野の <code>eduit-info.js</code> の <code>levels</code> を直して作り直します。</li>
 </ul>
 </div>
 {chr(10).join(sections)}
