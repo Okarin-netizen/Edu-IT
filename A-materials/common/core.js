@@ -545,7 +545,7 @@
         set: function (i) { G.settings.set('size', order[i]); }
       });
     }
-    // 道具の並び: ふりがな → 文字の大きさ → くっきり → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
+    // 道具の並び: ふりがな → 文字の大きさ → くっきり(opt.contrast: false で出さない。メニューは4分野共通の4つだけにする) → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
     var help = null;
     if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
     else if (typeof opt.help === 'string') help = G.h('a', { class: 'ef-btn', href: opt.help }, '使い方');
@@ -562,7 +562,7 @@
         G.settings.set('ruby', !G.settings.get('ruby', true));
       } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
       sizeBtn,
-      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
+      opt.contrast === false ? null : G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
         G.settings.set('contrast', !G.settings.get('contrast', false));
       } }, 'くっきり'),
       help,

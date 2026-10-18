@@ -27,6 +27,10 @@
   .fold.teacher { margin-top: 1.5rem; padding-top: .3rem; border-top: 1px solid var(--line); }
   .fold.teacher[open] > summary { font-weight: bold; color: var(--ink); }
   #tapps .ef-mcard { min-height: 7rem; }
+  /* 上のバーは4分野で同じ大きさ(名前 18px・ボタンの高さ 40px。スマホは 16px・36px) */
+  #g-header .ef-btn { padding: 0 14px; font-size: 15px; }
+  #g-header .ef-title { font-size: 18px; }
+  @media (max-width: 640px) { #g-header .ef-btn { padding: 0 10px; font-size: 14px; } #g-header .ef-title { font-size: 16px; } }
   .profile .g-field input { width: 6em; }
   .profile .pf-name input { width: 14em; }
 </style>
@@ -73,14 +77,29 @@
 <script src="common/apps.js"></script>
 <script>
   G.basePath = './';
-  // 上のバー: 左に「A 材料と加工の技術 教材集」、右に ふりがな・文字の大きさ・くっきり・先生用
+  // 上のバー(4分野共通): 左に「A 材料と加工の技術 教材集」、右に ふりがな・文字の大きさ・使い方・先生用(くっきりはアプリの中のバーだけ)
   var teacherBtn = G.h('button', { class: 'ef-btn', type: 'button', title: 'メニューの下の「先生用」へ移る', onclick: function () {
     var t = G.$('#teacher');
     t.open = true;
     t.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var s = t.querySelector('summary'); if (s) s.focus({ preventScroll: true });
   } }, '先生用');
-  G.initApp({ app: 'menu', title: EDUIT_INFO.suite, home: false, tools: teacherBtn, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
+  // 「使い方」: この教材集の使い方をダイアログで出す(4分野共通の EduitFrame.howto)
+  var HOWTO = '<h3>はじめかた</h3><ol>' +
+    '<li>メニューの「基本編」のカードから、学びたいアプリをタップします。はじめは「おすすめの順番」(A1 → A2 → …)のとおりに進めましょう。「発展編」は、先生の指示があったら取り組みます。</li>' +
+    '<li>アプリの中では、上のタブで画面を切りかえます。タブの番号(①②③…)の順に進みます。</li>' +
+    '<li>メニューにもどるときは、いちばん上の「◀ メニュー」をタップします。</li></ol>' +
+    '<h3>上のバーのボタン</h3><ul>' +
+    '<li><b>ふりがな</b>:むずかしい言葉の読みがなを出す・消す。<b>文字 中</b>:文字の大きさを変える(押すたびに 小 → 中 → 大 → 特大)。どのアプリでも同じ設定になります。</li>' +
+    '<li><b>くっきり</b>(アプリの中の上のバー):色のちがいを強くして、見やすくします。</li>' +
+    '<li><b>先生用</b>:メニューのいちばん下の、先生用のところへ移ります。</li></ul>' +
+    '<h3>記録(保存)について</h3><ul>' +
+    '<li>作ったものや記録は、この端末のブラウザの中に自動で保存されます。インターネットにつながっていなくても使えます。</li>' +
+    '<li>提出するときは、メニューの「保存したデータ」で組・番号・名前を入れて「すべてファイルに書き出す」を押し、できたファイルを先生の指示どおりに出します。</li></ul>';
+  var helpFn = function () {
+    EduitFrame.howto(HOWTO, { onOpen: function (box) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(box); } catch (e) {} } });
+  };
+  G.initApp({ app: 'menu', title: EDUIT_INFO.suite, home: false, contrast: false, help: helpFn, tools: teacherBtn, files: G.APPS.map(function (a) { return a.dir + 'index.html'; }) });
   if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle(G.$('#g-header h1'));
   // メニューのカード(4分野共通の形 EduitFrame.card)
   function makeCard(a, parts) {

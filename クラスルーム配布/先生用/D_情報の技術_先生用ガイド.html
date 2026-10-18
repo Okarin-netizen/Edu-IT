@@ -37,7 +37,7 @@
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
- *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
@@ -172,6 +172,9 @@
 .ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
 .ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
 .ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
 .ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
@@ -305,6 +308,7 @@ body { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-fo
     ],
     history: [
       { version: '2.0', date: '2026-10-18', items: [
+        'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューの上のバーに「使い方」を足した',
         'D11 問題解決ノートを足した(4分野で同じ形の教材。教科書 4編2章 2・5、3章 2・5、4章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
         'D11: ② 作ったコンテンツや計測・制御システムを、機能・使いやすさ・安全性・他者の権利・費用・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
         'D11: ③(発展)スマートフォンのロック・車の運転・動画の配信で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(情報の技術の最適化)。ノートは問題解決シートとして印刷できる',
@@ -458,6 +462,10 @@ window.EDUIT_INFO.textbook = {
  * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  * 上のバーの表示の道具(4分野で同じ形):
@@ -602,6 +610,28 @@ window.EDUIT_INFO.textbook = {
     if (!dlg) build();
     dlg._select(typeof tab === 'number' ? tab : 0);
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
   }
 
   function aboutButton(cls) {
@@ -826,7 +856,7 @@ window.EDUIT_INFO.textbook = {
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 
@@ -876,7 +906,7 @@ window.EDUIT_INFO.textbook = {
     </ul>
     <h3>画面の使い方</h3>
     <ul>
-      <li>メニューの上のバーの左に「D 情報の技術 教材集」、右に「ふりがな」「文字 中」(文字の大きさ)「先生用」が出ます。「先生用」を押すと、メニューの下の先生用のところ（学習指導要領との対応など）へ移ります。</li>
+      <li>メニューの上のバーの左に「D 情報の技術 教材集」、右に「ふりがな」「文字 中」(文字の大きさ)「使い方」「先生用」が出ます(4分野で同じ並び・同じ表記です)。「使い方」は生徒向けの使い方（はじめかた・上のバーのボタン・記録の出し方）を小さな画面で出します。「先生用」を押すと、メニューの下の先生用のところ（学習指導要領との対応など）へ移ります。</li>
       <li>メニューの「基本編」「発展編」のタブを選び、カードから教材を選びます。カードには記号（D1〜D11）・名前・説明・「使うところ」（その編で使うページの名前）・「ひらく ▶」が出ます。カードのどこを押しても開きます。基本編の上には「おすすめの順番: D1 → D2 → … → D8 → D10」の1行が出ます。</li>
       <li>メニューの下は、基本編・発展編のカード → 記録（「記録をまとめて書き出す」「はじめからやり直す」）→ 先生用 の順です。前回開いた教材は、メニューの上の「前回のつづき」から開けます。</li>
       <li>教材を開くと、上のバーの左に「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。「◀ メニュー」でメニューに戻ります。ほかの教材へは、上のバーの右の「D1 デジタル化」「D2 CPU」…のボタンで切りかえます（はばがせまい画面では「教材をかえる ▾」を押すと記号と名前の一覧が出ます）。</li>
@@ -1011,6 +1041,7 @@ window.EDUIT_INFO.textbook = {
     <h2>7. 更新履歴</h2>
     <h3>第2.0版（2026年10月18日）</h3>
     <ul>
+      <li>メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューの上のバーに「使い方」を足しました。</li>
       <li>D11 問題解決ノートを足しました（4分野で同じ形の教材。教科書 4編2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」、4章1「情報の技術の最適化」）。基本編に ① 問題の発見・② 評価、改善・修正と振り返り・記録、発展編に ③ 技術の最適化が出ます。問題解決シートとして印刷できます。記録は「記録をまとめて書き出す」と、D11 の「記録」の「ファイルに書き出す」（<code>問題解決ノート_情報_…json</code>）で出せ、振り返り一覧で読めます。</li>
       <li>教材を開いたときの上のバーの切りかえが11個になったので、1280〜1366px の幅では、すきまと字を少しだけ小さくして1段に入るようにしました。</li>
     </ul>
