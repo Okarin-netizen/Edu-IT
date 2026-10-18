@@ -8,6 +8,7 @@
 | `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
 | `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
+| `mondai-note/` | 4分野で同じ教材「問題解決ノート」の本体(`mondai-note.js` 画面と計算・`mondai-note-data.js` 分野ごとの例と観点・`mondai-note.css` 見た目・`mondai-note.test.js` テスト)。下の「問題解決ノート」 |
 
 分野ごとの版と更新履歴は、各分野の `eduit-info.js`(`window.EDUIT_INFO`)に書きます。
 安全の説明とライセンスの文は `eduit-frame.js` にあり、全分野で同じです。
@@ -28,7 +29,7 @@
 - 色は `<html data-ef-domain="A|B|C|D">` で分野の色になる(`EDUIT_INFO.domain` があれば自動)。
   A 木の茶 `#985a26` / B 緑 `#2e7d32` / C だいだい `#b45309` / D 青 `#1a5fc8`。
 - 画面の地 `--ef-bg`、カード・ヘッダーは白、枠線 `--ef-line`、文字 `--ef-text`、フォント `--ef-font`。
-- **記号**: 4分野とも分野の文字 + 番号(A1〜A7・B1〜B4・C1〜C5・D1〜D9)。番号の順 = おすすめの順 = メニューのカードの順。
+- **記号**: 4分野とも分野の文字 + 番号(A1〜A8・B1〜B4・C1〜C5・D1〜D9)。番号の順 = おすすめの順 = メニューのカードの順。
   画面では `EduitFrame.code('A2')`(`<span class="ef-code">A2</span>`、分野の色の小さな印)で出す。
 - **メニューの上のバー** `.ef-header`: 左に `EduitFrame.menuTitle(h1)` の「[A] 材料と加工の技術 教材集」。
   右の道具は「ふりがな → 文字の大きさ → (くっきり) → 使い方 → 先生用」。その分野にない機能のボタンは出さない。「先生用」はメニューの下の先生用のところへ移る。
@@ -79,3 +80,16 @@
 - 章は次の7つ(`<section class="eg-sec">` と `<h2>`)で、この順・この名前にする:
   1. 配り方と開き方 2. 教材の一覧(基本編・発展編) 3. 単元での使い方 4. 記録の保存と提出 5. 授業で使うときの注意 6. こまったとき 7. 更新履歴
 - 部品のクラスは `eduit-guide.css` の先頭に書いてあります。
+
+## 問題解決ノート(4分野で同じ教材) → `mondai-note/`
+
+教科書の各編の2章「問題の発見と課題の設定」「問題解決の評価、改善・修正」と3章(D は4章)「技術の最適化」に合わせた教材です。
+タブは「はじめに → ① 問題の発見 → ② 評価、改善・修正(ここまで基本編)→ ③ 技術の最適化(発展編)→ 振り返り → 記録」(`MondaiNote.TABS`)。
+
+- 分野は `EDUIT_INFO.domain` で切りかえる。分野ごとの例(付箋のヒント・クイズ)・評価の観点・過程のチェック・最適化の製品(3つ × 3案、観点ごとの 1〜5 の目安の点、立場の重み、制約条件)は `mondai-note-data.js` の `MondaiNote.DOMAINS.A〜D` にある。
+- 本体はタブの中身だけを作る。上のバー・タブの切りかえ・保存・ファイルの書き出しは、各分野のページ(アダプタ)が受け持つ:
+  `MondaiNote.mount({ domain, data, panels: { intro, find, eval, opt, refl, rec }, onChange, go, recordTools, furikaeri })`。ノートの中身は `note.data`(形は `MondaiNote.defaults()`)。
+- 印刷は「記録」の「印刷する」(または Ctrl+P)で、A4 の問題解決シート(`.mn-sheet`)だけを出す。書いていない欄は線だけになる。
+- 振り返り一覧(`teacher-tools/furikaeri-ichiran/parse.js` の `mondaiRows`)は、ノートの中身から行を作る。B・C・D の書き出しの形でも、ノートの中身をこの関数に渡せばよい。
+- A は `A-materials/a8-mondai-note/`(A8)。`build-single.py` が相対パスの `../../shared/mondai-note/*` をそのまま中に入れる。
+- テスト: `node --test shared/mondai-note/mondai-note.test.js`(データがそろっているか・どの製品も重みを変えればどの案も1位になれるか)
