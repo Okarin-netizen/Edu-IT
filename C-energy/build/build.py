@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""C1〜C5 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
+"""C1〜C7 を1つのHTMLに統合し、使い方と一緒に配布用zipにする。元ファイルは読むだけ。"""
 import json, os, re, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 import help as H
@@ -29,7 +29,7 @@ def ef_inline(text):
     return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
-# 各アプリの CSS・DOM の接頭辞(.e1〜.e5・e1-app など)は記号ではない中の名前なので、C1〜C5 にしても e1〜e5 のまま
+# 各アプリの CSS・DOM の接頭辞(.e1〜.e7・e1-app など)は記号ではない中の名前なので、C1〜C7 にしても e1〜e7 のまま
 def parts(n):
     s = open('%s/C%d/index.html' % (SRC, n), encoding='utf-8').read()
     css = re.findall(r'<style>(.*?)</style>', s, re.S)
@@ -47,7 +47,7 @@ def must_replace(text, old, new, count=1):
 
 css_all, js_all = [], []
 seen_cores = set()
-for n in range(1, 6):
+for n in range(1, 8):
     css, js = parts(n)
     # 各アプリの html,body 指定はシェルが持つので外す(印刷用の指定は残す)
     css = must_replace(css, re.search(r'^html,body\{[^}]*\}\n', css, re.M).group(0), '')

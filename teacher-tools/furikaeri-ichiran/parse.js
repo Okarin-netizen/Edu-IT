@@ -236,7 +236,11 @@
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート' };
+  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ' };
+  var C_REFL = {
+    C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
+    C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
+  };
   function parseC(obj) {
     var R = Rows(obj.savedAt), d = obj.data || {}, who = obj.who || {};
     if (obj.app === 'C5') {
@@ -246,6 +250,16 @@
       R.add('ふりかえり', part, '構想・設計の理由', n.idea);
       R.add('ふりかえり', part, 'うまくいったこと', n.good);
       R.add('ふりかえり', part, '改善案', n.improve);
+    }
+    if (obj.app === 'C6' || obj.app === 'C7') {
+      var steps = Array.isArray(d.steps) ? d.steps.filter(isObj) : [];
+      if (steps.length) R.add('成績', '', 'やったこと', steps.filter(function (s) { return s.done; }).length + ' / ' + steps.length);
+      var rk = Array.isArray(d.rank) && isObj(d.rank[0]) ? d.rank[0] : null;
+      if (obj.app === 'C6' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
+      if (obj.app === 'C6' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
+      if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
+      var rf = isObj(d.reflection) ? d.reflection : {};
+      C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
     }
     return [{ domain: 'C', app: C_APPS[obj.app] || String(obj.app), student: student(who.cls, '', who.name), rows: R.rows }];
   }
