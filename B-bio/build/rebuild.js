@@ -1,9 +1,9 @@
 // 使い方(リポジトリのいちばん上で): node B-bio/build/rebuild.js
-//   (フォルダを省くと、このファイルの1つ上 = B-bio を使う。B1..B5/、eduit-info.js、docs/、build/ がある。共通の枠は ../shared/)
+//   (フォルダを省くと、このファイルの1つ上 = B-bio を使う。B1..B6/、eduit-info.js、docs/、build/ がある。共通の枠は ../shared/)
 // 元のファイル: build/menu.html(メニュー)・docs/先生用ガイド.html(先生用ガイド)・B?/b?.html(教材)
 // できるファイル(dist/ は作ったものだけ。手で直さない):
 // 1. dist/生物育成教材集.html … menu.html に、共通の枠(shared/eduit-frame.css・eduit-frame.js と B-bio/eduit-info.js)・
-//    先生用ガイド・B1〜B5(共通の枠の読み込みを中身に置きかえたもの)を SRC 行に入れて、1ファイルで動くようにする
+//    先生用ガイド・B1〜B6(共通の枠の読み込みを中身に置きかえたもの)を SRC 行に入れて、1ファイルで動くようにする
 // 2. dist/先生用ガイド.html … 印刷しやすい先生用ガイド(docs/先生用ガイド.html に共通の枠と shared/eduit-guide.css を入れたもの)
 // 3. dist/生物育成教材集.zip … 生物育成教材集.html・先生用ガイド.html・はじめにお読みください.txt
 // 何回作りなおしても同じ中身になる(zip の日時は eduit-info.js の updated にそろえる)
@@ -28,6 +28,9 @@ const INFO=new Function('window',EF_INFO+';return window.EDUIT_INFO;')({});
 const tagCss='<style data-ef-css>\n'+EF_CSS+'\n</style>';
 const tagInfo='<script data-ef-info>\n'+EF_INFO+'\n</script>';
 const tagJs='<script data-ef-js>\n'+EF_JS+'\n</script>';
+// 4分野共通の問題解決ノート(shared/mondai-note/。B6 が読む)
+const MN={css:read(path.join(SHARED,'mondai-note/mondai-note.css')).trim(),data:read(path.join(SHARED,'mondai-note/mondai-note-data.js')).trim(),js:read(path.join(SHARED,'mondai-note/mondai-note.js')).trim()};
+for(const k in MN) if(/<\/(style|script)/i.test(MN[k])) throw new Error('closing tag inside mondai-note '+k);
 function once(s,find,repl,where){
   const n=s.split(find).length-1;
   if(n!==1) throw new Error(where+': expected 1 of '+find+', found '+n);
@@ -68,6 +71,12 @@ function inlineEf(html,where){
   html=once(html,'<link rel="stylesheet" href="../../shared/eduit-frame.css">',tagCss,where);
   html=once(html,'<script src="../eduit-info.js"></script>',tagInfo,where);
   html=once(html,'<script src="../../shared/eduit-frame.js"></script>',tagJs,where);
+  // 問題解決ノートを読むページだけ: shared/mondai-note/ の中身を入れる
+  if(html.indexOf('../../shared/mondai-note/')>=0){
+    html=once(html,'<link rel="stylesheet" href="../../shared/mondai-note/mondai-note.css">','<style data-mn-css>\n'+MN.css+'\n</style>',where);
+    html=once(html,'<script src="../../shared/mondai-note/mondai-note-data.js"></script>','<script data-mn-data>\n'+MN.data+'\n</script>',where);
+    html=once(html,'<script src="../../shared/mondai-note/mondai-note.js"></script>','<script data-mn-js>\n'+MN.js+'\n</script>',where);
+  }
   return html;
 }
 // メニュー: 前に入れた中身を新しい中身に置きかえる
@@ -91,7 +100,7 @@ const sec=gsrc.slice(ga+'<!-- guide:start -->'.length,gb).trim();
 h=once(h,'<!-- 先生用ガイド: docs/先生用ガイド.html の中身を rebuild.js が入れる -->',sec,'hub guide');
 const lines=h.split('\n');
 const i=lines.findIndex(l=>l.startsWith('var SRC = '));
-const SRC={}; for(const k of ['b1','b2','b3','b4','b5']) SRC[k]=inlineEf(read(path.join(D,k.toUpperCase(),k+'.html')),k);
+const SRC={}; for(const k of ['b1','b2','b3','b4','b5','b6']) SRC[k]=inlineEf(read(path.join(D,k.toUpperCase(),k+'.html')),k);
 lines[i]='var SRC = '+JSON.stringify(SRC).replace(/<\//g,'<\\/').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')+';';
 h=lines.join('\n'); fs.writeFileSync(H,h);
 // check

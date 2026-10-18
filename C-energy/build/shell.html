@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>エネルギー変換の技術 教材集</title>
-<!-- C1〜C7 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
+<!-- C1〜C8 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
 <!-- ===== 4分野共通の枠(shared/eduit-frame.css・C-energy/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
 <style>
 {{EF_CSS}}
@@ -121,7 +121,7 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
-/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C7) */
+/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
   .ea-cards{grid-template-columns:minmax(0,1fr)!important}
   .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto!important;min-height:0!important}
@@ -312,6 +312,12 @@ var PROG = {
     var t = appTest('C7'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['dcac', 'sort', 'route', 'mesh', 'trans', 'line', 'calcq', 'freq'];
     var dn = isObj(d.done) ? d.done : {};
     return { n: countIds(ids, dn, truthy), t: ids.length, main: 'やったこと', end: '', sub: +d.calcBest > 0 ? '計算ドリル 最高 ' + (+d.calcBest) + ' / 5' : '' };
+  },
+  /* C8 問題解決ノートは「やったこと」(課題・評価・最適化・振り返り)の数。保存の note(ノートの中身)を C8 の stepsOf で見る */
+  C8: function (d) {
+    var t = appTest('C8'); if (!t || !t.stepsOf || !isObj(d.note)) return { n: 0, t: 0 };
+    var st = t.stepsOf(d.note), k = String(d.note.task && d.note.task.kadai || '').trim();
+    return { n: st.filter(function (x) { return x.done; }).length, t: st.length, main: 'やったこと', end: '', sub: k ? '課題: ' + (k.length > 24 ? k.slice(0, 24) + '…' : k) : '' };
   }
 };
 function progressOf(id) {
@@ -361,7 +367,7 @@ refs.chips.innerHTML = APPS.map(function (a) {
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
-/* ---- 表示切りかえ(URLの #C1〜#C7 / #help で決まる) ---- */
+/* ---- 表示切りかえ(URLの #C1〜#C8 / #help で決まる) ---- */
 function setView(v) {
   [].forEach.call(root.querySelectorAll('.ea-view'), function (el) { el.classList.toggle('on', el.getAttribute('data-view') === v); });
 }
@@ -480,7 +486,7 @@ $('[data-ea-file]').addEventListener('change', function (ev) {
   rd.onload = function () {
     var j = null; try { j = JSON.parse(rd.result); } catch (e) {}
     if (!j || j.schema !== 'energyApps.backup' || !j.data || typeof j.data !== 'object') { alert('このファイルは学習記録のファイルではありません。\n(「全アプリの記録をファイルに書き出す」で作ったファイルをえらんでください)'); return; }
-    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-7]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
+    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-8]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
     if (!keys.length) { alert('読み込める記録がありませんでした。'); return; }
     if (!confirm(keys.map(function (k) { return k.split('.')[1]; }).join('・') + ' の記録を読み込みます。\nこの端末の今の記録は上書きされます。よろしいですか?')) return;
     try { keys.forEach(function (k) { localStorage.setItem(k, j.data[k]); }); } catch (e) { alert('保存できませんでした: ' + e.message); return; }
