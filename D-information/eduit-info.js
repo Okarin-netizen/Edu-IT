@@ -106,3 +106,25 @@ window.EDUIT_INFO.levels = {
     ]
   }
 };
+
+/* 教科書との対応(メニューのカードを教科書の章ごとに見出しで区切り、カードに「教科書 4編…」の行を出す。shared/eduit-frame.js の EduitFrame.levels が使う)
+ * g は区切り(groups の key)、ref はカードに出す教科書の編・章・節。先生用の一覧(teacher-tools/kihon-hatten)にも出る。
+ */
+window.EDUIT_INFO.textbook = {
+  groups: [
+    { key: 'know', ch: '1章', title: '生活や社会を支える技術(しくみを知る)' },
+    { key: 'solve', ch: '2章・3章', title: '技術による問題解決(つくる)' },
+    { key: 'future', ch: '4章', title: '社会の発展と技術(これからの技術)' }
+  ],
+  items: {
+    'digitization-lab': { g: 'know', ref: '4編1章 3' },
+    'virtual-cpu': { g: 'know', ref: '4編1章 2' },
+    'network-sim': { g: 'know', ref: '4編1章 4' },
+    'security-lab': { g: 'know', ref: '4編1章 5・6' },
+    'scam-lab': { g: 'know', ref: '4編1章 6' },
+    'hash-lab': { g: 'know', ref: '4編1章 5' },
+    'interactive-studio': { g: 'solve', ref: '4編2章' },
+    'measure-control-sim': { g: 'solve', ref: '4編3章' },
+    'genai-lab': { g: 'future', ref: '4編4章 2' }
+  }
+};
