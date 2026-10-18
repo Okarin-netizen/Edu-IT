@@ -40,8 +40,11 @@ const line = (x1, y1, x2, y2, arrow = false) => `<line class="fc-line" x1="${x1}
 const poly = (pts, arrow = false) => `<polyline class="fc-line" fill="none" points="${pts.map((p) => p.join(",")).join(" ")}"${arrow ? ' marker-end="url(#fc-arrow)"' : ""}/>`;
 const label = (x, y, s, cls = "fc-text", anchor = "middle") => `<text class="${cls}" x="${x}" y="${y}" text-anchor="${anchor}">${esc(s)}</text>`;
 
+// 文の名前を決める関数（火星探査ロボット・シミュレータ（D10）は「前進する」などの名前にするために、ここを入れかえる）
+let customLabel = null;
+
 function layoutNode(n, outputs) {
-  const text = labelOf(n, outputs);
+  const text = customLabel?.(n) ?? labelOf(n, outputs);
   // 処理（出力を動かす・変数に入れる・待つ）は、JIS の「処理」の記号（長方形）でかく。「待つ」は色だけで見分ける
   if (n.type === "assign" || n.type === "wait") {
     const w = Math.max(120, textW(text) + 28);
@@ -134,7 +137,9 @@ function layoutList(list, outputs) {
 }
 
 // outputs: 出力の名前の Set（「〇〇 を オン にする」と書くため）
-export function flowchartSvg(program, outputs = new Set()) {
+// label: 文の名前を変えるときの関数（n → 文字。undefined なら、ふつうの名前）
+export function flowchartSvg(program, outputs = new Set(), label = null) {
+  customLabel = label;
   const L = layoutList(program, outputs);
   const last = program.filter((n) => n.type !== "comment").at(-1);
   const endless = last && last.type === "forever";

@@ -196,6 +196,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -312,6 +316,11 @@ window.EDUIT_INFO = {
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -489,9 +498,26 @@ window.EDUIT_INFO = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -499,7 +525,8 @@ window.EDUIT_INFO = {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -724,11 +751,11 @@ window.EDUIT_INFO = {
 </table>
 </section>
 <section class="dom">
-<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第1.8版)</span></h2>
+<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第1.9版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
-<tr class="basic"><th rowspan="8" class="lv lv-basic">基本編</th><td class="app">D1 デジタル化ラボ</td><td>① 画像のデジタル化・② 音のデジタル化・③ 2進数と文字コード・④ データ量の計算ドリル</td><td class="curr">D(1)ア</td><td>情報のデジタル化と情報の量は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><th rowspan="9" class="lv lv-basic">基本編</th><td class="app">D1 デジタル化ラボ</td><td>① 画像のデジタル化・② 音のデジタル化・③ 2進数と文字コード・④ データ量の計算ドリル</td><td class="curr">D(1)ア</td><td>情報のデジタル化と情報の量は、どの教科書でも扱う基本</td></tr>
 <tr class="basic"><td class="app">D2 仮想CPUラボ</td><td>① 図解: 5つの装置・② 手計算くらべ</td><td class="curr">D(1)ア・イ</td><td>コンピュータの構成(5つの装置)と、自動で処理するよさは基本</td></tr>
 <tr class="basic"><td class="app">D3 ネットワーク通信シミュレータ</td><td>① ネットワークを組み立てる・② Webページが届くまで・③ 回線が切れたら？・④ のぞき見と暗号化</td><td class="curr">D(1)ア</td><td>情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本</td></tr>
 <tr class="basic"><td class="app">D4 情報セキュリティ体験ラボ</td><td>① デジタル化と情報量・② パスワード強度ラボ・③ 暗号ラボ・④ フィッシング見分け・⑤ ネットワーク通信の模擬・⑥ SNS投稿の個人情報チェック・⑦ デジタルタトゥー・⑧ 著作権・利用ルールクイズ・⑨ 判断ロールプレイ・⑩ まとめ・行動宣言・理解度チェック</td><td class="curr">D(1)ア・D(4)ア</td><td>情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本</td></tr>
@@ -736,12 +763,14 @@ window.EDUIT_INFO = {
 <tr class="basic"><td class="app">D6 双方向コンテンツ制作スタジオ</td><td>作品・エディタ・実行・デバッグ・サーバーのデータ・ふりかえり・記録</td><td class="curr">D(2)ア・イ</td><td>ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容</td></tr>
 <tr class="basic"><td class="app">D7 計測・制御シミュレータ</td><td>① 街灯・② 自動ドア・③ 信号機・④ 押しボタン式信号機</td><td class="curr">D(3)ア・イ</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容</td></tr>
 <tr class="basic"><td class="app">D8 生成AIのしくみラボ</td><td>① もっともらしいまちがい・② 個人情報が出てしまう？・③ クイズとふりかえり</td><td class="curr">D(4)ア・イ</td><td>生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容</td></tr>
-<tr class="advanced"><th rowspan="7" class="lv lv-advanced">発展編</th><td class="app">D1 デジタル化ラボ</td><td>⑤ 圧縮のしくみ</td><td class="curr">D(1)ア(発展)</td><td>教科書では圧縮があることを知る程度で、しくみをためすのは発展</td></tr>
+<tr class="basic"><td class="app">D10 火星探査ロボット・シミュレータ</td><td>① まっすぐ走って止まる・② 岩の前で止まる・よける・③ 迷路のような谷を探査する・評価・振り返り</td><td class="curr">D(3)ア・イ、統合的な問題解決</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容</td></tr>
+<tr class="advanced"><th rowspan="8" class="lv lv-advanced">発展編</th><td class="app">D1 デジタル化ラボ</td><td>⑤ 圧縮のしくみ</td><td class="curr">D(1)ア(発展)</td><td>教科書では圧縮があることを知る程度で、しくみをためすのは発展</td></tr>
 <tr class="advanced"><td class="app">D2 仮想CPUラボ</td><td>③ 仮想CPUを動かす・④ 課題</td><td class="curr">D(1)ア(発展)</td><td>レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容</td></tr>
 <tr class="advanced"><td class="app">D3 ネットワーク通信シミュレータ</td><td>⑤ IPアドレス・ドリル</td><td class="curr">D(1)ア(発展)</td><td>教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展</td></tr>
 <tr class="advanced"><td class="app">D4 情報セキュリティ体験ラボ</td><td>⑪ ハッシュ体験</td><td class="curr">D(1)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない</td></tr>
 <tr class="advanced"><td class="app">D7 計測・制御シミュレータ</td><td>⑤ 自由に作る(仮想マイコン)</td><td class="curr">D(3)イ(発展)</td><td>センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動</td></tr>
 <tr class="advanced"><td class="app">D8 生成AIのしくみラボ</td><td>④ つぎの言葉あて・⑤ 言葉のかけら(トークン)・⑥ ミニ文章AIを動かす・⑦ ノイズをまぜる(学習)・⑧ ノイズから絵をつくる</td><td class="curr">D(1)ア・D(4)イ(発展)</td><td>生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容</td></tr>
+<tr class="advanced"><td class="app">D10 火星探査ロボット・シミュレータ</td><td>④ 色センサで線をたどる・⑤ 自由なコースで記録に挑戦</td><td class="curr">D(3)イ、統合的な問題解決(発展)</td><td>色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動</td></tr>
 <tr class="advanced"><td class="app">D9 ハッシュ化体験ラボ</td><td>① ハッシュ値を作ってみよう・② 1文字だけ変えると？・③ 手作りハッシュの弱点・④ もとにもどせる？・⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ クイズとふりかえり</td><td class="curr">D(1)ア・D(4)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展</td></tr>
 </tbody>
 </table>
