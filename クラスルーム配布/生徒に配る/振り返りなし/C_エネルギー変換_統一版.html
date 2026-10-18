@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>エネルギー変換の技術 教材集</title>
-<!-- C1〜C5 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
+<!-- C1〜C7 を1つにまとめたファイル。外部通信なし。各アプリは EnergyApps.C{n}.mount() で起動する。 -->
 <!-- ===== 4分野共通の枠(shared/eduit-frame.css・C-energy/eduit-info.js・shared/eduit-frame.js を build.py が入れる) ===== -->
 <style>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
@@ -198,6 +198,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -224,7 +228,7 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 </style>
 <script>
-/* エネルギー変換の技術 教材集(C1〜C5)の版・更新履歴など。
+/* エネルギー変換の技術 教材集(C1〜C7)の版・更新履歴など。
  * 共通の枠(shared/eduit-frame.js)が読んで、フッター・「このアプリについて」に出す。
  * 統合版(dist/energy-apps.html)では build.py がこのファイルを中に入れる。
  * 版を上げたら version・updated と history の先頭を書きかえて、build.py で作り直す。
@@ -233,14 +237,20 @@ window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
   suite: 'エネルギー変換の技術 教材集',
-  version: '1.5',
-  updated: '2026-10-17',
+  version: '1.6',
+  updated: '2026-10-18',
   safety: [
     'C2 電気回路ラボ・C5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
     'C3・C4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
-    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。C1 の発電の値段は、国の試算を丸めた概算です。'
+    '電流・電圧・効率・CO₂・費用などの数値は、理想化した計算による目安です。C1 の発電の値段は、国の試算を丸めた概算です。C6 の発電量は風力発電のモデルを、C7 の送電の数値は送電線を単純化した例です。',
+    'C6 で本物の扇風機と羽根の模型を使うときは、回っている羽根に指や顔を近づけないでください。C7 の回路はシミュレーションです。コンセントや送電線に物をさしこんだり、近づいたりしないでください。'
   ],
   history: [
+    { version: '1.6', date: '2026-10-18', items: [
+      'C6 風力発電の羽根ラボを追加(教科書 3編1章2「発電の仕組みと特徴」)。羽根の枚数・かたむき・長さ・形と風の強さを変えて、回転数・電圧・電流・電力・回り始める風をくらべる。基本編 ① 発電機のしくみ ② 羽根をくらべる ③ 効率チャレンジ(ランキング)、発展編 ④ 発電方法くらべ ⑤ 風が変わる日',
+      'C7 直流・交流と送電ラボを追加(教科書 3編1章3「電気を供給する仕組み」)。基本編 ① 直流と交流 ② 送電・配電の道すじ ③ 高い電圧で送るわけ(変圧器・送電線の損失)、発展編 ④ 損失の計算 ⑤ 周波数 50Hz・60Hz',
+      'C6・C7 の記録は energyApps.C6.v1・energyApps.C7.v1 に保存。「💾 記録」から JSON ファイル(app は C6・C7)にして提出でき、振り返り一覧で読める'
+    ] },
     { version: '1.5', date: '2026-10-17', items: [
       '振り返りを隠す設定(先生用)に対応',
       '上のバーに「ふりがな」「文字 中」(文字の大きさ。小 → 中 → 大 → 特大。文字だけが大きくなる)のボタンを付けた。4分野で同じ形のボタン',
@@ -281,7 +291,7 @@ window.EDUIT_INFO = {
 };
 
 /* 基本編・発展編(学習指導要領 技術分野「C エネルギー変換の技術」と教科書の内容から分けたもの)
- * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は C1〜C5。
+ * トップ画面(build/shell.html)が EduitFrame.levels で使う。id は C1〜C7。
  * parts は生徒の画面のステージ・課題・タブの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
  */
 window.EDUIT_INFO.levels = {
@@ -293,7 +303,9 @@ window.EDUIT_INFO.levels = {
       { id: 'C2', parts: ['課題1〜4 豆電球・スイッチ・直列・並列', '課題5 モーターを逆に回そう', '課題6・7 ヒューズ・ブレーカー', '安全体験(たこ足配線・漏電とアース・ショート)'], curr: 'C(1)ア・C(2)ア', why: '電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本' },
       { id: 'C3', parts: ['回転を伝える', '運動を変える', '設計課題1〜9(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)'], curr: 'C(1)ア・C(2)', why: '歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本' },
       { id: 'C4', parts: ['部品図鑑', '機械を見る', 'クイズ', 'ゆるみ・摩耗', '点検表づくり'], curr: 'C(1)ア・C(2)イ', why: '共通部品と保守点検は、どの教科書でも扱う基本' },
-      { id: 'C5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' }
+      { id: 'C5', parts: ['① 課題・構想', '② 回路図', '③ 部品表・手順', '④ 評価', '課題 懐中電灯・2部屋の明かり・安全な扇風機'], curr: 'C(2)ア・イ・C(3)', why: '目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本' },
+      { id: 'C6', parts: ['① 発電機のしくみ', '② 羽根を変えて発電量をくらべる', '③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)'], curr: 'C(1)ア・イ', why: '発電機のしくみ(電磁誘導)と、風力発電のモデルで効率のよい羽根を考えることは、教科書の「発電の仕組みと特徴」の中心(レッツスタート)' },
+      { id: 'C7', parts: ['① 直流と交流', '② 送電・配電の道すじ', '③ 高い電圧で送るわけ'], curr: 'C(1)ア', why: '直流と交流のちがい、変圧と送電・配電のしくみは、教科書の「電気を供給する仕組み」の中心' }
     ]
   },
   advanced: {
@@ -303,8 +315,30 @@ window.EDUIT_INFO.levels = {
       { id: 'C1', parts: ['ステージ8 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
       { id: 'C2', parts: ['課題8・9 電流計・電圧計ではかろう', '課題10 電池の持ちを比べる', '課題11 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
       { id: 'C3', parts: ['設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)', 'ブラックボックス'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
-      { id: 'C5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' }
+      { id: 'C5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' },
+      { id: 'C6', parts: ['④ 発電方法くらべ(変換の流れと特徴)', '⑤ 風の強さが変わる日の発電量'], curr: 'C(1)ア・イ(発展)', why: '発電方法ごとの変換の流れの整理や、時間による発電量(電力量)の変化と組み合わせの考察は発展の内容' },
+      { id: 'C7', parts: ['④ 損失の計算(P=VI、損失=I²R)', '⑤ 周波数(東日本 50Hz・西日本 60Hz)'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電力と損失の計算や、周波数のちがいと周波数変換所はコラム・発展の内容' }
     ]
+  }
+};
+
+/* 教科書との対応(メニューのカードを教科書の章ごとに見出しで区切り、カードに「教科書 3編…」の行を出す。shared/eduit-frame.js の EduitFrame.levels が使う)
+ * g は区切り(groups の key)、ref はカードに出す教科書の編・章・節。先生用の一覧(teacher-tools/kihon-hatten)にも出る。
+ */
+window.EDUIT_INFO.textbook = {
+  groups: [
+    { key: 'know', ch: '1章', title: '生活や社会を支える技術(しくみを知る)' },
+    { key: 'solve', ch: '2章', title: '技術による問題解決(つくる)' },
+    { key: 'future', ch: '3章', title: '社会の発展と技術(これからの技術)' }
+  ],
+  items: {
+    'C1': { g: 'know', ref: '3編1章 1・2・3' },
+    'C2': { g: 'know', ref: '3編1章 4・5' },
+    'C3': { g: 'know', ref: '3編1章 6・7・8、2章 3' },
+    'C4': { g: 'know', ref: '3編1章 9' },
+    'C5': { g: 'solve', ref: '3編2章 2' },
+    'C6': { g: 'know', ref: '3編1章 2' },
+    'C7': { g: 'know', ref: '3編1章 3' }
   }
 };
 EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
@@ -358,6 +392,11 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -535,9 +574,26 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -545,7 +601,8 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -1622,6 +1679,301 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   .e5-msg{min-height:44px;padding:8px 12px;font-size:calc(15px * var(--ea-fs, 1))}
   .e5-bar{padding:4px 8px}
 }
+/* ---------- C6 ---------- */
+.e6{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
+  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
+.e6 *{box-sizing:border-box}
+.e6 button{font:inherit;touch-action:manipulation;color:inherit}
+.e6 input,.e6 textarea{font:inherit}
+.e6 ruby rt{font-size:.55em;font-weight:normal}
+.e6-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
+.e6-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e6-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
+.e6-tabs::-webkit-scrollbar{display:none}
+.e6-tab{flex:none;min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1))}
+.e6-tab:hover{border-color:var(--ef-accent,#b45309)}
+.e6-tab.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e6-tab.adv{border-style:dashed}
+.e6-tab.adv.on{border-style:solid}
+.e6-tab .ck{color:#1a9b5b;margin-left:3px}
+.e6-tab.on .ck{color:#fff}
+.e6-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e6-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
+.e6-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
+.e6-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.e6-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
+.e6-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.e6-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;line-height:1.6;min-width:0}
+.e6-card h2{font-size:calc(19px * var(--ea-fs, 1));margin:0 0 6px}
+.e6-card h3{font-size:calc(16.5px * var(--ea-fs, 1));margin:10px 0 4px;color:#1d3557}
+.e6-card p{margin:4px 0}
+.e6-card.lead{background:#fffaf0;border-color:#f1d9a6}
+.e6-card.tip{background:#fff9e6;border-color:#f1e3a6}
+.e6-card.good{background:#ecfaf1;border-color:#a8dcbc}
+.e6-card.adv{border-left:6px solid #5b3fa8}
+.e6-kicker{display:inline-block;font-size:calc(13px * var(--ea-fs, 1));font-weight:bold;border-radius:999px;padding:1px 10px;margin-bottom:4px;background:#e4f2e5;color:#2f6f3e}
+.e6-kicker.adv{background:#efe9fb;color:#5b3fa8}
+.e6-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
+.e6-btn:active{transform:translateY(1px)}
+.e6-btn:disabled{opacity:.45;cursor:default}
+.e6-btn.primary{background:var(--accent);color:#fff}
+.e6-btn.good{background:#d3f5e1;color:#0d6b3a}
+.e6-btn.sel{background:#1d3557;color:#fff}
+.e6-btn.sm{min-height:44px;padding:0 10px;font-size:calc(15px * var(--ea-fs, 1))}
+.e6-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.e6-seg{display:flex;flex-wrap:wrap;gap:6px}
+.e6-seg .e6-btn{flex:1 0 auto}
+.e6-ctl{margin:8px 0 10px}
+.e6-ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:bold;font-size:calc(15.5px * var(--ea-fs, 1))}
+.e6-ctl label b{color:#b35c00;white-space:nowrap}
+.e6-ctl small{display:block;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1));line-height:1.45}
+.e6 input[type=range]{width:100%;height:44px;accent-color:#b45309;touch-action:pan-y;margin:0}
+.e6-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.e6-m{background:#f6f9fc;border:1px solid var(--line);border-radius:12px;padding:6px 8px;text-align:center;min-width:0}
+.e6-m .k{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);white-space:nowrap}
+.e6-m .v{font-size:calc(22px * var(--ea-fs, 1));font-weight:bold;white-space:nowrap}
+.e6-m .u{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);margin-left:2px}
+.e6-m.hi{background:#fff4e0;border-color:#f6c37a}
+.e6-svg{width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none}
+.e6-stage .e6-svg{max-height:44vh;min-height:220px}
+.e6-stage{background:linear-gradient(#e8f4ff,#f7fbff 78%,#eaf5e4 78%);border-radius:12px;border:1px solid var(--line);overflow:hidden}
+.e6-msg{min-height:44px;padding:8px 12px;border-radius:10px;background:#fffbe6;border:1px solid #f1e3a6;line-height:1.5}
+.e6-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
+.e6-msg.ng{background:#ffe8e8;border-color:#f5b5b5}
+.e6-tbl{width:100%;border-collapse:collapse;font-size:calc(14.5px * var(--ea-fs, 1));background:#fff}
+.e6-tbl th,.e6-tbl td{border:1px solid var(--line);padding:4px 6px;text-align:center;white-space:nowrap}
+.e6-tbl th{background:#f3f6fa;font-size:calc(13.5px * var(--ea-fs, 1))}
+.e6-tbl td.diff{background:#fff1c9;font-weight:bold}
+.e6-tbl tr.best td{background:#e6f8ee}
+.e6-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.e6-mis{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0;background:#f8fbff}
+.e6-mis .m{font-size:calc(24px * var(--ea-fs, 1));flex:none;line-height:1.2}
+.e6-mis.ok{border-color:#40c057;background:#ecfaf1}
+.e6-mis b{display:block}
+.e6-rank{list-style:none;margin:0;padding:0;counter-reset:r}
+.e6-rank li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid #edf1f5;counter-increment:r;font-size:calc(15px * var(--ea-fs, 1))}
+.e6-rank li::before{content:counter(r);width:28px;height:28px;border-radius:50%;background:#e3ebf5;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;flex:none}
+.e6-rank li:nth-child(1)::before{background:#ffd43b}
+.e6-rank li:nth-child(2)::before{background:#dee2e6}
+.e6-rank li:nth-child(3)::before{background:#f4c095}
+.e6-rank li .p{margin-left:auto;font-weight:bold;white-space:nowrap}
+.e6-rank li.me{background:#fff4e0}
+.e6-q{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:8px 0;background:#fbfdff}
+.e6-q .opts{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
+.e6-q .opts .e6-btn{text-align:left;font-weight:normal;background:#fff;border-color:var(--line);line-height:1.4;padding:6px 12px}
+.e6-q .opts .e6-btn.right{background:#d3f5e1;border-color:#40c057;font-weight:bold}
+.e6-q .opts .e6-btn.wrong{background:#ffe3e3;border-color:#f08080}
+.e6-q .why{margin-top:6px;font-size:calc(14.5px * var(--ea-fs, 1));color:#33475b}
+.e6-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.e6-chip{min-height:46px;padding:4px 12px;border-radius:12px;border:2px solid #c9d6e4;background:#fff;cursor:pointer;font-weight:bold;line-height:1.3;text-align:left}
+.e6-chip.used{opacity:.3;cursor:default}
+.e6-chip.bad{animation:e6shake .35s;border-color:#f08080;background:#ffe3e3}
+@keyframes e6shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.e6-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:58px;padding:6px;border:2px dashed #c9d6e4;border-radius:12px;background:#fbfdff}
+.e6-flow .st{border-radius:12px;padding:6px 10px;background:#fff4e0;border:2px solid #f6c37a;font-weight:bold;line-height:1.3}
+.e6-flow .st.el{background:#fff9c4;border-color:#f0c419}
+.e6-flow .ar{color:#b35c00;font-weight:bold}
+.e6-flow .ph{color:var(--sub)}
+.e6-meth{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.e6-meth .e6-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;line-height:1.2;padding:4px}
+.e6-meth .e6-btn .i{font-size:calc(24px * var(--ea-fs, 1))}
+.e6-feat{font-size:calc(19px * var(--ea-fs, 1));font-weight:bold;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;border-radius:12px;background:#f3f7fc;border:2px solid var(--line)}
+.e6-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.e6-days .e6-btn{min-height:58px;line-height:1.25}
+.e6-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:calc(14px * var(--ea-fs, 1))}
+.e6-leg i{display:inline-block;width:18px;height:6px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.e6-field{display:flex;flex-direction:column;gap:3px;margin:10px 0}
+.e6-field label{font-weight:bold}
+.e6-field small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
+.e6 textarea,.e6 input[type=text]{min-height:44px;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-size:calc(16px * var(--ea-fs, 1));background:#fbfdff;color:var(--ink);width:100%}
+.e6 textarea{min-height:84px;resize:vertical;line-height:1.5}
+.e6-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.e6-sum{list-style:none;padding:0;margin:0}
+.e6-sum li{padding:5px 0;border-bottom:1px solid #edf1f5;display:flex;gap:8px}
+.e6-sum li .m{flex:none;width:26px;text-align:center}
+.e6-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;z-index:30;display:none;max-width:90%;text-align:center}
+.e6-start{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.e6-go{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#f8fbff;cursor:pointer;min-height:70px;line-height:1.4}
+.e6-go:hover{border-color:#b45309}
+.e6-go .i{font-size:calc(28px * var(--ea-fs, 1));flex:none}
+.e6-go b{display:block;font-size:calc(17px * var(--ea-fs, 1))}
+.e6-go small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
+.e6-go.adv{border-style:dashed}
+@media (prefers-reduced-motion: reduce){.e6-chip.bad{animation:none}}
+@media (max-width:1000px){
+  .e6-grid{grid-template-columns:minmax(0,1fr)}
+  .e6-meth{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .e6-top h1 .lg{display:none}
+  .e6-grid3,.e6-start,.e6-two{grid-template-columns:minmax(0,1fr)}
+  .e6-days{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .e6-top{padding:0 6px}
+  .e6-body{padding:10px 10px 40px}
+  .e6-card{padding:10px}
+  .e6-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .e6-m .v{font-size:calc(19px * var(--ea-fs, 1))}
+  .e6-meth{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* ---------- C7 ---------- */
+.e7{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
+  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
+.e7 *{box-sizing:border-box}
+.e7 button{font:inherit;touch-action:manipulation;color:inherit}
+.e7 input,.e7 textarea{font:inherit}
+.e7 ruby rt{font-size:.55em;font-weight:normal}
+.e7-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:3px solid var(--ef-accent,#b45309)}
+.e7-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e7-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
+.e7-tabs::-webkit-scrollbar{display:none}
+.e7-tab{flex:none;min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1))}
+.e7-tab:hover{border-color:var(--ef-accent,#b45309)}
+.e7-tab.on{background:var(--ef-accent,#b45309);border-color:var(--ef-accent,#b45309);color:var(--ef-accent-ink,#fff)}
+.e7-tab.adv{border-style:dashed}
+.e7-tab.adv.on{border-style:solid}
+.e7-tab .ck{color:#1a9b5b;margin-left:3px}
+.e7-tab.on .ck{color:#fff}
+.e7-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
+.e7-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
+.e7-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
+.e7-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.e7-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
+.e7-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.e7-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;line-height:1.6;min-width:0}
+.e7-card h2{font-size:calc(19px * var(--ea-fs, 1));margin:0 0 6px}
+.e7-card h3{font-size:calc(16.5px * var(--ea-fs, 1));margin:10px 0 4px;color:#1d3557}
+.e7-card p{margin:4px 0}
+.e7-card.lead{background:#fffaf0;border-color:#f1d9a6}
+.e7-card.tip{background:#fff9e6;border-color:#f1e3a6}
+.e7-card.good{background:#ecfaf1;border-color:#a8dcbc}
+.e7-card.adv{border-left:6px solid #5b3fa8}
+.e7-kicker{display:inline-block;font-size:calc(13px * var(--ea-fs, 1));font-weight:bold;border-radius:999px;padding:1px 10px;margin-bottom:4px;background:#e4f2e5;color:#2f6f3e}
+.e7-kicker.adv{background:#efe9fb;color:#5b3fa8}
+.e7-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:2px solid transparent;background:#e3ebf5;font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
+.e7-btn:active{transform:translateY(1px)}
+.e7-btn:disabled{opacity:.45;cursor:default}
+.e7-btn.primary{background:var(--accent);color:#fff}
+.e7-btn.good{background:#d3f5e1;color:#0d6b3a}
+.e7-btn.sel{background:#1d3557;color:#fff}
+.e7-btn.sm{min-height:44px;padding:0 10px;font-size:calc(15px * var(--ea-fs, 1))}
+.e7-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.e7-seg{display:flex;flex-wrap:wrap;gap:6px}
+.e7-seg .e7-btn{flex:1 0 auto}
+.e7-ctl{margin:8px 0 10px}
+.e7-ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:bold;font-size:calc(15.5px * var(--ea-fs, 1))}
+.e7-ctl label b{color:#b35c00;white-space:nowrap}
+.e7-ctl small{display:block;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1));line-height:1.45}
+.e7 input[type=range]{width:100%;height:44px;accent-color:#b45309;touch-action:pan-y;margin:0}
+.e7-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.e7-m{background:#f6f9fc;border:1px solid var(--line);border-radius:12px;padding:6px 8px;text-align:center;min-width:0}
+.e7-m .k{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);white-space:nowrap}
+.e7-m .v{font-size:calc(22px * var(--ea-fs, 1));font-weight:bold;white-space:nowrap}
+.e7-m .u{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);margin-left:2px}
+.e7-m.hi{background:#fff4e0;border-color:#f6c37a}
+.e7-svg{width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none}
+.e7-stage .e7-svg{max-height:44vh;min-height:220px}
+.e7-stage{background:linear-gradient(#e8f4ff,#f7fbff 78%,#eaf5e4 78%);border-radius:12px;border:1px solid var(--line);overflow:hidden}
+.e7-msg{min-height:44px;padding:8px 12px;border-radius:10px;background:#fffbe6;border:1px solid #f1e3a6;line-height:1.5}
+.e7-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
+.e7-msg.ng{background:#ffe8e8;border-color:#f5b5b5}
+.e7-tbl{width:100%;border-collapse:collapse;font-size:calc(14.5px * var(--ea-fs, 1));background:#fff}
+.e7-tbl th,.e7-tbl td{border:1px solid var(--line);padding:4px 6px;text-align:center;white-space:nowrap}
+.e7-tbl th{background:#f3f6fa;font-size:calc(13.5px * var(--ea-fs, 1))}
+.e7-tbl td.diff{background:#fff1c9;font-weight:bold}
+.e7-tbl tr.best td{background:#e6f8ee}
+.e7-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.e7-mis{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0;background:#f8fbff}
+.e7-mis .m{font-size:calc(24px * var(--ea-fs, 1));flex:none;line-height:1.2}
+.e7-mis.ok{border-color:#40c057;background:#ecfaf1}
+.e7-mis b{display:block}
+.e7-rank{list-style:none;margin:0;padding:0;counter-reset:r}
+.e7-rank li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid #edf1f5;counter-increment:r;font-size:calc(15px * var(--ea-fs, 1))}
+.e7-rank li::before{content:counter(r);width:28px;height:28px;border-radius:50%;background:#e3ebf5;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;flex:none}
+.e7-rank li:nth-child(1)::before{background:#ffd43b}
+.e7-rank li:nth-child(2)::before{background:#dee2e6}
+.e7-rank li:nth-child(3)::before{background:#f4c095}
+.e7-rank li .p{margin-left:auto;font-weight:bold;white-space:nowrap}
+.e7-rank li.me{background:#fff4e0}
+.e7-q{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:8px 0;background:#fbfdff}
+.e7-q .opts{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
+.e7-q .opts .e7-btn{text-align:left;font-weight:normal;background:#fff;border-color:var(--line);line-height:1.4;padding:6px 12px}
+.e7-q .opts .e7-btn.right{background:#d3f5e1;border-color:#40c057;font-weight:bold}
+.e7-q .opts .e7-btn.wrong{background:#ffe3e3;border-color:#f08080}
+.e7-q .why{margin-top:6px;font-size:calc(14.5px * var(--ea-fs, 1));color:#33475b}
+.e7-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.e7-chip{min-height:46px;padding:4px 12px;border-radius:12px;border:2px solid #c9d6e4;background:#fff;cursor:pointer;font-weight:bold;line-height:1.3;text-align:left}
+.e7-chip.used{opacity:.3;cursor:default}
+.e7-chip.bad{animation:e7shake .35s;border-color:#f08080;background:#ffe3e3}
+@keyframes e7shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.e7-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:58px;padding:6px;border:2px dashed #c9d6e4;border-radius:12px;background:#fbfdff}
+.e7-flow .st{border-radius:12px;padding:6px 10px;background:#fff4e0;border:2px solid #f6c37a;font-weight:bold;line-height:1.3}
+.e7-flow .st.el{background:#fff9c4;border-color:#f0c419}
+.e7-flow .ar{color:#b35c00;font-weight:bold}
+.e7-flow .ph{color:var(--sub)}
+.e7-meth{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.e7-meth .e7-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;line-height:1.2;padding:4px}
+.e7-meth .e7-btn .i{font-size:calc(24px * var(--ea-fs, 1))}
+.e7-feat{font-size:calc(19px * var(--ea-fs, 1));font-weight:bold;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;border-radius:12px;background:#f3f7fc;border:2px solid var(--line)}
+.e7-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.e7-days .e7-btn{min-height:58px;line-height:1.25}
+.e7-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:calc(14px * var(--ea-fs, 1))}
+.e7-leg i{display:inline-block;width:18px;height:6px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.e7-field{display:flex;flex-direction:column;gap:3px;margin:10px 0}
+.e7-field label{font-weight:bold}
+.e7-field small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
+.e7 textarea,.e7 input[type=text]{min-height:44px;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-size:calc(16px * var(--ea-fs, 1));background:#fbfdff;color:var(--ink);width:100%}
+.e7 textarea{min-height:84px;resize:vertical;line-height:1.5}
+.e7-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.e7-sum{list-style:none;padding:0;margin:0}
+.e7-sum li{padding:5px 0;border-bottom:1px solid #edf1f5;display:flex;gap:8px}
+.e7-sum li .m{flex:none;width:26px;text-align:center}
+.e7-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;z-index:30;display:none;max-width:90%;text-align:center}
+.e7-start{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.e7-go{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#f8fbff;cursor:pointer;min-height:70px;line-height:1.4}
+.e7-go:hover{border-color:#b45309}
+.e7-go .i{font-size:calc(28px * var(--ea-fs, 1));flex:none}
+.e7-go b{display:block;font-size:calc(17px * var(--ea-fs, 1))}
+.e7-go small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
+.e7-go.adv{border-style:dashed}
+@media (prefers-reduced-motion: reduce){.e7-chip.bad{animation:none}}
+@media (max-width:1000px){
+  .e7-grid{grid-template-columns:minmax(0,1fr)}
+  .e7-meth{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .e7-top h1 .lg{display:none}
+  .e7-grid3,.e7-start,.e7-two{grid-template-columns:minmax(0,1fr)}
+  .e7-days{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .e7-top{padding:0 6px}
+  .e7-body{padding:10px 10px 40px}
+  .e7-card{padding:10px}
+  .e7-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .e7-m .v{font-size:calc(19px * var(--ea-fs, 1))}
+  .e7-meth{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* C7 だけの部品 */
+.e7-led{transition:none}
+.e7-node{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;min-width:104px;min-height:88px;border:2px dashed #c9d6e4;border-radius:12px;background:#fbfdff;padding:4px;line-height:1.25;font-weight:bold;font-size:calc(14px * var(--ea-fs, 1))}
+.e7-node .i{font-size:calc(26px * var(--ea-fs, 1))}
+.e7-node.set{border-style:solid;border-color:#f6c37a;background:#fff4e0}
+.e7-node.next{border-color:#b45309;box-shadow:0 0 0 3px #fbeedd}
+.e7-node small{font-weight:normal;color:#5b6b7c;font-size:calc(12.5px * var(--ea-fs, 1))}
+.e7-chain{display:flex;align-items:center;gap:4px;min-width:max-content;padding:4px 2px}
+.e7-chain .ar{color:#b35c00;font-weight:bold;font-size:calc(20px * var(--ea-fs, 1))}
+.e7-houses{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;max-width:420px}
+.e7-houses i{display:block;aspect-ratio:1;border-radius:2px;background:#dee2e6}
+.e7-houses i.on{background:#ffd43b;box-shadow:0 0 4px #ffd43b}
+.e7-bar{height:26px;border-radius:8px;overflow:hidden;display:flex;background:#f1f3f5;border:1px solid var(--line)}
+.e7-bar span{display:flex;align-items:center;justify-content:center;font-size:calc(13px * var(--ea-fs, 1));font-weight:bold;white-space:nowrap;overflow:hidden}
+.e7-big{font-size:calc(24px * var(--ea-fs, 1));font-weight:bold}
+.e7-dq input{width:9em!important;display:inline-block;margin:0 6px}
+.e7-form{background:#f3f7fc;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;text-align:center}
 /* ===== 統合シェル(.ea- 接頭辞) ===== */
 html,body{margin:0;height:100%;background:var(--ef-bg);}
 body{overflow:hidden}
@@ -1650,12 +2002,12 @@ body{overflow:hidden}
 .ea-hd .ef-title{font-size:22px;flex-wrap:wrap;column-gap:12px}
 .ea-hd .ef-sub{font-size:14px}
 .ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
-/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、4つ目・5つ目は真ん中に寄せる */
+/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる */
 .ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
 .ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
 .ea-cards>.ef-mcard:hover{border-color:var(--accent)}
-.ea-cards>.ef-mcard:nth-child(4){grid-column:2 / span 2}
-.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:3 / span 2}
+.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2){grid-column:2 / span 2}
+.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:3 / span 2}
 .ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
 .ef-levels[data-ref="cards"]{padding:6px 32px 0}
 .ef-levels .ea-cards{padding:6px 0 24px}
@@ -1724,10 +2076,10 @@ body{overflow:hidden}
   .ea-help .bar{padding:8px 12px}
 }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
-/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C5) */
+/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C7) */
 @media (max-width:640px){
   .ea-cards{grid-template-columns:minmax(0,1fr)!important}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto!important;min-height:0!important}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto!important;min-height:0!important}
   .ef-levels[data-ref="cards"]{padding:6px 12px 0}
   .ea-hd{padding:6px 10px}
   .ea-hd .ef-title{font-size:18px}
@@ -1748,7 +2100,7 @@ body{overflow:hidden}
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(4),.ea-cards>.ef-mcard:nth-child(4):last-child{grid-column:auto}
+  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
 @media (max-height:720px){ .ea-cards>.ef-mcard{min-height:200px} }
@@ -1809,7 +2161,7 @@ body{overflow:hidden}
     <div class="ea-hbody" data-tab="s">
 <h3>はじめかた</h3>
 <ol>
-<li>メニューで、学びたいアプリのカードをタップします。はじめは「基本編」のタブの上にある「おすすめの順番」(C1 → C2 → C3 → C4 → C5)のとおりに進めましょう。「発展編」のタブは、先生の指示があったら取り組みます。</li>
+<li>メニューで、学びたいアプリのカードをタップします。はじめは「基本編」のタブの上にある「おすすめの順番」(C1 → C2 → … → C7)のとおりに進めましょう。「発展編」のタブは、先生の指示があったら取り組みます。</li>
 <li>はじめて開いたアプリでは、そのアプリの使い方が出ます。読んだら「はじめる」をタップ。</li>
 <li>上の <b>◀ メニュー</b> をタップすると、いつでもメニューにもどれます。右の <b>C1 エネルギー</b>・<b>C2 電気回路</b> などのボタンで、ほかのアプリへ直接移れます(縦向きでは、記号だけになります)。</li>
 <li>どのアプリも、上の右側の <b>❓ 使い方</b> で、そのアプリの説明をもう一度見られます(読んだら「わかった」)。</li>
@@ -1832,20 +2184,20 @@ body{overflow:hidden}
 <li><b>🔇 / 🔊</b>:効果音のオン・オフ。<b>はじめは音が出ません</b>(🔇)。音を出したいときは 🔇 をタップして 🔊 にします。</li>
 <li><b>ⓘ このアプリについて</b>(アプリ画面の上のバーの右はし・メニューのいちばん下):作った人・安全と個人情報・ライセンス(使ってよい条件)・更新履歴を見られます。</li>
 </ul>
-<h3>5つのアプリ</h3>
-<div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>C1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>C2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>C3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>C4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>C5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div></div>
+<h3>7つのアプリ</h3>
+<div class="ea-hgrid"><div class="ea-hcard"><h4><span class="ea-hic" style="background:#1e6fd9">⚡</span>C1 エネルギー変換ゲーム</h4><p>乾電池・発電機・電球・モーターなどをマスに置き、線でつないで「スイッチON」。目標を達成すると★がもらえる。ステージ1〜8と自由実験。</p><p class="ea-tip">💡 むだになったエネルギー(熱など)の量も見よう。ステージ4からは費用(つくる費用+燃料代)も出る。「💴 発電方法の値段くらべ」で本物の発電方法ごとの電気の値段(概算)もくらべられる。★3つをめざして、効率のよいつなぎ方を考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#d9480f">🔌</span>C2 電気回路ラボ</h4><p>格子の点と点の間に部品を置いて回路をつくる。課題11個(直列・並列・電流計・電圧計・LEDと抵抗・ヒューズ・ブレーカーなど)、安全体験(たこ足配線・漏電・ショート)、電気料金の計算。</p><p class="ea-tip">💡 ショートや電球の切れも、ここでは安全に試せる。「どうしてそうなる?」を考えながら試そう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#2b7a4b">⚙️</span>C3 機構ラボ</h4><p>歯車・ベルト・チェーンをつないで回転を伝える。ラック&ピニオン・カム・リンク・クランク・ねじで運動を変える。ブラックボックスのクイズ、設計課題12個、設計図(印刷・保存)。</p><p class="ea-tip">💡 歯車を指でなぞると手で回せる。入力と出力の回転数を数えて、<ruby>速度伝達比<rt>そくどでんたつひ</rt></ruby>(回る速さが何分の1になるか)を確かめよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#c8620e">🔧</span>C4 保守点検ラボ</h4><p>部品図鑑(17部品)、自転車・扇風機の「?」をタップして部品さがし、故障の原因と対処のクイズ、ゆるみ・<ruby>摩耗<rt>まもう</rt></ruby>(すりへり)の1年シミュレーション、点検表づくり(印刷・ファイルに保存)。</p><p class="ea-tip">💡 クイズはまちがえた選択肢にも理由が出る。どこを見れば故障を防げるかを考えよう。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5f3dc4">📐</span>C5 回路設計シート</h4><p>課題をえらぶ → 構想を書く → 回路図をかく(自動チェックつき)→ 部品表・製作手順 → 実際に測った値で評価・改善。A4印刷とファイル保存ができる。</p><p class="ea-tip">💡 「自動チェック」で赤や黄色が出たら、理由を読んで直そう。設計値と実測値のちがいも考える。</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#0b7285">🌬️</span>C6 風力発電の羽根ラボ</h4><p>教科書の「風力発電のモデル」を画面で作る。羽根の枚数・かたむき(ピッチ角)・長さ・形と風の強さを変えて、回転数・電圧・電流・電力・回り始める風をくらべる。コイルと磁石の発電機(<ruby>電磁誘導<rt>でんじゆうどう</rt></ruby>)、3つのチャレンジとランキング、発電方法くらべ、風が変わる日の発電量。</p><p class="ea-tip">💡 くらべるときは、1つだけ変えて「📋 記録する」。表の黄色が、前の記録から変えたところ。弱い風で回る羽根と、強い風でたくさん発電する羽根はちがうかな?</p></div><div class="ea-hcard"><h4><span class="ea-hic" style="background:#5c940d">🗼</span>C7 直流・交流と送電ラボ</h4><p>電池とコンセントの電圧の変わり方をグラフと LED で見る。発電所 → 変電所 → 家庭の道すじを組み立て、送電線の網の目を切ってためす。変圧器で電圧を変え、送る電圧を上げると電流と送電線の損失(熱)が減ることを確かめる。損失の計算、東日本 50Hz・西日本 60Hz。</p><p class="ea-tip">💡 ③ では送る電圧を変えて、町の家の明かりがいくつつくかを見よう。電圧を2倍にすると、損失は何分の1になるかな?</p></div></div>
 <h3>記録(セーブ)について</h3>
 <ul>
 <li>とちゅうの回路や★、クイズの結果は<b>自動で保存</b>されます。保存ボタンをおす必要はありません。</li>
 <li>次に<b>同じタブレットの同じブラウザ</b>で開くと、続きから始まります。</li>
 <li>シークレットモード(プライベートブラウズ)で開くと、閉じたときに記録が消えます。</li>
-<li>設計図(C3)・点検表(C4)・設計シート(C5)は、「<b>💾 ファイルに保存</b>」でファイルにして先生に提出できます。保存すると「保存しました」と出ます。</li>
+<li>設計図(C3)・点検表(C4)・設計シート(C5)と、C6・C7 の「💾 記録」のページは、「<b>💾 ファイルに保存</b>」でファイルにして先生に提出できます。保存すると「保存しました」と出ます。</li>
 <li>保存したファイルは、同じアプリの「<b>📂 ファイルを読みこむ</b>」で開き直せます(「読みこみました」と出ます)。</li>
 </ul>
 <h3>こまったとき</h3>
 <ul>
 <li><b>画面が動かない・おかしい</b>:◀ メニューにもどってから開き直す。それでもだめなら、ページを再読み込みします(記録は残ります)。</li>
-<li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。C5 は音を使いません)。</li>
+<li><b>音を出したい・消したい</b>:各アプリの右上の 🔇/🔊 ボタンで切りかえます(はじめは音なし。C5〜C7 は音を使いません)。</li>
 <li><b>まちがえて消した</b>:「↩ もどす」で1つ前にもどせます。</li>
 <li><b>字が小さい</b>:ブラウザの拡大(タブレットは2本指で広げる、Chromebook・パソコンは <b>Ctrl</b> と <b>+</b>)を使えます。</li>
 <li>計算は「理想的な部品」での目安です。本物の部品では、電池の古さや部品のばらつきで値が変わります。</li>
@@ -1854,7 +2206,7 @@ body{overflow:hidden}
     <div class="ea-hbody" data-tab="t" hidden>
 <h3 id="t-kubari">1. 配り方と開き方</h3>
 <ul>
-<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに C1〜C5 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
+<li>zip を展開し、<b>energy-apps.html</b> を Chrome・Edge などのブラウザで開きます。この1ファイルに C1〜C7 がすべて入っています(クラスルーム配布用フォルダでは、このアプリは「<b>C_エネルギー変換_統一版.html</b>」という名前です)。zip には、使い方(tsukaikata.html)と、この先生用ガイド(先生用ガイド.html)も入っています。</li>
 <li><b>インターネット接続は不要</b>です。外部との通信は一切しません。</li>
 <li>Google ドライブや Classroom で配る場合は、プレビュー画面では動きません。端末に<b>ダウンロードしてから</b>開くように指示してください。</li>
 <li>iPad はファイルアプリから直接開くとうまく動かないことがあります(推測・未確認)。その場合は校内のWebサーバーなどに置いて、URLで開いてください。</li>
@@ -1864,39 +2216,43 @@ body{overflow:hidden}
 </ul>
 <h4>振り返りを隠すとき</h4>
 <ul>
-<li>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返りを出さないようにできます。このアプリでは、C5 の「④ 評価」の振り返りの欄(うまくいったこと・改善案)と、印刷した設計シートの「8 振り返り」が出なくなります。C1・C2 のクイズは学習の一部なので出したままにし、見出しを「ふりかえり」から「たしかめ問題」に変えます。</li>
+<li>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返りを出さないようにできます。このアプリでは、C5 の「④ 評価」の振り返りの欄(うまくいったこと・改善案)と、印刷した設計シートの「8 振り返り」、C6・C7 の「振り返り」のタブと「記録」のページの振り返りが出なくなります。C1・C2 のクイズは学習の一部なので出したままにし、見出しを「ふりかえり」から「たしかめ問題」に変えます。</li>
 <li><b>Classroom で配るとき</b>:<code>生徒に配る/振り返りなし/</code> の中の、同じ名前のファイルを配ります(中身は同じで、振り返りだけ出ません)。1つずつ配るときのファイルも <code>振り返りなし/1つずつ配るとき/</code> にあります。</li>
 <li><b>生徒用サイトで使うとき</b>:アドレスの最後に <code>?furikaeri=off</code> を付けて開くよう、生徒に知らせてください(例: <code>https://okarin-netizen.github.io/Edu-IT/?furikaeri=off</code>)。一度開くと、その端末で覚えています。<code>?furikaeri=on</code> を付けて開くと元にもどります。</li>
 <li>隠しても、それまでに書いた振り返りは消えません(ファイルに保存したときにも入ります)。</li>
 </ul>
 
 <h3 id="t-ichiran">2. 教材の一覧(基本編・発展編)</h3>
-<p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「ふりがな」「文字 中」「❓ 使い方」「🧑‍🏫 先生用」「🖥️ 全画面」のボタンがあります。「ふりがな」でむずかしい言葉の読みがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大。文字だけが大きくなります)を変えられ、C1〜C5 とメニューで同じ設定になります(スマホでは「全画面」は出ません)。アプリには <b>C1〜C5</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → C3 → C4 → C5」と出ます)。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C5 を切りかえるボタンが出ます。</p>
-<p>メニューのカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
+<p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「ふりがな」「文字 中」「❓ 使い方」「🧑‍🏫 先生用」「🖥️ 全画面」のボタンがあります。「ふりがな」でむずかしい言葉の読みがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大。文字だけが大きくなります)を変えられ、C1〜C7 とメニューで同じ設定になります(スマホでは「全画面」は出ません)。アプリには <b>C1〜C7</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → … → C7」と出ます)。カードは教科書の章ごと(1章 しくみを知る・2章 つくる)に区切られ、カードに教科書の編・章・節が出ます。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C7 を切りかえるボタンが出ます。</p>
+<p>メニューのカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題、C6 の発電方法くらべ・風が変わる日、C7 の損失の計算・周波数など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
 <p>アプリの中のステージ・課題・タブは「基本編 → 発展編」の順に並んでいるので、基本編は番号の小さいほうから続けて取り組めます(例: C2 は課題1〜7 が基本編、課題8〜11 が発展編)。</p>
-<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由実験・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr></table>
+<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由実験・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr><tr><td>🌬️ C6 風力発電の羽根ラボ</td><td>羽根を変えて、より効率の良い風力発電をめざす</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td></tr><tr><td>🗼 C7 直流・交流と送電ラボ</td><td>直流と交流のちがいと、電気が家に届くしくみを調べる</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ(変圧器・送電線の損失)</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td></tr></table>
 
 <h3 id="t-tangen">3. 単元での使い方</h3>
 <ul>
-<li>導入で C1(エネルギー変換と効率)→ 電気の学習で C2 → 機械の学習で C3 → 保守点検で C4 → 製作の設計・評価で C5、の順を想定しています(番号の順 = おすすめの順)。</li>
-<li>基本編の範囲は番号で指示できます。例: 「C1 はステージ7まで」「C2 は課題7まで」「C3 は設計課題9まで」。そのあとの番号(C1 ステージ8・自由実験、C2 課題8〜11、C3 設計課題10〜12)が発展編です。</li>
+<li>導入で C1(エネルギー変換と効率)→ 電気の学習で C2 → 機械の学習で C3 → 保守点検で C4 → 製作の設計・評価で C5、の順を想定しています(番号の順 = おすすめの順)。C6・C7 はあとから足した教材なので番号は後ろですが、教科書では 3編1章の前のほう(C6 は「2 発電の仕組みと特徴」、C7 は「3 電気を供給する仕組み」)にあたります。C1 のあと、C2 の前に使うと教科書の順になります。</li>
+<li><b>C6 風力発電の羽根ラボ</b>(3編1章2):レッツスタート「風力発電のモデルを作りましょう」と合わせて使います。① で発電機のしくみ(コイルと磁石・電磁誘導)を確かめ、② で羽根の枚数・かたむき・長さ・形を<b>1つずつ変えて</b>回転数・電圧・電流・電力・回り始める風をくらべ、③ の3つのチャレンジとランキングで「より効率の良い羽根」をめざします。実物のモデルづくりの前の予想や、作ったあとのふり返りに使えます。発展の ④ では火力・水力・太陽光・風力・燃料電池の<b>変換の流れと特徴</b>を、⑤ では風の強さが変わる日の1日の電力量をくらべ、蓄電池やほかの発電方法との組み合わせを考えます。</li>
+<li><b>C7 直流・交流と送電ラボ</b>(3編1章3):レッツスタート「コンセントと電池のちがい」と合わせて使います。① で電池(直流)とコンセント(交流)の電圧の変わり方をグラフと LED 2つの回路で見て、身の回りの製品を電源で分けます。② で発電所 → 超高圧変電所 → 一次変電所 → 配電用変電所 → 柱上変圧器 → 家庭の道すじを組み立て、送電と配電の境目や、網の目のような送電線を確かめます。③ で変圧器の巻き数と電圧、送る電圧を上げると電流と送電線の損失(熱)が減ることを、町の家の明かりの数で確かめます。発展の ④ は P=VI と 損失=I²R の計算ドリル、⑤ は東日本 50Hz・西日本 60Hz と周波数変換所です。</li>
+<li>C1 は部品をつないで「エネルギー変換の流れ」と効率・費用を体験する教材、C6・C7 は発電と送電をくわしく試す教材として使い分けます(C1 の風車・送電線のステージで流れをつかみ、C6・C7 で数字を変えてためす)。</li>
+<li>基本編の範囲は番号で指示できます。例: 「C1 はステージ7まで」「C2 は課題7まで」「C3 は設計課題9まで」「C6・C7 は ③ まで」。そのあとの番号(C1 ステージ8・自由実験、C2 課題8〜11、C3 設計課題10〜12)が発展編です。</li>
 <li>C2 の回路の計算と C5 の回路図は同じ計算のしくみを使っています。C2 で試したことを C5 の設計に生かせます。</li>
 <li>C3 の部品データは C4 の部品図鑑と共通です。</li>
-<li>メニューのカードに、各アプリの進み具合(C1 ステージ・C2 課題・C3 設計課題のクリア数、C4 部品図鑑、C5 回路図をかいた課題)が出ます。机間指導の目安にしてください。</li>
+<li>メニューのカードに、各アプリの進み具合(C1 ステージ・C2 課題・C3 設計課題のクリア数、C4 部品図鑑、C5 回路図をかいた課題、C6・C7 やったことの数)が出ます。机間指導の目安にしてください。</li>
 </ul>
 
 <h3 id="t-kiroku">4. 記録の保存と提出</h3>
 <h4>提出物(印刷・ファイル)</h4>
 <ul>
 <li><b>C3 設計図</b>、<b>C4 点検表</b>、<b>C5 回路設計シート</b>は「🖨️ 印刷」(A4)と「💾 ファイルに保存」(JSON ファイル)ができます。保存したファイルは、同じアプリの「📂 ファイルを読みこむ」で開き直せます。</li>
-<li>ファイル名は英数字(<code>C3-kikou-…json</code>・<code>C4-tenken-…json</code>・<code>C5-sekkei-…json</code>)なので、提出先で文字化けしません。ファイルの中のアプリの記号(<code>app</code>)は <code>C3</code>・<code>C4</code>・<code>C5</code> です。</li>
+<li><b>C6・C7</b> は「💾 記録」のページの「💾 ファイルに保存」で、やったこと・ランキング(C6)・計算ドリルの最高点(C7)・振り返りを1つの JSON ファイルにします(組・番号・名前は C5 で書いたものを使い、なければそのページで書きます)。</li>
+<li>ファイル名は英数字(<code>C3-kikou-…json</code>・<code>C4-tenken-…json</code>・<code>C5-sekkei-…json</code>・<code>C6-fuuryoku-…json</code>・<code>C7-souden-…json</code>)なので、提出先で文字化けしません。ファイルの中のアプリの記号(<code>app</code>)は <code>C3</code>〜<code>C7</code> です。</li>
 <li>提出されたファイルは、4分野共通の <b>全分野_振り返り一覧.html</b> で、ほかの分野と同じように一覧にできます。</li>
 </ul>
 <h4>学習記録の保存場所</h4>
 <ul>
 <li>記録は各端末のブラウザ内に保存されます。サーバーには送られません。</li>
 <li>端末やブラウザが変わると記録は引き継がれません。ブラウザの「閲覧履歴データの削除」で消えることがあります。</li>
-<li>保存キーは <code>energyApps.C1.v1</code>〜<code>energyApps.C5.v1</code> です。全アプリの記録の書き出しファイル(<code>energy-apps-kiroku-…json</code>)にも、この名前で入ります。</li>
+<li>保存キーは <code>energyApps.C1.v1</code>〜<code>energyApps.C7.v1</code> です。全アプリの記録の書き出しファイル(<code>energy-apps-kiroku-…json</code>)にも、この名前で入ります。</li>
 <li>第1.4版で記号を E1〜E5 から C1〜C5 に変えたので、それより前の版の記録・保存したファイルは読みこめません。</li>
 </ul>
 
@@ -1914,6 +2270,8 @@ body{overflow:hidden}
 <ul>
 <li>計算は理想化したモデルによる目安です。実物の製作・測定と組み合わせて使ってください。</li>
 <li>C1 の発電の値段は、国の発電コスト検証(2021年)の試算を丸めた概算です。「社会からの評価」の点数も授業用の目安です。</li>
+<li>C6 の発電量は、扇風機と小さな発電機で作る風力発電のモデルを理想化した計算による目安です(羽根の形・枚数・かたむきによる効率の差は、傾向が分かるように単純化しています)。C7 の送電線の抵抗・送る電力・電圧の値も、しくみが分かるように単純化した例です。</li>
+<li>C6 で本物の扇風機と羽根の模型を使うときは、回っている羽根に指や顔を近づけないように指導してください。C7 の回路はシミュレーションです。コンセントの 100 V はさわると危険です。</li>
 <li>C2・C5 の回路はシミュレーションです。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。</li>
 <li>アプリは外部と通信しません。生徒の情報がインターネットに送られることはありません。</li>
 </ul>
@@ -1927,6 +2285,12 @@ body{overflow:hidden}
 </dl>
 
 <h3 id="t-rireki">7. 更新履歴</h3>
+<h4>C6・C7 を追加(2026-10-18・第1.6版)</h4>
+<ul>
+<li><b>C6 風力発電の羽根ラボ</b>を追加しました(教科書 3編1章2「発電の仕組みと特徴」)。羽根の枚数・かたむき・長さ・形と風の強さを変えて発電量をくらべ、3つのチャレンジとランキングで効率のよい羽根をめざします。基本編は ① 発電機のしくみ ② 羽根をくらべる ③ 効率チャレンジ、発展編は ④ 発電方法くらべ ⑤ 風が変わる日です。</li>
+<li><b>C7 直流・交流と送電ラボ</b>を追加しました(教科書 3編1章3「電気を供給する仕組み」)。基本編は ① 直流と交流 ② 送電・配電の道すじ ③ 高い電圧で送るわけ、発展編は ④ 損失の計算 ⑤ 周波数 50Hz・60Hz です。</li>
+<li>C6・C7 の記録は <code>energyApps.C6.v1</code>・<code>energyApps.C7.v1</code> に保存され、「💾 記録」から JSON ファイル(app は <code>C6</code>・<code>C7</code>)にして提出できます。振り返り一覧で読めます。</li>
+</ul>
 <h4>振り返りを隠す設定(2026-10-17・第1.5版)</h4>
 <ul>
 <li>振り返りを隠す設定(先生用)に対応しました。隠すときは、C5 の「④ 評価」の振り返りの欄と、印刷の「8 振り返り」を出さず、C1・C2 のクイズの見出しを「たしかめ問題」にします(くわしくは「1. 配り方と開き方」の「振り返りを隠すとき」)。書いた振り返りや保存データの形は変わりません。</li>
@@ -9780,12 +10144,1388 @@ var auto = null;
 if (auto && !auto.getAttribute('data-manual')) mount(auto);
 })();
 </script>
+<script>/* ===== C6 app ===== */
+
+/* ===================================================================
+   C6 風力発電の羽根ラボ — window.EnergyApps.C6
+   教科書 3編1章2「発電の仕組みと特徴」(レッツスタート: 風力発電のモデル)
+   羽根の枚数・かたむき(ピッチ角)・長さ・形と風の強さを変えて、回転数・電圧・電流・電力・回り始めの風をくらべる。
+   数値は、扇風機と小さな発電機で作る「風力発電のモデル」を理想化した計算による目安。
+   =================================================================== */
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+var STORE_KEY = 'energyApps.C6.v1';
+
+/* ---------- 小道具 ---------- */
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rb(w, r) { return '<ruby>' + w + '<rt>' + r + '</rt></ruby>'; }
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
+function fW(p) { if (p < 0.0005) return ['0', 'W']; if (p < 1) return [String(Math.round(p * 1000)), 'mW']; return [p.toFixed(2), 'W']; }
+function fWs(p) { var a = fW(p); return a[0] + ' ' + a[1]; }
+
+/* ---------- 風力発電のモデルの計算 ----------
+ * 風のエネルギー(1秒あたり) Pw = 1/2 × 空気の密度 × 風が当たる面積 × 風速³
+ * 電力 = Pw × 羽根の効率(形・枚数・かたむきで変わる)× 発電機の効率
+ * 回り始める風: 羽根を回そうとする力(枚数・かたむき・形)が、発電機と軸の引っかかり(摩擦)に勝つ風速
+ * 扇風機の風が当たるのは中心から 22 cm まで(それより長い羽根は、外の部分に風が当たらず重くなるだけ)
+ */
+var SHAPES = {
+  flat: { name: '平らな板', cp: 0.20, opt: 22, st: 1.0, note: '作りやすい。効率はひかえめ' },
+  curve: { name: '曲げた板', cp: 0.28, opt: 18, st: 1.2, note: '風を受け止めやすく、回り始めやすい' },
+  wing: { name: 'つばさの形', cp: 0.36, opt: 12, st: 0.6, note: '飛行機のつばさと同じ形。速く回るが、回り始めにくい' }
+};
+var NBL = [2, 3, 4, 5, 6, 8];
+var NF = { 2: 0.92, 3: 1, 4: 0.97, 5: 0.93, 6: 0.88, 8: 0.78 };
+var FAN_R = 0.22, RHO = 1.2, ETA = 0.55, RL = 10, HUB = 2, CUT = 10;
+function calc(b, v) {
+  var sh = SHAPES[b.shape] || SHAPES.flat, r = (b.len + HUB) / 100, re = Math.min(r, FAN_R), A = Math.PI * re * re;
+  var Pw = 0.5 * RHO * A * v * v * v, th = b.pitch * Math.PI / 180;
+  var cp = sh.cp * (NF[b.n] || 0.8) * Math.exp(-Math.pow((b.pitch - sh.opt) / 15, 2)) * Math.min(1, b.pitch / 5);
+  if (r > FAN_R) cp *= Math.pow(FAN_R / r, 0.6);
+  var cs = 0.05 * Math.pow(b.n, 0.7) * Math.sin(2 * th) * sh.st;
+  var Tf = 0.0006 + 0.000012 * b.n * b.len * (b.shape === 'wing' ? 1.2 : 1);
+  var vs = cs > 1e-4 ? Math.sqrt(Tf / (0.5 * RHO * A * re * cs)) : Infinity;
+  var k = v > vs ? clamp((v - vs) / 0.8, 0, 1) : 0;
+  var P = cp * Pw * ETA * k;
+  var lam = 6.5 / Math.pow(b.n, 0.55) * Math.pow(Math.cos(th), 1.5);
+  var rpm = k > 0 ? lam * v / r * 60 / (2 * Math.PI) * Math.sqrt(k) : 0;
+  var V = Math.sqrt(P * RL);
+  return { P: P, Pw: Pw, vs: vs, rpm: rpm, V: V, I: V / RL, eff: Pw > 0 ? P / Pw : 0 };
+}
+function bladeName(b) { return b.n + '枚・' + b.pitch + '°・' + b.len + 'cm・' + (SHAPES[b.shape] || SHAPES.flat).name; }
+function sameB(a, b) { return a && b && a.n === b.n && a.pitch === b.pitch && a.len === b.len && a.shape === b.shape; }
+function r1(x) { return Math.round(x * 10) / 10; }  /* 画面に出す数字(小数1けた)で判定する */
+function vsTxt(vs) { return isFinite(vs) && vs < 30 ? vs.toFixed(1) : '回らない'; }
+
+/* ---------- 保存 ---------- */
+var S = { root: null, tab: 'intro', save: null, el: {}, tick: null, raf: 0, last: 0 };
+function blank() {
+  return { v: 1, tab: 'intro', blade: { n: 3, pitch: 20, len: 15, shape: 'flat' }, wind: 4, recs: [], rank: [], mis: {}, done: {}, quiz: {}, flow: {}, featBest: 0, days: {}, refl: { q1: '', q2: '', q3: '' }, who: { cls: '', name: '' } };
+}
+function loadSave() {
+  var s = null, b = blank();
+  try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return b;
+  Object.keys(b).forEach(function (k) { if (s[k] == null || typeof s[k] !== typeof b[k] || Array.isArray(s[k]) !== Array.isArray(b[k])) s[k] = b[k]; });
+  var bl = s.blade;
+  if (NBL.indexOf(bl.n) < 0) bl.n = 3;
+  bl.pitch = clamp(Math.round(+bl.pitch || 20), 0, 90); bl.len = clamp(Math.round(+bl.len || 15), 5, 30);
+  if (!SHAPES[bl.shape]) bl.shape = 'flat';
+  s.wind = clamp(+s.wind || 4, 0, 10);
+  s.recs = s.recs.filter(function (r) { return r && r.b && SHAPES[r.b.shape]; }).slice(-10);
+  s.rank = s.rank.filter(function (r) { return r && r.b && SHAPES[r.b.shape] && isFinite(r.p); }).slice(0, 5);
+  return s;
+}
+function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
+function mark(k) { if (!S.save.done[k]) { S.save.done[k] = 1; persist(); renderTabs(); } }
+
+/* ---------- タブ ---------- */
+var TABS = [
+  { id: 'intro', lg: '🏁 はじめに' },
+  { id: 'gen', lg: '① 発電機のしくみ', step: 'gen' },
+  { id: 'cmp', lg: '② 羽根をくらべる', step: 'cmp' },
+  { id: 'best', lg: '③ 効率チャレンジ', step: 'best' },
+  { id: 'meth', lg: '④ 発電方法くらべ', adv: 1, step: 'meth' },
+  { id: 'day', lg: '⑤ 風が変わる日', adv: 1, step: 'day' },
+  { id: 'refl', lg: '✏️ 振り返り', reflect: 1 },
+  { id: 'rec', lg: '💾 記録' }
+];
+/* メニューのカードの進み具合に使う(やったこと) */
+var STEPS = [
+  { id: 'gen', name: '① 発電機で LED を光らせた' }, { id: 'quiz', name: '① たしかめ問題に全部正解' },
+  { id: 'cmp', name: '② 羽根を3つ以上くらべた' }, { id: 'm1', name: '③ チャレンジ1' }, { id: 'm2', name: '③ チャレンジ2' }, { id: 'm3', name: '③ チャレンジ3' },
+  { id: 'meth', name: '④ 変換の流れを5つ完成' }, { id: 'day', name: '⑤ 2つ以上の日で発電した' }
+];
+function stepDone(id) {
+  var s = S.save;
+  if (id === 'm1' || id === 'm2' || id === 'm3') return !!s.mis[id];
+  return !!s.done[id];
+}
+function tabDone(t) {
+  if (t.id === 'gen') return stepDone('gen') && stepDone('quiz');
+  if (t.id === 'best') return stepDone('m1') && stepDone('m2') && stepDone('m3');
+  return t.step ? stepDone(t.step) : false;
+}
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function renderTabs() {
+  var nav = S.el.tabs; if (!nav) return;
+  nav.innerHTML = TABS.map(function (t) {
+    var on = S.tab === t.id;
+    return '<button class="e6-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
+  }).join('');
+}
+function go(tab) {
+  if (tab === 'refl' && !fkOn()) tab = 'intro';
+  S.tab = tab; S.save.tab = tab; persist();
+  S.tick = null;
+  renderTabs(); renderBody();
+  S.el.body.scrollTop = 0;
+}
+function toast(m) {
+  var t = S.el.toast; t.textContent = m; t.style.display = 'block';
+  clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = 'none'; }, 2800);
+}
+
+/* ---------- アニメーション(1つのループ。見えていない間は止める) ---------- */
+function frame(ts) {
+  S.raf = requestAnimationFrame(frame);
+  if (!S.root || S.root.offsetParent === null) { S.last = 0; return; }
+  var dt = S.last ? Math.min(0.05, (ts - S.last) / 1000) : 0; S.last = ts;
+  if (S.tick) { try { S.tick(dt); } catch (e) { S.tick = null; if (window.console) console.error(e); } }
+}
+
+/* ---------- 風車の絵(正面から見たところ) ---------- */
+function bladePath(shape, L, w) {
+  /* 中心から上へのびる羽根。L: 長さ(px)、w: 見かけの幅(px) */
+  var h = HUB * 5.2;
+  if (shape === 'wing') return 'M' + (-w * 0.5) + ',' + (-h) + ' C' + (-w * 0.75) + ',' + (-h - L * 0.35) + ' ' + (-w * 0.35) + ',' + (-h - L * 0.9) + ' ' + (-w * 0.12) + ',' + (-h - L) + ' L' + (w * 0.12) + ',' + (-h - L) + ' C' + (w * 0.3) + ',' + (-h - L * 0.7) + ' ' + (w * 0.5) + ',' + (-h - L * 0.3) + ' ' + (w * 0.4) + ',' + (-h) + ' Z';
+  if (shape === 'curve') return 'M' + (-w / 2) + ',' + (-h) + ' Q' + (-w * 0.8) + ',' + (-h - L / 2) + ' ' + (-w / 2) + ',' + (-h - L) + ' L' + (w / 2) + ',' + (-h - L) + ' Q' + (w * 0.2) + ',' + (-h - L / 2) + ' ' + (w / 2) + ',' + (-h) + ' Z';
+  return 'M' + (-w / 2) + ',' + (-h) + ' L' + (-w / 2) + ',' + (-h - L) + ' L' + (w / 2) + ',' + (-h - L) + ' L' + (w / 2) + ',' + (-h) + ' Z';
+}
+var PXCM = 5.2;
+function rotorSvg(b, id) {
+  var L = b.len * PXCM, w = Math.max(3, 30 * Math.cos(b.pitch * Math.PI / 180)), p = bladePath(b.shape, L, w), g = '';
+  var col = { flat: '#90a4ae', curve: '#4dabf7', wing: '#f08c00' }[b.shape];
+  for (var i = 0; i < b.n; i++) g += '<path d="' + p + '" fill="' + col + '" stroke="#1d3557" stroke-width="2" transform="rotate(' + (360 / b.n * i) + ')"/>';
+  return '<g id="' + id + '">' + g + '<circle r="' + (HUB * PXCM + 2) + '" fill="#495057" stroke="#1d3557" stroke-width="2"/><circle r="4" fill="#fff"/></g>';
+}
+function turbineSvg(b, opt) {
+  opt = opt || {};
+  var cx = 200, cy = 170, fr = FAN_R * 100 * PXCM;
+  return '<svg class="e6-svg" viewBox="0 0 400 340" role="img" aria-label="風車を正面から見たところ">' +
+    '<circle cx="' + cx + '" cy="' + cy + '" r="' + fr + '" fill="#d0ebff" opacity=".55" stroke="#74c0fc" stroke-width="2" stroke-dasharray="6 6"/>' +
+    '<text x="392" y="332" font-size="12" text-anchor="end" fill="#1971c2">点線 = 風が当たるところ</text>' +
+    '<rect x="' + (cx - 7) + '" y="' + cy + '" width="14" height="' + (340 - cy) + '" fill="#868e96"/>' +
+    '<g transform="translate(' + cx + ',' + cy + ')">' + rotorSvg(b, opt.id || 'e6-rotor') + '</g>' +
+    '<g id="' + (opt.id || 'e6-rotor') + '-wind"></g>' +
+    '<text x="10" y="24" font-size="15" font-weight="bold" fill="#1d3557" id="' + (opt.id || 'e6-rotor') + '-cap"></text>' +
+    '</svg>';
+}
+function pitchSvg(b) {
+  /* 羽根を横から見たところ(風は左から。かたむき 0° = 板が風に正面を向ける、90° = 風と平行) */
+  var a = b.pitch, L = 70, r = a * Math.PI / 180;
+  var x = Math.sin(r) * L / 2, y = Math.cos(r) * L / 2;
+  return '<svg class="e6-svg" viewBox="0 0 220 120" role="img" aria-label="羽根のかたむき(横から見たところ)" style="max-width:240px">' +
+    '<defs><marker id="e6-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1971c2"/></marker></defs>' +
+    '<line x1="10" y1="40" x2="70" y2="40" stroke="#1971c2" stroke-width="3" marker-end="url(#e6-ah)"/><line x1="10" y1="80" x2="70" y2="80" stroke="#1971c2" stroke-width="3" marker-end="url(#e6-ah)"/>' +
+    '<text x="12" y="28" font-size="13" fill="#1971c2">風</text>' +
+    '<line x1="130" y1="8" x2="130" y2="112" stroke="#adb5bd" stroke-dasharray="4 4"/>' +
+    '<text x="136" y="16" font-size="11" fill="#868e96">回る面</text>' +
+    '<line x1="' + (130 - x) + '" y1="' + (60 + y) + '" x2="' + (130 + x) + '" y2="' + (60 - y) + '" stroke="#b45309" stroke-width="7" stroke-linecap="round"/>' +
+    '<text x="150" y="104" font-size="15" font-weight="bold" fill="#b35c00">' + a + '°</text>' +
+    '</svg>';
+}
+function bladeControls(b, prefix, opts) {
+  opts = opts || {};
+  var h = '<div class="e6-ctl"><label>羽根の枚数 <b>' + b.n + ' 枚</b></label><div class="e6-seg">' +
+    NBL.map(function (n) { return '<button class="e6-btn sm' + (b.n === n ? ' sel' : '') + '" data-bn="' + n + '">' + n + '枚</button>'; }).join('') + '</div></div>';
+  h += '<div class="e6-ctl"><label for="' + prefix + '-pitch">羽根のかたむき(ピッチ角) <b data-out="pitch">' + b.pitch + '°</b></label>' +
+    '<input type="range" id="' + prefix + '-pitch" min="0" max="90" step="1" value="' + b.pitch + '" data-in="pitch"><small>0° は板が風に正面を向けた向き、90° は風と平行な向き。どちらも回りません。</small><div data-ref="pitchpic"></div></div>';
+  h += '<div class="e6-ctl"><label for="' + prefix + '-len">羽根の長さ <b data-out="len">' + b.len + ' cm</b></label>' +
+    '<input type="range" id="' + prefix + '-len" min="5" max="30" step="1" value="' + b.len + '" data-in="len"><small>扇風機の風が当たるのは、中心から 22 cm(羽根 20 cm)まで。</small></div>';
+  h += '<div class="e6-ctl"><label>羽根の形 <b>' + SHAPES[b.shape].name + '</b></label><div class="e6-seg">' +
+    Object.keys(SHAPES).map(function (k) { return '<button class="e6-btn sm' + (b.shape === k ? ' sel' : '') + '" data-bs="' + k + '">' + SHAPES[k].name + '</button>'; }).join('') +
+    '</div><small>' + SHAPES[b.shape].note + '</small></div>';
+  if (!opts.noWind) h += '<div class="e6-ctl"><label for="' + prefix + '-wind">風の強さ(風速) <b data-out="wind">' + S.save.wind.toFixed(1) + ' m/s</b></label>' +
+    '<input type="range" id="' + prefix + '-wind" min="0" max="10" step="0.5" value="' + S.save.wind + '" data-in="wind"><small>扇風機の「弱」はおよそ 2〜3 m/s、「強」はおよそ 4〜5 m/s。</small></div>';
+  return h;
+}
+function meterHtml() {
+  return '<div class="e6-meters">' +
+    ['rpm:回転数:回/分', 'V:電圧:V', 'I:電流:mA', 'P:電力:', 'vs:回り始める風:m/s', 'eff:風から電気へ:%'].map(function (x) {
+      var p = x.split(':');
+      return '<div class="e6-m' + (p[0] === 'P' ? ' hi' : '') + '"><div class="k">' + p[1] + '</div><div><span class="v" data-m="' + p[0] + '">-</span><span class="u" data-mu="' + p[0] + '">' + p[2] + '</span></div></div>';
+    }).join('') + '</div>';
+}
+function setMeters(box, c) {
+  function put(k, v, u) { var e = box.querySelector('[data-m="' + k + '"]'); if (e) e.textContent = v; if (u != null) { var f = box.querySelector('[data-mu="' + k + '"]'); if (f) f.textContent = u; } }
+  put('rpm', Math.round(c.rpm)); put('V', c.V.toFixed(2)); put('I', Math.round(c.I * 1000));
+  var w = fW(c.P); put('P', w[0], w[1]); put('vs', vsTxt(c.vs), isFinite(c.vs) && c.vs < 30 ? 'm/s' : ''); put('eff', (c.eff * 100).toFixed(1));
+}
+/* 羽根を変えるボタン・スライダーをつなぐ(onChange で数字をかき直す) */
+function bindBlade(box, b, onChange, onRebuild) {
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-bn],[data-bs]'); if (!t || !box.contains(t)) return;
+    if (t.hasAttribute('data-bn')) b.n = +t.getAttribute('data-bn'); else b.shape = t.getAttribute('data-bs');
+    persist(); onRebuild();
+  });
+  box.addEventListener('input', function (ev) {
+    var t = ev.target, k = t.getAttribute && t.getAttribute('data-in'); if (!k) return;
+    if (k === 'wind') S.save.wind = +t.value; else b[k] = +t.value;
+    var o = box.querySelector('[data-out="' + k + '"]');
+    if (o) o.textContent = k === 'wind' ? S.save.wind.toFixed(1) + ' m/s' : k === 'pitch' ? b.pitch + '°' : b.len + ' cm';
+    persist(); onChange(k);
+  });
+}
+/* 風車を回す(見やすいように、ほんとうの回転数の 1/10 の速さで回す) */
+function spinner(id) {
+  var ang = 0;
+  return function (dt, rpm) {
+    var g = S.root.querySelector('#' + id); if (!g) return;
+    ang = (ang + rpm / 60 * 360 * dt / 10) % 360;
+    g.setAttribute('transform', 'rotate(' + ang.toFixed(1) + ')');
+  };
+}
+function windDots(id) {
+  var dots = []; for (var i = 0; i < 14; i++) dots.push({ x: Math.random() * 400, y: 40 + Math.random() * 250, s: 0.6 + Math.random() * 0.8 });
+  return function (dt, v) {
+    var g = S.root.querySelector('#' + id + '-wind'); if (!g) return;
+    var h = '';
+    if (v > 0) dots.forEach(function (d) {
+      d.x += v * 30 * d.s * dt; if (d.x > 420) { d.x = -20; d.y = 40 + Math.random() * 250; }
+      h += '<line x1="' + d.x.toFixed(0) + '" y1="' + d.y.toFixed(0) + '" x2="' + (d.x - 8 - v * 2).toFixed(0) + '" y2="' + d.y.toFixed(0) + '" stroke="#74c0fc" stroke-width="2" stroke-linecap="round" opacity=".8"/>';
+    });
+    g.innerHTML = h;
+  };
+}
+
+/* ---------- 電力と風速のグラフ ---------- */
+var COLS = ['#b45309', '#1971c2', '#2f9e44', '#ae3ec9'];
+function curveSvg(list, curV, opt) {
+  opt = opt || {};
+  var W = 420, H = 230, x0 = 46, y0 = 196, x1 = 404, y1 = 16, vmax = 10, pmax = 0.2;
+  list.forEach(function (it) { for (var v = 0; v <= vmax; v += 0.5) pmax = Math.max(pmax, calc(it.b, v).P); });
+  var nice = [0.2, 0.5, 1, 2, 3, 5, 8, 10, 15, 20]; for (var i = 0; i < nice.length; i++) if (nice[i] >= pmax) { pmax = nice[i]; break; }
+  var X = function (v) { return x0 + (x1 - x0) * v / vmax; }, Y = function (p) { return y0 - (y0 - y1) * p / pmax; };
+  var h = '<svg class="e6-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="風速と電力のグラフ">';
+  for (var g = 0; g <= 4; g++) { var pv = pmax * g / 4; h += '<line x1="' + x0 + '" y1="' + Y(pv) + '" x2="' + x1 + '" y2="' + Y(pv) + '" stroke="#e9ecef"/><text x="' + (x0 - 4) + '" y="' + (Y(pv) + 4) + '" font-size="11" text-anchor="end" fill="#5b6b7c">' + (pv < 1 ? Math.round(pv * 1000) + 'm' : +pv.toFixed(1)) + '</text>'; }
+  for (var v = 0; v <= vmax; v += 2) h += '<text x="' + X(v) + '" y="' + (y0 + 15) + '" font-size="11" text-anchor="middle" fill="#5b6b7c">' + v + '</text>';
+  h += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" stroke="#495057"/><line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + y1 + '" stroke="#495057"/>';
+  h += '<text x="' + x1 + '" y="' + (H - 4) + '" font-size="12" text-anchor="end" fill="#1d3557">風速(m/s)</text><text x="4" y="12" font-size="12" fill="#1d3557">電力(W)</text>';
+  if (opt.mark != null) h += '<line x1="' + X(opt.mark) + '" y1="' + y0 + '" x2="' + X(opt.mark) + '" y2="' + y1 + '" stroke="#f08c00" stroke-dasharray="4 4"/>';
+  list.forEach(function (it, k) {
+    var pts = []; for (var v = 0; v <= vmax + 1e-9; v += 0.25) pts.push(X(v).toFixed(1) + ',' + Y(calc(it.b, v).P).toFixed(1));
+    h += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + (it.col || COLS[k % 4]) + '" stroke-width="' + (k === 0 ? 3.5 : 2.5) + '"' + (k === 0 ? '' : ' stroke-dasharray="7 4"') + '/>';
+  });
+  if (curV != null && list[0]) { var c = calc(list[0].b, curV); h += '<circle cx="' + X(curV) + '" cy="' + Y(c.P) + '" r="6" fill="#b45309" stroke="#fff" stroke-width="2"/>'; }
+  return h + '</svg>';
+}
+
+/* ================= はじめに ================= */
+function renderIntro(box) {
+  var go1 = function (id, i, t, s, adv) { return '<button class="e6-go' + (adv ? ' adv' : '') + '" data-go="' + id + '"><span class="i">' + i + '</span><span><b>' + t + '</b><small>' + s + '</small></span></button>'; };
+  box.innerHTML = '<div class="e6-card lead"><h2>🌬️ 風力発電の羽根ラボ</h2>' +
+    '<p>教科書の「レッツスタート」: <b>風力発電のモデルを作りましょう。羽根の形などを変えて、より効率の良い風力発電を目指しましょう。</b></p>' +
+    '<p>このラボでは、扇風機の風で回す「風力発電のモデル」を画面の中で作ります。羽根の<b>枚数・かたむき・長さ・形</b>と<b>風の強さ</b>を変えて、どれだけ電気ができるかをくらべましょう。</p>' +
+    '<p style="color:#5b6b7c;font-size:.92em">学習課題: 電気はどのように作られているのだろうか。 / 風力発電で、タービンが回ると発電するのはなぜだろうか。</p></div>' +
+    '<div class="e6-card"><span class="e6-kicker">基本編</span><div class="e6-start">' +
+    go1('gen', '🧲', '① 発電機のしくみ', 'コイルと磁石で電気が生まれるわけ(電磁誘導)') +
+    go1('cmp', '🔬', '② 羽根を変えて発電量をくらべる', '1つだけ変えて、回転数・電圧・電流・電力をくらべる') +
+    go1('best', '🏆', '③ いちばん効率のよい羽根をめざす', '3つのチャレンジと、自分のランキング') + '</div>' +
+    '<span class="e6-kicker adv" style="margin-top:10px">発展編</span><div class="e6-start">' +
+    go1('meth', '🏭', '④ 発電方法くらべ', '火力・水力・太陽光・風力・燃料電池の変換の流れと特徴', 1) +
+    go1('day', '📅', '⑤ 風の強さが変わる日の発電量', '1日の風の変化で、発電量はどう変わる?', 1) + '</div></div>' +
+    '<div class="e6-card tip"><b>⚠️ 注意</b> 数値は、小さなモデルを理想化した計算による目安です。本物の扇風機で羽根の模型を回すときは、回っている羽根に指や顔を近づけないようにし、先生の指示にしたがいましょう。</div>';
+  box.addEventListener('click', function (ev) { var t = ev.target.closest('[data-go]'); if (t) go(t.getAttribute('data-go')); });
+}
+
+/* ================= ① 発電機のしくみ ================= */
+var QUIZ = [
+  { id: 'q1', q: '発電機のコイルに電流が流れるのは、どんなときですか。', a: 'コイルの近くで磁石を回しているとき', w: ['コイルの近くに磁石を止めておくとき', 'コイルと磁石を遠くにはなしたとき'],
+    why: 'コイルの中の磁石の向きや強さが変わるときに電流が流れます(電磁誘導)。止めたままでは流れません。' },
+  { id: 'q2', q: '発電機の電圧を大きくするには、どうすればよいですか。', a: '巻き数を多くし、磁石を速く回す', w: ['巻き数を少なくし、磁石を速く回す', '巻き数を多くし、磁石をゆっくり回す'],
+    why: 'コイルの巻き数が多いほど、また磁石が速く回るほど(強い磁石ほど)、大きな電圧が生まれます。' },
+  { id: 'q3', q: '発電機とモーターについて、正しいものはどれですか。', a: 'どちらもコイルと磁石からできている', w: ['発電機は磁石だけでできている', 'モーターはコイルだけでできている'],
+    why: '発電機とモーターは同じつくりです。電流を流すと回り(モーター)、回すと電流が生まれます(発電機)。' }
+];
+function renderGen(box) {
+  var G = S.gen = S.gen || { turns: 100, mag: 1, speed: 1.2, mode: 'gen', phi: 0, omega: 0, hist: [], drag: null, quizOrder: null };
+  if (!G.quizOrder) G.quizOrder = QUIZ.map(function (q) { return shuffle([q.a].concat(q.w)); });
+  box.innerHTML = '<div class="e6-grid"><div class="e6-card"><h2>🧲 コイルと磁石で電気をつくる</h2>' +
+    '<p>真ん中の<b>磁石</b>が回ると、まわりの<b>コイル</b>(銅線をたくさん巻いたもの)に電流が流れます。これを' + rb('電磁誘導', 'でんじゆうどう') + 'といいます。磁石を<b>指でなぞって回す</b>か、下のスライダーで回してみましょう。</p>' +
+    '<div class="e6-stage"><svg class="e6-svg" viewBox="0 0 420 300" data-ref="gsvg" style="touch-action:none" role="img" aria-label="発電機のしくみ">' +
+    '<rect x="0" y="0" width="420" height="300" fill="#f8fbff"/>' +
+    '<g data-ref="coilL"></g><g data-ref="coilR"></g>' +
+    '<g transform="translate(150,150)"><circle r="78" fill="none" stroke="#dee2e6" stroke-width="2" stroke-dasharray="5 5"/><g data-ref="mag"><rect x="-62" y="-16" width="62" height="32" rx="6" fill="#e03131"/><rect x="0" y="-16" width="62" height="32" rx="6" fill="#1c7ed6"/><text x="-31" y="6" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">N</text><text x="31" y="6" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">S</text><circle r="7" fill="#fff" stroke="#495057" stroke-width="2"/></g></g>' +
+    '<path d="M150,62 C150,30 330,30 330,70" fill="none" stroke="#c92a2a" stroke-width="3"/><path d="M150,238 C150,280 330,280 330,230" fill="none" stroke="#343a40" stroke-width="3"/>' +
+    '<g transform="translate(330,150)"><rect x="-58" y="-80" width="116" height="104" rx="12" fill="#fff" stroke="#495057" stroke-width="2"/><path d="M-44,0 A46,46 0 0 1 44,0" fill="none" stroke="#adb5bd" stroke-width="2"/><text x="-48" y="16" font-size="12" fill="#5b6b7c">−</text><text x="42" y="16" font-size="12" fill="#5b6b7c">＋</text><text x="0" y="16" font-size="11" text-anchor="middle" fill="#5b6b7c">電圧計</text><line data-ref="needle" x1="0" y1="0" x2="0" y2="-44" stroke="#c92a2a" stroke-width="3" stroke-linecap="round"/><circle r="4" fill="#495057"/>' +
+    '<g transform="translate(0,62)"><circle data-ref="ledglow" r="22" fill="#ffd43b" opacity="0"/><path d="M-10,8 L-10,-6 A10,10 0 0 1 10,-6 L10,8 Z" fill="#fff3bf" stroke="#495057" stroke-width="2" data-ref="led"/><text x="0" y="26" font-size="11" text-anchor="middle" fill="#5b6b7c">LED</text></g></g>' +
+    '<text x="12" y="22" font-size="14" font-weight="bold" fill="#1d3557" data-ref="gcap"></text>' +
+    '</svg></div>' +
+    '<svg class="e6-svg" viewBox="0 0 420 110" data-ref="wave" role="img" aria-label="電圧の変わり方のグラフ" style="margin-top:6px"></svg>' +
+    '<p style="font-size:.92em;color:#5b6b7c">グラフ: 電圧の変わり方(右が今)。磁石が半回転するごとに、電流の向きが入れかわります。</p></div>' +
+    '<div class="e6-card"><h2>ためしてみよう</h2>' +
+    '<div class="e6-seg" style="margin-bottom:8px"><button class="e6-btn sm" data-mode="gen">🔄 回して発電する(発電機)</button><button class="e6-btn sm" data-mode="motor">🔋 電池をつなぐ(モーター)</button></div>' +
+    '<div class="e6-ctl"><label for="e6-gsp">磁石を回す速さ <b data-ref="gspo"></b></label><input type="range" id="e6-gsp" min="0" max="3" step="0.1" data-ref="gsp"></div>' +
+    '<div class="e6-ctl"><label>コイルの巻き数</label><div class="e6-seg">' + [50, 100, 200].map(function (n) { return '<button class="e6-btn sm" data-turn="' + n + '">' + n + '回</button>'; }).join('') + '</div></div>' +
+    '<div class="e6-ctl"><label>磁石の強さ</label><div class="e6-seg"><button class="e6-btn sm" data-mag="0.5">弱い磁石</button><button class="e6-btn sm" data-mag="1">強い磁石</button></div></div>' +
+    '<div class="e6-msg" data-ref="gmsg" role="status" aria-live="polite"></div>' +
+    '<h3>風力発電では</h3><p>風が羽根(風車)を回し、羽根の軸が発電機の中の磁石(またはコイル)を回します。<br><b>風の運動エネルギー → 羽根の回転 → 発電機 → 電気エネルギー</b></p>' +
+    '<div data-ref="quiz"></div></div></div>';
+  var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
+  /* コイル(左右に2つ) */
+  function coil(x) { var h = '<rect x="' + (x - 14) + '" y="96" width="28" height="108" rx="6" fill="#ffe8cc" stroke="#d9480f" stroke-width="2"/>'; for (var i = 0; i < 9; i++) h += '<line x1="' + (x - 16) + '" y1="' + (102 + i * 12) + '" x2="' + (x + 16) + '" y2="' + (106 + i * 12) + '" stroke="#b35c00" stroke-width="2.5"/>'; return h; }
+  el.coilL.innerHTML = coil(58); el.coilR.innerHTML = coil(242);
+  el.coilL.insertAdjacentHTML('beforeend', '<text x="58" y="222" font-size="12" text-anchor="middle" fill="#b35c00">コイル</text>');
+  function sync() {
+    el.gsp.value = G.speed; el.gspo.textContent = G.mode === 'motor' ? '電池で回る' : G.speed.toFixed(1) + ' 回/秒';
+    el.gsp.disabled = G.mode === 'motor';
+    box.querySelectorAll('[data-turn]').forEach(function (b) { b.classList.toggle('sel', +b.getAttribute('data-turn') === G.turns); });
+    box.querySelectorAll('[data-mag]').forEach(function (b) { b.classList.toggle('sel', +b.getAttribute('data-mag') === G.mag); });
+    box.querySelectorAll('[data-mode]').forEach(function (b) { b.classList.toggle('sel', b.getAttribute('data-mode') === G.mode); });
+  }
+  sync();
+  el.gsp.addEventListener('input', function () { G.speed = +el.gsp.value; sync(); });
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-turn],[data-mag],[data-mode],[data-qa]'); if (!t) return;
+    if (t.hasAttribute('data-turn')) G.turns = +t.getAttribute('data-turn');
+    else if (t.hasAttribute('data-mag')) G.mag = +t.getAttribute('data-mag');
+    else if (t.hasAttribute('data-mode')) G.mode = t.getAttribute('data-mode');
+    else { answer(t); return; }
+    sync();
+  });
+  /* 指でなぞって回す */
+  var svg = el.gsvg;
+  function angAt(ev) { var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width * 420 - 150, y = (ev.clientY - r.top) / r.height * 300 - 150; return { a: Math.atan2(y, x), d: Math.hypot(x, y) }; }
+  svg.addEventListener('pointerdown', function (ev) { var p = angAt(ev); if (p.d > 95 || G.mode === 'motor') return; G.drag = { a: p.a, t: performance.now() }; try { svg.setPointerCapture(ev.pointerId); } catch (e) {} ev.preventDefault(); });
+  svg.addEventListener('pointermove', function (ev) {
+    if (!G.drag) return; var p = angAt(ev), now = performance.now(), da = p.a - G.drag.a;
+    if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
+    var dt = Math.max(0.008, (now - G.drag.t) / 1000);
+    G.phi += da; G.omega = G.omega * 0.6 + (da / dt) * 0.4; G.drag = { a: p.a, t: now };
+  });
+  function up() { G.drag = null; }
+  svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+  /* たしかめ問題 */
+  function quizHtml() {
+    var h = '<h3>たしかめ問題</h3>';
+    QUIZ.forEach(function (q, i) {
+      var got = S.save.quiz[q.id];
+      h += '<div class="e6-q"><b>' + (i + 1) + '. ' + q.q + '</b><div class="opts">' + G.quizOrder[i].map(function (o) {
+        var cls = got ? (o === q.a ? ' right' : (got === o ? ' wrong' : '')) : '';
+        return '<button class="e6-btn' + cls + '" data-qa="' + i + '" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+      }).join('') + '</div>' + (got ? '<div class="why">' + (got === q.a ? '⭕ 正解! ' : '❌ もう一度考えよう。 ') + q.why + '</div>' : '') + '</div>';
+    });
+    el.quiz.innerHTML = h;
+  }
+  function answer(t) {
+    var i = +t.getAttribute('data-qa'), q = QUIZ[i], o = t.getAttribute('data-o');
+    S.save.quiz[q.id] = o; persist();
+    if (QUIZ.every(function (x) { return S.save.quiz[x.id] === x.a; })) mark('quiz');
+    if (o !== q.a) G.quizOrder[i] = shuffle(G.quizOrder[i]);
+    quizHtml();
+    if (o !== q.a) setTimeout(function () { if (S.save.quiz[q.id] === o) { delete S.save.quiz[q.id]; persist(); quizHtml(); } }, 2600);
+  }
+  quizHtml();
+  var lit = 0;
+  S.tick = function (dt) {
+    if (G.mode === 'motor') { G.omega += (2 * Math.PI * 1.5 - G.omega) * Math.min(1, dt * 3); G.phi += G.omega * dt; }
+    else if (!G.drag) { var target = G.speed * 2 * Math.PI; G.omega += (target - G.omega) * Math.min(1, dt * 2.5); G.phi += G.omega * dt; }
+    var e = G.mode === 'motor' ? 3 : 0.00106 * G.turns * G.mag * G.omega * Math.sin(G.phi);
+    el.mag.setAttribute('transform', 'rotate(' + (G.phi * 180 / Math.PI).toFixed(1) + ')');
+    var ang = clamp(e / 4.5, -1, 1) * 70; if (G.mode === 'motor') ang = 50;
+    el.needle.setAttribute('transform', 'rotate(' + ang.toFixed(1) + ')');
+    var on = G.mode !== 'motor' && Math.abs(e) > 1.8;
+    el.ledglow.setAttribute('opacity', on ? clamp((Math.abs(e) - 1.8) / 1.5, 0.25, 0.9).toFixed(2) : 0);
+    el.led.setAttribute('fill', on ? '#ffd43b' : '#fff3bf');
+    if (on) { lit += dt; if (lit > 0.3) mark('gen'); }
+    G.hist.push(G.mode === 'motor' ? 0 : e); if (G.hist.length > 180) G.hist.shift();
+    var pts = G.hist.map(function (v, i) { return (10 + i * 400 / 180).toFixed(1) + ',' + (55 - clamp(v / 4.5, -1, 1) * 45).toFixed(1); }).join(' ');
+    el.wave.innerHTML = '<rect x="0" y="0" width="420" height="110" rx="8" fill="#fff" stroke="#dee2e6"/><line x1="10" y1="55" x2="410" y2="55" stroke="#adb5bd"/><text x="14" y="18" font-size="11" fill="#5b6b7c">＋</text><text x="14" y="104" font-size="11" fill="#5b6b7c">−</text>' + (pts ? '<polyline points="' + pts + '" fill="none" stroke="#c92a2a" stroke-width="2.5"/>' : '');
+    var rps = Math.abs(G.omega) / (2 * Math.PI);
+    el.gcap.textContent = G.mode === 'motor' ? '電池の電流で磁石が回る(モーター)' : '回る速さ ' + rps.toFixed(1) + ' 回/秒';
+    var msg = G.mode === 'motor' ? '🔋 電池をつなぐと、コイルに電流が流れて磁石が回りました。<b>同じつくりで、モーターにも発電機にもなります。</b>' :
+      rps < 0.05 ? '磁石が止まっていると、電圧計の針は動きません。磁石を回してみよう。' :
+      on ? '💡 LED が光った! 磁石が速く回るほど、大きな電圧が生まれます。針が<b>左右にふれる</b>のは、電流の向きが変わるからです。' :
+      '針がふれています。LED を光らせるには、もっと大きな電圧が必要です(巻き数・磁石・速さを変えてみよう)。';
+    if (el.gmsg._m !== msg) { el.gmsg._m = msg; el.gmsg.innerHTML = msg; el.gmsg.className = 'e6-msg' + (on || G.mode === 'motor' ? ' ok' : ''); }
+  };
+}
+
+/* ================= ② 羽根を変えて発電量をくらべる ================= */
+function renderCmp(box) {
+  var b = S.save.blade;
+  box.innerHTML = '<div class="e6-card"><p>🔬 <b>1つだけ変えてくらべよう。</b> 枚数・かたむき・長さ・形のどれか1つを変えて「📋 記録する」を押すと、前の羽根と何がちがうかが黄色で表の中に出ます。</p></div>' +
+    '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div style="margin-top:8px" data-ref="meters">' + meterHtml() + '</div>' +
+    '<div class="e6-msg" style="margin-top:8px" data-ref="msg" role="status" aria-live="polite"></div>' +
+    '<p style="font-size:.88em;color:#5b6b7c;margin-top:6px">羽根は、見やすいようにほんとうの速さの 1/10 で回しています。「風から電気へ」は、羽根に当たった風のエネルギーのうち、電気になった割合(エネルギー変換効率)です。</p></div>' +
+    '<div class="e6-card" data-ref="ctl"></div></div>' +
+    '<div class="e6-card"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">📋 くらべた記録</h2><div class="e6-row"><button class="e6-btn primary" data-act="rec">📋 記録する</button><button class="e6-btn sm" data-act="clr">🗑 記録を消す</button></div></div>' +
+    '<div class="e6-scroll" data-ref="tbl"></div>' +
+    '<h3>風速と電力のグラフ(いまの羽根 = 太い線、記録の新しい3つ = 点線)</h3><div data-ref="curve" style="max-width:640px"></div><div class="e6-leg" data-ref="leg"></div></div>';
+  var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
+  var spin = spinner('e6-r2'), dots = windDots('e6-r2'), c;
+  function rebuild() {
+    el.stage.innerHTML = turbineSvg(b, { id: 'e6-r2' });
+    el.ctl.innerHTML = '<h2>🛠️ 羽根を作る</h2>' + bladeControls(b, 'e6c');
+    el.ctl.querySelector('[data-ref="pitchpic"]').innerHTML = pitchSvg(b);
+    update();
+  }
+  function update(k) {
+    c = calc(b, S.save.wind);
+    setMeters(el.meters, c);
+    if (k === 'pitch' || k === 'len') {
+      var g = S.root.querySelector('#e6-r2'); if (g) { var tmp = document.createElement('div'); tmp.innerHTML = '<svg>' + rotorSvg(b, 'e6-r2') + '</svg>'; g.innerHTML = tmp.querySelector('g').innerHTML; }
+      var pp = el.ctl.querySelector('[data-ref="pitchpic"]'); if (pp) pp.innerHTML = pitchSvg(b);
+    }
+    var cap = S.root.querySelector('#e6-r2-cap'); if (cap) cap.textContent = '風速 ' + S.save.wind.toFixed(1) + ' m/s';
+    var v = S.save.wind, m;
+    if (v <= 0) m = '風がありません。風速を上げてみよう。';
+    else if (!(v > c.vs)) m = isFinite(c.vs) && c.vs < 30 ? '羽根が回りません。この羽根は <b>' + c.vs.toFixed(1) + ' m/s</b> より強い風で回り始めます。' : '羽根が回りません。かたむきが 0° や 90° では、風が羽根を回す力になりません。';
+    else if (c.eff > 0.18) m = '⚡ よく発電しています! 風のエネルギーの <b>' + (c.eff * 100).toFixed(0) + '%</b> が電気になりました。';
+    else m = '回っています。風のエネルギーのうち、電気になったのは <b>' + (c.eff * 100).toFixed(1) + '%</b>。のこりは羽根のまわりを通りぬけたり、熱や音になったりします。';
+    if (el.msg._m !== m) { el.msg._m = m; el.msg.innerHTML = m; }
+    el.curve.innerHTML = curveSvg([{ b: b }].concat(S.save.recs.slice(-3).reverse().map(function (r) { return { b: r.b }; })), v, { mark: v });
+    el.leg.innerHTML = '<span><i style="background:' + COLS[0] + '"></i>いまの羽根</span>' + S.save.recs.slice(-3).reverse().map(function (r, i) { return '<span><i style="background:' + COLS[i + 1] + '"></i>' + esc(bladeName(r.b)) + '</span>'; }).join('');
+  }
+  function table() {
+    var rs = S.save.recs;
+    if (!rs.length) { el.tbl.innerHTML = '<p style="color:#5b6b7c">まだ記録がありません。羽根を作って「📋 記録する」を押そう。</p>'; return; }
+    var bestP = Math.max.apply(null, rs.map(function (r) { return r.P; }));
+    var h = '<table class="e6-tbl"><tr><th>#</th><th>枚数</th><th>かたむき</th><th>長さ</th><th>形</th><th>風速</th><th>回転数<br>(回/分)</th><th>電圧<br>(V)</th><th>電流<br>(mA)</th><th>電力</th><th>回り始め<br>(m/s)</th></tr>';
+    rs.forEach(function (r, i) {
+      var p = rs[i - 1], d = function (k) { return p && p.b[k] !== r.b[k] ? ' class="diff"' : ''; };
+      h += '<tr' + (r.P === bestP && r.P > 0 ? ' class="best"' : '') + '><td>' + (i + 1) + '</td><td' + d('n') + '>' + r.b.n + '</td><td' + d('pitch') + '>' + r.b.pitch + '°</td><td' + d('len') + '>' + r.b.len + 'cm</td><td' + d('shape') + '>' + SHAPES[r.b.shape].name + '</td>' +
+        '<td' + (p && p.v !== r.v ? ' class="diff"' : '') + '>' + r.v.toFixed(1) + '</td><td>' + Math.round(r.rpm) + '</td><td>' + r.V.toFixed(2) + '</td><td>' + Math.round(r.I * 1000) + '</td><td><b>' + fWs(r.P) + '</b></td><td>' + vsTxt(r.vs) + '</td></tr>';
+    });
+    el.tbl.innerHTML = h + '</table><p style="font-size:.88em;color:#5b6b7c">黄色 = 1つ前の記録から変えたところ。緑 = いちばん電力が大きかった記録。</p>';
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act]'); if (!t) return;
+    var a = t.getAttribute('data-act');
+    if (a === 'rec') {
+      var r = { b: { n: b.n, pitch: b.pitch, len: b.len, shape: b.shape }, v: S.save.wind, rpm: c.rpm, V: c.V, I: c.I, P: c.P, vs: isFinite(c.vs) ? c.vs : 99 };
+      var last = S.save.recs[S.save.recs.length - 1];
+      if (last && sameB(last.b, r.b) && last.v === r.v) { toast('前の記録と同じ羽根・同じ風です。どこか1つ変えてみよう。'); return; }
+      var nd = last ? ['n', 'pitch', 'len', 'shape'].filter(function (k) { return last.b[k] !== r.b[k]; }).length + (last.v !== r.v ? 1 : 0) : 1;
+      S.save.recs.push(r); if (S.save.recs.length > 10) S.save.recs.shift();
+      if (S.save.recs.length >= 3) mark('cmp');
+      persist(); table(); update();
+      toast(nd > 1 ? '記録しました。2つ以上変えると、どれが効いたのかわかりにくいよ。' : '記録しました。');
+    } else if (a === 'clr') {
+      if (!S.save.recs.length || !confirm('くらべた記録を消します。よろしいですか?')) return;
+      S.save.recs = []; persist(); table(); update();
+    }
+  });
+  rebuild(); table();
+  bindBlade(el.ctl, b, update, rebuild);
+  S.tick = function (dt) { spin(dt, c ? c.rpm : 0); dots(dt, S.save.wind); };
+}
+
+/* ================= ③ いちばん効率のよい羽根をめざす ================= */
+var MIS = [
+  { id: 'm1', ic: '🍃', t: 'そよ風チャレンジ', d: '風速 1.0 m/s のそよ風で回る羽根を作ろう(回り始める風が 1.0 m/s 未満)。', ok: function (b) { return r1(calc(b, 4).vs) < 1.0; } },
+  { id: 'm2', ic: '⚡', t: 'パワーチャレンジ', d: '風速 4 m/s で、電力 1.10 W 以上を出そう。', ok: function (b) { return calc(b, 4).P >= 1.10; } },
+  { id: 'm3', ic: '⚖️', t: 'いいとこどりチャレンジ', d: '回り始める風が 1.0 m/s 未満で、しかも 4 m/s で 0.85 W 以上を出そう。', ok: function (b) { var c = calc(b, 4); return r1(c.vs) < 1.0 && c.P >= 0.85; } }
+];
+function renderBest(box) {
+  var b = S.save.blade;
+  box.innerHTML = '<div class="e6-card"><p>🏆 風速は <b>4 m/s</b>(扇風機の「強」)に決めて、いちばん効率のよい羽根をめざします。羽根の形などを変えて、3つのチャレンジをクリアしよう。「🏅 ランキングにのせる」で自分のベスト5が残ります。</p></div>' +
+    '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div style="margin-top:8px" data-ref="meters">' + meterHtml() + '</div>' +
+    '<div data-ref="mis" style="margin-top:8px"></div></div>' +
+    '<div><div class="e6-card" data-ref="ctl"></div>' +
+    '<div class="e6-card" style="margin-top:12px"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">🏅 わたしのランキング(4 m/s の電力)</h2><button class="e6-btn primary" data-act="rank">🏅 ランキングにのせる</button></div><ol class="e6-rank" data-ref="rank"></ol></div></div></div>';
+  var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
+  var spin = spinner('e6-r3'), dots = windDots('e6-r3'), c, lastId = null;
+  function rebuild() {
+    el.stage.innerHTML = turbineSvg(b, { id: 'e6-r3' });
+    el.ctl.innerHTML = '<h2>🛠️ 羽根を作る</h2>' + bladeControls(b, 'e6b', { noWind: true });
+    el.ctl.querySelector('[data-ref="pitchpic"]').innerHTML = pitchSvg(b);
+    update();
+  }
+  function update(k) {
+    c = calc(b, 4); setMeters(el.meters, c);
+    if (k === 'pitch' || k === 'len') {
+      var g = S.root.querySelector('#e6-r3'); if (g) { var tmp = document.createElement('div'); tmp.innerHTML = '<svg>' + rotorSvg(b, 'e6-r3') + '</svg>'; g.innerHTML = tmp.querySelector('g').innerHTML; }
+      var pp = el.ctl.querySelector('[data-ref="pitchpic"]'); if (pp) pp.innerHTML = pitchSvg(b);
+    }
+    var cap = S.root.querySelector('#e6-r3-cap'); if (cap) cap.textContent = '風速 4.0 m/s';
+    var newly = [];
+    MIS.forEach(function (m) { if (!S.save.mis[m.id] && m.ok(b)) { S.save.mis[m.id] = bladeName(b); newly.push(m); } });
+    if (newly.length) { persist(); renderTabs(); toast('🎉 ' + newly.map(function (m) { return m.t; }).join('・') + ' クリア!'); }
+    el.mis.innerHTML = MIS.map(function (m) {
+      var ok = !!S.save.mis[m.id], now = m.ok(b);
+      return '<div class="e6-mis' + (ok ? ' ok' : '') + '"><span class="m">' + (ok ? '🎉' : m.ic) + '</span><span><b>' + m.t + (now ? ' ← いまの羽根で達成中' : '') + '</b>' + m.d + (ok ? '<br><small>クリアした羽根: ' + esc(S.save.mis[m.id]) + '</small>' : '') + '</span></div>';
+    }).join('');
+  }
+  function rank() {
+    var r = S.save.rank;
+    el.rank.innerHTML = r.length ? r.map(function (x, i) { return '<li' + (x.at === lastId ? ' class="me"' : '') + '><span>' + esc(bladeName(x.b)) + '<br><small style="color:#5b6b7c">回り始め ' + vsTxt(x.vs) + ' m/s</small></span><span class="p">' + fWs(x.p) + '</span></li>'; }).join('') : '<li style="color:#5b6b7c">まだありません。羽根を作ってのせよう。</li>';
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act="rank"]'); if (!t) return;
+    if (c.P <= 0) { toast('回らない羽根はのせられません。'); return; }
+    if (S.save.rank.some(function (x) { return sameB(x.b, b); })) { toast('この羽根はもうランキングにあります。'); return; }
+    var at = Date.now(), r = S.save.rank.concat([{ b: { n: b.n, pitch: b.pitch, len: b.len, shape: b.shape }, p: c.P, vs: isFinite(c.vs) ? c.vs : 99, at: at }]);
+    r.sort(function (x, y) { return y.p - x.p; });
+    var place = r.findIndex(function (x) { return x.at === at; }) + 1;
+    S.save.rank = r.slice(0, 5); lastId = at; persist(); rank();
+    toast(place <= 5 ? place + '位に入りました!' : 'ベスト5には入りませんでした。もっと工夫してみよう。');
+  });
+  rebuild(); rank();
+  bindBlade(el.ctl, b, update, rebuild);
+  S.tick = function (dt) { spin(dt, c ? c.rpm : 0); dots(dt, 4); };
+}
+
+/* ================= ④ 発電方法くらべ(発展) ================= */
+var METH = [
+  { id: 'fire', ic: '🔥', name: '火力', gen: true, flow: ['燃料(石炭・天然ガス)の化学エネルギー', '燃やして熱エネルギー', '蒸気でタービンを回す(運動エネルギー)', '発電機で電気エネルギー'], fake: '太陽の光エネルギー' },
+  { id: 'water', ic: '💧', name: '水力', gen: true, flow: ['ダムにためた水の位置エネルギー', '水が流れ落ちて水車を回す(運動エネルギー)', '発電機で電気エネルギー'], fake: '燃やして熱エネルギー' },
+  { id: 'wind', ic: '🌬️', name: '風力', gen: true, flow: ['風の運動エネルギー', '羽根(風車)が回る(運動エネルギー)', '発電機で電気エネルギー'], fake: '水素と酸素の化学エネルギー' },
+  { id: 'solar', ic: '☀️', name: '太陽光', gen: false, flow: ['太陽の光エネルギー', '太陽電池で電気エネルギー'], fake: '発電機で電気エネルギー' },
+  { id: 'fc', ic: '🫧', name: '燃料電池', gen: false, flow: ['水素と酸素の化学エネルギー', '燃料電池で電気エネルギー(水ができる)'], fake: '蒸気でタービンを回す(運動エネルギー)' }
+];
+var FEATS = [
+  ['夜は発電できない', 'solar', '太陽光発電は光を電気に変えるので、光のない夜は発電できません。'],
+  ['風がやむと止まってしまう', 'wind', '風力発電は風の強さで発電量が大きく変わります。'],
+  ['水素と酸素から電気をつくり、水ができる', 'fc', '燃料電池は、水素と酸素が結びつく化学変化で電気をつくります。'],
+  ['ためた水を落として、必要なときにすぐ発電できる', 'water', '水力発電はダムの水を使い、発電量をすばやく調節できます。'],
+  ['燃料を燃やすので二酸化炭素が多く出る', 'fire', '火力発電は化石燃料を燃やすので二酸化炭素を出します。'],
+  ['発電機を使わず、光から直接電気をつくる', 'solar', '太陽電池は、発電機を回さずに光を電気に変えます。'],
+  ['発電機を使わず、化学変化から直接電気をつくる', 'fc', '燃料電池は発電機を回しません。自動車や家庭用の発電にも使われます。'],
+  ['燃料の量で、発電量を調節しやすい', 'fire', '火力発電は燃料の量を変えて、電気の使用量に合わせやすい発電方法です。'],
+  ['海の上や山の上など、風の強い場所に建てる', 'wind', '風力発電は、強い風がふく場所に建てられます。'],
+  ['川の上流の、高さの差がある場所でつくる', 'water', '水力発電は、水の位置エネルギーを使うので、高さの差が必要です。']
+];
+function renderMeth(box) {
+  var M = S.meth = S.meth || { cur: 'fire', pick: [], pool: null, feat: null, fi: 0, score: 0, ans: null };
+  function pool() { var m = METH.filter(function (x) { return x.id === M.cur; })[0]; M.pool = shuffle(m.flow.concat([m.fake])); M.pick = []; }
+  if (!M.pool) pool();
+  box.innerHTML = '<div class="e6-card adv"><span class="e6-kicker adv">発展編</span><h2>🏭 発電方法くらべ</h2><p>電気エネルギーは、蒸気や水、風の力で発電機を回したり、太陽電池に光を当てたり、燃料電池に水素と酸素を送ったりしてつくります。発電方法ごとに、<b>エネルギーがどのように変わって電気になるか</b>をならべてみましょう。(発電にかかる費用は C1 の「💴 発電方法の値段くらべ」で見られます)</p></div>' +
+    '<div class="e6-grid"><div class="e6-card"><h2>🔗 変換の流れをならべよう</h2><div class="e6-meth" data-ref="mlist"></div>' +
+    '<p style="margin-top:8px">下のカードを、<b>はじめ → 電気</b> の順にタップしよう(1つだけ、ちがう発電方法のカードがまざっています)。</p>' +
+    '<div class="e6-flow" data-ref="flow"></div><div class="e6-chips" data-ref="pool" style="margin-top:8px"></div>' +
+    '<div class="e6-row" style="margin-top:8px"><button class="e6-btn sm" data-act="undo">↩ 1つもどす</button></div><div class="e6-msg" data-ref="fmsg" style="margin-top:8px"></div></div>' +
+    '<div class="e6-card"><h2>🎯 この特徴はどの発電方法?</h2><p>特徴を読んで、あてはまる発電方法をえらぼう。</p><div class="e6-feat" data-ref="feat"></div><div class="e6-meth" data-ref="fans" style="margin-top:8px"></div>' +
+    '<div class="e6-msg" data-ref="amsg" style="margin-top:8px"></div><p data-ref="fsc" style="font-weight:bold"></p></div></div>' +
+    '<div class="e6-card" data-ref="group"></div>';
+  var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
+  function m() { return METH.filter(function (x) { return x.id === M.cur; })[0]; }
+  function draw() {
+    el.mlist.innerHTML = METH.map(function (x) { return '<button class="e6-btn' + (x.id === M.cur ? ' sel' : '') + '" data-m="' + x.id + '"><span class="i">' + x.ic + '</span>' + x.name + (S.save.flow[x.id] ? ' ✓' : '') + '</button>'; }).join('');
+    var mm = m(), done = M.pick.length === mm.flow.length;
+    el.flow.innerHTML = M.pick.length ? M.pick.map(function (t, i) { return (i ? '<span class="ar">→</span>' : '') + '<span class="st' + (i === mm.flow.length - 1 ? ' el' : '') + '">' + esc(t) + '</span>'; }).join('') : '<span class="ph">ここにならびます</span>';
+    el.pool.innerHTML = M.pool.map(function (t, i) { var used = M.pick.indexOf(t) >= 0; return '<button class="e6-chip' + (used ? ' used' : '') + '" data-pi="' + i + '"' + (used || done ? ' disabled' : '') + '>' + esc(t) + '</button>'; }).join('');
+    el.fmsg.innerHTML = done ? '🎉 ' + mm.name + '発電の流れが完成! ' + (mm.gen ? 'この発電方法は<b>発電機を回して</b>電気をつくります。' : 'この発電方法は<b>発電機を使わずに</b>電気をつくります。') + (mm.fake ? '<br>まざっていたカード「' + esc(mm.fake) + '」は使いません。' : '') : 'はじめのエネルギーはどれかな?';
+    el.fmsg.className = 'e6-msg' + (done ? ' ok' : '');
+    var all = METH.every(function (x) { return S.save.flow[x.id]; });
+    el.group.innerHTML = '<h2>📊 まとめ: 発電機を回す? 回さない?</h2>' + (all ? '<div class="e6-two"><div class="e6-card good"><b>⚙️ 発電機を回してつくる</b><p>火力・水力・風力(原子力・地熱も)。蒸気・水・風の力でタービンや羽根を回し、発電機の<b>電磁誘導</b>で電気にします。</p></div><div class="e6-card tip"><b>🔆 発電機を使わずにつくる</b><p>太陽光(太陽電池)・燃料電池。光や化学変化から直接電気をつくります。</p></div></div><p>どの発電方法にもよいところと課題があります。今は、それぞれの特徴を生かしながら組み合わせて電気を送っています。</p>' : '<p style="color:#5b6b7c">5つの発電方法の流れをぜんぶ完成させると、まとめが出ます(いま ' + METH.filter(function (x) { return S.save.flow[x.id]; }).length + ' / 5)。</p>');
+  }
+  function feat() {
+    if (!M.feat) { M.feat = shuffle(FEATS); M.fi = 0; M.score = 0; M.ans = null; }
+    var f = M.feat[M.fi];
+    if (!f) {
+      el.feat.textContent = '🎉 10問終わり! ' + M.score + ' / 10 問正解';
+      el.fans.innerHTML = '<button class="e6-btn primary" data-act="again" style="grid-column:1/-1">もう一度</button>';
+      el.amsg.style.display = ''; el.amsg.className = 'e6-msg ok';
+      el.amsg.textContent = 'これまでのいちばん: ' + Math.max(S.save.featBest, M.score) + ' / 10';
+      if (M.score > S.save.featBest) { S.save.featBest = M.score; persist(); }
+      el.fsc.textContent = ''; return;
+    }
+    el.feat.textContent = '「' + f[0] + '」';
+    el.fans.innerHTML = METH.map(function (x) {
+      var cls = M.ans ? (x.id === f[1] ? ' good' : (M.ans === x.id ? ' sel' : '')) : '';
+      return '<button class="e6-btn' + cls + '" data-fa="' + x.id + '"' + (M.ans ? ' disabled' : '') + '><span class="i">' + x.ic + '</span>' + x.name + '</button>';
+    }).join('') + (M.ans ? '<button class="e6-btn primary" data-act="next" style="grid-column:1/-1">つぎへ ▶</button>' : '');
+    el.amsg.innerHTML = M.ans ? (M.ans === f[1] ? '⭕ 正解! ' : '❌ 答えは「' + METH.filter(function (x) { return x.id === f[1]; })[0].name + '」。 ') + f[2] : '';
+    el.amsg.className = 'e6-msg' + (M.ans ? (M.ans === f[1] ? ' ok' : ' ng') : '');
+    el.amsg.style.display = M.ans ? '' : 'none';
+    el.fsc.textContent = (M.fi + 1) + ' 問目 / 10 ・ 正解 ' + M.score;
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-m],[data-pi],[data-act],[data-fa]'); if (!t || t.disabled) return;
+    if (t.hasAttribute('data-m')) { M.cur = t.getAttribute('data-m'); pool(); draw(); return; }
+    if (t.hasAttribute('data-pi')) {
+      var txt = M.pool[+t.getAttribute('data-pi')], mm = m(), want = mm.flow[M.pick.length];
+      if (txt === want) {
+        M.pick.push(txt);
+        if (M.pick.length === mm.flow.length) { S.save.flow[mm.id] = 1; if (METH.every(function (x) { return S.save.flow[x.id]; })) mark('meth'); persist(); renderTabs(); }
+        draw();
+      } else {
+        t.classList.remove('bad'); void t.offsetWidth; t.classList.add('bad');
+        el.fmsg.innerHTML = txt === mm.fake ? 'このカードは' + mm.name + '発電では使いません。' : 'つぎに来るのは、それではありません。エネルギーがどう変わるか、順番に考えよう。';
+        el.fmsg.className = 'e6-msg ng';
+      }
+      return;
+    }
+    if (t.hasAttribute('data-fa')) { var f = M.feat[M.fi]; M.ans = t.getAttribute('data-fa'); if (M.ans === f[1]) M.score++; feat(); return; }
+    var a = t.getAttribute('data-act');
+    if (a === 'undo') { M.pick.pop(); draw(); }
+    else if (a === 'next') { M.fi++; M.ans = null; feat(); }
+    else if (a === 'again') { M.feat = null; feat(); }
+  });
+  draw(); feat();
+}
+
+/* ================= ⑤ 風の強さが変わる日(発展) ================= */
+var DAYS = [
+  { id: 'calm', ic: '🌤️', name: 'おだやかな日', w: [0.6, 0.5, 0.5, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.0, 2.2, 2.3, 2.2, 2.0, 1.7, 1.4, 1.1, 0.9, 0.8, 0.7, 0.6, 0.6] },
+  { id: 'windy', ic: '🌬️', name: '風の強い日', w: [3.2, 3.4, 3.6, 3.5, 3.8, 4.2, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.0, 6.8, 6.5, 6.1, 5.6, 5.0, 4.6, 4.2, 3.9, 3.6, 3.4, 3.3] },
+  { id: 'change', ic: '🌦️', name: '変わりやすい日', w: [1.0, 0.8, 0.6, 1.4, 2.6, 3.8, 2.2, 0.9, 0.4, 1.8, 4.5, 5.6, 3.1, 1.2, 0.5, 2.9, 6.2, 4.0, 1.6, 0.7, 2.4, 3.5, 1.9, 1.1] },
+  { id: 'storm', ic: '🌀', name: '台風が近い日', w: [4.0, 4.6, 5.3, 6.1, 7.0, 7.8, 8.6, 9.4, 10.5, 11.6, 12.8, 13.5, 12.6, 11.2, 9.8, 8.7, 7.6, 6.8, 6.1, 5.5, 4.9, 4.4, 4.0, 3.7] }
+];
+var WEAK = { n: 8, pitch: 40, len: 20, shape: 'curve' };
+function dayPower(b, v) { return v >= CUT ? 0 : calc(b, v).P; }
+function renderDay(box) {
+  var D = S.day = S.day || { cur: 'calm', hour: 0, play: false, t: 0 };
+  var list = [{ b: S.save.blade, name: 'いまの羽根(' + bladeName(S.save.blade) + ')', col: COLS[0] }];
+  if (S.save.rank[0] && !sameB(S.save.rank[0].b, S.save.blade)) list.push({ b: S.save.rank[0].b, name: 'ランキング1位(' + bladeName(S.save.rank[0].b) + ')', col: COLS[1] });
+  list.push({ b: WEAK, name: '弱い風むきの羽根(' + bladeName(WEAK) + ')', col: COLS[2] });
+  box.innerHTML = '<div class="e6-card adv"><span class="e6-kicker adv">発展編</span><h2>📅 風の強さが変わる日の発電量</h2><p>風は1日の中でも強くなったり弱くなったりします。②③で作った羽根で、1日(24時間)にどれだけの電気(電力量)ができるかをくらべましょう。「▶ 1日を再生」で時間を進められます。</p></div>' +
+    '<div class="e6-card"><div class="e6-days" data-ref="days"></div></div>' +
+    '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div class="e6-row" style="margin-top:8px"><button class="e6-btn primary" data-act="play"></button><label style="flex:1;min-width:160px">時刻 <b data-ref="hlab"></b><input type="range" min="0" max="23.9" step="0.1" data-ref="hr"></label></div><div class="e6-msg" data-ref="dmsg" style="margin-top:8px"></div></div>' +
+    '<div class="e6-card"><h2>1日の風と電力</h2><div data-ref="chart"></div><div class="e6-leg" data-ref="leg"></div><div class="e6-scroll" data-ref="tot" style="margin-top:8px"></div></div></div>' +
+    '<div class="e6-card tip"><b>考えよう</b> 風が弱い日・強い日で、いちばんたくさん発電した羽根は同じでしたか。風力発電は、風の強さで発電量が変わります。電気を安定して届けるために、どんな工夫ができるでしょうか(蓄電池にためる、ほかの発電方法と組み合わせる など)。<br><small>本物の大きな風車も、強すぎる風ではこわれないように羽根のかたむきを変えて止めます。このモデルでは風速 ' + CUT + ' m/s 以上で止めます。</small></div>';
+  var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
+  var spin = spinner('e6-r5'), dots = windDots('e6-r5');
+  el.stage.innerHTML = turbineSvg(S.save.blade, { id: 'e6-r5' });
+  function day() { return DAYS.filter(function (d) { return d.id === D.cur; })[0]; }
+  function windAt(h) { var w = day().w, i = Math.floor(h) % 24, f = h - Math.floor(h); return w[i] * (1 - f) + w[(i + 1) % 24] * f; }
+  function totals() {
+    return list.map(function (it) { var wh = 0; for (var h = 0; h < 24; h += 0.1) wh += dayPower(it.b, windAt(h)) * 0.1; return wh; });
+  }
+  function chart() {
+    var W = 420, H = 230, x0 = 40, y0 = 196, x1 = 404, y1 = 16, vmax = 14, pmax = 0.5;
+    list.forEach(function (it) { for (var h = 0; h < 24; h += 0.25) pmax = Math.max(pmax, dayPower(it.b, windAt(h))); });
+    pmax = Math.ceil(pmax * 2) / 2;
+    var X = function (h) { return x0 + (x1 - x0) * h / 24; }, Yv = function (v) { return y0 - (y0 - y1) * v / vmax; }, Yp = function (p) { return y0 - (y0 - y1) * p / pmax; };
+    var s = '<svg class="e6-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="1日の風速と電力">';
+    var w = day().w;
+    for (var i = 0; i < 24; i++) s += '<rect x="' + (X(i) + 1) + '" y="' + Yv(w[i]) + '" width="' + ((x1 - x0) / 24 - 2) + '" height="' + (y0 - Yv(w[i])) + '" fill="' + (w[i] >= CUT ? '#ffc9c9' : '#d0ebff') + '"/>';
+    for (var h = 0; h <= 24; h += 6) s += '<text x="' + X(h) + '" y="' + (y0 + 15) + '" font-size="11" text-anchor="middle" fill="#5b6b7c">' + h + '時</text>';
+    s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" stroke="#495057"/>';
+    s += '<text x="4" y="12" font-size="11" fill="#1971c2">青い棒 = 風速(最大 ' + vmax + ' m/s)</text><text x="' + x1 + '" y="12" font-size="11" text-anchor="end" fill="#1d3557">線 = 電力(最大 ' + pmax + ' W)</text>';
+    s += '<line x1="' + x0 + '" y1="' + Yv(CUT) + '" x2="' + x1 + '" y2="' + Yv(CUT) + '" stroke="#e03131" stroke-dasharray="4 4"/><text x="' + (x0 + 2) + '" y="' + (Yv(CUT) - 3) + '" font-size="10" fill="#e03131">ここより強い風では止める</text>';
+    list.forEach(function (it, k) {
+      var pts = []; for (var h = 0; h <= 24; h += 0.2) pts.push(X(h).toFixed(1) + ',' + Yp(dayPower(it.b, windAt(Math.min(h, 23.99)))).toFixed(1));
+      s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + it.col + '" stroke-width="' + (k === 0 ? 3 : 2.2) + '"' + (k ? ' stroke-dasharray="6 4"' : '') + '/>';
+    });
+    s += '<line data-ref="cur" x1="' + X(D.hour) + '" y1="' + y1 + '" x2="' + X(D.hour) + '" y2="' + y0 + '" stroke="#f08c00" stroke-width="2"/>';
+    el.chart.innerHTML = s + '</svg>';
+    el.leg.innerHTML = list.map(function (it) { return '<span><i style="background:' + it.col + '"></i>' + esc(it.name) + '</span>'; }).join('');
+    var tt = totals(), best = Math.max.apply(null, tt);
+    el.tot.innerHTML = '<table class="e6-tbl"><tr><th>羽根</th><th>1日の電力量</th><th>LED(0.1 W)を<br>つけられる時間</th></tr>' + list.map(function (it, k) {
+      return '<tr' + (tt[k] === best && best > 0 ? ' class="best"' : '') + '><td style="text-align:left;white-space:normal">' + esc(it.name) + '</td><td><b>' + tt[k].toFixed(2) + ' Wh</b></td><td>' + (tt[k] / 0.1).toFixed(1) + ' 時間</td></tr>';
+    }).join('') + '</table><p style="font-size:.88em;color:#5b6b7c">電力量(Wh) = 電力(W)× 時間(h)。1 W で1時間発電すると 1 Wh。</p>';
+    S.save.days[D.cur] = 1; if (Object.keys(S.save.days).length >= 2) mark('day'); persist();
+  }
+  function days() { el.days.innerHTML = DAYS.map(function (d) { return '<button class="e6-btn' + (d.id === D.cur ? ' sel' : '') + '" data-day="' + d.id + '">' + d.ic + '<br>' + d.name + (S.save.days[d.id] ? ' ✓' : '') + '</button>'; }).join(''); }
+  function setHour(h) {
+    D.hour = h; el.hr.value = h;
+    var hh = Math.floor(h), mm = Math.floor((h - hh) * 60); el.hlab.textContent = hh + '時' + (mm < 10 ? '0' : '') + mm + '分';
+    var X = 40 + 364 * h / 24, cur = el.chart.querySelector('[data-ref="cur"]'); if (cur) { cur.setAttribute('x1', X); cur.setAttribute('x2', X); }
+    var v = windAt(h), c = calc(S.save.blade, v), stop = v >= CUT;
+    D.rpm = stop ? 0 : c.rpm; D.v = v;
+    var cap = S.root.querySelector('#e6-r5-cap'); if (cap) cap.textContent = '風速 ' + v.toFixed(1) + ' m/s';
+    el.dmsg.innerHTML = stop ? '🛑 風が強すぎるので、こわれないように風車を止めています(発電 0 W)。' : 'いまの羽根: 電力 <b>' + fWs(c.P) + '</b>' + (c.P <= 0 ? '(風が弱くて回りません)' : '');
+    el.dmsg.className = 'e6-msg' + (stop ? ' ng' : '');
+  }
+  function playBtn() { box.querySelector('[data-act="play"]').textContent = D.play ? '⏸ 止める' : '▶ 1日を再生'; }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-day],[data-act]'); if (!t) return;
+    if (t.hasAttribute('data-day')) { D.cur = t.getAttribute('data-day'); days(); chart(); setHour(D.hour); return; }
+    if (t.getAttribute('data-act') === 'play') { D.play = !D.play; if (D.play && D.hour >= 23.8) setHour(0); playBtn(); }
+  });
+  el.hr.addEventListener('input', function () { D.play = false; playBtn(); setHour(+el.hr.value); });
+  days(); chart(); setHour(D.hour); playBtn();
+  S.tick = function (dt) {
+    if (D.play) { var h = D.hour + dt * 1.6; if (h >= 23.9) { h = 23.9; D.play = false; playBtn(); } setHour(h); }
+    spin(dt, D.rpm || 0); dots(dt, Math.min(D.v || 0, 12));
+  };
+}
+
+/* ================= 振り返り ================= */
+var REFL = [
+  { id: 'q1', q: '風が吹くと、どのようにして電気ができますか。「コイル」「磁石」という言葉を使って説明しよう。' },
+  { id: 'q2', q: 'いちばん効率がよかった羽根は、どんな羽根でしたか。なぜよかったと思いますか。' },
+  { id: 'q3', q: '風力発電のよいところと課題は何ですか。ほかの発電方法と組み合わせるとよいのはなぜですか。' }
+];
+function renderRefl(box) {
+  box.innerHTML = '<div class="e6-card" data-ef-reflect><h2>✏️ 振り返り</h2><p>学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 記録」でファイルにできます。</p>' +
+    REFL.map(function (r, i) { return '<div class="e6-field"><label for="e6-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e6-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(S.save.refl[r.id]) + '</textarea></div>'; }).join('') + '</div>';
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value; persist(); });
+}
+
+/* ================= 記録 ================= */
+function whoInit() {
+  var w = S.save.who;
+  if (!w.cls && !w.name) { try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) { w.cls = String(e5.who.cls || ''); w.name = String(e5.who.name || ''); } } catch (e) {} }
+  return w;
+}
+function renderRec(box) {
+  var w = whoInit(), s = S.save;
+  var rows = STEPS.map(function (st) { var ok = stepDone(st.id); return '<li><span class="m">' + (ok ? '✅' : '⬜') + '</span>' + st.name + (st.id.charAt(0) === 'm' && s.mis[st.id] ? '<small style="color:#5b6b7c"> ・' + esc(s.mis[st.id]) + '</small>' : '') + '</li>'; }).join('');
+  box.innerHTML = '<div class="e6-grid"><div class="e6-card"><h2>📊 やったこと</h2><ul class="e6-sum">' + rows + '</ul>' +
+    '<p>ランキング1位: <b>' + (s.rank[0] ? esc(bladeName(s.rank[0].b)) + '(' + fWs(s.rank[0].p) + ')' : 'まだありません') + '</b><br>④ 特徴クイズのいちばん: <b>' + s.featBest + ' / 10</b></p></div>' +
+    '<div class="e6-card"><h2>💾 ファイルに保存して提出</h2><div class="e6-two"><div class="e6-field"><label for="e6-cls">組・番号</label><input type="text" id="e6-cls" data-who="cls" maxlength="20" value="' + esc(w.cls) + '" placeholder="例: 2組15番"></div><div class="e6-field"><label for="e6-name">名前</label><input type="text" id="e6-name" data-who="name" maxlength="30" value="' + esc(w.name) + '"></div></div>' +
+    '<p>やったこと・ランキング・振り返りを、1つのファイル(<code>C6-fuuryoku-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
+    '<button class="e6-btn primary" data-act="save" style="width:100%">💾 ファイルに保存</button>' +
+    '<div data-ef-reflect style="margin-top:10px"><h3>振り返り(ファイルに入ります)</h3>' + REFL.map(function (r, i) { return '<p><b>' + (i + 1) + '.</b> ' + (s.refl[r.id] ? esc(s.refl[r.id]) : '<span style="color:#868e96">(まだ書いていません)</span>') + '</p>'; }).join('') + '</div></div></div>';
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-who'); if (!k) return; S.save.who[k] = ev.target.value.slice(0, k === 'cls' ? 20 : 30); persist(); });
+  box.addEventListener('click', function (ev) { if (ev.target.closest('[data-act="save"]')) saveFile(); });
+}
+function exportObj() {
+  var s = S.save;
+  return { schema: 'energyApps.artifact', app: 'C6', type: 'wind-lab', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
+    data: { steps: STEPS.map(function (st) { return { id: st.id, name: st.name, done: stepDone(st.id) }; }), missions: s.mis, rank: s.rank.map(function (r) { return { blade: bladeName(r.b), b: r.b, watt: +r.p.toFixed(4), startWind: +(+r.vs).toFixed(2) }; }),
+      records: s.recs, featBest: s.featBest, reflection: s.refl } };
+}
+function saveFile() {
+  var p2 = function (n) { return (n < 10 ? '0' : '') + n; }, t = new Date();
+  var blob = new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'C6-fuuryoku-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast('保存しました。ダウンロードのフォルダを見てね。');
+}
+
+/* ---------- 画面 ---------- */
+var RENDER = { intro: renderIntro, gen: renderGen, cmp: renderCmp, best: renderBest, meth: renderMeth, day: renderDay, refl: renderRefl, rec: renderRec };
+function renderBody() {
+  var old = S.el.body, nb = old.cloneNode(false);   /* 前のタブのイベントを残さないように、入れ物ごと作り直す */
+  old.parentNode.replaceChild(nb, old); S.el.body = nb;
+  var w = document.createElement('div'); w.className = 'e6-wrap'; nb.appendChild(w);
+  (RENDER[S.tab] || renderIntro)(w);
+}
+function mount(root) {
+  S.root = root; root.classList.add('e6');
+  S.save = loadSave();
+  root.innerHTML = '<div class="e6-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>🌬️ <span class="lg">風力発電の羽根ラボ</span></h1>') + '<nav class="e6-tabs" data-ref="tabs" aria-label="C6 のページ"></nav>' + efSlot() + '</div>' +
+    '<div class="e6-body" data-ref="body"></div><div class="e6-toast" data-ref="toast" role="status"></div>';
+  S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
+  var t0 = TABS.some(function (t) { return t.id === S.save.tab; }) ? S.save.tab : 'intro';
+  go(t0);
+  if (!S.raf) S.raf = requestAnimationFrame(frame);
+}
+
+NS.C6 = {
+  mount: mount,
+  _test: { S: S, calc: calc, MIS: MIS, STEPS: STEPS, TABS: TABS, METH: METH, FEATS: FEATS, DAYS: DAYS, stepDone: stepDone, exportObj: exportObj, go: go, bladeName: bladeName }
+};
+var auto = null;
+if (auto && !auto.getAttribute('data-manual')) mount(auto);
+})();
+</script>
+<script>/* ===== C7 app ===== */
+
+/* ===================================================================
+   C7 直流・交流と送電ラボ — window.EnergyApps.C7
+   教科書 3編1章3「電気を供給する仕組み」(直流と交流・変圧器・送電と配電・50Hz/60Hz)
+   数値は、しくみが分かるように理想化・単純化した目安(送電線の抵抗・送る電力など)。
+   =================================================================== */
+(function () {
+'use strict';
+var NS = window.EnergyApps = window.EnergyApps || {};
+var STORE_KEY = 'energyApps.C7.v1';
+
+/* ---------- 小道具 ---------- */
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rb(w, r) { return '<ruby>' + w + '<rt>' + r + '</rt></ruby>'; }
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
+function num(n) { return n.toLocaleString('ja-JP'); }
+function fV(v) { return v >= 10000 ? (v % 10000 === 0 ? num(v / 10000) + '万' : num(Math.floor(v / 10000)) + '万' + num(v % 10000)) + ' V' : num(v) + ' V'; }
+function fPow(w) { if (w >= 1000) return (w / 1000 >= 100 ? Math.round(w / 1000) : +(w / 1000).toFixed(w / 1000 >= 10 ? 1 : 2)) + ' kW'; return (w >= 10 ? Math.round(w) : +w.toFixed(2)) + ' W'; }
+function fA(a) { return (a >= 10 ? +a.toFixed(1) : +a.toFixed(3)) + ' A'; }
+
+/* ---------- 保存 ---------- */
+var S = { root: null, tab: 'intro', save: null, el: {}, tick: null, raf: 0, last: 0 };
+function blank() { return { v: 1, tab: 'intro', done: {}, seen: {}, tr: {}, calcBest: 0, refl: { q1: '', q2: '', q3: '' }, who: { cls: '', name: '' } }; }
+function loadSave() {
+  var s = null, b = blank();
+  try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return b;
+  Object.keys(b).forEach(function (k) { if (s[k] == null || typeof s[k] !== typeof b[k] || Array.isArray(s[k]) !== Array.isArray(b[k])) s[k] = b[k]; });
+  return s;
+}
+function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
+function mark(k) { if (!S.save.done[k]) { S.save.done[k] = 1; persist(); renderTabs(); } }
+
+/* ---------- タブ ---------- */
+var TABS = [
+  { id: 'intro', lg: '🏁 はじめに' },
+  { id: 'dcac', lg: '① 直流と交流', steps: ['dcac', 'sort'] },
+  { id: 'route', lg: '② 送電・配電の道すじ', steps: ['route', 'mesh'] },
+  { id: 'why', lg: '③ 高い電圧で送るわけ', steps: ['trans', 'line'] },
+  { id: 'calc', lg: '④ 損失の計算', adv: 1, steps: ['calcq'] },
+  { id: 'freq', lg: '⑤ 周波数 50Hz・60Hz', adv: 1, steps: ['freq'] },
+  { id: 'refl', lg: '✏️ 振り返り', reflect: 1 },
+  { id: 'rec', lg: '💾 記録' }
+];
+var STEPS = [
+  { id: 'dcac', name: '① 直流と交流のグラフを両方見た' }, { id: 'sort', name: '① 電池・コンセント分けを全部正解' },
+  { id: 'route', name: '② 発電所から家庭までの道すじを完成' }, { id: 'mesh', name: '② 送電線が1本切れても届くことを確かめた' },
+  { id: 'trans', name: '③ 変圧器で電圧を上げた・下げた' }, { id: 'line', name: '③ 送電の損失を 1% 以下にした' },
+  { id: 'calcq', name: '④ 損失の計算 5問中4問以上正解' }, { id: 'freq', name: '⑤ 50Hz・60Hz の地図を完成' }
+];
+function stepDone(id) { return !!S.save.done[id]; }
+function tabDone(t) { return t.steps ? t.steps.every(stepDone) : false; }
+function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
+function renderTabs() {
+  var nav = S.el.tabs; if (!nav) return;
+  nav.innerHTML = TABS.map(function (t) {
+    var on = S.tab === t.id;
+    return '<button class="e7-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
+  }).join('');
+}
+function go(tab) {
+  if (tab === 'refl' && !fkOn()) tab = 'intro';
+  S.tab = tab; S.save.tab = tab; persist();
+  S.tick = null;
+  renderTabs(); renderBody();
+  S.el.body.scrollTop = 0;
+}
+function toast(m) {
+  var t = S.el.toast; t.textContent = m; t.style.display = 'block';
+  clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = 'none'; }, 2800);
+}
+function frame(ts) {
+  S.raf = requestAnimationFrame(frame);
+  if (!S.root || S.root.offsetParent === null) { S.last = 0; return; }
+  var dt = S.last ? Math.min(0.05, (ts - S.last) / 1000) : 0; S.last = ts;
+  if (S.tick) { try { S.tick(dt); } catch (e) { S.tick = null; if (window.console) console.error(e); } }
+}
+function refs(box) { var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; }); return el; }
+
+/* ================= はじめに ================= */
+function renderIntro(box) {
+  var g = function (id, i, t, s, adv) { return '<button class="e7-go' + (adv ? ' adv' : '') + '" data-go="' + id + '"><span class="i">' + i + '</span><span><b>' + t + '</b><small>' + s + '</small></span></button>'; };
+  box.innerHTML = '<div class="e7-card lead"><h2>🔌 直流・交流と送電ラボ</h2>' +
+    '<p>教科書の「レッツスタート」: <b>電源として利用しているコンセントと電池には、どのような違いがあるでしょうか。</b></p>' +
+    '<p>発電所でつくられた電気は、長い送電線を通って、家のコンセントまで届きます。このラボでは、<b>電池とコンセントの電気のちがい(直流と交流)</b>、<b>発電所から家庭までの道すじ</b>、<b>高い電圧で送るわけ</b>を、グラフとアニメーションで確かめます。</p>' +
+    '<p style="color:#5b6b7c;font-size:.92em">学習課題: 電気はどのように供給されているのだろうか。</p></div>' +
+    '<div class="e7-card"><span class="e7-kicker">基本編</span><div class="e7-start">' +
+    g('dcac', '〰️', '① 直流と交流', '電池とコンセントの電圧の変わり方をグラフで見る') +
+    g('route', '🗼', '② 送電・配電の道すじ', '発電所 → 変電所 → 家庭 を組み立てる') +
+    g('why', '🔥', '③ 高い電圧で送るわけ', '変圧器と、送電線の熱による損失') + '</div>' +
+    '<span class="e7-kicker adv" style="margin-top:10px">発展編</span><div class="e7-start">' +
+    g('calc', '🧮', '④ 損失の計算', '電力 = 電圧 × 電流、損失 = 電流² × 抵抗', 1) +
+    g('freq', '🗾', '⑤ 周波数 50Hz・60Hz', '東日本と西日本で周波数がちがうわけ', 1) + '</div></div>' +
+    '<div class="e7-card tip"><b>⚠️ 注意</b> コンセントの電気(100 V)は、さわると命にかかわります。この画面の回路はシミュレーションです。コンセントや送電線に物をさしこんだり、近づいたりしないでください。</div>';
+  box.addEventListener('click', function (ev) { var t = ev.target.closest('[data-go]'); if (t) go(t.getAttribute('data-go')); });
+}
+
+/* ================= ① 直流と交流 ================= */
+var SRC = [
+  { id: 'b1', ic: '🔋', name: '乾電池 1個', ac: false, v: 1.5, scale: 5 },
+  { id: 'b3', ic: '🔋', name: '乾電池 3個(直列)', ac: false, v: 4.5, scale: 5 },
+  { id: 'pv', ic: '☀️', name: '太陽電池', ac: false, v: 3, scale: 5 },
+  { id: 'ac', ic: '🔌', name: 'コンセント', ac: true, v: 141, scale: 160 }
+];
+var DEV = [
+  ['懐中電灯', 'b'], ['冷蔵庫', 'c'], ['腕時計', 'b'], ['エアコン', 'c'], ['テレビのリモコン', 'b'], ['電子レンジ', 'c'],
+  ['電気ストーブ', 'c'], ['ワイヤレスマウス', 'b'], ['洗濯機', 'c'], ['電卓(電池式)', 'b']
+];
+function renderDcac(box) {
+  var A = S.dc = S.dc || { src: 'b1', flip: false, slow: true, t: 0, hist: [], q: null, qi: 0, miss: 0, ans: null };
+  if (!A.q) { A.q = shuffle(DEV); A.qi = 0; A.miss = 0; A.ans = null; }
+  box.innerHTML = '<div class="e7-grid"><div class="e7-card"><h2>〰️ 電圧の変わり方を見よう</h2><div class="e7-seg" data-ref="srcs"></div>' +
+    '<svg class="e7-svg" viewBox="0 0 440 220" data-ref="graph" role="img" aria-label="電圧と時間のグラフ" style="margin-top:8px"></svg>' +
+    '<div class="e7-row" style="margin-top:6px"><button class="e7-btn sm" data-act="slow"></button><button class="e7-btn sm" data-act="flip">🔄 電池の向きを逆にする</button></div>' +
+    '<div class="e7-msg" data-ref="msg" style="margin-top:8px"></div></div>' +
+    '<div class="e7-card"><h2>💡 LED 2つの回路で確かめる</h2><p>赤い LED は → の向き、緑の LED は ← の向きに電流が流れたときだけ光ります。</p>' +
+    '<svg class="e7-svg" viewBox="0 0 420 250" data-ref="circ" role="img" aria-label="LED 2つの回路"></svg>' +
+    '<div class="e7-row" style="justify-content:space-between"><span>いまの電圧: <b class="e7-big" data-ref="vnow"></b></span><span data-ref="dir"></span></div>' +
+    '<p style="font-size:.88em;color:#5b6b7c">LED には電流を制限する抵抗をつないでいます。この回路はシミュレーションです。</p></div></div>' +
+    '<div class="e7-two"><div class="e7-card good"><b>直流(DC)</b><p>時間がたっても、電圧と電流の<b>向きが変わらない</b>電気。電池・太陽電池など。</p></div><div class="e7-card tip"><b>交流(AC)</b><p>電圧と電流の<b>向きと大きさが、時間とともに周期的に変わる</b>電気。コンセント(発電所の発電機)。</p></div></div>' +
+    '<div class="e7-card"><h2>🎯 どちらの電源から電気をもらう?</h2><p>ふだん、どちらの電源で使っているかを考えてえらぼう。</p><div class="e7-feat" data-ref="dev"></div>' +
+    '<div class="e7-two" style="margin-top:8px" data-ref="dans"></div><div class="e7-msg" data-ref="dmsg" style="margin-top:8px;display:none"></div>' +
+    '<p style="font-size:.92em;margin-top:8px">💡 スマートフォンの充電器(<b>ACアダプター</b>)は、コンセントの交流を、電池に合う直流に変えています。パソコンやゲーム機の多くも、中で直流に変えて使っています。</p></div>';
+  var el = refs(box);
+  function src() { return SRC.filter(function (s) { return s.id === A.src; })[0]; }
+  function srcBtns() {
+    el.srcs.innerHTML = SRC.map(function (s) { return '<button class="e7-btn sm' + (s.id === A.src ? ' sel' : '') + '" data-src="' + s.id + '">' + s.ic + ' ' + s.name + '</button>'; }).join('');
+    box.querySelector('[data-act="flip"]').style.display = src().ac ? 'none' : '';
+    box.querySelector('[data-act="slow"]').textContent = A.slow ? '⚡ ほんとうの速さにする' : '🐢 スローモーション(1/50)にする';
+    S.save.seen[src().ac ? 'ac' : 'dc'] = 1; persist();
+    if (S.save.seen.ac && S.save.seen.dc) mark('dcac');
+    A.hist = [];
+  }
+  function vAt(t) { var s = src(); if (s.ac) return s.v * Math.sin(2 * Math.PI * 50 * t); return (A.flip ? -1 : 1) * s.v * (s.id === 'pv' ? 0.97 + 0.03 * Math.sin(t * 3) : 1); }
+  /* 回路の絵(電源・赤 LED・緑 LED・抵抗) */
+  el.circ.innerHTML = '<rect x="30" y="40" width="340" height="170" rx="16" fill="none" stroke="#343a40" stroke-width="3"/>' +
+    '<rect x="2" y="95" width="56" height="60" rx="10" fill="#fff" stroke="#495057" stroke-width="2"/><text x="30" y="132" font-size="22" text-anchor="middle" data-ref="cic">🔋</text>' +
+    '<rect x="150" y="28" width="90" height="24" rx="4" fill="#fff" stroke="#495057" stroke-width="2"/><path d="M158,40 l8,-8 l8,16 l8,-16 l8,16 l8,-16 l8,16 l8,-16 l8,16 l4,-8" fill="none" stroke="#495057" stroke-width="2"/><text x="195" y="22" font-size="12" text-anchor="middle" fill="#5b6b7c">抵抗</text>' +
+    '<rect x="300" y="60" width="110" height="130" fill="#fff"/>' +
+    '' +
+    '<line x1="340" y1="60" x2="400" y2="60" stroke="#343a40" stroke-width="3"/><line x1="340" y1="190" x2="400" y2="190" stroke="#343a40" stroke-width="3"/>' +
+    '<line x1="340" y1="60" x2="340" y2="190" stroke="#343a40" stroke-width="3"/><line x1="400" y1="60" x2="400" y2="190" stroke="#343a40" stroke-width="3"/>' +
+    '<circle data-ref="gR" cx="340" cy="125" r="26" fill="#ff6b6b" opacity="0"/><circle data-ref="gG" cx="400" cy="125" r="26" fill="#51cf66" opacity="0"/>' +
+    '<g transform="translate(340,125)"><path d="M-12,-10 L12,-10 L0,10 Z" fill="#ffc9c9" stroke="#c92a2a" stroke-width="2" data-ref="lR"/><line x1="-12" y1="10" x2="12" y2="10" stroke="#c92a2a" stroke-width="3"/></g>' +
+    '<g transform="translate(400,125)"><path d="M-12,10 L12,10 L0,-10 Z" fill="#d3f9d8" stroke="#2b8a3e" stroke-width="2" data-ref="lG"/><line x1="-12" y1="-10" x2="12" y2="-10" stroke="#2b8a3e" stroke-width="3"/></g>' +
+    '<text x="318" y="168" font-size="12" fill="#c92a2a">赤</text><text x="408" y="168" font-size="12" fill="#2b8a3e">緑</text>' +
+    '<g data-ref="dots"></g>';
+  el = refs(box);
+  var path = [[30, 125], [30, 40], [370, 40], [370, 60]], path2 = [[370, 190], [370, 210], [30, 210], [30, 125]];
+  function along(pts, f) { var L = 0, seg = []; for (var i = 1; i < pts.length; i++) { var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(d); L += d; } var x = f * L; for (i = 0; i < seg.length; i++) { if (x <= seg[i]) { var k = x / seg[i]; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * k, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * k]; } x -= seg[i]; } return pts[pts.length - 1]; }
+  var flowPos = 0;
+  function dev() {
+    var d = A.q[A.qi];
+    if (!d) {
+      el.dev.textContent = A.miss === 0 ? '🎉 全部正解!' : '終わり! まちがい ' + A.miss + ' 回。もう一度ためそう。';
+      el.dans.innerHTML = '<button class="e7-btn primary" data-act="again" style="grid-column:1/-1">もう一度</button>';
+      if (A.miss === 0) mark('sort');
+      el.dmsg.style.display = 'none'; return;
+    }
+    el.dev.textContent = (A.qi + 1) + ' / ' + DEV.length + ' 「' + d[0] + '」';
+    el.dans.innerHTML = [['b', '🔋 電池(直流)'], ['c', '🔌 コンセント(交流)']].map(function (o) {
+      var cls = A.ans ? (o[0] === d[1] ? ' good' : (A.ans === o[0] ? ' sel' : '')) : '';
+      return '<button class="e7-btn' + cls + '" data-dv="' + o[0] + '"' + (A.ans ? ' disabled' : '') + '>' + o[1] + '</button>';
+    }).join('') + (A.ans ? '<button class="e7-btn primary" data-act="dnext" style="grid-column:1/-1">つぎへ ▶</button>' : '');
+    el.dmsg.style.display = A.ans ? '' : 'none';
+    if (A.ans) { el.dmsg.className = 'e7-msg ' + (A.ans === d[1] ? 'ok' : 'ng'); el.dmsg.textContent = A.ans === d[1] ? '⭕ 正解!' : '❌ ' + d[0] + 'は、ふつう' + (d[1] === 'b' ? '電池(直流)' : 'コンセント(交流)') + 'で使います。'; }
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-src],[data-act],[data-dv]'); if (!t || t.disabled) return;
+    if (t.hasAttribute('data-src')) { A.src = t.getAttribute('data-src'); A.flip = false; srcBtns(); return; }
+    if (t.hasAttribute('data-dv')) { A.ans = t.getAttribute('data-dv'); if (A.ans !== A.q[A.qi][1]) A.miss++; dev(); return; }
+    var a = t.getAttribute('data-act');
+    if (a === 'slow') { A.slow = !A.slow; srcBtns(); }
+    else if (a === 'flip') { A.flip = !A.flip; A.hist = []; }
+    else if (a === 'dnext') { A.qi++; A.ans = null; dev(); }
+    else if (a === 'again') { A.q = shuffle(DEV); A.qi = 0; A.miss = 0; A.ans = null; dev(); }
+  });
+  srcBtns(); dev();
+  S.tick = function (dt) {
+    var s = src(), sp = A.slow ? 1 / 50 : 1;
+    A.t += dt * sp;
+    /* グラフ: 横 0.06 秒(交流 50Hz なら 3 回くり返す)。右はしが今 */
+    var W = 0.06, x0 = 50, x1 = 430, yc = 110, hh = 90, n = 160, pts = [];
+    for (var i = 0; i <= n; i++) { var tt = A.t - W + W * i / n; pts.push((x0 + (x1 - x0) * i / n).toFixed(1) + ',' + (yc - clamp(vAt(tt) / s.scale, -1, 1) * hh).toFixed(1)); }
+    var lab = s.ac ? ['+141 V', '0', '−141 V'] : ['+5 V', '0', '−5 V'];
+    el.graph.innerHTML = '<rect x="' + x0 + '" y="' + (yc - hh) + '" width="' + (x1 - x0) + '" height="' + (2 * hh) + '" fill="#fff" stroke="#dee2e6"/>' +
+      '<line x1="' + x0 + '" y1="' + yc + '" x2="' + x1 + '" y2="' + yc + '" stroke="#868e96"/>' +
+      (s.ac ? '<line x1="' + x0 + '" y1="' + (yc - 100 / 160 * hh) + '" x2="' + x1 + '" y2="' + (yc - 100 / 160 * hh) + '" stroke="#f08c00" stroke-dasharray="4 4"/><text x="' + (x0 + 4) + '" y="' + (yc - 100 / 160 * hh - 4) + '" font-size="11" fill="#b35c00">100 V(実効値)</text>' : '') +
+      '<text x="' + (x0 - 4) + '" y="' + (yc - hh + 12) + '" font-size="11" text-anchor="end" fill="#5b6b7c">' + lab[0] + '</text><text x="' + (x0 - 4) + '" y="' + (yc + 4) + '" font-size="11" text-anchor="end" fill="#5b6b7c">0</text><text x="' + (x0 - 4) + '" y="' + (yc + hh) + '" font-size="11" text-anchor="end" fill="#5b6b7c">' + lab[2] + '</text>' +
+      '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + (s.ac ? '#c92a2a' : '#1971c2') + '" stroke-width="3"/>' +
+      '<text x="' + x1 + '" y="' + (yc + hh + 18) + '" font-size="12" text-anchor="end" fill="#1d3557">時間 →(横はば 0.06 秒' + (A.slow ? '・スローで表示' : '') + ')</text><text x="' + x0 + '" y="14" font-size="12" fill="#1d3557">電圧</text>';
+    var v = vAt(A.t), th = s.ac ? 2 : 1.2;
+    var red = v > th, green = v < -th;
+    if (s.ac && !A.slow) { el.gR.setAttribute('opacity', 0.55); el.gG.setAttribute('opacity', 0.55); el.lR.setAttribute('fill', '#ff8787'); el.lG.setAttribute('fill', '#8ce99a'); }
+    else { el.gR.setAttribute('opacity', red ? 0.7 : 0); el.gG.setAttribute('opacity', green ? 0.7 : 0); el.lR.setAttribute('fill', red ? '#ff8787' : '#ffc9c9'); el.lG.setAttribute('fill', green ? '#8ce99a' : '#d3f9d8'); }
+    el.cic.textContent = s.ic;
+    el.vnow.textContent = (s.ac && !A.slow) ? '向きが1秒に100回入れかわる' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(s.ac ? 0 : 1) + ' V';
+    var dir = v > 0.05 ? 1 : v < -0.05 ? -1 : 0;
+    el.dir.textContent = (s.ac && !A.slow) ? '' : dir > 0 ? '電流 → の向き(赤が光る)' : dir < 0 ? '電流 ← の向き(緑が光る)' : '電流なし';
+    /* 電流の粒(スローのときだけ見やすく動かす) */
+    var spd = (s.ac && !A.slow) ? 0 : clamp(v / s.scale, -1, 1) * 0.35;
+    flowPos = (flowPos + spd * dt + 1) % 1;
+    var dh = '';
+    if (spd !== 0) for (var k = 0; k < 10; k++) { var f = (flowPos + k / 10) % 1, p = f < 0.5 ? along(path, f * 2) : along(path2, (f - 0.5) * 2); dh += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4.5" fill="#fab005"/>'; }
+    el.dots.innerHTML = dh;
+    var m = s.ac ? (A.slow ? '交流は、電圧の<b>向き(＋と−)と大きさ</b>が時間とともに変わります。赤と緑の LED がかわりばんこに光ります。' : 'ほんとうの速さでは、東日本の交流は<b>1秒に50回</b>くり返すので、赤も緑も光っているように見えます。') :
+      '直流は、時間がたっても電圧の<b>向きが変わりません</b>。光るのは片方の LED だけ。' + (A.flip ? '電池の向きを逆にすると、反対の LED が光ります。' : '');
+    if (el.msg._m !== m) { el.msg._m = m; el.msg.innerHTML = m; }
+  };
+}
+
+/* ================= ② 送電・配電の道すじ ================= */
+var ROUTE = [
+  { id: 'plant', ic: '🏭', name: '発電所', v: '約2万 V で発電' },
+  { id: 'chou', ic: '🗼', name: '超高圧変電所', v: '50万 V → 15万4000 V' },
+  { id: 'ichiji', ic: '🏗️', name: '一次変電所', v: '15万4000 V → 6万6000 V' },
+  { id: 'haiden', ic: '🏢', name: '配電用変電所', v: '6万6000 V → 6600 V' },
+  { id: 'pole', ic: '🔌', name: '柱上変圧器', v: '6600 V → 100 V・200 V' },
+  { id: 'home', ic: '🏠', name: '家庭', v: '100 V・200 V で使う' }
+];
+var ROUTE_Q = [
+  { q: '発電所の変電所で、電圧を 50万 V などの高い電圧に<b>上げてから</b>送り出します。では、<b>送電と配電の境目</b>はどこですか。', a: 'haiden', why: '発電所から配電用変電所までが<b>送電</b>、配電用変電所から家庭や工場までが<b>配電</b>です。' },
+  { q: '電気をたくさん使う<b>大きな工場</b>は、どこから電気を受け取りますか。', a: 'ichiji', why: '大きな工場は、一次変電所などから 6万6000 V のような高い電圧で受け取り、工場の中で電圧を下げて使います。' }
+];
+var MESH_N = { A: [40, 50, '🏭 発電所A'], B: [40, 210, '🏭 発電所B'], s1: [170, 40, '変電所1'], s2: [160, 130, '変電所2'], s3: [175, 220, '変電所3'], s4: [290, 80, '変電所4'], s5: [290, 190, '変電所5'], T: [395, 135, '🏘️ 町'] };
+var MESH_E = [['A', 's1'], ['A', 's2'], ['B', 's2'], ['B', 's3'], ['s1', 's2'], ['s2', 's3'], ['s1', 's4'], ['s2', 's5'], ['s3', 's5'], ['s4', 's5'], ['s4', 'T'], ['s5', 'T']];
+function meshLit(cut) {
+  var seen = { A: 1, B: 1 }, q = ['A', 'B'];
+  while (q.length) { var n = q.shift(); MESH_E.forEach(function (e, i) { if (cut[i]) return; var o = e[0] === n ? e[1] : e[1] === n ? e[0] : null; if (o && !seen[o]) { seen[o] = 1; q.push(o); } }); }
+  return seen;
+}
+function renderRoute(box) {
+  var R = S.rt = S.rt || { placed: [], pool: shuffle(ROUTE.map(function (r) { return r.id; })), qi: 0, ans: null, cut: {}, t: 0 };
+  box.innerHTML = '<div class="e7-card"><h2>🗼 発電所から家庭まで、電気の道すじを組み立てよう</h2><p>下のカードを、<b>発電所に近いほうから順に</b>タップしてならべよう。</p>' +
+    '<div class="e7-scroll"><div class="e7-chain" data-ref="chain"></div></div><div class="e7-chips" data-ref="pool" style="margin-top:8px"></div>' +
+    '<div class="e7-row" style="margin-top:6px"><button class="e7-btn sm" data-act="undo">↩ 1つもどす</button></div><div class="e7-msg" data-ref="msg" style="margin-top:8px"></div>' +
+    '<div data-ref="anim" style="margin-top:8px"></div><div data-ref="qs"></div></div>' +
+    '<div class="e7-grid"><div class="e7-card"><h2>🕸️ 送電線は網の目のようにつながっている</h2><p>送電線(線)をタップすると、その線が切れます(もう一度タップでなおる)。どこか1本が切れても、町に電気は届くかな?</p>' +
+    '<svg class="e7-svg" viewBox="0 0 440 260" data-ref="mesh" role="img" aria-label="送電線の網" style="max-width:520px;margin:0 auto"></svg><div class="e7-row"><button class="e7-btn sm" data-act="fix">🔧 ぜんぶなおす</button></div></div>' +
+    '<div class="e7-card"><h2>わかったこと</h2><div class="e7-msg" data-ref="mmsg"></div><p>家庭や工場などの電気の使用量(<b>需要</b>)に合わせて、電気を安全で安定して届けるために、多くの発電所と変電所が<b>網の目のように</b>送電線で結ばれています。どこかがこわれても、別の道から電気を送れます。</p><p>発電所でつくる電気の量も、使う量に合わせて、いつも調整されています。</p></div></div>';
+  var el = refs(box);
+  function byId(id) { return ROUTE.filter(function (r) { return r.id === id; })[0]; }
+  function done() { return R.placed.length === ROUTE.length; }
+  function draw() {
+    var h = '';
+    ROUTE.forEach(function (r, i) {
+      var p = R.placed[i] ? byId(R.placed[i]) : null;
+      h += (i ? '<span class="ar">→</span>' : '') + '<div class="e7-node' + (p ? ' set' : '') + (i === R.placed.length ? ' next' : '') + '">' + (p ? '<span class="i">' + p.ic + '</span>' + p.name + (done() ? '<small>' + p.v + '</small>' : '') : '<span class="i" style="opacity:.3">?</span><small>' + (i + 1) + '番目</small>') + '</div>';
+    });
+    el.chain.innerHTML = h;
+    el.pool.innerHTML = R.pool.map(function (id) { var r = byId(id), used = R.placed.indexOf(id) >= 0; return '<button class="e7-chip' + (used ? ' used' : '') + '" data-rp="' + id + '"' + (used ? ' disabled' : '') + '>' + r.ic + ' ' + r.name + '</button>'; }).join('');
+    el.msg.className = 'e7-msg' + (done() ? ' ok' : '');
+    el.msg.innerHTML = done() ? '🎉 完成! 変電所で電圧を<b>少しずつ下げながら</b>、家庭まで届けています。下のアニメーションで、電気が流れるようすを見よう。' : 'つぎ(' + (R.placed.length + 1) + '番目)に来るのはどれかな?';
+    el.anim.innerHTML = done() ? animSvg() : '';
+    qs();
+  }
+  function animSvg() {
+    var xs = [30, 110, 190, 270, 350, 420], s = '<div class="e7-scroll"><svg class="e7-svg" viewBox="0 0 450 150" style="min-width:420px;max-width:760px;margin:0 auto" role="img" aria-label="送電と配電">';
+    s += '<rect x="20" y="8" width="268" height="22" rx="6" fill="#fff4e0"/><text x="154" y="24" font-size="13" text-anchor="middle" font-weight="bold" fill="#b35c00">送電(発電所 → 配電用変電所)</text>';
+    s += '<rect x="272" y="8" width="168" height="22" rx="6" fill="#e7f5ff"/><text x="356" y="24" font-size="13" text-anchor="middle" font-weight="bold" fill="#1971c2">配電(→ 家庭・工場)</text>';
+    var wid = [6, 5, 4, 3, 2];
+    for (var i = 0; i < 5; i++) s += '<line x1="' + xs[i] + '" y1="70" x2="' + xs[i + 1] + '" y2="70" stroke="#495057" stroke-width="' + wid[i] + '"/>';
+    ROUTE.forEach(function (r, i) { s += '<text x="' + xs[i] + '" y="80" font-size="24" text-anchor="middle">' + r.ic + '</text><text x="' + xs[i] + '" y="104" font-size="11" text-anchor="middle" fill="#1d3557">' + r.name + '</text>'; });
+    var vv = ['50万V', '15.4万V', '6.6万V', '6600V', '100V'];
+    for (i = 0; i < 5; i++) s += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="128" font-size="12" text-anchor="middle" font-weight="bold" fill="#c92a2a">' + vv[i] + '</text>';
+    s += '<g data-ref="adots"></g></svg></div>';
+    return s;
+  }
+  function qs() {
+    if (!done()) { el.qs.innerHTML = ''; return; }
+    var q = ROUTE_Q[R.qi];
+    if (!q) { el.qs.innerHTML = '<div class="e7-msg ok" style="margin-top:8px">✅ 道すじの問題はすべてできました。</div>'; mark('route'); return; }
+    el.qs.innerHTML = '<div class="e7-q"><b>' + (R.qi + 1) + '. </b>' + q.q + '<div class="e7-seg" style="margin-top:6px">' + ROUTE.slice(1, 5).map(function (r) {
+      var cls = R.ans ? (r.id === q.a ? ' good' : (R.ans === r.id ? ' sel' : '')) : '';
+      return '<button class="e7-btn sm' + cls + '" data-rq="' + r.id + '"' + (R.ans ? ' disabled' : '') + '>' + r.name + '</button>';
+    }).join('') + '</div>' + (R.ans ? '<div class="why">' + (R.ans === q.a ? '⭕ 正解! ' : '❌ ') + q.why + '</div><button class="e7-btn primary sm" data-act="rnext" style="margin-top:6px">つぎへ ▶</button>' : '') + '</div>';
+  }
+  function mesh() {
+    var lit = meshLit(R.cut), s = '';
+    MESH_E.forEach(function (e, i) {
+      var a = MESH_N[e[0]], b = MESH_N[e[1]], cut = !!R.cut[i], on = !cut && lit[e[0]] && lit[e[1]];
+      s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="transparent" stroke-width="22" data-me="' + i + '" style="cursor:pointer"/>' +
+        '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + (cut ? '#e03131' : on ? '#f59f00' : '#adb5bd') + '" stroke-width="' + (cut ? 3 : 5) + '"' + (cut ? ' stroke-dasharray="6 6"' : '') + ' pointer-events="none"/>';
+      if (cut) s += '<text x="' + ((a[0] + b[0]) / 2) + '" y="' + ((a[1] + b[1]) / 2 + 6) + '" font-size="18" text-anchor="middle" pointer-events="none">✂️</text>';
+    });
+    Object.keys(MESH_N).forEach(function (k) {
+      var n = MESH_N[k], on = lit[k], big = k === 'T' || k === 'A' || k === 'B';
+      s += '<g pointer-events="none"><rect x="' + (n[0] - (big ? 40 : 34)) + '" y="' + (n[1] - 15) + '" width="' + (big ? 80 : 68) + '" height="30" rx="10" fill="' + (on ? (k === 'T' ? '#ffe066' : '#fff') : '#495057') + '" stroke="#343a40" stroke-width="2"/><text x="' + n[0] + '" y="' + (n[1] + 5) + '" font-size="12.5" text-anchor="middle" font-weight="bold" fill="' + (on ? '#1d2b3a' : '#fff') + '">' + n[2] + '</text></g>';
+    });
+    el.mesh.innerHTML = s;
+    var nc = Object.keys(R.cut).filter(function (k) { return R.cut[k]; }).length, townOn = !!lit.T;
+    if (nc >= 1 && townOn) mark('mesh');
+    el.mmsg.className = 'e7-msg' + (townOn ? (nc ? ' ok' : '') : ' ng');
+    el.mmsg.innerHTML = !nc ? 'まだどこも切れていません。線をタップして切ってみよう。' : townOn ? '💡 ' + nc + ' 本切れても、町には別の道から電気が届いています。' : '⚠️ 町が停電しました! 町につながる道が全部切れると、電気が届きません。';
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-rp],[data-rq],[data-act],[data-me]'); if (!t || t.disabled) return;
+    if (t.hasAttribute('data-me')) { var i = +t.getAttribute('data-me'); R.cut[i] = !R.cut[i]; mesh(); return; }
+    if (t.hasAttribute('data-rp')) {
+      var id = t.getAttribute('data-rp');
+      if (ROUTE[R.placed.length].id === id) { R.placed.push(id); draw(); }
+      else { t.classList.remove('bad'); void t.offsetWidth; t.classList.add('bad'); el.msg.className = 'e7-msg ng'; el.msg.textContent = 'そこではありません。電圧が高いところから、少しずつ下げていく順番を考えよう。'; }
+      return;
+    }
+    if (t.hasAttribute('data-rq')) { R.ans = t.getAttribute('data-rq'); qs(); return; }
+    var a = t.getAttribute('data-act');
+    if (a === 'undo') { if (R.placed.length) { R.placed.pop(); R.qi = 0; R.ans = null; draw(); } }
+    else if (a === 'rnext') { R.qi++; R.ans = null; qs(); }
+    else if (a === 'fix') { R.cut = {}; mesh(); }
+  });
+  draw(); mesh();
+  S.tick = function (dt) {
+    var g = box.querySelector('[data-ref="adots"]'); if (!g) return;
+    R.t = (R.t + dt * 0.12) % 1;
+    var h = '', xs = [30, 420];
+    for (var k = 0; k < 12; k++) { var f = (R.t + k / 12) % 1; h += '<circle cx="' + (xs[0] + (xs[1] - xs[0]) * f).toFixed(1) + '" cy="70" r="4" fill="#fab005"/>'; }
+    g.innerHTML = h;
+  };
+}
+
+/* ================= ③ 高い電圧で送るわけ ================= */
+var VSTEPS = [1000, 2000, 3300, 6600, 10000, 22000, 66000, 154000, 275000, 500000];
+var PSEND = 100000, RLINE = 5, HOUSES = 100;
+function lineCalc(V, R) { var I = PSEND / V, loss = Math.min(PSEND, I * I * R); return { I: I, loss: loss, got: PSEND - loss, pct: loss / PSEND * 100 }; }
+function renderWhy(box) {
+  var W = S.why = S.why || { n1: 100, n2: 1000, ac: true, vi: 0, t: 0 };
+  box.innerHTML = '<div class="e7-grid"><div class="e7-card"><h2>🔁 変圧器で電圧を変える</h2><p>' + rb('変圧器', 'へんあつき') + 'は、鉄心に2つのコイルを巻いたものです。交流を1次コイルに流すと、2次コイルに<b>巻き数に比例した電圧</b>が生まれます。</p>' +
+    '<svg class="e7-svg" viewBox="0 0 420 220" data-ref="tsvg" role="img" aria-label="変圧器"></svg>' +
+    '<div class="e7-ctl"><label>1次コイル(入力側)の巻き数 <b data-ref="n1o"></b></label><div class="e7-seg" data-ref="n1"></div></div>' +
+    '<div class="e7-ctl"><label>2次コイル(出力側)の巻き数 <b data-ref="n2o"></b></label><div class="e7-seg" data-ref="n2"></div></div>' +
+    '<div class="e7-seg"><button class="e7-btn sm" data-ac="1">〰️ 交流 100 V を入れる</button><button class="e7-btn sm" data-ac="0">🔋 直流 100 V を入れる</button></div>' +
+    '<div class="e7-msg" data-ref="tmsg" style="margin-top:8px"></div></div>' +
+    '<div class="e7-card"><h2>🔥 送電線で熱になる電気をへらそう</h2><p>発電所から町(100軒)へ <b>100 kW</b> の電気を送ります。送電線には抵抗(5 Ω)があり、電流が流れると<b>熱になって失われます</b>(損失)。送る電圧を変えてみよう。</p>' +
+    '<svg class="e7-svg" viewBox="0 0 420 150" data-ref="lsvg" role="img" aria-label="送電線"></svg>' +
+    '<div class="e7-ctl"><label for="e7-vs">送る電圧 <b data-ref="vo"></b></label><input type="range" id="e7-vs" min="0" max="' + (VSTEPS.length - 1) + '" step="1" data-ref="vs"></div>' +
+    '<div class="e7-meters"><div class="e7-m"><div class="k">送電線の電流</div><div class="v" data-ref="mI"></div></div><div class="e7-m"><div class="k">熱で失う電力(損失)</div><div class="v" data-ref="mL"></div></div><div class="e7-m hi"><div class="k">町に届く電力</div><div class="v" data-ref="mG"></div></div></div>' +
+    '<div class="e7-bar" style="margin-top:8px" data-ref="bar"></div>' +
+    '<p style="margin:8px 0 2px">明かりがついた家: <b data-ref="hn"></b> / 100 軒</p><div class="e7-houses" data-ref="houses"></div>' +
+    '<div data-ref="mis" style="margin-top:8px"></div></div></div>' +
+    '<div class="e7-card good"><b>まとめ</b> 同じ電力を送るとき、<b>電圧を高くすると電流が小さく</b>なり(電力 = 電圧 × 電流)、送電線で熱になって失われるエネルギーが<b>少なく</b>なります。交流は変圧器で電圧を簡単に変えられるので、遠くの発電所から電気を送るのに向いています。家の近くでは、安全のために変電所や柱上変圧器で電圧を下げてから使います。</div>';
+  var el = refs(box);
+  var N1 = [100, 200, 500, 1000], N2 = [50, 100, 1000, 5000];
+  function trans() {
+    el.n1.innerHTML = N1.map(function (n) { return '<button class="e7-btn sm' + (W.n1 === n ? ' sel' : '') + '" data-n1="' + n + '">' + num(n) + '回</button>'; }).join('');
+    el.n2.innerHTML = N2.map(function (n) { return '<button class="e7-btn sm' + (W.n2 === n ? ' sel' : '') + '" data-n2="' + n + '">' + num(n) + '回</button>'; }).join('');
+    el.n1o.textContent = num(W.n1) + ' 回'; el.n2o.textContent = num(W.n2) + ' 回';
+    box.querySelectorAll('[data-ac]').forEach(function (b) { b.classList.toggle('sel', (b.getAttribute('data-ac') === '1') === W.ac); });
+    var V2 = W.ac ? 100 * W.n2 / W.n1 : 0, P = 1000;
+    var loops = function (n, x, col) { var k = clamp(Math.round(Math.log(n) / Math.log(10) * 3 - 3), 2, 10), h = ''; for (var i = 0; i < k; i++) { var y = 62 + i * (96 / k); h += '<ellipse cx="' + x + '" cy="' + y.toFixed(1) + '" rx="26" ry="5" fill="none" stroke="' + col + '" stroke-width="3"/>'; } return h; };
+    el.tsvg.innerHTML = '<rect x="120" y="40" width="180" height="140" rx="8" fill="none" stroke="#868e96" stroke-width="22"/><text x="210" y="116" font-size="12" text-anchor="middle" fill="#5b6b7c">鉄心</text>' +
+      loops(W.n1, 131, '#d9480f') + loops(W.n2, 289, '#1971c2') +
+      '<text x="60" y="100" font-size="13" text-anchor="middle" font-weight="bold" fill="#d9480f">入力</text><text x="60" y="122" font-size="18" text-anchor="middle" font-weight="bold">' + (W.ac ? '交流' : '直流') + ' 100 V</text>' +
+      '<text x="360" y="100" font-size="13" text-anchor="middle" font-weight="bold" fill="#1971c2">出力</text><text x="360" y="122" font-size="18" text-anchor="middle" font-weight="bold" fill="' + (V2 ? '#1d2b3a' : '#e03131') + '">' + (V2 ? (V2 >= 100 ? num(Math.round(V2)) : +V2.toFixed(1)) + ' V' : '0 V') + '</text>' +
+      '<text x="131" y="206" font-size="12" text-anchor="middle" fill="#d9480f">1次 ' + num(W.n1) + '回</text><text x="289" y="206" font-size="12" text-anchor="middle" fill="#1971c2">2次 ' + num(W.n2) + '回</text>';
+    var m;
+    if (!W.ac) m = '🔋 直流では、2次コイルに電圧が生まれません。変圧器は、電圧の向きと大きさが変わり続ける<b>交流</b>だから使えます。';
+    else if (V2 > 100) { m = '⬆️ 電圧を <b>' + (W.n2 / W.n1) + ' 倍</b>に上げました(昇圧)。1000 W を送るとき、電流は 1次 ' + (P / 100) + ' A → 2次 ' + +(P / V2).toFixed(3) + ' A に<b>小さく</b>なります。'; S.save.tr.up = 1; }
+    else if (V2 < 100) { m = '⬇️ 電圧を <b>' + (W.n1 / W.n2) + ' 分の1</b>に下げました(降圧)。家庭の近くの柱上変圧器は、このように電圧を下げています。'; S.save.tr.down = 1; }
+    else m = '巻き数が同じなので、電圧は変わりません。';
+    if (S.save.tr.up && S.save.tr.down) mark('trans'); persist();
+    el.tmsg.innerHTML = m; el.tmsg.className = 'e7-msg' + (W.ac ? ' ok' : ' ng');
+  }
+  var heat = 0, curI = 0;
+  function line() {
+    var V = VSTEPS[W.vi], c = lineCalc(V, RLINE);
+    el.vs.value = W.vi; el.vo.textContent = fV(V);
+    el.mI.textContent = fA(c.I); el.mL.textContent = fPow(c.loss); el.mG.textContent = fPow(c.got);
+    var gp = c.got / PSEND * 100;
+    el.bar.innerHTML = '<span style="width:' + gp + '%;background:#ffe066">' + (gp > 18 ? '届く ' + gp.toFixed(gp > 99 ? 2 : 1) + '%' : '') + '</span><span style="width:' + (100 - gp) + '%;background:#ff8787;color:#fff">' + (100 - gp > 14 ? '熱 ' + (100 - gp).toFixed(1) + '%' : '') + '</span>';
+    var hn = Math.floor(HOUSES * c.got / PSEND + 1e-9), h = '';
+    for (var i = 0; i < HOUSES; i++) h += '<i' + (i < hn ? ' class="on"' : '') + '></i>';
+    el.houses.innerHTML = h; el.hn.textContent = hn;
+    heat = clamp(c.pct / 50, 0, 1); curI = c.I;
+    var M = [['m90', '90軒以上に明かりをつけよう', hn >= 90], ['m1', '損失を 1% 以下にしよう', c.pct <= 1]];
+    M.forEach(function (m) { if (m[2]) S.save.tr[m[0]] = 1; });
+    if (S.save.tr.m1) mark('line'); persist();
+    el.mis.innerHTML = M.map(function (m) { var ok = S.save.tr[m[0]]; return '<div class="e7-mis' + (ok ? ' ok' : '') + '"><span class="m">' + (ok ? '🎉' : '🎯') + '</span><span><b>' + m[1] + '</b>' + (m[2] ? 'いまの電圧で達成中!' : '') + '</span></div>'; }).join('') +
+      (V >= 154000 ? '<p style="font-size:.92em">本物の送電線では、27万5000 V や 50万 V のとても高い電圧で、遠くまで送っています。</p>' : '');
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-n1],[data-n2],[data-ac]'); if (!t) return;
+    if (t.hasAttribute('data-n1')) W.n1 = +t.getAttribute('data-n1');
+    else if (t.hasAttribute('data-n2')) W.n2 = +t.getAttribute('data-n2');
+    else W.ac = t.getAttribute('data-ac') === '1';
+    trans();
+  });
+  el.vs.addEventListener('input', function () { W.vi = +el.vs.value; line(); });
+  trans(); line();
+  S.tick = function (dt) {
+    W.t = (W.t + dt * clamp(0.04 + curI / 120, 0.04, 1)) % 1;
+    var nd = clamp(Math.round(4 + Math.sqrt(curI) * 1.6), 4, 22), d = '';
+    for (var k = 0; k < nd; k++) { var f = (W.t + k / nd) % 1; d += '<circle cx="' + (70 + 280 * f).toFixed(1) + '" cy="70" r="4" fill="#fab005"/>'; }
+    var r = Math.round(73 + (224 - 73) * heat), g = Math.round(80 + (49 - 80) * heat), b = Math.round(87 + (49 - 87) * heat);
+    el.lsvg.innerHTML = '<text x="30" y="80" font-size="34" text-anchor="middle">🏭</text><text x="30" y="110" font-size="12" text-anchor="middle">発電所</text>' +
+      '<text x="390" y="80" font-size="34" text-anchor="middle">🏘️</text><text x="390" y="110" font-size="12" text-anchor="middle">町</text>' +
+      (heat > 0.02 ? '<line x1="60" y1="70" x2="360" y2="70" stroke="#ff6b6b" stroke-width="' + (8 + 14 * heat) + '" opacity="' + (0.25 + 0.4 * heat * (0.8 + 0.2 * Math.sin(W.t * 40))).toFixed(2) + '" stroke-linecap="round"/>' : '') +
+      '<line x1="60" y1="70" x2="360" y2="70" stroke="rgb(' + r + ',' + g + ',' + b + ')" stroke-width="5"/>' + d +
+      (heat > 0.05 ? '<text x="210" y="40" font-size="' + (14 + 10 * heat) + '" text-anchor="middle">' + (heat > 0.5 ? '🔥🔥🔥' : heat > 0.2 ? '🔥🔥' : '🔥') + '</text>' : '') +
+      '<text x="210" y="122" font-size="12" text-anchor="middle" fill="#5b6b7c">送電線(抵抗 5 Ω)・黄色い粒の多さと速さ = 電流の大きさ</text>';
+  };
+}
+
+/* ================= ④ 損失の計算(発展) ================= */
+function makeQ() {
+  var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; }, t = Math.floor(Math.random() * 5);
+  if (t === 0) { var dv = pick([['電子レンジ', 1000], ['ドライヤー', 1200], ['電気ケトル', 1300], ['テレビ', 150], ['冷蔵庫', 250]]), V = 100; return { q: dv[0] + '(' + dv[1] + ' W)を 100 V のコンセントで使うと、流れる電流は何 A ですか。', a: dv[1] / V, u: 'A', hint: '電流 = 電力 ÷ 電圧' }; }
+  if (t === 1) { var I = pick([2, 3, 4, 5, 10, 20]), R = pick([0.5, 1, 2, 5]); return { q: '抵抗 ' + R + ' Ω の電線に ' + I + ' A の電流が流れています。熱になって失われる電力(損失)は何 W ですか。', a: I * I * R, u: 'W', hint: '損失 = 電流 × 電流 × 抵抗' }; }
+  if (t === 2) { var V2 = pick([1000, 2000, 5000, 10000]), R2 = pick([1, 2, 5]), I2 = 100000 / V2; return { q: '100 kW(10万 W)の電力を ' + num(V2) + ' V で送ります。送電線の抵抗が ' + R2 + ' Ω のとき、損失は何 W ですか。', a: I2 * I2 * R2, u: 'W', hint: 'まず 電流 = 電力 ÷ 電圧、つぎに 損失 = 電流² × 抵抗' }; }
+  if (t === 3) { var k = pick([2, 3, 4, 5, 10]); return { q: '同じ電力を送るとき、送る電圧を ' + k + ' 倍にすると、送電線の損失は何分の1になりますか。', a: k * k, u: '分の1', hint: '電圧が ' + k + ' 倍 → 電流は ' + k + ' 分の1 → 損失は 電流² に比例' }; }
+  var k2 = pick([2, 3, 4]); return { q: '電線を太くして、送電線の抵抗を ' + k2 + ' 分の1にしました。電流が同じとき、損失は何分の1になりますか。', a: k2, u: '分の1', hint: '損失 = 電流² × 抵抗 なので、抵抗に比例' };
+}
+function renderCalc(box) {
+  var C = S.calc = S.calc || { va: 3, ra: 3, vb: 6, rb: 3, qs: null, qi: 0, score: 0, res: null };
+  var VV = [1000, 2000, 3000, 5000, 6000, 10000, 20000], RR = [1, 2, 2.5, 5, 10];
+  box.innerHTML = '<div class="e7-card adv"><span class="e7-kicker adv">発展編</span><h2>🧮 損失の計算</h2><div class="e7-form">電力 P = 電圧 V × 電流 I  →  電流 I = P ÷ V<br>送電線の損失 = 電流 I × 電流 I × 抵抗 R</div>' +
+    '<p>電圧を2倍にすると電流は半分になり、損失は <b>2 × 2 = 4 分の1</b> になります。電線を太くして抵抗を半分にしても、損失は2分の1にしかなりません(しかも電線が重く、高くなります)。</p></div>' +
+    '<div class="e7-card"><h2>くらべてみよう(送る電力はどちらも 100 kW)</h2><div class="e7-two" data-ref="cmp"></div></div>' +
+    '<div class="e7-card"><div class="e7-row" style="justify-content:space-between"><h2 style="margin:0">✏️ 計算ドリル(5問)</h2><span>これまでのいちばん: <b data-ref="best"></b></span></div><div data-ref="drill"></div></div>';
+  var el = refs(box);
+  function side(k) {
+    var V = VV[C['v' + k]], R = RR[C['r' + k]], c = lineCalc(V, R);
+    return '<div class="e7-card" style="background:#fbfdff"><b>' + (k === 'a' ? 'A' : 'B') + '</b>' +
+      '<div class="e7-ctl"><label>電圧 <b>' + num(V) + ' V</b></label><input type="range" min="0" max="' + (VV.length - 1) + '" value="' + C['v' + k] + '" data-cv="' + k + '"></div>' +
+      '<div class="e7-ctl"><label>送電線の抵抗 <b>' + R + ' Ω</b></label><input type="range" min="0" max="' + (RR.length - 1) + '" value="' + C['r' + k] + '" data-cr="' + k + '"></div>' +
+      '<p>電流 = 100,000 ÷ ' + num(V) + ' = <b>' + +c.I.toFixed(2) + ' A</b><br>損失 = ' + +c.I.toFixed(2) + ' × ' + +c.I.toFixed(2) + ' × ' + R + ' = <b>' + num(Math.round(c.loss)) + ' W</b>(' + c.pct.toFixed(2) + '%)</p></div>';
+  }
+  function cmp() {
+    var a = lineCalc(VV[C.va], RR[C.ra]), b = lineCalc(VV[C.vb], RR[C.rb]), r = a.loss / b.loss;
+    el.cmp.innerHTML = side('a') + side('b') + '<p style="grid-column:1/-1;font-weight:bold">' + (Math.abs(r - 1) < 1e-9 ? 'A と B の損失は同じです。' : 'B の損失は A の ' + (r > 1 ? +r.toFixed(2) + ' 分の1' : +(1 / r).toFixed(2) + ' 倍') + 'です。') + '</p>';
+  }
+  function drill() {
+    el.best.textContent = S.save.calcBest + ' / 5';
+    if (!C.qs) { el.drill.innerHTML = '<p>電力・電流・損失を計算する問題が5問出ます。答えは数字で入れよう。</p><button class="e7-btn primary" data-act="start">▶ はじめる</button>'; return; }
+    var q = C.qs[C.qi];
+    if (!q) {
+      if (C.score > S.save.calcBest) S.save.calcBest = C.score;
+      if (C.score >= 4) mark('calcq'); persist();
+      el.best.textContent = S.save.calcBest + ' / 5';
+      el.drill.innerHTML = '<div class="e7-msg ' + (C.score >= 4 ? 'ok' : '') + '">🎯 ' + C.score + ' / 5 問正解でした。' + (C.score >= 4 ? 'よくできました!' : 'もう一度ためそう。') + '</div><button class="e7-btn primary" data-act="start" style="margin-top:8px">もう一度</button>';
+      return;
+    }
+    el.drill.innerHTML = '<div class="e7-q e7-dq"><b>' + (C.qi + 1) + ' / 5.</b> ' + q.q + '<div class="e7-row" style="margin-top:8px">答え <input type="text" inputmode="decimal" data-ref="ans" aria-label="答え" autocomplete="off"' + (C.res ? ' disabled value="' + esc(C.res.v) + '"' : '') + '> ' + q.u +
+      (C.res ? '' : '<button class="e7-btn primary sm" data-act="check">こたえる</button>') + '</div>' +
+      (C.res ? '<div class="why">' + (C.res.ok ? '⭕ 正解!' : '❌ 正解は ' + num(+q.a.toFixed(3)) + ' ' + q.u + '。') + ' ヒント: ' + q.hint + '</div><button class="e7-btn primary sm" data-act="qnext" style="margin-top:6px">つぎへ ▶</button>' : '<div class="why" style="color:#868e96">ヒント: ' + q.hint + '</div>') + '</div>';
+    var inp = el.drill.querySelector('input'); if (inp && !C.res) { inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') check(); }); }
+  }
+  function check() {
+    var inp = el.drill.querySelector('input'), raw = (inp && inp.value || '').trim(), q = C.qs[C.qi];
+    var v = parseFloat(raw.replace(/[０-９．]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/,/g, ''));
+    if (!raw || isNaN(v)) { toast('数字を入れてね。'); return; }
+    var ok = Math.abs(v - q.a) <= Math.max(0.011, Math.abs(q.a) * 1e-6);
+    if (ok) C.score++;
+    C.res = { ok: ok, v: raw }; drill();
+  }
+  box.addEventListener('input', function (ev) {
+    var t = ev.target;
+    if (t.hasAttribute('data-cv')) { C['v' + t.getAttribute('data-cv')] = +t.value; cmp(); }
+    else if (t.hasAttribute('data-cr')) { C['r' + t.getAttribute('data-cr')] = +t.value; cmp(); }
+  });
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act]'); if (!t) return;
+    var a = t.getAttribute('data-act');
+    if (a === 'start') { C.qs = [0, 1, 2, 3, 4].map(makeQ); C.qi = 0; C.score = 0; C.res = null; drill(); }
+    else if (a === 'check') check();
+    else if (a === 'qnext') { C.qi++; C.res = null; drill(); var i2 = el.drill.querySelector('input'); if (i2) try { i2.focus({ preventScroll: true }); } catch (e) {} }
+  });
+  cmp(); drill();
+}
+
+/* ================= ⑤ 周波数(発展) ================= */
+var AREAS = [
+  { id: 'hk', name: '北海道', x: 330, y: 10, w: 80, h: 50, hz: 50 },
+  { id: 'th', name: '東北', x: 300, y: 70, w: 70, h: 70, hz: 50, note: '新潟県もふくむ' },
+  { id: 'kt', name: '関東', x: 300, y: 150, w: 70, h: 50, hz: 50, note: '山梨県・静岡県の東部もふくむ' },
+  { id: 'hr', name: '北陸', x: 220, y: 90, w: 70, h: 40, hz: 60 },
+  { id: 'tk', name: '東海', x: 230, y: 140, w: 60, h: 60, hz: 60, note: '長野県・岐阜県・愛知県・静岡県の西部など' },
+  { id: 'kk', name: '近畿', x: 160, y: 140, w: 60, h: 60, hz: 60 },
+  { id: 'cg', name: '中国', x: 80, y: 140, w: 70, h: 40, hz: 60 },
+  { id: 'sk', name: '四国', x: 110, y: 190, w: 60, h: 30, hz: 60 },
+  { id: 'ks', name: '九州', x: 20, y: 170, w: 50, h: 70, hz: 60 },
+  { id: 'ok', name: '沖縄', x: 10, y: 255, w: 60, h: 30, hz: 60 }
+];
+function renderFreq(box) {
+  var F = S.fq = S.fq || { set: {}, checked: false, t: 0, q: {} };
+  box.innerHTML = '<div class="e7-card adv"><span class="e7-kicker adv">発展編</span><h2>🗾 周波数 50Hz・60Hz</h2><p>交流が1秒間にくり返す回数を<b>' + rb('周波数', 'しゅうはすう') + '</b>といい、単位は<b>Hz(ヘルツ)</b>です。日本では、<b>東日本は 50Hz、西日本は 60Hz</b> の交流が使われています。</p></div>' +
+    '<div class="e7-grid"><div class="e7-card"><h2>〰️ 0.1 秒間の波をくらべよう(スローで表示)</h2><svg class="e7-svg" viewBox="0 0 440 200" data-ref="wv" role="img" aria-label="50Hz と 60Hz の波"></svg>' +
+    '<div data-ref="cq"></div></div>' +
+    '<div class="e7-card"><h2>🗺️ 50Hz と 60Hz の地図を作ろう</h2><p>地方をタップすると「50Hz → 60Hz → ?」と変わります。ぜんぶ決めたら「答え合わせ」。</p><svg class="e7-svg" viewBox="0 0 420 300" data-ref="map" role="img" aria-label="日本の地方の地図(簡単な図)" style="max-width:520px"></svg>' +
+    '<div class="e7-row"><button class="e7-btn primary" data-act="check">✅ 答え合わせ</button><button class="e7-btn sm" data-act="reset">🔄 やりなおす</button></div><div class="e7-msg" data-ref="fmsg" style="margin-top:8px"></div></div></div>' +
+    '<div class="e7-grid3"><div class="e7-card"><h3>📜 なぜ東と西でちがうの?</h3><p>明治時代、東京ではドイツ製の 50Hz の発電機を、大阪ではアメリカ製の 60Hz の発電機を使い始めました。そのまま広がり、今も東と西で周波数がちがいます。</p></div>' +
+    '<div class="e7-card"><h3>🔁 周波数変換所</h3><p>東と西で電気を送り合うには、周波数を変える<b>周波数変換所</b>が必要です(静岡県・長野県・岐阜県などにあります)。2011年の東日本大震災のとき、西から東へ送れる電気の量が足りず、その後、変換所を増やす工事が進められています。</p></div>' +
+    '<div class="e7-card"><h3>🏠 引っこしのときは?</h3><p>今の電気製品の多くは 50Hz でも 60Hz でも使えます。古い製品の中には、周波数が合わないと正しく動かないもの(一部の洗濯機・電子レンジ・時計など)があるので、表示を確かめます。</p></div></div>';
+  var el = refs(box);
+  var CQ = [
+    { id: 'c50', q: '0.1 秒間に、50Hz の波は何回くり返しますか。', a: '5回', o: ['5回', '6回', '50回'] },
+    { id: 'c60', q: '0.1 秒間に、60Hz の波は何回くり返しますか。', a: '6回', o: ['5回', '6回', '60回'] }
+  ];
+  function cq() {
+    el.cq.innerHTML = CQ.map(function (q) {
+      var got = F.q[q.id];
+      return '<div class="e7-q"><b>' + q.q + '</b><div class="e7-seg" style="margin-top:6px">' + q.o.map(function (o) {
+        return '<button class="e7-btn sm' + (got ? (o === q.a ? ' good' : (got === o ? ' sel' : '')) : '') + '" data-cq="' + q.id + '" data-o="' + o + '"' + (got === q.a ? ' disabled' : '') + '>' + o + '</button>';
+      }).join('') + '</div>' + (got ? '<div class="why">' + (got === q.a ? '⭕ 正解! 1秒間に ' + q.id.slice(1) + ' 回なので、0.1 秒間ではその10分の1です。' : '❌ グラフの山の数を数えてみよう。') + '</div>' : '') + '</div>';
+    }).join('');
+  }
+  function map() {
+    var s = '';
+    AREAS.forEach(function (a) {
+      var v = F.set[a.id], right = F.checked && v === a.hz, wrong = F.checked && v !== a.hz;
+      var fill = v === 50 ? '#a5d8ff' : v === 60 ? '#ffc078' : '#f1f3f5';
+      s += '<g data-ar="' + a.id + '" style="cursor:pointer"><rect x="' + a.x + '" y="' + a.y + '" width="' + a.w + '" height="' + a.h + '" rx="8" fill="' + fill + '" stroke="' + (wrong ? '#e03131' : right ? '#2f9e44' : '#495057') + '" stroke-width="' + (F.checked ? 3 : 1.5) + '"/>' +
+        '<text x="' + (a.x + a.w / 2) + '" y="' + (a.y + a.h / 2 - 2) + '" font-size="13" text-anchor="middle" font-weight="bold" pointer-events="none">' + a.name + '</text>' +
+        '<text x="' + (a.x + a.w / 2) + '" y="' + (a.y + a.h / 2 + 14) + '" font-size="12" text-anchor="middle" pointer-events="none" fill="' + (wrong ? '#e03131' : '#1d2b3a') + '">' + (v ? v + 'Hz' : '?') + (wrong ? ' ✗' : right ? ' ✓' : '') + '</text></g>';
+    });
+    var all = F.checked && AREAS.every(function (a) { return F.set[a.id] === a.hz; });
+    if (all) s += '<path d="M296,64 L296,145 L296,205" stroke="#c92a2a" stroke-width="4" stroke-dasharray="8 5" fill="none"/><text x="296" y="222" font-size="12" text-anchor="middle" fill="#c92a2a" font-weight="bold">境目</text><text x="296" y="238" font-size="11" text-anchor="middle" fill="#c92a2a">(富士川〜糸魚川)</text><text x="385" y="262" font-size="13" text-anchor="middle" fill="#1971c2" font-weight="bold">東: 50Hz</text><text x="150" y="268" font-size="12" text-anchor="middle" fill="#d9480f" font-weight="bold">西: 60Hz</text>';
+    el.map.innerHTML = '<rect x="0" y="0" width="420" height="300" rx="10" fill="#e7f5ff" opacity=".5"/>' + s;
+    if (all) mark('freq');
+    var n = AREAS.filter(function (a) { return F.set[a.id]; }).length, nok = AREAS.filter(function (a) { return F.set[a.id] === a.hz; }).length;
+    el.fmsg.className = 'e7-msg' + (all ? ' ok' : F.checked ? ' ng' : '');
+    el.fmsg.innerHTML = all ? '🎉 完成! 静岡県の富士川と新潟県の糸魚川を結ぶあたりを境目に、東が 50Hz、西が 60Hz です。<br><small>' + AREAS.filter(function (a) { return a.note; }).map(function (a) { return a.name + ': ' + a.note; }).join(' ・ ') + '</small>' :
+      F.checked ? '✓ は ' + nok + ' / 10。✗ のところを直して、もう一度「答え合わせ」しよう。' : '決めた地方: ' + n + ' / 10';
+  }
+  box.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-ar],[data-act],[data-cq]'); if (!t || t.disabled) return;
+    if (t.hasAttribute('data-ar')) { var id = t.getAttribute('data-ar'), v = F.set[id]; F.set[id] = v === 50 ? 60 : v === 60 ? 0 : 50; F.checked = false; map(); return; }
+    if (t.hasAttribute('data-cq')) { F.q[t.getAttribute('data-cq')] = t.getAttribute('data-o'); cq(); return; }
+    var a = t.getAttribute('data-act');
+    if (a === 'check') { if (AREAS.some(function (x) { return !F.set[x.id]; })) { toast('まだ「?」の地方があります。'); return; } F.checked = true; map(); }
+    else if (a === 'reset') { F.set = {}; F.checked = false; map(); }
+  });
+  cq(); map();
+  S.tick = function (dt) {
+    F.t = (F.t + dt * 0.02) % 1;
+    var x0 = 40, x1 = 430, s = '';
+    [[50, 55, '#1971c2', '東日本 50Hz'], [60, 145, '#d9480f', '西日本 60Hz']].forEach(function (w) {
+      var pts = []; for (var i = 0; i <= 200; i++) { var tt = 0.1 * i / 200; pts.push((x0 + (x1 - x0) * i / 200).toFixed(1) + ',' + (w[1] - 30 * Math.sin(2 * Math.PI * w[0] * (tt + F.t * 0.1))).toFixed(1)); }
+      s += '<line x1="' + x0 + '" y1="' + w[1] + '" x2="' + x1 + '" y2="' + w[1] + '" stroke="#dee2e6"/><polyline points="' + pts.join(' ') + '" fill="none" stroke="' + w[2] + '" stroke-width="3"/><text x="' + x0 + '" y="' + (w[1] - 36) + '" font-size="13" font-weight="bold" fill="' + w[2] + '">' + w[3] + '</text>';
+    });
+    s += '<text x="' + x0 + '" y="194" font-size="12" fill="#5b6b7c">0 秒</text><text x="' + x1 + '" y="194" font-size="12" text-anchor="end" fill="#5b6b7c">0.1 秒</text>';
+    el.wv.innerHTML = s;
+  };
+}
+
+/* ================= 振り返り ================= */
+var REFL = [
+  { id: 'q1', q: '電池(直流)とコンセント(交流)の電気は、どのようにちがいますか。' },
+  { id: 'q2', q: '発電所から高い電圧で電気を送るのはなぜですか。「電流」「損失」という言葉を使って説明しよう。' },
+  { id: 'q3', q: '電気を安全で安定して届けるために、どんな工夫がされていましたか。(変電所・網の目・周波数 など)' }
+];
+function renderRefl(box) {
+  box.innerHTML = '<div class="e7-card" data-ef-reflect><h2>✏️ 振り返り</h2><p>学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 記録」でファイルにできます。</p>' +
+    REFL.map(function (r, i) { return '<div class="e7-field"><label for="e7-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e7-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(S.save.refl[r.id]) + '</textarea></div>'; }).join('') + '</div>';
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value; persist(); });
+}
+
+/* ================= 記録 ================= */
+function whoInit() {
+  var w = S.save.who;
+  if (!w.cls && !w.name) { try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) { w.cls = String(e5.who.cls || ''); w.name = String(e5.who.name || ''); } } catch (e) {} }
+  return w;
+}
+function renderRec(box) {
+  var w = whoInit(), s = S.save;
+  box.innerHTML = '<div class="e7-grid"><div class="e7-card"><h2>📊 やったこと</h2><ul class="e7-sum">' + STEPS.map(function (st) { return '<li><span class="m">' + (stepDone(st.id) ? '✅' : '⬜') + '</span>' + st.name + '</li>'; }).join('') + '</ul>' +
+    '<p>④ 計算ドリルのいちばん: <b>' + s.calcBest + ' / 5</b></p></div>' +
+    '<div class="e7-card"><h2>💾 ファイルに保存して提出</h2><div class="e7-two"><div class="e7-field"><label for="e7-cls">組・番号</label><input type="text" id="e7-cls" data-who="cls" maxlength="20" value="' + esc(w.cls) + '" placeholder="例: 2組15番"></div><div class="e7-field"><label for="e7-name">名前</label><input type="text" id="e7-name" data-who="name" maxlength="30" value="' + esc(w.name) + '"></div></div>' +
+    '<p>やったこと・振り返りを、1つのファイル(<code>C7-souden-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
+    '<button class="e7-btn primary" data-act="save" style="width:100%">💾 ファイルに保存</button>' +
+    '<div data-ef-reflect style="margin-top:10px"><h3>振り返り(ファイルに入ります)</h3>' + REFL.map(function (r, i) { return '<p><b>' + (i + 1) + '.</b> ' + (s.refl[r.id] ? esc(s.refl[r.id]) : '<span style="color:#868e96">(まだ書いていません)</span>') + '</p>'; }).join('') + '</div></div></div>';
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-who'); if (!k) return; S.save.who[k] = ev.target.value.slice(0, k === 'cls' ? 20 : 30); persist(); });
+  box.addEventListener('click', function (ev) { if (ev.target.closest('[data-act="save"]')) saveFile(); });
+}
+function exportObj() {
+  var s = S.save;
+  return { schema: 'energyApps.artifact', app: 'C7', type: 'power-supply-lab', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
+    data: { steps: STEPS.map(function (st) { return { id: st.id, name: st.name, done: stepDone(st.id) }; }), calcBest: s.calcBest, reflection: s.refl } };
+}
+function saveFile() {
+  var p2 = function (n) { return (n < 10 ? '0' : '') + n; }, t = new Date();
+  var blob = new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'C7-souden-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast('保存しました。ダウンロードのフォルダを見てね。');
+}
+
+/* ---------- 画面 ---------- */
+var RENDER = { intro: renderIntro, dcac: renderDcac, route: renderRoute, why: renderWhy, calc: renderCalc, freq: renderFreq, refl: renderRefl, rec: renderRec };
+function renderBody() {
+  var old = S.el.body, nb = old.cloneNode(false);   /* 前のタブのイベントを残さないように、入れ物ごと作り直す */
+  old.parentNode.replaceChild(nb, old); S.el.body = nb;
+  var w = document.createElement('div'); w.className = 'e7-wrap'; nb.appendChild(w);
+  (RENDER[S.tab] || renderIntro)(w);
+}
+function mount(root) {
+  S.root = root; root.classList.add('e7');
+  S.save = loadSave();
+  root.innerHTML = '<div class="e7-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>🔌 <span class="lg">直流・交流と送電ラボ</span></h1>') + '<nav class="e7-tabs" data-ref="tabs" aria-label="C7 のページ"></nav>' + efSlot() + '</div>' +
+    '<div class="e7-body" data-ref="body"></div><div class="e7-toast" data-ref="toast" role="status"></div>';
+  S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
+  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
+  var t0 = TABS.some(function (t) { return t.id === S.save.tab; }) ? S.save.tab : 'intro';
+  go(t0);
+  if (!S.raf) S.raf = requestAnimationFrame(frame);
+}
+
+NS.C7 = {
+  mount: mount,
+  _test: { S: S, STEPS: STEPS, TABS: TABS, lineCalc: lineCalc, makeQ: makeQ, meshLit: meshLit, MESH_E: MESH_E, AREAS: AREAS, ROUTE: ROUTE, stepDone: stepDone, exportObj: exportObj, go: go }
+};
+var auto = null;
+if (auto && !auto.getAttribute('data-manual')) mount(auto);
+})();
+</script>
 
 <!-- ===== 統合シェル ===== -->
 <script>
 (function () {
 'use strict';
-var APPS = [{"id": "C1", "icon": "⚡", "name": "エネルギー変換ゲーム", "short": "エネルギー", "color": "#1e6fd9", "sub": "部品をつないで、エネルギーの変わり方と効率を体験", "tags": ["ステージ1〜8", "自由実験", "効率・CO₂・費用・社会"]}, {"id": "C2", "icon": "🔌", "name": "電気回路ラボ", "short": "電気回路", "color": "#d9480f", "sub": "回路をつくって、電流・電圧・安全を確かめる", "tags": ["課題11", "安全体験", "電気料金"]}, {"id": "C3", "icon": "⚙️", "name": "機構ラボ", "short": "機構", "color": "#2b7a4b", "sub": "歯車・ベルト・リンクで、動きと速さの変わり方を調べる", "tags": ["回転を伝える", "運動を変える", "設計課題12", "設計図"]}, {"id": "C4", "icon": "🔧", "name": "保守点検ラボ", "short": "保守点検", "color": "#c8620e", "sub": "共通部品と、点検・手入れのしかたを学ぶ", "tags": ["部品図鑑", "故障クイズ", "ゆるみ・摩耗", "点検表"]}, {"id": "C5", "icon": "📐", "name": "回路設計シート", "short": "回路設計", "color": "#5f3dc4", "sub": "目的に合った回路を設計し、製作と評価まで記録する", "tags": ["回路図", "自動チェック", "部品表・手順", "評価"]}];
+var APPS = [{"id": "C1", "icon": "⚡", "name": "エネルギー変換ゲーム", "short": "エネルギー", "color": "#1e6fd9", "sub": "部品をつないで、エネルギーの変わり方と効率を体験", "tags": ["ステージ1〜8", "自由実験", "効率・CO₂・費用・社会"]}, {"id": "C2", "icon": "🔌", "name": "電気回路ラボ", "short": "電気回路", "color": "#d9480f", "sub": "回路をつくって、電流・電圧・安全を確かめる", "tags": ["課題11", "安全体験", "電気料金"]}, {"id": "C3", "icon": "⚙️", "name": "機構ラボ", "short": "機構", "color": "#2b7a4b", "sub": "歯車・ベルト・リンクで、動きと速さの変わり方を調べる", "tags": ["回転を伝える", "運動を変える", "設計課題12", "設計図"]}, {"id": "C4", "icon": "🔧", "name": "保守点検ラボ", "short": "保守点検", "color": "#c8620e", "sub": "共通部品と、点検・手入れのしかたを学ぶ", "tags": ["部品図鑑", "故障クイズ", "ゆるみ・摩耗", "点検表"]}, {"id": "C5", "icon": "📐", "name": "回路設計シート", "short": "回路設計", "color": "#5f3dc4", "sub": "目的に合った回路を設計し、製作と評価まで記録する", "tags": ["回路図", "自動チェック", "部品表・手順", "評価"]}, {"id": "C6", "icon": "🌬️", "name": "風力発電の羽根ラボ", "short": "風力発電", "color": "#0b7285", "sub": "羽根を変えて、より効率の良い風力発電をめざす", "tags": ["発電機のしくみ", "羽根の実験", "ランキング", "発電方法くらべ"]}, {"id": "C7", "icon": "🗼", "name": "直流・交流と送電ラボ", "short": "送電", "color": "#5c940d", "sub": "直流と交流のちがいと、電気が家に届くしくみを調べる", "tags": ["直流と交流", "変圧器", "送電・配電", "50Hz・60Hz"]}];
 var EA = window.EnergyApps || {};
 EA.embedded = true; // 各アプリは自分の上のバーに「このアプリについて」を出さない(このシェルのバーに出す)
 var root = document.getElementById('ea');
@@ -9868,6 +11608,19 @@ var PROG = {
     var n = countIds(ids, ds, function (v) { return v && Array.isArray(v.parts) && v.parts.length > 0; }), cur = '';
     if (tasks && d.task) tasks.forEach(function (x) { if (x.id === d.task) cur = 'いまの課題: ' + (x.icon ? x.icon + ' ' : '') + x.title; });
     return tasks ? { n: n, t: ids.length, main: '回路図をかいた課題', end: '', sub: cur } : null;
+  },
+  /* C6・C7 は「やったこと」(STEPS)の数。保存の done・mis を読む */
+  C6: function (d) {
+    var t = appTest('C6'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['gen', 'quiz', 'cmp', 'm1', 'm2', 'm3', 'meth', 'day'];
+    var dn = isObj(d.done) ? d.done : {}, ms = isObj(d.mis) ? d.mis : {};
+    var n = ids.filter(function (k) { return /^m\d$/.test(k) ? !!ms[k] : !!dn[k]; }).length;
+    var r = Array.isArray(d.rank) && d.rank[0] && isFinite(d.rank[0].p) ? d.rank[0].p : 0;
+    return { n: n, t: ids.length, main: 'やったこと', end: '', sub: r > 0 ? 'ランキング1位 ' + (r < 1 ? Math.round(r * 1000) + ' mW' : r.toFixed(2) + ' W') : '' };
+  },
+  C7: function (d) {
+    var t = appTest('C7'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['dcac', 'sort', 'route', 'mesh', 'trans', 'line', 'calcq', 'freq'];
+    var dn = isObj(d.done) ? d.done : {};
+    return { n: countIds(ids, dn, truthy), t: ids.length, main: 'やったこと', end: '', sub: +d.calcBest > 0 ? '計算ドリル 最高 ' + (+d.calcBest) + ' / 5' : '' };
   }
 };
 function progressOf(id) {
@@ -9917,7 +11670,7 @@ refs.chips.innerHTML = APPS.map(function (a) {
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
-/* ---- 表示切りかえ(URLの #C1〜#C5 / #help で決まる) ---- */
+/* ---- 表示切りかえ(URLの #C1〜#C7 / #help で決まる) ---- */
 function setView(v) {
   [].forEach.call(root.querySelectorAll('.ea-view'), function (el) { el.classList.toggle('on', el.getAttribute('data-view') === v); });
 }
@@ -10036,7 +11789,7 @@ $('[data-ea-file]').addEventListener('change', function (ev) {
   rd.onload = function () {
     var j = null; try { j = JSON.parse(rd.result); } catch (e) {}
     if (!j || j.schema !== 'energyApps.backup' || !j.data || typeof j.data !== 'object') { alert('このファイルは学習記録のファイルではありません。\n(「全アプリの記録をファイルに書き出す」で作ったファイルをえらんでください)'); return; }
-    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-5]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
+    var keys = Object.keys(j.data).filter(function (k) { return /^energyApps\.C[1-7]\.v1$/.test(k) && typeof j.data[k] === 'string'; });
     if (!keys.length) { alert('読み込める記録がありませんでした。'); return; }
     if (!confirm(keys.map(function (k) { return k.split('.')[1]; }).join('・') + ' の記録を読み込みます。\nこの端末の今の記録は上書きされます。よろしいですか?')) return;
     try { keys.forEach(function (k) { localStorage.setItem(k, j.data[k]); }); } catch (e) { alert('保存できませんでした: ' + e.message); return; }

@@ -196,6 +196,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -312,6 +316,11 @@ window.EDUIT_INFO = {
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -489,9 +498,26 @@ window.EDUIT_INFO = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -499,7 +525,8 @@ window.EDUIT_INFO = {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -707,19 +734,23 @@ window.EDUIT_INFO = {
 </table>
 </section>
 <section class="dom">
-<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.5版)</span></h2>
+<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.6版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
-<tr class="basic"><th rowspan="5" class="lv lv-basic">基本編</th><td class="app">C1 エネルギー変換ゲーム</td><td>ステージ1 懐中電灯・ステージ2 自転車のライト・ステージ3 クレーン・ステージ4 火力発電所・ステージ5 再生可能エネルギー・ステージ6 町の電源・ステージ7 たこ足配線</td><td class="curr">C(1)ア・C(3)イ</td><td>エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容</td></tr>
+<tr class="basic"><th rowspan="7" class="lv lv-basic">基本編</th><td class="app">C1 エネルギー変換ゲーム</td><td>ステージ1 懐中電灯・ステージ2 自転車のライト・ステージ3 クレーン・ステージ4 火力発電所・ステージ5 再生可能エネルギー・ステージ6 町の電源・ステージ7 たこ足配線</td><td class="curr">C(1)ア・C(3)イ</td><td>エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容</td></tr>
 <tr class="basic"><td class="app">C2 電気回路ラボ</td><td>課題1〜4 豆電球・スイッチ・直列・並列・課題5 モーターを逆に回そう・課題6・7 ヒューズ・ブレーカー・安全体験(たこ足配線・漏電とアース・ショート)</td><td class="curr">C(1)ア・C(2)ア</td><td>電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本</td></tr>
 <tr class="basic"><td class="app">C3 機構ラボ</td><td>回転を伝える・運動を変える・設計課題1〜9(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)</td><td class="curr">C(1)ア・C(2)</td><td>歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本</td></tr>
 <tr class="basic"><td class="app">C4 保守点検ラボ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり</td><td class="curr">C(1)ア・C(2)イ</td><td>共通部品と保守点検は、どの教科書でも扱う基本</td></tr>
 <tr class="basic"><td class="app">C5 回路設計シート</td><td>① 課題・構想・② 回路図・③ 部品表・手順・④ 評価・課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td class="curr">C(2)ア・イ・C(3)</td><td>目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本</td></tr>
-<tr class="advanced"><th rowspan="4" class="lv lv-advanced">発展編</th><td class="app">C1 エネルギー変換ゲーム</td><td>ステージ8 蓄電池(昼も夜も電気を使いたい)・ステージ9 自由実験・💴 発電方法の値段くらべ</td><td class="curr">C(1)ア・C(3)イ(発展)</td><td>蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容</td></tr>
+<tr class="basic"><td class="app">C6 風力発電の羽根ラボ</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td class="curr">C(1)ア・イ</td><td>発電機のしくみ(電磁誘導)と、風力発電のモデルで効率のよい羽根を考えることは、教科書の「発電の仕組みと特徴」の中心(レッツスタート)</td></tr>
+<tr class="basic"><td class="app">C7 直流・交流と送電ラボ</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ</td><td class="curr">C(1)ア</td><td>直流と交流のちがい、変圧と送電・配電のしくみは、教科書の「電気を供給する仕組み」の中心</td></tr>
+<tr class="advanced"><th rowspan="6" class="lv lv-advanced">発展編</th><td class="app">C1 エネルギー変換ゲーム</td><td>ステージ8 蓄電池(昼も夜も電気を使いたい)・ステージ9 自由実験・💴 発電方法の値段くらべ</td><td class="curr">C(1)ア・C(3)イ(発展)</td><td>蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容</td></tr>
 <tr class="advanced"><td class="app">C2 電気回路ラボ</td><td>課題8・9 電流計・電圧計ではかろう・課題10 電池の持ちを比べる・課題11 LEDと抵抗・電気料金</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容</td></tr>
 <tr class="advanced"><td class="app">C3 機構ラボ</td><td>設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td><td class="curr">C(1)ア・C(2)(発展)</td><td>歯数の推理や、トルク・ねじの数値を使った設計は発展の内容</td></tr>
 <tr class="advanced"><td class="app">C5 回路設計シート</td><td>課題 LEDライト・LED常夜灯(抵抗値を決める)・課題 自由設計・④ 評価の実測とのくらべ</td><td class="curr">C(2)イ・C(3)(発展)</td><td>抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容</td></tr>
+<tr class="advanced"><td class="app">C6 風力発電の羽根ラボ</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td><td class="curr">C(1)ア・イ(発展)</td><td>発電方法ごとの変換の流れの整理や、時間による発電量(電力量)の変化と組み合わせの考察は発展の内容</td></tr>
+<tr class="advanced"><td class="app">C7 直流・交流と送電ラボ</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電力と損失の計算や、周波数のちがいと周波数変換所はコラム・発展の内容</td></tr>
 </tbody>
 </table>
 </section>

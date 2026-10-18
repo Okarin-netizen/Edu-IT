@@ -196,6 +196,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -311,6 +315,11 @@ window.EDUIT_INFO = {
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -488,9 +497,26 @@ window.EDUIT_INFO = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -498,7 +524,8 @@ window.EDUIT_INFO = {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -829,7 +856,11 @@ window.EDUIT_INFO = {
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート' };
+  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ' };
+  var C_REFL = {
+    C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
+    C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
+  };
   function parseC(obj) {
     var R = Rows(obj.savedAt), d = obj.data || {}, who = obj.who || {};
     if (obj.app === 'C5') {
@@ -839,6 +870,16 @@ window.EDUIT_INFO = {
       R.add('ふりかえり', part, '構想・設計の理由', n.idea);
       R.add('ふりかえり', part, 'うまくいったこと', n.good);
       R.add('ふりかえり', part, '改善案', n.improve);
+    }
+    if (obj.app === 'C6' || obj.app === 'C7') {
+      var steps = Array.isArray(d.steps) ? d.steps.filter(isObj) : [];
+      if (steps.length) R.add('成績', '', 'やったこと', steps.filter(function (s) { return s.done; }).length + ' / ' + steps.length);
+      var rk = Array.isArray(d.rank) && isObj(d.rank[0]) ? d.rank[0] : null;
+      if (obj.app === 'C6' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
+      if (obj.app === 'C6' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
+      if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
+      var rf = isObj(d.reflection) ? d.reflection : {};
+      C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
     }
     return [{ domain: 'C', app: C_APPS[obj.app] || String(obj.app), student: student(who.cls, '', who.name), rows: R.rows }];
   }
