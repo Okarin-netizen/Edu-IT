@@ -57,3 +57,10 @@ test('A7 立体メーカー: 大きさ・図面・自己評価・ふりかえり
   assert.ok(s.fields.some((f) => f[0] === '三面図の大きさ' && f[1].includes('6×4×5')));
   assert.ok(s.fields.some((f) => f[0] === 'STL' && f[1] === '2 回'));
 });
+
+test('A8 問題解決ノート: 課題・評価の平均・振り返り', () => {
+  const s = TV.summarize(art('mondai-note', { cards: [{ text: 'せまい' }], quiz: { last: { score: 5, total: 6 } }, task: { kadai: '本立てを作る' }, ev: { title: '本立て', res: { func: 4, cost: 3 }, improve: 'やすりをかける' }, refl: { next: '観点を決める' } }));
+  assert.ok(s.reflected);
+  assert.ok(s.fields.some((f) => f[0] === '評価の平均(5段階)' && f[1].startsWith('3.5')));
+  assert.ok(s.texts.some((t) => t[0] === '課題' && t[1] === '本立てを作る'));
+});

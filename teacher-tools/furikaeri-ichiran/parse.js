@@ -51,8 +51,29 @@
   var A_APPS = {
     'material-navi': 'A1 材料選択ナビ', 'wood-lab': 'A2 木材の繊維・収縮ラボ', 'structure-lab': 'A3 構造強化ラボ',
     'drawing-trainer': 'A4 製図トレーナー', 'kidori': 'A5 木取り・構想シミュレータ', 'tool-safety': 'A6 工具の使い方・安全トレーナー',
-    'solid-maker': 'A7 第三角法 立体メーカー'
+    'solid-maker': 'A7 第三角法 立体メーカー', 'mondai-note': 'A8 問題解決ノート'
   };
+  /* 問題解決ノート(4分野共通 shared/mondai-note/)の中身 → 行。B・C・D に入れるときも、ノートの中身(data)をこれに渡す */
+  var MN_SELF = [['find', '身の回りから問題を見つけ、問題と課題を分けて書けた'], ['eval', '観点を決めて評価し、改善・修正の方法を考えられた'],
+    ['opt', '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった']];
+  var MN_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
+  function mondaiRows(R, d) {
+    var t = isObj(d.task) ? d.task : {}, ev = isObj(d.ev) ? d.ev : {}, op = isObj(d.opt) ? d.opt : {}, rf = isObj(d.refl) ? d.refl : {}, sf = isObj(rf.self) ? rf.self : {};
+    R.add('ふりかえり', '① 問題の発見', '問題', t.problem);
+    R.add('ふりかえり', '① 問題の発見', '課題', t.kadai);
+    var q = isObj(d.quiz) ? d.quiz.last : null;
+    if (isObj(q) && q.total) R.add('成績', '① 問題の発見', '問題?課題? クイズ', q.score + ' / ' + q.total);
+    var res = isObj(ev.res) ? ev.res : {}, keys = Object.keys(res).filter(function (k) { return res[k]; });
+    if (keys.length) R.add('自己評価', '② 評価', '観点ごとの評価(5段階)の平均', String(Math.round(keys.reduce(function (s, k) { return s + (+res[k] || 0); }, 0) / keys.length * 10) / 10) + '(' + keys.length + ' 観点)');
+    R.add('ふりかえり', '② 評価', 'よかった点', ev.good);
+    R.add('ふりかえり', '② 評価', '改善・修正の方法', ev.improve);
+    R.add('ふりかえり', '② 評価', '新たに見つけた問題', ev.newProblem);
+    R.add('ふりかえり', '③ 技術の最適化', '重みや制約条件を変えて気づいたこと', op.notice);
+    R.add('ふりかえり', '③ 技術の最適化', '自分の問題解決と社会の問題解決', op.compare);
+    MN_SELF.forEach(function (s) { R.add('自己評価', '振り返り', s[1], MN_LV[sf[s[0]]]); });
+    R.add('ふりかえり', '振り返り', '分かったこと・できるようになったこと', rf.learned);
+    R.add('ふりかえり', '振り返り', 'これからの問題解決に生かしたいこと', rf.next);
+  }
   var A4_SELF = [['read', '三面図を見て、立体の形を思いうかべることができた'], ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
     ['iso', '等角図を、たて・横・おくの3つの向きの線でかけた'], ['line', '線の種類(外形線・かくれ線・中心線など)を使い分けられた']];
   var A4_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
@@ -114,6 +135,9 @@
         R.add('ふりかえり', title, '自分の作品の構想や製作に、どう生かしたいか', rf.use);
         break;
       }
+      case 'mondai-note':
+        mondaiRows(R, d);
+        break;
       case 'tool-safety':
         if (a.kind === 'rubric') {
           var sc = d.scores || {};

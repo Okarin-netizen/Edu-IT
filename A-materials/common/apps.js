@@ -10,7 +10,8 @@
     { id: 'drawing-trainer', icon: '📐', code: 'A4', dir: 'a4-drawing-trainer/', title: '製図トレーナー', desc: '立体と等角図・第三角法の対応を、クイズと作図練習で身に付ける。' },
     { id: 'kidori', icon: '🪚', code: 'A5', dir: 'a5-kidori/', title: '木取り・構想シミュレータ', desc: '板から部品を無駄なく取る木取りを試し、製作図と強度の見通しを立てる。' },
     { id: 'tool-safety', icon: '🦺', code: 'A6', dir: 'a6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の正しい使い方と作業前の安全確認を、手順として確かめる。' },
-    { id: 'solid-maker', icon: '🧊', code: 'A7', dir: 'a7-solid-maker/', title: '第三角法 立体メーカー', desc: '第三角法で三面図をかくと、等角図・キャビネット図・3D の立体にする。図面の印刷・PDF、3Dプリンタ用の STL も作れる。' }
+    { id: 'solid-maker', icon: '🧊', code: 'A7', dir: 'a7-solid-maker/', title: '第三角法 立体メーカー', desc: '第三角法で三面図をかくと、等角図・キャビネット図・3D の立体にする。図面の印刷・PDF、3Dプリンタ用の STL も作れる。' },
+    { id: 'mondai-note', icon: '📝', code: 'A8', dir: 'a8-mondai-note/', title: '問題解決ノート', desc: '「不便だな」を付箋に集めて課題を決め、作った製作品を観点ごとに評価する。社会の製品で、重みを変えると最適な案が変わることを試す。' }
   ];
   // 先生用(メニューの下に別に並べる)
   root.G.TEACHER_APPS = [
