@@ -30,6 +30,6 @@ for (const [key, dir] of [["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"
   for (const lv of ["basic", "advanced"])
     for (const it of I.levels[lv].items)
       if (!names[key][it.id]) throw new Error(`${dir}/eduit-info.js: levels の id「${it.id}」がメニューにありません`);
-  out.push({ domain: key, domainName: I.domainName, version: I.version, levels: I.levels, names: names[key] });
+  out.push({ domain: key, domainName: I.domainName, version: I.version, levels: I.levels, textbook: I.textbook || null, names: names[key] });
 }
 process.stdout.write(JSON.stringify(out));
