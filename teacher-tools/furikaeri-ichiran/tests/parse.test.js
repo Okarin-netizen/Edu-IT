@@ -141,6 +141,15 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
   assert.strictEqual(val(hash, '正解'), '6 / 8');
   assert.strictEqual(val(hash, 'パスワードを守るために、サービスを作る側と自分ができること'), 'サービスごとにちがう長いパスワードにする');
+  const rover = load('火星探査ロボット_記録_215.json').entries[0];
+  assert.strictEqual(rover.app, 'D10 火星探査ロボット・シミュレータ');
+  assert.deepStrictEqual(rover.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(rover.rows.find((x) => x.part === '② 岩の前で止まる・よける').value, '3 / 3');
+  assert.match(val(rover, '記録に挑戦(コースB 長い谷)'), /^638点/);
+  assert.strictEqual(val(rover, '機能(改善の前)'), '2 / 5');
+  assert.strictEqual(val(rover, '機能(改善のあと)'), '4 / 5');
+  assert.strictEqual(val(rover, '動作確認・デバッグ(動かなかったところと直し方)'), '速く走るとぶつかったので、止まる距離を大きくした');
+  assert.ok(val(rover, '課題の設定'));
 });
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
