@@ -269,7 +269,8 @@
     'デジタル化ラボ': { image: '① 画像のデジタル化', sound: '② 音のデジタル化', binary: '③ 2進数と文字コード', drill: '④ データ量の計算ドリル', compress: '⑤ 圧縮のしくみ' },
     '仮想CPUラボ': { diagram: '① 図解: 5つの装置', auto: '② 手計算くらべ', sim: '③ 仮想CPUを動かす', tasks: '④ 課題' },
     'ネットワーク通信シミュレータ': { build: '① ネットワークを組み立てる', flow: '② Webページが届くまで', fault: '③ 回線が切れたら？', spy: '④ のぞき見と暗号化', drill: '⑤ IPアドレス・ドリル' },
-    '計測・制御シミュレータ': { streetlight: '① 街灯', door: '② 自動ドア', traffic: '③ 信号機（時間で切りかえ）', 'traffic-button': '④ 押しボタン式信号機', sandbox: '⑤ 自由に作る（仮想マイコン）' }
+    '計測・制御シミュレータ': { streetlight: '① 街灯', door: '② 自動ドア', traffic: '③ 信号機（時間で切りかえ）', 'traffic-button': '④ 押しボタン式信号機', sandbox: '⑤ 自由に作る（仮想マイコン）' },
+    '火星探査ロボット・シミュレータ': { straight: '① まっすぐ走って止まる', rock: '② 岩の前で止まる・よける', maze: '③ 迷路のような谷を探査する', line: '④ 色センサで線をたどる', free: '⑤ 自由なコースで記録に挑戦' }
   };
   var VCPU_Q = {
     diagram: 'コンピュータの5つの装置の役割と、データが流れる順', sim: '命令を「取り出し → 解読 → 実行」するようすを見て気づいたこと',
@@ -331,6 +332,35 @@
     reflObj(R, app, obj.reflections);
     return [{ domain: 'D', app: app, student: stD(obj.student), rows: R.rows }];
   }
+  // D10 火星探査ロボット・シミュレータ: テストの結果(①〜④)・記録に挑戦の点数(⑤)・課題・評価(レーダーチャート)・振り返り(4つの問い)
+  var ROVER_Q = { design: '解決策の構想(センサ・モーターの選び方と理由)', debug: '動作確認・デバッグ(動かなかったところと直し方)', improve: '評価して改善・修正したいこと', society: '社会や生活の問題の解決に生かせそうなこと' };
+  var ROVER_AXES = ['機能', '利便性', '費用', '安全性', '環境への配慮'];
+  function parseRover(obj) {
+    var app = '火星探査ロボット・シミュレータ', R = Rows(obj.exportedAt), best = {};
+    (obj.records || []).forEach(function (r) {
+      if (!isObj(r)) return;
+      var key = r.sid === 'free' ? 'free:' + str(r.course) : r.sid;
+      var b = best[key], v = r.score != null ? r.score : r.passed;
+      var bv = b ? (b.score != null ? b.score : b.passed) : -1;
+      if (!b || v > bv || (v === bv && str(r.at) > str(b.at))) best[key] = r;
+    });
+    Object.keys(best).forEach(function (k) {
+      var r = best[k], part = D_NAMES[app][r.sid] || str(r.title) || r.sid;
+      if (r.sid === 'free') R.add('成績', part, '記録に挑戦(' + str(r.courseName || r.course) + ')', r.score + '点(サンプル ' + r.passed + '/' + r.total + '・' + r.time + '秒・電池の残り ' + r.battery + '%)', r.at);
+      else R.add('成績', part, 'テスト(いちばんよい結果)', r.passed + ' / ' + r.total, r.at);
+    });
+    R.add('ふりかえり', '', '課題の設定', obj.kadai);
+    var ev = obj.evaluation || {};
+    [['before', '改善の前'], ['after', '改善のあと']].forEach(function (w) {
+      ROVER_AXES.forEach(function (a) { var v = (ev[w[0]] || {})[a]; if (v) R.add('自己評価', '評価', a + '(' + w[1] + ')', v + ' / 5'); });
+    });
+    var refl = obj.reflections || {};
+    Object.keys(ROVER_Q).forEach(function (k) {
+      var r = refl[k];
+      R.add('ふりかえり', '評価・振り返り', ROVER_Q[k], isObj(r) ? r.text : r, isObj(r) ? r.at : '');
+    });
+    return [{ domain: 'D', app: app, student: stD(obj.student), rows: R.rows }];
+  }
   function studioRows(R, w, at) {
     var part = str(w.title) || '作品';
     R.add('ふりかえり', part, 'テストして直したこと(改善)', w.improve, at);
@@ -376,8 +406,8 @@
     HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
     return [{ domain: 'D', app: 'D9 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
-  // 教材の名前に記号(D1〜D9。教材集のおすすめの順 = materials.json の code)を付ける
-  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9' };
+  // 教材の名前に記号(D1〜D10。教材集のおすすめの順 = materials.json の code)を付ける
+  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9', '火星探査ロボット・シミュレータ': 'D10' };
   function dName(t) { return D_CODE[t] ? D_CODE[t] + ' ' + t : t; }
   function parseKyozai(obj) {
     var st = stD(obj.student);
@@ -410,7 +440,8 @@
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
     ['D8 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
     ['D5 ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
-    ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash]
+    ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
+    ['D10 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover]
   ];
 
   /* ファイル名から組・番号・名前を拾う(JSON の中に名前がないとき用) */
