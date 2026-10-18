@@ -504,6 +504,22 @@
     barTitle.replaceChildren(codeEl(m), h("span", { class: "ef-title-name" }, m.title));
     barTitle.title = `${m.code} ${m.title}`;
   }
+  // 「使い方」: この教材集の使い方をダイアログで出す（4分野共通の EduitFrame.howto）
+  document.getElementById("go-howto").addEventListener("click", () => {
+    const n = DATA.materials.length;
+    const html =
+      "<h3>はじめかた</h3><ol>" +
+      `<li>メニューの「基本編」のカードから、学びたい教材をタップします。はじめは「おすすめの順番」（D1 → D2 → …）のとおりに進めましょう。「発展編」は、先生の指示があったら取り組みます。</li>` +
+      "<li>教材の中では、上のタブで画面を切りかえます。タブの番号（①②③…）の順に進みます。</li>" +
+      "<li>メニューにもどるときは、いちばん上の「◀ メニュー」をタップします。教材を開いているときは、上のバーの教材の名前（はばがせまい画面では「教材をかえる ▾」）で、ほかの教材へすぐ移れます。切りかえても、開いていた教材の作業は消えません。</li></ol>" +
+      "<h3>上のバーのボタン</h3><ul>" +
+      `<li><b>ふりがな</b>：むずかしい言葉の読みがなを出す・消す。<b>文字 中</b>：押すと「文字 大」になって文字が大きくなります。${n}つの教材とこのメニューで同じ設定になります。</li>` +
+      "<li><b>先生用</b>：メニューのいちばん下の、先生用のところへ移ります。</li></ul>" +
+      "<h3>記録（保存）について</h3><ul>" +
+      "<li>入力した内容や記録は、このパソコンのブラウザの中にだけ保存されます。インターネットにつながっていなくても使えます。</li>" +
+      `<li>提出するときは、メニューの「記録をまとめて書き出す」で、${n}つの教材の記録を1つのファイルにして、先生の指示どおりに出します。</li></ul>`;
+    if (window.EduitFrame && EduitFrame.howto) EduitFrame.howto(html);
+  });
   // 「先生用」: メニューの下の先生用のところへ移る
   document.getElementById("go-teacher").addEventListener("click", () => {
     const go = () => {

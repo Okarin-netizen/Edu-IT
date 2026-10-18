@@ -38,7 +38,7 @@
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
- *               <div class="ef-tools"> ふりがな / 文字の大きさ / (くっきり) / 使い方 / 先生用 </div> </header>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
@@ -173,6 +173,9 @@
 .ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
 .ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
 .ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
 .ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
@@ -305,6 +308,7 @@ window.EDUIT_INFO = {
   ],
   history: [
     { version: '1.7', date: '2026-10-18', items: [
+      'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「全画面」はアプリを開いたときの上のバーだけにした',
       'C8 問題解決ノートを追加(4分野で同じ形の教材。教科書 3編2章1・4、3章1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
       'C8: ② 作った製作品を、機能・利便性・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
       'C8: ③(発展)部屋の明かり・自動車・発電の方法で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(技術の最適化)。ノートは問題解決シートとして印刷できる',
@@ -435,6 +439,10 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
  * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
  * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
  * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
  * 上のバーの表示の道具(4分野で同じ形):
@@ -579,6 +587,28 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
     if (!dlg) build();
     dlg._select(typeof tab === 'number' ? tab : 0);
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
   }
 
   function aboutButton(cls) {
@@ -803,7 +833,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
 </script>
@@ -843,7 +873,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 </section>
 <section class="eg-sec" id="ichiran">
 <h2>2. 教材の一覧(基本編・発展編)</h2>
-<p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「ふりがな」「文字 中」「❓ 使い方」「🧑‍🏫 先生用」「🖥️ 全画面」のボタンがあります。「ふりがな」でむずかしい言葉の読みがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大。文字だけが大きくなります)を変えられ、C1〜C8 とメニューで同じ設定になります(スマホでは「全画面」は出ません)。アプリには <b>C1〜C8</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → … → C8」と出ます)。カードは教科書の章ごと(1章 しくみを知る・2章 つくる)に区切られ、カードに教科書の編・章・節が出ます。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C8 を切りかえるボタンが出ます。</p>
+<p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「ふりがな」「文字 中」「使い方」「先生用」のボタンがあります(4分野で同じ並び・同じ表記です)。「ふりがな」でむずかしい言葉の読みがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大。文字だけが大きくなります)を変えられ、C1〜C8 とメニューで同じ設定になります。アプリには <b>C1〜C8</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → … → C8」と出ます)。カードは教科書の章ごと(1章 しくみを知る・2章 つくる)に区切られ、カードに教科書の編・章・節が出ます。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C8 を切りかえるボタンと「🖥️ 全画面」が出ます(スマホでは「全画面」は出ません)。</p>
 <p>メニューのカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題、C6 の発電方法くらべ・風が変わる日、C7 の損失の計算・周波数、C8 の技術の最適化など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
 <p>アプリの中のステージ・課題・タブは「基本編 → 発展編」の順に並んでいるので、基本編は番号の小さいほうから続けて取り組めます(例: C2 は課題1〜7 が基本編、課題8〜11 が発展編)。</p>
 <div class="eg-table-wrap"><table class="eg-table"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由実験・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr><tr><td>🌬️ C6 風力発電の羽根ラボ</td><td>羽根を変えて、より効率の良い風力発電をめざす</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td></tr><tr><td>🗼 C7 直流・交流と送電ラボ</td><td>直流と交流のちがいと、電気が家に届くしくみを調べる</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ(変圧器・送電線の損失)</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td></tr><tr><td>📝 C8 問題解決ノート</td><td>問題を見つけて課題を決め、作ったものを評価する。社会の技術の最適化もためす</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td>③ 技術の最適化(部屋の明かり・自動車・発電の方法で、観点の重みと制約条件を変えると、いちばんよい案が入れかわる)</td></tr></table></div>
@@ -881,7 +911,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 </ul>
 
 <h3>学習記録の管理</h3>
-<p>メニューの上のバーの「🧑‍🏫 先生用」(または「❓ 使い方」→「先生用」)に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
+<p>メニューの上のバーの「先生用」(または「使い方」→「🧑‍🏫 先生用」)に、全アプリの記録の<b>書き出し・読み込み・アプリごとの消去</b>のボタンがあります。端末の入れかえ前のバックアップや、授業前のリセットに使えます。</p>
 </section>
 <section class="eg-sec" id="chui">
 <h2>5. 授業で使うときの注意</h2>
@@ -907,6 +937,7 @@ EDUIT_INFO.app = { name: '先生用ガイド(エネルギー変換の技術)' };
 <h2>7. 更新履歴</h2>
 <h3>C8 問題解決ノートを追加(2026-10-18・第1.7版)</h3>
 <ul>
+<li>メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「🖥️ 全画面」はアプリを開いたときの上のバーだけにしました。</li>
 <li><b>C8 問題解決ノート</b>を追加しました(4分野で同じ形の教材。教科書 3編2章1・4、3章1)。基本編は ① 問題の発見(付箋・問題?課題?クイズ・課題の設定) ② 評価、改善・修正(機能・利便性・費用・安全性・環境への配慮の5段階とレーダーチャート)、発展編は ③ 技術の最適化(部屋の明かり・自動車・発電の方法)です。問題解決シートとして印刷できます。</li>
 <li>C8 の記録は <code>energyApps.C8.v1</code> に保存され、「💾 記録」から JSON ファイル(app は <code>C8</code>)にして提出できます。振り返り一覧で読めます。</li>
 </ul>
