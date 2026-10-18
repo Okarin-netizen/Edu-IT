@@ -76,6 +76,25 @@ test('B5: 振り返り・自己評価・レーダーチャート・成績', () =
   assert.strictEqual(val(b5, '仕分けクイズ'), '7 / 8 問');
 });
 
+test('B6・C8 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r6 = load('B6_データ_2-15_山田花子_2026-10-18.json');
+  assert.strictEqual(r6.format, 'B6 問題解決ノート');
+  const b6 = r6.entries[0];
+  assert.strictEqual(b6.domain, 'B');
+  assert.deepStrictEqual(b6.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(b6, '課題'), '土の水分を毎日はかり、水やりの量を決めてミニトマトを育てる');
+  assert.strictEqual(val(b6, '観点ごとの評価(5段階)の平均'), '4(4 観点)');
+  assert.strictEqual(val(b6, '改善・修正の方法'), '収量: 追肥の時期を早める');
+  assert.strictEqual(val(b6, 'これからの問題解決に生かしたいこと'), '評価の観点を先に決めておく');
+  const c8 = load('C8-mondai-note-20261018-1500.json').entries[0];
+  assert.strictEqual(c8.app, 'C8 問題解決ノート');
+  assert.strictEqual(c8.domain, 'C');
+  assert.deepStrictEqual(c8.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(c8, '問題?課題? クイズ'), '6 / 6');
+  assert.strictEqual(val(c8, '重みや制約条件を変えて気づいたこと'), '費用を大事にすると蛍光灯が1位になった');
+  assert.strictEqual(val(c8, '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった'), 'だいたいできた');
+});
+
 test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
   const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });

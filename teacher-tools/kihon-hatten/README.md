@@ -10,7 +10,7 @@
 
 ```js
 window.EDUIT_INFO.levels = {
-  basic:    { title: '基本編', lead: '…', items: [{ id: 'メニューの教材の id(A は material-navi など、B は b1〜b4、C は C1〜C7、D は digitization-lab など)', parts: ['生徒の画面のタブの名前', …], curr: 'A(1)ア', why: '分けた理由' }, …] },
+  basic:    { title: '基本編', lead: '…', items: [{ id: 'メニューの教材の id(A は material-navi など、B は b1〜b6、C は C1〜C8、D は digitization-lab など)', parts: ['生徒の画面のタブの名前', …], curr: 'A(1)ア', why: '分けた理由' }, …] },
   advanced: { title: '発展編', lead: '…', items: [ … ] }
 }
 ```

@@ -902,8 +902,15 @@ window.EDUIT_INFO = {
     return [{ domain: 'B', app: 'B5 植物工場の自動化', student: student(r.cls, r.no, r.name), rows: R.rows }];
   }
 
+  /* B6 問題解決ノート: { app: 'B6', version, exported, data: { note } }(ノートの中身は shared/mondai-note) */
+  function parseB6(obj) {
+    var n = obj.data.note, st = isObj(n.student) ? n.student : {}, R = Rows(obj.exported);
+    mondaiRows(R, n);
+    return [{ domain: 'B', app: 'B6 問題解決ノート', student: student(st.cls, st.no, st.name), rows: R.rows }];
+  }
+
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ' };
+  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ', C8: 'C8 問題解決ノート' };
   var C_REFL = {
     C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
     C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
@@ -927,6 +934,12 @@ window.EDUIT_INFO = {
       if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
       var rf = isObj(d.reflection) ? d.reflection : {};
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
+    }
+    if (obj.app === 'C8' && isObj(d.note)) {
+      /* C8 問題解決ノート: data.note がノートの中身(shared/mondai-note)。組・番号・名前はノートの中にもある */
+      var ns = isObj(d.note.student) ? d.note.student : {};
+      mondaiRows(R, d.note);
+      return [{ domain: 'C', app: C_APPS.C8, student: student(ns.cls || who.cls, ns.no, ns.name || who.name), rows: R.rows }];
     }
     return [{ domain: 'C', app: C_APPS[obj.app] || String(obj.app), student: student(who.cls, '', who.name), rows: R.rows }];
   }
@@ -1067,6 +1080,7 @@ window.EDUIT_INFO = {
     ['B2 動物飼育・水産', function (o) { return o.app === 'B2' && isObj(o.data); }, parseB2],
     ['B3 栽培暦ビルダー', function (o) { return o.app === 'B3' && (isObj(o.reflection) || isObj(o.state)); }, parseB3],
     ['B5 植物工場の自動化', function (o) { return o.app === 'B5' && isObj(o.data); }, parseB5],
+    ['B6 問題解決ノート', function (o) { return o.app === 'B6' && isObj(o.data) && isObj(o.data.note); }, parseB6],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
     ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
     ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],

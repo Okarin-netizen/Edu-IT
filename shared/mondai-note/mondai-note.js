@@ -10,7 +10,9 @@
  *     onChange: function (data) { 保存する },          // 何か変わるたびに呼ばれる(アダプタで間をあけて保存する)
  *     go: function (tabId) { そのタブを開く },        // 「次へ」ボタンが使う
  *     recordTools: 要素 または function () { return 要素; },  // 記録タブに置く、書き出し・読み込みなどのボタン
- *     furikaeri: function () { return 振り返りを出すなら true }  // 省くと EduitFrame.furikaeri を見る
+ *     furikaeri: function () { return 振り返りを出すなら true },  // 省くと EduitFrame.furikaeri を見る
+ *     confirm: function (msg) { return Promise<true|false> },     // 省くと window.confirm
+ *     afterRender: function (el) { ふりがなを付けるなど }         // 画面を作ったあと・書きかえたあとに呼ぶ(省いてよい)
  *   });
  *   note.setData(data) … 読み込んだノートに入れかえる / note.data … 今の中身 / note.render(tabId) / note.print()
  * 画面のない所(node のテスト・振り返り一覧)では、下の「計算」の関数だけを使える。
@@ -350,9 +352,11 @@
       var kf = field('課題(何を、どのように' + dom.make + 'か)', 'kadai', T, { rows: 3, max: 300, ph: dom.kadaiHint, oninput: drawPreview });
       var kadaiInput = kf.querySelector('textarea');
       var tmpl = btn('文の形を入れる', function () {
-        if (kadaiInput.value.trim() && !confirmAsk('今書いてある課題を、文の形に入れかえますか?')) return;
-        kadaiInput.value = '(　　　)が(　　　)ように、(　　　)を' + dom.make + '。';
-        T.kadai = kadaiInput.value; changed(); drawPreview(); kadaiInput.focus();
+        var put = function () {
+          kadaiInput.value = '(　　　)が(　　　)ように、(　　　)を' + dom.make + '。';
+          T.kadai = kadaiInput.value; changed(); drawPreview(); kadaiInput.focus();
+        };
+        if (kadaiInput.value.trim()) confirmAsk('今書いてある課題を、文の形に入れかえますか?', put); else put();
       }, 'mn-btn-s');
       var lim = h('div', { class: 'mn-chips', role: 'group', 'aria-label': '制約条件' }, MN.LIMIT_CHIPS.map(function (c) {
         var on = T.limits.indexOf(c) >= 0;
@@ -382,7 +386,12 @@
       drawPreview();
       el.appendChild(nextBar('eval'));
     }
-    function confirmAsk(msg) { try { return window.confirm(msg); } catch (e) { return true; } }
+    // たしかめる(分野のページが opts.confirm(msg) → Promise<true|false> を渡せば、それを使う)
+    function confirmAsk(msg, then) {
+      if (opts.confirm) { opts.confirm(msg).then(function (ok) { if (ok) then(); }); return; }
+      var ok = true; try { ok = window.confirm(msg); } catch (e) {}
+      if (ok) then();
+    }
     function drawPreview() {
       if (!findPreview) return;
       var T = D.task; findPreview.innerHTML = '';
@@ -780,6 +789,7 @@
     function attachSheet() {
       if (sheetEl) sheetEl.remove();
       sheetEl = buildSheet(); document.body.appendChild(sheetEl);
+      if (opts.afterRender) { try { opts.afterRender(sheetEl); } catch (e) {} }
       document.documentElement.classList.add('mn-printing');
     }
     function detachSheet() { document.documentElement.classList.remove('mn-printing'); if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
@@ -792,6 +802,17 @@
     var R = { intro: renderIntro, find: renderFind, eval: renderEval, opt: renderOpt, refl: renderRefl, rec: renderRec };
     api.render = function (id) { if (id) { if (R[id]) R[id](); } else Object.keys(R).forEach(function (k) { R[k](); }); };
     api.setData = function (data) { D = api.data = MN.normalize(JSON.parse(JSON.stringify(data || {})), opts.domain); lastBest = {}; api.render(); };
+    // 画面を書きかえたら afterRender(ふりがな など)を呼ぶ。書きかえが続いても1回にまとめる
+    if (opts.afterRender && window.MutationObserver) {
+      Object.keys(P).forEach(function (k) {
+        var el = P[k]; if (!el) return;
+        var busy = false, mo = new MutationObserver(function () {
+          if (busy) return; busy = true;
+          setTimeout(function () { mo.disconnect(); try { opts.afterRender(el); } catch (e) {} mo.observe(el, { childList: true, subtree: true }); busy = false; }, 0);
+        });
+        mo.observe(el, { childList: true, subtree: true });
+      });
+    }
     api.render();
     return api;
   };
