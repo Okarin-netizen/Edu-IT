@@ -1086,8 +1086,14 @@ window.EDUIT_INFO = {
     HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
     return [{ domain: 'D', app: 'D9 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
-  // 教材の名前に記号(D1〜D10。教材集のおすすめの順 = materials.json の code)を付ける
-  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9', '火星探査ロボット・シミュレータ': 'D10' };
+  // D11 問題解決ノート: { app: '問題解決ノート', student: { cls, num, name }, note }(ノートの中身は shared/mondai-note)
+  function parseMondaiD(obj) {
+    var R = Rows(obj.exportedAt), n = obj.note, ns = isObj(n.student) ? n.student : {}, st = isObj(obj.student) ? obj.student : {};
+    mondaiRows(R, n);
+    return [{ domain: 'D', app: 'D11 問題解決ノート', student: student(st.cls || ns.cls, st.num || ns.no, st.name || ns.name), rows: R.rows }];
+  }
+  // 教材の名前に記号(D1〜D11。教材集のおすすめの順 = materials.json の code)を付ける
+  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9', '火星探査ロボット・シミュレータ': 'D10', '問題解決ノート': 'D11' };
   function dName(t) { return D_CODE[t] ? D_CODE[t] + ' ' + t : t; }
   function parseKyozai(obj) {
     var st = stD(obj.student);
@@ -1122,7 +1128,8 @@ window.EDUIT_INFO = {
     ['D8 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
     ['D5 ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
     ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
-    ['D10 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover]
+    ['D10 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover],
+    ['D11 問題解決ノート', function (o) { return o.app === '問題解決ノート' && isObj(o.note); }, parseMondaiD]
   ];
 
   /* ファイル名から組・番号・名前を拾う(JSON の中に名前がないとき用) */
