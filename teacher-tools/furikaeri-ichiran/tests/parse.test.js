@@ -95,6 +95,18 @@ test('B6・C8 問題解決ノート(課題・評価・最適化・振り返り)'
   assert.strictEqual(val(c8, '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった'), 'だいたいできた');
 });
 
+test('D11 問題解決ノート(課題・評価・最適化・振り返り)', () => {
+  const r = load('問題解決ノート_情報_2_15_山田花子.json');
+  assert.strictEqual(r.format, 'D11 問題解決ノート');
+  const d = r.entries[0];
+  assert.strictEqual(d.domain, 'D');
+  assert.deepStrictEqual(d.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(d, '課題'), '予定を入れると全員が見られる、部活動の連絡ページを作る');
+  assert.strictEqual(val(d, '観点ごとの評価(5段階)の平均'), '4(4 観点)');
+  assert.strictEqual(val(d, '問題?課題? クイズ'), '4 / 6');
+  assert.strictEqual(val(d, '分かったこと・できるようになったこと'), '使う人の立場で評価することが大切だと分かった');
+});
+
 test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
   const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
