@@ -196,6 +196,10 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -311,6 +315,11 @@ window.EDUIT_INFO = {
  *     advanced: { title: '発展編', lead: '…', items: [ … ] }
  *   }
  *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
  *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
  *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
  */
@@ -488,9 +497,26 @@ window.EDUIT_INFO = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
-        if (c) grid.appendChild(c);
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
@@ -498,7 +524,8 @@ window.EDUIT_INFO = {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
         if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
       }
-      panel.appendChild(grid);
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
       if (opts.onRender) opts.onRender(panel, cur);
     }
     function select(k, byUser) {
@@ -691,8 +718,29 @@ window.EDUIT_INFO = {
   var A_APPS = {
     'material-navi': 'A1 材料選択ナビ', 'wood-lab': 'A2 木材の繊維・収縮ラボ', 'structure-lab': 'A3 構造強化ラボ',
     'drawing-trainer': 'A4 製図トレーナー', 'kidori': 'A5 木取り・構想シミュレータ', 'tool-safety': 'A6 工具の使い方・安全トレーナー',
-    'solid-maker': 'A7 第三角法 立体メーカー'
+    'solid-maker': 'A7 第三角法 立体メーカー', 'mondai-note': 'A8 問題解決ノート'
   };
+  /* 問題解決ノート(4分野共通 shared/mondai-note/)の中身 → 行。B・C・D に入れるときも、ノートの中身(data)をこれに渡す */
+  var MN_SELF = [['find', '身の回りから問題を見つけ、問題と課題を分けて書けた'], ['eval', '観点を決めて評価し、改善・修正の方法を考えられた'],
+    ['opt', '技術は、いろいろな条件の折り合いをつけて最適化されていると分かった']];
+  var MN_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
+  function mondaiRows(R, d) {
+    var t = isObj(d.task) ? d.task : {}, ev = isObj(d.ev) ? d.ev : {}, op = isObj(d.opt) ? d.opt : {}, rf = isObj(d.refl) ? d.refl : {}, sf = isObj(rf.self) ? rf.self : {};
+    R.add('ふりかえり', '① 問題の発見', '問題', t.problem);
+    R.add('ふりかえり', '① 問題の発見', '課題', t.kadai);
+    var q = isObj(d.quiz) ? d.quiz.last : null;
+    if (isObj(q) && q.total) R.add('成績', '① 問題の発見', '問題?課題? クイズ', q.score + ' / ' + q.total);
+    var res = isObj(ev.res) ? ev.res : {}, keys = Object.keys(res).filter(function (k) { return res[k]; });
+    if (keys.length) R.add('自己評価', '② 評価', '観点ごとの評価(5段階)の平均', String(Math.round(keys.reduce(function (s, k) { return s + (+res[k] || 0); }, 0) / keys.length * 10) / 10) + '(' + keys.length + ' 観点)');
+    R.add('ふりかえり', '② 評価', 'よかった点', ev.good);
+    R.add('ふりかえり', '② 評価', '改善・修正の方法', ev.improve);
+    R.add('ふりかえり', '② 評価', '新たに見つけた問題', ev.newProblem);
+    R.add('ふりかえり', '③ 技術の最適化', '重みや制約条件を変えて気づいたこと', op.notice);
+    R.add('ふりかえり', '③ 技術の最適化', '自分の問題解決と社会の問題解決', op.compare);
+    MN_SELF.forEach(function (s) { R.add('自己評価', '振り返り', s[1], MN_LV[sf[s[0]]]); });
+    R.add('ふりかえり', '振り返り', '分かったこと・できるようになったこと', rf.learned);
+    R.add('ふりかえり', '振り返り', 'これからの問題解決に生かしたいこと', rf.next);
+  }
   var A4_SELF = [['read', '三面図を見て、立体の形を思いうかべることができた'], ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
     ['iso', '等角図を、たて・横・おくの3つの向きの線でかけた'], ['line', '線の種類(外形線・かくれ線・中心線など)を使い分けられた']];
   var A4_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
@@ -754,6 +802,9 @@ window.EDUIT_INFO = {
         R.add('ふりかえり', title, '自分の作品の構想や製作に、どう生かしたいか', rf.use);
         break;
       }
+      case 'mondai-note':
+        mondaiRows(R, d);
+        break;
       case 'tool-safety':
         if (a.kind === 'rubric') {
           var sc = d.scores || {};
