@@ -483,6 +483,7 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-
     ],
     history: [
       { version: '2.0', date: '2026-10-18', items: [
+        'ふりがなは、はじめはなし(オフ)のまま。4分野で同じにした',
         'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューの上のバーに「使い方」を足した',
         'D11 問題解決ノートを足した(4分野で同じ形の教材。教科書 4編2章 2・5、3章 2・5、4章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
         'D11: ② 作ったコンテンツや計測・制御システムを、機能・使いやすさ・安全性・他者の権利・費用・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
@@ -1378,7 +1379,8 @@ function kyozaiRuby(doc, words, skip) {
         card: (item, parts) => (byId.has(item.id) ? card(byId.get(item.id), parts) : null),
         // 基本編の上に「おすすめの順番: D1 → D2 → …」の1行
         code: (item) => (byId.has(item.id) ? byId.get(item.id).code : null),
-        onRender: (panel) => shellRuby.set(prefs.ruby, panel),
+        // ふりがなは applyPrefs が body 全体に付ける（タブを切りかえたときも body の見はりで付く）。
+        // ここで panel だけに set すると、読みこみ直したときにメニューにふりがなが付かなかった
       });
     } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null))));
     return box;

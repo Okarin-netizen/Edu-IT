@@ -600,7 +600,7 @@ window.EDUIT_INFO = {
   history: [
     {
       version: '2.7', date: '2026-10-18',
-      items: ['メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューに「使い方」を足し、「くっきり」はアプリの中のバーだけにした', 'A8「問題解決ノート」を追加した(4分野で同じ形の教材): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める', 'A8: ② 作った製作品を、機能・構造・材料・加工・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く', 'A8: ③(発展)飲み物の容器・学校の椅子・買い物の袋で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(技術の最適化)。ノートは問題解決シートとして印刷できる']
+      items: ['ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)', 'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューに「使い方」を足し、「くっきり」はアプリの中のバーだけにした', 'A8「問題解決ノート」を追加した(4分野で同じ形の教材): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める', 'A8: ② 作った製作品を、機能・構造・材料・加工・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く', 'A8: ③(発展)飲み物の容器・学校の椅子・買い物の袋で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(技術の最適化)。ノートは問題解決シートとして印刷できる']
     },
     {
       version: '2.6', date: '2026-10-17',
@@ -2378,12 +2378,13 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
   };
   G.applySettings = function () {
     var root = document.documentElement;
-    root.classList.toggle('ruby-off', !G.settings.get('ruby', true));
+    // ふりがなは、はじめはなし(4分野で同じ)。ボタンで出す
+    root.classList.toggle('ruby-off', !G.settings.get('ruby', false));
     root.setAttribute('data-size', G.settings.get('size', 'm'));
     root.classList.toggle('high-contrast', !!G.settings.get('contrast', false));
     G.$$('[data-g-setting]').forEach(function (b) {
       var k = b.getAttribute('data-g-setting');
-      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', true)));
+      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', false)));
       if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
       if (k === 'size') { b.setAttribute('data-value', G.settings.get('size', 'm')); if (G._sizeUpd) G._sizeUpd(); }
     });
@@ -2851,7 +2852,7 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
     header.appendChild(title);
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
       G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
-        G.settings.set('ruby', !G.settings.get('ruby', true));
+        G.settings.set('ruby', !G.settings.get('ruby', false));
       } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
       sizeBtn,
       opt.contrast === false ? null : G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
