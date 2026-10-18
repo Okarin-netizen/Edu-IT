@@ -173,7 +173,8 @@
         card: (item, parts) => (byId.has(item.id) ? card(byId.get(item.id), parts) : null),
         // 基本編の上に「おすすめの順番: D1 → D2 → …」の1行
         code: (item) => (byId.has(item.id) ? byId.get(item.id).code : null),
-        onRender: (panel) => shellRuby.set(prefs.ruby, panel),
+        // ふりがなは applyPrefs が body 全体に付ける（タブを切りかえたときも body の見はりで付く）。
+        // ここで panel だけに set すると、読みこみ直したときにメニューにふりがなが付かなかった
       });
     } else box.append(h("div", { class: "grid" }, DATA.materials.map((m) => card(m, null))));
     return box;

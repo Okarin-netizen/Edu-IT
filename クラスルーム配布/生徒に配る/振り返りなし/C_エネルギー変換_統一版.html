@@ -250,6 +250,7 @@ window.EDUIT_INFO = {
   ],
   history: [
     { version: '1.7', date: '2026-10-18', items: [
+      'ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)',
       'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「全画面」はアプリを開いたときの上のバーだけにした',
       'C8 問題解決ノートを追加(4分野で同じ形の教材。教科書 3編2章1・4、3章1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
       'C8: ② 作った製作品を、機能・利便性・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
@@ -2456,7 +2457,7 @@ body{overflow:hidden}
     <header class="ef-header ea-hd">
       <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="help">使い方</button>
         <button class="ea-btn ef-btn" data-ea="help-t">先生用</button>
@@ -2474,7 +2475,7 @@ body{overflow:hidden}
       <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
       <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
       <div class="ea-bar-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="true" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
         <span data-ref="about"></span>
@@ -2624,6 +2625,7 @@ body{overflow:hidden}
 <h3 id="t-rireki">7. 更新履歴</h3>
 <h4>C8 問題解決ノートを追加(2026-10-18・第1.7版)</h4>
 <ul>
+<li>ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)。</li>
 <li>メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「🖥️ 全画面」はアプリを開いたときの上のバーだけにしました。</li>
 <li><b>C8 問題解決ノート</b>を追加しました(4分野で同じ形の教材。教科書 3編2章1・4、3章1)。基本編は ① 問題の発見(付箋・問題?課題?クイズ・課題の設定) ② 評価、改善・修正(機能・利便性・費用・安全性・環境への配慮の5段階とレーダーチャート)、発展編は ③ 技術の最適化(部屋の明かり・自動車・発電の方法)です。問題解決シートとして印刷できます。</li>
 <li>C8 の記録は <code>energyApps.C8.v1</code> に保存され、「💾 記録」から JSON ファイル(app は <code>C8</code>)にして提出できます。振り返り一覧で読めます。</li>
@@ -13295,8 +13297,8 @@ if (window.EduitFrame) {
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
 /* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, fs }) ---- */
-var PKEY = 'energyApps.prefs.v1', prefs = { ruby: true, fs: 1 }, sizeUpds = [];
-try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === false) prefs.ruby = false; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
+var PKEY = 'energyApps.prefs.v1', prefs = { ruby: false, fs: 1 }, sizeUpds = [];
+try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === true) prefs.ruby = true; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
 function applyPrefs() {
   document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
   document.documentElement.style.setProperty('--ea-fs', String(prefs.fs));

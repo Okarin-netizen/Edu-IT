@@ -86,12 +86,13 @@
   };
   G.applySettings = function () {
     var root = document.documentElement;
-    root.classList.toggle('ruby-off', !G.settings.get('ruby', true));
+    // ふりがなは、はじめはなし(4分野で同じ)。ボタンで出す
+    root.classList.toggle('ruby-off', !G.settings.get('ruby', false));
     root.setAttribute('data-size', G.settings.get('size', 'm'));
     root.classList.toggle('high-contrast', !!G.settings.get('contrast', false));
     G.$$('[data-g-setting]').forEach(function (b) {
       var k = b.getAttribute('data-g-setting');
-      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', true)));
+      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', false)));
       if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
       if (k === 'size') { b.setAttribute('data-value', G.settings.get('size', 'm')); if (G._sizeUpd) G._sizeUpd(); }
     });
@@ -559,7 +560,7 @@
     header.appendChild(title);
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
       G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
-        G.settings.set('ruby', !G.settings.get('ruby', true));
+        G.settings.set('ruby', !G.settings.get('ruby', false));
       } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
       sizeBtn,
       opt.contrast === false ? null : G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
