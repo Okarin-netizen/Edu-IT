@@ -794,9 +794,12 @@ function kindOf(k){return (k==='check'||k==='flower')?'obs':'work'}
 function shortOf(cid,t){if(t.short)return t.short;var ts=CROP[cid]?CROP[cid].tasks:[];
   for(var i=0;i<ts.length;i++)if(ts[i][2]===t.label&&ts[i][3])return ts[i][3];
   return String(t.label||'').replace(/[((].*$/,'')||String(t.label||'')}
+/* id と色は HTML の属性にそのまま入るので、読みこんだバックアップの値はこの形のものだけを使う */
+var SAFE_ID=/^[\w-]{1,40}$/,SAFE_COLOR=/^#[0-9a-fA-F]{3,8}$/;
+function isObjT(t){return !!t&&typeof t==='object'}
 /* 古い保存データ(作業の種類・色がない計画)をいまの形に直す */
 function migrate(j){
-  var f=fresh();for(var k in f){if(j[k]===undefined||j[k]===null&&k!=='cur')j[k]=f[k]}
+  var f=fresh();for(var k in f){if(j[k]===undefined||(j[k]===null&&k!=='cur'))j[k]=f[k]}
   if(typeof j.set!=='object')j.set=f.set;for(var s in f.set){if(j.set[s]===undefined)j.set[s]=f.set[s]}
   if(typeof j.draft!=='object')j.draft=f.draft;for(var d in f.draft){if(j.draft[d]===undefined)j.draft[d]=f.draft[d]}
   if(!REG[j.draft.region])j.draft.region='mid';
@@ -804,14 +807,16 @@ function migrate(j){
   if(!CROP[j.cropId])j.cropId='radish';
   if(!Array.isArray(j.hol))j.hol=[];
   j.hol=j.hol.filter(function(h){return h&&typeof h==='object'});
-  j.plans=(Array.isArray(j.plans)?j.plans:[]).filter(function(p){return p&&CROP[p.cropId]&&p.tasks&&p.tasks.length&&REG[p.region]});
+  j.plans=(Array.isArray(j.plans)?j.plans:[]).filter(function(p){return isObjT(p)&&CROP[p.cropId]&&Array.isArray(p.tasks)&&p.tasks.length&&p.tasks.every(isObjT)&&REG[p.region]});
   var used=[];
   j.plans.forEach(function(p){
+    if(typeof p.id!=='string'||!SAFE_ID.test(p.id)){var nid=uid();if(j.cur===p.id)j.cur=nid;p.id=nid}
+    p.tasks.forEach(function(t,i){if(typeof t.id!=='string'||!SAFE_ID.test(t.id))t.id='x'+i});
     if(!p.ev||typeof p.ev!=='object')p.ev={cause:'',improve:'',result:''};
     p.tasks.forEach(function(t){if(!t.kind)t.kind=kindOf(t.k);if(!t.short)t.short=shortOf(p.cropId,t)});
     if(!p.v2){ /* 前の版は、最初の作業が完了するとずらしを0として計算していた。日付が変わらないように合わせる */
       if(p.tasks[anchorIdx(p)].done)p.startShift=0;p.v2=true}
-    if(!p.color){p.color=pickColorFrom(p.cropId,used)}used.push(p.color)});
+    if(!SAFE_COLOR.test(p.color||'')){p.color=pickColorFrom(p.cropId,used)}used.push(p.color)});
   return j}
 function load(){var j=null;try{j=JSON.parse(readLS(KEY))}catch(e){}
   if(!j||typeof j!=='object'||j.v!==1)return fresh();
@@ -1450,7 +1455,7 @@ root.addEventListener('change',function(e){var el=e.target,a=el.getAttribute('da
   if(a==='evsel'){S.cur=el.value;save();rEval();return}
   if(a==='evdone'){p=curPlan();if(!p)return;var t=p.tasks.filter(function(x){return x.id===el.getAttribute('data-t')})[0];if(!t)return;
     if(el.checked)tryDone(p,t,function(ok){if(ok){layout(p);save()}rEval()});else{unmark(p,t);save();rEval()}return}
-  if(a==='evact'){p=curPlan();var t2=p.tasks.filter(function(x){return x.id===el.getAttribute('data-t')})[0];if(isDate(el.value)){t2.actual=el.value;layout(p);save()}rEval();return}
+  if(a==='evact'){p=curPlan();if(!p)return;var t2=p.tasks.filter(function(x){return x.id===el.getAttribute('data-t')})[0];if(t2&&isDate(el.value)){t2.actual=el.value;layout(p);save()}rEval();return}
 });
 root.querySelector('#b3-file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();
   r.onload=function(){try{var j=JSON.parse(r.result);if(!j||j.app!=='B3'||!j.state||j.state.v!==1)throw 0;

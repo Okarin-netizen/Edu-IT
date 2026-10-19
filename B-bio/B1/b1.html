@@ -1053,8 +1053,13 @@ var mem = {}, storeOK = true;
 var store = {
   get: function(k, def){
     if (k in mem) return mem[k];
-    try { var v = localStorage.getItem('b1_' + k); var o = v == null ? def : JSON.parse(v); mem[k] = o; return o; }
+    var v;
+    try { v = localStorage.getItem('b1_' + k); }
     catch (e) { storeOK = false; return def; }
+    /* 中身がこわれているときは初めの値にする(保存はできるので storeOK は変えない) */
+    var o = def;
+    if (v != null) { try { o = JSON.parse(v); } catch (e) { o = def; } }
+    mem[k] = o; return o;
   },
   set: function(k, v){
     mem[k] = v;
@@ -2167,7 +2172,6 @@ function showTab(t){
   $$('.b1-tab').forEach(function(b){ var on = b.dataset.tab === t; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
   $$('.b1-sec').forEach(function(s){ s.classList.toggle('b1-on', s.id === 'b1-sec-' + t); });
   RENDER[t]();
-  var nav = root.querySelector('.b1-tabs');
   var top = root.getBoundingClientRect().top + window.pageYOffset;
   if (window.pageYOffset > top + 10) window.scrollTo(0, top);
 }

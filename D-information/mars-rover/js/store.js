@@ -6,12 +6,24 @@ function empty() {
   return { version: 1, student: { cls: "", num: "", name: "" }, kadai: "", programs: {}, designs: {}, records: [], prefs: {}, reflections: {}, evaluation: { before: {}, after: {} } };
 }
 
+// load() の中で使うので、読みこみより前に用意しておく
+const isObj = (v) => Boolean(v) && typeof v === "object" && !Array.isArray(v);
+
 let state = load();
 
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...empty(), ...JSON.parse(raw) } : empty();
+    if (!raw) return empty();
+    const d = JSON.parse(raw);
+    if (!isObj(d)) return empty();
+    // こわれた所(形のちがう値)があっても、その所だけ空にして使い続ける(計測・制御シミュレータと同じ)
+    const st = { ...empty(), ...d };
+    for (const k of ["student", "programs", "designs", "prefs", "reflections", "evaluation"]) if (!isObj(st[k])) st[k] = empty()[k];
+    if (typeof st.kadai !== "string") st.kadai = "";
+    if (!Array.isArray(st.records)) st.records = [];
+    st.records = st.records.filter(isObj);
+    return st;
   } catch {
     return empty();
   }

@@ -182,6 +182,8 @@ function renderRecords() {
     }
     return true;
   };
+  // ファイル名の「組-番号-名前」（JSON と CSV で同じにする）
+  const who = (st) => [st.cls, st.num, st.name].filter(Boolean).join("-") || "記録";
   const exported = (filename) => {
     exportNote.className = "export-note good";
     exportNote.textContent = `ファイルを保存しました（ファイル名: ${filename}）。先生に言われた場所に出そう。`;
@@ -198,8 +200,7 @@ function renderRecords() {
       modules: Object.fromEntries(MODULES.map((m) => [m.id, { title: m.title, ...progress(m), steps: s.modules[m.id]?.steps || {}, score: s.modules[m.id]?.score || {} }])),
       reflections: s.reflections,
     };
-    const who = [s.student.cls, s.student.num, s.student.name].filter(Boolean).join("-") || "記録";
-    const filename = `ネットワーク_${who}.json`;
+    const filename = `ネットワーク_${who(s.student)}.json`;
     downloadFile(filename, JSON.stringify(data, null, 2));
     exported(filename);
   });
@@ -213,7 +214,7 @@ function renderRecords() {
       const p = progress(m);
       lines.push([s.student.cls, s.student.num, s.student.name, m.title, p.done, p.total, m.id === "drill" ? (store.getScore("drill", "best") ?? "") : "", store.getReflection(m.id)].map(q).join(","));
     }
-    const filename = `ネットワーク_${s.student.name || "記録"}.csv`;
+    const filename = `ネットワーク_${who(s.student)}.csv`;
     downloadFile(filename, "﻿" + lines.join("\r\n"), "text/csv");
     exported(filename);
   });

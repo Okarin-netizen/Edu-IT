@@ -1052,7 +1052,7 @@ function alertsFor(pl){
       if(g2>c.waterDays) A.push(['c','💧','水替えから'+g2+'日たっています。水のにごり・においを確認しよう。']);
     }
   }
-  (pl.tasks||[]).forEach(function(k){ if(!k.done && /追肥|穂肥/.test(k.type)){ var d=diffDays(t,k.date); if(d>=0 && d<=3) A.push(['i','🧴','追肥の時期が近づいています('+mdw(k.date)+' '+k.type+')。']); } });
+  (pl.tasks||[]).forEach(function(k){ if(!k.done && /追肥|穂肥/.test(k.type)){ var d=diffDays(t,k.date); if(d>=0 && d<=3) A.push(['i','🧴','追肥の時期が近づいています('+mdw(k.date)+' '+esc(k.type)+')。']); } });
   if(c.safety){ var near=(pl.tasks||[]).some(function(k){ return /収穫/.test(k.type) && diffDays(t,k.date)<=14; }); if(near) A.push(['w','⚠️','収穫の時期です。'+c.safety]); }
   return A;
 }
@@ -1906,14 +1906,39 @@ function exportJSON(withPhoto){
     p.lastExport=today(); save(); toast('💾 書き出しました'+(withPhoto?'(写真'+out.photos.length+'枚)':'')); if(cur==='home') R.home({});
   }).catch(function(){ toast('書き出しに失敗しました'); });
 }
+/* 読みこんだファイルの id・日付は HTML の属性にそのまま入るので、形を確かめる(ちがうものは作りなおす) */
+var SAFE_ID = /^[0-9a-zA-Z][\w-]{0,39}$/;
+function safeId(v){ return typeof v==='string' && SAFE_ID.test(v); }
+function cleanImported(pr){
+  var pm={};
+  function fixId(o){ if(!safeId(o.id)) o.id=uid(); }
+  function fixDate(o, k){ if(!validDate(o[k])) o[k]=today(); }
+  function isO(o){ return !!o && typeof o==='object'; }
+  pr.plans = pr.plans.filter(isO);
+  pr.plans.forEach(function(pl){
+    var old=pl.id; fixId(pl); if(typeof old==='string') pm['$'+old]=pl.id;
+    fixDate(pl, 'sowDate');
+    pl.tasks = (Array.isArray(pl.tasks)?pl.tasks:[]).filter(isO);
+    pl.tasks.forEach(function(k){ fixId(k); fixDate(k, 'date'); });
+  });
+  function fixPlanId(o){ if(typeof o.planId==='string' && pm['$'+o.planId]) o.planId=pm['$'+o.planId]; }
+  pr.entries = pr.entries.filter(isO);
+  pr.entries.forEach(function(e){ fixId(e); fixDate(e, 'date'); fixPlanId(e); e.photoIds=(Array.isArray(e.photoIds)?e.photoIds:[]).filter(safeId); });
+  pr.diag = pr.diag.filter(isO);
+  pr.diag.forEach(function(d){ fixId(d); fixDate(d, 'date'); fixPlanId(d); });
+  if(typeof pr.activePlan==='string' && pm['$'+pr.activePlan]) pr.activePlan=pm['$'+pr.activePlan];
+  if(typeof pr.name!=='string' || !pr.name.trim()) pr.name='読みこんだ記録';
+  return pr;
+}
 function importJSON(){
   pickFile('.json,application/json').then(function(fs){
     if(!fs.length) return;
     readText(fs[0]).then(function(txt){
       var j; try{ j=JSON.parse(txt); }catch(e){ toast('ファイルを読めませんでした'); return; }
       if(!j || j.app!=='B4' || !j.profile || typeof j.profile!=='object'){ toast('この教材(B4)のファイルではありません'); return; }
-      var pr=j.profile, exists=pr.id && S.profiles[pr.id];
-      if(!pr.id) pr.id=uid();
+      var pr=j.profile;
+      if(!safeId(pr.id)) pr.id=uid();
+      var exists=Object.prototype.hasOwnProperty.call(S.profiles, pr.id) && S.profiles[pr.id];
       /* B4-14: やめる/置きかえる/別の名前で追加 の3つから選べるように、2回に分けてきく */
       var ask = exists ? kzConfirm('「'+exists.name+'」の記録がすでにこのタブレットにあります。\nファイルの記録を読みこみますか?', {ok:'読みこむ', cancel:'やめる'}).then(function(go1){
           if(!go1) return null;
@@ -1921,8 +1946,8 @@ function importJSON(){
         }) : Promise.resolve('new');
       ask.then(function(mode){
         if(!mode) { toast('読みこみをやめました'); return; }
-        pr = migrate({profiles:{x:pr}}).profiles.x;
-        var photos = (j.photos||[]).filter(function(ph){ return ph && ph.id && ph.data; });
+        pr = cleanImported(migrate({profiles:{x:pr}}).profiles.x);
+        var photos = (Array.isArray(j.photos)?j.photos:[]).filter(function(ph){ return ph && safeId(ph.id) && typeof ph.data==='string'; });
         if(mode==='add'){
           /* 写真は新しいIDにつけかえる(元の記録と写真を共有しない) */
           var idmap={}; photos = photos.map(function(ph){ var n=uid(); idmap[ph.id]=n; return {id:n, takenAt:ph.takenAt, data:ph.data}; });
@@ -1935,7 +1960,8 @@ function importJSON(){
           exists.entries.forEach(function(e){ (e.photoIds||[]).forEach(function(id){ if(!keep[id]) oldIds.push(id); }); });
         }
         var chain=Promise.resolve();
-        photos.forEach(function(ph){ chain=chain.then(function(){ return PhotoDB.put({id:ph.id, takenAt:ph.takenAt, blob:dataURLToBlob(ph.data), profileId:pr.id}).catch(function(){}); }); });
+        /* こわれた写真が1枚あっても、ほかの記録は読みこむ(dataURLToBlob の失敗も catch に入れる) */
+        photos.forEach(function(ph){ chain=chain.then(function(){ return Promise.resolve().then(function(){ return PhotoDB.put({id:ph.id, takenAt:ph.takenAt, blob:dataURLToBlob(ph.data), profileId:pr.id}); }).catch(function(){}); }); });
         chain.then(function(){
           oldIds.forEach(function(id){ PhotoDB.del(id); });
           S.profiles[pr.id]=pr; if(S.order.indexOf(pr.id)<0) S.order.push(pr.id); S.current=pr.id; save(); draft=null; applySettings();

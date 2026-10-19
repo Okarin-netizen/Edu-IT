@@ -1,4 +1,4 @@
-# 共通部品(B1〜B4・メニュー用)
+# 共通部品(B1〜B6・メニュー用)
 
 各教材の **kzConfirm の `<script>` のすぐ後ろ** に、下のファイルの中身をそのまま貼る(順番: kz-prefs → kz-ruby → kz-print)。
 どれも ES5・外部通信なし・file:// で動く。2回入れても害はない。くわしい API は各ファイルの先頭のコメントにある。
@@ -6,7 +6,7 @@
 | ファイル | グローバル | すること |
 |---|---|---|
 | kz-prefs.html | `kzPrefs` | ふりがな・文字の大きさの共通設定(K1)。`hub_ruby`('1'/'0')・`hub_fs`(14〜26、2きざみ、初期18)。`get()` `set({ruby,fs})` `on(fn)` `clampFs(n)` `bump(±1)` `bind(rubyBtn,decBtn,incBtn)` `embed`。iframe の中なら `<html class="kz-embed">` を付ける。ほかの画面の変更は storage イベント(予備に postMessage)で届く |
-| kz-ruby.html | `kzRuby` | 用語辞書(298語)で自動ルビ(K8)。`kzRuby(root, {skip})` は描画のたびによんでよい(二重にならない)。`kzRuby.str(html)` は文字列版、`kzRuby.plain(html)` はテキスト書き出し用にルビとタグを取る。`kzRuby.add([[語,よみ]])` で教材だけの語を追加 |
+| kz-ruby.html | `kzRuby` | 用語辞書(301語)で自動ルビ(K8)。`kzRuby(root, {skip})` は描画のたびによんでよい(二重にならない)。`kzRuby.str(html)` は文字列版、`kzRuby.plain(html)` はテキスト書き出し用にルビとタグを取る。`kzRuby.add([[語,よみ]])` で教材だけの語を追加 |
 | kz-print.html | `kzPrintText` | 印刷で textarea の文章を切らない(K5)。描画のあとに `kzPrintText(root)`、JS で値を変えたら `kzPrintText.sync()` |
 | kz-ruby-dict.json | — | 辞書と同じ内容。B1 は自分の RUBY の読みをこれにそろえる(「分げつ」は `[['分','ぶん'],'げつ']`) |
 | dict-src.txt / build-dict.js | — | 辞書の元。`node build-dict.js` で json と kz-ruby.html の辞書を作り直す |

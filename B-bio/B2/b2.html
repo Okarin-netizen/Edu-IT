@@ -1177,7 +1177,9 @@ function iconSVG(key){
 /* ================= 画面:共通 ================= */
 var settings=store.get('settings',null);
 if(!isObj(settings))settings={};
-settings={ruby:settings.ruby!==false,fs:kzPrefs.clampFs(settings.fs||18),tab:typeof settings.tab==='string'?settings.tab:'home'};
+/* タブの名前は [data-sec="…"] の検索に使うので、英字だけのものにかぎる(読みこんだファイルの変な値で起動できなくならないように) */
+function tabName(v,def){return typeof v==='string'&&/^[a-z]+$/.test(v)?v:def}
+settings={ruby:settings.ruby!==false,fs:kzPrefs.clampFs(settings.fs||18),tab:tabName(settings.tab,'home')};
 (function(){ // 共通設定(hub_ruby / hub_fs)がまだないときは、B2 の古い設定を引きつぐ
   var p=kzPrefs.get(),o={};
   if(p.ruby===null&&settings.ruby===false)o.ruby=false;
@@ -1873,7 +1875,7 @@ function importAll(e){
     kzConfirm('いまのデータを、読み込んだデータで置きかえます。いまのデータは消えます。よろしいですか?',{ok:'置きかえる',cancel:'やめる',danger:true}).then(function(yes){if(!yes)return;
       Object.keys(ok).forEach(function(k){store.set(k,ok[k])});
       run=normRun(store.get('sim',null));planData=null;reflData=null;
-      if(ok.settings){var st=ok.settings;settings.tab=typeof st.tab==='string'?st.tab:settings.tab;store.set('settings',settings)}
+      if(ok.settings){var st=ok.settings;settings.tab=tabName(st.tab,settings.tab);store.set('settings',settings)}
       writeReflStat(getRefl());simBuiltFor=null;
       toast(bad.length?'読み込みました(読み込めなかったもの:'+bad.join('・')+')':'読み込みました');renderHome();
     });

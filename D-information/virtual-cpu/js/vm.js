@@ -44,7 +44,7 @@ export function assemble(source, isa) {
     }
     for (const name of names) {
       if (name.toUpperCase() in ops || name.toUpperCase() === "DATA") errors.push({ line, message: `「${name}」は命令の名前なので、ラベル（番地の名前）には使えません` });
-      else if (name in labels || pending.some((p) => p.name === name)) errors.push({ line, message: `ラベル「${name}」が2回出てきます。名前は1つずつ別にしよう` });
+      else if (Object.hasOwn(labels, name) || pending.some((p) => p.name === name)) errors.push({ line, message: `ラベル「${name}」が2回出てきます。名前は1つずつ別にしよう` });
       else pending.push({ name, line });
     }
     if (!text) return;
@@ -90,7 +90,7 @@ export function assemble(source, isa) {
       return n;
     }
     if (NAME_RE.test(tok)) {
-      if (tok in labels) return labels[tok];
+      if (Object.hasOwn(labels, tok)) return labels[tok]; // in だと「toString」などの名前が見つかったことになる
       const near = Object.keys(labels).find((k) => k.toLowerCase() === tok.toLowerCase());
       if (near) errors.push({ line, message: `「${tok}」という名前はありません。「${near}」のことかな？（名前は大文字と小文字を区別します）` });
       else if (JUMP_OPS.has(op)) errors.push({ line, message: `「${tok}」という名前の行がありません。とびたい行の先頭に「${tok}:」をつけよう` });

@@ -540,6 +540,8 @@ var LINK_PRESETS = [
   { name: '平行クランク', v: { a: 30, b: 70, c: 30, d: 70 } }
 ];
 var SCREW_P = [0.5, 0.8, 1, 1.25, 1.5, 2, 2.5, 3];
+var SPEEDS = [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']];   // アニメの速さのボタン [倍率, 名前]
+function speedBtns() { return SPEEDS.map(function (s) { return '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>'; }).join(''); }
 
 /* ---------- 回転を伝える: 見本 ---------- */
 function W(kind, size) { return { kind: kind, size: size }; }
@@ -635,12 +637,14 @@ function loadSave() {
   d = d && typeof d === 'object' ? d : {};
   if (d.sound == null) d.sound = false;   // 授業で一斉に鳴らないよう、最初は音なし
   if (!d.train || M.checkTrain(d.train).length) d.train = clone(DEF_TRAIN);
-  d.conv = d.conv || {};
-  Object.keys(CONV_DEF).forEach(function (k) { d.conv[k] = Object.assign(clone(CONV_DEF[k]), d.conv[k] || {}); });
+  if (!d.conv || typeof d.conv !== 'object') d.conv = {};
+  // こわれた値(文字・範囲の外)は初期値にもどす(ファイルを読みこむときと同じ確かめ方)
+  Object.keys(CONV_DEF).forEach(function (k) { d.conv[k] = (d.conv[k] && convParamsOk(k, d.conv[k])) || clone(CONV_DEF[k]); });
+  if (d.mech != null && !CONV_DEF[d.mech]) delete d.mech;
   d.tasks = d.tasks || {};
   d.tt = d.tt || {};
   d.tc = d.tc || {};
-  if (d.speed == null) d.speed = 1;
+  if (!SPEEDS.some(function (x) { return x[0] === d.speed; })) d.speed = 1;
   d.loss = !!d.loss;
   d.refl = Object.assign({ q1: '', q2: '', q3: '' }, d.refl && typeof d.refl === 'object' ? d.refl : {});
   return d;
@@ -713,7 +717,7 @@ function openTask(id) {
     if (!S.save.tt[id] || M.checkTrain(S.save.tt[id]).length) S.save.tt[id] = clone(tk.start);
     S.train = S.save.tt[id]; S.sel = S.train.wheels.length - 1; S.view = 'build';
   } else {
-    if (!S.save.tc[id]) S.save.tc[id] = clone(CONV_DEF[tk.mech]);
+    S.save.tc[id] = (S.save.tc[id] && convParamsOk(tk.mech, S.save.tc[id])) || clone(CONV_DEF[tk.mech]);
     if (tk.id === 'wiper') S.save.tc[id].wiper = true;
     S.mech = tk.mech; S.cp = S.save.tc[id]; S.view = 'conv'; convReset();
   }
@@ -788,8 +792,7 @@ function removeLast() {
   var T = S.train;
   if (T.wheels.length <= 1) { beep('err'); say('⚠ 入力(モーター)の部品は取れない。大きさは変えられるよ。', 'err'); return; }
   pushUndo();
-  T.wheels.pop(); T.links.pop();
-  if (T.links.length && T.links[T.links.length - 1] === 'shaft' && T.wheels.length > 1) { /* 2段の途中で終わってもOK */ }
+  T.wheels.pop(); T.links.pop();   // 2段の途中(同じ軸に重ねたところ)で終わってもよい
   S.sel = Math.min(S.sel, T.wheels.length - 1);
   beep('del'); changed(); say('最後の部品を取った。「↩ もどす」で元にもどせる。');
 }
@@ -915,9 +918,7 @@ function renderBar() {
   if (S.view === 'quiz') { el.innerHTML = quizBar(); return; }
   h += '<button class="e3-btn ' + (S.playing ? '' : 'primary') + '" data-act="play">' + (S.playing ? '⏸ 止める' : '▶ 動かす') + '</button>';
   h += '<span class="lbl">アニメの速さ</span>';
-  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) {
-    h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>';
-  });
+  h += speedBtns();
   h += '<button class="e3-btn sm" data-act="turn1">1回転だけ</button>';
   h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
   h += '<span class="sp"></span>';
@@ -1144,15 +1145,14 @@ function drawBelt(c, p1, p2, type, th1) {
 }
 
 /* ---------- 回転を伝える: 描画 ---------- */
-function trainScreen(T, sol) {
+function trainScreen(T) {
   var L = M.layoutTrain(T), x0 = Infinity, x1 = -Infinity, ymax = 0;
   L.forEach(function (p) { x0 = Math.min(x0, p.x - p.r); x1 = Math.max(x1, p.x + p.r); ymax = Math.max(ymax, p.r); });
-  void sol;
   return { L: L, box: [x0 - 8, -ymax - 8, x1 + 8, ymax + 8] };
 }
 function drawTrain(c, T, A, o) {
   o = o || {};
-  var sol = M.solveTrain(T), lay = trainScreen(T, sol), L = lay.L, b = lay.box;
+  var sol = M.solveTrain(T), lay = trainScreen(T), L = lay.L, b = lay.box;
   if (o.box) b = o.box;
   fitBox(b[0], b[1], b[2], b[3], o.pad || 30, o.padTop || 70, o.padBot || 64, o.maxSc || 3.2);
   var P = L.map(function (p, i) { return { x: tx(p.x), y: ty(p.y), r: p.r * S.fit.sc, th: L[i].g * A, ang: p.a0 + L[i].g * A, i: i, shaft: sol.wheels[i].shaft }; });
@@ -1341,10 +1341,9 @@ function drawConv(c) {
     return;
   }
   if (S.mech === 'link') {
-    var a = cp.a, b = cp.b, cc = cp.c, d = cp.d, Rm = Math.max(a, cc, 10);
+    var a = cp.a, b = cp.b, cc = cp.c, d = cp.d;
     var ext = cp.wiper ? cc * 1.9 : cc;
     fitBox(Math.min(-a, d - ext) - 10, -Math.max(a, ext) - 10, Math.max(a, d + ext) + 10, Math.max(a, cc) + 10, 40, 50, 50, 6);
-    void Rm;
     var r = M.fourBar(a, b, cc, d, C.th, M.linkType(a, b, cc, d).id === 'rockercrank' ? C.prevB : (C.mode || C.prevB));
     if (!r.ok) { // 動けない角度なら、動ける所まで探す
       for (var k = 1; k < 360; k++) { var t2 = C.th + k * Math.PI / 180, r2 = M.fourBar(a, b, cc, d, t2, null); if (r2.ok) { C.th = t2; r = r2; break; } }
@@ -1418,7 +1417,6 @@ function drawConv(c) {
     return;
   }
   if (S.mech === 'screw') {
-    var lead = M.screwLead(cp.p, cp.n);
     fitBox(-24, -26, 64, 26, 30, 70, 60, 14);
     var s0 = tx(0), s1 = tx(60), cy2 = ty(0), sc3 = S.fit.sc, rad = 5 * sc3;
     // ねじ棒
@@ -1447,7 +1445,6 @@ function drawConv(c) {
     text(c, 'mm', tx(60) + 18, by2 + 11, 13, '#5e6b64');
     c.beginPath(); c.moveTo(tx(C.s + 2) + 0, by2 - 18); c.lineTo(tx(C.s + 2), by2); c.strokeStyle = '#c2410c'; c.lineWidth = 3; c.stroke();
     pill(c, '進んだ距離 ' + fmt(C.s, 2) + 'mm', S.cw / 2, 30, { size: 16, bg: '#264d3a', color: '#fff' });
-    void lead;
   }
 }
 function linkTrail(cp) {
@@ -1619,7 +1616,7 @@ function quizBar() {
   h += '<button class="e3-btn sm" data-act="turn1"' + (lock ? ' disabled' : '') + '>入力を1回転だけ</button>';
   h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
   h += '<span class="lbl">アニメの速さ</span>';
-  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) { h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>'; });
+  h += speedBtns();
   return h;
 }
 function quizSide() {
@@ -1672,7 +1669,7 @@ function drawQuiz(c) {
   var bx0 = tx(r0 * 0.4), bx1 = tx(r0 * 0.4 + boxW), by0 = ty(-100), by1 = ty(100);
   // 開けたときは中身を描く
   if (open) {
-    var savedFit = S.fit, lay = trainScreen(T, s), Lb = lay.box;
+    var savedFit = S.fit, lay = trainScreen(T), Lb = lay.box;
     c.save(); c.beginPath(); c.rect(bx0, by0, bx1 - bx0, by1 - by0); c.clip();
     var ow = S.cw, oh = S.ch;
     // 箱の中に収まるように仮の画面サイズで描く
@@ -1831,15 +1828,16 @@ function importJSON() {
 function applyImport(txt) {
   var o; try { o = JSON.parse(txt); } catch (e) { o = null; }
   var D = o && o.app === 'C3' && o.data;
+  var nm = o && typeof o.name === 'string' ? o.name.slice(0, 40) : '';
   if (D && D.mode === 'train' && Array.isArray(D.parts) && Array.isArray(D.joints)) {
-    var t = { wheels: D.parts.map(function (p) { return W(p.kind, +p.size); }), links: D.joints.map(function (j) { return j.type; }) };
+    var t = { wheels: D.parts.map(function (p) { return W(p && p.kind, p && +p.size); }), links: D.joints.map(function (j) { return j && j.type; }) };
     var ok = M.checkTrain(t).length === 0 && t.wheels.every(function (w) { return KIND_RANGE[w.kind] && w.size >= KIND_RANGE[w.kind][0] && w.size <= KIND_RANGE[w.kind][1]; }) && t.wheels.length <= MAXW;
-    if (ok) { closeModal(); S.task = null; S.save.train = t; S.save.dname = o.name || ''; S.save.dnameFor = 'build//'; S.view = 'build'; openView('build'); say(loadedMsg(o.name)); return true; }
+    if (ok) { closeModal(); S.task = null; S.save.train = t; S.save.dname = nm; S.save.dnameFor = 'build//'; S.view = 'build'; openView('build'); say(loadedMsg(nm)); return true; }
   }
   var P = D && D.mode === 'conv' && CONV_DEF[D.mech] && D.params && convParamsOk(D.mech, D.params);
   if (P) {
-    closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = o.name || ''; S.save.dnameFor = 'conv//' + D.mech;
-    openView('conv'); say(loadedMsg(o.name)); return true;
+    closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = nm; S.save.dnameFor = 'conv//' + D.mech;
+    openView('conv'); say(loadedMsg(nm)); return true;
   }
   beep('err'); say('⚠ このファイルは読みこめなかった(C3 機構ラボで保存したファイルを選んでね)。', 'err'); closeModal();
   return false;

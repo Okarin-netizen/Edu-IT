@@ -637,6 +637,8 @@ var $ = function(s){ return hub.querySelector(s); };
 var frames = {};
 var current = 'menu';
 var PAGES = {menu:1, student:1, teacher:1};
+/* #constructor などの URL でも Object の元からある名前を画面の名前とまちがえない */
+function isPage(id){ return Object.prototype.hasOwnProperty.call(PAGES, id) || Object.prototype.hasOwnProperty.call(APPS, id); }
 
 /* ---------- 保存できるか ---------- */
 var storeOK = false;
@@ -759,7 +761,7 @@ function setTitle(id){
 /* ---------- 画面の切りかえ ---------- */
 function focusFrame(f){ try { if (f.contentDocument && f.contentDocument.readyState === 'complete') f.contentWindow.focus(); } catch(e) {} }
 function show(id, push){
-  if (!PAGES[id] && !APPS[id]) id = 'menu';
+  if (!isPage(id)) id = 'menu';
   current = id;
   hub.classList.toggle('in-app', !!APPS[id]);
   ['menu','student','teacher'].forEach(function(p){ $('#pg-' + p).hidden = (p !== id); });
@@ -834,7 +836,7 @@ $('#hub-file').addEventListener('change', function(e){
   r.onload = function(){
     var o = parse(r.result);
     if (!o || o.app !== 'seibutsu-ikusei-hub' || !o.data) { toast('このファイルは読みこめません'); return; }
-    kzConfirm('いまこの端末にある B1〜B6 の記録を、ファイルの内容で置きかえます。よろしいですか?', {ok:'置きかえる'}).then(function(ok){ if (!ok) return;
+    kzConfirm('いまこの端末にある B1〜B6 の記録を、ファイルの内容で置きかえます。いまの記録は消えます。よろしいですか?', {ok:'置きかえる', danger:true}).then(function(ok){ if (!ok) return;
     reloadFrames();
     ourKeys().forEach(function(k){ try { localStorage.removeItem(k); } catch(err) {} });
     var n = 0; Object.keys(o.data).forEach(function(k){ if (/^(b[1-6]_|hub_)/.test(k) && typeof o.data[k] === 'string' && lsSet(k, o.data[k])) n++; });
@@ -860,7 +862,7 @@ function reloadFrames(){ Object.keys(frames).forEach(function(k){ frames[k].remo
 
 /* ---------- はじめ ---------- */
 var start = (location.hash || '#menu').slice(1);
-show(PAGES[start] || APPS[start] ? start : 'menu', false);
+show(isPage(start) ? start : 'menu', false);
 try { history.replaceState({p:current}, '', '#' + current); } catch(e) {}
 })();
 </script>

@@ -471,8 +471,8 @@ function segEnds(seg) {
   return p[0] === 'h' ? [{ x: x, y: y }, { x: x + 1, y: y }] : [{ x: x, y: y }, { x: x, y: y + 1 }];
 }
 function segOK(seg) {
+  if (typeof seg !== 'string' || !/^[hv],\d+,\d+$/.test(seg)) return false;
   var p = seg.split(','), x = +p[1], y = +p[2];
-  if (x < 0 || y < 0) return false;
   return p[0] === 'h' ? x < COLS - 1 && y < ROWS : x < COLS && y < ROWS - 1;
 }
 function ends(pt) { var e = segEnds(pt.seg); return pt.rev ? [e[1], e[0]] : e; }
@@ -571,11 +571,10 @@ function miniFig(spec, cols, rows) {
   Object.keys(deg).forEach(function (k) { if (deg[k] >= 3) { var q = k.split(','); h += '<circle class="e2-jn" cx="' + q[0] * SP + '" cy="' + q[1] * SP + '" r="7"/>'; } });
   return h + '</svg>';
 }
-function Wf(seg) { return ['wire', seg]; }
 var HINTFIG = {
-  c5: miniFig([Wf('v,0,0'), ['ammeter', 'h,0,0', '電流計'], Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1', '豆電球'], Wf('v,3,2'), ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], Wf('h,0,3'), Wf('h,1,3'), Wf('h,2,3')], 4, 4),
-  c6: miniFig([Wf('v,0,0'), Wf('h,0,0'), Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1'], ['lamp', 'v,3,2'], Wf('h,3,1'), Wf('h,3,2'), ['voltmeter', 'v,4,1', '電圧計'], ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], Wf('h,0,3'), Wf('h,1,3'), Wf('h,2,3')], 5, 4),
-  c7: miniFig([['battery', 'v,0,1'], ['battery', 'v,1,1'], Wf('h,0,1'), Wf('h,0,2'), Wf('v,1,0'), Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1', '豆電球'], Wf('h,1,2'), Wf('h,2,2')], 4, 3)
+  c5: miniFig([W('v,0,0'), ['ammeter', 'h,0,0', '電流計'], W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1', '豆電球'], W('v,3,2'), ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], W('h,0,3'), W('h,1,3'), W('h,2,3')], 4, 4),
+  c6: miniFig([W('v,0,0'), W('h,0,0'), W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1'], ['lamp', 'v,3,2'], W('h,3,1'), W('h,3,2'), ['voltmeter', 'v,4,1', '電圧計'], ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], W('h,0,3'), W('h,1,3'), W('h,2,3')], 5, 4),
+  c7: miniFig([['battery', 'v,0,1'], ['battery', 'v,1,1'], W('h,0,1'), W('h,0,2'), W('v,1,0'), W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1', '豆電球'], W('h,1,2'), W('h,2,2')], 4, 3)
 };
 
 var CHALS = [
@@ -710,12 +709,18 @@ function loadSave() {
 }
 function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
 function cleanParts(ps) {
-  return (ps || []).filter(function (p) { return p && PARTS[p.type] && typeof p.seg === 'string' && segOK(p.seg); }).map(function (p) {
-    var q = { id: p.id || ('p' + NID++), type: p.type, seg: p.seg, rev: !!p.rev };
-    ['val', 'on', 'broken', 'fixed', 'flip', 'label'].forEach(function (k) { if (p[k] != null && p[k] !== false) q[k] = p[k]; });
+  var out = (Array.isArray(ps) ? ps : []).filter(function (p) { return p && PARTS[p.type] && segOK(p.seg); }).map(function (p) {
+    var q = { id: String(p.id || ('p' + NID++)), type: p.type, seg: p.seg, rev: !!p.rev };
+    ['on', 'broken', 'fixed', 'flip'].forEach(function (k) { if (p[k] != null && p[k] !== false) q[k] = p[k]; });
+    var vals = PARTS[p.type].vals; if (vals && vals.indexOf(+p.val) >= 0) q.val = +p.val;   // 値は部品の選択肢のどれかだけ(0Ω などで計算がこわれないように)
+    if (typeof p.label === 'string' && p.label) q.label = p.label;
     return q;
   });
+  syncNid(out);
+  return out;
 }
+/* 読みこんだ部品の id(p12 など)より大きい番号から新しい id をつける(同じ id ができると、消す・選ぶで別の部品まで動く) */
+function syncNid(ps) { ps.forEach(function (p) { var n = +String(p.id).replace(/\D/g, ''); if (n >= NID) NID = n + 1; }); }
 function presetParts(ch) {
   return (ch.preset || []).map(function (a) {
     var o = a[2] || {}, p = { id: 'p' + NID++, type: a[0], seg: a[1], rev: false };
@@ -929,7 +934,7 @@ function openMode(mode) {
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
-  var v = S.view, ch = chal();
+  var v = S.view;
   var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
     '<button class="e2-btn' + (v === 'lab' && S.mode === 'free' ? ' on' : '') + '" data-act="free" aria-label="自由につくる">🧪<span class="lg2"> 自由に<span class="lg">つくる</span></span></button>' +
     '<button class="e2-btn' + (v === 'lab' && S.mode !== 'free' ? ' on' : '') + '" data-act="chals" aria-label="課題">📋<span class="lg2"> 課題</span></button>' +
@@ -952,7 +957,6 @@ function buildShell() {
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (v === 'lab') bindBoard();
   efMount();
-  void ch;
 }
 function render() {
   renderTop();
@@ -1660,7 +1664,7 @@ function renderLeak() {
   else msg = L.earth ? 'アースのおかげで体に流れる電流は小さく(' + (shockA * 1000).toFixed(1) + 'mA)なりました。でも漏電は続いています。' : '体を通って地面へ電流が流れました(感電)。とても危険です!';
   var mA = (shockA * 1000).toFixed(shockA < 0.01 ? 1 : 0) + ' mA';
   if (L.cut) p += '<div class="e2-card okc"><div class="ttl">🛡 漏電遮断器が止めた</div><div class="e2-big" style="font-size:calc(26px * var(--ea-fs, 1))">流れかけた電流 ' + mA + '<br>→ 0.1秒以内に<ruby>遮断<rt>しゃだん</rt></ruby></div><div style="margin-top:6px">' + msg + '</div>' +
-    (shockA > 0.0005 ? '<div class="e2-note" style="margin-top:6px">(参考:遮断しなかったら ' + lv[0] + ')</div>' : '') + '<div class="e2-note" style="margin-top:6px">';
+    (shockA > 0.0005 ? '<div class="e2-note" style="margin-top:6px">(参考:遮断しなかったら ' + lv[0] + ')</div>' : '') + '</div>';
   else p += '<div class="e2-card ' + lv[1] + '"><div class="ttl">🧍 体に流れた電流</div><div class="e2-big" style="font-size:calc(36px * var(--ea-fs, 1))">' + mA + '</div><div style="text-align:center;font-weight:bold">' + lv[0] + '</div><div style="margin-top:6px">' + msg + '</div>' +
     '<div class="e2-note" style="margin-top:6px">目安:1mA ピリッ/10mA はなせない/30mA 危険/50mA 命の危険(体の状態で変わります)</div></div>';
   p += '<div class="e2-card tip"><div class="ttl">💡 ことば</div><b>漏電</b>:電気が決められた通り道(電線)の外へもれること。<br><b><ruby>絶縁<rt>ぜつえん</rt></ruby></b>:電気を通さない物(ビニルなど)でおおうこと。コードの<ruby>被覆<rt>ひふく</rt></ruby>(線をおおうビニル)がいたむと漏電の原因に。<br><b>アース線</b>:もれた電流を地面へにがす線。洗濯機など、水気や湿気のある所で使う器具につなぐ。<br><b>漏電遮断器</b>:行きと帰りの電流の差(もれた電流)を見つけて、すぐに電気を止める装置。</div>';
@@ -1701,9 +1705,9 @@ var COSTAPPL = [
 ];
 function costState() {
   if (!S.cost) {
-    var sv = S.save.cost || {};
-    S.cost = { price: sv.price || 31, h: {} };
-    COSTAPPL.forEach(function (a) { S.cost.h[a.id] = sv.h && sv.h[a.id] != null ? sv.h[a.id] : a.h; });
+    var sv = S.save.cost || {}, ok = function (v, lo, hi) { return typeof v === 'number' && v >= lo && v <= hi; };   // pageAct の上限・下限と同じ
+    S.cost = { price: ok(sv.price, 10, 60) ? sv.price : 31, h: {} };
+    COSTAPPL.forEach(function (a) { S.cost.h[a.id] = sv.h && ok(sv.h[a.id], 0, 24) ? sv.h[a.id] : a.h; });
   }
   return S.cost;
 }

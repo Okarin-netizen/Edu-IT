@@ -145,7 +145,9 @@
   addCards(G.$('#tapps'), G.TEACHER_APPS);
   // 組・番号・名前(書き出すファイルに入る)
   var PKEY = 'gijutsu.profile';
-  function getProfile() { try { return JSON.parse(localStorage.getItem(PKEY)) || {}; } catch (e) { return {}; } }
+  function getProfile() {
+    try { var p = JSON.parse(localStorage.getItem(PKEY)); return p && typeof p === 'object' ? p : {}; } catch (e) { return {}; }
+  }
   var prof = getProfile();
   [['class', '#pf-class'], ['no', '#pf-no'], ['name', '#pf-name']].forEach(function (f) {
     var el = G.$(f[1]);
@@ -170,7 +172,8 @@
   };
   G.$('#imp').onclick = function () {
     G.pickJSON().then(function (obj) {
-      var list = G.normalizeImport(obj);
+      // どのアプリの作品か(app)がないものは保存できないので除く
+      var list = G.normalizeImport(obj).filter(function (a) { return a.app; });
       if (!list.length) { G.toast('読み込める作品がありませんでした'); return; }
       return Promise.all(list.map(function (a) { return G.store.put(a); })).then(function () {
         G.toast(list.length + ' 件の作品を読み込みました'); refreshCount();

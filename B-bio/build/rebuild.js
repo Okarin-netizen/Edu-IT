@@ -100,6 +100,7 @@ const sec=gsrc.slice(ga+'<!-- guide:start -->'.length,gb).trim();
 h=once(h,'<!-- 先生用ガイド: docs/先生用ガイド.html の中身を rebuild.js が入れる -->',sec,'hub guide');
 const lines=h.split('\n');
 const i=lines.findIndex(l=>l.startsWith('var SRC = '));
+if(i<0) throw new Error('hub: var SRC = の行が見つからない');
 const SRC={}; for(const k of ['b1','b2','b3','b4','b5','b6']) SRC[k]=inlineEf(read(path.join(D,k.toUpperCase(),k+'.html')),k);
 lines[i]='var SRC = '+JSON.stringify(SRC).replace(/<\//g,'<\\/').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')+';';
 h=lines.join('\n'); fs.writeFileSync(H,h);
@@ -120,14 +121,18 @@ fs.writeFileSync(G,g);
 const txt=read(path.join(__dirname,'はじめにお読みください.txt')).replace(/\{version\}/g,INFO.version).replace(/\{updated\}/g,INFO.updated);
 const Z=path.join(OUT,'生物育成教材集.zip');
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'bio-zip-'));
-const zd=path.join(tmp,'生物育成教材集'); fs.mkdirSync(zd);
-fs.copyFileSync(H,path.join(zd,'生物育成教材集.html'));
-fs.copyFileSync(G,path.join(zd,'先生用ガイド.html'));
-fs.writeFileSync(path.join(zd,'はじめにお読みください.txt'),txt);
-const T=new Date(INFO.updated+'T12:00:00');
-for(const f of fs.readdirSync(zd)) fs.utimesSync(path.join(zd,f),T,T);
-fs.utimesSync(zd,T,T);
-if(fs.existsSync(Z)) fs.unlinkSync(Z);
-cp.execFileSync('zip',['-q','-X','-r',Z,'生物育成教材集'],{cwd:tmp});
-fs.rmSync(tmp,{recursive:true,force:true});
+try{
+  const zd=path.join(tmp,'生物育成教材集'); fs.mkdirSync(zd);
+  fs.copyFileSync(H,path.join(zd,'生物育成教材集.html'));
+  fs.copyFileSync(G,path.join(zd,'先生用ガイド.html'));
+  fs.writeFileSync(path.join(zd,'はじめにお読みください.txt'),txt);
+  const T=new Date(INFO.updated+'T12:00:00');
+  for(const f of fs.readdirSync(zd)) fs.utimesSync(path.join(zd,f),T,T);
+  fs.utimesSync(zd,T,T);
+  if(fs.existsSync(Z)) fs.unlinkSync(Z);
+  cp.execFileSync('zip',['-q','-X','-r',Z,'生物育成教材集'],{cwd:tmp});
+}finally{
+  // zip がなくて失敗しても、作業用のフォルダは残さない
+  fs.rmSync(tmp,{recursive:true,force:true});
+}
 console.log('rebuilt', h.length, 'guide', g.length, 'zip', fs.statSync(Z).size, 'version', INFO.version);

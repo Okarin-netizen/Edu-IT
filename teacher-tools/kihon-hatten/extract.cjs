@@ -19,6 +19,7 @@ const names = { A: {}, B: {}, C: {}, D: {} };
 }
 {
   const m = read("B-bio/build/menu.html").match(/^var APPS = (\{.*\});$/m);
+  if (!m) throw new Error("B-bio/build/menu.html: var APPS = {…}; の行が見つかりません");
   for (const [id, a] of Object.entries(JSON.parse(m[1]))) names.B[id] = `${a.code} ${a.plain}`;
 }
 for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(C\d)'.*?name='([^']+)'/g)) names.C[m[1]] = `${m[1]} ${m[2]}`;

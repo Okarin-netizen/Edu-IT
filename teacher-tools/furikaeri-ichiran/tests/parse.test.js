@@ -183,6 +183,10 @@ test('D: 統一版(第1.6版)の記録まとめのラボは、問いの名前で
 test('読めないファイルは理由を返す', () => {
   assert.strictEqual(load('こわれた.json').ok, false);
   assert.strictEqual(FKR.parse('x', 'a.json').ok, false);
+  // 形は教材のものでも、中の値の形がちがう(配列のはずがオブジェクトなど)ときは、止まらずに理由を返す
+  const r = FKR.parse({ app: 'デジタル化ラボ', modules: { a: 1 } }, 'a.json');
+  assert.strictEqual(r.ok, false);
+  assert.ok(r.error);
 });
 
 test('ファイル名から組・番号を拾う', () => {

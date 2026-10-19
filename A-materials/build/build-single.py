@@ -74,7 +74,8 @@ def inline(page_path):
 def main(out):
     pages = {pid: inline(p) for pid, p in PAGES}
     dirs = {p.split('/')[0]: pid for pid, p in PAGES if '/' in p}
-    icon = base64.b64encode(open(os.path.join(ROOT, 'icons/icon.svg'), 'rb').read()).decode()
+    with open(os.path.join(ROOT, 'icons/icon.svg'), 'rb') as f:
+        icon = base64.b64encode(f.read()).decode()
     data = json.dumps({'pages': pages, 'dirs': dirs}, ensure_ascii=False)
     data = data.replace('</', '<\\/').replace('<!--', '<\\u0021--')
     shell = '''<!doctype html>
@@ -107,7 +108,7 @@ def main(out):
     cur = id;
     view.srcdoc = DATA.pages[id];
   }
-  // 「../index.html」「a1-material-navi/index.html」「docs/先生用ガイド.html」「../index.html」などを、ページ id に置きかえる
+  // 「../index.html」「a1-material-navi/index.html」「docs/先生用ガイド.html」などを、ページ id に置きかえる
   function resolve(href) {
     var path = String(href).split('#')[0].split('?')[0];
     try { path = decodeURIComponent(path); } catch (e) {}
@@ -128,7 +129,11 @@ def main(out):
       return true;
     }
   };
-  function fromHash() { show(decodeURIComponent(location.hash.slice(1)) || 'menu'); }
+  function fromHash() {
+    var id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch (e) {}  // こわれた %%xx があっても止まらないように
+    show(id || 'menu');
+  }
   window.addEventListener('hashchange', fromHash);
   view.addEventListener('load', function () {
     try { document.title = view.contentDocument.title || document.title; } catch (e) {}

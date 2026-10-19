@@ -431,7 +431,7 @@ function factorChallenge(onDone) {
     showBtn.hidden = true;
     fb.replaceChildren();
   });
-  input.addEventListener("keydown", (e) => e.key === "Enter" && check());
+  input.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && check());
   return h(
     "div",
     { style: "margin-top:12px" },

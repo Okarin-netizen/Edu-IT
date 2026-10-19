@@ -132,12 +132,12 @@ export const faultModule = {
       const r = resolveName(net, from.id, server.host);
       const direct = shortestPath(net, from.id, server.id);
       if (r.ok) {
-        dnsResult.replaceChildren(explainCard("開けた", `DNSサーバ（${escape(r.dns.name)}）が「${server.host} は ${r.ip}」と答えました。${direct ? "" : "でも、Webサーバまでの道はとぎれています。"}DNSサーバを止めて、もう一度ためそう。`, direct ? "good" : "warn"));
+        dnsResult.replaceChildren(explainCard("開けた", `DNSサーバ（${escape(r.dns.name)}）が「${escape(server.host)} は ${escape(r.ip)}」と答えました。${direct ? "" : "でも、Webサーバまでの道はとぎれています。"}DNSサーバを止めて、もう一度ためそう。`, direct ? "good" : "warn"));
       } else {
         dnsResult.replaceChildren(
           explainCard(
             "名前がわからない",
-            `DNSサーバに問い合わせできないので、<code>${server.host}</code> のIPアドレスがわかりません。${direct ? `<br>Webサーバ（${server.ip}）までの道は<strong>つながっている</strong>のに、名前では開けません。` : ""}`,
+            `DNSサーバに問い合わせできないので、<code>${escape(server.host)}</code> のIPアドレスがわかりません。${direct ? `<br>Webサーバ（${escape(server.ip)}）までの道は<strong>つながっている</strong>のに、名前では開けません。` : ""}`,
             "bad",
           ),
         );

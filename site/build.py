@@ -22,6 +22,14 @@ PAGES = {
     "D_情報の技術_統一版.html": "d.html",
 }
 
+
+def read(path):
+    """配るファイルを読む。なければ、何をすればよいかを出して止める(長いエラーの表示にしない)"""
+    if not path.is_file():
+        raise SystemExit(f"{path.relative_to(repo)} がありません。先に python3 クラスルーム配布/まとめる.py を実行してください")
+    return path.read_text(encoding="utf-8")
+
+
 if out.exists():
     shutil.rmtree(out)
 out.mkdir()
@@ -71,7 +79,7 @@ FRAME = """<!doctype html>
   f.addEventListener('load', function () {{
     try {{
       document.title = f.contentDocument.title || document.title;
-      f.contentWindow.addEventListener('hashchange', function () {{ history.replaceState(null, '', f.contentWindow.location.hash || location.pathname); }});
+      f.contentWindow.addEventListener('hashchange', function () {{ history.replaceState(null, '', f.contentWindow.location.hash || location.pathname + location.search); }});
     }} catch (e) {{}}
   }});
 </script>
@@ -86,7 +94,7 @@ for src, dst in PAGES.items():
     if old not in html:
         raise SystemExit(f"site/index.html: {old} へのリンクがありません")
     html = html.replace(old, dst)
-    page = (student / src).read_text(encoding="utf-8")
+    page = read(student / src)
     if dst == "b.html":
         # 生物育成の教材は「ほかのページの枠の中」だと見出し(◀ メニューなど)をかくす。ここの枠では見出しを出したままにする
         page, n = re.subn(r"embed = window\.self !== window\.top;", "embed = false;", page)
@@ -105,7 +113,7 @@ for src, dst in WS.items():
     if old not in html:
         raise SystemExit(f"site/index.html: {old} へのリンクがありません")
     html = html.replace(old, "ws/" + dst)
-    page = (student / "ワークシート" / src).read_text(encoding="utf-8")
+    page = read(student / "ワークシート" / src)
     unified = next(k for k, v in PAGES.items() if v == dst)
     n = page.count(f'href="../自習用/{unified}"') + page.count("<!--site-home-->")
     if n != 2:

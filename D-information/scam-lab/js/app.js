@@ -17,7 +17,9 @@
   // ---- 端末の中だけの保存(使えなくても動く) ----
   var KEY = 'eduit-scam-lab';
   var saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+  // こわれたデータ(オブジェクトでないもの)が入っていても動くように
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};
   function save(k, v) {
     saved[k] = v;
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
@@ -103,7 +105,7 @@
   function scState(sc) {
     var all = saved.sc || {};
     var st = all[sc.id];
-    if (!st || !sc.nodes[st.node]) st = E.init(sc);
+    if (!st || typeof st !== 'object' || !sc.nodes[st.node] || !st.done || !Array.isArray(st.log)) st = E.init(sc);
     return st;
   }
   function setScState(sc, st) {
@@ -125,7 +127,8 @@
       { id: 'records', group: '記録する', no: '', icon: '✎', title: FK_OFF ? '記録' : 'ふりかえり・記録', render: renderRecordsPage }
     ]);
   // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
-  SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
+  function circled(no) { return no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(no) - 1) : ''; }
+  SECTIONS.forEach(function (x) { x.label = circled(x.no); });
   var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
   // できた印を付けるステップ(まとめは振り返りを書くとできた印。振り返りを隠すときは数えない)
   var DONE_SECTIONS = STEP_SECTIONS.filter(function (x) { return !(FK_OFF && x.id === 'matome'); });
@@ -561,7 +564,7 @@
       student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
       scenarios: D.scenarios.map(function (sc) {
         var s = scState(sc);
-        return { id: sc.id, no: '①②③④⑤⑥'.charAt(Number(sc.no) - 1), title: sc.title, cleared: !!s.cleared, clearedAt: s.clearedAt || '', misses: s.misses || 0, hints: s.hints || 0,
+        return { id: sc.id, no: circled(sc.no), title: sc.title, cleared: !!s.cleared, clearedAt: s.clearedAt || '', misses: s.misses || 0, hints: s.hints || 0,
           steps: sc.steps.filter(function (x) { return s.done[x.id]; }).length + ' / ' + sc.steps.length };
       }),
       reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
@@ -648,7 +651,7 @@
         h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
           h('thead', null, h('tr', null, h('th', { text: '場面' }), h('th', { text: 'クリア' }), h('th', { text: 'だまされた' }), h('th', { text: 'ヒント' }))),
           h('tbody', null, r.scenarios.map(function (x) {
-            return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
+            return h('tr', null, h('td', { text: x.no + ' ' + x.title }), h('td', { text: x.cleared ? '✓' : '' }), h('td', { text: x.misses + ' 回' }), h('td', { text: x.hints + ' 回' }));
           })))),
         h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, D.reflQ.map(function (q, i) {
           return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + ': ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
@@ -709,7 +712,9 @@
     var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 2500);
+    // 続けて出したときに、前のタイマーで早く消えないようにする
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.classList.remove('show'); }, 2500);
   }
 
   // ---- 表示の切りかえ(ふりがな・大きな文字) ----

@@ -257,7 +257,7 @@ export function createSimulator(opts) {
     return ev;
   }
 
-  async function manualStep(kind) {
+  function manualStep(kind) {
     if (running) stopRun();
     if (!ensureMachine()) return;
     if (kind === "phase") {
@@ -317,7 +317,9 @@ export function createSimulator(opts) {
     const [x2, y2] = center((toCell || to).getBoundingClientRect());
     const chip = h("span", { class: "fly-chip" }, ev.flow.value);
     flyLayer.replaceChildren(chip);
-    chip.animate([{ transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { transform: `translate(${x2}px, ${y2}px) translate(-50%, -50%)`, opacity: 0 }], { duration: dur, easing: "ease-in-out" }).finished.finally(() => chip.remove());
+    chip.animate([{ transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { transform: `translate(${x2}px, ${y2}px) translate(-50%, -50%)`, opacity: 0 }], { duration: dur, easing: "ease-in-out" })
+      .finished.catch(() => {}) // 次の値が飛んで、とちゅうで消されたとき（エラーにしない）
+      .then(() => chip.remove());
   }
 
   function render(ev = lastEvent) {

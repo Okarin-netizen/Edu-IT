@@ -107,7 +107,7 @@
   G.ruby = (function () {
     var dict = {};
     var re = null;
-    var KANJI = /[㐀-鿿々〆ヶ々〆ヶ]/;
+    var KANJI = /[㐀-鿿々〆ヶ]/;
     var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, SELECT: 1, OPTION: 1, RUBY: 1, RT: 1, RP: 1, CODE: 1, PRE: 1, CANVAS: 1, svg: 1, SVG: 1, TITLE: 1 };
     function add(obj) {
       Object.keys(obj).forEach(function (w) { if (KANJI.test(w)) dict[w] = obj[w]; });
@@ -122,15 +122,15 @@
     }
     // 語と読みを、かな部分でそろえて漢字部分だけにルビを付ける
     function rubyNodes(word, reading) {
-      var parts = word.match(/[぀-ゟ゠-ヿーー]+|[^぀-ゟ゠-ヿーー]+/g) || [word];
+      var parts = word.match(/[぀-ゟ゠-ヿー]+|[^぀-ゟ゠-ヿー]+/g) || [word];
       var pat = '^' + parts.map(function (p) {
-        return /^[぀-ゟ゠-ヿーー]+$/.test(p) ? '(' + p + ')' : '(.+?)';
+        return /^[぀-ゟ゠-ヿー]+$/.test(p) ? '(' + p + ')' : '(.+?)';
       }).join('') + '$';
       var m = new RegExp(pat).exec(reading);
       var frag = document.createDocumentFragment();
       if (!m) { frag.appendChild(mk(word, reading)); return frag; }
       parts.forEach(function (p, i) {
-        if (/^[぀-ゟ゠-ヿーー]+$/.test(p)) frag.appendChild(document.createTextNode(p));
+        if (/^[぀-ゟ゠-ヿー]+$/.test(p)) frag.appendChild(document.createTextNode(p));
         else frag.appendChild(mk(p, m[i + 1]));
       });
       return frag;
@@ -252,6 +252,7 @@
           if (r && 'onsuccess' in r) r.onsuccess = function () { out = r.result; };
           t.oncomplete = function () { res(out); };
           t.onerror = function () { rej(t.error); };
+          t.onabort = function () { rej(t.error || new Error('保存が中止されました')); };  // 容量不足などで止まったとき
         });
       });
     }
@@ -398,7 +399,8 @@
       t.addEventListener('keydown', function (e) {
         var vis = tabs.filter(usable), k = vis.indexOf(t);
         var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (e.key === 'Home') d = -k; if (e.key === 'End') d = vis.length - 1 - k;
+        if (e.key === 'Home') d = -k;
+        if (e.key === 'End') d = vis.length - 1 - k;
         if (!d || k < 0) return;
         e.preventDefault();
         show(vis[(k + d + vis.length) % vis.length].getAttribute('data-tab'), true);
@@ -444,7 +446,7 @@
           var row = G.h('div', { class: 'g-filerow' },
             G.h('button', { class: 'btn link', type: 'button', onclick: function () { chosen = a; dlgClose(); } },
               a.title || '無題'),
-            G.h('span', { class: 'g-muted' }, new Date(a.updatedAt).toLocaleString('ja-JP')),
+            G.h('span', { class: 'g-muted' }, a.updatedAt ? new Date(a.updatedAt).toLocaleString('ja-JP') : ''),
             G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
               G.confirm('「' + (a.title || '無題') + '」を削除します。もとに戻せません。', '削除する').then(function (ok) {
                 if (ok) G.store.del(a.id).then(function () { row.remove(); });

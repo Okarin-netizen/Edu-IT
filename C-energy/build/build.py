@@ -56,7 +56,9 @@ seen_cores = set()
 for n in range(1, 9):
     css, js = parts(n)
     # 各アプリの html,body 指定はシェルが持つので外す(印刷用の指定は残す)
-    css = must_replace(css, re.search(r'^html,body\{[^}]*\}\n', css, re.M).group(0), '')
+    hb = re.search(r'^html,body\{[^}]*\}\n', css, re.M)
+    assert hb, ('C%d の <style> に html,body{...} の行がない' % n)
+    css = must_replace(css, hb.group(0), '')
     if n in (3, 4):
         # 印刷時に他アプリの印刷範囲まで隠さないよう、表示中のアプリだけに効かせる
         css = must_replace(css, '  body *{visibility:hidden}', '  body.ea-on-C%d *{visibility:hidden}' % n)
@@ -120,5 +122,6 @@ with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
     z.write(os.path.join(OUT, 'energy-apps.html'), 'energy-apps/energy-apps.html')
     z.write(os.path.join(DOCS, 'tsukaikata.html'), 'energy-apps/tsukaikata.html')
     z.write(os.path.join(DOCS, '先生用ガイド.html'), 'energy-apps/先生用ガイド.html')
-    z.writestr('energy-apps/README.txt', ('﻿' + readme).replace('\n', '\r\n').encode('utf-8'))
+    # Windows のメモ帳で文字化けしないよう、先頭に BOM を付けて改行を CRLF にする
+    z.writestr('energy-apps/README.txt', ('\ufeff' + readme).replace('\n', '\r\n').encode('utf-8'))
 print('version', VERSION, 'html', len(html.encode()), 'zip', os.path.getsize(zp))

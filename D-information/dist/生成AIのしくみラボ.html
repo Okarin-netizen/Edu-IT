@@ -15,7 +15,7 @@
   <style id="eduit-frame-css">
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -42,6 +42,7 @@
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -1155,7 +1156,9 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -1234,7 +1237,7 @@ window.EDUIT_INFO.jishu = {
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -1248,7 +1251,7 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -1386,34 +1389,34 @@ window.EDUIT_INFO.jishu = {
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
@@ -1438,7 +1441,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1489,7 +1492,7 @@ window.EDUIT_INFO.jishu = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
         close
       ]),
       body
@@ -2209,7 +2212,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
   // ---- 端末の中だけの保存(使えなくても動く) ----
   var KEY = 'eduit-genai-lab';
   var saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+  // こわれたデータ(オブジェクトでないもの)が入っていても動くように
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};
   function save(k, v) {
     saved[k] = v;
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
@@ -2238,7 +2243,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
   }
   // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
-  function rb(kanji) { return kanji; }
   var RUBY = {
     '生成': 'せいせい', '学習': 'がくしゅう', '模型': 'もけい', '予想': 'よそう', '割合': 'わりあい', '拡散': 'かくさん',
     '著作権': 'ちょさくけん', '著作物': 'ちょさくぶつ', '架空': 'かくう', '司書': 'ししょ', '不正': 'ふせい', '個人情報': 'こじんじょうほう',
@@ -2522,7 +2526,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     ]);
   }
 
-  // ================= 1 つぎの言葉あて =================
+  // ================= ④ つぎの言葉あて =================
   var guessState = { i: 0, picked: {} };
   function renderGuess(el) {
     var st = guessState;
@@ -2567,11 +2571,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
       el.appendChild(btn('もう一度やる', function () { st.i = 0; st.picked = {}; go('guess'); }));
     }
     el.appendChild(point('ここがポイント',
-      h('p', null, 'わたしたちも、生成AIも、「よく見る続き」から予想しています。生成AIは、ものすごくたくさんの文章を読んで、「この言葉のあとには、どの言葉が何%くらい来るか」を',
-        rb('学習', 'がくしゅう'), 'しています。意味がわかって書いているのではなく、続きやすい言葉をえらんでいます。')));
+      h('p', null, 'わたしたちも、生成AIも、「よく見る続き」から予想しています。生成AIは、ものすごくたくさんの文章を読んで、「この言葉のあとには、どの言葉が何%くらい来るか」を学習しています。意味がわかって書いているのではなく、続きやすい言葉をえらんでいます。')));
   }
 
-  // ================= 2 トークン =================
+  // ================= ⑤ トークン =================
   var tokenState = { text: '今日は天気がいいので、友だちと公園でサッカーをしました。' };
   function renderToken(el) {
     append(el, h('p', { class: 'lead', text: '生成AIは、文字のままでは計算できません。文章を「トークン」という小さなかけらに分けて、1つずつ番号(数)にしてから計算します。' }));
@@ -2608,7 +2611,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
         h('li', { text: 'AIは、この番号のならびを使って「つぎに来る番号(言葉)」を計算します。この教材の分け方は、本物のAIより簡単にしたものです。' }))));
   }
 
-  // ================= 3 ミニ文章AI =================
+  // ================= ⑥ ミニ文章AI =================
   var tg = { corpus: 'mukashi', order: 2, temp: 1, start: '', hist: [], added: {}, made: [], running: false };
   // いろいろな文になりやすい「はじめの言葉」(そこから作れる文の数が多い上位3つ)
   function recommendedStarters(model, starts) {
@@ -2754,7 +2757,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     }
   }
 
-  // ================= 4 もっともらしいまちがい =================
+  // ================= ① もっともらしいまちがい =================
   var hs = { results: [], judged: {}, marks: {}, revealed: {} };
   function renderHalluc(el) {
     var model = LM.buildModel(D.corpora.ichiban.sentences);
@@ -2842,7 +2845,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
         h('li', { text: 'たしかめ方: 教科書・図鑑・辞書、公式のサイトなど、もとの情報で調べる。何か所かでくらべる。わからなければ先生や大人に聞く。' }))));
   }
 
-  // ================= 5 ノイズをまぜる =================
+  // ================= ⑦ ノイズをまぜる =================
   var ns = { pic: 0, level: 40, seed: 7, game: null };
   function renderNoise(el) {
     var z = IM.noise(LM.seeded(ns.seed));
@@ -2878,7 +2881,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     var gameCard = card('AIになって練習してみよう');
     if (!g) {
       gameCard.appendChild(h('p', { text: 'ノイズまじりの絵を見て、もとの絵がどれかを当てます。学習中のAIがしている練習と同じです。' }));
-      gameCard.appendChild(btn('練習をはじめる', function () { ns.game = newRound(0, 0, 0); go('noise'); }, 'ef-btn-primary'));
+      gameCard.appendChild(btn('練習をはじめる', function () { ns.game = newRound(0, 0); go('noise'); }, 'ef-btn-primary'));
     } else {
       var rz = IM.noise(LM.seeded(g.seed));
       gameCard.appendChild(h('p', { class: 'muted', text: '第 ' + (g.round + 1) + ' 問 / 5　ノイズの量 ' + g.level + '%　正解 ' + g.score }));
@@ -2904,10 +2907,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     return { round: round, score: score, answer: Math.floor(r() * pictures.length), seed: Math.floor(r() * 9999) + 1, level: [50, 70, 85, 95, 100][round], chosen: null };
   }
 
-  // ================= 6 ノイズから絵をつくる =================
+  // ================= ⑧ ノイズから絵をつくる =================
   var STEPS = 20;
   var gs = { word: 'ねこ', word2: '', mix: 0.5, k: 0, x: null, x0: null, weights: null, sched: IM.schedule(STEPS, 1.6, 0.04), rnd: null, running: false };
   function resetGen() {
+    // 自動で進めている途中なら止める(止めないと、新しいノイズの絵を古いタイマーが進めてしまう)
+    clearTimers();
     gs.rnd = LM.seeded(Math.floor(Math.random() * 1e9) + 1);
     gs.k = 0;
     gs.x = IM.addNoise(new Float32Array(IM.DIM), IM.noise(gs.rnd), gs.sched[0]);
@@ -2972,7 +2977,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
         if (mixed) msg.appendChild(h('div', { class: 'result info', text: '「' + gs.word + '」' + Math.round((1 - gs.mix) * 100) + '%と「' + gs.word2 + '」' + Math.round(gs.mix * 100) + '%をまぜた、学習データにない絵ができました。学習していない組み合わせをたのむと、ふしぎな絵になることがあります(画像のハルシネーション)。' }));
         else if (d < 0.08) msg.appendChild(h('div', { class: 'result warn', text: '学習した「' + pictures[best].label + '」とほとんど同じ絵ができました。学習した絵が少ないと、学習データをそのまま出してしまうことがあります。だれかの作品にそっくりな絵は、勝手に使えません(著作権)。' }));
         else msg.appendChild(h('div', { class: 'result info', text: '学習データにない、新しい絵ができました。いちばん近いのは「' + pictures[best].label + '」です。いくつかの絵がまざると、ふしぎな絵になることもあります(画像のハルシネーション)。' }));
-        if (gs.k >= STEPS) msg.appendChild(h('p', { class: 'muted', text: 'できあがりました。もう一度作るときは「新しいノイズから」をおします。' }));
+        msg.appendChild(h('p', { class: 'muted', text: 'できあがりました。もう一度作るときは「新しいノイズから」をおします。' }));
       }
       applyRuby(msg);
       applyRuby(predCap);
@@ -3002,7 +3007,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
           h('figure', null, canvasPred, predCap),
           stepOut,
           h('div', { class: 'row' }, stepBtn, runBtn,
-            btn('新しいノイズから', function () { clearTimers(); resetGen(); refresh(); })))),
+            btn('新しいノイズから', function () { resetGen(); refresh(); })))),
       msg,
       h('p', { class: 'small-title', text: 'AIがお手本にしている学習した絵(いまの絵に近いほど重く見る)' }),
       weightsBox));
@@ -3015,7 +3020,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
         h('li', { text: 'この模型が学習した絵は6枚だけです。本物の画像AIは何億枚もの絵から学ぶので、いろいろな絵を作れますが、学習した作品に似た絵が出ることもあります。' }))));
   }
 
-  // ================= 7 個人情報 =================
+  // ================= ② 個人情報 =================
   var ps = { pick: { name: 0, school: -1, phone: 0, address: -1 }, sent: false, out: null, sendJudge: {} };
   function privacySentences() {
     return D.privacyChoices.filter(function (c) { return ps.pick[c.key] >= 0; }).map(function (c) {
@@ -3152,7 +3157,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     };
   }
   function recordCsv(r) {
-    var cell = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    // 表計算ソフトで式として読まれないように、= + - @ などで始まる文には ' を付ける(ネット詐欺 追体験ラボと同じ)
+    var cell = function (v) {
+      var s = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
     var head = ['組', '番号', '名前', 'ひらいたステップ', 'つぎの言葉あて(AIと同じ)', 'クイズ正解', 'ふりかえり1', 'ふりかえり2', 'ふりかえり3'];
     var row = [r.student.cls, r.student.num, r.student.name,
       r.steps.filter(function (x) { return x.opened; }).length + ' / ' + r.steps.length,
@@ -3300,7 +3310,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GenaiData;
     var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 2500);
+    // 続けて出したときに、前のタイマーで早く消えないようにする
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.classList.remove('show'); }, 2500);
   }
 
   // ---- 表示の切りかえ(ふりがな・大きな文字) ----

@@ -11,7 +11,11 @@ import html, json, pathlib, subprocess
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent
 dist = here / "dist"
-data = json.loads(subprocess.run(["node", str(here / "extract.cjs")], check=True, capture_output=True, text=True).stdout)
+proc = subprocess.run(["node", str(here / "extract.cjs")], capture_output=True, text=True, encoding="utf-8")
+if proc.returncode != 0:
+    # extract.cjs のエラー(jishu の記号がメニューにない など)を、そのまま見せて止める
+    raise SystemExit(f"extract.cjs でエラーになりました:\n{proc.stderr.strip()}")
+data = json.loads(proc.stdout)
 
 # 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)と、そこから見た自習用の統一版
 FILES = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html"}
@@ -32,7 +36,7 @@ def read(p):
 
 def is_submit(s):
     """記録を書き出して出すだけの手順(書く欄はいらない)"""
-    return not s.get("reflect") and any(w in s["do"] for w in ("ファイル", "先生の言"))
+    return not s.get("reflect") and any(w in s.get("do", "") for w in ("ファイル", "先生の言"))
 
 
 def box(key, label, ph, rows=2):
@@ -41,18 +45,19 @@ def box(key, label, ph, rows=2):
 
 
 def step_li(i, s):
+    where = s.get("where", "")  # where・do は自習ガイド(eduit-frame.js)と同じく、なくてもよい
     if is_submit(s):
         tail = '<span class="ws-tag">提出</span>'
         body = ""
     elif s.get("reflect"):
         tail = '<span class="ws-tag ws-tag-r">まとめ</span>'
-        body = box(f"s{i}", f"{s['where']} のまとめ", "画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう", 3)
+        body = box(f"s{i}", f"{where} のまとめ", "画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう", 3)
     else:
         tail = ""
-        body = box(f"s{i}", f"{s['where']} でわかったこと", "結果・わかったこと・気づいたこと", 2)
+        body = box(f"s{i}", f"{where} でわかったこと", "結果・わかったこと・気づいたこと", 2)
     return (f'<li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c{i}"><span class="ws-chk-mark" aria-hidden="true"></span>'
-            f'<span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">{e(s["where"])}</span>{tail} '
-            f'{e(s["do"])}</p>{body}</div></li>')
+            f'<span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">{e(where)}</span>{tail} '
+            f'{e(s.get("do", ""))}</p>{body}</div></li>')
 
 
 def sheet(d, a):
@@ -93,7 +98,7 @@ def sheet(d, a):
 <h2 id="{c}-h"><span class="ws-code">{c}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
-<p class="ws-goal"><b>ねらい</b>{e(a["goal"])}<span class="ws-time">目安 {e(a.get("time", ""))}</span></p>
+<p class="ws-goal"><b>ねらい</b>{e(a.get("goal", ""))}<span class="ws-time">目安 {e(a.get("time", ""))}</span></p>
 <p class="ws-how">{how}右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
 {"".join(parts)}
 </section>'''
@@ -202,7 +207,9 @@ STYLE = r"""
 SCRIPT = r"""
 (function () {
   var KEY = 'eduit.ws.v1.', WHO = 'eduit.ws.v1.who';
-  function load(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
+  function load(k) {  // こわれた値(オブジェクトでないもの)は空にする
+    try { var v = JSON.parse(localStorage.getItem(k) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch (e) { return {}; }
+  }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   var sheets = Array.prototype.slice.call(document.querySelectorAll('.ws'));
   var who = load(WHO);
@@ -247,7 +254,8 @@ SCRIPT = r"""
   // 教材をえらぶ(アドレスの #A2 などでも開ける)
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.ws-pick [data-code]'));
   function show(code, scroll) {
-    var ws = document.getElementById(code) || sheets[0];
+    // ワークシート(.ws)の中からさがす(#ws-print など、ほかの要素の id がアドレスにあっても取りちがえない)
+    var ws = sheets.filter(function (s) { return s.id === code; })[0] || sheets[0];
     sheets.forEach(function (s) { s.classList.toggle('is-current', s === ws); });
     tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-code') === ws.id)); });
     document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^(?:[A-D]\d+|G)/, '').replace('自習ワークシート', '') + ' 自習ワークシート';

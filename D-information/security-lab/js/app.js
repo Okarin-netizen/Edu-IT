@@ -125,7 +125,7 @@ function renderHome() {
       h("span", { class: "mc-num" }, `モジュール${c.label}・${c.module.minutes}`),
       h("span", { class: "mc-title" }, c.title),
       h("span", { class: "mc-desc" }, c.desc),
-      h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${(p.done / p.total) * 100}%` })),
+      h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${p.total ? (p.done / p.total) * 100 : 0}%` })),
       h("span", { class: "hint" }, p.complete ? "✓ 完了" : `${p.done} / ${p.total} ステップ`),
     );
   });
@@ -232,7 +232,10 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") flushReflections();
 });
 
-reloadConfig();
+reloadConfig().catch((e) => {
+  // 設定や問題のデータを読めなかったとき（ファイルを直接開いた など）は、白い画面のままにせず知らせる
+  view.replaceChildren(h("div", { class: "card" }, h("h1", {}, "読み込めませんでした"), h("p", {}, `${e?.message || e}。単一HTML版（dist/security-lab.html）を使うか、Webサーバー経由で開いてください。`)));
+});
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -545,7 +545,9 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 <script>
 (function () {
   var KEY = 'eduit.ws.v1.', WHO = 'eduit.ws.v1.who';
-  function load(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
+  function load(k) {  // こわれた値(オブジェクトでないもの)は空にする
+    try { var v = JSON.parse(localStorage.getItem(k) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch (e) { return {}; }
+  }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   var sheets = Array.prototype.slice.call(document.querySelectorAll('.ws'));
   var who = load(WHO);
@@ -590,7 +592,8 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
   // 教材をえらぶ(アドレスの #A2 などでも開ける)
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.ws-pick [data-code]'));
   function show(code, scroll) {
-    var ws = document.getElementById(code) || sheets[0];
+    // ワークシート(.ws)の中からさがす(#ws-print など、ほかの要素の id がアドレスにあっても取りちがえない)
+    var ws = sheets.filter(function (s) { return s.id === code; })[0] || sheets[0];
     sheets.forEach(function (s) { s.classList.toggle('is-current', s === ws); });
     tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-code') === ws.id)); });
     document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^(?:[A-D]\d+|G)/, '').replace('自習ワークシート', '') + ' 自習ワークシート';

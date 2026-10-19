@@ -3,7 +3,8 @@ import { store } from "./store.js";
 import { h, explainCard, toast, downloadFile, REFLECT_ATTR, recordsTitle } from "./ui.js";
 import { CATALOG, moduleProgress } from "./catalog.js";
 import { loadData, loadDefaultData, setOverride, listOverrides, DATA_NAMES } from "./data.js";
-import { resetConfigCache } from "./settings.js";
+import { resetConfigCache, clearPrefs } from "./settings.js";
+import { scoreRate } from "./check.js";
 
 // ---- 書き出し ----
 // 書き出すモジュール: 表示しているモジュールと、表示していなくても記録があるモジュール（SEC-54: 設定で外しても作業が消えない）
@@ -128,7 +129,7 @@ export function renderRecords(view, available, config, rerender, easy = "") {
     if (!f) return;
     try {
       const data = JSON.parse(await f.text());
-      if (data.app !== "seclab") throw new Error();
+      if (data?.app !== "seclab" || !Array.isArray(data.progress) || !Array.isArray(data.reflections)) throw new Error();
       const modules = {};
       for (const p of data.progress) {
         const stepsDef = CATALOG.find((c) => c.id === p.module)?.module.steps || [];
@@ -211,7 +212,8 @@ export function renderTeacher(view, available, config, rerender) {
     for (const f of input.files) {
       try {
         const d = JSON.parse(await f.text());
-        if (d.app !== "seclab") throw new Error();
+        // 形のちがうファイル（progress・reflections が配列でない）は、集計の途中で止まらないよう読み込まない
+        if (d?.app !== "seclab" || !Array.isArray(d.progress) || !Array.isArray(d.reflections)) throw new Error();
         records.push(d);
       } catch {
         errors.push(f.name);
@@ -226,15 +228,14 @@ export function renderTeacher(view, available, config, rerender) {
       const reflected = records.filter((r) => r.reflections.some((x) => x.module === id)).length;
       return h("tr", {}, h("td", {}, title), h("td", {}, `${done} / ${records.length} 人`), h("td", {}, `${reflected} / ${records.length} 人`));
     });
-    const rate = (s) => (s ? Number(s.split("/")[0]) / Number(s.split("/")[1]) : null);
     const pct = (v) => `${Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 100)}%`;
     const avg = (key) => {
-      const v = records.map((r) => rate(r.checks?.[key])).filter((x) => x !== null);
+      const v = records.map((r) => scoreRate(r.checks?.[key])).filter((x) => x !== null);
       return v.length ? `${pct(v)}（${v.length}人）` : "—";
     };
     // 伸びは、事前と事後の両方がある生徒だけでくらべる（SEC-55）
-    const both = records.filter((r) => rate(r.checks?.pre) !== null && rate(r.checks?.post) !== null);
-    const growth = both.length ? `事前 ${pct(both.map((r) => rate(r.checks.pre)))} → 事後 ${pct(both.map((r) => rate(r.checks.post)))}（${both.length}人）` : "—";
+    const both = records.filter((r) => scoreRate(r.checks?.pre) !== null && scoreRate(r.checks?.post) !== null);
+    const growth = both.length ? `事前 ${pct(both.map((r) => scoreRate(r.checks.pre)))} → 事後 ${pct(both.map((r) => scoreRate(r.checks.post)))}（${both.length}人）` : "—";
     out.replaceChildren(
       h("p", {}, `${records.length} 人分を読み込みました。`),
       errors.length ? explainCard("読み込めなかったファイル", errors.join("、"), "warn") : "",
@@ -291,11 +292,7 @@ export function renderTeacher(view, available, config, rerender) {
               if (!confirm(CONFIRM_APPLY)) return;
               setOverride("config", buildConfig());
               resetConfigCache();
-              try {
-                localStorage.removeItem("seclab.prefs");
-              } catch {
-                /* 何もしない */
-              }
+              clearPrefs();
               toast("この端末に反映しました");
               rerender();
             },
@@ -311,11 +308,7 @@ export function renderTeacher(view, available, config, rerender) {
             onclick: () => {
               setOverride("config", null);
               resetConfigCache();
-              try {
-                localStorage.removeItem("seclab.prefs");
-              } catch {
-                /* 何もしない */
-              }
+              clearPrefs();
               toast("標準の設定に戻しました");
               rerender();
             },

@@ -1200,7 +1200,7 @@ function addRuby(el) {
         used[g[0]] = 1; pos = best + g[0].length; continue;
       }
       if (best > pos) frag.appendChild(document.createTextNode(txt.slice(pos, best)));
-      var rb =document.createElement('ruby'); rb.appendChild(document.createTextNode(g[0]));
+      var rb = document.createElement('ruby'); rb.appendChild(document.createTextNode(g[0]));
       var rt = document.createElement('rt'); rt.textContent = g[1]; rb.appendChild(rt); frag.appendChild(rb);
       if (g[2]) frag.appendChild(document.createTextNode('(' + g[2] + ')'));
       used[g[0]] = 1;
@@ -1470,8 +1470,9 @@ function renderCaseQ() {
     '<div style="margin-top:14px"><button class="e4-btn sm" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
 }
 function caseAnswer(step, oi) {
-  var Q = S.qz, c = caseById(Q.ids[Q.i]);
+  var Q = S.qz;
   if (!Q || Q.step !== step || Q.pick[step] >= 0 || (step === 0 && !Q.clue)) return;
+  var c = caseById(Q.ids[Q.i]);
   Q.pick[step] = oi; Q.step = step + 1;
   var ok = (step === 0 ? c.cause : c.fix)[oi].ok;
   beep(ok ? 'right' : 'ng');
@@ -1539,8 +1540,9 @@ function partNext() {
   if (Q.i + 1 < Q.qs.length) { Q.i++; beep('tap'); renderPartQ(); return; }
   var sc = Q.qs.filter(function (x) { return x.ans === x.k; }).length, rec = sc > S.save.pq.best;
   if (rec) { S.save.pq.best = sc; persist(); }
-  beep(sc >= 8 ? 'ok' : 'tap');
-  modal('<h2>' + (sc === 10 ? '🎉 クリア! 全問正解' : '🧩 結果') + '</h2><div class="e4-big">' + sc + ' / 10</div>' + (rec ? '<p style="text-align:center">🏅 最高記録を更新!</p>' : '') +
+  var n = Q.qs.length;   // ふつうは10問(手がかりのある部品が10より少ないときは、その数)
+  beep(sc >= n * 0.8 ? 'ok' : 'tap');
+  modal('<h2>' + (sc === n ? '🎉 クリア! 全問正解' : '🧩 結果') + '</h2><div class="e4-big">' + sc + ' / ' + n + '</div>' + (rec ? '<p style="text-align:center">🏅 最高記録を更新!</p>' : '') +
     '<div class="acts"><button class="e4-btn" data-act="view" data-v="book">📖 図鑑で復習</button><button class="e4-btn blue" data-act="pqstart">もう一度</button><button class="e4-btn primary" data-act="qmenu">クイズのはじめへ</button></div>');
 }
 
@@ -1955,7 +1957,7 @@ function toggleCand(i) {
   var at = -1; L.items.forEach(function (x, j) { if (x.src === i) at = j; });
   if (at >= 0) { askDelItem(at); return; }
   var it = T.items[i]; L.items.push({ t: it.t, m: [], c: null, key: !!it.key, src: i }); beep('tap');
-  L.records.forEach(function (r) { while (r.res.length < L.items.length - 1) r.res.push(null); r.res.push(null); });   // 記録の列も足す(未記入)
+  L.records.forEach(function (r) { while (r.res.length < L.items.length) r.res.push(null); });   // 記録の列も足す(未記入)
   S.adv = null; persist(); keepScroll(renderCheck);
 }
 /* 点検項目を消す: 記録の結果の列もいっしょに消して、ほかの項目にずれないようにする */
@@ -2114,7 +2116,7 @@ function applyImport(txt) {
   var okM = function (m) { return Array.isArray(m) && m.every(function (x) { return byId(D.METHODS, x); }); };
   if (Dt && Array.isArray(Dt.items) && Dt.items.every(function (it) { return it && typeof it.t === 'string' && okM(it.m) && (it.c == null || cycleById(it.c)); })) {
     var T = targetById(Dt.target);
-    var L = { id: 'L' + Date.now().toString(36), target: T ? T.id : 'free', name: String(o.name || '点検表').slice(0, 30), created: Dt.created || today(),
+    var L = { id: 'L' + Date.now().toString(36), target: T ? T.id : 'free', name: String(o.name || '点検表').slice(0, 30), created: String(Dt.created || today()).slice(0, 10),
       items: Dt.items.map(function (it) { var src = T && typeof it.src === 'number' && T.items[it.src] ? it.src : -1; return { t: it.t.slice(0, 40), m: it.m, c: it.c || null, key: src >= 0 ? !!T.items[src].key : false, src: src }; }),
       records: Array.isArray(Dt.records) ? Dt.records.filter(function (r) { return r && Array.isArray(r.res); }).map(function (r) { return { date: String(r.date || '').slice(0, 10), memo: String(r.memo || '').slice(0, 80), res: Dt.items.map(function (_, i) { var x = r.res[i]; return x === 0 || x === 1 || x === 2 ? x : null; }) }; }) : [] };
     S.save.lists.push(L); S.save.cur = S.save.lists.length - 1; S.adv = null; persist();

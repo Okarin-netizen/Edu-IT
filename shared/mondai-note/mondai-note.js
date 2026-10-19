@@ -73,12 +73,18 @@
       var b = base[k];
       if (b && typeof b === 'object' && !Array.isArray(b)) {
         var cur = obj(d[k]);
-        Object.keys(b).forEach(function (kk) { if (cur[kk] === undefined || (Array.isArray(b[kk]) && !Array.isArray(cur[kk]))) cur[kk] = b[kk]; });
+        Object.keys(b).forEach(function (kk) {
+          var bv = b[kk], cv = cur[kk];
+          // ない値・形のちがう値(配列のはずが配列でない、オブジェクトのはずがオブジェクトでない)は既定の値にする
+          if (cv === undefined || (Array.isArray(bv) && !Array.isArray(cv)) || (bv && typeof bv === 'object' && !Array.isArray(bv) && obj(cv) !== cv)) cur[kk] = bv;
+          else if (typeof bv === 'string' && typeof cv !== 'string') cur[kk] = str(cv);  // 文字のはずの欄は文字にする(.trim() で止まらないように)
+        });
         d[k] = cur;
       } else if (Array.isArray(b)) d[k] = arr(d[k]);
       else if (d[k] === undefined) d[k] = b;
     });
     d.domain = domain || d.domain || 'A';
+    if (d.ev.mode !== 'tgt') d.ev.mode = 'res';
     d.cards = d.cards.filter(function (c) { return c && typeof c === 'object'; }).map(function (c) {
       return { id: str(c.id) || uid(), text: str(c.text), vp: arr(c.vp).map(str), star: !!c.star };
     });
@@ -483,7 +489,9 @@
     function drawQuiz() {
       if (!quizBox) return;
       var Q = D.quiz, items = dom.quiz;
-      if (!Q.order.length || Q.order.length !== items.length) { Q.order = shuffle(items.map(function (x, i) { return i; })); Q.i = 0; Q.ans = {}; }
+      // 順番がない・問題の数とちがう・こわれている(読み込んだファイル)ときは、はじめからにする
+      var orderOk = Q.order.length === items.length && Q.order.every(function (k) { return !!items[k]; });
+      if (!orderOk || !(Q.i >= 0) || Q.i % 1) { Q.order = shuffle(items.map(function (x, i) { return i; })); Q.i = 0; Q.ans = {}; }
       quizBox.innerHTML = '';
       if (Q.i >= items.length) {
         var ok = Q.order.filter(function (k) { return Q.ans[k] === items[k].t; }).length;
@@ -605,7 +613,8 @@
         return h('button', { type: 'button', class: 'mn-prod', 'aria-pressed': String(q.id === p.id), onclick: function () { O.product = q.id; changed(); renderOpt(); } },
           h('span', { class: 'mn-prod-i', 'aria-hidden': 'true' }, q.icon), h('span', null, q.name), won ? h('small', null, '1位にできた案 ' + won + '/' + q.options.length) : null);
       }));
-      if (!O.weights[p.id]) O.weights[p.id] = MN.weightsOf(D, dom, p);
+      // 読み込んだ重みが 0〜3 の整数でないとき(こわれたファイル)も直しておく
+      O.weights[p.id] = MN.weightsOf(D, dom, p);
       var W = O.weights[p.id];
       if (!Array.isArray(O.limits[p.id])) O.limits[p.id] = [];
       var sliders = h('div', { class: 'mn-weights' }, crit.map(function (c) {
@@ -661,12 +670,13 @@
       optRes.appendChild(h('p', { class: 'mn-opt-head' + (swapped ? ' is-swap' : ''), 'aria-live': 'polite' }, swapped ? '🔄 1位が入れかわった! ' : '', head));
       var ul = h('ol', { class: 'mn-rank' });
       r.list.forEach(function (it, i) {
+        var se = MN.SERIES[it.idx % MN.SERIES.length];  // レーダーチャートと同じ色・印
         ul.appendChild(h('li', { class: 'mn-rank-i' + (it.ok ? '' : ' is-out') + (it.id === r.best ? ' is-best' : '') },
           h('span', { class: 'mn-rank-m', 'aria-hidden': 'true' }, it.ok ? medals[i] || '' : '🚫'),
           h('div', { class: 'mn-rank-b' },
             h('div', { class: 'mn-rank-t' }, h('b', null, it.name), h('span', { class: 'mn-rank-s' }, it.ok ? it.score + ' 点' : '制約条件に合わない'),
-              h('span', { class: 'mn-rank-key', 'aria-hidden': 'true', style: 'color:' + MN.SERIES[it.idx % 3].color }, MN.SERIES[it.idx % 3].mark)),
-            h('div', { class: 'mn-bar' }, h('span', { style: 'width:' + (it.ok ? it.score : 0) + '%;background:' + MN.SERIES[it.idx % 3].color })),
+              h('span', { class: 'mn-rank-key', 'aria-hidden': 'true', style: 'color:' + se.color }, se.mark)),
+            h('div', { class: 'mn-bar' }, h('span', { style: 'width:' + (it.ok ? it.score : 0) + '%;background:' + se.color })),
             h('p', { class: 'mn-help' }, it.opt.note, it.fails.length ? h('b', { class: 'mn-out' }, '(' + it.fails.map(function (f) { return f.label; }).join('・') + ')') : null))));
       });
       optRes.appendChild(ul);

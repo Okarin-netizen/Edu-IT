@@ -102,7 +102,7 @@ export const binaryModule = {
           }
           score.textContent = `正解 ${correct}問（4問でクリア）`;
         };
-        input.addEventListener("keydown", (e) => e.key === "Enter" && judge());
+        input.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && judge());
         check.addEventListener("click", judge);
         fb.replaceChildren();
         area.replaceChildren(
@@ -149,7 +149,7 @@ export const binaryModule = {
           c.done();
         } else fb.replaceChildren(explainCard("もう少し", "1文字ずつ、2進数を10進数にしてから表で文字を探そう。", "warn"));
       };
-      ans.addEventListener("keydown", (e) => e.key === "Enter" && judge());
+      ans.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && judge());
       const abc = h(
         "div",
         { class: "ascii-table mono", role: "table", "aria-label": "英大文字の文字コード表" },

@@ -55,7 +55,7 @@
     '手間': 'てま', '縮む': 'ちぢむ', '机': 'つくえ', '脚': 'あし', '横木': 'よこぎ', '完成後': 'かんせいご', '完成': 'かんせい',
     '大きな': 'おおきな', '関係': 'かんけい', '教室': 'きょうしつ', '体育館': 'たいいくかん', '確かめる': 'たしかめる',
     '試作品': 'しさくひん', '仮に': 'かりに', '何枚': 'なんまい', '重ねて': 'かさねて', '厚い': 'あつい', '付ける': 'つける',
-    '支えた': 'ささえた', '思った': 'おもった', '保てない': 'たもてない', '角材': 'かくざい', '伝統的': 'でんとうてき', '比較的': 'ひかくてき', '四角い': 'しかくい', '外から': 'そとから', '問中': 'もんちゅう', '前回': 'ぜんかい', '続き': 'つづき', '自動': 'じどう', '表で': 'ひょうで', '比べられます': 'くらべられます',
+    '支えた': 'ささえた', '思った': 'おもった', '保てない': 'たもてない', '角材': 'かくざい', '比較的': 'ひかくてき', '四角い': 'しかくい', '外から': 'そとから', '問中': 'もんちゅう', '前回': 'ぜんかい', '続き': 'つづき', '自動': 'じどう', '表で': 'ひょうで', '比べられます': 'くらべられます',
     '組み立て': 'くみたて', '分解': 'ぶんかい', '修理': 'しゅうり', '伝統的': 'でんとうてき', '技術': 'ぎじゅつ',
     '発展': 'はってん', 'ほぞ接ぎ': 'ほぞつぎ', '木ねじ': 'もくねじ', '接着剤': 'せっちゃくざい', '読み込む': 'よみこむ', '読み込み': 'よみこみ', '曲げ': 'まげ'
   });
@@ -81,15 +81,25 @@
   var S = work.data;
   var saveTimer = null;
 
+  // 梁の寸法・荷重の欄。空欄(NaN)は保存すると null になるので、読みこむときに NaN へもどす(0 と表示しないように)
+  var BEAM_NUM_KEYS = ['loadKg', 'span', 'b', 't', 'h', 'ribs', 'ribW', 'ribH'];
+  function fixBeam(b) {
+    BEAM_NUM_KEYS.forEach(function (k) { if (typeof b[k] !== 'number') b[k] = NaN; });
+    return b;
+  }
+  function isObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
   function fill(st) {
     var d = defaultState();
-    st = st || {};
-    d.beam = Object.assign(d.beam, st.beam || {});
-    d.pinned = st.pinned || null;
+    st = isObj(st) ? st : {};
+    d.beam = fixBeam(Object.assign(d.beam, isObj(st.beam) ? st.beam : {}));
+    d.pinned = isObj(st.pinned) ? fixBeam(Object.assign({}, DEFAULT_BEAM, st.pinned)) : null;
     d.measured = st.measured || ''; d.measuredNote = st.measuredNote || '';
-    d.frame = Object.assign(d.frame, st.frame || {});
-    d.quiz = Object.assign(d.quiz, st.quiz || {});
-    d.challenge = Object.assign(d.challenge, st.challenge || {});
+    d.frame = Object.assign(d.frame, isObj(st.frame) ? st.frame : {});
+    if (!Frame.MODES[d.frame.mode]) d.frame.mode = 'none';
+    d.quiz = Object.assign(d.quiz, isObj(st.quiz) ? st.quiz : {});
+    if (!isObj(d.quiz.answers)) d.quiz.answers = {};
+    d.challenge = Object.assign(d.challenge, isObj(st.challenge) ? st.challenge : {});
+    if (!isObj(d.challenge.designs)) d.challenge.designs = {};
     if (!Array.isArray(d.challenge.log)) d.challenge.log = [];
     return d;
   }
@@ -145,6 +155,11 @@
     if (b.shape === 'ribbed') s += '(リブ' + b.ribs + '本 ' + b.ribW + '×' + b.ribH + ')';
     if (b.shape === 'L' || b.shape === 'channel' || b.shape === 'box') s += '・高さ' + b.h + 'mm';
     return s;
+  }
+  // ★★☆ の形(星の数は 0〜3。読みこんだファイルの値が範囲外でもこわれないように)
+  function starText(n) {
+    n = Math.max(0, Math.min(3, Math.floor(n) || 0));
+    return '★'.repeat(n) + '☆'.repeat(3 - n);
   }
   function levelBadge(lv) {
     return h('span', { class: 'level ' + lv.id }, h('span', { class: 'mark', 'aria-hidden': 'true' }, lv.mark), lv.label);
@@ -640,7 +655,7 @@
       S.challenge.log.push({ level: lv.id, material: ds.material, t: ds.t, ribs: ds.ribs, massG: Math.round(ev.massG),
         deflection: +ev.result.deflection.toFixed(2), safety: +ev.result.safety.toFixed(2), pass: ev.pass, stars: st, at: new Date().toISOString() });
       renderChallenge(); save();
-      G.toast(ev.pass ? '条件クリア! ' + '★'.repeat(st) + '☆'.repeat(3 - st) : '条件をクリアできなかった。どこを変えればよいかな?');
+      G.toast(ev.pass ? '条件クリア! ' + starText(st) : '条件をクリアできなかった。どこを変えればよいかな?');
     });
     $('#c-reflect').addEventListener('input', function () { S.challenge.reflect = $('#c-reflect').value; save(); });
     $('#c-reflect2').addEventListener('input', function () { S.challenge.reflect2 = $('#c-reflect2').value; save(); });
@@ -657,7 +672,7 @@
     $$('#level-tabs [data-level]').forEach(function (b, i) {
       var id = b.getAttribute('data-level'), st = bestStars(id);
       b.setAttribute('aria-pressed', String(id === lv.id));
-      b.textContent = '課題' + (i + 1) + ' ' + (st ? '★'.repeat(st) + '☆'.repeat(3 - st) : '');
+      b.textContent = '課題' + (i + 1) + ' ' + (st ? starText(st) : '');
     });
     $('#lv-title').textContent = lv.title;
     $('#lv-story').textContent = lv.story + '(板の奥行き ' + lv.width + 'mm、' + (lv.support === 'simple' ? '支点間の距離' : '壁から先までの長さ') + ' ' + lv.span + 'mm)';
@@ -695,7 +710,7 @@
     rows.forEach(function (e, i) {
       tb.appendChild(h('tr', null, h('td', null, String(i + 1)), h('td', null, matName(e.material)), h('td', { class: 'num' }, e.t + 'mm'),
         h('td', { class: 'num' }, e.ribs ? e.ribs + '本' : 'なし'), h('td', { class: 'num' }, fmt(e.massG, 0)),
-        h('td', null, e.pass ? h('span', { class: 'stars', 'aria-label': '星' + e.stars + 'つ' }, '★'.repeat(e.stars) + '☆'.repeat(3 - e.stars)) : h('span', { class: 'check ng' }, '✕ 未クリア'))));
+        h('td', null, e.pass ? h('span', { class: 'stars', 'aria-label': '星' + e.stars + 'つ' }, starText(e.stars)) : h('span', { class: 'check ng' }, '✕ 未クリア'))));
     });
     var tries = rows.length, best = bestStars(lv.id);
     if (tries >= 3 && best < 3) {

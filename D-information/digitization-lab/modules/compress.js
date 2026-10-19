@@ -66,7 +66,7 @@ export const compressModule = {
             fb.textContent = "この行は黒から始まっています。決まりでは白から数えるので、はじめは「白が0個」です。";
           } else fb.textContent = "おしい！ 左から、白→黒→白…の順に、続く個数を数えよう。";
         };
-        input.addEventListener("keydown", (e) => e.key === "Enter" && judge());
+        input.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && judge());
         return h(
           "div",
           { class: "hand-item" },

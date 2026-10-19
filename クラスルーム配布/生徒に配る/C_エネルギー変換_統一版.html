@@ -9,7 +9,7 @@
 <style>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -36,6 +36,7 @@
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -406,7 +407,7 @@ window.EDUIT_INFO.levels = {
     title: '発展編',
     lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、理科とつながる測定・計算をくわしく行う内容です。先生の指示があったら取り組みましょう。',
     items: [
-      { id: 'C1', parts: ['ステージ8 蓄電池(昼も夜も電気を使いたい)', 'ステージ9 自由実験', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
+      { id: 'C1', parts: ['ステージ8 蓄電池(昼も夜も電気を使いたい)', '自由(自由に実験しよう)', '💴 発電方法の値段くらべ'], curr: 'C(1)ア・C(3)イ(発展)', why: '蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容' },
       { id: 'C2', parts: ['課題8・9 電流計・電圧計ではかろう', '課題10 電池の持ちを比べる', '課題11 LEDと抵抗', '電気料金'], curr: 'C(1)ア(発展・理科2年とのつながり)', why: '電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容' },
       { id: 'C3', parts: ['設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)', 'ブラックボックス'], curr: 'C(1)ア・C(2)(発展)', why: '歯数の推理や、トルク・ねじの数値を使った設計は発展の内容' },
       { id: 'C5', parts: ['課題 LEDライト・LED常夜灯(抵抗値を決める)', '課題 自由設計', '④ 評価の実測とのくらべ'], curr: 'C(2)イ・C(3)(発展)', why: '抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容' },
@@ -760,7 +761,9 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -839,7 +842,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -853,7 +856,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -991,34 +994,34 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
@@ -1043,7 +1046,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1094,7 +1097,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
         close
       ]),
       body
@@ -3100,7 +3103,7 @@ body{overflow:hidden}
 <p>メニューの上のバーには「<b>C エネルギー変換の技術 教材集</b>」と「ふりがな」「文字 中」「使い方」「先生用」のボタンがあります(4分野で同じ並び・同じ表記です)。「ふりがな」でむずかしい言葉の読みがなのあり・なし、「文字 中」で文字の大きさ(押すたびに 小 → 中 → 大 → 特大。文字だけが大きくなります)を変えられ、C1〜C8 とメニューで同じ設定になります。アプリには <b>C1〜C8</b> の記号があり、<b>番号の順がおすすめの順</b>です(基本編の上に「おすすめの順番: C1 → C2 → … → C8」と出ます)。カードは教科書の章ごと(1章 しくみを知る・2章 つくる)に区切られ、カードに教科書の編・章・節が出ます。カードは記号・名前・説明・使うところ・タグ・進み具合・「ひらく ▶」の形で、カードのどこを押しても開きます。アプリを開くと、上のバーの左に「◀ メニュー」と「C2 電気回路ラボ」のような記号つきの名前、その右に C1〜C8 を切りかえるボタンと「🖥️ 全画面」が出ます(スマホでは「全画面」は出ません)。</p>
 <p>メニューのカードは<b>「基本編」「発展編」</b>のタブに分かれています。学習指導要領と教科書の内容から、全員が学ぶステージ・課題・タブを基本編、教科書の「発展」「コラム」にあたるもの(C1 の蓄電池・自由実験、C2 の電流計・電圧計・LEDと抵抗・電気料金、C3 のブラックボックスと数値の設計課題、C5 の抵抗値を決める課題、C6 の発電方法くらべ・風が変わる日、C7 の損失の計算・周波数、C8 の技術の最適化など)を発展編にしています。カードの「使うところ」に、その編で使うところの名前が出ます。くわしい一覧は、先生用フォルダの <b>全分野_基本編と発展編.html</b> にあります。</p>
 <p>アプリの中のステージ・課題・タブは「基本編 → 発展編」の順に並んでいるので、基本編は番号の小さいほうから続けて取り組めます(例: C2 は課題1〜7 が基本編、課題8〜11 が発展編)。</p>
-<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由実験・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr><tr><td>🌬️ C6 風力発電の羽根ラボ</td><td>羽根を変えて、より効率の良い風力発電をめざす</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td></tr><tr><td>🗼 C7 直流・交流と送電ラボ</td><td>直流と交流のちがいと、電気が家に届くしくみを調べる</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ(変圧器・送電線の損失)</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td></tr><tr><td>📝 C8 問題解決ノート</td><td>問題を見つけて課題を決め、作ったものを評価する。社会の技術の最適化もためす</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td>③ 技術の最適化(部屋の明かり・自動車・発電の方法で、観点の重みと制約条件を変えると、いちばんよい案が入れかわる)</td></tr></table>
+<table class="ea-tbl"><tr><th>アプリ</th><th>ねらい</th><th>基本編で使うところ</th><th>発展編で使うところ</th></tr><tr><td>⚡ C1 エネルギー変換ゲーム</td><td>部品をつないで、エネルギーの変わり方と効率を体験</td><td>ステージ1〜7(懐中電灯・自転車のライト・クレーン・火力発電所・再生可能エネルギー・町の電源・たこ足配線)</td><td>ステージ8 蓄電池・自由・💴 発電方法の値段くらべ</td></tr><tr><td>🔌 C2 電気回路ラボ</td><td>回路をつくって、電流・電圧・安全を確かめる</td><td>課題1〜4 豆電球・スイッチ・直列・並列、課題5 モーターを逆に回そう、課題6・7 ヒューズ・ブレーカー、安全体験</td><td>課題8・9 電流計・電圧計、課題10 電池の持ち、課題11 LEDと抵抗、電気料金</td></tr><tr><td>⚙️ C3 機構ラボ</td><td>歯車・ベルト・リンクで、動きと速さの変わり方を調べる</td><td>回転を伝える・運動を変える・設計課題1〜9</td><td>設計課題10〜12(2段歯車・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td></tr><tr><td>🔧 C4 保守点検ラボ</td><td>共通部品と、点検・手入れのしかたを学ぶ</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり(全部)</td><td>なし</td></tr><tr><td>📐 C5 回路設計シート</td><td>目的に合った回路を設計し、製作と評価まで記録する</td><td>① 課題・構想 ② 回路図 ③ 部品表・手順 ④ 評価、課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td>課題 LEDライト・LED常夜灯・自由設計、④ 評価の実測とのくらべ</td></tr><tr><td>🌬️ C6 風力発電の羽根ラボ</td><td>羽根を変えて、より効率の良い風力発電をめざす</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td></tr><tr><td>🗼 C7 直流・交流と送電ラボ</td><td>直流と交流のちがいと、電気が家に届くしくみを調べる</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ(変圧器・送電線の損失)</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td></tr><tr><td>📝 C8 問題解決ノート</td><td>問題を見つけて課題を決め、作ったものを評価する。社会の技術の最適化もためす</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td>③ 技術の最適化(部屋の明かり・自動車・発電の方法で、観点の重みと制約条件を変えると、いちばんよい案が入れかわる)</td></tr></table>
 
 <h3 id="t-tangen">3. 単元での使い方</h3>
 <ul>
@@ -3399,7 +3402,7 @@ function loadSave() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
   if (!d || typeof d !== 'object') d = {};
-  d.stars = d.stars || {}; d.boards = d.boards || {}; d.quiz = d.quiz || {}; d.clear = d.clear || {};
+  ['stars', 'boards', 'quiz', 'clear'].forEach(function (k) { if (!d[k] || typeof d[k] !== 'object') d[k] = {}; });
   /* 💾 記録: 振り返り(q1〜q3)と組・番号・名前 */
   var r = d.refl && typeof d.refl === 'object' ? d.refl : {}, w = d.who && typeof d.who === 'object' ? d.who : {};
   d.refl = { q1: String(r.q1 || ''), q2: String(r.q2 || ''), q3: String(r.q3 || '') };
@@ -3632,22 +3635,21 @@ function startBoard(st) {
 }
 function loadBoard(si) {
   var st = STAGES[si], b = newBoard(st), sv = S.save.boards[st.id];
-  if (!(sv && sv.nodes)) return startBoard(st);
-  {
-    try {
-      var cells = {};
-      b.nodes.forEach(function (n) { cells[n.col + ',' + n.row] = 1; });
-      sv.nodes.forEach(function (n) {
-        if (!CAT[n.type] || n.fixed || cells[n.col + ',' + n.row]) return;
-        if (n.col < 0 || n.row < 0 || n.col >= COLS || n.row >= ROWS) return;
-        cells[n.col + ',' + n.row] = 1;
-        b.nodes.push({ id: n.id, type: n.type, col: n.col, row: n.row });
-      });
-      var ids = {}; b.nodes.forEach(function (n) { ids[n.id] = 1; });
-      (sv.edges || []).forEach(function (e) { if (ids[e.from] && ids[e.to]) b.edges.push({ id: e.from + '>' + e.to, from: e.from, to: e.to }); });
-      b.next = sv.next || 100;
-    } catch (e) { b = newBoard(st); }
-  }
+  if (!(sv && Array.isArray(sv.nodes))) return startBoard(st);
+  try {
+    var cells = {};
+    b.nodes.forEach(function (n) { cells[n.col + ',' + n.row] = 1; });
+    sv.nodes.forEach(function (n) {
+      if (!n || !CAT[n.type] || n.fixed || cells[n.col + ',' + n.row]) return;
+      // マスは整数の 0〜COLS-1・0〜ROWS-1 だけ(こわれた記録で盤面の外や小数のマスに置かない)
+      if (!(n.col >= 0 && n.row >= 0 && n.col < COLS && n.row < ROWS && n.col % 1 === 0 && n.row % 1 === 0)) return;
+      cells[n.col + ',' + n.row] = 1;
+      b.nodes.push({ id: n.id, type: n.type, col: n.col, row: n.row });
+    });
+    var ids = {}; b.nodes.forEach(function (n) { ids[n.id] = 1; });
+    (Array.isArray(sv.edges) ? sv.edges : []).forEach(function (e) { if (e && ids[e.from] && ids[e.to]) b.edges.push({ id: e.from + '>' + e.to, from: e.from, to: e.to }); });
+    b.next = sv.next > 0 && sv.next % 1 === 0 ? sv.next : 100;
+  } catch (e) { b = newBoard(st); }
   return b;
 }
 function saveBoard() {
@@ -4332,6 +4334,7 @@ var REFL = [
   { id: 'q2', q: '総合効率(役に立ったエネルギー ÷ 使ったエネルギー)を高くするために、どんな工夫をしましたか。変換の回数と効率の関係にもふれよう。' },
   { id: 'q3', q: '発電方法(火力・原子力・水力・太陽光・風力など)から2つを選び、それぞれのよいところと課題をくらべよう。' }
 ];
+var N_BASIC = 7;   /* ステージ1〜7 が基本編、ステージ8 と自由実験が発展編(eduit-info.js の levels と同じ) */
 function stageCleared(st) { return !!(S.save.clear[st.id] || S.save.stars[st.id]); }
 function quizScore() { var ok = 0, n = 0; STAGES.forEach(function (st) { if (st.quiz) { n++; if (S.save.quiz[st.id]) ok++; } }); return { ok: ok, total: n }; }
 function whoInit() {
@@ -4371,7 +4374,7 @@ function exportObj() {
   var s = S.save, qs = quizScore(), sN = 0, sMax = 0;
   var stages = STAGES.map(function (st, i) {
     sN += s.stars[st.id] || 0; sMax += st.stars.length;
-    return { id: st.id, no: stageLabel(i), name: st.title, level: i < 7 ? '基本編' : '発展編', cleared: stageCleared(st),
+    return { id: st.id, no: stageLabel(i), name: st.title, level: i < N_BASIC ? '基本編' : '発展編', cleared: stageCleared(st),
       stars: st.stars.length ? (s.stars[st.id] || 0) : null, maxStars: st.stars.length, quiz: st.quiz ? !!s.quiz[st.id] : null };
   });
   return { schema: 'energyApps.artifact', app: 'C1', type: 'conversion-game', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
@@ -4553,7 +4556,8 @@ function mount(root) {
   S.save = loadSave();
   buildShell(); bindInput();
   var first = S.save.last == null;
-  openStage(Math.max(0, Math.min(STAGES.length - 1, S.save.last || 0)), false);
+  var last = S.save.last >= 0 && S.save.last < STAGES.length && S.save.last % 1 === 0 ? S.save.last : 0;   // こわれた記録(文字・小数)で STAGES[NaN] にならないように
+  openStage(last, false);
   if (first) showHowto(true); // 初回だけ「使い方」→「はじめる」で目標の画面へ
 }
 
@@ -4815,8 +4819,8 @@ function segEnds(seg) {
   return p[0] === 'h' ? [{ x: x, y: y }, { x: x + 1, y: y }] : [{ x: x, y: y }, { x: x, y: y + 1 }];
 }
 function segOK(seg) {
+  if (typeof seg !== 'string' || !/^[hv],\d+,\d+$/.test(seg)) return false;
   var p = seg.split(','), x = +p[1], y = +p[2];
-  if (x < 0 || y < 0) return false;
   return p[0] === 'h' ? x < COLS - 1 && y < ROWS : x < COLS && y < ROWS - 1;
 }
 function ends(pt) { var e = segEnds(pt.seg); return pt.rev ? [e[1], e[0]] : e; }
@@ -4915,11 +4919,10 @@ function miniFig(spec, cols, rows) {
   Object.keys(deg).forEach(function (k) { if (deg[k] >= 3) { var q = k.split(','); h += '<circle class="e2-jn" cx="' + q[0] * SP + '" cy="' + q[1] * SP + '" r="7"/>'; } });
   return h + '</svg>';
 }
-function Wf(seg) { return ['wire', seg]; }
 var HINTFIG = {
-  c5: miniFig([Wf('v,0,0'), ['ammeter', 'h,0,0', '電流計'], Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1', '豆電球'], Wf('v,3,2'), ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], Wf('h,0,3'), Wf('h,1,3'), Wf('h,2,3')], 4, 4),
-  c6: miniFig([Wf('v,0,0'), Wf('h,0,0'), Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1'], ['lamp', 'v,3,2'], Wf('h,3,1'), Wf('h,3,2'), ['voltmeter', 'v,4,1', '電圧計'], ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], Wf('h,0,3'), Wf('h,1,3'), Wf('h,2,3')], 5, 4),
-  c7: miniFig([['battery', 'v,0,1'], ['battery', 'v,1,1'], Wf('h,0,1'), Wf('h,0,2'), Wf('v,1,0'), Wf('h,1,0'), Wf('h,2,0'), Wf('v,3,0'), ['lamp', 'v,3,1', '豆電球'], Wf('h,1,2'), Wf('h,2,2')], 4, 3)
+  c5: miniFig([W('v,0,0'), ['ammeter', 'h,0,0', '電流計'], W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1', '豆電球'], W('v,3,2'), ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], W('h,0,3'), W('h,1,3'), W('h,2,3')], 4, 4),
+  c6: miniFig([W('v,0,0'), W('h,0,0'), W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1'], ['lamp', 'v,3,2'], W('h,3,1'), W('h,3,2'), ['voltmeter', 'v,4,1', '電圧計'], ['battery', 'v,0,1'], ['battery', 'v,0,2', '電池'], W('h,0,3'), W('h,1,3'), W('h,2,3')], 5, 4),
+  c7: miniFig([['battery', 'v,0,1'], ['battery', 'v,1,1'], W('h,0,1'), W('h,0,2'), W('v,1,0'), W('h,1,0'), W('h,2,0'), W('v,3,0'), ['lamp', 'v,3,1', '豆電球'], W('h,1,2'), W('h,2,2')], 4, 3)
 };
 
 var CHALS = [
@@ -5054,12 +5057,18 @@ function loadSave() {
 }
 function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
 function cleanParts(ps) {
-  return (ps || []).filter(function (p) { return p && PARTS[p.type] && typeof p.seg === 'string' && segOK(p.seg); }).map(function (p) {
-    var q = { id: p.id || ('p' + NID++), type: p.type, seg: p.seg, rev: !!p.rev };
-    ['val', 'on', 'broken', 'fixed', 'flip', 'label'].forEach(function (k) { if (p[k] != null && p[k] !== false) q[k] = p[k]; });
+  var out = (Array.isArray(ps) ? ps : []).filter(function (p) { return p && PARTS[p.type] && segOK(p.seg); }).map(function (p) {
+    var q = { id: String(p.id || ('p' + NID++)), type: p.type, seg: p.seg, rev: !!p.rev };
+    ['on', 'broken', 'fixed', 'flip'].forEach(function (k) { if (p[k] != null && p[k] !== false) q[k] = p[k]; });
+    var vals = PARTS[p.type].vals; if (vals && vals.indexOf(+p.val) >= 0) q.val = +p.val;   // 値は部品の選択肢のどれかだけ(0Ω などで計算がこわれないように)
+    if (typeof p.label === 'string' && p.label) q.label = p.label;
     return q;
   });
+  syncNid(out);
+  return out;
 }
+/* 読みこんだ部品の id(p12 など)より大きい番号から新しい id をつける(同じ id ができると、消す・選ぶで別の部品まで動く) */
+function syncNid(ps) { ps.forEach(function (p) { var n = +String(p.id).replace(/\D/g, ''); if (n >= NID) NID = n + 1; }); }
 function presetParts(ch) {
   return (ch.preset || []).map(function (a) {
     var o = a[2] || {}, p = { id: 'p' + NID++, type: a[0], seg: a[1], rev: false };
@@ -5273,7 +5282,7 @@ function openMode(mode) {
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
-  var v = S.view, ch = chal();
+  var v = S.view;
   var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
     '<button class="e2-btn' + (v === 'lab' && S.mode === 'free' ? ' on' : '') + '" data-act="free" aria-label="自由につくる">🧪<span class="lg2"> 自由に<span class="lg">つくる</span></span></button>' +
     '<button class="e2-btn' + (v === 'lab' && S.mode !== 'free' ? ' on' : '') + '" data-act="chals" aria-label="課題">📋<span class="lg2"> 課題</span></button>' +
@@ -5296,7 +5305,6 @@ function buildShell() {
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (v === 'lab') bindBoard();
   efMount();
-  void ch;
 }
 function render() {
   renderTop();
@@ -6004,7 +6012,7 @@ function renderLeak() {
   else msg = L.earth ? 'アースのおかげで体に流れる電流は小さく(' + (shockA * 1000).toFixed(1) + 'mA)なりました。でも漏電は続いています。' : '体を通って地面へ電流が流れました(感電)。とても危険です!';
   var mA = (shockA * 1000).toFixed(shockA < 0.01 ? 1 : 0) + ' mA';
   if (L.cut) p += '<div class="e2-card okc"><div class="ttl">🛡 漏電遮断器が止めた</div><div class="e2-big" style="font-size:calc(26px * var(--ea-fs, 1))">流れかけた電流 ' + mA + '<br>→ 0.1秒以内に<ruby>遮断<rt>しゃだん</rt></ruby></div><div style="margin-top:6px">' + msg + '</div>' +
-    (shockA > 0.0005 ? '<div class="e2-note" style="margin-top:6px">(参考:遮断しなかったら ' + lv[0] + ')</div>' : '') + '<div class="e2-note" style="margin-top:6px">';
+    (shockA > 0.0005 ? '<div class="e2-note" style="margin-top:6px">(参考:遮断しなかったら ' + lv[0] + ')</div>' : '') + '</div>';
   else p += '<div class="e2-card ' + lv[1] + '"><div class="ttl">🧍 体に流れた電流</div><div class="e2-big" style="font-size:calc(36px * var(--ea-fs, 1))">' + mA + '</div><div style="text-align:center;font-weight:bold">' + lv[0] + '</div><div style="margin-top:6px">' + msg + '</div>' +
     '<div class="e2-note" style="margin-top:6px">目安:1mA ピリッ/10mA はなせない/30mA 危険/50mA 命の危険(体の状態で変わります)</div></div>';
   p += '<div class="e2-card tip"><div class="ttl">💡 ことば</div><b>漏電</b>:電気が決められた通り道(電線)の外へもれること。<br><b><ruby>絶縁<rt>ぜつえん</rt></ruby></b>:電気を通さない物(ビニルなど)でおおうこと。コードの<ruby>被覆<rt>ひふく</rt></ruby>(線をおおうビニル)がいたむと漏電の原因に。<br><b>アース線</b>:もれた電流を地面へにがす線。洗濯機など、水気や湿気のある所で使う器具につなぐ。<br><b>漏電遮断器</b>:行きと帰りの電流の差(もれた電流)を見つけて、すぐに電気を止める装置。</div>';
@@ -6045,9 +6053,9 @@ var COSTAPPL = [
 ];
 function costState() {
   if (!S.cost) {
-    var sv = S.save.cost || {};
-    S.cost = { price: sv.price || 31, h: {} };
-    COSTAPPL.forEach(function (a) { S.cost.h[a.id] = sv.h && sv.h[a.id] != null ? sv.h[a.id] : a.h; });
+    var sv = S.save.cost || {}, ok = function (v, lo, hi) { return typeof v === 'number' && v >= lo && v <= hi; };   // pageAct の上限・下限と同じ
+    S.cost = { price: ok(sv.price, 10, 60) ? sv.price : 31, h: {} };
+    COSTAPPL.forEach(function (a) { S.cost.h[a.id] = sv.h && ok(sv.h[a.id], 0, 24) ? sv.h[a.id] : a.h; });
   }
   return S.cost;
 }
@@ -6473,6 +6481,8 @@ var LINK_PRESETS = [
   { name: '平行クランク', v: { a: 30, b: 70, c: 30, d: 70 } }
 ];
 var SCREW_P = [0.5, 0.8, 1, 1.25, 1.5, 2, 2.5, 3];
+var SPEEDS = [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']];   // アニメの速さのボタン [倍率, 名前]
+function speedBtns() { return SPEEDS.map(function (s) { return '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>'; }).join(''); }
 
 /* ---------- 回転を伝える: 見本 ---------- */
 function W(kind, size) { return { kind: kind, size: size }; }
@@ -6568,12 +6578,14 @@ function loadSave() {
   d = d && typeof d === 'object' ? d : {};
   if (d.sound == null) d.sound = false;   // 授業で一斉に鳴らないよう、最初は音なし
   if (!d.train || M.checkTrain(d.train).length) d.train = clone(DEF_TRAIN);
-  d.conv = d.conv || {};
-  Object.keys(CONV_DEF).forEach(function (k) { d.conv[k] = Object.assign(clone(CONV_DEF[k]), d.conv[k] || {}); });
+  if (!d.conv || typeof d.conv !== 'object') d.conv = {};
+  // こわれた値(文字・範囲の外)は初期値にもどす(ファイルを読みこむときと同じ確かめ方)
+  Object.keys(CONV_DEF).forEach(function (k) { d.conv[k] = (d.conv[k] && convParamsOk(k, d.conv[k])) || clone(CONV_DEF[k]); });
+  if (d.mech != null && !CONV_DEF[d.mech]) delete d.mech;
   d.tasks = d.tasks || {};
   d.tt = d.tt || {};
   d.tc = d.tc || {};
-  if (d.speed == null) d.speed = 1;
+  if (!SPEEDS.some(function (x) { return x[0] === d.speed; })) d.speed = 1;
   d.loss = !!d.loss;
   d.refl = Object.assign({ q1: '', q2: '', q3: '' }, d.refl && typeof d.refl === 'object' ? d.refl : {});
   return d;
@@ -6646,7 +6658,7 @@ function openTask(id) {
     if (!S.save.tt[id] || M.checkTrain(S.save.tt[id]).length) S.save.tt[id] = clone(tk.start);
     S.train = S.save.tt[id]; S.sel = S.train.wheels.length - 1; S.view = 'build';
   } else {
-    if (!S.save.tc[id]) S.save.tc[id] = clone(CONV_DEF[tk.mech]);
+    S.save.tc[id] = (S.save.tc[id] && convParamsOk(tk.mech, S.save.tc[id])) || clone(CONV_DEF[tk.mech]);
     if (tk.id === 'wiper') S.save.tc[id].wiper = true;
     S.mech = tk.mech; S.cp = S.save.tc[id]; S.view = 'conv'; convReset();
   }
@@ -6721,8 +6733,7 @@ function removeLast() {
   var T = S.train;
   if (T.wheels.length <= 1) { beep('err'); say('⚠ 入力(モーター)の部品は取れない。大きさは変えられるよ。', 'err'); return; }
   pushUndo();
-  T.wheels.pop(); T.links.pop();
-  if (T.links.length && T.links[T.links.length - 1] === 'shaft' && T.wheels.length > 1) { /* 2段の途中で終わってもOK */ }
+  T.wheels.pop(); T.links.pop();   // 2段の途中(同じ軸に重ねたところ)で終わってもよい
   S.sel = Math.min(S.sel, T.wheels.length - 1);
   beep('del'); changed(); say('最後の部品を取った。「↩ もどす」で元にもどせる。');
 }
@@ -6848,9 +6859,7 @@ function renderBar() {
   if (S.view === 'quiz') { el.innerHTML = quizBar(); return; }
   h += '<button class="e3-btn ' + (S.playing ? '' : 'primary') + '" data-act="play">' + (S.playing ? '⏸ 止める' : '▶ 動かす') + '</button>';
   h += '<span class="lbl">アニメの速さ</span>';
-  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) {
-    h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>';
-  });
+  h += speedBtns();
   h += '<button class="e3-btn sm" data-act="turn1">1回転だけ</button>';
   h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
   h += '<span class="sp"></span>';
@@ -7077,15 +7086,14 @@ function drawBelt(c, p1, p2, type, th1) {
 }
 
 /* ---------- 回転を伝える: 描画 ---------- */
-function trainScreen(T, sol) {
+function trainScreen(T) {
   var L = M.layoutTrain(T), x0 = Infinity, x1 = -Infinity, ymax = 0;
   L.forEach(function (p) { x0 = Math.min(x0, p.x - p.r); x1 = Math.max(x1, p.x + p.r); ymax = Math.max(ymax, p.r); });
-  void sol;
   return { L: L, box: [x0 - 8, -ymax - 8, x1 + 8, ymax + 8] };
 }
 function drawTrain(c, T, A, o) {
   o = o || {};
-  var sol = M.solveTrain(T), lay = trainScreen(T, sol), L = lay.L, b = lay.box;
+  var sol = M.solveTrain(T), lay = trainScreen(T), L = lay.L, b = lay.box;
   if (o.box) b = o.box;
   fitBox(b[0], b[1], b[2], b[3], o.pad || 30, o.padTop || 70, o.padBot || 64, o.maxSc || 3.2);
   var P = L.map(function (p, i) { return { x: tx(p.x), y: ty(p.y), r: p.r * S.fit.sc, th: L[i].g * A, ang: p.a0 + L[i].g * A, i: i, shaft: sol.wheels[i].shaft }; });
@@ -7274,10 +7282,9 @@ function drawConv(c) {
     return;
   }
   if (S.mech === 'link') {
-    var a = cp.a, b = cp.b, cc = cp.c, d = cp.d, Rm = Math.max(a, cc, 10);
+    var a = cp.a, b = cp.b, cc = cp.c, d = cp.d;
     var ext = cp.wiper ? cc * 1.9 : cc;
     fitBox(Math.min(-a, d - ext) - 10, -Math.max(a, ext) - 10, Math.max(a, d + ext) + 10, Math.max(a, cc) + 10, 40, 50, 50, 6);
-    void Rm;
     var r = M.fourBar(a, b, cc, d, C.th, M.linkType(a, b, cc, d).id === 'rockercrank' ? C.prevB : (C.mode || C.prevB));
     if (!r.ok) { // 動けない角度なら、動ける所まで探す
       for (var k = 1; k < 360; k++) { var t2 = C.th + k * Math.PI / 180, r2 = M.fourBar(a, b, cc, d, t2, null); if (r2.ok) { C.th = t2; r = r2; break; } }
@@ -7351,7 +7358,6 @@ function drawConv(c) {
     return;
   }
   if (S.mech === 'screw') {
-    var lead = M.screwLead(cp.p, cp.n);
     fitBox(-24, -26, 64, 26, 30, 70, 60, 14);
     var s0 = tx(0), s1 = tx(60), cy2 = ty(0), sc3 = S.fit.sc, rad = 5 * sc3;
     // ねじ棒
@@ -7380,7 +7386,6 @@ function drawConv(c) {
     text(c, 'mm', tx(60) + 18, by2 + 11, 13, '#5e6b64');
     c.beginPath(); c.moveTo(tx(C.s + 2) + 0, by2 - 18); c.lineTo(tx(C.s + 2), by2); c.strokeStyle = '#c2410c'; c.lineWidth = 3; c.stroke();
     pill(c, '進んだ距離 ' + fmt(C.s, 2) + 'mm', S.cw / 2, 30, { size: 16, bg: '#264d3a', color: '#fff' });
-    void lead;
   }
 }
 function linkTrail(cp) {
@@ -7552,7 +7557,7 @@ function quizBar() {
   h += '<button class="e3-btn sm" data-act="turn1"' + (lock ? ' disabled' : '') + '>入力を1回転だけ</button>';
   h += '<button class="e3-btn sm" data-act="zero">回数を0にする</button>';
   h += '<span class="lbl">アニメの速さ</span>';
-  [[0.25, 'ゆっくり'], [0.5, '半分'], [1, 'ふつう']].forEach(function (s) { h += '<button class="e3-btn sm' + (S.save.speed === s[0] ? ' on' : '') + '" data-act="speed" data-v="' + s[0] + '">' + s[1] + '</button>'; });
+  h += speedBtns();
   return h;
 }
 function quizSide() {
@@ -7605,7 +7610,7 @@ function drawQuiz(c) {
   var bx0 = tx(r0 * 0.4), bx1 = tx(r0 * 0.4 + boxW), by0 = ty(-100), by1 = ty(100);
   // 開けたときは中身を描く
   if (open) {
-    var savedFit = S.fit, lay = trainScreen(T, s), Lb = lay.box;
+    var savedFit = S.fit, lay = trainScreen(T), Lb = lay.box;
     c.save(); c.beginPath(); c.rect(bx0, by0, bx1 - bx0, by1 - by0); c.clip();
     var ow = S.cw, oh = S.ch;
     // 箱の中に収まるように仮の画面サイズで描く
@@ -7764,15 +7769,16 @@ function importJSON() {
 function applyImport(txt) {
   var o; try { o = JSON.parse(txt); } catch (e) { o = null; }
   var D = o && o.app === 'C3' && o.data;
+  var nm = o && typeof o.name === 'string' ? o.name.slice(0, 40) : '';
   if (D && D.mode === 'train' && Array.isArray(D.parts) && Array.isArray(D.joints)) {
-    var t = { wheels: D.parts.map(function (p) { return W(p.kind, +p.size); }), links: D.joints.map(function (j) { return j.type; }) };
+    var t = { wheels: D.parts.map(function (p) { return W(p && p.kind, p && +p.size); }), links: D.joints.map(function (j) { return j && j.type; }) };
     var ok = M.checkTrain(t).length === 0 && t.wheels.every(function (w) { return KIND_RANGE[w.kind] && w.size >= KIND_RANGE[w.kind][0] && w.size <= KIND_RANGE[w.kind][1]; }) && t.wheels.length <= MAXW;
-    if (ok) { closeModal(); S.task = null; S.save.train = t; S.save.dname = o.name || ''; S.save.dnameFor = 'build//'; S.view = 'build'; openView('build'); say(loadedMsg(o.name)); return true; }
+    if (ok) { closeModal(); S.task = null; S.save.train = t; S.save.dname = nm; S.save.dnameFor = 'build//'; S.view = 'build'; openView('build'); say(loadedMsg(nm)); return true; }
   }
   var P = D && D.mode === 'conv' && CONV_DEF[D.mech] && D.params && convParamsOk(D.mech, D.params);
   if (P) {
-    closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = o.name || ''; S.save.dnameFor = 'conv//' + D.mech;
-    openView('conv'); say(loadedMsg(o.name)); return true;
+    closeModal(); S.task = null; S.save.mech = D.mech; S.save.conv[D.mech] = P; S.save.dname = nm; S.save.dnameFor = 'conv//' + D.mech;
+    openView('conv'); say(loadedMsg(nm)); return true;
   }
   beep('err'); say('⚠ このファイルは読みこめなかった(C3 機構ラボで保存したファイルを選んでね)。', 'err'); closeModal();
   return false;
@@ -8697,7 +8703,7 @@ function addRuby(el) {
         used[g[0]] = 1; pos = best + g[0].length; continue;
       }
       if (best > pos) frag.appendChild(document.createTextNode(txt.slice(pos, best)));
-      var rb =document.createElement('ruby'); rb.appendChild(document.createTextNode(g[0]));
+      var rb = document.createElement('ruby'); rb.appendChild(document.createTextNode(g[0]));
       var rt = document.createElement('rt'); rt.textContent = g[1]; rb.appendChild(rt); frag.appendChild(rb);
       if (g[2]) frag.appendChild(document.createTextNode('(' + g[2] + ')'));
       used[g[0]] = 1;
@@ -8967,8 +8973,9 @@ function renderCaseQ() {
     '<div style="margin-top:14px"><button class="e4-btn sm" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
 }
 function caseAnswer(step, oi) {
-  var Q = S.qz, c = caseById(Q.ids[Q.i]);
+  var Q = S.qz;
   if (!Q || Q.step !== step || Q.pick[step] >= 0 || (step === 0 && !Q.clue)) return;
+  var c = caseById(Q.ids[Q.i]);
   Q.pick[step] = oi; Q.step = step + 1;
   var ok = (step === 0 ? c.cause : c.fix)[oi].ok;
   beep(ok ? 'right' : 'ng');
@@ -9036,8 +9043,9 @@ function partNext() {
   if (Q.i + 1 < Q.qs.length) { Q.i++; beep('tap'); renderPartQ(); return; }
   var sc = Q.qs.filter(function (x) { return x.ans === x.k; }).length, rec = sc > S.save.pq.best;
   if (rec) { S.save.pq.best = sc; persist(); }
-  beep(sc >= 8 ? 'ok' : 'tap');
-  modal('<h2>' + (sc === 10 ? '🎉 クリア! 全問正解' : '🧩 結果') + '</h2><div class="e4-big">' + sc + ' / 10</div>' + (rec ? '<p style="text-align:center">🏅 最高記録を更新!</p>' : '') +
+  var n = Q.qs.length;   // ふつうは10問(手がかりのある部品が10より少ないときは、その数)
+  beep(sc >= n * 0.8 ? 'ok' : 'tap');
+  modal('<h2>' + (sc === n ? '🎉 クリア! 全問正解' : '🧩 結果') + '</h2><div class="e4-big">' + sc + ' / ' + n + '</div>' + (rec ? '<p style="text-align:center">🏅 最高記録を更新!</p>' : '') +
     '<div class="acts"><button class="e4-btn" data-act="view" data-v="book">📖 図鑑で復習</button><button class="e4-btn blue" data-act="pqstart">もう一度</button><button class="e4-btn primary" data-act="qmenu">クイズのはじめへ</button></div>');
 }
 
@@ -9452,7 +9460,7 @@ function toggleCand(i) {
   var at = -1; L.items.forEach(function (x, j) { if (x.src === i) at = j; });
   if (at >= 0) { askDelItem(at); return; }
   var it = T.items[i]; L.items.push({ t: it.t, m: [], c: null, key: !!it.key, src: i }); beep('tap');
-  L.records.forEach(function (r) { while (r.res.length < L.items.length - 1) r.res.push(null); r.res.push(null); });   // 記録の列も足す(未記入)
+  L.records.forEach(function (r) { while (r.res.length < L.items.length) r.res.push(null); });   // 記録の列も足す(未記入)
   S.adv = null; persist(); keepScroll(renderCheck);
 }
 /* 点検項目を消す: 記録の結果の列もいっしょに消して、ほかの項目にずれないようにする */
@@ -9611,7 +9619,7 @@ function applyImport(txt) {
   var okM = function (m) { return Array.isArray(m) && m.every(function (x) { return byId(D.METHODS, x); }); };
   if (Dt && Array.isArray(Dt.items) && Dt.items.every(function (it) { return it && typeof it.t === 'string' && okM(it.m) && (it.c == null || cycleById(it.c)); })) {
     var T = targetById(Dt.target);
-    var L = { id: 'L' + Date.now().toString(36), target: T ? T.id : 'free', name: String(o.name || '点検表').slice(0, 30), created: Dt.created || today(),
+    var L = { id: 'L' + Date.now().toString(36), target: T ? T.id : 'free', name: String(o.name || '点検表').slice(0, 30), created: String(Dt.created || today()).slice(0, 10),
       items: Dt.items.map(function (it) { var src = T && typeof it.src === 'number' && T.items[it.src] ? it.src : -1; return { t: it.t.slice(0, 40), m: it.m, c: it.c || null, key: src >= 0 ? !!T.items[src].key : false, src: src }; }),
       records: Array.isArray(Dt.records) ? Dt.records.filter(function (r) { return r && Array.isArray(r.res); }).map(function (r) { return { date: String(r.date || '').slice(0, 10), memo: String(r.memo || '').slice(0, 80), res: Dt.items.map(function (_, i) { var x = r.res[i]; return x === 0 || x === 1 || x === 2 ? x : null; }) }; }) : [] };
     S.save.lists.push(L); S.save.cur = S.save.lists.length - 1; S.adv = null; persist();
@@ -10045,7 +10053,8 @@ function loadSave() {
   s.designs = s.designs && typeof s.designs === 'object' ? s.designs : {};
   s.opt = s.opt || {}; if (s.opt.res !== 'old') s.opt.res = 'jis'; if (s.opt.lbl !== 'sym') s.opt.lbl = 'ja';
   if (!s.task || !TASKS.some(function (t) { return t.id === s.task; })) s.task = 'flash';
-  s.who = s.who || { cls: '', name: '' };
+  var w = s.who && typeof s.who === 'object' ? s.who : {};   // ほかのアプリも読むので、いつも文字列にしておく
+  s.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
   Object.keys(s.designs).forEach(function (k) { s.designs[k] = cleanDesign(s.designs[k]); });
   return s;
 }
@@ -11125,7 +11134,7 @@ function bindInput() {
   root.addEventListener('input', function (ev) {
     var t = ev.target, k;
     if ((k = t.getAttribute('data-note'))) { D().notes[k] = t.value.slice(0, 2000); dirty(); persist(); return; }
-    if ((k = t.getAttribute('data-who'))) { S.save.who[k] = t.value; persist(); return; }
+    if ((k = t.getAttribute('data-who'))) { S.save.who[k] = t.value.slice(0, k === 'cls' ? 20 : 30); persist(); return; }
     if ((k = t.getAttribute('data-meas'))) {
       var key = t.getAttribute('data-k'), d = D(), m = d.meas[k] = d.meas[k] || {}, v = t.value.trim();
       if (v === '' || !isFinite(+v)) delete m[key]; else m[key] = +v;
@@ -11280,10 +11289,12 @@ function loadSave() {
   Object.keys(b).forEach(function (k) { if (s[k] == null || typeof s[k] !== typeof b[k] || Array.isArray(s[k]) !== Array.isArray(b[k])) s[k] = b[k]; });
   var bl = s.blade;
   if (NBL.indexOf(bl.n) < 0) bl.n = 3;
-  bl.pitch = clamp(Math.round(+bl.pitch || 20), 0, 90); bl.len = clamp(Math.round(+bl.len || 15), 5, 30);
+  /* 0(かたむき 0°・風速 0 m/s)も正しい値なので、|| ではなく数かどうかで決める */
+  var numOr = function (v, def) { return isFinite(+v) && v !== '' && v !== null ? +v : def; };
+  bl.pitch = clamp(Math.round(numOr(bl.pitch, 20)), 0, 90); bl.len = clamp(Math.round(numOr(bl.len, 15)), 5, 30);
   if (!SHAPES[bl.shape]) bl.shape = 'flat';
-  s.wind = clamp(+s.wind || 4, 0, 10);
-  s.recs = s.recs.filter(function (r) { return r && r.b && SHAPES[r.b.shape]; }).slice(-10);
+  s.wind = clamp(numOr(s.wind, 4), 0, 10);
+  s.recs = s.recs.filter(function (r) { return r && r.b && SHAPES[r.b.shape] && ['v', 'rpm', 'V', 'I', 'P', 'vs'].every(function (k) { return isFinite(r[k]); }); }).slice(-10);
   s.rank = s.rank.filter(function (r) { return r && r.b && SHAPES[r.b.shape] && isFinite(r.p); }).slice(0, 5);
   return s;
 }
@@ -11904,7 +11915,7 @@ var REFL = [
 function renderRefl(box) {
   box.innerHTML = '<div class="e6-card" data-ef-reflect><h2>✏️ 振り返り</h2><p>学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 記録」でファイルにできます。</p>' +
     REFL.map(function (r, i) { return '<div class="e6-field"><label for="e6-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e6-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(S.save.refl[r.id]) + '</textarea></div>'; }).join('') + '</div>';
-  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value; persist(); });
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value.slice(0, 800); persist(); });
 }
 
 /* ================= 記録 ================= */
@@ -12525,7 +12536,7 @@ var REFL = [
 function renderRefl(box) {
   box.innerHTML = '<div class="e7-card" data-ef-reflect><h2>✏️ 振り返り</h2><p>学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 記録」でファイルにできます。</p>' +
     REFL.map(function (r, i) { return '<div class="e7-field"><label for="e7-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e7-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(S.save.refl[r.id]) + '</textarea></div>'; }).join('') + '</div>';
-  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value; persist(); });
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value.slice(0, 800); persist(); });
 }
 
 /* ================= 記録 ================= */
@@ -13039,12 +13050,18 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
       var b = base[k];
       if (b && typeof b === 'object' && !Array.isArray(b)) {
         var cur = obj(d[k]);
-        Object.keys(b).forEach(function (kk) { if (cur[kk] === undefined || (Array.isArray(b[kk]) && !Array.isArray(cur[kk]))) cur[kk] = b[kk]; });
+        Object.keys(b).forEach(function (kk) {
+          var bv = b[kk], cv = cur[kk];
+          // ない値・形のちがう値(配列のはずが配列でない、オブジェクトのはずがオブジェクトでない)は既定の値にする
+          if (cv === undefined || (Array.isArray(bv) && !Array.isArray(cv)) || (bv && typeof bv === 'object' && !Array.isArray(bv) && obj(cv) !== cv)) cur[kk] = bv;
+          else if (typeof bv === 'string' && typeof cv !== 'string') cur[kk] = str(cv);  // 文字のはずの欄は文字にする(.trim() で止まらないように)
+        });
         d[k] = cur;
       } else if (Array.isArray(b)) d[k] = arr(d[k]);
       else if (d[k] === undefined) d[k] = b;
     });
     d.domain = domain || d.domain || 'A';
+    if (d.ev.mode !== 'tgt') d.ev.mode = 'res';
     d.cards = d.cards.filter(function (c) { return c && typeof c === 'object'; }).map(function (c) {
       return { id: str(c.id) || uid(), text: str(c.text), vp: arr(c.vp).map(str), star: !!c.star };
     });
@@ -13449,7 +13466,9 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
     function drawQuiz() {
       if (!quizBox) return;
       var Q = D.quiz, items = dom.quiz;
-      if (!Q.order.length || Q.order.length !== items.length) { Q.order = shuffle(items.map(function (x, i) { return i; })); Q.i = 0; Q.ans = {}; }
+      // 順番がない・問題の数とちがう・こわれている(読み込んだファイル)ときは、はじめからにする
+      var orderOk = Q.order.length === items.length && Q.order.every(function (k) { return !!items[k]; });
+      if (!orderOk || !(Q.i >= 0) || Q.i % 1) { Q.order = shuffle(items.map(function (x, i) { return i; })); Q.i = 0; Q.ans = {}; }
       quizBox.innerHTML = '';
       if (Q.i >= items.length) {
         var ok = Q.order.filter(function (k) { return Q.ans[k] === items[k].t; }).length;
@@ -13571,7 +13590,8 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
         return h('button', { type: 'button', class: 'mn-prod', 'aria-pressed': String(q.id === p.id), onclick: function () { O.product = q.id; changed(); renderOpt(); } },
           h('span', { class: 'mn-prod-i', 'aria-hidden': 'true' }, q.icon), h('span', null, q.name), won ? h('small', null, '1位にできた案 ' + won + '/' + q.options.length) : null);
       }));
-      if (!O.weights[p.id]) O.weights[p.id] = MN.weightsOf(D, dom, p);
+      // 読み込んだ重みが 0〜3 の整数でないとき(こわれたファイル)も直しておく
+      O.weights[p.id] = MN.weightsOf(D, dom, p);
       var W = O.weights[p.id];
       if (!Array.isArray(O.limits[p.id])) O.limits[p.id] = [];
       var sliders = h('div', { class: 'mn-weights' }, crit.map(function (c) {
@@ -13627,12 +13647,13 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
       optRes.appendChild(h('p', { class: 'mn-opt-head' + (swapped ? ' is-swap' : ''), 'aria-live': 'polite' }, swapped ? '🔄 1位が入れかわった! ' : '', head));
       var ul = h('ol', { class: 'mn-rank' });
       r.list.forEach(function (it, i) {
+        var se = MN.SERIES[it.idx % MN.SERIES.length];  // レーダーチャートと同じ色・印
         ul.appendChild(h('li', { class: 'mn-rank-i' + (it.ok ? '' : ' is-out') + (it.id === r.best ? ' is-best' : '') },
           h('span', { class: 'mn-rank-m', 'aria-hidden': 'true' }, it.ok ? medals[i] || '' : '🚫'),
           h('div', { class: 'mn-rank-b' },
             h('div', { class: 'mn-rank-t' }, h('b', null, it.name), h('span', { class: 'mn-rank-s' }, it.ok ? it.score + ' 点' : '制約条件に合わない'),
-              h('span', { class: 'mn-rank-key', 'aria-hidden': 'true', style: 'color:' + MN.SERIES[it.idx % 3].color }, MN.SERIES[it.idx % 3].mark)),
-            h('div', { class: 'mn-bar' }, h('span', { style: 'width:' + (it.ok ? it.score : 0) + '%;background:' + MN.SERIES[it.idx % 3].color })),
+              h('span', { class: 'mn-rank-key', 'aria-hidden': 'true', style: 'color:' + se.color }, se.mark)),
+            h('div', { class: 'mn-bar' }, h('span', { style: 'width:' + (it.ok ? it.score : 0) + '%;background:' + se.color })),
             h('p', { class: 'mn-help' }, it.opt.note, it.fails.length ? h('b', { class: 'mn-out' }, '(' + it.fails.map(function (f) { return f.label; }).join('・') + ')') : null))));
       });
       optRes.appendChild(ul);
@@ -13881,11 +13902,11 @@ function changed() {
     renderTabs();
   }, 600);
 }
-/* ほかのアプリ(C5・C6・C7)で入れた「組・番号」(例: 2組15番)と名前を、まだ入れていなければ使う */
+/* ほかのアプリ(C1〜C7。どれも energyApps.Cn.v1 の who に入れる)で入れた「組・番号」(例: 2組15番)と名前を、まだ入れていなければ使う */
 function fillStudent(d) {
   var st = d.student || (d.student = { cls: '', no: '', name: '' });
   if (st.cls || st.no || st.name) return d;
-  ['C7', 'C6', 'C5'].some(function (id) {
+  ['C7', 'C6', 'C5', 'C4', 'C3', 'C2', 'C1'].some(function (id) {
     var o = null; try { o = JSON.parse(localStorage.getItem('energyApps.' + id + '.v1') || 'null'); } catch (e) {}
     var w = o && isObj(o.who) ? o.who : null;
     if (!w || !(w.cls || w.name)) return false;

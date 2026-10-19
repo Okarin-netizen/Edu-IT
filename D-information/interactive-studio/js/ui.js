@@ -51,7 +51,11 @@ export function pickFile(accept) {
       input.remove();
       if (!f) return resolve(null);
       if (f.size > 3 * 1024 * 1024) return resolve({ error: "ファイルが大きすぎます（3MBまで）。" });
-      resolve({ name: f.name, text: await f.text() });
+      try {
+        resolve({ name: f.name, text: await f.text() });
+      } catch {
+        resolve({ error: "ファイルを読めませんでした。" });
+      }
     });
     document.body.append(input);
     input.click();

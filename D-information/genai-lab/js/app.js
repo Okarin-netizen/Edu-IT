@@ -18,7 +18,9 @@
   // ---- 端末の中だけの保存(使えなくても動く) ----
   var KEY = 'eduit-genai-lab';
   var saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+  // こわれたデータ(オブジェクトでないもの)が入っていても動くように
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};
   function save(k, v) {
     saved[k] = v;
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
@@ -47,7 +49,6 @@
     e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
   }
   // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
-  function rb(kanji) { return kanji; }
   var RUBY = {
     '生成': 'せいせい', '学習': 'がくしゅう', '模型': 'もけい', '予想': 'よそう', '割合': 'わりあい', '拡散': 'かくさん',
     '著作権': 'ちょさくけん', '著作物': 'ちょさくぶつ', '架空': 'かくう', '司書': 'ししょ', '不正': 'ふせい', '個人情報': 'こじんじょうほう',
@@ -331,7 +332,7 @@
     ]);
   }
 
-  // ================= 1 つぎの言葉あて =================
+  // ================= ④ つぎの言葉あて =================
   var guessState = { i: 0, picked: {} };
   function renderGuess(el) {
     var st = guessState;
@@ -376,11 +377,10 @@
       el.appendChild(btn('もう一度やる', function () { st.i = 0; st.picked = {}; go('guess'); }));
     }
     el.appendChild(point('ここがポイント',
-      h('p', null, 'わたしたちも、生成AIも、「よく見る続き」から予想しています。生成AIは、ものすごくたくさんの文章を読んで、「この言葉のあとには、どの言葉が何%くらい来るか」を',
-        rb('学習', 'がくしゅう'), 'しています。意味がわかって書いているのではなく、続きやすい言葉をえらんでいます。')));
+      h('p', null, 'わたしたちも、生成AIも、「よく見る続き」から予想しています。生成AIは、ものすごくたくさんの文章を読んで、「この言葉のあとには、どの言葉が何%くらい来るか」を学習しています。意味がわかって書いているのではなく、続きやすい言葉をえらんでいます。')));
   }
 
-  // ================= 2 トークン =================
+  // ================= ⑤ トークン =================
   var tokenState = { text: '今日は天気がいいので、友だちと公園でサッカーをしました。' };
   function renderToken(el) {
     append(el, h('p', { class: 'lead', text: '生成AIは、文字のままでは計算できません。文章を「トークン」という小さなかけらに分けて、1つずつ番号(数)にしてから計算します。' }));
@@ -417,7 +417,7 @@
         h('li', { text: 'AIは、この番号のならびを使って「つぎに来る番号(言葉)」を計算します。この教材の分け方は、本物のAIより簡単にしたものです。' }))));
   }
 
-  // ================= 3 ミニ文章AI =================
+  // ================= ⑥ ミニ文章AI =================
   var tg = { corpus: 'mukashi', order: 2, temp: 1, start: '', hist: [], added: {}, made: [], running: false };
   // いろいろな文になりやすい「はじめの言葉」(そこから作れる文の数が多い上位3つ)
   function recommendedStarters(model, starts) {
@@ -563,7 +563,7 @@
     }
   }
 
-  // ================= 4 もっともらしいまちがい =================
+  // ================= ① もっともらしいまちがい =================
   var hs = { results: [], judged: {}, marks: {}, revealed: {} };
   function renderHalluc(el) {
     var model = LM.buildModel(D.corpora.ichiban.sentences);
@@ -651,7 +651,7 @@
         h('li', { text: 'たしかめ方: 教科書・図鑑・辞書、公式のサイトなど、もとの情報で調べる。何か所かでくらべる。わからなければ先生や大人に聞く。' }))));
   }
 
-  // ================= 5 ノイズをまぜる =================
+  // ================= ⑦ ノイズをまぜる =================
   var ns = { pic: 0, level: 40, seed: 7, game: null };
   function renderNoise(el) {
     var z = IM.noise(LM.seeded(ns.seed));
@@ -687,7 +687,7 @@
     var gameCard = card('AIになって練習してみよう');
     if (!g) {
       gameCard.appendChild(h('p', { text: 'ノイズまじりの絵を見て、もとの絵がどれかを当てます。学習中のAIがしている練習と同じです。' }));
-      gameCard.appendChild(btn('練習をはじめる', function () { ns.game = newRound(0, 0, 0); go('noise'); }, 'ef-btn-primary'));
+      gameCard.appendChild(btn('練習をはじめる', function () { ns.game = newRound(0, 0); go('noise'); }, 'ef-btn-primary'));
     } else {
       var rz = IM.noise(LM.seeded(g.seed));
       gameCard.appendChild(h('p', { class: 'muted', text: '第 ' + (g.round + 1) + ' 問 / 5　ノイズの量 ' + g.level + '%　正解 ' + g.score }));
@@ -713,10 +713,12 @@
     return { round: round, score: score, answer: Math.floor(r() * pictures.length), seed: Math.floor(r() * 9999) + 1, level: [50, 70, 85, 95, 100][round], chosen: null };
   }
 
-  // ================= 6 ノイズから絵をつくる =================
+  // ================= ⑧ ノイズから絵をつくる =================
   var STEPS = 20;
   var gs = { word: 'ねこ', word2: '', mix: 0.5, k: 0, x: null, x0: null, weights: null, sched: IM.schedule(STEPS, 1.6, 0.04), rnd: null, running: false };
   function resetGen() {
+    // 自動で進めている途中なら止める(止めないと、新しいノイズの絵を古いタイマーが進めてしまう)
+    clearTimers();
     gs.rnd = LM.seeded(Math.floor(Math.random() * 1e9) + 1);
     gs.k = 0;
     gs.x = IM.addNoise(new Float32Array(IM.DIM), IM.noise(gs.rnd), gs.sched[0]);
@@ -781,7 +783,7 @@
         if (mixed) msg.appendChild(h('div', { class: 'result info', text: '「' + gs.word + '」' + Math.round((1 - gs.mix) * 100) + '%と「' + gs.word2 + '」' + Math.round(gs.mix * 100) + '%をまぜた、学習データにない絵ができました。学習していない組み合わせをたのむと、ふしぎな絵になることがあります(画像のハルシネーション)。' }));
         else if (d < 0.08) msg.appendChild(h('div', { class: 'result warn', text: '学習した「' + pictures[best].label + '」とほとんど同じ絵ができました。学習した絵が少ないと、学習データをそのまま出してしまうことがあります。だれかの作品にそっくりな絵は、勝手に使えません(著作権)。' }));
         else msg.appendChild(h('div', { class: 'result info', text: '学習データにない、新しい絵ができました。いちばん近いのは「' + pictures[best].label + '」です。いくつかの絵がまざると、ふしぎな絵になることもあります(画像のハルシネーション)。' }));
-        if (gs.k >= STEPS) msg.appendChild(h('p', { class: 'muted', text: 'できあがりました。もう一度作るときは「新しいノイズから」をおします。' }));
+        msg.appendChild(h('p', { class: 'muted', text: 'できあがりました。もう一度作るときは「新しいノイズから」をおします。' }));
       }
       applyRuby(msg);
       applyRuby(predCap);
@@ -811,7 +813,7 @@
           h('figure', null, canvasPred, predCap),
           stepOut,
           h('div', { class: 'row' }, stepBtn, runBtn,
-            btn('新しいノイズから', function () { clearTimers(); resetGen(); refresh(); })))),
+            btn('新しいノイズから', function () { resetGen(); refresh(); })))),
       msg,
       h('p', { class: 'small-title', text: 'AIがお手本にしている学習した絵(いまの絵に近いほど重く見る)' }),
       weightsBox));
@@ -824,7 +826,7 @@
         h('li', { text: 'この模型が学習した絵は6枚だけです。本物の画像AIは何億枚もの絵から学ぶので、いろいろな絵を作れますが、学習した作品に似た絵が出ることもあります。' }))));
   }
 
-  // ================= 7 個人情報 =================
+  // ================= ② 個人情報 =================
   var ps = { pick: { name: 0, school: -1, phone: 0, address: -1 }, sent: false, out: null, sendJudge: {} };
   function privacySentences() {
     return D.privacyChoices.filter(function (c) { return ps.pick[c.key] >= 0; }).map(function (c) {
@@ -961,7 +963,12 @@
     };
   }
   function recordCsv(r) {
-    var cell = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    // 表計算ソフトで式として読まれないように、= + - @ などで始まる文には ' を付ける(ネット詐欺 追体験ラボと同じ)
+    var cell = function (v) {
+      var s = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
     var head = ['組', '番号', '名前', 'ひらいたステップ', 'つぎの言葉あて(AIと同じ)', 'クイズ正解', 'ふりかえり1', 'ふりかえり2', 'ふりかえり3'];
     var row = [r.student.cls, r.student.num, r.student.name,
       r.steps.filter(function (x) { return x.opened; }).length + ' / ' + r.steps.length,
@@ -1109,7 +1116,9 @@
     var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 2500);
+    // 続けて出したときに、前のタイマーで早く消えないようにする
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.classList.remove('show'); }, 2500);
   }
 
   // ---- 表示の切りかえ(ふりがな・大きな文字) ----
