@@ -11,7 +11,7 @@ import { ORDER, bundleSources, STRICT_CSP } from "./bundle.js";
 import { createStage } from "./stage.js";
 import { BlockEditor, PALETTE, CATS } from "./blocks.js";
 
-const AUTHOR = "作成：羽生市立南中学校 技術 岡田";
+const AUTHOR = "作成：技術 岡田";
 const APP_NAME = "双方向コンテンツ制作スタジオ";
 const view = document.getElementById("view");
 

@@ -9,8 +9,8 @@
   var G = (window.G = window.G || {});
   G.version = '2.7.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
-  G.CREDIT = '羽生市立南中学校　技術　岡田';
-  G.CREDIT_RUBY = '{羽生|はにゅう}{市立|しりつ}{南|みなみ}{中学校|ちゅうがっこう}　{技術|ぎじゅつ}　{岡田|おかだ}';
+  G.CREDIT = '技術　岡田';
+  G.CREDIT_RUBY = '{技術|ぎじゅつ}　{岡田|おかだ}';
   // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
   G.LS_PREFIX = {
     'material-navi': ['material-navi.'], 'wood-lab': ['a2.'], 'structure-lab': ['structure-lab.'],
@@ -570,7 +570,7 @@
       opt.tools || null));
     G.applySettings();
     // 作成者の読みがな(フッターと「このアプリについて」で使う)
-    G.ruby.add({ '羽生': 'はにゅう', '市立': 'しりつ', '南中学校': 'みなみちゅうがっこう', '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
+    G.ruby.add({ '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
     if (!G.$('.g-footer')) {
       var dataBtn = opt.app && opt.app !== 'menu' && opt.data !== false
         ? G.h('button', { class: 'btn small ghost g-data-btn', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null;
