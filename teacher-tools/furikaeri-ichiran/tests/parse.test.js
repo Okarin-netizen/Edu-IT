@@ -222,3 +222,14 @@ test('A: A8 問題解決ノート(課題・評価・最適化・振り返り)', 
   assert.strictEqual(val(e, '身の回りから問題を見つけ、問題と課題を分けて書けた'), 'できた');
   assert.strictEqual(val(e, 'これからの問題解決に生かしたいこと'), '観点を先に決めてから構想する');
 });
+
+test('G: 技術分野のガイダンスの書き出し(組・番号・名前、クイズの正解数、自己評価)', () => {
+  const r = load('G_ガイダンス_2-15_山田花子_2026-10-19.json');
+  assert.strictEqual(r.format, 'G 技術分野のガイダンス');
+  const e = r.entries[0];
+  assert.strictEqual(e.domain, 'G');
+  assert.deepStrictEqual(e.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.strictEqual(val(e, '発想のしかたクイズ'), '6 / 6');
+  assert.strictEqual(val(e, '課題'), 'たおれにくいかさ立てを考える');
+  assert.strictEqual(val(e, '問題と課題のちがいと、問題解決の流れが分かった'), 'できた');
+});
