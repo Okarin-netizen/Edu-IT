@@ -2749,9 +2749,10 @@ function layoutList(list, outputs) {
 }
 
 // outputs: 出力の名前の Set（「〇〇 を オン にする」と書くため）
-// label: 文の名前を変えるときの関数（n → 文字。undefined なら、ふつうの名前）
-function flowchartSvg(program, outputs = new Set(), label = null) {
-  customLabel = label;
+// labelFn: 文の名前を変えるときの関数（n → 文字。undefined なら、ふつうの名前）
+// （上の文字をかく関数 label と同じ名前にすると、はじめ・おわりがかけなくなるので別の名前にする）
+function flowchartSvg(program, outputs = new Set(), labelFn = null) {
+  customLabel = labelFn;
   const L = layoutList(program, outputs);
   const last = program.filter((n) => n.type !== "comment").at(-1);
   const endless = last && last.type === "forever";
