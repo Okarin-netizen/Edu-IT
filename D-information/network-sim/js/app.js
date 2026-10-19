@@ -110,7 +110,7 @@ function renderHome() {
       { class: "module-head" },
       h("h1", {}, "ネットワーク通信シミュレータ"),
       h("p", { class: "meta" }, "中学校 技術・家庭科（技術分野）D「情報の技術」　情報通信ネットワークの構成と、情報を利用するための基本的なしくみ"),
-      h("p", { class: "author" }, "作成：羽生市立南中学校 技術 岡田"),
+      h("p", { class: "author" }, "作成：技術 岡田"),
     ),
     h(
       "div",

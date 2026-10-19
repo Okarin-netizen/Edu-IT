@@ -57,7 +57,7 @@ function renderHome(view) {
       { class: "hero" },
       h("h1", {}, "仮想CPUラボ"),
       h("p", { class: "lead" }, "プログラムがコンピュータの中でどのように処理されるのかを、小さな仮想コンピュータを動かしながら確かめる教材です。"),
-      h("p", { class: "author" }, "作成：羽生市立南中学校 技術 岡田"),
+      h("p", { class: "author" }, "作成：技術 岡田"),
     ),
     h(
       "div",

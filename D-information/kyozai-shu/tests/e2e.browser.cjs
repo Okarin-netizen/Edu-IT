@@ -44,8 +44,8 @@ const check = (ok, label) => {
   await page.reload();
   check((await page.locator('.ef-level-advanced[aria-selected="true"]').count()) === 1, "選んだ編は読みこみ直しても残る");
   await page.click(".ef-level-tab.ef-level-basic");
-  check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
-  check(/羽生市立南中学校[ 　]技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
+  check(/技術[ 　]岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
+  check(/技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
   // 記号（D1〜D11）: 上のバーの名前・カード・おすすめの順番
   check((await page.locator("#bar-title").innerText()).replace(/\s+/g, " ").trim() === "D 情報の技術 教材集", "メニューの上のバーの左に「D 情報の技術 教材集」");
   check((await page.locator(".ef-mcard .ef-code").allInnerTexts()).join(",") === "D1,D2,D3,D4,D5,D6,D7,D10,D11,D8", "基本編のカードは教科書の章ごとに番号順（D10・D11 は2章・3章の区切りで D7 のあと）");
@@ -64,7 +64,7 @@ const check = (ok, label) => {
     const frame = page.frameLocator(`iframe[data-id="${id}"]`);
     await frame.locator("h1, h2").first().waitFor({ timeout: 10000 });
     const text = await frame.locator("body").innerText();
-    check(text.length > 200 && /羽生市立南中学校/.test(text), `${id}: 開いて中身と作成者が表示される`);
+    check(text.length > 200 && /技術[ 　]岡田/.test(text), `${id}: 開いて中身と作成者が表示される`);
     check(await page.locator(`iframe[data-id="${id}"]`).isVisible(), `${id}: 表示中`);
     const bar = (await page.locator("#bar-title").innerText()).replace(/\s+/g, " ").trim();
     check(bar === `D${IDS.indexOf(id) + 1} ${NAMES[IDS.indexOf(id)]}` && (await page.locator("#back-link").isVisible()), `${id}: 上のバーに「◀ メニュー」と「${bar}」`);

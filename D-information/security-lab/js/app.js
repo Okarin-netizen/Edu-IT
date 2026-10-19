@@ -130,7 +130,7 @@ function renderHome() {
     );
   });
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "情報セキュリティ体験ラボ"), h("p", { class: "meta" }, "「脅威 → しくみ → 対策」を手を動かして体験し、なぜその対策が必要かを自分の言葉で説明できるようになろう。"), h("p", { class: "hint author" }, "作成：羽生市立南中学校 技術 岡田"), easyBox(EASY_PAGES.home)),
+    h("div", { class: "module-head" }, h("h1", {}, "情報セキュリティ体験ラボ"), h("p", { class: "meta" }, "「脅威 → しくみ → 対策」を手を動かして体験し、なぜその対策が必要かを自分の言葉で説明できるようになろう。"), h("p", { class: "hint author" }, "作成：技術 岡田"), easyBox(EASY_PAGES.home)),
     h(
       "section",
       { class: "card" },

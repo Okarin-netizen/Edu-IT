@@ -244,7 +244,7 @@
       h('div', { class: 'module-head' },
         h('h1', { class: 'sec-title', text: APP }),
         h('p', { class: 'meta' }, 'インターネットの詐欺を、スマホやパソコンの画面を自分で操作して「追体験」します。だまされそうになったとき、正しい手順を最後までやりきれたらクリアです。'),
-        h('p', { class: 'muted author', text: '作成：羽生市立南中学校 技術 岡田' })),
+        h('p', { class: 'muted author', text: '作成：技術 岡田' })),
       h('section', { class: 'card' },
         h('h2', { text: '遊び方' }),
         h('ol', null,

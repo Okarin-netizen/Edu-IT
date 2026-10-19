@@ -84,7 +84,7 @@ function renderHome() {
         h("span", { class: "io-arrow", "aria-hidden": "true" }, "→"),
         h("div", { class: "io-box io-out" }, h("span", { class: "io-tag" }, "出力・制御（仕事を行う部分）"), "左右のモーター", h("small", {}, "前進・後退・右に回る・左に回る・止まる")),
       ),
-      h("p", { class: "author-line" }, "作成：羽生市立南中学校 技術 岡田"),
+      h("p", { class: "author-line" }, "作成：技術 岡田"),
     ),
     h(
       "section",
