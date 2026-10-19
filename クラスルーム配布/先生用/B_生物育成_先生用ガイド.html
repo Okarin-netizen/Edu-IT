@@ -227,6 +227,87 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 }
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
 </style>
 <style data-eg-css>
 /*
@@ -293,14 +374,15 @@ window.EDUIT_INFO = {
   domain: 'B',
   domainName: '生物育成の技術',
   suite: '生物育成の技術 教材集',
-  version: '1.7',
-  updated: '2026-10-18',
+  version: '1.8',
+  updated: '2026-10-19',
   safety: [
     'B4 の写真は、この端末のブラウザの中(IndexedDB)だけに保存されます。人の顔や名札が写らないように撮りましょう。',
     '飼育した生き物を川や池に放さないでください(外来種・生態系への配慮)。農薬を使うときは使用基準を守ります。',
     'B1・B2・B5 のシミュレーションは授業用の簡単なモデルです。数値は目安なので、本物の作物や生き物の観察(B4)とくらべて考えましょう。'
   ],
   history: [
+    { version: '1.8', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)', 'B2「③ 飼育計画書」の見出しの番号を、ならんでいる順にした。B4「使い方」の表示の設定の説明を、いまの上のバーに合わせた'] },
     { version: '1.7', date: '2026-10-18', items: [
       'ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)',
       'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「B1 環境」〜「B6 ノート」の切りかえは教材を開いたときだけ出す',
@@ -405,6 +487,127 @@ window.EDUIT_INFO.textbook = {
     'b6': { g: 'solve', ref: '2編2章 1・4、3章 1' }
   }
 };
+
+/* 自習ガイド(自習モードのとき、各教材の右はしに出す「ねらい・進め方・ヒント・たしかめ問題」。shared/eduit-frame.js が使う)
+ * apps の記号ごとに goal・time・steps(where・do・hint・go・level・reflect)・check(q・choices・answer・explain)。形は shared/README.md の「自習モード」。
+ * where は画面のタブ・ページの名前(levels の parts と同じ番号)にそろえる。教材のタブの名前を変えたら、ここも直す。
+ */
+window.EDUIT_INFO.jishu = {
+  lead: '生物育成は、B1・B2 で育てる環境を整えるしくみを知り、B3 で計画を立て、B4 で育てながら記録し、B5 で自動化を考え、B6 で問題解決の流れをまとめます。',
+  apps: {
+    B1: {
+      goal: '温度・光・水・養分(肥料)を毎日調節して作物を30日間育て、グラフから「育ちをさまたげた条件」を見つけて直せるようになる。',
+      time: '45分',
+      steps: [
+        { where: 'はじめに', do: '作物・育てる場所・季節をえらび、「🌱 この条件で育てはじめる」を押そう。', hint: '迷ったら、はじめから選ばれている ミニトマト・露地(畑)・初夏 でよい。天気の番号は、先生の指示がなければ 1 のままにしよう。', go: '.b1-tab[data-tab="start"]' },
+        { where: '① そだてる', do: '天気予報と「今日の環境の予想」を見て、温度・光・水やり・肥料・見回りをえらび「次の日へ ▶」で30日目まで進めよう。', hint: '▼の予想が、しま模様の「ちょうどよい範囲」に入るようにえらんでみよう。調子が悪くなったら「◀ 1日もどす」でやり直せます。', go: '.b1-tab[data-tab="grow"]' },
+        { where: '② 結果・原因さがし', do: 'グラフで、緑の帯から外れた日を数えて「原因さがし」の問題に答え、ヒントを読もう。', hint: '帯より上なら「多すぎ・高すぎ」、下なら「足りない・低すぎ」です。くもりや雨で光が弱いのは天気のせいで、操作では変えられません。', go: '.b1-tab[data-tab="result"]' },
+        { where: '② 結果・原因さがし', do: '「🔁 同じ条件で再挑戦」で、原因の条件を直してもう一度育て、◎か○をめざそう。', hint: '1回目とくらべて、何を変えたら結果がどう変わったかをメモしておくと、振り返りに書けます。' },
+        { where: '③ くらべる', do: '「ためしてみよう」の組み合わせを1つえらび、「🌱🌱 30日間育ててくらべる」でAとBのちがいを見よう。', hint: 'AとBで変えるのは条件1つだけです(条件制御)。差が小さいときは、天気の番号や場所を変えてみよう。', level: 'advanced', go: '.b1-tab[data-tab="compare"]' },
+        { where: '振り返り', do: '組・番号・名前と、質問の答えを、グラフや記録の数字を使って書こう。', hint: '3番は「③ くらべる」をやった人が書きます。やっていない人は、②でもう一度育てたときのちがいを書いてもよいでしょう。', reflect: true, go: '.b1-tab[data-tab="reflect"]' },
+        { where: '振り返り', do: '「📄 書き出し(テキスト)」でファイルを作り、先生の言う場所に出そう。', hint: 'ファイルが作れないときは「📋 コピー」して、先生の言う場所にはりつけよう。' }
+      ],
+      check: [
+        { q: '作物の育ち方に影響する「育成環境」の組み合わせとして正しいのはどれ?', choices: ['色・形・大きさ・品種', '温度・光・水・養分', '値段・重さ・産地・季節'], answer: 1, explain: '作物は、温度・光・水・養分(肥料)などの育成環境によって、育ち方が大きく変わります。' },
+        { q: '土がいつもしめっていると、どんなことが起こりやすい?', choices: ['肥料やけ', '徒長', '根ぐされ'], answer: 2, explain: '水が多すぎると根が呼吸できず、根ぐされの原因になります。水やりは「土の表面がかわいてから、たっぷり」が基本です。' },
+        { q: '晴れた日の温室(ビニルハウス)で気をつけることは?', choices: ['中がとても暑くなるので、換気や遮光をする', '雨が当たるので、水やりをしない', '外より寒くなるので、暖房をつける'], answer: 0, explain: '温室は晴れた日に中がとても暑くなります。窓を開けて換気したり、遮光したりして温度を下げます。' }
+      ]
+    },
+    B2: {
+      goal: '温度・えさ・水替え・数などを調節して生き物を30日間育て、食欲・動き・体の色などの様子から状態を読み取り、世話を改善できるようになる。',
+      time: '60分',
+      steps: [
+        { where: 'はじめに', do: '育てる生き物を1つえらぼう。', hint: '水産生物ならメダカ、陸の動物ならニワトリから始めると、数値の見方がわかりやすいです。', go: '.b2-nav [data-tab="home"]' },
+        { where: '① 飼育シミュレーション', do: '「💡 ヒント」と「はかってみよう」を見て、最初の環境の見直すところを直してから「1日すすめる」を押そう。', hint: '最初の環境には、見直したほうがよいところが1つあります。「目安」と書かれた範囲から外れているメーターや、設定の説明の「目安」を見てみよう。', go: '.b2-nav [data-tab="sim"]' },
+        { where: '① 飼育シミュレーション', do: '様子・グラフ・飼育日誌を見ながら、30日目まで育てよう。結果の★と「おもな原因」を読もう。', hint: '健康度が下がった日の日誌を見ると、原因の手がかりがあります。「7日すすめる」は、環境が安定してから使おう。' },
+        { where: '① 飼育シミュレーション', do: 'コストの表示を見て、世話の回数を変えると、お金と手間と健康度がどう変わるかを1つためそう。', hint: '「はじめに」の「ためしてみよう(実験のアイデア)」に、ためすことの例があります。' },
+        { where: '② 診断クイズ', do: '「水の生き物の診断」か「陸の動物の診断」に挑戦し、解説を読もう。', hint: 'まちがえた問題は、問題の「様子」のどこが手がかりだったかを解説で確かめよう。', go: '.b2-nav [data-tab="quiz"]' },
+        { where: '② 診断クイズ', do: '「生態系と産業への配慮」に挑戦しよう。', hint: '外来種・放流・養殖のちがいに注目して解説を読もう。', level: 'advanced' },
+        { where: '③ 飼育計画書', do: '「シミュレーションの設定を書きこむ」を押してから、観察ポイント・衛生と安全・休日の世話などを書こう。', hint: '実際に飼うつもりで、だれが・いつ世話をするかまで決めると、計画書になります。', go: '.b2-nav [data-tab="plan"]' },
+        { where: '振り返り', do: '組・番号・名前と、質問の答えを書き、「テキストで書き出す(.txt)」で先生の言う場所に出そう。', hint: 'うまくいかなかった日と原因、どう直したかを、数字や日数を使って書こう。', reflect: true, go: '.b2-nav [data-tab="refl"]' }
+      ],
+      check: [
+        { q: '教科書では、えさを与える(給餌)・健康観察は、どの技術にあたる?', choices: ['育成環境を調節する技術', '成長を管理する技術', '特徴を改良する技術'], answer: 1, explain: '温度調節・換気・除ふんは育成環境を調節する技術、給餌や健康観察は成長を管理する技術です。' },
+        { q: 'メダカの水そうでえさを「とても多い」にすると、どうなりやすい?', choices: ['食べ残しで水が汚れ、健康度が下がる', 'よく育ち、水もきれいになる', '水温が上がり、卵がふえる'], answer: 0, explain: '食べ残しやフンが分解されると、水が汚れます。えさは数分で食べきる量にします。' },
+        { q: 'このシミュレーションで、溶存酸素(水にとけている酸素)の目安はどれ?', choices: ['1mg/L 以上', '3mg/L 以下', '5mg/L 以上'], answer: 2, explain: '「はかってみよう」のメーターでは5以上が目安です。足りないときはエアレーション・水草・数を減らすことを考えます。' }
+      ]
+    },
+    B3: {
+      goal: '作物の性質と地域・休業日をもとに、収穫したい日から逆算して栽培計画(栽培暦)を立て、実際とのずれを直せるようになる。',
+      time: '45分',
+      steps: [
+        { where: '① 作物をえらぶ', do: '作物をタップして、育て方・適期・作業の流れを読もう。', hint: '迷ったら、収穫までの日数が短いラディッシュかコマツナから始めよう。「?」を押すと、ことばの意味が出ます。', go: '.b3-tabs [data-t="crop"]' },
+        { where: '② 計画をつくる', do: '地域をえらび、「収穫したい日から逆算」で収穫したい日を入れよう。', hint: '自分の住む地域をえらびます。収穫したい日は、学校の行事など目標の日にしてみよう。', go: '.b3-tabs [data-t="plan"]' },
+        { where: '② 計画をつくる', do: '休業日(夏休みなど)を入れて、「計画の下書き」の⚠を見ながら直し、「この計画を保存する」を押そう。', hint: '⚠が出たら、理由を読んで収穫したい日や作物を変えてみよう。地域だけを変えると、作業日がどう動くかもくらべられます。' },
+        { where: '③ カレンダー', do: '保存した計画が、カレンダーのどの日に入ったかを確かめよう。', hint: '点線のわくは「観察」です。休みの日でも作物は育つので、日にちは動きません。', go: '.b3-tabs [data-t="cal"]' },
+        { where: '④ 記録と評価', do: '実際に育てているときは、作業した日を記録し、ずれの原因と改善案を書こう。', hint: '「できた!」や完了のチェックは、本当に作業した日に押します。まだ育てていない人は、ここは見るだけでよいです。', go: '.b3-tabs [data-t="eval"]' },
+        { where: '② 計画をつくる', do: '休業日を「毎年」にしたり、ちがう作物や季節の計画を足したりして、計画を見直そう。', hint: '同じ区画で同じ科の作物を続けると、連作の⚠が出ます。', level: 'advanced' },
+        { where: '振り返り', do: '組・番号・名前と、4つの質問の答えを書き、「テキストで書き出す」で先生の言う場所に出そう。', hint: '3番は、まだ育てていなければ「予想されるずれとその対策」を書こう。', reflect: true, go: '.b3-tabs [data-t="refl"]' }
+      ],
+      check: [
+        { q: '収穫したい日から「逆算」して計画を立てるとは、どういうこと?', choices: ['収穫したい日から、育つ日数をさかのぼって種まきの日を決める', '種まきの日から、育つ日数を足して収穫の日を決める', '収穫の日を、天気を見てから決める'], answer: 0, explain: '収穫したい日から育つ日数をさかのぼると、種まき・手入れの日が決まります。' },
+        { q: '同じ科の作物を同じ場所で続けて育てると起こりやすいことは?', choices: ['収穫が早まる', '連作障害(病気や生育不良)', '水やりがいらなくなる'], answer: 1, explain: '同じ科を続けて育てると連作障害が起きやすくなります。年をあけるか、土を入れかえます。' },
+        { q: '寒い地域(寒冷地)で計画を立てるとき、春の種まきの適期はどうなる?', choices: ['温暖地より早くなる', '温暖地と同じ', '温暖地よりおそくなる'], answer: 2, explain: '寒い地域ほど春の適期はおそく(秋は早く)なり、育つのにも日数がかかります。' }
+      ]
+    },
+    B4: {
+      goal: '育てている生物の育成計画を立て、観察記録(数値・写真)をつけ続け、グラフや診断をもとに管理作業を見直し、育成後に評価できるようになる。',
+      time: '初回30分・毎回10分',
+      steps: [
+        { where: 'ホーム', do: '自分の名前(または班の名前)を登録しよう。', hint: '同じタブレットを何人かで使うときは、右上の名前で自分をえらんでから使います。操作を試したいだけなら「サンプルデータを入れる」も使えます。', go: '#b4-tabs [data-v="home"]' },
+        { where: '計画', do: '育てる生物・開始日・場所・育成環境の調節方法・目標を入れて、育成計画をつくろう。', hint: '目標は「何を、どのくらい」と数字を入れると、あとで評価しやすくなります。', go: '#b4-tabs [data-v="plan"]' },
+        { where: '記録', do: '観察した日に、天気・温度・水やり・草丈などの数値とメモ・写真を記録しよう。', hint: '測り方は「📏 正しい測り方(検査ガイド)」を見よう。写真には人の顔や名札が写らないようにします。', go: '#b4-tabs [data-v="entry"]' },
+        { where: 'グラフ', do: '成長と温度のグラフを見て、「グラフから気づいたこと」を書こう。', hint: '気温が高い時期と低い時期で、成長の速さはどう変わったかを見てみよう。記録が少ないうちはサンプルで練習できます。', go: '#b4-tabs [data-v="graph"]' },
+        { where: '診断', do: '気になる様子があったら、場所→様子の順にえらび、原因と対処を調べて記録しよう。', hint: '薬を使う前に、取りのぞく・ネット・風通しなど薬を使わない方法を考えます。農薬は必ず先生と一緒に使います。', go: '#b4-tabs [data-v="diag"]' },
+        { where: '評価', do: '育て終わったら、収穫量・品質・費用・うまくいったこと・次に変える調節方法を書こう。', hint: '「記録のまとめ(自動)」の数字を使うと、根拠のある評価になります。', go: '#b4-tabs [data-v="eval"]' },
+        { where: '予測', do: '積算温度や成長曲線で、開花・収穫の時期やこれからの大きさを予測しよう。', hint: '記録が多いほど予測が安定します。「もしも〜なら?」で条件を変えてくらべてみよう。', level: 'advanced', go: '#b4-tabs [data-v="predict"]' },
+        { where: '振り返り', do: '組・番号・名前と質問の答えを書き、「📄 テキストで保存」で先生の言う場所に出そう。', hint: '3番は「予測」をやった人が書きます。週に1回は「使い方」の「すべて書き出す」でバックアップもしよう。', reflect: true, go: '#b4-tabs [data-v="refl"]' }
+      ],
+      check: [
+        { q: '草丈の正しい測り方はどれ?', choices: ['土の表面から、茎のいちばん先(生長点)まで測る', '鉢の底から、いちばん高い葉の先まで測る', '毎回ちがう株をえらんで測る'], answer: 0, explain: '毎回同じ株・同じ方法で、土の表面から生長点までをまっすぐ測ります。' },
+        { q: '管理作業を行ったら記録しておくのはなぜ?', choices: ['作業の回数を少なくするため', '作業の効果を確かめ、次の育成に生かすため', '育てる生物を毎回変えるため'], answer: 1, explain: '記録を残すと、管理作業の効果を確かめたり、次の生物育成に生かしたりできます。' },
+        { q: '気温を測る場所として正しいのはどれ?', choices: ['日なたに温度計を直接置く', '地面に温度計をねかせて置く', '日かげ・風通しのよい場所で、地面から約1.5mの高さ'], answer: 2, explain: '日光が直接当たると正しい気温になりません。日かげ・風通しのよい場所で、約1.5mの高さで測ります。' }
+      ]
+    },
+    B5: {
+      goal: '露地栽培と植物工場をくらべ、センサとプログラムで照明や水やりを自動にして、育成環境を調節する計測・制御のしくみを説明できるようになる。',
+      time: '50分',
+      steps: [
+        { where: 'はじめに', do: 'まんがと「入力(センサ)→プログラム→出力(機器)」の図を読み、ミッションを確かめよう。', hint: '基本は①〜③のミッションです。★の数は「ミッション」の表で見られます。', go: '.b5-nav [data-tab="home"]' },
+        { where: '① くらべる', do: '季節をえらんで「▶ 育ててくらべる」を押し、結果の表を見よう。仕分けクイズで6問以上正解をめざそう。', hint: '夏や冬もためすと、露地栽培の結果が大きく変わります(2つ以上の季節で★3)。', go: '.b5-nav [data-tab="cmp"]' },
+        { where: '② 照明を自動に', do: '「もし 明るさ < 50 なら LED を ON」のプログラムで「▶ 7日間 早送りで実行」を押し、7日とも光が足りるようにしよう。', hint: 'しきい値の数を変えると、LED がつく時間が変わります。夜もついているときは「かつ 時刻が〜」の条件を足してみよう。', go: '.b5-nav [data-tab="light"]' },
+        { where: '③ 水やりを自動に', do: '土の水分のしきい値を決めて「▶ 10日間 早送りで実行」を押し、連休中もしおれさせないようにしよう。', hint: 'ちょうどよい範囲は40〜80%です。グラフが範囲に入るように、しきい値を変えてためそう。「人が水やりすると?」ともくらべよう。', go: '.b5-nav [data-tab="water"]' },
+        { where: '④ 全部を自動に', do: '照明・水やり・温度のブロックを組み合わせ、電気代と収量の折り合いをつけて点数50以上をめざそう。', hint: '温度を上げすぎると電気代がかかります。レーダーチャートで、どの観点が低いかを見てみよう。', level: 'advanced', go: '.b5-nav [data-tab="all"]' },
+        { where: '⑤ スマート農業', do: '4つの棚のデータから、異常のある棚と対策を見つけよう。', hint: '異常があるのは1つの棚だけです。温度・土の水分・光のグラフで、ほかの3つとちがう動きをしている線をさがそう。', level: 'advanced', go: '.b5-nav [data-tab="smart"]' },
+        { where: '振り返り', do: '組・番号・名前と、質問の答えを結果の数字を使って書き、「テキストで書き出す(.txt)」で先生の言う場所に出そう。', hint: '3番・4番は④をやった人向けです。③までの人は、②・③で電気代や水の量をどう考えたかを書こう。', reflect: true, go: '.b5-nav [data-tab="refl"]' }
+      ],
+      check: [
+        { q: 'センサで測り、プログラムで判断して、機器を動かすしくみを何という?', choices: ['品種改良', '計測・制御', '露地栽培'], answer: 1, explain: 'センサ(入力)で測り、プログラムで判断し、LEDやポンプ(出力)を動かすしくみを計測・制御といいます。' },
+        { q: '「もし 明るさ < 50 なら LED を ON、でなければ OFF」のとき、明るさが70ならLEDは?', choices: ['ON になる', 'ON と OFF をくり返す', 'OFF になる'], answer: 2, explain: '70は50より小さくないので、条件が成り立たず「でなければ」の OFF になります。' },
+        { q: '水やりの自動化で、土の水分が90%より多い状態が続くと?', choices: ['根が酸素不足になって傷む', 'よく育ち、電気代も下がる', 'しおれて葉がかれる'], answer: 0, explain: '水分が多すぎると根が酸素不足になって傷みます。この教材では40〜80%がちょうどよい範囲です。' }
+      ]
+    },
+    B6: {
+      goal: '身の回りから生物育成の技術に関わる問題を見つけて課題を設定し、育てた結果を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
+      time: '50分',
+      steps: [
+        { where: 'はじめに', do: '問題と課題のちがいと、4つの観点(社会・安全・環境・経済)を読もう。', hint: '問題は「こまっていること」、課題は「何を、どのようにするか」を決めたものです。', go: '.b6-nav [data-tab="intro"]' },
+        { where: '① 問題の発見', do: '「こうだったらいいのに」「不便だな」を付箋に3枚以上書き、観点のアイコンを付けて「＋ 付箋をはる」を押そう。', hint: '思いつかないときは、ヒントのボタンを押すと例が入ります。家の野菜づくりや、B1〜B5で困ったことも思い出してみよう。', go: '.b6-nav [data-tab="find"]' },
+        { where: '① 問題の発見', do: '「問題? 課題?」クイズに答え、いちばん解決したい付箋に★を付けて、自分の課題を1つ決めよう。', hint: '課題には「何を」「どのように育てるか」が入っているかを確かめよう。' },
+        { where: '② 評価、改善・修正', do: '育てた作物や生き物を、品質・収量・費用・安全性・環境への配慮の5つの観点で1〜5の点をつけよう。', hint: 'まだ育てていない人は、B4の記録やB1の結果を使って評価してもよいです。「はじめの目標」も入れると、レーダーチャートでくらべられます。', go: '.b6-nav [data-tab="eval"]' },
+        { where: '② 評価、改善・修正', do: '育成の過程にチェックを入れ、よかった点と改善・修正の方法を書こう。', hint: 'レーダーチャートで、目標より低い観点を見つけ、どこを・どのように直すかを書こう。' },
+        { where: '③ 技術の最適化', do: '社会の技術を1つえらび、立場や観点の重みを変えて「いちばんよい案」が入れかわるかを試そう。', hint: '制約条件にチェックを入れると、えらべない案が出てきます。', level: 'advanced', go: '.b6-nav [data-tab="opt"]' },
+        { where: '振り返り', do: '自己評価をえらび、分かったことと、これからの問題解決に生かしたいことを書こう。', hint: '①で決めた課題を解決できたかを考えて書こう。', reflect: true, go: '.b6-nav [data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れ、「データで書き出す(.json)」か「🖨 印刷する(問題解決シート)」で、先生の言う方法で出そう。', hint: '名前を入れる場所は「記録」にあります。紙で出すときは印刷を使います。', go: '.b6-nav [data-tab="rec"]' }
+      ],
+      check: [
+        { q: '次のうち「課題」にあたるのはどれ?', choices: ['雨が続いて、ミニトマトの実がわれてしまう', '雨よけのビニルをかけて、実がわれないようにミニトマトを育てる', '野菜を育てる時間がなかなかとれない'], answer: 1, explain: '何をどのようにして解決するかを具体的に決めたものが課題です。ほかの2つは困っていること(問題)です。' },
+        { q: '教科書で、生物育成の成果を評価する観点にふくまれないものはどれ?', choices: ['品質', '環境への配慮', '流行しているか'], answer: 2, explain: '成果は、品質・収量・費用・安全性・環境への配慮などの観点で評価します。' },
+        { q: '問題解決を評価するときに大切なことは?', choices: ['収穫した結果だけを評価する', '育成計画や管理作業が適切だったかも評価する', '点数が高い観点だけを書く'], answer: 1, explain: '成果だけでなく、育成計画や管理作業が適切だったかも評価し、改善・修正につなげます。' }
+      ]
+    }
+  }
+};
 </script>
 <script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '先生用ガイド(生物育成の技術)' };</script>
 <script data-ef-js>
@@ -453,6 +656,15 @@ window.EDUIT_INFO.textbook = {
  *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
  *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -476,23 +688,29 @@ window.EDUIT_INFO.textbook = {
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
 
   // ---- 振り返りを隠す設定 ----
-  var FK_KEY = 'eduit.furikaeri';
-  function furikaeriSetting() {
-    var w = window, v = null;
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
     for (var i = 0; i < 8 && v === null; i++) {
       try {
-        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
-        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
-        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
       } catch (e) { break; }  // ちがうサイトの親は見ない
       if (w === w.parent) break;
       w = w.parent;
     }
-    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
-    return v !== 'off';
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
   }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
   var furikaeri = furikaeriSetting();
   if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -673,6 +891,11 @@ window.EDUIT_INFO.textbook = {
           var go = c.querySelector('.ef-mcard-go');
           c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
         }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
         if (!tb || !tb.groups) { grid.appendChild(c); return; }
         var gi = 0;
         tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
@@ -686,6 +909,7 @@ window.EDUIT_INFO.textbook = {
         blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
       if (opts.code && cur === 'basic') {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
@@ -826,8 +1050,226 @@ window.EDUIT_INFO.textbook = {
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
 </head>
@@ -871,6 +1313,18 @@ window.EDUIT_INFO.textbook = {
         <tr><td>iPad</td><td>「ファイル」アプリのプレビューではプログラムが動きません。校内 Web サーバーなどに置いて Safari で開くか、HTML を実行できるアプリを使ってください。</td></tr>
       </tbody>
     </table></div>
+<h3>自習で進めるとき(自習モード)</h3>
+    <p>自習・家庭学習・欠席した生徒など、先生の説明なしで進めるときのための表示です(ふだんの授業では出ません)。</p>
+    <ul>
+    <li>先生の説明なしで生徒が1人で進めるときは、<b>自習モード</b>にします。各教材の右はしに「<b>自習ガイド</b>」のボタンが出て、押すと右(スマホは下)にパネルが開きます。パネルには、その教材の<b>ねらいと時間の目安</b>、上から順にやる<b>進め方</b>(どのタブで何をするか・「ヒント」・その場所へ移る「この場所へ」・「できた」の印)、<b>たしかめ問題</b>(3〜4問。答えるとその場で正誤と解説が出る)が出ます。発展編の手順は「発展(基本が終わった人)」にまとめてあります。はじめて開いた教材ではパネルが開いた状態で出ます。</li>
+    <li>メニューでは、基本編の上に「ひとりで進めるとき(自習モード)」の進め方が出て、カードに「自習 進め方 3/6・たしかめ 2/3」のような進み具合が出ます。手順が全部できて、たしかめ問題に全部正解すると「✓ クリア」になります。</li>
+    <li><b>Classroom で配るとき</b>: <code>生徒に配る/自習用/</code> の中の、同じ名前のファイルを配ります(中身は同じで、自習ガイドが出ます)。1つずつ配るときのファイルも <code>自習用/1つずつ配るとき/</code> にあります。</li>
+    <li><b>生徒用サイトで使うとき</b>: 入口ページの「ひとりで進めるとき(自習モード)」のボタンを押すか、アドレスの最後に <code>?jishu=on</code> を付けて開くよう知らせます(例: <code>https://okarin-netizen.github.io/Edu-IT/?jishu=on</code>)。一度開くと、その端末で覚えています。<code>?jishu=off</code> を付けて開くと元にもどります。</li>
+    <li>「できた」の印とたしかめ問題の答えは、その端末のブラウザの中だけに保存されます(提出するファイルには入りません)。振り返りを隠す設定といっしょに使うと、振り返りの手順は出ません。</li>
+    <li>B3 の「できた!」は、その日の日付で作業した記録になります。実際に育てていないときは押さないよう、ガイドに書いています。</li>
+    <li>B6 の「② 評価、改善・修正」は、育てた作物や生き物があることが前提です。まだのときは B1 の結果や B4 の記録を使ってよいと書いています。</li>
+    <li>B1・B4・B5 の振り返りの問いの一部は、発展編(B1 ③ くらべる・B4 予測・B5 ④ 評価)をした人向けです。基本編だけの生徒向けの書き方をヒントで補っています。</li>
+    </ul>
     <h3>振り返りを隠すとき</h3>
     <p>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返り(振り返りのタブ・欄、メニューのカードの「振り返り」の印など)を出さないようにできます。</p>
     <ul>
@@ -998,6 +1452,7 @@ window.EDUIT_INFO.textbook = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
+      <li><b>第1.8版(2026-10-19)</b>: 自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)。B2「③ 飼育計画書」の見出しの番号を、ならんでいる順(7 費用と手間・8 命と生態系)にした。B4「使い方」の表示の設定の説明を、いまの上のバー(ふりがな・文字 中)に合わせた。</li>
       <li><b>第1.7版(2026-10-18)</b>: ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)。メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「B1 環境」〜「B6 ノート」の切りかえは教材を開いたときだけ出す。B6 問題解決ノートを追加した(4分野で同じ形の教材。基本編: ① 問題の発見・② 評価、改善・修正、発展編: ③ 技術の最適化。問題解決シートとして印刷できる)。メニュー・上のバー・使い方・このガイド・振り返り一覧を B6 に対応させた。</li>
       <li><b>第1.6版(2026-10-18)</b>: B5 植物工場の自動化を追加した(基本編: ① くらべる・② 照明を自動に・③ 水やりを自動に、発展編: ④ 全部を自動に・⑤ スマート農業)。メニュー・上のバー・使い方・このガイド・振り返り一覧を B5 に対応させた。</li>
       <li><b>第1.5版(2026-10-17)</b>: 振り返りを隠す設定(先生用)に対応。文字の大きさの「A−」「A＋」を「文字 中」の1つのボタンにまとめ(押すたびに 小 → 中 → 大 → 特大)、「ふりがな」とともに4分野で同じ形にした。スマホでは上のバーを2行にして、教材の名前が見えるようにした。</li>

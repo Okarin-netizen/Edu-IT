@@ -7,7 +7,7 @@
 |---|---|
 | `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
-| `eduit-frame.js`  | フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
+| `eduit-frame.js`  | 自習モードの「自習ガイド」(下の「自習モード」)、フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
 | `mondai-note/` | 4分野で同じ教材「問題解決ノート」の本体(`mondai-note.js` 画面と計算・`mondai-note-data.js` 分野ごとの例と観点・`mondai-note.css` 見た目・`mondai-note.test.js` テスト)。下の「問題解決ノート」 |
 
 分野ごとの版と更新履歴は、各分野の `eduit-info.js`(`window.EDUIT_INFO`)に書きます。
@@ -60,6 +60,19 @@
 - 振り返りのタブ・欄・カードの印などには **`data-ef-reflect`** を付けます。隠す設定のとき `eduit-frame.css` が出さなくします。
 - 振り返りを書かないと先へ進めない・前に開いていたタブが振り返り、のように JS で決めているところは `EduitFrame.furikaeri` を見て、隠すときは振り返りをとばします。
 - `クラスルーム配布/まとめる.py` は、生徒に配るファイルの `<head>` のすぐあとに `window.EDUIT_FURIKAERI = 'off'` を入れた版を `生徒に配る/振り返りなし/` に作ります。
+
+## 自習モード(自習ガイド)
+
+先生の説明なしで1人で進めるときのための表示です(既定は切)。決め方は振り返りと同じで、アドレスの `?jishu=on|off`(localStorage `eduit.jishu` に覚える)→ `window.EDUIT_JISHU = 'on'` → localStorage。入っているときは `<html data-ef-jishu="on">`、`EduitFrame.jishu = true` になります。
+
+- アプリ: `eduit-frame.js` が、アプリ名(`EDUIT_INFO.app.name` の先頭の「A3」など)の記号で `EDUIT_INFO.jishu.apps[記号]` を探し、あれば右はしに「自習ガイド」のボタン(`.ef-jishu-fab`)とパネル(`.ef-jishu`。スマホは下から出る)を出す。まわりを暗くしないので、教材を操作しながら読める。はじめて開いた教材ではパネルを開いておく。
+- 1つのページの中でアプリを切りかえる教材集(C)は、開いたときに `EduitFrame.jishuApp('C2', 'C2 電気回路ラボ')`、メニューなどにもどったら `EduitFrame.jishuApp(null)` を呼ぶ。
+- メニュー: `EduitFrame.levels` に `code` を渡していれば、基本編の上に進め方の説明、カードに「自習 進め方 3/6・たしかめ 2/3」(全部できたら「✓ クリア」)を出す。
+- データ(各分野の `eduit-info.js` の `window.EDUIT_INFO.jishu = { lead, apps: { A1: {…}, … } }`):
+  `goal`(ねらい)・`time`(時間の目安)・`steps`(`where` 画面のタブの名前 / `do` やること / `hint` ヒント / `go` 「この場所へ」の行き先: `#` で始まれば location.hash、ほかは click する CSS セレクタ / `level: 'advanced'` 発展にまとめる / `reflect: true` 振り返りを隠す設定のとき出さない)・`check`(`q`・`choices`・`answer` 0からの正解の番号・`explain`)。
+  `where` は `levels` の `parts` と同じ番号・名前にそろえる。タブの名前やセレクタを変えたら、ここも直す。
+- できた印と答えは localStorage `eduit.jishu.v1.<記号>`(書き出すファイルには入らない)。
+- `クラスルーム配布/まとめる.py` は、`<head>` のすぐあとに `window.EDUIT_JISHU = 'on'` を入れた版を `生徒に配る/自習用/` に作る。生徒用サイトの入口ページには自習モードの切りかえボタンがある。
 
 ## 基本編・発展編のタブ(メニュー用)
 

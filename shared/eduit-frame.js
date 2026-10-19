@@ -43,6 +43,15 @@
  *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
  *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -66,23 +75,29 @@
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
 
   // ---- 振り返りを隠す設定 ----
-  var FK_KEY = 'eduit.furikaeri';
-  function furikaeriSetting() {
-    var w = window, v = null;
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
     for (var i = 0; i < 8 && v === null; i++) {
       try {
-        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
-        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
-        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
       } catch (e) { break; }  // ちがうサイトの親は見ない
       if (w === w.parent) break;
       w = w.parent;
     }
-    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
-    return v !== 'off';
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
   }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
   var furikaeri = furikaeriSetting();
   if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -263,6 +278,11 @@
           var go = c.querySelector('.ef-mcard-go');
           c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
         }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
         if (!tb || !tb.groups) { grid.appendChild(c); return; }
         var gi = 0;
         tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
@@ -276,6 +296,7 @@
         blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
       if (opts.code && cur === 'basic') {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
@@ -416,6 +437,224 @@
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

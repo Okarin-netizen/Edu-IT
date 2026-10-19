@@ -390,12 +390,14 @@ function openApp(id) {
       if (window.console) console.error(e);
     }
   }
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(id, id + ' ' + byId(id).name);  // 自習モードのとき、そのアプリの自習ガイドを出す(アプリを作ったあと)
   // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e5)のまま
   var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + id.slice(1));
   if (r && r.focus && !r.contains(document.activeElement)) { try { r.focus({ preventScroll: true }); } catch (e) {} }
 }
 function openHelp(tab) {
   setView('help');
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(null);
   showTab(tab || 's');
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
   document.title = '使い方 - エネルギー変換の技術 教材集';
@@ -408,6 +410,7 @@ function showTab(t) {
 }
 function openHome() {
   setView('home'); renderCards(); cur = null; lastView = 'home'; fromHome = false;
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(null);
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
   document.title = 'エネルギー変換の技術 教材集';
 }

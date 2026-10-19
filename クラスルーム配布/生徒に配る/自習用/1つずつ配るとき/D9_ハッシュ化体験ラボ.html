@@ -1,0 +1,2959 @@
+<!doctype html>
+<html lang="ja">
+<head><script>window.EDUIT_JISHU = 'on';</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ハッシュ化体験ラボ</title>
+  <meta name="description" content="中学校技術科「情報の技術」向け。文をハッシュ化して、同じ文なら同じ値・少し変えると全体が変わる・元にもどせないといった性質を体験し、パスワードの保存や改ざんの見つけ方まで学ぶ教材。">
+  <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="author" content="技術　岡田">
+  <meta name="eduit-app" content="D9 ハッシュ化体験ラボ">
+  <meta name="theme-color" content="#1a5fc8">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cGF0aCBkPSJNMjQgMTJsLTQgNDBNNDAgMTJsLTQgNDBNMTMgMjRoNDBNMTEgNDBoNDAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48ZyBmaWxsPSIjZjdkNjVjIj48cmVjdCB4PSI0NCIgeT0iNDQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxIi8+PHJlY3QgeD0iNTEiIHk9IjQ0IiB3aWR0aD0iNiIgaGVpZ2h0PSI2IiByeD0iMSIgb3BhY2l0eT0iLjYiLz48cmVjdCB4PSI0NCIgeT0iNTEiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxIiBvcGFjaXR5PSIuNSIvPjxyZWN0IHg9IjUxIiB5PSI1MSIgd2lkdGg9IjYiIGhlaWdodD0iNiIgcng9IjEiLz48L2c+PC9zdmc+Cg==" type="image/svg+xml">
+  <!-- 4分野共通の枠（色・ヘッダー・ボタン・フッター・このアプリについて）。1ファイル版では中に入れる -->
+  <style id="eduit-frame-css">
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
+</style>
+  <style>
+/* ハッシュ化体験ラボ。色・文字・ボタンは共通の枠(shared/eduit-frame.css)の --ef-* を使う */
+:root {
+  --gl-ok: #1a7f4b;
+  --gl-ok-soft: #e3f4ea;
+  --gl-ng: #c0362c;
+  --gl-ng-soft: #fde7e4;
+  --gl-warn: #b45309;
+  --gl-warn-soft: #fdf0dc;
+  --gl-info-soft: #eef3fb;
+  --gl-chip-0: #dce8fb;
+  --gl-chip-1: #fbe3c8;
+  --gl-chip-2: #dff1d8;
+  --gl-chip-3: #f1dcf3;
+  --gl-nav-w: 262px;
+}
+/* 画面の枠は、ほかの情報の教材(デジタル化ラボ・情報セキュリティ体験ラボ・ネットワーク通信シミュレータ)と同じ形にそろえる */
+html { font-size: 17px; }
+html.big-text { font-size: 20px; }
+body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.75; -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; }
+h1, h2, h3 { line-height: 1.4; margin: 0 0 .5em; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+a { color: var(--ef-accent); }
+rt { font-size: .6em; font-weight: 400; }
+button, input, select, textarea { font: inherit; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: -999px; top: 0; }
+.skip-link:focus { left: 8px; z-index: 10; background: var(--ef-surface); padding: 6px 10px; }
+.ef-title { text-decoration: none; }
+.ef-btn, .ef-btn-primary { font-size: 1rem; }
+
+/* 上のバー: 表示の切りかえ・進み具合 */
+.app-header { position: sticky; top: 0; z-index: 5; flex-wrap: wrap; }
+.display-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+.overall-progress { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ef-muted); white-space: nowrap; }
+.overall-progress .bar { width: 120px; height: 10px; }
+.overall-progress .bar-fill { background: var(--gl-ok); }
+
+/* レイアウト: 左に章のメニュー、右に本文 */
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; gap: 24px; padding: 20px; }
+.chapter-nav { position: sticky; top: 72px; align-self: start; min-width: 0; }
+.chapter-nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.nav-link { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ef-text); font-size: .92rem; line-height: 1.45; }
+.nav-link:hover { background: var(--ef-surface-2); }
+.nav-link[aria-current="page"] { background: var(--ef-accent-soft); font-weight: 700; }
+.chapter-nav .num { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .8rem; border: 1.5px solid var(--ef-line); background: var(--ef-surface); }
+.chapter-nav .done .num { background: var(--gl-ok); border-color: var(--gl-ok); color: #fff; }
+.chapter-nav .nav-group { font-size: .8rem; color: var(--ef-muted); margin: 14px 10px 4px; letter-spacing: .05em; }
+main { min-width: 0; }
+#view { outline: none; }
+.app-footer { text-align: center; font-size: .85rem; color: var(--ef-muted); padding: 24px 16px 40px; }
+.app-note { margin: 0 0 8px; }
+
+.module-head { margin-bottom: 18px; }
+.module-head .meta { color: var(--ef-muted); font-size: .9rem; margin: 0 0 4px; }
+.module-head p.meta:not(:first-child) { font-size: 1rem; }
+.module-head .author { margin-top: 6px; }
+.sec-title { margin: 0 0 6px; font-size: 1.6rem; line-height: 1.4; text-wrap: balance; }
+.sec-body { display: grid; gap: 18px; }
+.lead { margin: 0; font-size: 1rem; max-width: 50em; }
+.muted { color: var(--ef-muted); font-size: .9rem; margin: 0; }
+.small-title { margin: 8px 0 4px; font-weight: 700; font-size: .95rem; }
+
+/* カード(ほかの教材の .card と同じ) */
+.panel, .card { background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 20px 22px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--ef-shadow); }
+.sec-body > .card, .sec-body > section { margin: 0; }
+.panel-title, .card > h2 { margin: 0; font-size: 1.3rem; }
+.panel p, .card p { margin: 0; }
+.card ol, .card ul { margin: 0; padding-left: 1.4em; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.row, .btn-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 14px 18px; box-shadow: var(--ef-shadow); }
+.ctl { display: grid; gap: 4px; min-width: 0; max-width: 100%; }
+select.input { width: 100%; text-overflow: ellipsis; }
+.ctl-label { font-size: .875rem; font-weight: 700; color: var(--ef-muted); }
+.input { border: 1.5px solid var(--ef-line); border-radius: 8px; padding: 8px 10px; background: var(--ef-surface); color: var(--ef-text); min-height: 44px; max-width: 100%; }
+textarea.input { width: 100%; resize: vertical; }
+input[type="text"].input { flex: 1 1 260px; }
+.range { display: flex; align-items: center; gap: 10px; }
+.range input { width: 180px; accent-color: var(--ef-accent); }
+.range output { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 6.5em; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+
+/* 本文のボタン: ほかの教材の .btn(青でぬる)と .btn.secondary(青のわく)と同じ見た目 */
+#view .ef-btn, #view .ef-btn-primary { font: inherit; font-size: .95rem; font-weight: 700; border-radius: 10px; min-height: 44px; padding: 8px 16px; border: 1.5px solid var(--ef-accent); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; line-height: 1.45; }
+#view .ef-btn { background: transparent; color: var(--ef-accent); }
+#view .ef-btn-primary { background: var(--ef-accent); color: var(--ef-accent-ink); }
+#view .ef-btn:hover:not(:disabled) { background: var(--ef-accent-soft); }
+#view .ef-btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+#view .ef-btn[aria-pressed="true"] { background: var(--ef-accent); color: var(--ef-accent-ink); }
+#view .ef-btn:disabled, #view .ef-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+#view .ef-btn.star { background: var(--ef-accent-soft); }
+#view .judge .ef-btn { min-height: 38px; padding: 4px 12px; }
+
+/* はじめに */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.flow-box { flex: 1 1 180px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 12px 14px; display: grid; gap: 2px; }
+.flow-box b { color: var(--ef-accent); font-size: 1.05rem; }
+.flow-box span { font-size: .92rem; }
+.flow-box.accent { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.flow-arrow { align-self: center; font-size: 1.4rem; color: var(--ef-muted); }
+.teacher { background: var(--ef-surface-2); border: 1px dashed var(--ef-line); border-radius: var(--ef-radius); padding: 10px 16px; }
+.teacher summary { font-weight: 700; cursor: pointer; }
+.teacher ul { margin: 8px 0 0; padding-left: 1.2em; font-size: .92rem; }
+
+/* ポイント・結果 */
+.point { border-left: 5px solid var(--ef-accent); background: var(--ef-accent-soft); border-radius: 8px; padding: 12px 16px; }
+.point-title { margin: 0 0 2px; font-weight: 700; font-size: .9rem; color: var(--ef-accent); }
+.point p, .point ul { margin: 4px 0 0; }
+.point ul { padding-left: 1.2em; }
+.result { border-radius: var(--ef-radius-s); padding: 10px 14px; font-weight: 600; }
+.result.ok { background: var(--gl-ok-soft); color: #11552f; }
+.result.ng { background: var(--gl-ng-soft); color: #8a1f17; }
+.result.warn { background: var(--gl-warn-soft); color: #7a3a06; }
+.result.info { background: var(--gl-info-soft); color: #173f7a; }
+.badge { display: inline-block; flex: none; padding: 1px 8px; margin-right: 6px; border-radius: 999px; font-size: .875rem; font-weight: 700; white-space: nowrap; }
+.badge.gray { background: var(--ef-surface-2); border: 1px solid var(--ef-line); color: var(--ef-muted); }
+.badge.orange { background: var(--gl-warn-soft); color: #7a3a06; border: 1px solid #f0c48a; }
+
+/* 選ぶボタン・クイズ・バー */
+.choices, .quiz-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.quiz-opts { grid-template-columns: 1fr; }
+.choice { min-height: 48px; padding: 8px 14px; border: 2px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface); color: var(--ef-text); font-weight: 600; text-align: left; cursor: pointer; }
+.choice:hover:not(:disabled) { border-color: var(--ef-accent); }
+.choice:disabled { cursor: default; }
+.choice.is-picked { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+.choice.right { border-color: var(--gl-ok); background: var(--gl-ok-soft); }
+.choice.wrong { border-color: var(--gl-ng); background: var(--gl-ng-soft); }
+.num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar { display: block; height: 14px; background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 999px; overflow: hidden; min-width: 60px; }
+.bar-fill { display: block; height: 100%; background: var(--ef-accent); border-radius: 999px; transition: width .2s; }
+@media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
+
+.refl { display: grid; gap: 4px; }
+
+.pager { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 8px; }
+.pager .ef-btn, .pager .ef-btn-primary { white-space: normal; text-align: center; }
+
+@media (max-width: 860px) {
+  html { font-size: 16px; }
+  html.big-text { font-size: 18px; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; gap: 12px; }
+  .chapter-nav { position: static; }
+  .chapter-nav ol { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chapter-nav .nav-group { display: none; }
+  .nav-link { padding: 6px 8px; }
+  .overall-progress .bar { width: 70px; }
+  .display-toggles { order: 3; }
+  .sec-title { font-size: 1.35rem; }
+  .range input { width: 140px; }
+}
+
+/* 小さな部品 */
+.hint { margin: 0; font-weight: 700; color: var(--ef-accent); }
+.ef-btn.star { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+.export-note { margin: 0; font-weight: 700; display: grid; gap: 6px; }
+.export-note.good { color: var(--gl-ok); }
+.export-note.warn { color: var(--gl-ng); }
+/* はじめに: ステップのカード(ほかの教材のモジュールのカードと同じ) */
+.module-group h2 { margin: 6px 0 12px; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.module-card { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ef-text); background: #fcfcfb; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 16px; box-shadow: var(--ef-shadow); }
+.module-card:hover { border-color: var(--ef-accent); }
+.mc-num { font-size: .85rem; color: var(--ef-muted); }
+.mc-title { font-weight: 700; font-size: 1.05rem; }
+.mc-desc { font-size: .9rem; color: var(--ef-muted); flex: 1; }
+.module-card .mc-state { color: var(--ef-muted); }
+.module-card .mc-state.is-done { color: var(--gl-ok); }
+.lesson-plan { background: var(--ef-surface-2); border-radius: 10px; padding: 12px 16px; }
+.lesson-plan ul { padding-left: 1.2em; }
+.home-start { margin-top: 4px; }
+
+/* ふりかえり・記録 */
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 700; font-size: .92rem; }
+.field .input { width: 100%; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.table-wrap { overflow-x: auto; }
+table.data { border-collapse: collapse; width: 100%; font-size: .92rem; }
+table.data th, table.data td { border-bottom: 1px solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.data th { color: var(--ef-muted); }
+.refl-list { list-style: none; padding: 0 !important; display: grid; gap: 6px; }
+.reset-card { border-color: #e6c3bf; }
+#view .reset-btn { color: var(--gl-ng); border-color: var(--gl-ng); }
+#view .reset-btn:hover { background: var(--gl-ng-soft); }
+.reset-confirm { background: var(--gl-ng-soft); border-left: 5px solid var(--gl-ng); border-radius: 8px; padding: 12px 16px; display: grid; gap: 8px; }
+#view .ef-btn-primary.danger { background: var(--gl-ng); border-color: var(--gl-ng); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-text); color: #fff; padding: 10px 18px; border-radius: 99px; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+/* ---- ハッシュ化体験ラボだけの部品 ---- */
+#view .ef-btn.small { min-height: 38px; padding: 4px 12px; font-size: .9rem; }
+#view .ef-btn.is-on, #view .ef-btn.is-on:hover:not(:disabled), #view .ef-btn[aria-pressed="true"]:hover:not(:disabled) { background: var(--ef-accent); color: var(--ef-accent-ink); filter: brightness(1.08); }
+#view .ef-btn.is-on { filter: none; }
+.badge.ok { background: var(--gl-ok); color: #fff; }
+/* ハッシュ値(16進数) */
+.hex { font-family: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; font-size: 1.02rem; letter-spacing: .04em; background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-radius: 8px; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 2px 10px; overflow-wrap: anywhere; line-height: 1.6; }
+.hex.small { display: inline; font-size: .88rem; padding: 1px 6px; letter-spacing: 0; }
+.hex mark { background: #ffe066; color: #5c3b00; border-radius: 2px; }
+.hex-g { white-space: nowrap; }
+.hex-mini { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85rem; overflow-wrap: anywhere; }
+.hash-out { display: grid; gap: 8px; padding-top: 4px; border-top: 1px dashed var(--ef-line); }
+.quote { font-weight: 700; color: var(--ef-accent); }
+.pattern { display: inline-grid; grid-template-columns: repeat(8, 16px); grid-auto-rows: 16px; gap: 2px; padding: 4px; background: #fff; border: 1px solid var(--ef-line); border-radius: 6px; flex: none; }
+.pattern.small { grid-template-columns: repeat(8, 10px); grid-auto-rows: 10px; gap: 1px; }
+.pattern span { border-radius: 2px; }
+td.cut { overflow-wrap: anywhere; }
+/* チャレンジ */
+.mission { border: 2px dashed var(--ef-accent); border-radius: var(--ef-radius); padding: 10px 16px; background: var(--ef-surface); display: grid; gap: 4px; }
+.mission.is-done { border-style: solid; border-color: var(--gl-ok); background: var(--gl-ok-soft); }
+.mission-label { margin: 0; font-weight: 700; }
+.mission p { margin: 0; }
+/* 2つをくらべる */
+.pair-out, .compare-real { display: grid; gap: 8px; }
+.pair-row, .db-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pair-row .hex, .db-row .hex { flex: 1 1 420px; min-width: 0; }
+.diff-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 4px 0; }
+.diff-bar .bar { flex: 0 1 260px; }
+.result p { margin: 0; }
+.result p + p { margin-top: 4px; }
+/* 手作りハッシュ */
+.toy-box { background: var(--ef-surface-2); border-radius: var(--ef-radius-s); padding: 10px 12px; display: grid; gap: 6px; min-width: 0; }
+.toy-chars { display: flex; flex-wrap: wrap; gap: 6px; }
+.toy-ch { display: inline-grid; justify-items: center; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: 6px; padding: 2px 8px; min-width: 3.4em; }
+.toy-ch b { font-size: 1.2rem; line-height: 1.3; }
+.toy-ch small { font-size: .8rem; color: var(--ef-muted); font-variant-numeric: tabular-nums; }
+.toy-sum { margin: 0; font-variant-numeric: tabular-nums; }
+.toy-val { font-size: 1.4rem; color: var(--ef-accent); }
+/* もとにもどせる？ */
+.try-box { background: var(--ef-surface-2); border-radius: var(--ef-radius-s); padding: 12px 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+input.input.pin { flex: 0 0 6em; width: 6em; font-size: 1.3rem; text-align: center; letter-spacing: .2em; font-variant-numeric: tabular-nums; }
+.try-list { list-style: none; margin: 0; padding: 0 !important; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.ng-text { color: var(--gl-ng); font-weight: 700; }
+.ok-text { color: var(--gl-ok); font-weight: 700; }
+.scan { display: grid; gap: 6px; }
+.scan p { margin: 0; }
+.scan-n { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.stat { background: var(--ef-surface-2); border-radius: var(--ef-radius-s); padding: 10px 14px; display: grid; gap: 2px; }
+.stat > span { font-size: .875rem; font-weight: 700; color: var(--ef-muted); }
+.stat b { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.stat.bad b { color: var(--gl-ng); }
+.stat.good b { color: var(--gl-ok); }
+table.data.compact { max-width: 640px; }
+/* パスワード */
+.user-btn { font: inherit; font-weight: 700; min-height: 40px; min-width: 6em; padding: 4px 12px; border: 2px solid var(--ef-line); border-radius: 8px; background: var(--ef-surface); color: var(--ef-text); cursor: pointer; text-align: left; }
+.user-btn:hover { border-color: var(--ef-accent); }
+.user-btn[aria-pressed="true"] { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+table.users tr.is-cracked td { background: var(--gl-ng-soft); }
+table.users td { vertical-align: middle; }
+.login-res { display: grid; gap: 8px; }
+/* 改ざん */
+.copies { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+.copy { align-content: start; }
+.doc { margin: 0; white-space: pre-wrap; font-family: var(--ef-font); font-size: .92rem; background: #fff; border: 1px solid var(--ef-line); border-radius: 8px; padding: 8px 12px; line-height: 1.6; }
+.copy .hex { font-size: .9rem; }
+.judge { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.judge-res { font-weight: 700; font-size: .92rem; margin: 0; }
+.judge-res.ok { color: var(--gl-ok); }
+.judge-res.ng { color: var(--gl-ng); }
+@media (max-width: 860px) {
+  .hex { font-size: .92rem; }
+  .pattern { grid-template-columns: repeat(8, 12px); grid-auto-rows: 12px; }
+}
+
+/* スマホ: 教材の上のバーは固定せず、左のメニュー(ページのタブ)を1行にして横にスクロールし、上に固定する。
+   教材の名前とページの名前は折り返さない(入りきらない道具は次の行へ)。下へ読み進めるとメニューが隠れ、上へ戻すと出る(data-ef-autohide・shared/eduit-frame.js) */
+@media (max-width: 640px) {
+  .app-header { position: static; padding: 8px 12px; gap: 8px; }
+  .app-header .brand { flex: 0 0 auto; font-size: 1rem; white-space: nowrap; max-width: 100%; overflow: hidden; }
+  .app-header .ef-tools { margin-left: auto; }
+  main h1, .hero h1 { font-size: 1.35rem; }
+  .chapter-nav { position: sticky; top: 0; z-index: 4; max-height: none; overflow: visible; padding: 6px 0; background: var(--ef-bg); box-shadow: -16px 0 0 var(--ef-bg), 16px 0 0 var(--ef-bg); border-bottom: 1px solid var(--border); }
+  .chapter-nav ol { position: relative; display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; padding-bottom: 0; scrollbar-width: none; }
+  .chapter-nav ol::-webkit-scrollbar { display: none; }
+  .chapter-nav li { flex: none; }
+  .chapter-nav .nav-group { display: none; }
+  .chapter-nav a, .chapter-nav span.disabled { white-space: nowrap; min-height: 40px; padding: 5px 10px; border: 1px solid var(--border); }
+  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
+}
+
+</style>
+  <script id="eduit-info">
+// 情報の技術(D)の版・更新履歴・この分野だけの安全の説明(4分野共通の枠 shared/eduit-frame.js が読む)
+// アプリの名前は、各ページの <meta name="eduit-app" content="…"> から取る(なければ教材集の名前)。
+// 版を上げたら: version・updated と history の先頭を書きかえ、各教材と教材集を作り直す(kyozai-shu/README.md)。
+(function () {
+  var meta = document.querySelector('meta[name="eduit-app"]');
+  window.EDUIT_INFO = {
+    domain: 'D',
+    domainName: '情報の技術',
+    suite: '情報の技術 教材集',
+    version: '2.1',
+    updated: '2026-10-19',
+    app: meta && meta.content ? { name: meta.content } : undefined,
+    safety: [
+      '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
+      'フィッシングのメールやページ、SNS投稿チェックの写真は、学習のために作った模型です。会社名・アドレス・地名・学校名はすべて架空で、リンクやボタンを押してもどこにも移動しません。',
+      'デジタル化ラボで読み込んだ写真や録音した声は、その画面の中だけで使い、保存も送信もしません。マイクは「3秒録音する」を押したときだけ使い、録音が終わると止めます。',
+      'ネットワーク通信シミュレータは、ブラウザの中の模型のネットワークです。本物のネットワークにはつながりません。サイト名・IPアドレスは説明用の架空のものです。',
+      '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
+    ],
+    history: [
+      { version: '2.1', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)'] },
+      { version: '2.0', date: '2026-10-18', items: [
+        'ふりがなは、はじめはなし(オフ)のまま。4分野で同じにした',
+        'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューの上のバーに「使い方」を足した',
+        'D11 問題解決ノートを足した(4分野で同じ形の教材。教科書 4編2章 2・5、3章 2・5、4章 1): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める',
+        'D11: ② 作ったコンテンツや計測・制御システムを、機能・使いやすさ・安全性・他者の権利・費用・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く',
+        'D11: ③(発展)スマートフォンのロック・車の運転・動画の配信で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(情報の技術の最適化)。ノートは問題解決シートとして印刷できる',
+        'メニューのカードは11枚になった(D11 は基本編と発展編の両方に出る)'
+      ] },
+      { version: '1.9', date: '2026-10-18', items: [
+        'D10 火星探査ロボット・シミュレータを足した(教科書の統合的な問題解決「未知の場所への調査ロボットを開発しよう」と、計測・制御のプログラミング)。上から見た火星のフィールドで、距離センサ・色センサと左右のモーターを付けたロボットを設計し、計測・制御シミュレータ(D7)と同じブロックのプログラムで動かす。① まっすぐ走って止まる・② 岩の前で止まる・よける・③ 迷路のような谷を探査する(基本編)、④ 色センサで線をたどる・⑤ 自由なコースで記録に挑戦(発展編)、レーダーチャートの評価と振り返り',
+        'メニューのカードは10枚になった(D10 は基本編と発展編の両方に出る)'
+      ] },
+      { version: '1.8', date: '2026-10-17', items: [
+        '振り返りを隠す設定(先生用)に対応',
+        'アプリの中のタブの帯は、下へ読み進めると上へ隠れ、少し上へ戻すと出てくるようにした。スマホではタブを1行にして横にスクロールし、タブの名前が2段・3段に折り返さないようにした。教材の名前と大きな見出しもスマホで1行に入るようにした',
+        '端末がダークモードのとき画面が黒くなっていたのをやめ、ほかの分野と同じ明るい画面にした',
+        '4分野で上のバーの「ふりがな」「文字 中」(文字の大きさ)のボタンを同じ形にした(ON の「ふりがな」は色がつき ✓ が出る。「文字」は押すたびに大きさが変わる)。「大きな文字」のボタンは「文字 中」(押すと「文字 大」)にした',
+        'スマホで使いやすくした: メニューの名前を切らずに出し、上のバーのボタンを押しやすい大きさにした',
+        '答えをしぼりこめないようにした: 選択肢の中で正解だけが長いことが多かったクイズ(D4・D8・D9)の選択肢の長さをそろえた。D3 の2進数・IPアドレス・台数のドリル、D1 のドリルで、選択肢の形や大きさの順から答えがわかったのを直した。D2 の手計算くらべは1+…+N の N を毎回変える。D8 のもっともらしいまちがいは、5つの文すべてを本当かまちがいか判定する(「学習データと同じ・新しい文」は判定してから出る)'
+      ] },
+      { version: '1.7', date: '2026-10-16', items: [
+        '9つの教材に D1〜D9 の記号を付けました。番号の順が、おすすめの順番です。メニューのカード、上のバーの教材の切りかえ、教材の名前に記号が出ます。',
+        'メニューのカードと上のバーの形を、4つの分野で同じにしました。上のバーの左に「D 情報の技術 教材集」、教材を開くと「◀ メニュー」と「D2 仮想CPUラボ」のような記号と名前が出ます。',
+        '「はじめての人は、ここから」の案内をやめ、基本編の上に「おすすめの順番: D1 → D2 → …」の1行を出すようにしました。',
+        'メニューの下を「記録をまとめて書き出す」「はじめからやり直す」→「先生用」の順にし、上のバーに「先生用」のボタンを付けました。教材集の名前を「情報の技術 教材集」にしました。',
+        '教材の中のページを「基本編 → 発展編」の順に並べ、番号を①②③…の続き番号にしました(例: 仮想CPUラボは ① 図解 ② 手計算くらべ ③ 仮想CPUを動かす ④ 課題。手計算くらべは課題をしなくても取り組めます)。',
+        '生成AIのしくみラボの「③ クイズとふりかえり」のクイズを、基本編の内容(もっともらしいまちがい・個人情報・使うときのルール)だけの6問にしました。'
+      ] },
+      { version: '1.6', date: '2026-10-16', items: [
+        '体験教材集のメニューを「基本編」「発展編」のタブに分けました。学習指導要領と教科書の内容から、全員が学ぶページを基本編、教科書の「発展」「コラム」にあたるページを発展編にしています。カードの「使うところ」に、その編で使うページの名前が出ます。',
+        'ネット詐欺 追体験ラボ・生成AIのしくみラボ・ハッシュ化体験ラボを体験教材集に入れ、9つの教材を1つのファイル(統一版)で使えるようにしました。記録の保存場所は変わらないので、前の記録もそのまま使えます。',
+        '「記録をまとめて書き出す」「はじめからやり直す」も9つの教材が対象になりました。',
+        '先生用ガイドの名前・章立て・見た目を4分野でそろえました(「先生用の手引き」から「先生用ガイド」に名前を変えました)。'
+      ] },
+      { version: '1.5', date: '2026-10-15', items: [
+        'ハッシュ化体験ラボを足しました(ハッシュ値の性質・総当たり・パスワードの保存・改ざんの見つけ方)。',
+        '画面の枠(ヘッダー・ボタン・カード・色)を、4つの分野(材料と加工・生物育成・エネルギー変換・情報)で共通にしました。教材の中身や記録には変わりはありません。',
+        'どの教材からも、作成者・安全と個人情報・ライセンス・更新履歴を見られるようにしました(画面の下の「安全と個人情報・ライセンス・更新履歴」)。'
+      ] },
+      { version: '1.4', date: '2026-10-15', items: [
+        '11インチのChromebook(1366×768・タッチ)で使いやすいように見た目を調整しました。',
+        '6教材のスライダーのつまみを大きくし、小さかった見出しや札の文字を大きくしました。',
+        'ネットワーク図・CPUの図解・SNS投稿の写真の文字を大きくし、仮想CPUのプログラム欄を広げました。',
+        '計測・制御シミュレータで、プログラムを下へたどっても仮想世界と実行ボタンが画面に残るようにしました。'
+      ] },
+      { version: '1.3', date: '2026-10-13', items: [
+        'レビューで「直すともっとよくなる」とした所(30件)を直しました。',
+        '教材集で、再読みこみしてもさいごに開いていたページから始まるようにしました。学習指導要領の記号は「先生へ」にまとめました。',
+        '仮想CPUラボの手計算くらべの時間の計算、計測・制御シミュレータの不合格の時刻の表示などを直しました。'
+      ] },
+      { version: '1.2', date: '2026-10-13', items: [
+        '教材集の上のバーに「ふりがな」「大きな文字」を付け、6教材にまとめてかかるようにしました。',
+        '6教材の記録を1つのファイルで出せる「記録をまとめて書き出す」を足しました。',
+        '多くの生徒がつまずく・迷う所(ヒント、クイズのやり直し、ブロックを入れる場所など)を直しました。'
+      ] },
+      { version: '1.1', date: '2026-10-13', items: [
+        'ふりかえりを書いている途中で自動で保存するようにしました。',
+        'まちがった答えが合格になる判定や、全角で入れた答えの判定を直しました。',
+        '双方向コンテンツ制作スタジオで作品が消える問題を直しました。'
+      ] },
+      { version: '1.0', date: '', items: [
+        '6つの体験教材(デジタル化ラボ・仮想CPUラボ・ネットワーク通信シミュレータ・情報セキュリティ体験ラボ・双方向コンテンツ制作スタジオ・計測・制御シミュレータ)と、メニュー付きの教材集を作りました。'
+      ] }
+    ]
+  };
+})();
+
+/* 基本編・発展編(学習指導要領 技術分野「D 情報の技術」と教科書の内容から分けたもの)
+ * 体験教材集のメニュー(kyozai-shu/src/shell.js)が EduitFrame.levels で使う。id は kyozai-shu/data/materials.json の id。
+ * parts は生徒の画面のページの名前。curr・why は先生用の一覧(クラスルーム配布/先生用/)だけに出す。
+ */
+window.EDUIT_INFO.levels = {
+  basic: {
+    title: '基本編',
+    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順(記号の番号の順)にならんでいます。授業の進め方に合わせて、どこから始めてもかまいません。',
+    items: [
+      { id: 'digitization-lab', parts: ['① 画像のデジタル化', '② 音のデジタル化', '③ 2進数と文字コード', '④ データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
+      { id: 'virtual-cpu', parts: ['① 図解: 5つの装置', '② 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
+      { id: 'network-sim', parts: ['① ネットワークを組み立てる', '② Webページが届くまで', '③ 回線が切れたら？', '④ のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
+      { id: 'security-lab', parts: ['① デジタル化と情報量', '② パスワード強度ラボ', '③ 暗号ラボ', '④ フィッシング見分け', '⑤ ネットワーク通信の模擬', '⑥ SNS投稿の個人情報チェック', '⑦ デジタルタトゥー', '⑧ 著作権・利用ルールクイズ', '⑨ 判断ロールプレイ', '⑩ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'scam-lab', parts: ['① ワンクリック詐欺', '② 「当選しました」メール', '③ ウイルス付きメール', '④ にせのウイルス警告', '⑤ にせの通販サイト', '⑥ まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
+      { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
+      { id: 'measure-control-sim', parts: ['① 街灯', '② 自動ドア', '③ 信号機', '④ 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
+      { id: 'genai-lab', parts: ['① もっともらしいまちがい', '② 個人情報が出てしまう？', '③ クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' },
+      { id: 'mars-rover', parts: ['① まっすぐ走って止まる', '② 岩の前で止まる・よける', '③ 迷路のような谷を探査する', '評価・振り返り'], curr: 'D(3)ア・イ、統合的な問題解決', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容' },
+      { id: 'mondai-note', parts: ['はじめに', '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', '振り返り', '記録'], curr: 'D(2)イ・D(3)イ', why: '生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本' }
+    ]
+  },
+  advanced: {
+    title: '発展編',
+    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、しくみの中まで入って調べる内容です。先生の指示があったら取り組みましょう。',
+    items: [
+      { id: 'digitization-lab', parts: ['⑤ 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
+      { id: 'virtual-cpu', parts: ['③ 仮想CPUを動かす', '④ 課題'], curr: 'D(1)ア(発展)', why: 'レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容' },
+      { id: 'network-sim', parts: ['⑤ IPアドレス・ドリル'], curr: 'D(1)ア(発展)', why: '教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展' },
+      { id: 'security-lab', parts: ['⑪ ハッシュ体験'], curr: 'D(1)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない' },
+      { id: 'measure-control-sim', parts: ['⑤ 自由に作る(仮想マイコン)'], curr: 'D(3)イ(発展)', why: 'センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動' },
+      { id: 'genai-lab', parts: ['④ つぎの言葉あて', '⑤ 言葉のかけら(トークン)', '⑥ ミニ文章AIを動かす', '⑦ ノイズをまぜる(学習)', '⑧ ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
+      { id: 'mars-rover', parts: ['④ 色センサで線をたどる', '⑤ 自由なコースで記録に挑戦'], curr: 'D(3)イ、統合的な問題解決(発展)', why: '色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動' },
+      { id: 'hash-lab', parts: ['① ハッシュ値を作ってみよう', '② 1文字だけ変えると？', '③ 手作りハッシュの弱点', '④ もとにもどせる？', '⑤ パスワードの守り方', '⑥ 改ざんを見つける', '⑦ クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' },
+      { id: 'mondai-note', parts: ['③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)'], curr: 'D(4)ア(発展)', why: '情報の技術が、利便性・セキュリティ・回線への負荷などの折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、4章1「情報の技術の最適化」を数値で深める発展' }
+    ]
+  }
+};
+
+/* 教科書との対応(メニューのカードを教科書の章ごとに見出しで区切り、カードに「教科書 4編…」の行を出す。shared/eduit-frame.js の EduitFrame.levels が使う)
+ * g は区切り(groups の key)、ref はカードに出す教科書の編・章・節。先生用の一覧(teacher-tools/kihon-hatten)にも出る。
+ */
+window.EDUIT_INFO.textbook = {
+  groups: [
+    { key: 'know', ch: '1章', title: '生活や社会を支える技術(しくみを知る)' },
+    { key: 'solve', ch: '2章・3章', title: '技術による問題解決(つくる)' },
+    { key: 'future', ch: '4章', title: '社会の発展と技術(これからの技術)' }
+  ],
+  items: {
+    'digitization-lab': { g: 'know', ref: '4編1章 3' },
+    'virtual-cpu': { g: 'know', ref: '4編1章 2' },
+    'network-sim': { g: 'know', ref: '4編1章 4' },
+    'security-lab': { g: 'know', ref: '4編1章 5・6' },
+    'scam-lab': { g: 'know', ref: '4編1章 6' },
+    'hash-lab': { g: 'know', ref: '4編1章 5' },
+    'interactive-studio': { g: 'solve', ref: '4編2章' },
+    'measure-control-sim': { g: 'solve', ref: '4編3章' },
+    'mars-rover': { g: 'solve', ref: '4編3章・統合的な問題解決' },
+    'mondai-note': { g: 'solve', ref: '4編2章 2・5、3章 2・5、4章 1' },
+    'genai-lab': { g: 'future', ref: '4編4章 2' }
+  }
+};
+
+/* 自習ガイド(自習モードのとき、各教材の右はしに出す「ねらい・進め方・ヒント・たしかめ問題」。shared/eduit-frame.js が使う)
+ * apps の記号ごとに goal・time・steps(where・do・hint・go・level・reflect)・check(q・choices・answer・explain)。形は shared/README.md の「自習モード」。
+ * where は画面のタブ・ページの名前(levels の parts と同じ番号)にそろえる。教材のタブの名前を変えたら、ここも直す。
+ */
+window.EDUIT_INFO.jishu = {
+  lead: '情報の技術は、D1〜D3 でデジタル化・コンピュータ・ネットワークのしくみを知り、D4・D5 で安全な使い方を身につけ、D6・D7・D10 でプログラミングによる問題解決を体験し、D8 で生成AIを、D11 で問題解決の流れをまとめます。',
+  apps: {
+    D1: {
+      goal: '画像・音・文字が0と1にされるしくみ(標本化・量子化・符号化)がわかり、画像や音のデータ量を計算できるようになる。',
+      time: '90分',
+      steps: [
+        { where: '① 画像のデジタル化', do: 'ステップ1でお題の0と1から絵を描いて「答え合わせ」をしよう。ステップ2では「画素の数」と「色の表し方」のスライダーを両方動かして、データ量の変化を見よう。', hint: '1＝黒、0＝白です。表の「お題」と「今の絵」が同じになるように、1行ずつくらべてみよう。データ量は「画素の数 × 1画素のビット数」で決まります。', go: '#/image' },
+        { where: '① 画像のデジタル化', do: 'ステップ3で赤・緑・青のスライダーを動かして、お題の色を3つ以上作ろう。そのあと「確かめよう」の3問に答えよう。', hint: '黄色は赤と緑を強く、青を0に近くします。全部を強くすると白、全部0で黒になります。', go: '#/image/rgb' },
+        { where: '② 音のデジタル化', do: '2つのスライダーを動かして波の形を見よう。次に「おすすめ」のボタンで3つ以上の設定を聞きくらべて、下の問題に答えよう。', hint: 'イヤホンがないときは、音を聞かずに「残る音の高さ」と「波の形」の図を見くらべても答えられます。「鈴の音」と「はかる回数がとても少ない」を組み合わせてみよう。', go: '#/sound' },
+        { where: '③ 2進数と文字コード', do: 'ビットカードでお題の数を作り、パズルで4問正解しよう。最後に0と1の暗号を解読しよう。', hint: 'カードは右から1, 2, 4, 8…と2倍ずつです。大きいカードから順に、使えるかどうか考えよう。暗号は8けたずつ10進数にして、表で文字をさがそう。', go: '#/binary' },
+        { where: '④ データ量の計算ドリル', do: '「いろいろ」を選んで10問に挑戦し、8問以上の正解をめざそう。電卓を使ってもかまいません。', hint: '「計算のコツ・単位の決まりを見る」を開いてみよう。8でわってバイトにするのを忘れていないか、ステレオの「× 2」を入れたかを見直そう。', go: '#/drill' },
+        { where: '⑤ 圧縮のしくみ', do: '矢印の絵を手作業で「白が何個、黒が何個」と数にしてから、自動の圧縮で圧縮率をくらべよう。', hint: '同じ色が長く続く絵ほど小さくなります。色がこまかく変わる絵ではどうなるか、くらべてみよう。', go: '#/compress', level: 'advanced' },
+        { where: 'ふりかえり', do: '①〜③のいちばん下の「ふりかえり」に、なぜデータ量が増えるのかを自分の言葉で書こう。', hint: '「画素」「階調」「標本化」「量子化」の言葉を使い、「〜だから、データ量が増える」の形で書いてみよう。', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「JSONで書き出す（提出用）」を押し、できたファイルを先生の言う場所に出そう。', hint: '組と番号を入れないと書き出せません。読み込んだ写真や録音した声はファイルに入りません。', go: '#/records' }
+      ],
+      check: [
+        { q: 'デジタル化の3つの手順のうち、段階の番号を0と1の並び(2進数)にする手順はどれ？', choices: ['標本化', '量子化', '符号化'], answer: 2, explain: '一定の間かくで区切るのが標本化、決まった段階にあてはめるのが量子化、それを0と1にするのが符号化です。' },
+        { q: '8ビットで表せる数は何通り？', choices: ['256通り', '8通り', '16通り', '64通り'], answer: 0, explain: 'ビットが1つ増えるごとに表せる数は2倍になるので、2を8回かけて256通り(0〜255)です。' },
+        { q: '音のデジタル化で、量子化ビット数を大きくするとどうなる？', choices: ['音の長さが短くなり、データ量は減る', '波の高さを細かく表せ、データ量は増える', '高い音を記録できなくなる'], answer: 1, explain: '段階の数が多いほど、もとの波に近い形で表せます。そのかわり、1回の記録に使うビット数が増えます。' }
+      ]
+    },
+    D2: {
+      goal: 'コンピュータが入力・記憶・演算・制御・出力の5つの装置(機能)でできていることと、処理を自動化するよさがわかる。',
+      time: '50分',
+      steps: [
+        { where: '① 図解: 5つの装置', do: '「次へ →」を押して、3 + 5 の数がどの装置を通るかを最後まで見よう。', hint: '実線の矢印はデータの流れ、点線の矢印は制御装置からの指示です。「↻ もう一度」で何度でも見直せます。', go: '#/diagram' },
+        { where: '① 図解: 5つの装置', do: '「やってみよう: どの装置の仲間？」で、機器ごとに装置を選んで「答え合わせ」を押そう。全部正解で ✓ がつきます。', hint: 'その機器が人から受け取るのか(入力)、人に伝えるのか(出力)、ためておくのか(記憶)を考えよう。× の機器は理由を読んでから選び直そう。', go: '#/diagram' },
+        { where: '② 手計算くらべ', do: '「スタート」を押して 1 + 2 + … + N を手で計算し、答えを入れて「できた」を押そう。', hint: '時間がかかってもかまいません。まちがえたら計算を見直して、もう一度入れよう。', go: '#/auto' },
+        { where: '② 手計算くらべ', do: '「どこまでたす？」を100以上にして、プログラムとかかる時間をくらべよう。2つできるとページに ✓ がつきます。', hint: 'N を大きくしてもプログラムは1文字も変えていないことに注目しよう。人・昔のパソコン・いまのパソコンの「かかる時間」の表を見くらべよう。', go: '#/auto' },
+        { where: '③ 仮想CPUを動かす', do: 'サンプル「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し → 解読 → 実行のようすを見よう。', hint: '記憶装置の青い枠が次に取り出す番地(PC)です。マスを押すと中身の意味が出ます。', go: '#/sim', level: 'advanced' },
+        { where: '④ 課題', do: '課題1〜4(必修)のプログラムを作って、クリアしよう。', hint: '「命令表」と「プログラムの読み方」を開いてみよう。ヒントは考え方から順に出ます。', go: '#/tasks', level: 'advanced' },
+        { where: 'ふりかえり', do: '①と②のページのいちばん下にある「ふりかえり」を書いて「ふりかえりを保存」を押そう。', hint: '5つの装置の役割と、データが流れた順番を入れて書こう。②では、自動化のよさと注意することの両方を書こう。', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す（JSON）」を押し、できたファイルを先生の言う場所に出そう。', hint: '組と番号を入れないと書き出せません。', go: '#/records' }
+      ],
+      check: [
+        { q: 'CPU(中央処理装置)は、どの2つの装置をまとめたもの？', choices: ['入力装置と出力装置', '制御装置と演算装置', '記憶装置と出力装置'], answer: 1, explain: '命令を読んで指示を出す制御装置と、計算や大小くらべをする演算装置をまとめてCPUとよびます。' },
+        { q: '電源を切ってもファイルが消えない補助記憶装置はどれ？', choices: ['メモリ', 'ディスプレイ', 'SSD'], answer: 2, explain: 'メモリ(主記憶装置)は電源を切ると消えますが、SSDなどの補助記憶装置は電源を切ってもデータが残ります。' },
+        { q: '処理を自動化するとき、人がしなければならないことはどれ？', choices: ['手順を考えてプログラムにすること', '同じ計算を何度もくり返すこと', '計算のまちがいを1つずつ見つけること'], answer: 0, explain: 'コンピュータは決められた手順を速く正確にくり返しますが、手順を考えるのは人です。手順がまちがっていると、まちがった答えを速く出してしまいます。' }
+      ]
+    },
+    D3: {
+      goal: 'ネットワークでデータがパケットに分けられ、ルータに中継されて届くしくみと、暗号化(HTTPS)で情報を守るしくみがわかる。',
+      time: '60分',
+      steps: [
+        { where: '① ネットワークを組み立てる', do: '機器を置き、「🔗 線でつなぐ」で線をつなごう。「つながりを調べる」で、どのパソコン・スマホもWebサーバに届くようにしよう。', hint: '中継するのはルータだけです。パソコンやスマホは、まず家のルータにつなごう。わからなくなったら「↶ 1つもどす」か「はじめの形にもどす」を押そう。', go: '#/build' },
+        { where: '② Webページが届くまで', do: '使う機器とサイトの名前を選んで「▶ 通信スタート」を押し、①〜⑦の説明を最後まで読もう。2つの問題にも答えよう。', hint: '「⏭ 1つずつ進む」で始めると、1つごとに止まります。パケットの「番号」と「とう着」の順番を見くらべてみよう。', go: '#/flow' },
+        { where: '③ 回線が切れたら？', do: '太い線の回線を押して切り、「▶ パケットを送る」で別の道で届くか確かめよう。次に、届かなくなる切り方と、DNSサーバを止めたときもためそう。', hint: '道が1本しかないところを切るとどうなるかな。元にもどすときは「ぜんぶ直す」を押そう。', go: '#/fault' },
+        { where: '④ のぞき見と暗号化', do: 'まず HTTP のまま「ログイン（送信）」を押し、次に HTTPS に切りかえて送ろう。図の別の回線を押して、のぞき見の場所も変えてみよう。', hint: 'のぞき見している人の画面に、IDとパスワードが読めるかどうかを見くらべよう。何も見えないときは、パケットがその回線を通っていません。', go: '#/spy' },
+        { where: '⑤ IPアドレス・ドリル', do: 'ステップ1でIPアドレスを2進数で見てから、ドリル10問で8問以上の正解をめざそう。', hint: '8けたの重みは左から128・64・32・16・8・4・2・1です。1のところの重みを足すと10進数になります。', go: '#/drill', level: 'advanced' },
+        { where: 'ふりかえり', do: '①〜④のいちばん下の「ふりかえり」に、ためしたことをもとに書こう。', hint: '「どこを切ったら、どうなったか」のように、図でためしたことを入れて書こう。', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す（JSON）」を押し、できたファイルを先生の言う場所に出そう。', hint: '組と番号を入れないと書き出せません。', go: '#/records' }
+      ],
+      check: [
+        { q: 'ほかの機器あてのパケットを受け取って、次の回線へ送る(中継する)機器はどれ？', choices: ['Webサーバ', 'ルータ', 'パソコン', 'DNSサーバ'], answer: 1, explain: 'ルータはパケットの宛先を見て、次にどの回線へ送るかを決める「中継係」です。ほかの機器は中継しません。' },
+        { q: '家のパソコンと家のルータの間の1本の線が切れると、どうなる？', choices: ['ほかのルータを通って届く', 'DNSサーバが代わりに届ける', 'ほかに道がないので届かなくなる'], answer: 2, explain: '道が1本しかないところが切れると回り道がありません。大事なところは道を2本以上にしておきます。' },
+        { q: 'HTTPSで送ったとき、のぞき見している人に見えてしまうものはどれ？', choices: ['送り先のIPアドレスやデータの量', '入力したパスワード', 'Webページの文章'], answer: 0, explain: 'HTTPSでは中身が暗号化されるので読めませんが、送り先やデータの量は見えることがあります。' }
+      ]
+    },
+    D4: {
+      goal: '情報を守るしくみ(パスワード・暗号化)と、ネットでの危険への対策や情報モラルを、理由とあわせて説明できるようになる。',
+      time: '3時間ほど',
+      steps: [
+        { where: '理解度チェック', do: 'はじめに「事前テスト」を受けて、いまの力を確かめよう。', hint: '答えと解説は、事後テストが終わると見られます。わからない問題があっても大丈夫です。', go: '#/check' },
+        { where: '① デジタル化と情報量', do: 'スライダーを動かして、画質や音質とデータ量の関係を確かめよう。', hint: 'D1 デジタル化ラボをやった人は、思い出しながら短く進めてかまいません。', go: '#/digital' },
+        { where: '② パスワード強度ラボ', do: '練習用の文字を入れて、長さと文字の種類で解読時間がどう変わるかくらべよう。', hint: '本物のパスワードは入れないこと。1文字ずつ長くしたときと、記号を足したときの時間を見くらべてみよう。', go: '#/password' },
+        { where: '③ 暗号ラボ', do: 'シーザー暗号で暗号文を作り、総当たりと頻度分析で破ってみよう。', hint: '鍵(ずらす数)の候補は25通りしかないので、全部ためせます。ローマ字の日本語では A・I・O・U がよく出ることを手がかりにしよう。', go: '#/crypto' },
+        { where: '④ フィッシング見分け', do: '怪しいと思うところを押して「答え合わせ」を押し、すべての場面に挑戦しよう。⑤ ネットワーク通信の模擬で HTTP と HTTPS もくらべよう。', hint: '差出人のアドレス、リンク先のアドレス、急がせる言葉を見てみよう。', go: '#/phishing' },
+        { where: '⑥ SNS投稿の個人情報チェック', do: '写真と文章から場所や学校がわかる手がかりを探そう。⑦ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑦は「▶ 時間を進める」を押し、見た人が8人以上になってから消してみよう。', go: '#/sns' },
+        { where: '⑧ 著作権・利用ルールクイズ', do: '場面ごとに使ってよいか考えて答えよう。⑨ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
+        { where: '⑩ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで「この3つで宣言する」を押そう。そのあと理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は「復習」で、体験したステップにもどって確かめよう。', go: '#/declare' },
+        { where: '⑪ ハッシュ体験', do: '1文字だけ変えて、ハッシュ値がどう変わるかを見よう。', hint: '文の長さを変えても、ハッシュ値の長さが同じかどうかも見てみよう。', go: '#/hash', level: 'advanced' },
+        { where: 'ふりかえり', do: '各モジュールのいちばん下の「ふりかえり」に、なぜその対策で安全になるのかを書こう。', hint: '「〜だから、〜すると安全になる」の形で、理由を入れて書いてみよう。', reflect: true },
+        { where: 'ふりかえり・記録', do: 'クラス(組)と出席番号を入れて「JSONで書き出す」を押し、できたファイルを先生の言う場所に出そう。', hint: 'テストの点もファイルに入ります。パスワード強度ラボで入れた文字は入りません。', go: '#/records' }
+      ],
+      check: [
+        { q: '単語をいくつかランダムに選んでつなげたパスワード(パスフレーズ)のよいところはどれ？', choices: ['短いので、すぐに入力できる', '長いのに覚えやすく、総当たりで見つけにくい', '記号を入れなくても、どのサービスでも同じものを使える'], answer: 1, explain: 'パスワードは長いほど組み合わせが増え、総当たりで解読するのに時間がかかります。サービスごとに別のものにするのは同じです。' },
+        { q: '2段階認証(多要素認証)を使うと、どんなよいことがある？', choices: ['パスワードを人に教えても大丈夫になる', 'パスワードを決めなくてよくなる', 'パスワードが知られても、スマホなどでの確認がないとログインされない'], answer: 2, explain: 'パスワードに加えて別の方法でも本人か確かめるので、パスワードだけ知られても不正にログインされにくくなります。' },
+        { q: 'フィッシングで、だます人がいちばんねらっているものはどれ？', choices: ['パスワードや個人情報', 'パソコンの画面の明るさ', 'メールの文字の大きさ'], answer: 0, explain: '本物そっくりのメールやページで入力させ、パスワードや個人情報、お金をだまし取ろうとします。' }
+      ]
+    },
+    D5: {
+      goal: 'ネットの詐欺の手口(あわてさせる・気持ちをゆさぶる・お金や情報を求める)に気づき、「とまる・たしかめる・そうだんする」で行動できるようになる。',
+      time: '50分',
+      steps: [
+        { where: '① ワンクリック詐欺', do: '「体験をはじめる」を押し、右の「あなたの行動」から選んで、やることリストの「？」を全部うめよう。', hint: '「お客様の情報」に、名前や住所は本当に出ているかな。こまったら「💡 ヒント」を押そう。だまされても本当には何も起きません。', go: '#oneclick' },
+        { where: '② 「当選しました」メール', do: 'メールのリンクを使わずに、本物かどうかを確かめてクリアしよう。', hint: 'そもそも、このお店のプレゼントに応募したかな。メールの中ではなく、別の方法で確かめよう。', go: '#prize' },
+        { where: '③ ウイルス付きメール', do: '添付ファイルを開く前に、本当に友達からのメールか確かめてクリアしよう。', hint: '名前はだれでも名乗れます。「差出人のくわしい情報を見る」を押して、アドレスを見てみよう。', go: '#virus' },
+        { where: '④ にせのウイルス警告', do: '電話もソフトのインストールもしないで、警告の画面からぬけ出そう。', hint: 'これはパソコンの中のソフトではなく、ブラウザに出ているWebページです。画面いっぱいの表示は、キーボードの左上のキーで終わらせられます。', go: '#support' },
+        { where: '⑤ にせの通販サイト', do: '買う前に、このお店で買ってよいかを確かめてクリアしよう。', hint: 'ほかのお店の値段、お店の情報(特定商取引法に基づく表記)、お店の名前で検索したときの評判を見てみよう。', go: '#shop' },
+        { where: '⑥ まとめとふりかえり', do: 'どの詐欺にも共通する手口を読んで、ふりかえり3つを書こう。', hint: '体験した場面の「だます人の手口」を思い出して、自分ならどんな順番で行動するかを書こう。', go: '#matome', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、ファイルを先生の言う場所に出そう。', hint: 'ファイルができないときは「記録をコピーする」を押して、先生の言う場所にはりつけよう。', go: '#records' }
+      ],
+      check: [
+        { q: '動画サイトでボタンを1回押したら「登録完了・料金をはらってください」と出た。正しい考え方はどれ？', choices: ['料金の説明もなくボタンを1回押しただけでは、契約したことにならない', 'IPアドレスが出ているので、住所も知られている', 'まちがえたことを、問い合わせから伝える'], answer: 0, explain: 'IPアドレスや端末の種類からは名前や住所はわかりません。連絡も支払いもせずに画面を閉じます。' },
+        { q: 'パソコンに「ウイルスが検出されました。この番号に電話してください」と出た。どうする？', choices: ['データが消える前に電話する', '無料スキャンのソフトを入れる', 'Esc キーで全画面を終わらせ、タブを閉じて大人に伝える'], answer: 2, explain: 'Webページにはパソコンの中を調べる力はありません。電話やインストールをさせるのが、だます人のねらいです。' },
+        { q: 'ネットでお金をはらってしまったとき、家の人と相談できる「消費者ホットライン」の番号は？', choices: ['110', '188', '119'], answer: 1, explain: '188(いやや！)は、近くの消費生活センターにつながる番号です。まずは家の人や先生に話しましょう。' }
+      ]
+    },
+    D6: {
+      goal: '使う人の入力に応じて反応し、サーバーとデータをやりとりする双方向性のあるコンテンツを、作って・動かして・改善できるようになる。',
+      time: '3時間ほど',
+      steps: [
+        { where: '作品', do: '「企画・改善メモ」に、だれのどんな困りごとを解決するかを書こう。「新しく作る」から見本を1つ選ぼう。', hint: '迷ったら「アンケート集計」か「計算チャレンジ（ランキング）」から始めよう。どちらもサーバーとやりとりする見本です。', go: '#/works' },
+        { where: 'エディタ', do: '部品を置き、パレットのブロックで処理を作ろう。サーバーとのやりとり(server の命令)を1つ以上入れよう。', hint: 'ブロックとブロックのすき間を押すと、追加する場所が動きます。server の命令は、パレットの「サーバー」にあります。', go: '#/editor' },
+        { where: '実行', do: '「▶ 実行」を押して、ボタンや入力に思ったとおり反応するか確かめよう。', hint: 'ブロックを変えたら、もう一度「▶ 実行」を押そう。入力→処理→出力の順に、どこまで動いたかを見てみよう。', go: '#/run' },
+        { where: 'デバッグ', do: 'うまく動かないところは「⏭ 1つずつ実行」で動かし、変数ウォッチで値の変化を見て原因を見つけよう。', hint: '行番号を押すと、その行の前で止まります。練習には見本の「バグを直そう（デバッグ練習）」が使えます。', go: '#/debug' },
+        { where: 'サーバーのデータ', do: '友だちに使ってもらい、サーバーの箱と通信ログで集まったデータを見よう。わかった改善点は「企画・改善メモ」に書いて、エディタで直そう。', hint: 'この教材のサーバーは端末ごとの模型なので、1台の端末を回して答えてもらおう。ランキングにはニックネームを使おう。', go: '#/server' },
+        { where: 'ふりかえり・記録', do: 'ふりかえりに、双方向性とサーバーとのやりとりをどう工夫したかを書こう。', hint: '使う人がしたこと(入力)に、作品がどう反応したか(出力)、サーバーに何を保存したかを入れて書こう。', go: '#/records', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す（JSON）」を押し、ファイルを先生の言う場所に出そう。', hint: '作品タブの「ファイルに保存（.json）」は作品を別の端末へ移すためのものです。提出するのは「記録を書き出す（JSON）」のファイルです。', go: '#/records' }
+      ],
+      check: [
+        { q: '双方向性のあるコンテンツの「双方向性」とは何？', choices: ['使う人の働きかけ(入力)に応じて、応答(出力)すること', '文字と画像の両方を使うこと', '2台の端末で同じ画面を表示すること'], answer: 0, explain: '使用者の入力に応じて応答する機能を双方向性といいます。ネットワークを通してサーバーとやりとりするものも多くあります。' },
+        { q: '作品が server.save などでサーバーにお願いを送るとき、作品(を動かす端末)は何とよばれる？', choices: ['ルータ', 'サーバー', 'クライアント'], answer: 2, explain: 'サービスを受け取る側がクライアントです。クライアントがお願い(リクエスト)を送り、サーバーが返事(レスポンス)を返します。' },
+        { q: '「ボタンが押されたとき」のブロックの中は、いつ実行される？', choices: ['プログラムの最初に1回だけ', 'ボタンが押されるたび', '上から順に、いつもくり返し'], answer: 1, explain: 'ボタンが押されることをイベントといい、その中の処理はイベントが起きるたびに実行されます。' }
+      ]
+    },
+    D7: {
+      goal: 'センサで計測した値をプログラムで判断して、LED・モーター・ランプを自動で制御できるようになる。テストで確かめて直す流れも身につける。',
+      time: '3時間',
+      steps: [
+        { where: 'はじめに', do: '「センサ → インタフェース → マイコン → インタフェース → アクチュエータ」の図を読んでから、「場面をえらぶ」の場面①を開こう。', hint: '場面は①から順に進めます。カードの「目安」の時間を見て、1時間に1〜2場面のペースで進めよう。プログラムは自動で保存されるので、続きは次の時間にできます。', go: '#/' },
+        { where: '① 街灯', do: 'めあてと「場面の説明」を読み、暗くなったらつき、明るくなったら消えるプログラムにしよう。「✔ テストを実行」で全部合格をめざそう。', hint: 'はじめのプログラムには、つける命令しかありません。「もし」のブロックの「＋「でなければ」を付ける」を押して、消す命令を入れてみよう。「ヒントを見る」も開いてみよう。', go: '#/s/streetlight' },
+        { where: '② 自動ドア', do: '人が近づいたら開き、いなくなったら閉まるドアにしよう。しきい値(距離の数)を変えながら、4つのテストに全部合格しよう。', hint: 'ドアは開ききるまでに1秒かかり、人は1秒に約100cm歩きます。小さすぎるとぶつかり、大きすぎると「店の前を通りすぎる」で不合格になります。不合格の理由の文を読んで、数を少しずつ変えてみよう。', go: '#/s/door' },
+        { where: '③ 信号機', do: '「待つ」を使って、車は 青→黄→赤→青、歩行者は車が赤のときだけ青になるようにしよう。テストに合格したら「改善メモ」に直したところを書いて「メモを保存」を押そう。', hint: '黄は3秒以上、歩行者の青は4秒以上、車も歩行者も赤の時間(全赤)は1秒以上です。不合格のときは「▶ このケースを再生」を押し、「デバッグ」のグラフの赤い点線の時刻を見てみよう。', go: '#/s/traffic' },
+        { where: '④ 押しボタン式信号機', do: 'ボタンが押されたときだけ、車を止めて歩行者をわたらせ、わたり終わったら車を青にもどそう。', hint: '続きは「# ここに…」のメモの下(「もし ボタン == オン なら」の中)に入れます。場面③で作った順番と時間を思い出そう。ボタンを押してから12秒以内に歩行者を青にします。', go: '#/s/traffic-button' },
+        { where: '⑤ 自由に作る（仮想マイコン）', do: '身のまわりの計測・制御を1つ考えて、センサと出力を自由に組み合わせて動かそう。', hint: 'テストはありません。「手動で動かす（スライダ）」でセンサの値を変えて、思ったとおりに動くか確かめよう。', level: 'advanced', go: '#/s/sandbox' },
+        { where: 'ふりかえり', do: '各場面のページのいちばん下の「ふりかえり」に、センサの値をどう使ったか、どんな工夫をしたかを書こう。', hint: '欄の中の「例:」の文を参考にします。しきい値の数や、テストで直したことを具体的に書くとよいです。', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「JSONで書き出す（先生に出す）」を押し、できたファイルを先生の言う場所に出そう。', hint: '組と番号が空だと書き出せません。CSV は表計算ソフトで見るためのもので、先生に出すのは JSON です。', go: '#/records' }
+      ],
+      check: [
+        { q: '計測・制御システムで、センサの役割はどれ？', choices: ['計測した値をプログラムに従って処理する', '光・温度・距離など周囲の状況を計測する', 'LEDやモーターを動かして仕事をする'], answer: 1, explain: 'センサは入力の部品で、周囲の状況を計測します。判断するのはコンピュータ、仕事をするのはアクチュエータ(仕事を行う部分)です。' },
+        { q: '「もし 明るさ < 30 なら」の 30 のように、判断を切りかえる境目の値を何という？', choices: ['A/D変換', '変数', 'しきい値'], answer: 2, explain: 'しきい値です。しきい値を変えると、どこで動きが切りかわるかが変わります。' },
+        { q: '押しボタン式の信号機が、時間だけで切りかえる信号機よりよいところは？', choices: ['歩行者がいないときは車を止めないので、車をむだに待たせない', 'ランプの数が少なくてすむので、部品の費用が安くなる', '黄色のランプをつけなくても、安全に切りかえられる'], answer: 0, explain: 'ボタン(センサ)で歩行者がいることを計測し、必要なときだけ車を止めるので、むだな待ち時間がへります。' }
+      ]
+    },
+    D8: {
+      goal: '生成AIがもっともらしいまちがい(ハルシネーション)をするわけと、個人情報を入れてはいけないわけを、模型のAIで確かめて説明できるようになる。',
+      time: '45分',
+      steps: [
+        { where: 'はじめに', do: '「生成AIが作るまでの3つの手順」を読んでから、「ステップ① もっともらしいまちがいからはじめよう →」を押そう。', hint: '基本は①〜③です。④〜⑧は発展なので、基本が終わってから取り組みます。', go: '#intro' },
+        { where: '① もっともらしいまちがい', do: 'A で「AIに文を5本つくらせる」を押し、5本すべてを「本当」「まちがい」で判定しよう。B では、あやしい文をおしてから「答え合わせ」をしよう。', hint: '学習データの8本の文と見くらべてみよう。学習データにない組み合わせの文は、事実かどうか教科書や図鑑で確かめる必要があります。数字・年・本の名前に注目しよう。', go: '#halluc' },
+        { where: '② 個人情報が出てしまう？', do: 'Aさんになって入れる情報をえらび「AIに送る」を押し、Bさんの「わたしの電話番号は…」などのボタンで何が出るか確かめよう。③ 送る前チェックの6つの文も判定しよう。', hint: '「入れない」をえらんだ情報と、入れた情報で、Bさんへの答えがどう変わるかをくらべてみよう。「入れる情報を変える」で何回でもためせます。', go: '#privacy' },
+        { where: '③ クイズとふりかえり', do: '6問のクイズに答えて、答えのあとの説明も読もう。', hint: 'まちがえたら説明を読んでから「クイズをやり直す」で全問正解をめざそう。わからないときは①②にもどって見直します。', go: '#quiz' },
+        { where: '③ クイズとふりかえり', do: 'クイズの下の「ふりかえり」の3つの問いに、自分の言葉で答えを書こう。', hint: '1つ目の問いは、①で見た「学習データ → 学習 → 生成」の流れを使って書けます。発展の④〜⑧をやった人は、そこでわかったことも書こう。', reflect: true, go: '#quiz' },
+        { where: '④ つぎの言葉あて', do: '発展: ④〜⑧で、文章をつくるAIと画像をつくるAIのしくみを体験しよう。時間が少ないときは ⑥ と ⑧ を中心にしよう。', hint: '「次へ」のボタンで順に進めます。どのステップも「学習データ → 学習 → 生成」のどこを体験しているかを考えよう。', level: 'advanced', go: '#guess' },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、先生の言う場所に出そう。', hint: 'ファイルができないときは「記録をコピーする」を押して、先生に言われた場所にはりつけます。', go: '#records' }
+      ],
+      check: [
+        { q: '生成AIが、本当のことのように見えるまちがいを答えることを何という？', choices: ['ハルシネーション', 'トークン', 'ノイズ'], answer: 0, explain: 'ハルシネーション(もっともらしいまちがい)です。AIは続きやすい言葉のならびを作るので、すらすら読めてもまちがうことがあります。' },
+        { q: 'AIの答えの中で、とくにまちがいが入りやすいのはどこ？', choices: ['あいさつの言葉', '数字・年・人名・本の名前', '文の終わりの「です」「ます」'], answer: 1, explain: '数字・年・人名・本や記事の名前・URL はまちがいやすい所です。もとの情報で確かめます。' },
+        { q: '「みどり市立さくら中学校2年1組の山田花子です。この作文を直して。」をAIに送る前に、どう直すとよい？', choices: ['作文の相談なので、そのまま送ってよい', '名前だけをローマ字にかえて送る', '「中学2年生です。この作文を直して。」にする'], answer: 2, explain: '学校名・クラス・名前がそろうと、だれなのかがわかります。個人が特定されない書き方にします。' }
+      ]
+    },
+    D9: {
+      goal: 'ハッシュ値の性質(同じ文なら同じ値・少し変えると全体が変わる・元にもどせない)を確かめ、パスワードの保存や改ざんの見つけ方に使われていることを説明できるようになる。',
+      time: '80分',
+      steps: [
+        { where: '① ハッシュ値を作ってみよう', do: '「ハッシュ化する」を押して、短い文と30文字以上の長い文をふくむ3つ以上の文をハッシュ化しよう(チャレンジ)。', hint: '「ためしてみる:」のボタンを押すと文が入ります。表の「長さ」の列を見て、文の長さとハッシュ値の長さの関係を調べよう。', go: '#make' },
+        { where: '② 1文字だけ変えると？', do: '文Bを1文字だけ変えて、ハッシュ値がどれだけ変わるか調べよう。', hint: '「8時」を「9時」にするなど、1文字だけ変えます。黄色の所と「ちがうビット」の数を見てみよう。', go: '#avalanche' },
+        { where: '③ 手作りハッシュの弱点', do: '手作りハッシュで、ちがう文なのに同じ値になる2つの文を見つけよう。', hint: '手作りハッシュは文字の番号の合計を使います。同じ文字を使って、順番だけを入れかえるとどうなるか試してみよう。', go: '#toy' },
+        { where: '④ もとにもどせる？', do: '暗証番号のハッシュ値から、元の3けたの番号を見つけよう。自分で予想したあと、「総当たりをはじめる」でコンピュータにもさがさせよう。', hint: 'ハッシュ値が似ているかどうかはヒントになりません。下の「パスワードが長いと？」で、文字の種類と長さを変えて、時間がどう変わるかも見てみよう。', go: '#oneway' },
+        { where: '⑤ パスワードの守り方', do: '練習用のアカウントでログインしてみよう。次に、もれた会員表から同じパスワードを使っている2人を見つけよう。', hint: '2人さがしは「ソルトを外す(ハッシュ化だけ)」のときに、ユーザー名をおしてくらべます。見つけたら「ソルトを付けて保存する」に切りかえて、何が変わるか見よう。', go: '#password' },
+        { where: '⑥ 改ざんを見つける', do: '3つのファイルのハッシュ値を計算し、公式のハッシュ値とくらべて「本物」か「書きかえられている」かを判定しよう。', hint: '公式のハッシュ値と1文字でもちがえば、どこかが書きかえられています。最後に「自分で書きかえてみよう」で、空白1つでも変わるか試そう。', go: '#tamper' },
+        { where: '⑦ クイズとふりかえり', do: 'クイズに答えたあと、「ふりかえり」の3つの問いに答えを書こう。', hint: '①〜⑥の「わかったこと」や「パスワードを守るために」の囲みを読み返すと書きやすくなります。', reflect: true, go: '#quiz' },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、先生の言う場所に出そう。', hint: '表の「チャレンジ・記録」の列で、まだのステップがないか確かめよう。ファイルができないときは「記録をコピーする」を使います。', go: '#records' }
+      ],
+      check: [
+        { q: 'SHA-256 のハッシュ値は、どんな文字でできている？', choices: ['ひらがなと漢字', '0〜9 と a〜f の16種類', '0 と 1 の2種類だけ'], answer: 1, explain: 'ハッシュ値は 0〜9 と a〜f の16種類の文字(16進数)で表されています。' },
+        { q: 'ソルトを付けてハッシュ化すると、同じパスワードを使っている2人のハッシュ値はどうなる？', choices: ['ちがう値に見える', 'まったく同じになる', '半分だけ同じになる'], answer: 0, explain: 'ソルトは人ごとにちがうので、同じパスワードでもハッシュ値がちがって見え、前もって作った辞書とも一致しなくなります。' },
+        { q: 'サービスごとにちがうパスワードにするとよいのはなぜ？', choices: ['ちがうパスワードにすると、ハッシュ値が短くなるから', 'ちがうパスワードにすると、ログインが速くなるから', '1つのサービスでもれても、ほかのサービスが守られるから'], answer: 2, explain: '同じパスワードを使い回すと、1つもれただけでほかのサービスにも入られてしまいます。' }
+      ]
+    },
+    D10: {
+      goal: '距離センサとモーターでロボットを設計し、センサの値で動きを変えるプログラムで火星の課題を解決する。テストとレーダーチャートで評価して、改善を考えられるようになる。',
+      time: '3時間',
+      steps: [
+        { where: 'はじめに', do: '「問題解決の流れ」を読み、「1 問題の発見・課題の設定」の欄に自分の言葉で課題を書いてから、ステージ①を開こう。', hint: '「例: 問題の発見 → 課題の設定」を参考にします。書いた課題は自動で保存され、記録にも入ります。', go: '#/' },
+        { where: '① まっすぐ走って止まる', do: '前進する時間を考えて、調査地点(青い円)の中で止まるようにしよう。「✔ テストを実行」で合格をめざそう。', hint: 'ふつうの速さは1秒に20cm、調査地点までは200cmです。何秒前進すればよいか、計算してから「〜秒待つ」の数を変えてみよう。', go: '#/s/straight' },
+        { where: '② 岩の前で止まる・よける', do: '距離センサで岩の手前(40cm 以内)で止まり、よけて旗のエリアまで進もう。3つのケースすべてに合格しよう。', hint: 'はじめのプログラムは止まるだけで先へ進めません。止まったあとに「右に回る」→「前進」→「左に回る」を入れます。ふつうの速さなら「右に回る」と「1 秒待つ」で90°回ります。', go: '#/s/rock' },
+        { where: '③ 迷路のような谷を探査する', do: '「ロボットの設計」で左右にも距離センサを付け、前の岩壁が近づいたら開いている方へ曲がるプログラムにしよう。', hint: '左右のセンサを付けないと、どちらが開いているかわかりません。「右の距離 > 左の距離」なら右が開いています。「もし」の中にもう1つ「もし」を入れてみよう。', go: '#/s/maze' },
+        { where: '評価・振り返り', do: '「レーダーチャートで評価しよう」で、5つの観点を1〜5で評価しよう。はじめに「改善の前」、直したあとに「改善のあと」をつけよう。', hint: 'テストの「電池の残り」や「ぶつかった」、部品の費用が、評価の手がかりになります。', go: '#/eval' },
+        { where: '評価・振り返り', do: 'ページの下の4つの振り返りに、設計の理由・直したところ・改善したいこと・社会への生かし方を書こう。', hint: '欄の中の「例:」を参考にして、自分のロボットの数(止まる距離など)を入れて書こう。', reflect: true, go: '#/eval' },
+        { where: '④ 色センサで線をたどる', do: '発展: ④で色センサを使って線をたどり、⑤でコースをえらんで点数・時間・電池の記録に挑戦しよう。', hint: '④は「でなければ」の中にもう1つ「もし」を入れて、右の色センサも使います。⑤は速さ・センサの数で、時間・費用・電池がどう変わるかをくらべよう。', level: 'advanced', go: '#/s/line' },
+        { where: '記録', do: '組と番号を入れて「JSONで書き出す（先生に出す）」を押し、先生の言う場所に出そう。', hint: '「ステージごとのまとめ」で、テストしていないステージがないか確かめてから書き出そう。', go: '#/records' }
+      ],
+      check: [
+        { q: 'ふつうの速さ(1秒に20cm)で、300cm 先まで前進するには、何秒前進すればよい？', choices: ['6秒', '20秒', '15秒'], answer: 2, explain: '300 ÷ 20 = 15 なので、15秒です。速さを変えると、同じ時間でも進む距離が変わります。' },
+        { q: '曲がりくねった谷で、左右のどちらが開いているかを知るには？', choices: ['左と右にも距離センサを付けて、値をくらべる', '前の距離センサの値だけで、曲がる向きを決める', 'モーターの速さを「はやい」にして、早く曲がる'], answer: 0, explain: '左右の距離センサの値をくらべると、距離が大きい方が開いているとわかります。' },
+        { q: '距離センサを増やすと、どうなる？', choices: ['センサが仕事を分けるので、費用も電池の使い方も減る', '安全に走りやすくなるが、費用と電池の使い方が増える', '速く走れるようになるが、岩にぶつかりやすくなる'], answer: 1, explain: 'センサを増やすと安全性は上がりますが、費用や電池(環境への配慮)とのバランスを考える必要があります。' }
+      ]
+    },
+    D11: {
+      goal: '身の回りの「不便だな」から問題を見つけて課題を決め、作った作品を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
+      time: '1〜2時間',
+      steps: [
+        { where: 'はじめに', do: '「問題と課題のちがい」と「技術の見方・考え方の観点」を読んでから、「① 問題の発見から始める」を押そう。', hint: '「問題」は困っていることや願い、「課題」はそれを解決するために何をどうするかを決めたものです。', go: '#/' },
+        { where: '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', do: '「こうだったらいいのに」「不便だな」を3まい以上付箋に書いて「＋ 付箋をはる」を押そう。いちばん解決したい付箋に ★ を付けよう。', hint: '思いつかないときは、「ヒント(押すと書く欄に入ります):」の例を押してみよう。家・学校・登下校など、場面を決めて考えると見つけやすくなります。', go: '#/find' },
+        { where: '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', do: '「問題? 課題? クイズ」に答えてから、「3. 自分の課題を1つ決めよう」で、困っている人・課題・制約条件を書こう。', hint: '「文の形を入れる」を押すと、課題を書く形が入ります。制約条件には、費用や時間など守らなければならない条件を書きます。', go: '#/find' },
+        { where: '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', do: '作ったコンテンツや計測・制御システムの名前を書き、「はじめの目標」と「できあがり(評価)」を、観点ごとに1〜5で入れよう。', hint: '作品は、D6 双方向コンテンツ制作スタジオや D7 計測・制御シミュレータ、D10 火星探査ロボットで作ったものでかまいません。目標より低い観点が、改善点の候補になります。', go: '#/eval' },
+        { where: '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', do: '「過程の評価」にチェックを入れ、「よかった点」と「改善・修正の方法」を書こう。', hint: 'レーダーチャートの横に出る「よかった点の候補」「改善点の候補」の「書き足す」を押すと、書き始めやすくなります。', go: '#/eval' },
+        { where: '③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)', do: '社会の製品・技術を1つえらび、立場や観点の重みを変えて、「いちばんよい案」がどう入れかわるか試そう。', hint: '「チャレンジ」は、すべての案をそれぞれ1位にすることです。制約条件のチェックを入れたり外したりもしてみよう。', level: 'advanced', go: '#/opt' },
+        { where: '振り返り', do: '自己評価をえらび、「分かったこと・できるようになったこと」「これからの問題解決に生かしたいこと」を書こう。', hint: '①で決めた課題と、②の評価を見返してから書こう。', reflect: true, go: '#/refl' },
+        { where: '記録', do: '組・番号・名前を入れて「ファイルに書き出す(.json)」を押し、先生の言う場所に出そう。紙で出すときは「🖨 印刷する(問題解決シート)」を使おう。', hint: '「ノートのまとめ」に、まだ「—」の欄がないか確かめてから書き出そう。', go: '#/rec' }
+      ],
+      check: [
+        { q: '課題を決めるときの「制約条件」とは？', choices: ['費用や時間など、守らなければならない条件', '付箋の中で、いちばん解決したい問題', '作品を評価して見つけた、よかった点'], answer: 0, explain: '制約条件は、費用・時間・場所など、問題解決のときに守らなければならない条件です。' },
+        { q: '評価のときに「はじめの目標」も入れるのはなぜ？', choices: ['できあがりの点を、目標より高く見せるため', '目標とくらべて、足りない観点(改善点)を見つけるため', 'ほかの人の作品と、点数で順位をつけるため'], answer: 1, explain: '目標とできあがりをくらべると、どの観点をどう改善・修正すればよいかが見えます。' },
+        { q: '問題を見つけたり評価したりするときの「技術の見方・考え方」の観点に入らないものは？', choices: ['安全', '環境', '流行'], answer: 2, explain: '観点は、社会からの要求・安全性・環境への負荷・経済性(社会・安全・環境・経済)です。' }
+      ]
+    }
+  }
+};
+
+</script>
+  <script id="eduit-frame">
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ * 上のバーの表示の道具(4分野で同じ形):
+ *   ふりがな・くっきり: <button class="ef-btn ef-toggle" aria-pressed="true|false">ふりがな</button>(ON は分野の色で塗り、✓ が付く)
+ *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
+ *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
+ *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
+ *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
+  }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  // ---- 文字の大きさのボタン(4分野で同じ形:「文字 中」。押すたびに次の大きさへ) ----
+  function sizeButton(btn, opt) {
+    var steps = opt.steps;
+    btn.classList.add('ef-btn', 'ef-size');
+    btn.type = 'button';
+    btn.textContent = '';
+    btn.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    v.setAttribute('data-noruby', '');
+    btn.appendChild(v);
+    function idx() {
+      var cur = opt.get(), best = 0;
+      for (var i = 1; i < steps.length; i++) if (Math.abs(steps[i][0] - cur) < Math.abs(steps[best][0] - cur)) best = i;
+      return best;
+    }
+    function update() {
+      var s = steps[idx()][1];
+      v.textContent = s;
+      btn.title = '文字の大きさ(いまは「' + s + '」。押すと変わる)';
+      btn.setAttribute('aria-label', '文字の大きさ: ' + s);
+    }
+    btn.addEventListener('click', function () { opt.set(steps[(idx() + 1) % steps.length][0]); update(); });
+    update();
+    return update;
+  }
+
+  // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
+  function autoHide() {
+    var lastY = window.pageYOffset || 0, ticking = false;
+    function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
+    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function run() {
+      ticking = false;
+      var y = window.pageYOffset || 0, dy = y - lastY;
+      if (Math.abs(dy) < 6 && y > 0) return;
+      lastY = y;
+      Array.prototype.forEach.call(bars(), function (el) {
+        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
+        if (el.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+        // 上に固定されている(画面の上にはりついている)ときだけ隠す
+        if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        if (el.getBoundingClientRect().top > top + 1) return;
+        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
+        el.classList.add('ef-ah-hide');
+      });
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (el) show(el);
+    });
+    // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
+    function reveal() {
+      Array.prototype.forEach.call(bars(), function (el) {
+        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+        if (!t) return;
+        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+          if (sc.scrollWidth > sc.clientWidth + 1) {
+            var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
+            if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
+            else if (r.right > b.right) sc.scrollLeft += r.right - b.right + 12;
+            return;
+          }
+        }
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-ef-autohide]')) setTimeout(reveal, 50);
+    });
+    window.addEventListener('hashchange', function () { setTimeout(reveal, 50); });
+    window.addEventListener('load', function () { setTimeout(reveal, 300); });
+  }
+  autoHide();
+
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+</script>
+</head>
+<body class="ef-page">
+  <a class="skip-link" href="#view">本文へ移動</a>
+  <header class="app-header ef-header">
+    <a class="brand ef-title" href="#intro"><img class="ef-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48cGF0aCBkPSJNMjQgMTJsLTQgNDBNNDAgMTJsLTQgNDBNMTMgMjRoNDBNMTEgNDBoNDAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48ZyBmaWxsPSIjZjdkNjVjIj48cmVjdCB4PSI0NCIgeT0iNDQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxIi8+PHJlY3QgeD0iNTEiIHk9IjQ0IiB3aWR0aD0iNiIgaGVpZ2h0PSI2IiByeD0iMSIgb3BhY2l0eT0iLjYiLz48cmVjdCB4PSI0NCIgeT0iNTEiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxIiBvcGFjaXR5PSIuNSIvPjxyZWN0IHg9IjUxIiB5PSI1MSIgd2lkdGg9IjYiIGhlaWdodD0iNiIgcng9IjEiLz48L2c+PC9zdmc+Cg==" alt="" width="28" height="28"><span class="ef-code">D9</span>ハッシュ化体験ラボ</a>
+    <div class="ef-tools">
+      <div class="display-toggles" id="display-toggles" role="group" aria-label="表示の切りかえ"></div>
+      <div class="overall-progress" id="overall-progress"></div>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="chapter-nav" id="nav" data-ef-autohide></aside>
+    <main id="main">
+      <div id="view" tabindex="-1"></div>
+    </main>
+  </div>
+  <div class="app-footer" data-ef-footer>
+    <p class="app-note">この教材はブラウザの中だけで動き、外部のサイトには接続しません。入力した文や名前は、どこにも送りません。</p>
+  </div>
+  <script>
+// ハッシュ化体験ラボ: ハッシュ関数の模型
+//  - sha256(文字) … 本物の SHA-256(ブラウザの中だけで計算する。外部には何も送らない)
+//  - toyHash(文字) … くらべるための「手作りハッシュ」(文字の番号をたして 100 でわった余り)
+// ブラウザでは window.HashLab、node では require('./hash.js') で使う。
+(function (root) {
+  'use strict';
+
+  var K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  ];
+
+  // 文字 → UTF-8 のバイトのならび
+  function utf8(str) {
+    var out = [];
+    var s = String(str);
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c >= 0xd800 && c <= 0xdbff && i + 1 < s.length) {
+        var d = s.charCodeAt(i + 1);
+        if (d >= 0xdc00 && d <= 0xdfff) { c = 0x10000 + ((c - 0xd800) << 10) + (d - 0xdc00); i++; }
+      }
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+      else if (c < 0x10000) out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      else out.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return out;
+  }
+
+  function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+
+  // SHA-256(16進数 64 文字で返す)
+  function sha256Bytes(bytes) {
+    var msg = bytes.slice();
+    var bitLen = bytes.length * 8;
+    msg.push(0x80);
+    while (msg.length % 64 !== 56) msg.push(0);
+    var hi = Math.floor(bitLen / 0x100000000), lo = bitLen >>> 0;
+    msg.push((hi >>> 24) & 255, (hi >>> 16) & 255, (hi >>> 8) & 255, hi & 255, (lo >>> 24) & 255, (lo >>> 16) & 255, (lo >>> 8) & 255, lo & 255);
+    var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    var w = new Array(64);
+    for (var off = 0; off < msg.length; off += 64) {
+      for (var t = 0; t < 16; t++) {
+        var j = off + t * 4;
+        w[t] = ((msg[j] << 24) | (msg[j + 1] << 16) | (msg[j + 2] << 8) | msg[j + 3]) >>> 0;
+      }
+      for (t = 16; t < 64; t++) {
+        var s0 = rotr(w[t - 15], 7) ^ rotr(w[t - 15], 18) ^ (w[t - 15] >>> 3);
+        var s1 = rotr(w[t - 2], 17) ^ rotr(w[t - 2], 19) ^ (w[t - 2] >>> 10);
+        w[t] = (w[t - 16] + s0 + w[t - 7] + s1) >>> 0;
+      }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (t = 0; t < 64; t++) {
+        var S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+        var ch = (e & f) ^ (~e & g);
+        var t1 = (h + S1 + ch + K[t] + w[t]) >>> 0;
+        var S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+        var mj = (a & b) ^ (a & c) ^ (b & c);
+        var t2 = (S0 + mj) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    }
+    return H.map(function (x) { return ('00000000' + x.toString(16)).slice(-8); }).join('');
+  }
+  function sha256(str) { return sha256Bytes(utf8(str)); }
+
+  // 手作りハッシュ: 1文字ずつの番号(文字コード)をたして、100 でわった余り(00〜99)
+  function toyParts(str) {
+    return Array.from(String(str)).map(function (ch) { return { ch: ch, code: ch.codePointAt(0) }; });
+  }
+  function toyHash(str) {
+    var sum = toyParts(str).reduce(function (s, p) { return s + p.code; }, 0);
+    return ('0' + (sum % 100)).slice(-2);
+  }
+  function toySum(str) { return toyParts(str).reduce(function (s, p) { return s + p.code; }, 0); }
+
+  // 2つのハッシュ値で、ちがう文字の数・ちがうビットの数
+  function diffChars(a, b) {
+    var n = 0;
+    for (var i = 0; i < Math.max(a.length, b.length); i++) if (a[i] !== b[i]) n++;
+    return n;
+  }
+  function diffBits(a, b) {
+    var n = 0;
+    for (var i = 0; i < a.length; i++) {
+      var x = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+      while (x) { n += x & 1; x >>= 1; }
+    }
+    return n;
+  }
+  // 2つの文が「1文字だけちがう」か(1文字の書きかえ・足す・消す)
+  function oneCharApart(a, b) {
+    var x = Array.from(a), y = Array.from(b);
+    if (x.join('') === y.join('')) return false;
+    if (Math.abs(x.length - y.length) > 1) return false;
+    if (x.length === y.length) {
+      var n = 0;
+      for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) n++;
+      return n === 1;
+    }
+    var s = x.length < y.length ? x : y, l = x.length < y.length ? y : x;
+    for (var k = 0; k < l.length; k++) {
+      if (l.slice(0, k).concat(l.slice(k + 1)).join('') === s.join('')) return true;
+    }
+    return false;
+  }
+
+  // 総当たり: 全部ためすのにかかる時間(秒)
+  function combos(kinds, len) { return Math.pow(kinds, len); }
+  function duration(sec) {
+    if (sec < 1) return '1秒より短い(一瞬)';
+    var units = [['年', 365 * 24 * 3600], ['日', 24 * 3600], ['時間', 3600], ['分', 60], ['秒', 1]];
+    var year = units[0][1];
+    if (sec >= year * 1e4) {
+      var y = sec / year;
+      var big = [['兆', 1e12], ['億', 1e8], ['万', 1e4]];
+      for (var i = 0; i < big.length; i++) {
+        if (y >= big[i][1]) {
+          var v = y / big[i][1];
+          return '約' + (v >= 10000 ? Math.round(v).toLocaleString('ja-JP') : v >= 100 ? Math.round(v) : Math.round(v * 10) / 10) + big[i][0] + '年';
+        }
+      }
+    }
+    for (i = 0; i < units.length; i++) {
+      if (sec >= units[i][1]) {
+        var n = sec / units[i][1];
+        return '約' + (n >= 100 ? Math.round(n).toLocaleString('ja-JP') : Math.round(n * 10) / 10) + units[i][0];
+      }
+    }
+    return '1秒より短い(一瞬)';
+  }
+  function bigNumber(n) {
+    if (n < 1e4) return String(n);
+    var units = [['京', 1e16], ['兆', 1e12], ['億', 1e8], ['万', 1e4]];
+    if (n >= 1e20) { var e = n.toExponential(1).split('e+'); return '約' + e[0] + '×10の' + e[1] + '乗'; }
+    for (var i = 0; i < units.length; i++) {
+      if (n >= units[i][1]) {
+        var v = n / units[i][1];
+        return (Number.isInteger(v) ? '' : '約') + (v >= 100 ? Math.round(v).toLocaleString('ja-JP') : Math.round(v * 10) / 10) + units[i][0];
+      }
+    }
+    return String(n);
+  }
+
+  var api = {
+    utf8: utf8, sha256: sha256, sha256Bytes: sha256Bytes,
+    toyHash: toyHash, toyParts: toyParts, toySum: toySum,
+    diffChars: diffChars, diffBits: diffBits, oneCharApart: oneCharApart,
+    combos: combos, duration: duration, bigNumber: bigNumber
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.HashLab = api;
+})(this);
+
+</script>
+  <script>
+// ハッシュ化体験ラボ: 教材のデータ(例の文・架空の会員表・配布ファイル・クイズ)
+// 人名・ユーザー名・サイト名・学校の行事は、すべて説明用の架空のものです。
+(function (root) {
+  'use strict';
+
+  var data = {
+    // ステップ1: すぐためせる文
+    presets: [
+      'あ',
+      'こんにちは',
+      'こんにちは!',
+      'Hello',
+      'hello',
+      '技術の授業で、ハッシュ関数のしくみを体験しています。どんなに長い文を入れても、出てくるハッシュ値の長さはいつも同じです。'
+    ],
+
+    // ステップ2: 1文字だけちがう2つの文(はじめの例)
+    pairStart: ['2年1組 集合は8時', '2年1組 集合は9時'],
+
+    // ステップ3: 手作りハッシュのはじめの例
+    toyStart: ['ねこ', 'いぬ'],
+
+    // ステップ4: 文字の種類(総当たりの計算)
+    charKinds: [
+      { id: 'num', label: '数字だけ(0〜9)', n: 10 },
+      { id: 'lower', label: '英小文字だけ(a〜z)', n: 26 },
+      { id: 'alnum', label: '英小文字+数字', n: 36 },
+      { id: 'mixed', label: '英大文字・小文字+数字', n: 62 },
+      { id: 'all', label: '英大文字・小文字+数字+記号', n: 94 }
+    ],
+    // 1秒にためせる回数(高性能なコンピュータの例)
+    triesPerSec: 1e10,
+
+    // ステップ5: ログインの例(架空のアカウント。パスワードは見せてよい練習用)
+    loginDemo: { user: 'renshu', password: 'minami2026' },
+
+    // ステップ5: もれてしまった会員表(架空のサイト「みなみ図書ネット」)
+    users: [
+      { id: 'sora', password: '123456', salt: 'q7Fz' },
+      { id: 'hana', password: 'sakura', salt: 'Lm2x' },
+      { id: 'riku', password: 'Tg8!mWq4#zR2', salt: 'p9Kd' },
+      { id: 'mei', password: '123456', salt: 'Xa3v' },
+      { id: 'kaito', password: 'pokemon', salt: 'B6nj' }
+    ],
+    // ステップ5: よく使われるパスワードの辞書(だます人が前もってハッシュ値を計算しておく)
+    dictionary: ['123456', 'password', '12345678', 'qwerty', '111111', 'abc123', '000000', 'sakura', 'pokemon', 'iloveyou', 'baseball', 'dragon'],
+
+    // ステップ6: 配られたファイル(1つは書きかえられている)
+    original: '【校外学習のお知らせ】\n日にち: 11月20日(金)\n集合: 7時30分 南中学校 体育館前\n持ち物: 弁当・水とう・筆記用具・雨具\n連絡先: 学年主任 南先生',
+    copies: [
+      { id: 'A', route: 'クラスの連絡板からダウンロードした', text: null },
+      { id: 'B', route: '友だちのメッセージで送られてきた', text: '【校外学習のお知らせ】\n日にち: 11月20日(金)\n集合: 8時30分 南中学校 体育館前\n持ち物: 弁当・水とう・筆記用具・雨具\n連絡先: 学年主任 南先生' },
+      { id: 'C', route: '知らない人のSNSに投稿されていた', text: '【校外学習のお知らせ】\n日にち: 11月21日(金)\n集合: 7時30分 南中学校 体育館前\n持ち物: 弁当・水とう・筆記用具・雨具\n連絡先: 学年主任 南先生' }
+    ],
+
+    // クイズ(正解の位置 c はばらばらにする)
+    quiz: [
+      { q: '同じ文を、同じハッシュ関数で2回ハッシュ化すると、ハッシュ値はどうなる？',
+        a: ['毎回ちがう値になる', 'いつも同じ値になる', '2回目は1回目より長い値になる'], c: 1,
+        why: '同じデータからは、いつでも、どのコンピュータでも同じハッシュ値が出ます。だから「同じかどうか」をくらべるのに使えます。' },
+      { q: '1文字の文と、100文字の文を SHA-256 でハッシュ化した。ハッシュ値の長さは？',
+        a: ['どちらも同じ長さ(16進数で64文字)', '100文字の文のほうが、元の文に合わせて長い', '1文字の文のほうが、すきまをうめるので長い'], c: 0,
+        why: 'ハッシュ値の長さは、元のデータの長さに関係なくいつも同じです(SHA-256 は 256 ビット = 16進数で 64 文字)。' },
+      { q: '元の文を1文字だけ変えると、ハッシュ値はどうなる？',
+        a: ['変えた1文字のところだけ変わる', '1文字くらいでは何も変わらない', '全体がばらばらに変わる'], c: 2,
+        why: 'ほんの少しのちがいでも、ハッシュ値は全体が大きく変わります(なだれ効果)。だから小さな書きかえも見のがしません。' },
+      { q: 'ハッシュ値から、元の文を計算でもどせる？',
+        a: ['ためしてみるしかなく、計算でもどす方法はない', 'ハッシュ化と逆の順に計算すれば、かんたんにもどせる', '16進数を1文字ずつ文字に直していけば、元の文にもどる'], c: 0,
+        why: 'ハッシュ関数は一方向の計算です。元にもどすには、考えられる文を1つずつハッシュ化してくらべる(総当たり)しかありません。' },
+      { q: 'サイトがパスワードを保存するとき、安全なのはどれ？',
+        a: ['パスワードをそのまま、鍵のかかった会員表に保存する', 'ソルトを付けてハッシュ化した値を保存する', 'パスワードを逆から書いて、読みにくくしてから保存する'], c: 1,
+        why: 'ハッシュ値だけを保存すれば、会員表がもれてもパスワードそのものは見えません。ソルトを付けると、同じパスワードでも人ごとにちがうハッシュ値になります。' },
+      { q: '会員表がもれたとき、ハッシュ化されていても見つかりやすいパスワードは？',
+        a: ['20文字以上と長く、記号もまざったパスワード', '「123456」のようによく使われるパスワード', 'ハッシュ化されていれば、どれも見つからない'], c: 1,
+        why: 'よく使われるパスワードは、だます人が前もってハッシュ値の辞書を作っているので、すぐに見つかります。長く、推測されにくいパスワードにします。' },
+      { q: 'ダウンロードしたファイルが書きかえられていないか確かめるには？',
+        a: ['公式にのっているファイル名と、同じ名前かどうか見る', 'ファイルの大きさ(バイト数)だけを、公式のものとくらべる', '公式のハッシュ値と、自分で計算したハッシュ値をくらべる'], c: 2,
+        why: '1文字でも書きかえられていればハッシュ値が変わります。公式のハッシュ値と同じなら、書きかえられていないと分かります。' },
+      { q: '手作りハッシュ(文字の番号をたして100でわった余り)の弱点は？',
+        a: ['ちがう文なのに同じハッシュ値になる組がかんたんに見つかる', '文字の番号を全部たすので、長い文だと計算に時間がかかりすぎる', '同じ文でも、計算するたびに毎回ちがう値が出てしまう'], c: 0,
+        why: '出てくる値が 100 通りしかなく、文字の順番を入れかえても同じ値になります。本物のハッシュ関数は、同じ値になる組(衝突)を見つけるのが事実上できないように作られています。' }
+    ],
+
+    // ふりかえりの問い(振り返り一覧もこの文で表示する)
+    reflQ: [
+      { id: 'r1', short: 'ハッシュ関数の性質', label: '体験してわかった、ハッシュ関数の性質を書こう(同じ文なら？少し変えると？元にもどせる？など)。' },
+      { id: 'r2', short: 'パスワードを守るには', label: 'パスワードを守るために、サービスを作る側と、使う自分は、それぞれどんなことができますか。' },
+      { id: 'r3', short: 'くらしの中のハッシュ', label: 'ハッシュ値は、くらしや社会のどんなところで役に立っていると思いますか。体験をもとに書こう。' }
+    ]
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = data;
+  else root.HashData = data;
+})(this);
+
+</script>
+  <script>
+// ハッシュ化体験ラボ: 画面
+(function () {
+  'use strict';
+  var D = HashData, HL = HashLab;
+  var APP = 'ハッシュ化体験ラボ';
+  // 振り返りを隠す設定(先生用。shared/eduit-frame.js)。隠すときは、⑦の振り返り欄・記録の振り返りを出さない
+  var FK_OFF = !!(window.EduitFrame && EduitFrame.furikaeri === false);
+  var T_QUIZ = FK_OFF ? 'クイズ' : 'クイズとふりかえり';
+  var T_REC = FK_OFF ? '記録' : 'ふりかえり・記録';
+
+  if (window.EDUIT_INFO) {
+    EDUIT_INFO.app = EDUIT_INFO.app || { name: APP };
+    EDUIT_INFO.app.safety = [
+      'ハッシュ化体験ラボのハッシュ値は、このブラウザの中だけで計算します。入力した文はどこにも送らず、保存もしません(ふりかえりの文と組・番号・名前だけを、この端末の中に保存します)。',
+      '会員表・ユーザー名・パスワード・お知らせの文は、すべて説明用に作った架空のものです。本物のパスワードは入力しないでください。'
+    ];
+  }
+
+  // ---- 端末の中だけの保存(使えなくても動く) ----
+  var KEY = 'eduit-hash-lab';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  function save(k, v) {
+    saved[k] = v;
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
+  }
+
+  // ---- 小さな部品 ----
+  function h(tag, props) {
+    var e = document.createElement(tag);
+    props = props || {};
+    Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v == null || v === false) return;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'on') Object.keys(v).forEach(function (ev) { e.addEventListener(ev, v[ev]); });
+      else if (k === 'style') e.setAttribute('style', v);
+      else if (k in e && typeof v !== 'string') e[k] = v;
+      else e.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) append(e, arguments[i]);
+    return e;
+  }
+  function append(e, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { append(e, x); }); return; }
+    e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+  }
+  // ふりがな: 表示したあとの画面の文字に、RUBY の言葉があれば <ruby> を付ける(長い言葉が先)
+  var RUBY = {
+    '関数': 'かんすう', '性質': 'せいしつ', '衝突': 'しょうとつ', '一方向': 'いちほうこう', '総当': 'そうあ', '暗証番号': 'あんしょうばんごう',
+    '改ざん': 'かいざん', '辞書': 'じしょ', '会員': 'かいいん', '保存': 'ほぞん', '記録': 'きろく', '端末': 'たんまつ', '入力': 'にゅうりょく',
+    '体験': 'たいけん', '番号': 'ばんごう', '計算': 'けいさん', '進数': 'しんすう', '照合': 'しょうごう', '推測': 'すいそく', '記号': 'きごう',
+    '英小文字': 'えいこもじ', '英大文字': 'えいおおもじ', '提出': 'ていしゅつ', '架空': 'かくう', '校外学習': 'こうがいがくしゅう', '効果': 'こうか',
+    '指紋': 'しもん', '登録': 'とうろく', '正解': 'せいかい', '授業': 'じゅぎょう', '公式': 'こうしき', '流出': 'りゅうしゅつ', '情報': 'じょうほう',
+    '文字': 'もじ', '余り': 'あまり', '種類': 'しゅるい', '値': 'あたい', 'ハッシュ値': 'ち', '利用者': 'りようしゃ', '確認': 'かくにん', '配布': 'はいふ',
+    '組': 'くみ', '安全': 'あんぜん', '設定': 'せってい', '画面': 'がめん', '表示': 'ひょうじ', '比': 'くら', '偽': 'にせ', '本物': 'ほんもの'
+  };
+  var RUBY_KEYS = Object.keys(RUBY).filter(function (k) { return k.length > 1 || k === '値'; }).sort(function (a, b) { return b.length - a.length; });
+  var RUBY_RE = new RegExp(RUBY_KEYS.join('|'), 'g');
+  function applyRuby(root) {
+    if (!saved.furigana) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var p = n.parentNode;
+        if (!p || p.closest('ruby, textarea, select, option, script, style, .no-ruby, .hex, .ef-footer')) return NodeFilter.FILTER_REJECT;
+        RUBY_RE.lastIndex = 0;
+        return RUBY_RE.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      var text = n.nodeValue, frag = document.createDocumentFragment(), last = 0, m;
+      RUBY_RE.lastIndex = 0;
+      while ((m = RUBY_RE.exec(text))) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        // 「ハッシュ値」のように、かたかなの後ろの漢字だけに読みを付ける語もある
+        var kana = /^[ァ-ヶー]*/.exec(m[0])[0];
+        if (kana) frag.appendChild(document.createTextNode(kana));
+        frag.appendChild(h('ruby', null, m[0].slice(kana.length), h('rt', { text: RUBY[m[0]] })));
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+  function btn(label, onClick, cls) { return h('button', { type: 'button', class: cls || 'ef-btn', on: { click: onClick } }, label); }
+  function point(title) {
+    var kids = Array.prototype.slice.call(arguments, 1);
+    return h('div', { class: 'point explain' }, h('p', { class: 'point-title explain-label', text: title }), kids);
+  }
+  function card(title) {
+    var kids = Array.prototype.slice.call(arguments, 1);
+    return h('section', { class: 'panel card' }, title ? h('h2', { class: 'panel-title' }, title) : null, kids);
+  }
+  // 振り返りを隠す設定のとき出さない要素の印
+  function reflectOnly(e) { e.setAttribute('data-ef-reflect', ''); return e; }
+  function segmented(options, value, onChange, label) {
+    return h('div', { class: 'seg', role: 'group', 'aria-label': label },
+      options.map(function (o) {
+        return h('button', { type: 'button', class: 'ef-btn', 'aria-pressed': String(o[0] === value),
+          on: { click: function () { onChange(o[0]); } } }, o[1]);
+      }));
+  }
+  function bar(p, cls) {
+    return h('span', { class: 'bar ' + (cls || '') }, h('span', { class: 'bar-fill', style: 'width:' + Math.max(0, Math.min(100, p * 100)).toFixed(1) + '%' }));
+  }
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- ハッシュ値の見せ方 ----
+  // 16進数64文字を8文字ずつに区切る。other があれば、ちがう文字に印を付ける
+  function hexView(hex, other, label) {
+    var groups = [];
+    for (var i = 0; i < hex.length; i += 8) {
+      var g = h('span', { class: 'hex-g' });
+      for (var k = i; k < i + 8; k++) {
+        var diff = other && other[k] !== hex[k];
+        g.appendChild(diff ? h('mark', { text: hex[k] }) : document.createTextNode(hex[k]));
+      }
+      groups.push(g);
+    }
+    return h('code', { class: 'hex', 'aria-label': (label || 'ハッシュ値') + ' ' + hex }, groups);
+  }
+  // ハッシュ値の「色の模様」: 2文字(1バイト)ずつ色にする(8×4のます)。ちがいが目で見て分かるように
+  function pattern(hex, small) {
+    var cells = [];
+    for (var i = 0; i < 64; i += 2) {
+      var b = parseInt(hex.substr(i, 2), 16);
+      cells.push(h('span', { style: 'background:hsl(' + Math.round(b / 256 * 360) + ',70%,' + (42 + (b % 4) * 9) + '%)' }));
+    }
+    return h('span', { class: 'pattern' + (small ? ' small' : ''), role: 'img', 'aria-label': 'ハッシュ値を色にした模様' }, cells);
+  }
+  function shortHex(hex) { return hex.slice(0, 16) + '…'; }
+
+  // ---- チャレンジ(各ステップの課題。できたら ✓) ----
+  var MISSIONS = [
+    { id: 'hash', step: 'make', title: '短い文と長い文(30文字以上)をふくめて、ちがう文を3つ以上ハッシュ化する' },
+    { id: 'avalanche', step: 'avalanche', title: '文Bを1文字だけ変えて、ハッシュ値がどれだけ変わるか調べる' },
+    { id: 'collision', step: 'toy', title: '手作りハッシュで、ちがう文なのに同じハッシュ値になる2つの文を見つける' },
+    { id: 'crack', step: 'oneway', title: 'ハッシュ値から、元の3けたの暗証番号を見つける' },
+    { id: 'leak', step: 'password', title: 'もれた会員表から、同じパスワードを使っている2人を見つける' },
+    { id: 'tamper', step: 'tamper', title: '配られた3つのファイルが、本物か書きかえられたものかを見分ける' }
+  ];
+  function missionOf(step) { return MISSIONS.filter(function (m) { return m.step === step; })[0]; }
+  function cleared(id) { return !!(saved.missions || {})[id]; }
+  function clear(id) {
+    if (cleared(id)) return false;
+    var m = saved.missions || {};
+    m[id] = { at: new Date().toISOString() };
+    save('missions', m);
+    toast('チャレンジ達成！');
+    return true;
+  }
+  function missionBox(step, extra) {
+    var m = missionOf(step);
+    var done = cleared(m.id);
+    return h('div', { class: 'mission' + (done ? ' is-done' : '') },
+      h('p', { class: 'mission-label' }, h('span', { class: 'badge ' + (done ? 'ok' : 'gray'), text: done ? '✓ 達成' : 'チャレンジ' }), m.title),
+      extra || null);
+  }
+
+  // ---- ページ ----
+  var timers = [];
+  function clearTimers() { timers.forEach(clearInterval); timers = []; }
+
+  var SECTIONS = [
+    { id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro },
+    { id: 'make', group: 'ハッシュ関数の性質', no: '1', min: '10分', title: 'ハッシュ値を作ってみよう', desc: '文をハッシュ関数に入れて、出てくるハッシュ値を観察する', render: renderMake },
+    { id: 'avalanche', group: 'ハッシュ関数の性質', no: '2', min: '10分', title: '1文字だけ変えると？', desc: '少しだけちがう2つの文のハッシュ値をくらべる(なだれ効果)', render: renderAvalanche },
+    { id: 'toy', group: 'ハッシュ関数の性質', no: '3', min: '10分', title: '手作りハッシュの弱点', desc: 'かんたんなハッシュ関数を作り、同じ値になる組(衝突)をさがす', render: renderToy },
+    { id: 'oneway', group: 'ハッシュ関数の性質', no: '4', min: '15分', title: 'もとにもどせる？', desc: 'ハッシュ値から暗証番号を当てる。総当たりにかかる時間を調べる', render: renderOneway },
+    { id: 'password', group: 'くらしの中のハッシュ', no: '5', min: '15分', title: 'パスワードの守り方', desc: 'サイトはパスワードをどう保存する？ もれたときに何が起きる？', render: renderPassword },
+    { id: 'tamper', group: 'くらしの中のハッシュ', no: '6', min: '10分', title: '改ざんを見つける', desc: 'ハッシュ値をくらべて、書きかえられたファイルを見分ける', render: renderTamper },
+    { id: 'quiz', group: 'まとめ', no: '7', min: '10分', title: T_QUIZ, recTitle: 'クイズとふりかえり', desc: FK_OFF ? 'クイズで体験をたしかめる' : 'クイズで体験をふりかえり、考えたことを書く', render: renderQuiz },
+    { id: 'records', group: '記録する', no: '', icon: '✎', title: T_REC, render: renderRecordsPage }
+  ];
+  // 画面に出す番号は丸数字(label)。no は並びの番号(ステップかどうかの印にも使う)
+  SECTIONS.forEach(function (x) { x.label = x.no ? '①②③④⑤⑥⑦⑧⑨'.charAt(Number(x.no) - 1) : ''; });
+  var STEP_SECTIONS = SECTIONS.filter(function (x) { return x.no; });
+  var view = document.getElementById('view');
+  var nav = document.getElementById('nav');
+  var current = null;
+
+  // 左のメニュー(ほかの情報の教材と同じ形: 番号の丸・まとまりの見出し・やったら ✓)
+  function buildNav() {
+    var ol = h('ol');
+    var group = null;
+    SECTIONS.forEach(function (s) {
+      if (s.group !== group) {
+        group = s.group;
+        if (group) ol.appendChild(h('li', { class: 'nav-group', 'aria-hidden': 'true', text: group }));
+      }
+      ol.appendChild(h('li', { 'data-li': s.id }, h('a', { href: '#' + s.id, class: 'nav-link', 'data-id': s.id },
+        h('span', { class: 'num', 'aria-hidden': 'true', text: s.no || s.icon }),
+        h('span', null, s.title, s.no ? h('span', { class: 'visually-hidden nav-done', hidden: true, text: '(やった)' }) : null))));
+    });
+    nav.textContent = '';
+    nav.appendChild(h('nav', { 'aria-label': 'ステップ' }, ol));
+  }
+  // 上のバーの「進み具合」: ステップのうち、ひらいたステップの割合
+  function renderOverall() {
+    var visited = saved.visited || {};
+    var done = STEP_SECTIONS.filter(function (x) { return visited[x.id]; }).length;
+    var p = Math.round(done / STEP_SECTIONS.length * 100);
+    var el = document.getElementById('overall-progress');
+    if (!el) return;
+    el.textContent = '';
+    append(el, [h('span', { text: '進み具合' }),
+      h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(p), 'aria-label': '全体の進み具合' },
+        h('span', { class: 'bar-fill', style: 'width:' + p + '%' })),
+      h('span', { text: p + '%' })]);
+  }
+
+  // 同じページの中の操作(ボタンなど)では、スクロールの位置とキーボードの位置を保ったまま描き直す。
+  // ちがうページへ移るときだけ、いちばん上から見せる。
+  function focusables() { return Array.prototype.slice.call(view.querySelectorAll('button, input, select, textarea, a[href]')); }
+  function go(id) {
+    if (current && id === current.id) { rerender(); return; }
+    show(id);
+  }
+  function rerender() {
+    var y = window.scrollY;
+    var active = document.activeElement;
+    var fi = focusables().indexOf(active);
+    var activeId = active && active.id;
+    draw(current);
+    window.scrollTo(0, y);
+    var el = activeId ? document.getElementById(activeId) : null;
+    if (!el && fi >= 0) {
+      // 押したボタンが使えなくなったとき(答えたあとなど)は、そのつぎの使える所へ
+      var list = focusables();
+      for (var i = Math.min(fi, list.length - 1); i < list.length && !el; i++) if (!list[i].disabled) el = list[i];
+    }
+    if (el && (activeId || fi >= 0)) try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+  }
+  function show(id) {
+    var s = SECTIONS.filter(function (x) { return x.id === id; })[0] || SECTIONS[0];
+    clearTimers();
+    current = s;
+    draw(s);
+    save('last', s.id);
+    if (s.no) save('lastStep', s.id);
+    var visited = saved.visited || {};
+    visited[s.id] = true;
+    save('visited', visited);
+    markNav();
+    window.scrollTo(0, 0);
+    document.title = (s.id === 'intro' ? 'はじめに' : s.title) + ' | ' + APP;
+  }
+  function markNav() {
+    var visited = saved.visited || {};
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
+      var id = a.getAttribute('data-id');
+      var sec = SECTIONS.filter(function (x) { return x.id === id; })[0];
+      var done = !!(sec && sec.no && visited[id]);
+      a.classList.toggle('is-visited', done);
+      a.parentNode.classList.toggle('done', done);
+      a.querySelector('.num').textContent = done ? '✓' : (sec.no || sec.icon);
+      var hid = a.querySelector('.nav-done');
+      if (hid) hid.hidden = !done;
+    });
+    renderOverall();
+  }
+  function draw(s) {
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav-link'), function (a) {
+      if (a.getAttribute('data-id') === s.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    view.textContent = '';
+    var idx = SECTIONS.indexOf(s);
+    if (s.no) {
+      view.appendChild(h('header', { class: 'module-head sec-head' },
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
+        h('h1', { class: 'sec-title', text: s.title })));
+    }
+    var body = h('div', { class: 'sec-body' });
+    view.appendChild(body);
+    s.render(body);
+    var prev = SECTIONS[idx - 1];
+    var next = SECTIONS[idx + 1];
+    if (s.id !== 'intro') {
+      view.appendChild(h('nav', { class: 'pager btn-row', 'aria-label': 'ページの移動' },
+        prev ? h('a', { class: 'ef-btn', href: '#' + prev.id }, prev.no ? '← 前のステップ' : '← ' + prev.title) : null,
+        next ? h('a', { class: 'ef-btn-primary', href: '#' + next.id }, '次へ：' + next.title + ' →') : null));
+    }
+    applyRuby(view);
+    persist();
+  }
+  function route() {
+    var id = (location.hash || '').replace('#', '');
+    if (!id) id = saved.last || 'intro';
+    show(id);
+  }
+
+  // ================= はじめに =================
+  function renderIntro(el) {
+    var visited = saved.visited || {};
+    var last = SECTIONS.filter(function (x) { return x.no && x.id === saved.lastStep; })[0];
+    var sample = HL.sha256('こんにちは');
+    append(el, [
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: APP }),
+        h('p', { class: 'meta' }, 'ハッシュ関数は、どんなデータからも決まった長さの「ハッシュ値」を作る計算です。ハッシュ値は「データの指紋」のようなもので、パスワードを守ったり、書きかえ(改ざん)を見つけたりするのに使われています。自分で動かして、そのしくみを確かめよう。'),
+        h('p', { class: 'muted author', text: '作成：技術 岡田' })),
+      h('section', { class: 'card' },
+        h('h2', { text: 'ハッシュ化とは' }),
+        h('div', { class: 'flow', role: 'img', 'aria-label': '文をハッシュ関数に入れると、ハッシュ値が出てくる' },
+          h('div', { class: 'flow-box' }, h('b', { text: '元のデータ' }), h('span', { text: 'こんにちは' })),
+          h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
+          h('div', { class: 'flow-box accent' }, h('b', { text: 'ハッシュ関数' }), h('span', { text: 'SHA-256 という計算で、データをまぜあわせる' })),
+          h('span', { class: 'flow-arrow', 'aria-hidden': 'true', text: '→' }),
+          h('div', { class: 'flow-box' }, h('b', { text: 'ハッシュ値' }), h('span', { class: 'hex-mini no-ruby', text: shortHex(sample) }))),
+        h('p', { text: 'データをハッシュ関数に通して、ハッシュ値に変えることを「ハッシュ化」といいます。このラボでは、ハッシュ関数の4つの性質を体験したあと、くらしの中でどう役に立っているかを確かめます。' }),
+        point('安心して体験できます',
+          h('p', { text: 'このラボはすべてこのブラウザの中だけで動き、インターネットには一切つながりません。入力した文はどこにも送りません。出てくる会員表・ユーザー名・パスワードはすべて架空のものです。本物のパスワードは入力しないでください。' }))),
+      h('section', { class: 'card' },
+        h('h2', { text: 'すすめ方' }),
+        h('ol', null,
+          h('li', { text: '①〜④でハッシュ関数の性質を体験する(各ステップの「チャレンジ」に取り組もう)' }),
+          h('li', { text: '⑤・⑥でパスワードの保存と、改ざんの見つけ方を体験する' }),
+          h('li', { text: FK_OFF ? '⑦でクイズに答える' : '⑦でクイズとふりかえりを書く' }),
+          h('li', null, h('a', { href: '#records', text: T_REC }), 'からファイルを書き出して提出する')),
+        h('div', { class: 'lesson-plan' },
+          h('h3', { text: '授業で行うときの例' }),
+          h('ul', null,
+            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① ハッシュ値を作る・② 1文字だけ変える・③ 手作りハッシュ・④ もとにもどせる？」'),
+            h('li', null, h('strong', { text: '2時間目' }), '「⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ ' + T_QUIZ + '」'),
+            h('li', null, h('strong', { text: '1時間で行うとき' }), 'は、①・②・④・⑤・⑦ を中心にする')),
+          h('p', { class: 'muted', text: '次の人に端末をわたすときは、「' + T_REC + '」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
+      h('section', { class: 'module-group' },
+        h('h2', { text: 'ステップ' }),
+        h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
+          var m = missionOf(x.id);
+          var state = m && cleared(m.id) ? '✓ チャレンジ達成' : visited[x.id] ? '✓ やった' : 'まだ';
+          return h('a', { class: 'module-card', href: '#' + x.id },
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
+            h('span', { class: 'mc-title', text: x.title }),
+            h('span', { class: 'mc-desc', text: x.desc }),
+            h('span', { class: 'mc-state' + (visited[x.id] ? ' is-done' : ''), text: state }));
+        }))),
+      h('div', { class: 'btn-row home-start' },
+        h('a', { class: 'ef-btn-primary', href: '#make', text: 'ステップ① ハッシュ値を作ってみようからはじめよう →' }),
+        last && last.id !== 'make' ? h('a', { class: 'ef-btn', href: '#' + last.id, text: 'つづきから：' + last.title + ' →' }) : null),
+      h('details', { class: 'teacher' },
+        h('summary', { text: '先生へ' }),
+        h('ul', null,
+          h('li', { text: '学習指導要領の D「情報の技術」(1) 情報のデジタル化・情報セキュリティのしくみ、および (4) 情報モラル・安全な利用 にかかわる内容です。' }),
+          h('li', { text: 'ハッシュ値の計算は本物の SHA-256 です(ブラウザの中で計算。外部の機能は使いません)。同じ文を他の SHA-256 の計算ツールに入れると同じ値になります(文字は UTF-8 で数えます)。' }),
+          h('li', { text: '「手作りハッシュ」は、文字コードの合計を100でわった余りです。衝突(ちがう文で同じ値)が起きやすいことを体験させ、本物のハッシュ関数との差に気づかせるための模型です。' }),
+          h('li', { text: '総当たりの時間は「1秒に100億回ためせるコンピュータ」として計算した目安です。実際の速さは機械やハッシュ関数の種類で変わります(パスワード保存には、わざと計算をおそくした専用の方式が使われます)。' }),
+          h('li', { text: '暗号化(かぎで元にもどせる)と、ハッシュ化(元にもどせない)のちがいにふれると、情報セキュリティ体験ラボやネットワーク通信シミュレータの暗号化の学習とつながります。' }),
+          h('li', { text: '進み具合・チャレンジ・ふりかえり・名前などは、この端末のブラウザの中にだけ保存されます。「ふりかえり・記録」から JSON・CSV で書き出せ、JSON は「振り返り一覧(先生用)」で読みこめます。ふりがな・文字の大きさの設定は「はじめからやり直す」でも残ります。' })))
+    ]);
+  }
+
+  // ================= 1 ハッシュ値を作ってみよう =================
+  var s1 = { text: 'こんにちは', hist: [] };
+  function addHist(text) {
+    s1.hist = s1.hist.filter(function (x) { return x !== text; });
+    s1.hist.unshift(text);
+    if (s1.hist.length > 10) s1.hist.length = 10;
+    var ok = s1.hist.length >= 3 && s1.hist.some(function (x) { return Array.from(x).length >= 30; }) && s1.hist.some(function (x) { return Array.from(x).length <= 10; });
+    if (ok) clear('hash');
+  }
+  function renderMake(el) {
+    var ta = h('textarea', { id: 'make-input', class: 'input', rows: 2, maxlength: '400', 'aria-label': 'ハッシュ化する文' });
+    ta.value = s1.text;
+    ta.addEventListener('input', function () { s1.text = ta.value; });
+    ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); run(); } });
+    function run() { addHist(s1.text); go('make'); }
+    var latest = s1.hist.length ? s1.hist[0] : null;
+    var hx = latest != null ? HL.sha256(latest) : null;
+    append(el, [
+      h('p', { class: 'lead', text: '文を入れて「ハッシュ化する」をおそう。出てくるハッシュ値は、0〜9 と a〜f の16種類の文字(16進数)でできています。' }),
+      missionBox('make'),
+      card('ハッシュ関数(SHA-256)に入れる',
+        h('label', { class: 'ctl-label', for: 'make-input', text: '入れる文(本物のパスワードや個人情報は入れない)' }),
+        ta,
+        h('div', { class: 'btn-row' },
+          btn('ハッシュ化する', run, 'ef-btn-primary'),
+          h('span', { class: 'muted', text: 'ためしてみる:' }),
+          D.presets.map(function (p) {
+            var label = Array.from(p).length > 12 ? Array.from(p).slice(0, 10).join('') + '…(長い文)' : p;
+            return btn(label, function () { s1.text = p; addHist(p); go('make'); }, 'ef-btn small');
+          })),
+        hx ? h('div', { class: 'hash-out' },
+          h('p', { class: 'small-title' }, '「', h('span', { class: 'quote', text: Array.from(latest).length > 30 ? Array.from(latest).slice(0, 30).join('') + '…' : latest }), '」のハッシュ値'),
+          hexView(hx),
+          h('div', { class: 'row' }, pattern(hx), h('span', { class: 'muted', text: '元の文: ' + Array.from(latest).length + '文字 → ハッシュ値: ' + hx.length + '文字(256ビット)' })))
+          : h('p', { class: 'muted', text: 'まだハッシュ化していません。' })),
+      s1.hist.length ? card('これまでにハッシュ化した文',
+        h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
+          h('thead', null, h('tr', null, h('th', { text: '元の文' }), h('th', { text: '文字数' }), h('th', { text: 'ハッシュ値(はじめの16文字)' }), h('th', { text: '長さ' }))),
+          h('tbody', null, s1.hist.map(function (t) {
+            var x = HL.sha256(t);
+            return h('tr', null,
+              h('td', { class: 'cut', text: Array.from(t).length > 24 ? Array.from(t).slice(0, 24).join('') + '…' : (t || '(からっぽ)') }),
+              h('td', { class: 'num', text: Array.from(t).length }),
+              h('td', null, h('code', { class: 'hex small', text: shortHex(x) })),
+              h('td', { class: 'num', text: x.length + '文字' }));
+          })))),
+        h('p', { class: 'muted', text: '同じ文をもう一度ハッシュ化しても、同じ行にまとまります(同じ文 → いつも同じハッシュ値)。' })) : null,
+      point('わかったこと',
+        h('ul', null,
+          h('li', null, h('strong', { text: '同じ文からは、いつも同じハッシュ値' }), 'が出る(どのコンピュータで計算しても同じ)'),
+          h('li', null, h('strong', { text: '文の長さに関係なく、ハッシュ値の長さはいつも同じ' }), '(SHA-256 は 16進数で64文字 = 256ビット)'),
+          h('li', null, '「Hello」と「hello」のように、大文字・小文字がちがうだけでもハッシュ値はまったくちがう')),
+        h('p', { text: '人の指紋がその人だけのものであるように、ハッシュ値はデータの「指紋」として使われます。' }))
+    ]);
+  }
+
+  // ================= 2 1文字だけ変えると？ =================
+  var s2 = { a: D.pairStart[0], b: D.pairStart[0] };
+  function renderAvalanche(el) {
+    var ha = HL.sha256(s2.a), hb = HL.sha256(s2.b);
+    var dc = HL.diffChars(ha, hb), db = HL.diffBits(ha, hb);
+    var out = h('div', { class: 'pair-out', 'aria-live': 'polite' });
+    function inp(id, key) {
+      var i = h('input', { id: id, type: 'text', class: 'input', maxlength: '200' });
+      i.value = s2[key];
+      i.addEventListener('input', function () {
+        s2[key] = i.value;
+        if (HL.oneCharApart(s2.a, s2.b)) { if (clear('avalanche')) { rerender(); return; } }
+        fill();
+      });
+      return i;
+    }
+    function fill() {
+      ha = HL.sha256(s2.a); hb = HL.sha256(s2.b);
+      dc = HL.diffChars(ha, hb); db = HL.diffBits(ha, hb);
+      out.textContent = '';
+      append(out, [
+        h('div', { class: 'pair-row' }, h('span', { class: 'badge gray', text: 'Aのハッシュ値' }), hexView(ha, null, 'Aのハッシュ値'), pattern(ha, true)),
+        h('div', { class: 'pair-row' }, h('span', { class: 'badge gray', text: 'Bのハッシュ値' }), hexView(hb, ha, 'Bのハッシュ値'), pattern(hb, true)),
+        s2.a === s2.b
+          ? h('div', { class: 'result info', text: 'AとBは同じ文なので、ハッシュ値もまったく同じです。Bを1文字だけ変えてみよう(「8時」を「9時」にする など)。' })
+          : h('div', { class: 'result ' + (HL.oneCharApart(s2.a, s2.b) ? 'ok' : 'info') },
+            h('p', null, 'ちがう文字: ', h('b', { text: '64文字中 ' + dc + '文字' }), '(黄色の所)　ちがうビット: ', h('b', { text: '256ビット中 ' + db + 'ビット(' + Math.round(db / 256 * 100) + '%)' })),
+            h('div', { class: 'diff-bar' }, bar(db / 256), h('span', { class: 'muted', text: '半分(50%)くらいが変わるのがふつう' })),
+            HL.oneCharApart(s2.a, s2.b) ? h('p', { text: '元の文は1文字しかちがわないのに、ハッシュ値は全体が変わりました。' }) : h('p', { class: 'muted', text: 'チャレンジは「1文字だけ」変えることです。' }))
+      ]);
+      applyRuby(out);
+    }
+    append(el, [
+      h('p', { class: 'lead', text: '文Aと文Bのハッシュ値をくらべます。はじめは同じ文です。Bを少しだけ変えると、ハッシュ値はどれくらい変わるでしょうか。予想してからためそう。' }),
+      missionBox('avalanche'),
+      card('2つの文をくらべる',
+        h('div', { class: 'field-row' },
+          h('div', { class: 'field' }, h('label', { for: 'av-a', text: '文A' }), inp('av-a', 'a')),
+          h('div', { class: 'field' }, h('label', { for: 'av-b', text: '文B(ここを変える)' }), inp('av-b', 'b'))),
+        h('div', { class: 'btn-row' }, btn('BをAと同じにもどす', function () { s2.b = s2.a; go('avalanche'); }, 'ef-btn small')),
+        out),
+      point('なだれ効果',
+        h('p', { text: '元のデータがほんの少しちがうだけで、ハッシュ値は全体がばらばらに変わります。雪山の小さな雪のかたまりが大きななだれになるようすにたとえて「なだれ効果」といいます。' }),
+        h('p', { text: 'だから、ハッシュ値が似ているかどうかを見ても、元の文が似ているかは分かりません。また、たった1文字の書きかえでも、ハッシュ値をくらべればすぐに見つかります(ステップ6)。' }))
+    ]);
+    fill();
+  }
+
+  // ================= 3 手作りハッシュの弱点 =================
+  var s3 = { a: D.toyStart[0], b: D.toyStart[1] };
+  function toyCalc(text) {
+    var parts = HL.toyParts(text);
+    var sum = HL.toySum(text);
+    return h('div', { class: 'toy-calc' },
+      parts.length ? h('div', { class: 'toy-chars' }, parts.slice(0, 12).map(function (p) {
+        return h('span', { class: 'toy-ch' }, h('b', { text: p.ch === ' ' ? '␣' : p.ch }), h('small', { text: p.code }));
+      }), parts.length > 12 ? h('span', { class: 'muted', text: '…' }) : null) : h('p', { class: 'muted', text: '(文を入れてください)' }),
+      h('p', { class: 'toy-sum' }, '番号の合計 ', h('b', { text: sum.toLocaleString('ja-JP') }), ' ÷ 100 の余り → ハッシュ値 ', h('b', { class: 'toy-val', text: HL.toyHash(text) })));
+  }
+  function renderToy(el) {
+    var out = h('div', { 'aria-live': 'polite' });
+    function inp(id, key) {
+      var i = h('input', { id: id, type: 'text', class: 'input', maxlength: '40' });
+      i.value = s3[key];
+      i.addEventListener('input', function () {
+        s3[key] = i.value;
+        if (s3.a && s3.b && s3.a !== s3.b && HL.toyHash(s3.a) === HL.toyHash(s3.b)) { if (clear('collision')) { rerender(); return; } }
+        fill();
+      });
+      return i;
+    }
+    function fill() {
+      var same = s3.a !== s3.b && HL.toyHash(s3.a) === HL.toyHash(s3.b);
+      var ha = HL.sha256(s3.a), hb = HL.sha256(s3.b);
+      out.textContent = '';
+      append(out, [
+        h('div', { class: 'two' },
+          h('div', { class: 'toy-box' }, h('p', { class: 'small-title', text: '文A' }), toyCalc(s3.a)),
+          h('div', { class: 'toy-box' }, h('p', { class: 'small-title', text: '文B' }), toyCalc(s3.b))),
+        s3.a === s3.b ? h('div', { class: 'result info', text: 'AとBが同じ文です。ちがう文で、同じハッシュ値になる組をさがそう。' })
+          : same ? h('div', { class: 'result ng' },
+            h('p', { text: '衝突！ ちがう文なのに、手作りハッシュの値が同じ「' + HL.toyHash(s3.a) + '」になりました。' }),
+            h('p', { text: 'これでは、ハッシュ値が同じでも「同じデータ」とは言えません。' }))
+            : h('div', { class: 'result info', text: '手作りハッシュの値はちがいます(' + HL.toyHash(s3.a) + ' と ' + HL.toyHash(s3.b) + ')。同じになる組をさがそう。' }),
+        h('div', { class: 'compare-real' },
+          h('p', { class: 'small-title', text: '同じ2つの文を、本物のハッシュ関数(SHA-256)に入れると' }),
+          h('div', { class: 'pair-row' }, h('span', { class: 'badge gray', text: 'A' }), hexView(ha, null, 'AのSHA-256')),
+          h('div', { class: 'pair-row' }, h('span', { class: 'badge gray', text: 'B' }), hexView(hb, ha, 'BのSHA-256')),
+          h('p', { class: 'muted', text: s3.a === s3.b ? '同じ文なので同じ値です。' : '本物のハッシュ関数では、ちがう値になります。' }))
+      ]);
+      applyRuby(out);
+    }
+    append(el, [
+      h('p', { class: 'lead', text: 'ハッシュ関数を自分でも作ってみます。「手作りハッシュ」は、文字の番号(文字コード)をすべてたして、100でわった余りをハッシュ値にします。' }),
+      missionBox('toy', h('p', { class: 'muted', text: 'ヒント: 同じ文字を使って、順番だけを入れかえると？' })),
+      card('手作りハッシュ',
+        h('div', { class: 'field-row' },
+          h('div', { class: 'field' }, h('label', { for: 'toy-a', text: '文A' }), inp('toy-a', 'a')),
+          h('div', { class: 'field' }, h('label', { for: 'toy-b', text: '文B' }), inp('toy-b', 'b'))),
+        out),
+      point('本物のハッシュ関数との差',
+        h('ul', null,
+          h('li', null, '手作りハッシュの値は ', h('b', { text: '00〜99 の100通り' }), 'しかない。101個の文があれば、必ずどこかで同じ値(衝突)が出る'),
+          h('li', null, '文字の順番を変えても合計は同じなので、衝突がかんたんに作れてしまう'),
+          h('li', null, '本物の SHA-256 の値は ', h('b', { text: '2の256乗(約1.2×10の77乗)通り' }), '。文字の順番や位置もこまかくまぜあわせるので、衝突する2つの文を見つけることは、今のコンピュータでは事実上できない')),
+        h('p', { text: 'よいハッシュ関数は「同じ値になる組を、わざと作れない」ように作られています。' }))
+    ]);
+    fill();
+  }
+
+  // ================= 4 もとにもどせる？ =================
+  function newPin() { return ('00' + Math.floor(Math.random() * 1000)).slice(-3); }
+  var s4 = { pin: '', guess: '', tries: [], running: false, scan: 0, found: '', by: '', kinds: 'num', len: 4 };
+  function renderOneway(el) {
+    if (!s4.pin) s4.pin = newPin();
+    var target = HL.sha256(s4.pin);
+    var gi = h('input', { id: 'pin-guess', type: 'text', inputmode: 'numeric', class: 'input pin', maxlength: '3', autocomplete: 'off', 'aria-label': '3けたの番号' });
+    gi.value = s4.guess;
+    gi.addEventListener('input', function () { s4.guess = gi.value.replace(/[^0-9０-９]/g, ''); });
+    gi.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); tryGuess(); } });
+    function tryGuess() {
+      var g = (s4.guess || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xfee0); });
+      if (!/^\d{3}$/.test(g) || s4.found) return;
+      s4.tries.unshift(g);
+      if (g === s4.pin) { s4.found = g; s4.by = 'あなた'; clear('crack'); }
+      s4.guess = '';
+      go('oneway');
+    }
+    var live = h('div', { class: 'scan', 'aria-live': 'off' });
+    function scanView() {
+      live.textContent = '';
+      var n = s4.scan;
+      var cur = ('00' + Math.max(0, n - 1)).slice(-3);
+      append(live, [
+        h('p', null, 'ためした数: ', h('b', { class: 'scan-n', text: n + ' / 1000' })),
+        bar(n / 1000),
+        n ? h('p', { class: 'scan-now' }, h('span', { text: cur + ' → ' }), h('code', { class: 'hex small', text: shortHex(HL.sha256(cur)) })) : null
+      ]);
+    }
+    function brute() {
+      if (s4.running || s4.found) return;
+      s4.running = true;
+      s4.scan = 0;
+      var t0 = Date.now();
+      var per = reduceMotion ? 1000 : 9;
+      go('oneway');
+      var id = setInterval(function () {
+        for (var k = 0; k < per && !s4.found; k++) {
+          var c = ('00' + s4.scan).slice(-3);
+          s4.scan++;
+          if (HL.sha256(c) === target) { s4.found = c; s4.by = 'コンピュータ'; }
+        }
+        scanView();
+        if (s4.found || s4.scan >= 1000) {
+          clearInterval(id);
+          s4.running = false;
+          s4.ms = Date.now() - t0;
+          clear('crack');
+          rerender();
+        }
+      }, 16);
+      timers.push(id);
+    }
+    function again() { s4.pin = newPin(); s4.tries = []; s4.found = ''; s4.by = ''; s4.scan = 0; s4.guess = ''; go('oneway'); }
+    scanView();
+
+    var kinds = D.charKinds.filter(function (k) { return k.id === s4.kinds; })[0] || D.charKinds[0];
+    var total = HL.combos(kinds.n, s4.len);
+    var lenIn = h('input', { id: 'len', type: 'range', min: '1', max: '16', value: String(s4.len), 'aria-label': 'パスワードの長さ' });
+    lenIn.addEventListener('input', function () { s4.len = Number(lenIn.value); go('oneway'); });
+
+    append(el, [
+      h('p', { class: 'lead', text: 'ハッシュ値から元のデータを計算でもどせるでしょうか。ある人の3けたの暗証番号(000〜999)を、ハッシュ値だけを手がかりに当ててみよう。' }),
+      missionBox('oneway'),
+      card('暗証番号を当てる',
+        h('p', null, '暗証番号のハッシュ値:'),
+        hexView(target, null, '暗証番号のハッシュ値'),
+        s4.found ? h('div', { class: 'result ok' },
+          h('p', { text: '見つかりました！ 暗証番号は「' + s4.found + '」。' + (s4.by === 'コンピュータ' ? 'コンピュータが ' + s4.scan + '回ためして見つけました(およそ ' + Math.max(1, s4.ms || 0) + 'ミリ秒)。' : 'あなたが ' + s4.tries.length + '回目で当てました。') }),
+          h('p', { text: 'ハッシュ値をもとにもどす計算をしたのではなく、「000」から順番にハッシュ化して、同じハッシュ値になるものをさがしただけです(総当たり)。' }),
+          btn('別の暗証番号でもう一度', again, 'ef-btn small')) : null,
+        !s4.found ? h('div', { class: 'two' },
+          h('div', { class: 'try-box' },
+            h('p', { class: 'small-title', text: '① 自分で予想する' }),
+            h('div', { class: 'row' }, gi, btn('ハッシュ化してくらべる', tryGuess, 'ef-btn-primary')),
+            s4.tries.length ? h('ul', { class: 'try-list' }, s4.tries.slice(0, 6).map(function (g) {
+              return h('li', null, h('b', { text: g }), ' → ', h('code', { class: 'hex small', text: shortHex(HL.sha256(g)) }), h('span', { class: 'ng-text', text: ' ちがう' }));
+            })) : null,
+            s4.tries.length ? h('p', { class: 'muted', text: s4.tries.length + '回ためしました。ハッシュ値が「近い」かどうかもヒントになりません。' }) : null),
+          h('div', { class: 'try-box' },
+            h('p', { class: 'small-title', text: '② コンピュータに総当たりさせる' }),
+            h('p', { class: 'muted', text: '000, 001, 002 … と順番にハッシュ化して、同じハッシュ値をさがします。' }),
+            btn(s4.running ? 'さがしています…' : '総当たりをはじめる', brute, 'ef-btn-primary'),
+            s4.running || s4.scan ? live : null)) : null),
+      card('パスワードが長いと？',
+        h('p', { text: '総当たりで全部ためすのにかかる時間は、文字の種類と長さで決まります。1秒に100億回ためせるコンピュータ(例)で計算してみよう。自分のパスワードは入れずに、種類と長さだけをえらびます。' }),
+        h('div', { class: 'controls' },
+          h('div', { class: 'ctl' }, h('span', { class: 'ctl-label', text: '使う文字の種類' }),
+            segmented(D.charKinds.map(function (k) { return [k.id, k.label]; }), s4.kinds, function (v) { s4.kinds = v; go('oneway'); }, '使う文字の種類')),
+          h('div', { class: 'ctl' }, h('label', { class: 'ctl-label', for: 'len', text: '長さ(文字数)' }),
+            h('div', { class: 'range' }, lenIn, h('output', { for: 'len', text: s4.len + '文字' })))),
+        h('div', { class: 'stat-row' },
+          h('div', { class: 'stat' }, h('span', { text: 'ありうる組み合わせ' }), h('b', { text: HL.bigNumber(total) + '通り' }), h('small', { class: 'muted', text: kinds.n + 'の' + s4.len + '乗' })),
+          h('div', { class: 'stat' + (total / D.triesPerSec > 3600 * 24 * 365 * 100 ? ' good' : total / D.triesPerSec < 3600 * 24 ? ' bad' : '') },
+            h('span', { text: '全部ためすのにかかる時間(最大)' }), h('b', { text: HL.duration(total / D.triesPerSec) }))),
+        h('table', { class: 'data compact' },
+          h('thead', null, h('tr', null, h('th', { text: '例' }), h('th', { text: '組み合わせ' }), h('th', { text: '時間(最大)' }))),
+          h('tbody', null, [['数字4けた', 10, 4], ['英小文字8文字', 26, 8], ['英大文字・小文字+数字 8文字', 62, 8], ['英大文字・小文字+数字+記号 12文字', 94, 12]].map(function (r) {
+            var c = HL.combos(r[1], r[2]);
+            return h('tr', null, h('td', { text: r[0] }), h('td', { class: 'num', text: HL.bigNumber(c) }), h('td', { class: 'num', text: HL.duration(c / D.triesPerSec) }));
+          })))),
+      point('一方向性(もとにもどせない)',
+        h('p', { text: 'ハッシュ関数は、ハッシュ値から元のデータを計算でもどせない「一方向」の計算です。元を知るには、ありうるものを片っぱしから試す(総当たり)しかありません。' }),
+        h('p', { text: '3けたの番号のように組み合わせが少ないと、総当たりですぐ見つかります。長く、いろいろな種類の文字を使ったパスワードほど、見つけるのに時間がかかります。' }))
+    ]);
+  }
+
+  // ================= 5 パスワードの守り方 =================
+  var s5 = { login: '', loginRes: null, picked: [], dict: false, salt: false };
+  var userHash = {};
+  function hashOf(u, salt) {
+    var k = u.id + (salt ? ':s' : '');
+    if (!userHash[k]) userHash[k] = HL.sha256((salt ? u.salt : '') + u.password);
+    return userHash[k];
+  }
+  function renderPassword(el) {
+    var demo = D.loginDemo;
+    var stored = HL.sha256(demo.password);
+    var li = h('input', { id: 'login-pass', type: 'text', class: 'input', maxlength: '40', autocomplete: 'off', 'aria-label': 'パスワード(練習用)' });
+    li.value = s5.login;
+    li.addEventListener('input', function () { s5.login = li.value; });
+    li.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); login(); } });
+    function login() { s5.loginRes = HL.sha256(s5.login); go('password'); }
+
+    var dictHash = {};
+    D.dictionary.forEach(function (w) { dictHash[HL.sha256(w)] = w; });
+    var pickedOk = s5.picked.length === 2 && hashOf(D.users.filter(function (u) { return u.id === s5.picked[0]; })[0], false) === hashOf(D.users.filter(function (u) { return u.id === s5.picked[1]; })[0], false);
+    function pick(id) {
+      if (s5.salt) return;
+      var i = s5.picked.indexOf(id);
+      if (i >= 0) s5.picked.splice(i, 1);
+      else { s5.picked.push(id); if (s5.picked.length > 2) s5.picked.shift(); }
+      if (s5.picked.length === 2) {
+        var a = D.users.filter(function (u) { return u.id === s5.picked[0]; })[0], b = D.users.filter(function (u) { return u.id === s5.picked[1]; })[0];
+        if (hashOf(a, false) === hashOf(b, false)) clear('leak');
+      }
+      go('password');
+    }
+    var cracked = D.users.filter(function (u) { return dictHash[hashOf(u, s5.salt)]; }).length;
+
+    append(el, [
+      h('p', { class: 'lead', text: 'ログインのあるサイトは、みんなのパスワードをどのように保存しているのでしょうか。架空のサイト「みなみ図書ネット」で確かめよう。' }),
+      card('① サイトはパスワードを「ハッシュ値」で保存する',
+        h('p', null, '練習用のアカウント ', h('b', { class: 'no-ruby', text: demo.user }), ' のパスワードは ', h('b', { class: 'no-ruby', text: demo.password }), ' です。サイトの会員表には、パスワードそのものではなく、ハッシュ値だけが保存されています。'),
+        h('div', { class: 'db-row' }, h('span', { class: 'badge gray', text: '会員表に保存されている値' }), hexView(stored, null, '保存されているハッシュ値')),
+        h('div', { class: 'row' }, h('label', { for: 'login-pass', class: 'ctl-label', text: 'パスワード(練習用)' }), li, btn('ログイン', login, 'ef-btn-primary')),
+        s5.loginRes ? h('div', { class: 'login-res' },
+          h('div', { class: 'db-row' }, h('span', { class: 'badge gray', text: '入れたパスワードのハッシュ値' }), hexView(s5.loginRes, stored, '入れたパスワードのハッシュ値')),
+          s5.loginRes === stored ? h('div', { class: 'result ok', text: 'ハッシュ値が一致したので、ログインできました。サイトは、パスワードそのものを知らなくても、正しいかどうかを確かめられます。' })
+            : h('div', { class: 'result ng', text: 'ハッシュ値が一致しないので、ログインできません。(わざとまちがえたり、正しく入れたりしてくらべよう)' })) : null),
+      missionBox('password'),
+      card('② 会員表がもれてしまった！',
+        h('p', { text: '不正アクセスで、会員表が外にもれてしまいました。パスワードはハッシュ化されているので、そのままでは見えません。でも、表をよく見ると…' }),
+        h('div', { class: 'btn-row' },
+          btn(s5.salt ? 'ソルトを外す(ハッシュ化だけ)' : 'ソルトを付けて保存する', function () { s5.salt = !s5.salt; go('password'); }, 'ef-btn' + (s5.salt ? ' is-on' : '')),
+          !s5.dict ? btn('だます人の「よく使われるパスワード辞書」とくらべる', function () { s5.dict = true; go('password'); }, 'ef-btn-primary')
+            : btn('辞書とくらべるのをやめる', function () { s5.dict = false; go('password'); })),
+        h('div', { class: 'table-wrap' }, h('table', { class: 'data users' },
+          h('thead', null, h('tr', null, h('th', { text: 'ユーザー名' }), s5.salt ? h('th', { text: 'ソルト' }) : null, h('th', { text: '保存されているハッシュ値' }), s5.dict ? h('th', { text: '辞書とくらべると' }) : null)),
+          h('tbody', null, D.users.map(function (u) {
+            var hx = hashOf(u, s5.salt);
+            var on = s5.picked.indexOf(u.id) >= 0;
+            var hit = s5.dict && dictHash[hx];
+            return h('tr', { class: (on && !s5.salt ? 'is-picked' : '') + (hit ? ' is-cracked' : '') },
+              h('td', null, s5.salt ? h('b', { class: 'no-ruby', text: u.id })
+                : h('button', { type: 'button', class: 'user-btn', 'aria-pressed': String(on), on: { click: function () { pick(u.id); } } }, u.id)),
+              s5.salt ? h('td', null, h('code', { class: 'hex small', text: u.salt })) : null,
+              h('td', null, h('code', { class: 'hex small', text: hx.slice(0, 24) + '…' })),
+              s5.dict ? h('td', null, hit ? h('span', { class: 'ng-text', text: 'もとのパスワードが見つかった: ' + hit }) : h('span', { class: 'ok-text', text: '見つからない' })) : null);
+          })))),
+        !s5.salt ? h('p', { class: 'muted', text: '同じハッシュ値の2人をえらぼう(ユーザー名をおす)。' }) : null,
+        pickedOk && !s5.salt ? h('div', { class: 'result warn', text: s5.picked.join(' と ') + ' は、ハッシュ値がまったく同じです。つまり、同じパスワードを使っています。どちらか1人のパスワードが分かれば、もう1人のパスワードも分かってしまいます。' })
+          : s5.picked.length === 2 && !s5.salt ? h('div', { class: 'result info', text: 'この2人のハッシュ値はちがいます。もう一度さがそう。' }) : null,
+        s5.dict ? h('div', { class: 'result ' + (cracked ? 'ng' : 'ok') },
+          h('p', { text: s5.salt
+            ? 'ソルトを付けると、だます人が前もって作った辞書のハッシュ値とは1つも一致しません(' + cracked + '人)。同じパスワードの2人も、ハッシュ値がちがって見えます。'
+            : '5人のうち ' + cracked + '人のパスワードが分かってしまいました。よく使われるパスワードは、前もってハッシュ値を計算した「辞書」とくらべるだけで見つかります。' }),
+          s5.salt ? h('p', { text: 'ただし、だます人がソルトを使って1人ずつ辞書を計算し直せば、弱いパスワードはやはり見つかります。いちばん大事なのは、推測されにくい長いパスワードにすることです。' }) : null) : null),
+      point('パスワードを守るために',
+        h('ul', null,
+          h('li', null, h('b', { text: 'サービスを作る側: ' }), 'パスワードはそのまま保存せず、ソルトを付けてハッシュ化して保存する(計算に時間がかかる専用のハッシュ関数を使う)'),
+          h('li', null, h('b', { text: '使う人(自分): ' }), '「123456」や名前・誕生日など推測されやすいものは使わない。長く、いろいろな文字をまぜる。サービスごとにちがうパスワードにする(1つもれても、ほかが守られる)')))
+    ]);
+  }
+
+  // ================= 6 改ざんを見つける =================
+  var s6 = { calc: {}, judge: {}, edit: null };
+  var officialHash = HL.sha256(D.original);
+  function copyText(c) { return c.text == null ? D.original : c.text; }
+  function renderTamper(el) {
+    if (s6.edit == null) s6.edit = D.original;
+    function judge(id, v) {
+      s6.judge[id] = v;
+      var all = D.copies.every(function (c) { return s6.judge[c.id] === (HL.sha256(copyText(c)) === officialHash ? 'ok' : 'ng'); });
+      if (all) clear('tamper');
+      go('tamper');
+    }
+    var ed = h('textarea', { id: 'tamper-edit', class: 'input', rows: 5, 'aria-label': '自分で書きかえる文' });
+    ed.value = s6.edit;
+    var edOut = h('div', { 'aria-live': 'polite' });
+    function edFill() {
+      var x = HL.sha256(s6.edit);
+      edOut.textContent = '';
+      append(edOut, [
+        h('div', { class: 'db-row' }, h('span', { class: 'badge gray', text: '今の文のハッシュ値' }), hexView(x, officialHash, '今の文のハッシュ値')),
+        x === officialHash ? h('div', { class: 'result ok', text: '公式のハッシュ値と一致: 書きかえられていません。' })
+          : h('div', { class: 'result ng', text: '公式のハッシュ値と一致しません: どこかが書きかえられています(空白1つ・改行1つでも見つかります)。' })
+      ]);
+      applyRuby(edOut);
+    }
+    ed.addEventListener('input', function () { s6.edit = ed.value; edFill(); });
+    edFill();
+    var judgedAll = D.copies.every(function (c) { return s6.judge[c.id]; });
+    append(el, [
+      h('p', { class: 'lead', text: '学校から「校外学習のお知らせ」のファイルが配られました。でも、いろいろな所からコピーが出回っています。どれが本物か、ハッシュ値で確かめよう。' }),
+      missionBox('tamper'),
+      card('学校のホームページにのっている、公式のハッシュ値',
+        hexView(officialHash, null, '公式のハッシュ値'),
+        h('p', { class: 'muted', text: '本物のファイルをハッシュ化すると、この値になります。' })),
+      h('div', { class: 'copies' }, D.copies.map(function (c) {
+        var text = copyText(c);
+        var x = HL.sha256(text);
+        var shown = s6.calc[c.id];
+        var j = s6.judge[c.id];
+        var right = x === officialHash ? 'ok' : 'ng';
+        return h('section', { class: 'card copy' },
+          h('h2', { class: 'panel-title', text: 'ファイル ' + c.id }),
+          h('p', { class: 'muted', text: c.route }),
+          h('pre', { class: 'doc', text: text }),
+          shown ? h('div', null, h('p', { class: 'small-title', text: 'このファイルのハッシュ値' }), hexView(x, officialHash, 'ファイル' + c.id + 'のハッシュ値'))
+            : btn('ハッシュ値を計算する', function () { s6.calc[c.id] = true; go('tamper'); }, 'ef-btn-primary'),
+          shown ? h('div', { class: 'judge' },
+            h('span', { class: 'ctl-label', text: '判定:' }),
+            h('button', { type: 'button', class: 'ef-btn', 'aria-pressed': String(j === 'ok'), on: { click: function () { judge(c.id, 'ok'); } } }, '本物'),
+            h('button', { type: 'button', class: 'ef-btn', 'aria-pressed': String(j === 'ng'), on: { click: function () { judge(c.id, 'ng'); } } }, '書きかえられている')) : null,
+          j ? h('p', { class: 'judge-res ' + (j === right ? 'ok' : 'ng'), text: j === right ? (right === 'ok' ? '○ 正しい判定。公式のハッシュ値と一致しています。' : '○ 正しい判定。ハッシュ値が一致しません。文をよく見て、どこが変わっているかさがそう。') : '× もう一度、公式のハッシュ値とくらべよう(黄色の文字が、ちがう所)。' }) : null);
+      })),
+      judgedAll && cleared('tamper') ? h('div', { class: 'result ok', text: 'B は集合時刻(7時30分 → 8時30分)、C は日にち(20日 → 21日)が書きかえられていました。たった1文字のちがいでも、ハッシュ値をくらべればすぐに分かります。' }) : null,
+      card('自分で書きかえてみよう',
+        h('p', { text: '本物のお知らせの文です。1文字だけ変えたり、空白を足したりして、ハッシュ値がどうなるか見よう。もとにもどすと、また一致します。' }),
+        ed,
+        h('div', { class: 'btn-row' }, btn('本物の文にもどす', function () { s6.edit = D.original; go('tamper'); }, 'ef-btn small')),
+        edOut),
+      point('ハッシュ値で改ざんを見つける',
+        h('p', { text: 'アプリやソフトウェアを配るサイトでは、ファイルといっしょにハッシュ値をのせていることがあります。ダウンロードしたファイルのハッシュ値が同じなら、とちゅうで書きかえられていない(ウイルスなどを入れられていない)と分かります。' }),
+        h('p', { text: 'ほかにも、ブロックチェーン(暗号資産などの記録)や、電子署名、同じファイルをさがす機能など、ハッシュ値は社会のいろいろな所で使われています。' }))
+    ]);
+  }
+
+  // ================= 7 クイズとふりかえり =================
+  var qs = { ans: {} };
+  function renderQuiz(el) {
+    var score = D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length;
+    var answered = Object.keys(qs.ans).length;
+    el.appendChild(h('p', { class: 'lead', text: 'ここまでの体験をふりかえるクイズです。' }));
+    D.quiz.forEach(function (q, i) {
+      var a = qs.ans[i];
+      el.appendChild(card('Q' + (i + 1) + '　' + q.q,
+        h('div', { class: 'quiz-opts' }, q.a.map(function (t, k) {
+          var cls = 'choice' + (a != null ? (k === q.c ? ' right' : k === a ? ' wrong' : '') : '');
+          return h('button', { type: 'button', class: cls, disabled: a != null, on: { click: function () { qs.ans[i] = k; go('quiz'); } } }, t);
+        })),
+        a != null ? h('div', { class: 'result ' + (a === q.c ? 'ok' : 'info'), text: (a === q.c ? '○ 正解。' : '× 正解は「' + q.a[q.c] + '」。') + q.why }) : null));
+    });
+    if (answered === D.quiz.length) {
+      el.appendChild(h('div', { class: 'result ok' }, h('b', { text: D.quiz.length + '問中 ' + score + '問 正解' })));
+      el.appendChild(h('div', { class: 'btn-row' }, btn('クイズをやり直す', function () { qs.ans = {}; go('quiz'); })));
+    }
+
+    var refl = saved.refl || {};
+    var status = h('p', { class: 'muted', 'aria-live': 'polite', text: '書いた内容は、この端末のブラウザの中だけに保存されます。' });
+    el.appendChild(reflectOnly(card('ふりかえり', D.reflQ.map(function (r) {
+      var ta = h('textarea', { id: 'refl-' + r.id, class: 'input', rows: 3, maxlength: '800' });
+      ta.value = refl[r.id] || '';
+      ta.addEventListener('input', function () { refl[r.id] = ta.value; save('refl', refl); status.textContent = '保存しました(この端末の中だけ)。'; });
+      return h('label', { class: 'refl' }, h('span', { class: 'ctl-label', text: r.label }), ta);
+    }), status)));
+
+    el.appendChild(h('p', { class: 'hint', 'data-ef-reflect': '' }, '書きおわったら、', h('a', { href: '#records', text: T_REC }), 'でファイルに書き出して先生に出そう。'));
+  }
+
+  // ---- 記録の書き出し(端末の中でファイルを作るだけ。送信はしない) ----
+  function buildRecord() {
+    var st = saved.student || {};
+    var visited = saved.visited || {};
+    var refl = saved.refl || {};
+    var ms = saved.missions || {};
+    return {
+      app: APP,
+      exportedAt: new Date().toISOString(),
+      student: { cls: st.cls || '', num: st.num || '', name: st.name || '' },
+      steps: STEP_SECTIONS.map(function (x) { return { no: x.label, title: x.recTitle || x.title, opened: !!visited[x.id] }; }),
+      challenges: MISSIONS.map(function (m) {
+        var sec = SECTIONS.filter(function (x) { return x.id === m.step; })[0];
+        return { id: m.id, no: sec.label, title: m.title, cleared: !!ms[m.id], at: (ms[m.id] || {}).at || '' };
+      }),
+      quiz: { answered: Object.keys(qs.ans).length, correct: D.quiz.filter(function (q, i) { return qs.ans[i] === q.c; }).length, total: D.quiz.length },
+      reflection: { r1: refl.r1 || '', r2: refl.r2 || '', r3: refl.r3 || '' }
+    };
+  }
+  function recordCsv(r) {
+    var cell = function (v) {
+      var s = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;  // 数式として動かないように
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
+    var head = ['組', '番号', '名前', 'ひらいたステップ', 'チャレンジ達成'].concat(r.challenges.map(function (c) { return 'チャレンジ' + c.no; }))
+      .concat(['クイズ正解', 'ふりかえり1', 'ふりかえり2', 'ふりかえり3']);
+    var row = [r.student.cls, r.student.num, r.student.name,
+      r.steps.filter(function (x) { return x.opened; }).length + ' / ' + r.steps.length,
+      r.challenges.filter(function (c) { return c.cleared; }).length + ' / ' + r.challenges.length]
+      .concat(r.challenges.map(function (c) { return c.cleared ? '達成' : 'まだ'; }))
+      .concat([r.quiz.correct + ' / ' + r.quiz.total, r.reflection.r1, r.reflection.r2, r.reflection.r3]);
+    return '﻿' + head.map(cell).join(',') + '\r\n' + row.map(cell).join(',');
+  }
+  function renderRecordsPage(el) {
+    var st = saved.student || {};
+    var note = h('p', { class: 'export-note', role: 'status', 'aria-live': 'polite' });
+    function field(id, label, key, size) {
+      var inp = h('input', { id: id, type: 'text', class: 'input', maxlength: '40', size: size });
+      inp.value = st[key] || '';
+      inp.addEventListener('input', function () { st[key] = inp.value.trim(); save('student', st); });
+      return h('div', { class: 'field' }, h('label', { for: id, text: label }), inp);
+    }
+    function fileName(ext) {
+      var who = [st.cls, st.num, st.name].filter(Boolean).join('_') || '記録';
+      return (APP + '_' + who + '.' + ext).replace(/[\\/:*?"<>|\s]/g, '_');
+    }
+    function ready() {
+      if (!String(st.cls || '').trim() || !String(st.num || '').trim()) {
+        note.className = 'export-note warn';
+        note.textContent = '組と番号を入れてから書き出そう';
+        document.getElementById(String(st.cls || '').trim() ? 'rec-num' : 'rec-cls').focus();
+        return false;
+      }
+      return true;
+    }
+    function download(ext) {
+      if (!ready()) return;
+      var r = buildRecord();
+      var text = ext === 'json' ? JSON.stringify(r, null, 2) : recordCsv(r);
+      var name = fileName(ext);
+      try {
+        var url = URL.createObjectURL(new Blob([text], { type: ext === 'json' ? 'application/json' : 'text/csv' }));
+        var a = h('a', { href: url, download: name });
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        note.className = 'export-note good';
+        note.textContent = 'ファイルを保存しました(ファイル名: ' + name + ')。先生に言われた場所に出そう。ファイルができないときは「記録をコピーする」を使います。';
+      } catch (e) {
+        note.className = 'export-note warn';
+        note.textContent = 'ファイルを作れませんでした。「記録をコピーする」を使ってください。';
+      }
+    }
+    function copy() {
+      if (!ready()) return;
+      var r = buildRecord();
+      var text = [r.app, '組: ' + r.student.cls + '　番号: ' + r.student.num + '　名前: ' + r.student.name,
+        'チャレンジ: ' + r.challenges.filter(function (c) { return c.cleared; }).length + ' / ' + r.challenges.length + ' 達成',
+        'クイズ: ' + r.quiz.correct + ' / ' + r.quiz.total + ' 問正解',
+        'ふりかえり1: ' + r.reflection.r1, 'ふりかえり2: ' + r.reflection.r2, 'ふりかえり3: ' + r.reflection.r3].join('\n');
+      var done = function () { note.className = 'export-note good'; note.textContent = 'コピーしました。先生に言われた場所(Classroom など)にはりつけよう。'; };
+      var fallback = function () {
+        var ta = h('textarea', { class: 'input', rows: 6, readonly: true });
+        ta.value = text;
+        note.textContent = 'コピーできなかったので、下の文を全部えらんでコピーしてください。';
+        note.className = 'export-note warn';
+        note.appendChild(ta);
+        ta.select();
+      };
+      try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+    }
+    var visited = saved.visited || {};
+    var r = buildRecord();
+    var refl = saved.refl || {};
+    append(el, [
+      h('div', { class: 'module-head' },
+        h('h1', { class: 'sec-title', text: T_REC }),
+        h('p', { class: 'meta', text: (FK_OFF ? '進み具合・チャレンジ' : '進み具合・チャレンジ・ふりかえり') + 'は、この端末のブラウザの中にだけ保存されています。提出するときは、ファイルに書き出してください。' })),
+      card('名前',
+        h('p', { class: 'muted', text: '名前は、先生の指示がないときは入れなくてかまいません。' }),
+        h('div', { class: 'field-row' }, field('rec-cls', '組', 'cls', 4), field('rec-num', '番号', 'num', 4), field('rec-name', '名前(なくてもよい)', 'name', 12))),
+      card(FK_OFF ? '進み具合' : '進み具合とふりかえり',
+        h('div', { class: 'table-wrap' }, h('table', { class: 'data' },
+          h('thead', null, h('tr', null, h('th', { text: 'ステップ' }), h('th', { text: 'ひらいた' }), h('th', { text: 'チャレンジ・記録' }))),
+          h('tbody', null, STEP_SECTIONS.map(function (x) {
+            var m = missionOf(x.id);
+            var rec = m ? (cleared(m.id) ? '✓ 達成' : 'まだ') : (r.quiz.answered ? 'クイズ ' + r.quiz.correct + ' / ' + r.quiz.total + ' 問正解' : '');
+            return h('tr', null, h('td', { text: x.label + ' ' + x.title }), h('td', { text: visited[x.id] ? '✓' : '' }), h('td', { text: rec }));
+          })))),
+        h('ul', { class: 'refl-list', 'data-ef-reflect': '' }, D.reflQ.map(function (q, i) {
+          return h('li', null, h('b', { text: 'ふりかえり' + (i + 1) + '(' + q.short + '): ' }), refl[q.id] ? h('span', { text: refl[q.id] }) : h('span', { class: 'muted', text: '(まだ書いていません)' }));
+        })),
+        h('p', { class: 'muted', 'data-ef-reflect': '' }, 'ふりかえりは「', h('a', { href: '#quiz', text: '⑦ クイズとふりかえり' }), '」で書きます。')),
+      card('書き出す',
+        h('p', null, h('strong', { text: '先生に出すのは JSON のファイルです。' }), 'CSV は、表計算ソフトで見るときに使います。ファイルができないときは「記録をコピーする」を使います。'),
+        h('div', { class: 'btn-row' },
+          btn('記録を書き出す(JSON・提出用)', function () { download('json'); }, 'ef-btn-primary'),
+          btn('CSVで書き出す(表計算用)', function () { download('csv'); }),
+          btn('記録をコピーする', copy)),
+        note,
+        point('書き出す中身', h('p', { text: '組・番号・名前、ひらいたステップ、チャレンジとクイズの結果、ふりかえりの文章だけです。ハッシュ化した文などは入りません。' }))),
+      renderReset()
+    ]);
+  }
+
+  // ---- はじめからやり直す(データリセット) ----
+  // 確認は画面の中で行う(ブラウザの確認ダイアログが出ない環境でも使えるように)。
+  // ふりがな・文字の大きさは表示の設定なので消さない(ほかの情報の教材と同じ)。
+  var resetAsk = false;
+  var resetMsg = '';
+  function renderReset() {
+    var box = card('はじめからやり直す',
+      h('p', { text: '次の人に端末をわたすときや、最初からやり直したいときに使います。この端末に保存した組・番号・名前、進み具合、チャレンジ、ふりかえり、クイズの答えなどを、すべて消します。ふりがな・文字の大きさの設定は残ります。' }));
+    box.id = 'reset';
+    box.classList.add('reset-card');
+    if (!resetAsk) {
+      box.appendChild(h('div', { class: 'btn-row' }, btn('この端末の記録をすべて消す', function () { resetAsk = true; resetMsg = ''; go(current.id); }, 'ef-btn reset-btn')));
+    } else {
+      box.appendChild(h('div', { class: 'reset-confirm', role: 'alert' },
+        h('p', null, h('strong', { text: '本当に消しますか？' }), '消した記録は元にもどせません。提出がまだなら、先に「書き出す」でファイルにしておこう。'),
+        h('div', { class: 'btn-row' },
+          btn('消す(はじめからやり直す)', function () { resetAll(); }, 'ef-btn-primary danger'),
+          btn('やめる', function () { resetAsk = false; go(current.id); }))));
+    }
+    if (resetMsg) box.appendChild(h('p', { class: 'export-note good', role: 'status', text: resetMsg }));
+    return box;
+  }
+  function resetAll() {
+    clearTimers();
+    var keep = { furigana: saved.furigana, big: saved.big };
+    saved = {};
+    try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
+    if (keep.furigana) save('furigana', true);
+    if (keep.big) save('big', true);
+    var init = JSON.parse(INITIAL);
+    [[s1, 's1'], [s2, 's2'], [s3, 's3'], [s4, 's4'], [s5, 's5'], [s6, 's6'], [qs, 'qs']].forEach(function (o) {
+      Object.keys(o[0]).forEach(function (k) { delete o[0][k]; });
+      Object.assign(o[0], init[o[1]]);
+    });
+    resetAsk = false;
+    resetMsg = '記録をすべて消しました。はじめから使えます。';
+    current = null;
+    show('records');
+    resetMsg = '';
+    markNav();
+    toast('記録を消しました');
+    var b = document.querySelector('.reset-btn');
+    if (b) try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); }
+    var r = document.getElementById('reset');
+    if (r) r.scrollIntoView({ block: 'center' });
+  }
+  function toast(msg) {
+    var t = document.querySelector('.toast') || document.body.appendChild(h('div', { class: 'toast', role: 'status' }));
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(function () { t.classList.remove('show'); }, 2500);
+  }
+
+  // ---- 表示の切りかえ(ふりがな・大きな文字) ----
+  function setupToggles() {
+    var tools = document.getElementById('display-toggles');
+    [['furigana', 'ふりがな', 'show-ruby'], ['big', '大きな文字', 'big-text']].forEach(function (t) {
+      var on = !!saved[t[0]];
+      document.documentElement.classList.toggle(t[2], on);
+      // ふりがなは ✓ の付く切りかえ(.ef-toggle)、文字の大きさは4分野共通の「文字 中/大」ボタン(.ef-size)
+      var b = t[0] === 'big'
+        ? h('button', { type: 'button', class: 'ef-btn ef-size', 'data-kz-label': '大きな文字', 'aria-label': '文字の大きさ(大きな文字)', 'aria-pressed': String(on) }, '文字 ', h('span', { class: 'ef-size-v' }))
+        : h('button', { type: 'button', class: 'toggle ef-btn ef-toggle', 'aria-pressed': String(on) }, t[1]);
+      b.addEventListener('click', function () {
+        on = !on;
+        save(t[0], on);
+        b.setAttribute('aria-pressed', String(on));
+        document.documentElement.classList.toggle(t[2], on);
+        if (t[0] === 'furigana' && current) rerender();
+      });
+      tools.appendChild(b);
+    });
+  }
+
+  // 体験の途中のようす(入れた文・クイズの答えなど)も、この端末の中に残す(読みこみ直しても消えない)
+  function persist() {
+    save('state', {
+      s1: { text: s1.text, hist: s1.hist }, s2: { a: s2.a, b: s2.b }, s3: { a: s3.a, b: s3.b },
+      s4: { kinds: s4.kinds, len: s4.len }, s5: { salt: s5.salt, dict: s5.dict, picked: s5.picked },
+      s6: { calc: s6.calc, judge: s6.judge }, quiz: qs.ans
+    });
+  }
+  var INITIAL = JSON.stringify({ s1: s1, s2: s2, s3: s3, s4: s4, s5: s5, s6: s6, qs: qs });
+  (function restore() {
+    var st = saved.state;
+    if (!st) return;
+    try {
+      if (st.s1) { s1.text = String(st.s1.text || ''); s1.hist = Array.isArray(st.s1.hist) ? st.s1.hist.map(String).slice(0, 10) : []; }
+      if (st.s2) { s2.a = String(st.s2.a || ''); s2.b = String(st.s2.b || ''); }
+      if (st.s3) { s3.a = String(st.s3.a || ''); s3.b = String(st.s3.b || ''); }
+      if (st.s4) {
+        if (D.charKinds.some(function (k) { return k.id === st.s4.kinds; })) s4.kinds = st.s4.kinds;
+        if (st.s4.len >= 1 && st.s4.len <= 16) s4.len = st.s4.len;
+      }
+      if (st.s5) { s5.salt = !!st.s5.salt; s5.dict = !!st.s5.dict; s5.picked = Array.isArray(st.s5.picked) ? st.s5.picked.slice(0, 2) : []; }
+      if (st.s6) { s6.calc = st.s6.calc || {}; s6.judge = st.s6.judge || {}; }
+      if (st.quiz) qs.ans = st.quiz;
+    } catch (e) { /* 読めなければ最初から */ }
+  })();
+
+  buildNav();
+  setupToggles();
+  window.addEventListener('hashchange', route);
+  route();
+})();
+
+</script>
+</body>
+</html>

@@ -18,6 +18,8 @@
   .site-note { margin: 22px 0 0; padding: 14px 18px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); }
   .site-note h2 { margin: 0 0 6px; font-size: 17px; }
   .site-note ul { margin: 0; padding-left: 1.3em; line-height: 1.8; }
+  .site-note p { margin: 0 0 8px; line-height: 1.7; }
+  .site-jishu { border: 2px solid #5b3fa8; }
 </style>
 </head>
 <body class="ef-page">
@@ -27,6 +29,11 @@
 <main class="site-main">
   <p class="site-lead">学習する分野をえらんで「ひらく」を押してください。先生が指示した分野をひらきます。</p>
   <div class="site-grid" id="site-cards"></div>
+  <section class="site-note site-jishu" aria-labelledby="site-jishu-h">
+    <h2 id="site-jishu-h">ひとりで進めるとき(自習モード)</h2>
+    <p>自習モードにすると、どの教材にも右はしに「自習ガイド」が出ます。ねらい・進め方・ヒント・たしかめ問題を見ながら、先生の説明がなくても1人で進められます。先生が「自習モードで」と言ったときに使います。</p>
+    <p><button type="button" class="ef-btn" id="site-jishu-btn" aria-pressed="false">自習モード</button> <span id="site-jishu-state"></span></p>
+  </section>
   <section class="site-note" aria-labelledby="site-note-h">
     <h2 id="site-note-h">使うときの注意</h2>
     <ul>
@@ -55,6 +62,18 @@
       { code: 'C', icon: '⚡', title: 'エネルギー変換の技術', desc: 'エネルギーの変換、電気回路、機構、保守点検、回路の設計、風力発電、送電を体験し、問題解決ノートにまとめます。', range: 'C1〜C8', href: '../クラスルーム配布/生徒に配る/C_エネルギー変換_統一版.html' },
       { code: 'D', icon: '💻', title: '情報の技術', desc: 'デジタル化、CPU、ネットワーク、情報セキュリティ、計測・制御、生成AI、火星探査ロボットなどを体験し、問題解決ノートにまとめます。', range: 'D1〜D11', href: '../クラスルーム配布/生徒に配る/D_情報の技術_統一版.html' }
     ];
+    // 自習モードの切りかえ(この端末で覚える。shared/eduit-frame.js が localStorage 'eduit.jishu' を見る)
+    var jb = document.getElementById('site-jishu-btn'), js = document.getElementById('site-jishu-state');
+    function jishuShow() {
+      jb.classList.add('ef-toggle');
+      jb.setAttribute('aria-pressed', String(EduitFrame.jishu));
+      js.textContent = EduitFrame.jishu ? 'いまは自習モードです(もう一度押すと、ふつうにもどります)。' : 'いまは、ふつうのモードです。';
+    }
+    jb.addEventListener('click', function () {
+      try { localStorage.setItem('eduit.jishu', EduitFrame.jishu ? 'off' : 'on'); } catch (e) {}
+      location.href = location.pathname + '?jishu=' + (EduitFrame.jishu ? 'off' : 'on');
+    });
+    jishuShow();
     var box = document.getElementById('site-cards');
     AREAS.forEach(function (a) {
       var range = document.createElement('span');
