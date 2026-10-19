@@ -9,7 +9,10 @@
 
   function appInfo(id) { return APPS.filter(function (a) { return a.id === id; })[0] || { id: id, code: '?', title: id }; }
   function artsOf(s, app) { return s.artifacts.filter(function (a) { return a.app === app && !TV.isState(a); }); }
-  function when(iso) { return iso ? new Date(iso).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; }
+  function when(iso) {
+    var d = new Date(iso);
+    return iso && !isNaN(d.getTime()) ? d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  }
 
   /* ---------- 読み込み ---------- */
   function readFiles(fileList) {
@@ -163,7 +166,11 @@
   }
 
   /* ---------- CSV(Excel・スプレッドシートで開ける) ---------- */
-  function csvCell(v) { v = String(v === undefined || v === null ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function csvCell(v) {
+    v = String(v === undefined || v === null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;  // 生徒の書いた文が数式として動かないように(teacher-tools/furikaeri-ichiran と同じ)
+    return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }
   function exportCSV() {
     var tab = currentTab(), lines = [], name;
     if (tab === 'apps') {

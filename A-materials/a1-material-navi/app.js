@@ -478,7 +478,7 @@
     const el = $('#view-reflect');
     const r = ranking();
     const sh = state.sheet;
-    const opts = sel => '<option value="">' + '(選ぶ)' + '</option>' + DATA.materials.map(m => '<option value="' + m.id + '"' + (sel === m.id ? ' selected' : '') + '>' + esc(plain(m.name)) + '</option>').join('');
+    const opts = sel => '<option value="">(選ぶ)</option>' + DATA.materials.map(m => '<option value="' + m.id + '"' + (sel === m.id ? ' selected' : '') + '>' + esc(plain(m.name)) + '</option>').join('');
     const useName = (DATA.uses.find(u => u.id === state.useId) || {}).name || '';
     const snap = KEYS.filter(k => state.weights[k]).map(k => plain(propLabel(k)) + state.weights[k]).join('、');
     el.innerHTML =
@@ -636,9 +636,11 @@
     const c = LS.get('cond');
     if (c && c.weights) {
       for (const k of KEYS) if (typeof c.weights[k] === 'number') state.weights[k] = clampW(c.weights[k]);
-      if (c.conductMode) state.conductMode = c.conductMode;
+      // 保存した値がこわれていても使えるように、openArtifact() と同じく型を確かめてから入れる
+      if (c.conductMode === 'low' || c.conductMode === 'high') state.conductMode = c.conductMode;
       if (c.useId && DATA.uses.some(u => u.id === c.useId)) state.useId = c.useId;
-      if (c.cats) Object.assign(state.cats, c.cats);
+      if (c.cats) for (const k of Object.keys(state.cats)) if (typeof c.cats[k] === 'boolean') state.cats[k] = c.cats[k];
+      if (!Object.values(state.cats).some(Boolean)) state.cats = { wood: true, metal: true, plastic: true };
     }
     if (window.G && G.initApp) return; // ルビ・文字サイズは共通ヘッダーが管理
     if (LS.get('ruby') === false) setRuby(false);

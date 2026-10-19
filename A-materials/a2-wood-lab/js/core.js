@@ -3,7 +3,6 @@
 (function () {
   'use strict';
   var A2 = (window.A2 = window.A2 || {});
-  A2.APP_ID = 'a2-wood-lab';
   A2.labs = {};
   A2.rubyOn = true;
 

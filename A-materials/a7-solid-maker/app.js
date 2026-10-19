@@ -68,10 +68,13 @@
   function setProject(a) {
     var base = defaultData();
     a.data = a.data || {};
+    // ない項目・形のちがう項目(読みこんだファイルがこわれているときなど)は初めの値にする
     Object.keys(base).forEach(function (k) {
-      if (a.data[k] === undefined) a.data[k] = base[k];
-      else if (base[k] && typeof base[k] === 'object') {
-        Object.keys(base[k]).forEach(function (kk) { if (a.data[k][kk] === undefined) a.data[k][kk] = base[k][kk]; });
+      var v = a.data[k], b = base[k];
+      if (v === undefined) a.data[k] = b;
+      else if (b && typeof b === 'object') {
+        if (!v || typeof v !== 'object' || Array.isArray(v)) a.data[k] = b;
+        else Object.keys(b).forEach(function (kk) { if (v[kk] === undefined) v[kk] = b[kk]; });
       }
     });
     art = a; P = a.data;

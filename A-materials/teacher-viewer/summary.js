@@ -102,7 +102,7 @@
     };
   };
   S['structure-lab'] = function (d) {
-    var c = d.challenge || {}, lv = { lv1: 'レベル1', lv2: 'レベル2', lv3: 'レベル3' };
+    var c = d.challenge || {}, lv = { lv1: '課題1', lv2: '課題2', lv3: '課題3' }  // A3 の画面の名前と同じ;
     var b = d.beam || {};
     return {
       fields: [['設計課題', (lv[c.level] || c.level || '') + '(設計 ' + Object.keys(c.designs || {}).length + ' こ)'],

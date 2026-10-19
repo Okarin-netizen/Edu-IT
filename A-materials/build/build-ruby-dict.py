@@ -18,15 +18,16 @@ def load(name):
     p = os.path.join(here, name)
     if not os.path.exists(p):
         return d
-    for line in open(p, encoding='utf-8'):
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
-        parts = line.split()
-        if len(parts) != 2:
-            raise SystemExit(name + ' の形式エラー: ' + line)
-        if KANJI.search(parts[0]):
-            d[parts[0]] = parts[1]
+    with open(p, encoding='utf-8') as fp:
+        for line in fp:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if len(parts) != 2:
+                raise SystemExit(name + ' の形式エラー: ' + line)
+            if KANJI.search(parts[0]):
+                d[parts[0]] = parts[1]
     return d
 
 def scan(known):
@@ -38,7 +39,8 @@ def scan(known):
         for f in fn:
             if not f.endswith(('.html', '.js')) or f.startswith('ruby-dict') or f.endswith('.test.js'):
                 continue
-            text = open(os.path.join(dp, f), encoding='utf-8', errors='ignore').read()
+            with open(os.path.join(dp, f), encoding='utf-8', errors='ignore') as fp:
+                text = fp.read()
             text = re.sub(r'/\*.*?\*/', ' ', text, flags=re.S)
             text = re.sub(r'(?m)^\s*//.*$', ' ', text)
             text = re.sub(r'<!--.*?-->', ' ', text, flags=re.S)
@@ -68,5 +70,6 @@ d.update(src)
 out = ('/* 自動生成: ruby-dict-src.txt を編集して build/build-ruby-dict.py を実行してください */\n'
        'window.RUBY_DICT = ' + json.dumps(d, ensure_ascii=False, indent=0, sort_keys=True) + ';\n'
        'if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);\n')
-open(os.path.join(here, 'ruby-dict.js'), 'w', encoding='utf-8').write(out)
+with open(os.path.join(here, 'ruby-dict.js'), 'w', encoding='utf-8') as fp:
+    fp.write(out)
 print(len(d), 'words')

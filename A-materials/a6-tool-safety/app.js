@@ -27,7 +27,9 @@
     return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   }
   function when(iso) {
-    return new Date(iso).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    var d = new Date(iso);
+    if (!iso || isNaN(d.getTime())) return '—';  // 読みこんだファイルに日時がないとき
+    return d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
   function clear(el) { el.innerHTML = ''; return el; }
   function save(kind, title, data) {

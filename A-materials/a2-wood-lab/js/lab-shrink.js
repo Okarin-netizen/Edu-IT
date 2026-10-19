@@ -170,6 +170,8 @@
   }
 
   function setDry(v) { st.s = v; document.getElementById('dry').value = v; redraw(); }
+  // 乾燥のアニメを止める
+  function stopDrying() { if (stopAnim) { stopAnim(); stopAnim = null; } }
 
   A2.labs.shrink = {
     init: function () {
@@ -184,17 +186,17 @@
         box.appendChild(lab);
       });
       box.addEventListener('change', function (e) { st.piece = e.target.value; redraw(); });
-      document.getElementById('dry').addEventListener('input', function (e) { if (stopAnim) stopAnim(); st.s = +e.target.value; redraw(); });
+      document.getElementById('dry').addEventListener('input', function (e) { stopDrying(); st.s = +e.target.value; redraw(); });
       document.getElementById('exaggerate').addEventListener('change', function (e) { st.ex = +e.target.value; redraw(); });
       document.getElementById('btnDry').addEventListener('click', function () {
-        if (stopAnim) stopAnim();
+        stopDrying();
         var from = st.s >= 0.99 ? 0 : st.s;
         stopAnim = A2.animate(2600 * (1 - from), function (t) { setDry(from + (1 - from) * t); }, function () { stopAnim = null; });
       });
-      document.getElementById('btnWet').addEventListener('click', function () { if (stopAnim) stopAnim(); setDry(0); });
+      document.getElementById('btnWet').addEventListener('click', function () { stopDrying(); setDry(0); });
     },
     show: function () { redraw(); },
-    hide: function () { if (stopAnim) { stopAnim(); stopAnim = null; } },
+    hide: stopDrying,
     refresh: function () { var b = document.getElementById('ratioBars'); if (b) b.innerHTML = ''; redraw && redraw(); }
   };
 })();

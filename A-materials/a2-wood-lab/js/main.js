@@ -136,7 +136,7 @@
     lastKey = document.documentElement.className + '|' + document.documentElement.getAttribute('data-size');
 
     var rs = null;
-    window.addEventListener('resize', function () { clearTimeout(rs); rs = setTimeout(function () { if (current && A2.labs[current].refresh) A2.labs[current].refresh(); }, 150); });
+    window.addEventListener('resize', function () { clearTimeout(rs); rs = setTimeout(function () { if (current && A2.labs[current] && A2.labs[current].refresh) A2.labs[current].refresh(); }, 150); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

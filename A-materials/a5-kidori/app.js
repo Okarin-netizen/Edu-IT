@@ -60,12 +60,17 @@
   function setProject(a) {
     var base = defaultProject();
     a.data = a.data || {};
+    // ない項目・形のちがう項目(読みこんだファイルがこわれているときなど)は初めの値にする
     Object.keys(base).forEach(function (k) {
-      if (a.data[k] === undefined) a.data[k] = base[k];
-      else if (base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) {
-        Object.keys(base[k]).forEach(function (kk) { if (a.data[k][kk] === undefined) a.data[k][kk] = base[k][kk]; });
+      var v = a.data[k], b = base[k];
+      if (v === undefined) a.data[k] = b;
+      else if (Array.isArray(b)) { if (!Array.isArray(v)) a.data[k] = b; }
+      else if (b && typeof b === 'object') {
+        if (!v || typeof v !== 'object' || Array.isArray(v)) a.data[k] = b;
+        else Object.keys(b).forEach(function (kk) { if (v[kk] === undefined) v[kk] = b[kk]; });
       }
     });
+    if (!Array.isArray(a.data.hints.log)) a.data.hints.log = [];
     art = a; P = a.data;
     selected = null; hintStage = 0; ghost = null;
     try { localStorage.setItem('kidori.last', a.id); } catch (e) {}
@@ -772,7 +777,8 @@
     var x0 = 40, x1 = cw - 40, y0 = 80, L = r.L, thick = 14;
     var maxPx = 60;
     var scale = r.deflection > 0 ? Math.min(maxPx / r.deflection, 1e4) : 1;
-    var dispScale = scale * (cw - 80) / L > 0 ? scale : 1;
+    // 画面での拡大率 = たわみの縮尺(px/mm) ÷ 板の長さの縮尺(px/mm)
+    var mag = scale * L / (x1 - x0);
     var support = P.strength.support, lt = P.strength.loadType;
     var ratio = r.deflection > 0 ? dNow / r.deflection : 0;
     function yAt(x) { return window.Beam.shape(x, L, support, lt) * r.deflection * ratio * scale; }
@@ -806,7 +812,7 @@
     ctx.font = '13px sans-serif'; ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.fillText(G.fmt(P.strength.kg, 1) + ' kg(約 ' + G.fmt(r.P, 0) + ' N)', 10, 18);
     ctx.fillStyle = muted;
-    ctx.fillText('支点間距離 ' + L + ' mm / たわみは見やすくするため 約' + G.fmt(dispScale * (x1 - x0) / L, 0) + '倍に拡大', 10, ch - 10);
+    ctx.fillText('支点間距離 ' + L + ' mm / ' + (mag >= 1.5 ? 'たわみは見やすくするため 約' + G.fmt(mag, 0) + '倍に拡大' : mag < 0.67 ? 'たわみは実際より小さく表示' : 'たわみはほぼ実際の大きさで表示'), 10, ch - 10);
   }
 
   /* ---------- 5 ふりかえり ---------- */

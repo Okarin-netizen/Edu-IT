@@ -47,9 +47,15 @@
       G.store.put(rec).catch(function () { G.toast('記録を保存できませんでした'); });
     }, 300);
   }
+  // 保存・読みこんだ記録を、いまの形にそろえる(型がちがう項目は初めの値のまま。こわれたファイルでも画面が止まらないように)
   function mergeData(d) {
     var base = emptyData();
-    Object.keys(base).forEach(function (k) { if (d && d[k] !== undefined) base[k] = d[k]; });
+    function kind(v) { return v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v; }
+    Object.keys(base).forEach(function (k) {
+      if (d && kind(d[k]) === kind(base[k])) base[k] = d[k];
+    });
+    if (!Array.isArray(base.terms.history)) base.terms.history = [];
+    if (typeof base.terms.best !== 'number') base.terms.best = null;
     return base;
   }
 
@@ -59,7 +65,6 @@
     d.innerHTML = str;
     return d.firstChild;
   }
-  // 問題を選ぶ列(状態は記号 ✓ / × / ・ で示す)
   /* 作図の判定。描いた線に合わせて正解の位置を決める。
    * 何も描いていないときや、合わせた位置だとボードからはみ出すときは、基準線の位置(home)で比べる */
   function gradeOn(board, exp, home) {
@@ -129,6 +134,7 @@
     return { el: btn, label: label };
   }
 
+  // 問題を選ぶ列(状態は記号 ✓ / × で示す)
   function problemNav(list, getState, onPick, cur) {
     var nav = h('div', { class: 'a4-nav', role: 'group', 'aria-label': '問題を選ぶ' });
     list.forEach(function (p, i) {

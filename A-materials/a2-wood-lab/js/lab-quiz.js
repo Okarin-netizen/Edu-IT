@@ -176,7 +176,7 @@
     ctx.fillStyle = A2.col('board-fill-strong'); ctx.strokeStyle = A2.col('accent'); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.rect((q.cx - q.w / 2) * R, -(q.cy + q.t / 2) * R, q.w * R, q.t * R); ctx.fill(); ctx.stroke();
     ctx.restore();
-    A2.text(ctx, '{髄|ずい}', cx + 6, cy + 4 + (flip < 0 ? 0 : 0), { size: 11, bg: A2.col('label-bg') });
+    A2.text(ctx, '{髄|ずい}', cx + 6, cy + 4, { size: 11, bg: A2.col('label-bg') });
   }
 
   /** 理由の図:板の中の年輪1本を太線で示し、乾燥前(点線)と乾燥後をくらべる */
@@ -231,7 +231,7 @@
       cv = document.getElementById('cvQuiz');
       redraw = A2.scheduler(draw);
       document.getElementById('quizHint').addEventListener('change', function (e) { st.hint = e.target.checked; redraw(); });
-      document.getElementById('quizNext').addEventListener('click', function () { if (stopAnim) stopAnim(); newQuestion(); });
+      document.getElementById('quizNext').addEventListener('click', function () { if (stopAnim) { stopAnim(); stopAnim = null; } newQuestion(); });
       A2.setR('quizDesc', '{板|いた}を{木口|こぐち}({端|はし}の{断面|だんめん})から{見|み}た{図|ず}。{年輪|ねんりん}の{曲|ま}がり{方|かた}にも{注目|ちゅうもく}しよう。');
       newQuestion();
     },
@@ -246,6 +246,7 @@
           var id = b.getAttribute('data-choice'); b.disabled = true;
           if (id === right) b.classList.add('is-right');
           if (id === st.answered && id !== right) b.classList.add('is-wrong');
+          if (id === st.answered) b.setAttribute('aria-pressed', 'true');
         });
       }
       redraw();
