@@ -220,10 +220,12 @@ function loadSave() {
   Object.keys(b).forEach(function (k) { if (s[k] == null || typeof s[k] !== typeof b[k] || Array.isArray(s[k]) !== Array.isArray(b[k])) s[k] = b[k]; });
   var bl = s.blade;
   if (NBL.indexOf(bl.n) < 0) bl.n = 3;
-  bl.pitch = clamp(Math.round(+bl.pitch || 20), 0, 90); bl.len = clamp(Math.round(+bl.len || 15), 5, 30);
+  /* 0(かたむき 0°・風速 0 m/s)も正しい値なので、|| ではなく数かどうかで決める */
+  var numOr = function (v, def) { return isFinite(+v) && v !== '' && v !== null ? +v : def; };
+  bl.pitch = clamp(Math.round(numOr(bl.pitch, 20)), 0, 90); bl.len = clamp(Math.round(numOr(bl.len, 15)), 5, 30);
   if (!SHAPES[bl.shape]) bl.shape = 'flat';
-  s.wind = clamp(+s.wind || 4, 0, 10);
-  s.recs = s.recs.filter(function (r) { return r && r.b && SHAPES[r.b.shape]; }).slice(-10);
+  s.wind = clamp(numOr(s.wind, 4), 0, 10);
+  s.recs = s.recs.filter(function (r) { return r && r.b && SHAPES[r.b.shape] && ['v', 'rpm', 'V', 'I', 'P', 'vs'].every(function (k) { return isFinite(r[k]); }); }).slice(-10);
   s.rank = s.rank.filter(function (r) { return r && r.b && SHAPES[r.b.shape] && isFinite(r.p); }).slice(0, 5);
   return s;
 }
@@ -844,7 +846,7 @@ var REFL = [
 function renderRefl(box) {
   box.innerHTML = '<div class="e6-card" data-ef-reflect><h2>✏️ 振り返り</h2><p>学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 記録」でファイルにできます。</p>' +
     REFL.map(function (r, i) { return '<div class="e6-field"><label for="e6-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e6-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(S.save.refl[r.id]) + '</textarea></div>'; }).join('') + '</div>';
-  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value; persist(); });
+  box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-refl'); if (!k) return; S.save.refl[k] = ev.target.value.slice(0, 800); persist(); });
 }
 
 /* ================= 記録 ================= */

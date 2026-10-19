@@ -373,7 +373,7 @@ function loadSave() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
   if (!d || typeof d !== 'object') d = {};
-  d.stars = d.stars || {}; d.boards = d.boards || {}; d.quiz = d.quiz || {}; d.clear = d.clear || {};
+  ['stars', 'boards', 'quiz', 'clear'].forEach(function (k) { if (!d[k] || typeof d[k] !== 'object') d[k] = {}; });
   /* 💾 記録: 振り返り(q1〜q3)と組・番号・名前 */
   var r = d.refl && typeof d.refl === 'object' ? d.refl : {}, w = d.who && typeof d.who === 'object' ? d.who : {};
   d.refl = { q1: String(r.q1 || ''), q2: String(r.q2 || ''), q3: String(r.q3 || '') };
@@ -606,22 +606,21 @@ function startBoard(st) {
 }
 function loadBoard(si) {
   var st = STAGES[si], b = newBoard(st), sv = S.save.boards[st.id];
-  if (!(sv && sv.nodes)) return startBoard(st);
-  {
-    try {
-      var cells = {};
-      b.nodes.forEach(function (n) { cells[n.col + ',' + n.row] = 1; });
-      sv.nodes.forEach(function (n) {
-        if (!CAT[n.type] || n.fixed || cells[n.col + ',' + n.row]) return;
-        if (n.col < 0 || n.row < 0 || n.col >= COLS || n.row >= ROWS) return;
-        cells[n.col + ',' + n.row] = 1;
-        b.nodes.push({ id: n.id, type: n.type, col: n.col, row: n.row });
-      });
-      var ids = {}; b.nodes.forEach(function (n) { ids[n.id] = 1; });
-      (sv.edges || []).forEach(function (e) { if (ids[e.from] && ids[e.to]) b.edges.push({ id: e.from + '>' + e.to, from: e.from, to: e.to }); });
-      b.next = sv.next || 100;
-    } catch (e) { b = newBoard(st); }
-  }
+  if (!(sv && Array.isArray(sv.nodes))) return startBoard(st);
+  try {
+    var cells = {};
+    b.nodes.forEach(function (n) { cells[n.col + ',' + n.row] = 1; });
+    sv.nodes.forEach(function (n) {
+      if (!n || !CAT[n.type] || n.fixed || cells[n.col + ',' + n.row]) return;
+      // マスは整数の 0〜COLS-1・0〜ROWS-1 だけ(こわれた記録で盤面の外や小数のマスに置かない)
+      if (!(n.col >= 0 && n.row >= 0 && n.col < COLS && n.row < ROWS && n.col % 1 === 0 && n.row % 1 === 0)) return;
+      cells[n.col + ',' + n.row] = 1;
+      b.nodes.push({ id: n.id, type: n.type, col: n.col, row: n.row });
+    });
+    var ids = {}; b.nodes.forEach(function (n) { ids[n.id] = 1; });
+    (Array.isArray(sv.edges) ? sv.edges : []).forEach(function (e) { if (e && ids[e.from] && ids[e.to]) b.edges.push({ id: e.from + '>' + e.to, from: e.from, to: e.to }); });
+    b.next = sv.next > 0 && sv.next % 1 === 0 ? sv.next : 100;
+  } catch (e) { b = newBoard(st); }
   return b;
 }
 function saveBoard() {
@@ -1306,6 +1305,7 @@ var REFL = [
   { id: 'q2', q: '総合効率(役に立ったエネルギー ÷ 使ったエネルギー)を高くするために、どんな工夫をしましたか。変換の回数と効率の関係にもふれよう。' },
   { id: 'q3', q: '発電方法(火力・原子力・水力・太陽光・風力など)から2つを選び、それぞれのよいところと課題をくらべよう。' }
 ];
+var N_BASIC = 7;   /* ステージ1〜7 が基本編、ステージ8 と自由実験が発展編(eduit-info.js の levels と同じ) */
 function stageCleared(st) { return !!(S.save.clear[st.id] || S.save.stars[st.id]); }
 function quizScore() { var ok = 0, n = 0; STAGES.forEach(function (st) { if (st.quiz) { n++; if (S.save.quiz[st.id]) ok++; } }); return { ok: ok, total: n }; }
 function whoInit() {
@@ -1345,7 +1345,7 @@ function exportObj() {
   var s = S.save, qs = quizScore(), sN = 0, sMax = 0;
   var stages = STAGES.map(function (st, i) {
     sN += s.stars[st.id] || 0; sMax += st.stars.length;
-    return { id: st.id, no: stageLabel(i), name: st.title, level: i < 7 ? '基本編' : '発展編', cleared: stageCleared(st),
+    return { id: st.id, no: stageLabel(i), name: st.title, level: i < N_BASIC ? '基本編' : '発展編', cleared: stageCleared(st),
       stars: st.stars.length ? (s.stars[st.id] || 0) : null, maxStars: st.stars.length, quiz: st.quiz ? !!s.quiz[st.id] : null };
   });
   return { schema: 'energyApps.artifact', app: 'C1', type: 'conversion-game', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
@@ -1527,7 +1527,8 @@ function mount(root) {
   S.save = loadSave();
   buildShell(); bindInput();
   var first = S.save.last == null;
-  openStage(Math.max(0, Math.min(STAGES.length - 1, S.save.last || 0)), false);
+  var last = S.save.last >= 0 && S.save.last < STAGES.length && S.save.last % 1 === 0 ? S.save.last : 0;   // こわれた記録(文字・小数)で STAGES[NaN] にならないように
+  openStage(last, false);
   if (first) showHowto(true); // 初回だけ「使い方」→「はじめる」で目標の画面へ
 }
 

@@ -699,7 +699,8 @@ function loadSave() {
   s.designs = s.designs && typeof s.designs === 'object' ? s.designs : {};
   s.opt = s.opt || {}; if (s.opt.res !== 'old') s.opt.res = 'jis'; if (s.opt.lbl !== 'sym') s.opt.lbl = 'ja';
   if (!s.task || !TASKS.some(function (t) { return t.id === s.task; })) s.task = 'flash';
-  s.who = s.who || { cls: '', name: '' };
+  var w = s.who && typeof s.who === 'object' ? s.who : {};   // ほかのアプリも読むので、いつも文字列にしておく
+  s.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
   Object.keys(s.designs).forEach(function (k) { s.designs[k] = cleanDesign(s.designs[k]); });
   return s;
 }
@@ -1779,7 +1780,7 @@ function bindInput() {
   root.addEventListener('input', function (ev) {
     var t = ev.target, k;
     if ((k = t.getAttribute('data-note'))) { D().notes[k] = t.value.slice(0, 2000); dirty(); persist(); return; }
-    if ((k = t.getAttribute('data-who'))) { S.save.who[k] = t.value; persist(); return; }
+    if ((k = t.getAttribute('data-who'))) { S.save.who[k] = t.value.slice(0, k === 'cls' ? 20 : 30); persist(); return; }
     if ((k = t.getAttribute('data-meas'))) {
       var key = t.getAttribute('data-k'), d = D(), m = d.meas[k] = d.meas[k] || {}, v = t.value.trim();
       if (v === '' || !isFinite(+v)) delete m[key]; else m[key] = +v;
