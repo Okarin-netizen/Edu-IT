@@ -146,6 +146,8 @@
           if (d.type === 'peer' && s) s += '(' + [str(d.rater) && '評価した人: ' + str(d.rater), str(d.ratee) && '評価された人: ' + str(d.ratee)].filter(Boolean).join('、') + ')';
           R.add('自己評価', part, '姿勢・安全・精度', s);
           R.add('ふりかえり', part, 'よかったところ・次に気をつけること', d.comment);
+        } else if (a.kind === 'read') {
+          R.add('成績', '① 工具の手順', '最後まで読んだ工具', d.toolName);
         } else if (a.kind === 'kyt' && d.total) {
           R.add('成績', title, '危険を見つけた数', (d.found || []).length + ' / ' + d.total);
         } else if (a.kind === 'quiz' && d.total) {
@@ -243,8 +245,12 @@
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ', C8: 'C8 問題解決ノート' };
+  var C_APPS = { C1: 'C1 エネルギー変換ゲーム', C2: 'C2 電気回路ラボ', C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ', C8: 'C8 問題解決ノート' };
   var C_REFL = {
+    C1: [['q1', 'エネルギーの変換と、目的に使われなかったエネルギー'], ['q2', '総合効率を高くする工夫'], ['q3', '2つの発電方法のよいところと課題']],
+    C2: [['q1', '回路と電流の流れ'], ['q2', '直列回路と並列回路のちがい'], ['q3', 'ヒューズ・ブレーカーの役目と安全に使うための注意']],
+    C3: [['q1', '速度伝達比を大きくしたときの回転速度と回す力'], ['q2', '回転運動をほかの動きに変えるしくみが使われている機械'], ['q3', '機構を設計するときの工夫']],
+    C4: [['q1', '機械に共通する部品の役割'], ['q2', '定期的に保守点検をするわけ'], ['q3', 'いちばん大切な点検項目とその理由']],
     C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
     C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
   };
@@ -267,6 +273,15 @@
       if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
       var rf = isObj(d.reflection) ? d.reflection : {};
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
+    }
+    if (obj.app === 'C1' || obj.app === 'C2') {
+      var q = isObj(d.quiz) ? d.quiz : {};
+      if (obj.app === 'C1' && Array.isArray(d.stages)) R.add('成績', '', 'クリアしたステージ', (+d.cleared || 0) + ' / ' + d.stages.length + (d.maxStars ? '(★ ' + (+d.stars || 0) + ' / ' + d.maxStars + ')' : ''));
+      if (obj.app === 'C2' && Array.isArray(d.tasks)) R.add('成績', '', 'クリアした課題', (+d.cleared || 0) + ' / ' + d.tasks.length);
+      if (+q.total > 0) R.add('成績', '', 'ふりかえりクイズの正解', (+q.ok || 0) + ' / ' + q.total);
+    }
+    if ((obj.app === 'C1' || obj.app === 'C2' || obj.app === 'C3' || obj.app === 'C4') && isObj(d.reflection)) {
+      C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], d.reflection[q[0]]); });
     }
     if (obj.app === 'C8' && isObj(d.note)) {
       /* C8 問題解決ノート: data.note がノートの中身(shared/mondai-note)。組・番号・名前はノートの中にもある */
