@@ -150,6 +150,21 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .e1-steps div{background:#f3f7fc;border-radius:12px;padding:12px;font-size:calc(16px * var(--ea-fs, 1))}
 .e1-steps b{font-size:calc(18px * var(--ea-fs, 1))}
+/* 💾 記録(やったこと・振り返り・組・番号・名前 → ファイルに保存) */
+.e1-recl{list-style:none;padding:0;margin:4px 0}
+.e1-recl li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:5px 0;border-bottom:1px solid #e3e9ef;font-size:calc(16px * var(--ea-fs, 1));line-height:1.45}
+.e1-recl .nm{flex:1 1 13em;min-width:0}
+.e1-recl .st{color:#f0a500;white-space:nowrap;letter-spacing:2px}
+.e1-recl .qz{white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1));color:#1a7a48;font-weight:bold}
+.e1-recl .qz.no{color:var(--sub);font-weight:normal}
+.e1-recsum{background:#f3f7fc;border-radius:12px;padding:8px 12px;margin:6px 0;font-size:calc(16px * var(--ea-fs, 1))}
+.e1-field{display:flex;flex-direction:column;gap:4px;margin:10px 0;min-width:0}
+.e1-field label{font-weight:bold;line-height:1.5;font-size:calc(16px * var(--ea-fs, 1))}
+.e1-field textarea,.e1-field input{font:inherit;font-size:calc(17px * var(--ea-fs, 1));width:100%;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);user-select:text;-webkit-user-select:text}
+.e1-field textarea{min-height:5.4em;resize:vertical;line-height:1.5}
+.e1-field textarea:focus,.e1-field input:focus{outline:none;border-color:var(--accent)}
+.e1-two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.e1-saved{margin:8px 0 0;min-height:1.6em;color:#1a7a48;font-weight:bold}
 @media (max-width:1100px){.e1-top h1{display:none}.e1-btn.go{font-size:calc(19px * var(--ea-fs, 1))}}
 @media (max-width:900px){
   .e1-stitle .t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:calc(15px * var(--ea-fs, 1));line-height:1.2}
@@ -176,6 +191,14 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   .e1-stgrid{grid-template-columns:repeat(2,1fr)}
   .e1-modal{padding:16px 18px 0}
   .e1-axis{grid-template-columns:minmax(0,230px) 1fr 40px}
+}
+/* せまい画面(スマホの縦など): 上のバーのボタンは絵文字だけにして、はみ出さないようにする */
+@media (max-width:700px){
+  .e1-top{gap:4px;padding:0 6px}
+  .e1-top .lg{display:none}
+  .e1-top .e1-btn{padding:0 8px;min-width:44px}
+  .e1-two{grid-template-columns:1fr}
+  .e1-modal .acts .e1-btn{min-width:0;flex:1 1 40%}
 }
 </style>
 </head>
@@ -350,7 +373,11 @@ function loadSave() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
   if (!d || typeof d !== 'object') d = {};
-  d.stars = d.stars || {}; d.boards = d.boards || {}; d.quiz = d.quiz || {};
+  d.stars = d.stars || {}; d.boards = d.boards || {}; d.quiz = d.quiz || {}; d.clear = d.clear || {};
+  /* 💾 記録: 振り返り(q1〜q3)と組・番号・名前 */
+  var r = d.refl && typeof d.refl === 'object' ? d.refl : {}, w = d.who && typeof d.who === 'object' ? d.who : {};
+  d.refl = { q1: String(r.q1 || ''), q2: String(r.q2 || ''), q3: String(r.q3 || '') };
+  d.who = { cls: String(w.cls || ''), name: String(w.name || '') };
   if (d.sound === undefined) d.sound = false; // 授業で一斉に鳴らないよう、最初はOFF
   return d;
 }
@@ -736,11 +763,12 @@ function buildShell() {
   S.root.innerHTML =
     '<div class="e1-top">' +
       '<h1>⚡ エネルギー変換ゲーム</h1>' +
-      '<button class="e1-btn" data-act="stages">☰ ステージ</button>' +
+      '<button class="e1-btn" data-act="stages" aria-label="ステージ">☰<span class="lg"> ステージ</span></button>' +
       '<div class="e1-stitle" data-ref="stitle"></div>' +
-      '<button class="e1-btn" data-act="howto">❓ 使い方</button>' +
-      '<button class="e1-btn" data-act="intro">🎯 目標</button>' +
-      '<button class="e1-btn" data-act="hint">💡 ヒント</button>' +
+      '<button class="e1-btn" data-act="howto" aria-label="使い方">❓<span class="lg"> 使い方</span></button>' +
+      '<button class="e1-btn" data-act="intro" aria-label="目標">🎯<span class="lg"> 目標</span></button>' +
+      '<button class="e1-btn" data-act="hint" aria-label="ヒント">💡<span class="lg"> ヒント</span></button>' +
+      '<button class="e1-btn" data-act="rec" aria-label="記録">💾<span class="lg"> 記録</span></button>' +
       '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
       efSlot() +
     '</div>' +
@@ -1207,6 +1235,7 @@ function run() {
     var st = stage(), M = S.M;
     if (M.clear) {
       beep('ok');
+      if (!S.save.clear[st.id]) { S.save.clear[st.id] = true; persist(); }
       if (st.stars.length && M.starN > (S.save.stars[st.id] || 0)) { S.save.stars[st.id] = M.starN; persist(); }
       showResult(true);
     } else { beep('ng'); showResult(false); }
@@ -1269,6 +1298,67 @@ function answerQuiz(i, btn) {
     box.querySelector('[data-ref=qex]').innerHTML = '<div class="e1-reason tip">⭕ 正解!' + furi(st.quiz.ex) + '</div>';
     S.save.quiz[st.id] = true; persist(); beep('link');
   } else { beep('err'); box.querySelector('[data-ref=qex]').innerHTML = '<div class="e1-reason">もう一度考えてみよう。</div>'; }
+}
+
+/* ---------- 💾 記録(やったこと・振り返り・組・番号・名前 → ファイルに保存) ---------- */
+var REFL = [
+  { id: 'q1', q: 'ゲームでつくったエネルギーの変換を1つ選び、「○○エネルギー → △△エネルギー」の形で書こう。そのとき、目的に使われずに出ていったエネルギーは何になりましたか。' },
+  { id: 'q2', q: '総合効率(役に立ったエネルギー ÷ 使ったエネルギー)を高くするために、どんな工夫をしましたか。変換の回数と効率の関係にもふれよう。' },
+  { id: 'q3', q: '発電方法(火力・原子力・水力・太陽光・風力など)から2つを選び、それぞれのよいところと課題をくらべよう。' }
+];
+function stageCleared(st) { return !!(S.save.clear[st.id] || S.save.stars[st.id]); }
+function quizScore() { var ok = 0, n = 0; STAGES.forEach(function (st) { if (st.quiz) { n++; if (S.save.quiz[st.id]) ok++; } }); return { ok: ok, total: n }; }
+function whoInit() {
+  var w = S.save.who;
+  if (!w.cls && !w.name) { try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) { w.cls = String(e5.who.cls || ''); w.name = String(e5.who.name || ''); } } catch (e) {} }
+  return w;
+}
+function showRec() {
+  var w = whoInit(), s = S.save, qs = quizScore(), nClr = 0, sN = 0, sMax = 0;
+  var rows = STAGES.map(function (st, i) {
+    var ok = stageCleared(st), sc = s.stars[st.id] || 0;
+    if (ok) nClr++;
+    sN += sc; sMax += st.stars.length;
+    return '<li><span aria-hidden="true">' + (ok ? '✅' : '⬜') + '</span><span class="nm">' + (st.free ? '' : stageLabel(i) + ' ') + esc(st.title) + (ok ? '' : '<small style="color:#5b6b7c">(まだ)</small>') + '</span>' +
+      (st.stars.length ? '<span class="st" aria-label="★' + sc + ' / ' + st.stars.length + '">' + starStr(sc, st.stars.length) + '</span>' : '') +
+      (st.quiz ? '<span class="qz' + (s.quiz[st.id] ? '' : ' no') + '">🤔 ' + quizTitle() + (s.quiz[st.id] ? ' ✓' : ' まだ') + '</span>' : '') + '</li>';
+  }).join('');
+  var h = '<h2>💾 記録</h2><p style="margin:0 0 6px">やったことと振り返りを、1つのファイルにして先生に出せます。</p>' +
+    '<h3>📊 やったこと</h3><div class="e1-recsum">クリア <b>' + nClr + ' / ' + STAGES.length + '</b>・★ <b>' + sN + ' / ' + sMax + '</b>・🤔 ' + quizTitle() + ' <b>' + qs.ok + ' / ' + qs.total + '</b> 問 正解</div>' +
+    '<ul class="e1-recl">' + rows + '</ul>' +
+    '<div data-ef-reflect><h3>✏️ 振り返り</h3><p style="margin:0">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存されます。</p>' +
+    REFL.map(function (r, i) { return '<div class="e1-field"><label for="e1-' + r.id + '">' + (i + 1) + '. ' + furi(r.q) + '</label><textarea id="e1-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(s.refl[r.id] || '') + '</textarea></div>'; }).join('') + '</div>' +
+    '<h3>👤 組・番号・名前</h3><div class="e1-two"><div class="e1-field"><label for="e1-cls">組・番号</label><input type="text" id="e1-cls" data-who="cls" maxlength="20" value="' + esc(w.cls || '') + '" placeholder="例: 2組15番"></div>' +
+    '<div class="e1-field"><label for="e1-name">名前</label><input type="text" id="e1-name" data-who="name" maxlength="30" value="' + esc(w.name || '') + '"></div></div>' +
+    '<p style="margin:4px 0;font-size:calc(15px * var(--ea-fs, 1));color:#5b6b7c">やったこと<span data-ef-reflect>・振り返り</span>を、1つのファイル(<code>C1-henkan-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
+    '<div class="e1-saved" role="status" aria-live="polite"></div>' +
+    '<div class="acts"><button class="e1-btn" data-act="close">とじる</button><button class="e1-btn primary" data-act="recsave">💾 ファイルに保存</button></div>';
+  var ov = modal(h);
+  ov.addEventListener('input', function (ev) {
+    var t = ev.target, k = t.getAttribute('data-refl');
+    if (k) { S.save.refl[k] = t.value.slice(0, 800); persist(); return; }
+    k = t.getAttribute('data-who');
+    if (k) { S.save.who[k] = t.value.slice(0, k === 'cls' ? 20 : 30); persist(); }
+  });
+}
+function exportObj() {
+  var s = S.save, qs = quizScore(), sN = 0, sMax = 0;
+  var stages = STAGES.map(function (st, i) {
+    sN += s.stars[st.id] || 0; sMax += st.stars.length;
+    return { id: st.id, no: stageLabel(i), name: st.title, level: i < 7 ? '基本編' : '発展編', cleared: stageCleared(st),
+      stars: st.stars.length ? (s.stars[st.id] || 0) : null, maxStars: st.stars.length, quiz: st.quiz ? !!s.quiz[st.id] : null };
+  });
+  return { schema: 'energyApps.artifact', app: 'C1', type: 'conversion-game', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
+    data: { stages: stages, cleared: stages.filter(function (x) { return x.cleared; }).length, stars: sN, maxStars: sMax, quiz: qs,
+      reflection: { q1: s.refl.q1, q2: s.refl.q2, q3: s.refl.q3 } } };
+}
+function saveFile() {
+  var p2 = function (n) { return (n < 10 ? '0' : '') + n; }, t = new Date();
+  var blob = new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'C1-henkan-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  var m = S.ov && S.ov.querySelector('.e1-saved'); if (m) m.textContent = '✅ 保存しました。ダウンロードのフォルダを見てね。';
 }
 
 /* ---------- 入力 ---------- */
@@ -1377,6 +1467,8 @@ function bindInput() {
     else if (act === 'price') showPrice();
     else if (act === 'intro') showIntroModal();
     else if (act === 'sound') { S.save.sound = !S.save.sound; persist(); renderTop(); }
+    else if (act === 'rec') showRec();
+    else if (act === 'recsave') saveFile();
     else if (act === 'slot') { S.view = i; render(); }
     else if (act === 'run') run();
     else if (act === 'undo') undo();
@@ -1442,7 +1534,7 @@ function mount(root) {
 NS.C1 = {
   mount: mount,
   _test: { simulate: simulate, evaluate: evaluate, STAGES: STAGES, CAT: CAT, S: S, openStage: openStage, place: place, link: link, nodeAt: nodeAt, newBoard: newBoard, changed: changed,
-    startBoard: startBoard, undo: undo, removeEdge: removeEdge, removeNode: removeNode, resetBoard: resetBoard, axesScores: axesScores, edgeGeom: edgeGeom, sankey: sankey }
+    startBoard: startBoard, exportObj: exportObj, REFL: REFL, undo: undo, removeEdge: removeEdge, removeNode: removeNode, resetBoard: resetBoard, axesScores: axesScores, edgeGeom: edgeGeom, sankey: sankey }
 };
 var auto = document.getElementById('e1-app');
 if (auto && !auto.getAttribute('data-manual')) mount(auto);

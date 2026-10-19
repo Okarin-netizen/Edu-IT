@@ -1138,6 +1138,7 @@ function loadSave() {
   d.pq = d.pq || { best: 0 };
   d.simSet = d.simSet || {};
   d.lists = Array.isArray(d.lists) ? d.lists.filter(validList) : [];
+  d.refl = Object.assign({ q1: '', q2: '', q3: '' }, d.refl && typeof d.refl === 'object' ? d.refl : {});
   if (d.cur == null || !d.lists[d.cur]) d.cur = d.lists.length ? 0 : -1;
   return d;
 }
@@ -1908,13 +1909,33 @@ function renderCheck() {
       var ri = L.records.indexOf(r);
       return '<tr><td>' + esc(r.date) + '</td><td>' + n[0] + '</td><td>' + n[1] + '</td><td' + (n[2] ? ' style="color:#d93a3a;font-weight:bold"' : '') + '>' + n[2] + '</td><td class="l">' + esc(r.memo || '') + '</td>' +
         '<td><button class="e4-btn sm" data-act="crecview" data-i="' + ri + '">見る</button></td></tr>';
-    }).join('') + '</table>' : '<div style="color:#5f6670">まだ記録はありません。「📒 点検して記録する」から記録しよう。</div>');
+    }).join('') + '</table>' : '<div style="color:#5f6670">まだ記録はありません。「📒 点検して記録する」から記録しよう。</div>') +
+    reflCard();
   setBody('<div class="e4-cl"><div class="e4-cand">' + left + '</div><div class="e4-clmain" data-ref="clmain">' + main + '</div></div>');
   var inp = S.el.lname;
   if (inp) inp.addEventListener('input', function () { L.name = inp.value.slice(0, 30); persist(); });
+  S.el.body.querySelectorAll('[data-refl]').forEach(function (ta) {
+    ta.addEventListener('input', function () { S.save.refl[ta.getAttribute('data-refl')] = ta.value.slice(0, 800); persist(); });
+  });
   var ni = S.el.newitem;
   if (ni) ni.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { addCustom(); ev.preventDefault(); } });
 }
+/* ✏️ 振り返り(点検表といっしょにファイルへ入る。先生が振り返りを隠す設定のときは data-ef-reflect で消える) */
+var REFL = [
+  { id: 'q1', q: '機械に共通して使われる部品(ねじ・軸受・ばね など)を1つ選び、その役割を説明しよう。' },
+  { id: 'q2', q: '機械を長く安全に使うために、なぜ定期的に保守点検をするのですか。' },
+  { id: 'q3', q: 'つくった点検表で、いちばん大切だと思う点検項目はどれですか。その理由と、点検するときに気をつけることを書こう。' }
+];
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
+function reflCard() {
+  return '<div class="e4-card e4-refl" data-ef-reflect style="margin-top:14px"><h3 style="margin:0 0 4px">✏️ 振り返り</h3>' +
+    '<p style="margin:0 0 8px;color:#5f6670">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 ファイルに保存」で点検表といっしょにファイルに入ります。</p>' +
+    REFL.map(function (r, i) {
+      return '<label for="e4-' + r.id + '" style="display:block;font-weight:bold;margin:8px 0 4px">' + (i + 1) + '. ' + r.q + '</label>' +
+        '<textarea class="e4-in" id="e4-' + r.id + '" data-refl="' + r.id + '" maxlength="800" rows="3" style="resize:vertical">' + esc(S.save.refl[r.id]) + '</textarea>';
+    }).join('') + '</div>';
+}
+function reflData() { var o = {}; REFL.forEach(function (r) { o[r.id] = String(S.save.refl[r.id] || ''); }); return o; }
 function targetPicker() {
   return '<h3>何の点検表をつくる?</h3><div class="e4-tgrid">' + D.TARGETS.map(function (t) {
     return '<button class="e4-tcard" data-act="cnew" data-v="' + t.id + '"><span class="t" style="font-size:calc(22px * var(--ea-fs, 1))">' + t.icon + ' ' + esc(t.name) + '</span><span style="color:#5f6670;font-size:calc(15px * var(--ea-fs, 1))">候補 ' + t.items.length + '項目</span></button>';
@@ -2070,6 +2091,7 @@ function whoForExport() {
 function saveJSON() {
   var L = curList(); if (!L) { beep('err'); return; }
   var obj = { schema: 'energyApps.artifact', version: 1, app: 'C4', type: 'checklist', name: L.name, savedAt: new Date().toISOString(), data: listData(L) };
+  if (fkOn()) obj.data.reflection = reflData();
   var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
