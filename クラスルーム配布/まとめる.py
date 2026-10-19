@@ -145,6 +145,14 @@ for p in sorted(student.rglob("*.html")):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html[:m.end()] + JS_TAG + html[m.end():], encoding="utf-8")
 
+# ---- 自習ワークシート(教材ごとに1枚。タブレットで書きこむか印刷して使う)と、その答え(先生用) ----
+# 中身は自習ガイドと同じ eduit-info.js の jishu。振り返りなし・自習用の版は作らない(上の2つのあとで入れる)
+subprocess.run([sys.executable, str(repo / "worksheet/build.py")], check=True)
+ws_src = repo / "worksheet/dist"
+for k in ("A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術"):
+    copy(ws_src / f"{k}_ワークシート.html", student / "ワークシート" / f"{k}_ワークシート.html")
+copy(ws_src / "ワークシートの答え.html", teacher / "全分野_ワークシートの答え.html")
+
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):
         print(f"{p.relative_to(here)}  ({p.stat().st_size // 1024} KB)")

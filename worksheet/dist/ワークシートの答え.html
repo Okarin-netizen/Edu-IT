@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自習ワークシートの答え(先生用)</title>
+<!-- worksheet/build.py が作ったファイル。直接直さない -->
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
+</style>
+<style>
+  body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.6; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 16px 40px; }
+  .lead { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 10px 18px; }
+  h2 { margin: 26px 0 8px; font-size: 20px; border-bottom: 3px solid var(--ef-accent); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+  h2 small { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+  article { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); padding: 8px 16px; margin: 8px 0; break-inside: avoid; }
+  h3 { margin: 0 0 4px; font-size: 16px; }
+  .c { display: inline-block; margin-right: .5em; padding: 0 .4em; border-radius: 6px; background: var(--ef-text); color: #fff; }
+  ol { margin: 0; padding-left: 1.6em; }
+  li p { margin: 0; }
+  .a b { display: inline-flex; justify-content: center; width: 1.6em; border-radius: 50%; background: #2e7d32; color: #fff; }
+  .x { color: var(--ef-muted); font-size: 14px; margin-bottom: 4px !important; }
+  @media print { body { background: #fff; font-size: 10pt; } .lead { border: 0; padding: 0; } }
+</style>
+</head>
+<body>
+<header class="ef-header"><h1 class="ef-title">自習ワークシートの答え(先生用)</h1></header>
+<main>
+<div class="lead">
+<p>生徒に配る/ワークシート/ の自習ワークシートの「たしかめ問題」の答えと解説です。問題は各教材の自習ガイドのたしかめ問題と同じなので、生徒は自習ガイドでも答え合わせができます(ワークシートには答えを出していません)。</p>
+<p>ワークシートは、教材ごとに ねらい → 進め方(基本・発展) → たしかめ問題 → ふりかえり(◎○△の自己評価と記述)の順です。生徒はタブレットで書きこむ(その端末に保存)か、印刷して紙で使います。</p>
+</div>
+<section><h2>A 材料と加工の技術<small>生徒のファイル: A_材料と加工_ワークシート.html</small></h2><article><h3><span class="c">A1</span>材料選択ナビ</h3><ol><li><p class="q">このアプリで重みを変えると順位が入れかわりました。ここから分かることはどれ?</p><p class="a"><b>イ</b> 最適な材料は、使用目的や使用条件によって変わる</p><p class="x">何を重視するかで点数が変わります。条件と材料の性質を結びつけて選ぶことが大切です。</p></li><li><p class="q">スギ(密度 約0.38g/cm³)と鉄(約7.87g/cm³)で、同じ大きさの板が軽いのはどちら?</p><p class="a"><b>ウ</b> スギ</p><p class="x">密度が小さいほど、同じ大きさでも軽くなります。</p></li><li><p class="q">なべしきの材料を選ぶとき、「電気・熱の通し方」はどちらがよい?</p><p class="a"><b>ア</b> 通しにくい方がよい</p><p class="x">熱いなべの熱が机やテーブルに伝わらないように、熱を通しにくい材料が合います。</p></li></ol></article><article><h3><span class="c">A2</span>木材の繊維・収縮ラボ</h3><ol><li><p class="q">木材が乾燥して縮むとき、いちばん縮みが大きい方向はどれ?</p><p class="a"><b>ウ</b> 接線方向</p><p class="x">およそ 接線方向:半径方向:繊維方向 = 10:5:0.5〜1 で、年輪に沿った接線方向がいちばん縮みます。</p></li><li><p class="q">合板で、単板の繊維方向を交互に直交させて重ねるのはなぜ?</p><p class="a"><b>ア</b> 縮みや反りを小さくするため</p><p class="x">縮みやすい向きどうしをおさえ合うので、乾燥しても縮みや反りがほとんど出ません。</p></li><li><p class="q">木材の強さで、いちばん弱いのはどの力のかけ方?</p><p class="a"><b>イ</b> 繊維に直角に引っぱる</p><p class="x">繊維方向に引っぱる力にはとても強いですが、繊維に直角に引っぱると、繊維どうしがはなれやすく弱くなります。</p></li></ol></article><article><h3><span class="c">A3</span>構造強化ラボ</h3><ol><li><p class="q">板の梁で、たわみをより小さくできるのはどちら?</p><p class="a"><b>イ</b> 厚みを2倍にする</p><p class="x">幅を2倍にするとたわみは約1/2ですが、厚みを2倍にすると約1/8になります。</p></li><li><p class="q">四角い枠に筋かいを入れると、横からおしても形が変わりにくいのはなぜ?</p><p class="a"><b>ア</b> 三角形ができ、辺の長さが変わらないかぎり形が変わらないから</p><p class="x">四角形は角がまわると形が変わりますが、三角形は形を保ちます。</p></li><li><p class="q">同じ板・同じ長さで同じ重さをのせたとき、いちばん大きく曲がる支え方はどれ?</p><p class="a"><b>ウ</b> 片方だけ固定して、先にのせる</p><p class="x">片持ちの先に力がかかると、両はしで支えるときよりずっと大きく曲がります。</p></li></ol></article><article><h3><span class="c">A4</span>製図トレーナー</h3><ol><li><p class="q">等角図をかくとき、見えない部分の線はどうする?</p><p class="a"><b>イ</b> かかない</p><p class="x">等角図は見える線だけでかきます。かくれ線は三面図で使います。</p></li><li><p class="q">第三角法の平面図で、正面図に近い側(図の下側)は、品物のどちら側?</p><p class="a"><b>ア</b> 正面(手前)</p><p class="x">平面図は正面図の上に置き、下側が品物の正面(手前)になります。</p></li><li><p class="q">三面図に合うようにブロックを積むとき、正しい積み方はいくつある?</p><p class="a"><b>ウ</b> 1つとは限らない</p><p class="x">外から見えない部分のブロックの数がちがっても、同じ三面図になることがあります。</p></li></ol></article><article><h3><span class="c">A5</span>木取り・構想シミュレータ</h3><ol><li><p class="q">切りしろとは何のこと?</p><p class="a"><b>イ</b> のこぎりで切るときに削れてなくなる幅</p><p class="x">部品と部品の間には、切りしろの幅のすき間が必要です。</p></li><li><p class="q">このアプリの部品表で、部品の「長さ」はどの方向の寸法?</p><p class="a"><b>ウ</b> 木目(繊維)の方向</p><p class="x">長さは木目(繊維)の方向の寸法です。木目の向きは部品の強さに関係します。</p></li><li><p class="q">木取りの前に板の現物を見て確かめることはどれ?</p><p class="a"><b>ア</b> 節・割れ・反りなど使えない部分がないか</p><p class="x">実際の板には節・割れ・反りがあるので、その部分をさけて部品を取ります。</p></li></ol></article><article><h3><span class="c">A6</span>工具の使い方・安全トレーナー</h3><ol><li><p class="q">日本の両刃のこぎりは、どのようにすると切れる?</p><p class="a"><b>ア</b> 引くときに切れる</p><p class="x">日本ののこぎりは引くときに切れます。押すときは力をぬきます。</p></li><li><p class="q">のこぎりで切り始めるとき、刃はどこに当てる?</p><p class="a"><b>イ</b> 切断線の外側(捨てる側)</p><p class="x">切りしろの分だけ削れるので、捨てる側に刃を当てると部品が小さくなりません。</p></li><li><p class="q">平かんなを使い終わったときの置き方はどれ?</p><p class="a"><b>ウ</b> 刃を少し引っこめ、横向きに置く</p><p class="x">下面を下にして置くと刃先がいたみ、さわったときにけがをしやすくなります。</p></li></ol></article><article><h3><span class="c">A7</span>第三角法 立体メーカー</h3><ol><li><p class="q">キャビネット図で、奥行きの線はどうかく?</p><p class="a"><b>イ</b> 45°かたむけ、実物の1/2の長さ</p><p class="x">キャビネット図は正面の形をそのままかき、奥行きは45°かたむけて長さを1/2にします。</p></li><li><p class="q">三面図をかいたら赤い点線のマスが出た。これは何を表している?</p><p class="a"><b>ウ</b> ほかの図と位置がそろっていないマス</p><p class="x">3つの図で幅・高さ・奥行きの位置が合っていないと、立体にならず赤い点線で知らせます。</p></li><li><p class="q">三面図だけでは立体の形が1つに決まらないことがあるのはなぜ?</p><p class="a"><b>ア</b> 見えない部分のくぼみなどが、外形線だけでは表せないから</p><p class="x">見えない部分は、かくれ線を使うと表せます。</p></li></ol></article><article><h3><span class="c">A8</span>問題解決ノート</h3><ol><li><p class="q">課題を設定するときの「制約条件」とは何?</p><p class="a"><b>イ</b> 費用や時間など、守らなければならない条件</p><p class="x">制約条件は、時間・費用・材料・安全など、解決策が守らなければならない条件です。</p></li><li><p class="q">問題解決を評価するとき、教科書ではどのように評価するとよいとしている?</p><p class="a"><b>ウ</b> 製作品の品質と製作工程を分けて評価する</p><p class="x">品質は図と照合したり使ってみたりして、工程は材料取り図や製作工程表、記録をもとに評価します。</p></li><li><p class="q">技術の見方・考え方の観点として、このノートで使っていないものはどれ?</p><p class="a"><b>ア</b> 流行</p><p class="x">付箋のアイコンは、社会からの要求・安全性・環境への負荷・経済性の4つの観点です。</p></li></ol></article></section><section><h2>B 生物育成の技術<small>生徒のファイル: B_生物育成_ワークシート.html</small></h2><article><h3><span class="c">B1</span>育成環境コントローラ体験</h3><ol><li><p class="q">作物の育ち方に影響する「育成環境」の組み合わせとして正しいのはどれ?</p><p class="a"><b>イ</b> 温度・光・水・養分</p><p class="x">作物は、温度・光・水・養分(肥料)などの育成環境によって、育ち方が大きく変わります。</p></li><li><p class="q">土がいつもしめっていると、どんなことが起こりやすい?</p><p class="a"><b>ウ</b> 根ぐされ</p><p class="x">水が多すぎると根が呼吸できず、根ぐされの原因になります。水やりは「土の表面がかわいてから、たっぷり」が基本です。</p></li><li><p class="q">晴れた日の温室(ビニルハウス)で気をつけることは?</p><p class="a"><b>ア</b> 中がとても暑くなるので、換気や遮光をする</p><p class="x">温室は晴れた日に中がとても暑くなります。窓を開けて換気したり、遮光したりして温度を下げます。</p></li></ol></article><article><h3><span class="c">B2</span>動物飼育・水産ミニシミュレータ</h3><ol><li><p class="q">教科書では、えさを与える(給餌)・健康観察は、どの技術にあたる?</p><p class="a"><b>イ</b> 成長を管理する技術</p><p class="x">温度調節・換気・除ふんは育成環境を調節する技術、給餌や健康観察は成長を管理する技術です。</p></li><li><p class="q">メダカの水そうでえさを「とても多い」にすると、どうなりやすい?</p><p class="a"><b>ア</b> 食べ残しで水が汚れ、健康度が下がる</p><p class="x">食べ残しやフンが分解されると、水が汚れます。えさは数分で食べきる量にします。</p></li><li><p class="q">このシミュレーションで、溶存酸素(水にとけている酸素)の目安はどれ?</p><p class="a"><b>ウ</b> 5mg/L 以上</p><p class="x">「はかってみよう」のメーターでは5以上が目安です。足りないときはエアレーション・水草・数を減らすことを考えます。</p></li></ol></article><article><h3><span class="c">B3</span>栽培暦ビルダー</h3><ol><li><p class="q">収穫したい日から「逆算」して計画を立てるとは、どういうこと?</p><p class="a"><b>ア</b> 収穫したい日から、育つ日数をさかのぼって種まきの日を決める</p><p class="x">収穫したい日から育つ日数をさかのぼると、種まき・手入れの日が決まります。</p></li><li><p class="q">同じ科の作物を同じ場所で続けて育てると起こりやすいことは?</p><p class="a"><b>イ</b> 連作障害(病気や生育不良)</p><p class="x">同じ科を続けて育てると連作障害が起きやすくなります。年をあけるか、土を入れかえます。</p></li><li><p class="q">寒い地域(寒冷地)で計画を立てるとき、春の種まきの適期はどうなる?</p><p class="a"><b>ウ</b> 温暖地よりおそくなる</p><p class="x">寒い地域ほど春の適期はおそく(秋は早く)なり、育つのにも日数がかかります。</p></li></ol></article><article><h3><span class="c">B4</span>育成日誌＋成長予測</h3><ol><li><p class="q">草丈の正しい測り方はどれ?</p><p class="a"><b>ア</b> 土の表面から、茎のいちばん先(生長点)まで測る</p><p class="x">毎回同じ株・同じ方法で、土の表面から生長点までをまっすぐ測ります。</p></li><li><p class="q">管理作業を行ったら記録しておくのはなぜ?</p><p class="a"><b>イ</b> 作業の効果を確かめ、次の育成に生かすため</p><p class="x">記録を残すと、管理作業の効果を確かめたり、次の生物育成に生かしたりできます。</p></li><li><p class="q">気温を測る場所として正しいのはどれ?</p><p class="a"><b>ウ</b> 日かげ・風通しのよい場所で、地面から約1.5mの高さ</p><p class="x">日光が直接当たると正しい気温になりません。日かげ・風通しのよい場所で、約1.5mの高さで測ります。</p></li></ol></article><article><h3><span class="c">B5</span>植物工場の自動化</h3><ol><li><p class="q">センサで測り、プログラムで判断して、機器を動かすしくみを何という?</p><p class="a"><b>イ</b> 計測・制御</p><p class="x">センサ(入力)で測り、プログラムで判断し、LEDやポンプ(出力)を動かすしくみを計測・制御といいます。</p></li><li><p class="q">「もし 明るさ &lt; 50 なら LED を ON、でなければ OFF」のとき、明るさが70ならLEDは?</p><p class="a"><b>ウ</b> OFF になる</p><p class="x">70は50より小さくないので、条件が成り立たず「でなければ」の OFF になります。</p></li><li><p class="q">水やりの自動化で、土の水分が90%より多い状態が続くと?</p><p class="a"><b>ア</b> 根が酸素不足になって傷む</p><p class="x">水分が多すぎると根が酸素不足になって傷みます。この教材では40〜80%がちょうどよい範囲です。</p></li></ol></article><article><h3><span class="c">B6</span>問題解決ノート</h3><ol><li><p class="q">次のうち「課題」にあたるのはどれ?</p><p class="a"><b>イ</b> 雨よけのビニルをかけて、実がわれないようにミニトマトを育てる</p><p class="x">何をどのようにして解決するかを具体的に決めたものが課題です。ほかの2つは困っていること(問題)です。</p></li><li><p class="q">教科書で、生物育成の成果を評価する観点にふくまれないものはどれ?</p><p class="a"><b>ウ</b> 流行しているか</p><p class="x">成果は、品質・収量・費用・安全性・環境への配慮などの観点で評価します。</p></li><li><p class="q">問題解決を評価するときに大切なことは?</p><p class="a"><b>イ</b> 育成計画や管理作業が適切だったかも評価する</p><p class="x">成果だけでなく、育成計画や管理作業が適切だったかも評価し、改善・修正につなげます。</p></li></ol></article></section><section><h2>C エネルギー変換の技術<small>生徒のファイル: C_エネルギー変換_ワークシート.html</small></h2><article><h3><span class="c">C1</span>エネルギー変換ゲーム</h3><ol><li><p class="q">ある部品に100のエネルギーが入り、目的の形で40出ていった。この部品のエネルギー変換効率は?</p><p class="a"><b>ア</b> 40%</p><p class="x">効率は、目的に使われたエネルギー ÷ 入ったエネルギー。残りの60は熱などになって逃げたエネルギー損失です。</p></li><li><p class="q">火力発電所で、エネルギーの形が変わる順として正しいものは?</p><p class="a"><b>ウ</b> 化学 → 熱 → 運動 → 電気</p><p class="x">燃料の化学エネルギーを燃やして熱にし、蒸気でタービンを回し(運動)、発電機で電気にします。</p></li><li><p class="q">次のうち、再生可能エネルギーはどれ?</p><p class="a"><b>イ</b> 風</p><p class="x">風や太陽の光はなくならず、発電のときに CO₂ を出しません。天然ガス・石炭・ウランは量に限りがある資源です。</p></li></ol></article><article><h3><span class="c">C2</span>電気回路ラボ</h3><ol><li><p class="q">家のコンセントや照明は、どのつなぎ方でつながっている?</p><p class="a"><b>イ</b> 並列</p><p class="x">並列なので、どの器具にも同じ電圧がかかり、1つを切ってもほかの器具はそのまま使えます。</p></li><li><p class="q">ショート(短絡)とは、どんなこと?</p><p class="a"><b>ウ</b> 電流が電気器具を通らず、抵抗のほとんどない近道を流れること</p><p class="x">ショートすると大きな電流が流れ、電線が熱くなって火災の原因になります。</p></li><li><p class="q">漏電遮断器のはたらきとして正しいものは?</p><p class="a"><b>イ</b> 電気がもれたのを見つけて、すぐに電気を止める</p><p class="x">もれた電流を見つけると、0.1秒以内に電気を止めて、感電や火災を防ぎます。</p></li><li><p class="q">電気部品が安全に使える電流や電圧の限度を何という?</p><p class="a"><b>ア</b> 定格</p><p class="x">流してよい電流を定格電流、加えてよい電圧を定格電圧といいます。こえて使うと危険です。</p></li></ol></article><article><h3><span class="c">C3</span>機構ラボ</h3><ol><li><p class="q">原動の歯車10枚で、従動の歯車30枚を回す。原動が60回/分のとき、従動は何回/分?</p><p class="a"><b>イ</b> 20回/分</p><p class="x">速度伝達比は 30 ÷ 10 = 3。従動の回転速度は 1/3 の20回/分になります。</p></li><li><p class="q">速度伝達比を大きくして回転をおそくすると、回す力(トルク)はどうなる?</p><p class="a"><b>ウ</b> 大きくなる</p><p class="x">回転はおそくなるかわりに、回す力は大きくなります。クレーンの巻き上げなどに使われます。</p></li><li><p class="q">はなれた軸に、すべらずに回転を伝えたい。どれを使う?</p><p class="a"><b>ア</b> チェーンとスプロケット</p><p class="x">チェーンはスプロケットの歯とかみ合うので、すべりません。平ベルトはすべることがあります。</p></li></ol></article><article><h3><span class="c">C4</span>保守点検ラボ</h3><ol><li><p class="q">ばね座金やダブルナットは、何のために使う?</p><p class="a"><b>イ</b> ねじのゆるみを止めるため</p><p class="x">振動などでねじがゆるむのを防ぐ「ゆるみ止め」です。</p></li><li><p class="q">軸受の役割として正しいものは?</p><p class="a"><b>ウ</b> 回転する軸を支え、なめらかに回す</p><p class="x">軸受は回転する軸を支える部品で、転がり軸受と滑り軸受があります。</p></li><li><p class="q">機械の保守点検について、正しいものは?</p><p class="a"><b>ア</b> 大きな不具合が出ていなくても、決めた間隔で点検する</p><p class="x">小さな部品がこわれて大きな事故になることがあるので、ふだんから点検して正常な状態を保ちます。</p></li></ol></article><article><h3><span class="c">C5</span>回路設計シート</h3><ol><li><p class="q">回路図をかくときに使う、JISで決められた記号を何という?</p><p class="a"><b>イ</b> 電気用図記号</p><p class="x">電気用図記号を使うと、だれが見ても同じ回路だとわかります。</p></li><li><p class="q">実測値とは、どんな値?</p><p class="a"><b>ア</b> 作った回路で実際にはかった値</p><p class="x">実測値を設計値とくらべて、ちがいの原因を考え、改善につなげます。</p></li><li><p class="q">懐中電灯の回路で、スイッチはどこに入れる?</p><p class="a"><b>ウ</b> 電池と豆電球の間に直列に入れる</p><p class="x">スイッチは回路のとちゅうに直列に入れて、道をつないだり切ったりします。並列に入れるとショートします。</p></li></ol></article><article><h3><span class="c">C6</span>風力発電の羽根ラボ</h3><ol><li><p class="q">羽根のかたむき(ピッチ角)を 0° や 90° にすると、羽根はどうなる?</p><p class="a"><b>ア</b> 回らない</p><p class="x">0° は風に正面を向け、90° は風と平行になるので、どちらも風が羽根を回す力になりません。</p></li><li><p class="q">羽根の条件をくらべるとき、正しいやり方は?</p><p class="a"><b>イ</b> 変える条件を1つだけにして、ほかは同じにする</p><p class="x">1つだけ変えれば、その条件が発電量にどう効いたかがわかります。</p></li><li><p class="q">「風から電気へ」が20%のとき、のこりの80%の風のエネルギーはどうなった?</p><p class="a"><b>ウ</b> 羽根のまわりを通りぬけたり、熱や音になったりした</p><p class="x">風のエネルギーのすべてを電気にすることはできません。電気にならなかった分がエネルギー損失です。</p></li></ol></article><article><h3><span class="c">C7</span>直流・交流と送電ラボ</h3><ol><li><p class="q">時間がたっても、電圧と電流の向きが変わらない電気を何という?</p><p class="a"><b>イ</b> 直流(DC)</p><p class="x">電池や太陽電池の電気は直流です。コンセントの電気は向きと大きさが周期的に変わる交流です。</p></li><li><p class="q">変圧器で電圧を変えられるのはどれ?</p><p class="a"><b>ア</b> 交流だけ</p><p class="x">変圧器は、向きと大きさが変わり続ける交流だから使えます。直流では2次コイルに電圧が生まれません。</p></li><li><p class="q">同じ電力を送るとき、送る電圧を高くするとどうなる?</p><p class="a"><b>ウ</b> 電流が小さくなり、送電線で熱になる損失が減る</p><p class="x">電力 = 電圧 × 電流なので、電圧を高くすると電流が小さくなり、熱になって失われるエネルギーが少なくなります。</p></li></ol></article><article><h3><span class="c">C8</span>問題解決ノート</h3><ol><li><p class="q">「課題」の説明として正しいものは?</p><p class="a"><b>イ</b> 問題を解決するために、何をどのようにするかを具体的に決めたもの</p><p class="x">不便さや「こうだったらいいのに」は問題です。それを解決するために何をどうするかを決めたものが課題です。</p></li><li><p class="q">製作品の評価のしかたとして、正しいものは?</p><p class="a"><b>ア</b> 機能だけでなく、安全性・環境への配慮・費用など多くの観点で評価する</p><p class="x">教科書では、機能・利便性・安全性・環境への配慮・費用など、多くの観点から評価します。</p></li><li><p class="q">「制約条件」とは、どんな条件?</p><p class="a"><b>ウ</b> 費用や時間など、守らなければならない条件</p><p class="x">制約条件を守れない案は選べません。その中で、いちばんよい案を考えます。</p></li></ol></article></section><section><h2>D 情報の技術<small>生徒のファイル: D_情報の技術_ワークシート.html</small></h2><article><h3><span class="c">D1</span>デジタル化ラボ</h3><ol><li><p class="q">デジタル化の3つの手順のうち、段階の番号を0と1の並び(2進数)にする手順はどれ？</p><p class="a"><b>ウ</b> 符号化</p><p class="x">一定の間かくで区切るのが標本化、決まった段階にあてはめるのが量子化、それを0と1にするのが符号化です。</p></li><li><p class="q">8ビットで表せる数は何通り？</p><p class="a"><b>ア</b> 256通り</p><p class="x">ビットが1つ増えるごとに表せる数は2倍になるので、2を8回かけて256通り(0〜255)です。</p></li><li><p class="q">音のデジタル化で、量子化ビット数を大きくするとどうなる？</p><p class="a"><b>イ</b> 波の高さを細かく表せ、データ量は増える</p><p class="x">段階の数が多いほど、もとの波に近い形で表せます。そのかわり、1回の記録に使うビット数が増えます。</p></li></ol></article><article><h3><span class="c">D2</span>仮想CPUラボ</h3><ol><li><p class="q">CPU(中央処理装置)は、どの2つの装置をまとめたもの？</p><p class="a"><b>イ</b> 制御装置と演算装置</p><p class="x">命令を読んで指示を出す制御装置と、計算や大小くらべをする演算装置をまとめてCPUとよびます。</p></li><li><p class="q">電源を切ってもファイルが消えない補助記憶装置はどれ？</p><p class="a"><b>ウ</b> SSD</p><p class="x">メモリ(主記憶装置)は電源を切ると消えますが、SSDなどの補助記憶装置は電源を切ってもデータが残ります。</p></li><li><p class="q">処理を自動化するとき、人がしなければならないことはどれ？</p><p class="a"><b>ア</b> 手順を考えてプログラムにすること</p><p class="x">コンピュータは決められた手順を速く正確にくり返しますが、手順を考えるのは人です。手順がまちがっていると、まちがった答えを速く出してしまいます。</p></li></ol></article><article><h3><span class="c">D3</span>ネットワーク通信シミュレータ</h3><ol><li><p class="q">ほかの機器あてのパケットを受け取って、次の回線へ送る(中継する)機器はどれ？</p><p class="a"><b>イ</b> ルータ</p><p class="x">ルータはパケットの宛先を見て、次にどの回線へ送るかを決める「中継係」です。ほかの機器は中継しません。</p></li><li><p class="q">家のパソコンと家のルータの間の1本の線が切れると、どうなる？</p><p class="a"><b>ウ</b> ほかに道がないので届かなくなる</p><p class="x">道が1本しかないところが切れると回り道がありません。大事なところは道を2本以上にしておきます。</p></li><li><p class="q">HTTPSで送ったとき、のぞき見している人に見えてしまうものはどれ？</p><p class="a"><b>ア</b> 送り先のIPアドレスやデータの量</p><p class="x">HTTPSでは中身が暗号化されるので読めませんが、送り先やデータの量は見えることがあります。</p></li></ol></article><article><h3><span class="c">D4</span>情報セキュリティ体験ラボ</h3><ol><li><p class="q">単語をいくつかランダムに選んでつなげたパスワード(パスフレーズ)のよいところはどれ？</p><p class="a"><b>イ</b> 長いのに覚えやすく、総当たりで見つけにくい</p><p class="x">パスワードは長いほど組み合わせが増え、総当たりで解読するのに時間がかかります。サービスごとに別のものにするのは同じです。</p></li><li><p class="q">2段階認証(多要素認証)を使うと、どんなよいことがある？</p><p class="a"><b>ウ</b> パスワードが知られても、スマホなどでの確認がないとログインされない</p><p class="x">パスワードに加えて別の方法でも本人か確かめるので、パスワードだけ知られても不正にログインされにくくなります。</p></li><li><p class="q">フィッシングで、だます人がいちばんねらっているものはどれ？</p><p class="a"><b>ア</b> パスワードや個人情報</p><p class="x">本物そっくりのメールやページで入力させ、パスワードや個人情報、お金をだまし取ろうとします。</p></li></ol></article><article><h3><span class="c">D5</span>ネット詐欺 追体験ラボ</h3><ol><li><p class="q">動画サイトでボタンを1回押したら「登録完了・料金をはらってください」と出た。正しい考え方はどれ？</p><p class="a"><b>ア</b> 料金の説明もなくボタンを1回押しただけでは、契約したことにならない</p><p class="x">IPアドレスや端末の種類からは名前や住所はわかりません。連絡も支払いもせずに画面を閉じます。</p></li><li><p class="q">パソコンに「ウイルスが検出されました。この番号に電話してください」と出た。どうする？</p><p class="a"><b>ウ</b> Esc キーで全画面を終わらせ、タブを閉じて大人に伝える</p><p class="x">Webページにはパソコンの中を調べる力はありません。電話やインストールをさせるのが、だます人のねらいです。</p></li><li><p class="q">ネットでお金をはらってしまったとき、家の人と相談できる「消費者ホットライン」の番号は？</p><p class="a"><b>イ</b> 188</p><p class="x">188(いやや！)は、近くの消費生活センターにつながる番号です。まずは家の人や先生に話しましょう。</p></li></ol></article><article><h3><span class="c">D6</span>双方向コンテンツ制作スタジオ</h3><ol><li><p class="q">双方向性のあるコンテンツの「双方向性」とは何？</p><p class="a"><b>ア</b> 使う人の働きかけ(入力)に応じて、応答(出力)すること</p><p class="x">使用者の入力に応じて応答する機能を双方向性といいます。ネットワークを通してサーバーとやりとりするものも多くあります。</p></li><li><p class="q">作品が server.save などでサーバーにお願いを送るとき、作品(を動かす端末)は何とよばれる？</p><p class="a"><b>ウ</b> クライアント</p><p class="x">サービスを受け取る側がクライアントです。クライアントがお願い(リクエスト)を送り、サーバーが返事(レスポンス)を返します。</p></li><li><p class="q">「ボタンが押されたとき」のブロックの中は、いつ実行される？</p><p class="a"><b>イ</b> ボタンが押されるたび</p><p class="x">ボタンが押されることをイベントといい、その中の処理はイベントが起きるたびに実行されます。</p></li></ol></article><article><h3><span class="c">D7</span>計測・制御シミュレータ</h3><ol><li><p class="q">計測・制御システムで、センサの役割はどれ？</p><p class="a"><b>イ</b> 光・温度・距離など周囲の状況を計測する</p><p class="x">センサは入力の部品で、周囲の状況を計測します。判断するのはコンピュータ、仕事をするのはアクチュエータ(仕事を行う部分)です。</p></li><li><p class="q">「もし 明るさ &lt; 30 なら」の 30 のように、判断を切りかえる境目の値を何という？</p><p class="a"><b>ウ</b> しきい値</p><p class="x">しきい値です。しきい値を変えると、どこで動きが切りかわるかが変わります。</p></li><li><p class="q">押しボタン式の信号機が、時間だけで切りかえる信号機よりよいところは？</p><p class="a"><b>ア</b> 歩行者がいないときは車を止めないので、車をむだに待たせない</p><p class="x">ボタン(センサ)で歩行者がいることを計測し、必要なときだけ車を止めるので、むだな待ち時間がへります。</p></li></ol></article><article><h3><span class="c">D8</span>生成AIのしくみラボ</h3><ol><li><p class="q">生成AIが、本当のことのように見えるまちがいを答えることを何という？</p><p class="a"><b>ア</b> ハルシネーション</p><p class="x">ハルシネーション(もっともらしいまちがい)です。AIは続きやすい言葉のならびを作るので、すらすら読めてもまちがうことがあります。</p></li><li><p class="q">AIの答えの中で、とくにまちがいが入りやすいのはどこ？</p><p class="a"><b>イ</b> 数字・年・人名・本の名前</p><p class="x">数字・年・人名・本や記事の名前・URL はまちがいやすい所です。もとの情報で確かめます。</p></li><li><p class="q">「みどり市立さくら中学校2年1組の山田花子です。この作文を直して。」をAIに送る前に、どう直すとよい？</p><p class="a"><b>ウ</b> 「中学2年生です。この作文を直して。」にする</p><p class="x">学校名・クラス・名前がそろうと、だれなのかがわかります。個人が特定されない書き方にします。</p></li></ol></article><article><h3><span class="c">D9</span>ハッシュ化体験ラボ</h3><ol><li><p class="q">SHA-256 のハッシュ値は、どんな文字でできている？</p><p class="a"><b>イ</b> 0〜9 と a〜f の16種類</p><p class="x">ハッシュ値は 0〜9 と a〜f の16種類の文字(16進数)で表されています。</p></li><li><p class="q">ソルトを付けてハッシュ化すると、同じパスワードを使っている2人のハッシュ値はどうなる？</p><p class="a"><b>ア</b> ちがう値に見える</p><p class="x">ソルトは人ごとにちがうので、同じパスワードでもハッシュ値がちがって見え、前もって作った辞書とも一致しなくなります。</p></li><li><p class="q">サービスごとにちがうパスワードにするとよいのはなぜ？</p><p class="a"><b>ウ</b> 1つのサービスでもれても、ほかのサービスが守られるから</p><p class="x">同じパスワードを使い回すと、1つもれただけでほかのサービスにも入られてしまいます。</p></li></ol></article><article><h3><span class="c">D10</span>火星探査ロボット・シミュレータ</h3><ol><li><p class="q">ふつうの速さ(1秒に20cm)で、300cm 先まで前進するには、何秒前進すればよい？</p><p class="a"><b>ウ</b> 15秒</p><p class="x">300 ÷ 20 = 15 なので、15秒です。速さを変えると、同じ時間でも進む距離が変わります。</p></li><li><p class="q">曲がりくねった谷で、左右のどちらが開いているかを知るには？</p><p class="a"><b>ア</b> 左と右にも距離センサを付けて、値をくらべる</p><p class="x">左右の距離センサの値をくらべると、距離が大きい方が開いているとわかります。</p></li><li><p class="q">距離センサを増やすと、どうなる？</p><p class="a"><b>イ</b> 安全に走りやすくなるが、費用と電池の使い方が増える</p><p class="x">センサを増やすと安全性は上がりますが、費用や電池(環境への配慮)とのバランスを考える必要があります。</p></li></ol></article><article><h3><span class="c">D11</span>問題解決ノート</h3><ol><li><p class="q">課題を決めるときの「制約条件」とは？</p><p class="a"><b>ア</b> 費用や時間など、守らなければならない条件</p><p class="x">制約条件は、費用・時間・場所など、問題解決のときに守らなければならない条件です。</p></li><li><p class="q">評価のときに「はじめの目標」も入れるのはなぜ？</p><p class="a"><b>イ</b> 目標とくらべて、足りない観点(改善点)を見つけるため</p><p class="x">目標とできあがりをくらべると、どの観点をどう改善・修正すればよいかが見えます。</p></li><li><p class="q">問題を見つけたり評価したりするときの「技術の見方・考え方」の観点に入らないものは？</p><p class="a"><b>ウ</b> 流行</p><p class="x">観点は、社会からの要求・安全性・環境への負荷・経済性(社会・安全・環境・経済)です。</p></li></ol></article></section>
+</main>
+</body>
+</html>
