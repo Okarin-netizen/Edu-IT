@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """生徒用の公開サイト(GitHub Pages)を _site/ に作る。実行: python3 site/build.py
 
-入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ の4つの統一版。
+入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ の4つの統一版と自習ワークシート(ws/)。
 先生用ガイド(クラスルーム配布/先生用/)と teacher-tools/ は入れない。
 アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html という名前で置き、
 a.html〜d.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
@@ -65,7 +65,8 @@ FRAME = """<!doctype html>
 <script>
   // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
   var f = document.querySelector('iframe');
-  if (location.hash) f.src = 'apps/{file}' + location.hash;
+  // ?jishu=on などの設定も中の教材に渡す(ワークシートの「教材をひらく(自習モード)」が使う)
+  if (location.search || location.hash) f.src = 'apps/{file}' + location.search + location.hash;
   f.addEventListener('load', function () {{
     try {{
       document.title = f.contentDocument.title || document.title;
@@ -92,6 +93,25 @@ for src, dst in PAGES.items():
             raise SystemExit(f"{src}: 枠の中かどうかを調べるところが見つかりません(site/build.py を直してください)")
     (out / "apps" / dst).write_text(page, encoding="utf-8")
     (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
+
+# 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html に置く。
+# 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に入口へもどるリンクを足す
+WS = {"A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
+      "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html"}
+(out / "ws").mkdir()
+for src, dst in WS.items():
+    old = "../クラスルーム配布/生徒に配る/ワークシート/" + src
+    if old not in html:
+        raise SystemExit(f"site/index.html: {old} へのリンクがありません")
+    html = html.replace(old, "ws/" + dst)
+    page = (student / "ワークシート" / src).read_text(encoding="utf-8")
+    unified = next(k for k, v in PAGES.items() if v == dst)
+    n = page.count(f'href="../自習用/{unified}"') + page.count("<!--site-home-->")
+    if n != 2:
+        raise SystemExit(f"{src}: 教材へのリンクか入口へもどる印が見つかりません(worksheet/build.py を直してください)")
+    page = page.replace(f'href="../自習用/{unified}"', f'href="../{dst}?jishu=on"')
+    page = page.replace("<!--site-home-->", '<a class="ef-btn ef-back" href="../">◀ 入口</a>')
+    (out / "ws" / dst).write_text(page, encoding="utf-8")
 
 (out / "index.html").write_text(html, encoding="utf-8")
 (out / ".nojekyll").write_text("", encoding="utf-8")

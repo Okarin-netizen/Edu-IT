@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="ja" data-ef-domain="D">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>情報の技術 自習ワークシート</title>
+<!-- worksheet/build.py が各分野の eduit-info.js の jishu から作ったファイル。直接直さない -->
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
+</style>
+<style>
+  body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.6; }
+  .ws-bar { position: sticky; top: 0; z-index: 5; }
+  .ws-pick { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; background: var(--ef-surface-2); border-bottom: 1px solid var(--ef-line); }
+  .ws-pick .ef-btn { min-width: 3.4em; padding: 0 12px; }
+  .ws-pick .ef-btn[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+  .ws-pick-all { margin-left: auto; }
+  main { max-width: 860px; margin: 0 auto; padding: 16px 16px 48px; }
+  .ws-intro { margin: 0 0 14px; padding: 10px 16px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); font-size: 15px; }
+  .ws-intro p { margin: .2em 0; }
+  .ws { display: none; background: #fff; border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 18px 22px 22px; box-shadow: var(--ef-shadow); }
+  .ws.is-current { display: block; }
+  .ws-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 16px; border-bottom: 3px solid var(--ef-accent); padding-bottom: 8px; }
+  .ws-head h2 { margin: 0; font-size: 21px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .ws-code { display: inline-block; padding: 0 .45em; border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink); }
+  .ws-kind { font-size: 14px; font-weight: 400; color: var(--ef-muted); }
+  .ws-who { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; }
+  .ws-who label { display: inline-flex; align-items: baseline; gap: 4px; }
+  .ws-who input { font: inherit; font-size: 16px; border: 0; border-bottom: 1.5px solid #555; background: transparent; padding: 2px 4px; width: 3em; }
+  .ws-who .ws-name input { width: 9em; }
+  .ws-goal { margin: 12px 0 6px; padding: 8px 12px; background: var(--ef-accent-soft); border-radius: var(--ef-radius-s); }
+  .ws-goal b { margin-right: .6em; color: var(--ef-accent); }
+  .ws-time { float: right; margin-left: 1em; font-size: 14px; color: var(--ef-muted); }
+  .ws-how { margin: 6px 0 4px; font-size: 14px; color: var(--ef-muted); }
+  .ws h3 { margin: 18px 0 6px; font-size: 17px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+  .ws h3 small { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+  .ws-n { display: inline-flex; justify-content: center; min-width: 1.6em; border-radius: 50%; background: var(--ef-text); color: #fff; font-size: 14px; line-height: 1.6em; }
+  .ws-adv .ws-n { background: #5b3fa8; }
+  .ws-steps, .ws-qs { margin: 0; padding: 0; list-style: none; }
+  .ws-step { display: flex; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--ef-line); }
+  .ws-step:first-child { border-top: 0; }
+  .ws-chk { flex: 0 0 auto; position: relative; width: 30px; height: 30px; margin-top: 1px; cursor: pointer; }
+  .ws-chk input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .ws-chk-mark { position: absolute; inset: 2px; border: 2px solid #444; border-radius: 4px; background: #fff; }
+  .ws-chk input:checked + .ws-chk-mark { background: var(--ef-accent); border-color: var(--ef-accent); }
+  .ws-chk input:checked + .ws-chk-mark::after { content: "✓"; position: absolute; inset: 0; color: #fff; font-weight: 700; font-size: 19px; line-height: 24px; text-align: center; }
+  .ws-chk input:focus-visible + .ws-chk-mark { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+  .ws-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ws-step-main { flex: 1 1 auto; min-width: 0; }
+  .ws-do { margin: 0; }
+  .ws-where { display: inline-block; margin-right: .5em; padding: 0 .5em; border: 1.5px solid var(--ef-accent); border-radius: 6px; color: var(--ef-accent); font-weight: 700; font-size: 14px; }
+  .ws-tag { display: inline-block; margin-right: .4em; padding: 0 .45em; border-radius: 6px; background: #eceae4; font-size: 12px; font-weight: 700; vertical-align: 1px; }
+  .ws-tag-r { background: #fde9c8; }
+  .ws-box { --line: 1.9em; margin-top: 6px; min-height: calc(var(--line) * var(--rows, 2)); padding: 0 8px; line-height: var(--line);
+    border: 1.5px solid #9a968c; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; outline: none;
+    background: #fff repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--line) - 1px), #e2dfd7 calc(var(--line) - 1px), #e2dfd7 var(--line)); background-attachment: local;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ws-box:focus { border-color: var(--ef-accent); box-shadow: 0 0 0 3px var(--ef-accent-soft); }
+  .ws-box:empty::before { content: attr(data-ph); color: #9a968c; font-size: 14px; }
+  .ws-q { padding: 8px 0; border-top: 1px dashed var(--ef-line); counter-increment: q; }
+  .ws-q:first-child { border-top: 0; }
+  .ws-q > p { margin: 0 0 4px; }
+  .ws-q > p::before { content: "問" counter(q) " "; font-weight: 700; }
+  .ws-qs { counter-reset: q; }
+  .ws-choices { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+  .ws-choice { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 12px 4px 6px; border: 1.5px solid var(--ef-line); border-radius: 8px; cursor: pointer; }
+  .ws-choice input, .ws-rate input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .ws-kana { display: inline-flex; justify-content: center; align-items: center; width: 1.7em; height: 1.7em; border: 1.5px solid #444; border-radius: 50%; font-weight: 700; flex: 0 0 auto; }
+  .ws-choice:has(input:checked) { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+  .ws-choice:has(input:checked) .ws-kana { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; }
+  .ws-choice:has(input:focus-visible), .ws-rate label:has(input:focus-visible) { outline: 3px solid var(--ef-focus); }
+  .ws-rate { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ws-rate th, .ws-rate td { border: 1px solid var(--ef-line); padding: 4px 8px; }
+  .ws-rate thead th { background: var(--ef-surface-2); font-weight: 600; }
+  .ws-rate tbody th { text-align: left; font-weight: 400; }
+  .ws-rate td { text-align: center; width: 15%; }
+  .ws-rate label { display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 18px; color: #bbb; }
+  .ws-rate label:has(input:checked) { background: var(--ef-accent); color: #fff; }
+  .ws-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 10px; }
+  .ws-lbl { margin: 0; font-size: 14px; font-weight: 600; }
+  .ws-saved { font-size: 13px; color: var(--ef-muted); }
+  @media (max-width: 640px) {
+    .ws-pick { flex-wrap: nowrap; overflow-x: auto; }
+    .ws-pick-all { margin-left: 0; }
+    main { padding: 10px 8px 40px; }
+    .ws { padding: 12px 12px 16px; }
+    .ws-head h2 { font-size: 18px; }
+    .ws-two { grid-template-columns: 1fr; }
+    .ws-time { float: none; display: block; margin: 0; }
+    .ws-rate th, .ws-rate td { padding: 3px 4px; }
+  }
+  @page { size: A4 portrait; margin: 11mm 12mm; }
+  @media print {
+    body { background: #fff; font-size: 10.5pt; line-height: 1.45; }
+    .ws-bar, .ws-intro, [data-ef-footer], .ef-footer { display: none !important; }
+    main { max-width: none; padding: 0; }
+    .ws { border: 0; box-shadow: none; padding: 0; border-radius: 0; }
+    body.print-all .ws { display: block; break-after: page; }
+    body.print-all .ws:last-of-type { break-after: auto; }
+    .ws h3 { margin: 9px 0 3px; font-size: 12pt; break-after: avoid; }
+    .ws-step, .ws-q, .ws-rate, .ws-two { break-inside: avoid; }
+    .ws-step { padding: 4px 0; }
+    .ws-box { --line: 7.5mm; }
+    .ws-box:empty::before { content: none; }
+    .ws-choice { min-height: 0; padding: 2px 8px 2px 4px; }
+    .ws-rate label { height: 7mm; color: #888; }
+    .ws-head, .ws-goal, .ws-code, .ws-n, .ws-chk-mark, .ws-rate label, .ws-choice, .ws-kana { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body class="ef-page">
+<div class="ws-bar">
+<header class="ef-header">
+<!--site-home--><h1 class="ef-title"><span class="ef-code">D</span> 情報の技術 自習ワークシート</h1>
+<div class="ef-tools">
+<a class="ef-btn" id="ws-open" href="../自習用/D_情報の技術_統一版.html" target="_blank" rel="noopener">教材をひらく(自習モード)</a>
+<button type="button" class="ef-btn" id="ws-print">印刷</button>
+</div>
+</header>
+<nav class="ws-pick" role="tablist" aria-label="教材をえらぶ"><button type="button" class="ef-btn" role="tab" data-code="D1" aria-controls="D1" title="デジタル化ラボ">D1</button><button type="button" class="ef-btn" role="tab" data-code="D2" aria-controls="D2" title="仮想CPUラボ">D2</button><button type="button" class="ef-btn" role="tab" data-code="D3" aria-controls="D3" title="ネットワーク通信シミュレータ">D3</button><button type="button" class="ef-btn" role="tab" data-code="D4" aria-controls="D4" title="情報セキュリティ体験ラボ">D4</button><button type="button" class="ef-btn" role="tab" data-code="D5" aria-controls="D5" title="ネット詐欺 追体験ラボ">D5</button><button type="button" class="ef-btn" role="tab" data-code="D6" aria-controls="D6" title="双方向コンテンツ制作スタジオ">D6</button><button type="button" class="ef-btn" role="tab" data-code="D7" aria-controls="D7" title="計測・制御シミュレータ">D7</button><button type="button" class="ef-btn" role="tab" data-code="D8" aria-controls="D8" title="生成AIのしくみラボ">D8</button><button type="button" class="ef-btn" role="tab" data-code="D9" aria-controls="D9" title="ハッシュ化体験ラボ">D9</button><button type="button" class="ef-btn" role="tab" data-code="D10" aria-controls="D10" title="火星探査ロボット・シミュレータ">D10</button><button type="button" class="ef-btn" role="tab" data-code="D11" aria-controls="D11" title="問題解決ノート">D11</button></nav>
+</div>
+<main>
+<div class="ws-intro">
+<p><b>使い方</b> 上のボタンで、いま進める教材をえらびます。タブレットでは、□を押して✓を付け、わくの中に書きこめます(<b>この端末に自動で保存</b>され、次に開いても残っています)。紙で使うときは「印刷」を押します。</p>
+<p>教材は「教材をひらく(自習モード)」から、ちがうタブで開きます。2つのタブを行き来しながら進めましょう。</p>
+<p class="ws-saved">先生に出すときは、先生の指示どおりに「印刷」(PDFに保存)するか、紙に印刷して書いて出します。<button type="button" class="ef-btn" id="ws-print-all">全部の教材を印刷</button> <button type="button" class="ef-btn" id="ws-clear">この教材の書いたことを消す</button></p>
+</div>
+<section class="ws" id="D1" data-code="D1" aria-labelledby="D1-h">
+<header class="ws-head">
+<h2 id="D1-h"><span class="ws-code">D1</span>デジタル化ラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>画像・音・文字が0と1にされるしくみ(標本化・量子化・符号化)がわかり、画像や音のデータ量を計算できるようになる。<span class="ws-time">目安 90分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D1 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 画像のデジタル化</span> ステップ1でお題の0と1から絵を描いて「答え合わせ」をしよう。ステップ2では「画素の数」と「色の表し方」のスライダーを両方動かして、データ量の変化を見よう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="① 画像のデジタル化 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 画像のデジタル化</span> ステップ3で赤・緑・青のスライダーを動かして、お題の色を3つ以上作ろう。そのあと「確かめよう」の3問に答えよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① 画像のデジタル化 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 音のデジタル化</span> 2つのスライダーを動かして波の形を見よう。次に「おすすめ」のボタンで3つ以上の設定を聞きくらべて、下の問題に答えよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② 音のデジタル化 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 2進数と文字コード</span> ビットカードでお題の数を作り、パズルで4問正解しよう。最後に0と1の暗号を解読しよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="③ 2進数と文字コード でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ データ量の計算ドリル</span> 「いろいろ」を選んで10問に挑戦し、8問以上の正解をめざそう。電卓を使ってもかまいません。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="④ データ量の計算ドリル でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> ①〜③のいちばん下の「ふりかえり」に、なぜデータ量が増えるのかを自分の言葉で書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="ふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「JSONで書き出す（提出用）」を押し、できたファイルを先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑤ 圧縮のしくみ</span> 矢印の絵を手作業で「白が何個、黒が何個」と数にしてから、自動の圧縮で圧縮率をくらべよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="⑤ 圧縮のしくみ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>デジタル化の3つの手順のうち、段階の番号を0と1の並び(2進数)にする手順はどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D1-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>標本化</label><label class="ws-choice"><input type="radio" name="D1-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>量子化</label><label class="ws-choice"><input type="radio" name="D1-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>符号化</label></div></li><li class="ws-q"><p>8ビットで表せる数は何通り？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D1-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>256通り</label><label class="ws-choice"><input type="radio" name="D1-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>8通り</label><label class="ws-choice"><input type="radio" name="D1-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>16通り</label><label class="ws-choice"><input type="radio" name="D1-q1" value="3" data-k="q1"><span class="ws-kana">エ</span>64通り</label></div></li><li class="ws-q"><p>音のデジタル化で、量子化ビット数を大きくするとどうなる？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D1-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>音の長さが短くなり、データ量は減る</label><label class="ws-choice"><input type="radio" name="D1-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>波の高さを細かく表せ、データ量は増える</label><label class="ws-choice"><input type="radio" name="D1-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>高い音を記録できなくなる</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D1-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D1-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D1-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D1-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D1-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D1-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D1-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D1-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D1-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D2" data-code="D2" aria-labelledby="D2-h">
+<header class="ws-head">
+<h2 id="D2-h"><span class="ws-code">D2</span>仮想CPUラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>コンピュータが入力・記憶・演算・制御・出力の5つの装置(機能)でできていることと、処理を自動化するよさがわかる。<span class="ws-time">目安 50分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D2 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 図解: 5つの装置</span> 「次へ →」を押して、3 + 5 の数がどの装置を通るかを最後まで見よう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="① 図解: 5つの装置 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 図解: 5つの装置</span> 「やってみよう: どの装置の仲間？」で、機器ごとに装置を選んで「答え合わせ」を押そう。全部正解で ✓ がつきます。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① 図解: 5つの装置 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 手計算くらべ</span> 「スタート」を押して 1 + 2 + … + N を手で計算し、答えを入れて「できた」を押そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② 手計算くらべ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 手計算くらべ</span> 「どこまでたす？」を100以上にして、プログラムとかかる時間をくらべよう。2つできるとページに ✓ がつきます。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="② 手計算くらべ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> ①と②のページのいちばん下にある「ふりかえり」を書いて「ふりかえりを保存」を押そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="ふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す（JSON）」を押し、できたファイルを先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 仮想CPUを動かす</span> サンプル「3 + 5 を表示する」を「1段階すすむ」で動かし、取り出し → 解読 → 実行のようすを見よう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="③ 仮想CPUを動かす でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ 課題</span> 課題1〜4(必修)のプログラムを作って、クリアしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="④ 課題 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>CPU(中央処理装置)は、どの2つの装置をまとめたもの？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D2-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>入力装置と出力装置</label><label class="ws-choice"><input type="radio" name="D2-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>制御装置と演算装置</label><label class="ws-choice"><input type="radio" name="D2-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>記憶装置と出力装置</label></div></li><li class="ws-q"><p>電源を切ってもファイルが消えない補助記憶装置はどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D2-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>メモリ</label><label class="ws-choice"><input type="radio" name="D2-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>ディスプレイ</label><label class="ws-choice"><input type="radio" name="D2-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>SSD</label></div></li><li class="ws-q"><p>処理を自動化するとき、人がしなければならないことはどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D2-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>手順を考えてプログラムにすること</label><label class="ws-choice"><input type="radio" name="D2-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>同じ計算を何度もくり返すこと</label><label class="ws-choice"><input type="radio" name="D2-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>計算のまちがいを1つずつ見つけること</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D2-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D2-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D2-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D2-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D2-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D2-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D2-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D2-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D2-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D3" data-code="D3" aria-labelledby="D3-h">
+<header class="ws-head">
+<h2 id="D3-h"><span class="ws-code">D3</span>ネットワーク通信シミュレータ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>ネットワークでデータがパケットに分けられ、ルータに中継されて届くしくみと、暗号化(HTTPS)で情報を守るしくみがわかる。<span class="ws-time">目安 60分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D3 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① ネットワークを組み立てる</span> 機器を置き、「🔗 線でつなぐ」で線をつなごう。「つながりを調べる」で、どのパソコン・スマホもWebサーバに届くようにしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="① ネットワークを組み立てる でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② Webページが届くまで</span> 使う機器とサイトの名前を選んで「▶ 通信スタート」を押し、①〜⑦の説明を最後まで読もう。2つの問題にも答えよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="② Webページが届くまで でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 回線が切れたら？</span> 太い線の回線を押して切り、「▶ パケットを送る」で別の道で届くか確かめよう。次に、届かなくなる切り方と、DNSサーバを止めたときもためそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="③ 回線が切れたら？ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ のぞき見と暗号化</span> まず HTTP のまま「ログイン（送信）」を押し、次に HTTPS に切りかえて送ろう。図の別の回線を押して、のぞき見の場所も変えてみよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="④ のぞき見と暗号化 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> ①〜④のいちばん下の「ふりかえり」に、ためしたことをもとに書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="ふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す（JSON）」を押し、できたファイルを先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑤ IPアドレス・ドリル</span> ステップ1でIPアドレスを2進数で見てから、ドリル10問で8問以上の正解をめざそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="⑤ IPアドレス・ドリル でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>ほかの機器あてのパケットを受け取って、次の回線へ送る(中継する)機器はどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D3-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>Webサーバ</label><label class="ws-choice"><input type="radio" name="D3-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>ルータ</label><label class="ws-choice"><input type="radio" name="D3-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>パソコン</label><label class="ws-choice"><input type="radio" name="D3-q0" value="3" data-k="q0"><span class="ws-kana">エ</span>DNSサーバ</label></div></li><li class="ws-q"><p>家のパソコンと家のルータの間の1本の線が切れると、どうなる？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D3-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>ほかのルータを通って届く</label><label class="ws-choice"><input type="radio" name="D3-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>DNSサーバが代わりに届ける</label><label class="ws-choice"><input type="radio" name="D3-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>ほかに道がないので届かなくなる</label></div></li><li class="ws-q"><p>HTTPSで送ったとき、のぞき見している人に見えてしまうものはどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D3-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>送り先のIPアドレスやデータの量</label><label class="ws-choice"><input type="radio" name="D3-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>入力したパスワード</label><label class="ws-choice"><input type="radio" name="D3-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>Webページの文章</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D3-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D3-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D3-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D3-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D3-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D3-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D3-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D3-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D3-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D4" data-code="D4" aria-labelledby="D4-h">
+<header class="ws-head">
+<h2 id="D4-h"><span class="ws-code">D4</span>情報セキュリティ体験ラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>情報を守るしくみ(パスワード・暗号化)と、ネットでの危険への対策や情報モラルを、理由とあわせて説明できるようになる。<span class="ws-time">目安 3時間ほど</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D4 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">理解度チェック</span> はじめに「事前テスト」を受けて、いまの力を確かめよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="理解度チェック でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① デジタル化と情報量</span> スライダーを動かして、画質や音質とデータ量の関係を確かめよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① デジタル化と情報量 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② パスワード強度ラボ</span> 練習用の文字を入れて、長さと文字の種類で解読時間がどう変わるかくらべよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② パスワード強度ラボ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 暗号ラボ</span> シーザー暗号で暗号文を作り、総当たりと頻度分析で破ってみよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="③ 暗号ラボ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ フィッシング見分け</span> 怪しいと思うところを押して「答え合わせ」を押し、すべての場面に挑戦しよう。⑤ ネットワーク通信の模擬で HTTP と HTTPS もくらべよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="④ フィッシング見分け でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑥ SNS投稿の個人情報チェック</span> 写真と文章から場所や学校がわかる手がかりを探そう。⑦ デジタルタトゥーで、投稿が広がるようすも見よう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="⑥ SNS投稿の個人情報チェック でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑧ 著作権・利用ルールクイズ</span> 場面ごとに使ってよいか考えて答えよう。⑨ 判断ロールプレイで、自分ならどうするかも選ぼう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="⑧ 著作権・利用ルールクイズ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑩ まとめ・行動宣言</span> 今日から実行する対策を3つ選んで「この3つで宣言する」を押そう。そのあと理解度チェックの「事後テスト」を受けよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s7" aria-label="⑩ まとめ・行動宣言 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c9"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> 各モジュールのいちばん下の「ふりかえり」に、なぜその対策で安全になるのかを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s9" aria-label="ふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c10"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> クラス(組)と出席番号を入れて「JSONで書き出す」を押し、できたファイルを先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c8"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑪ ハッシュ体験</span> 1文字だけ変えて、ハッシュ値がどう変わるかを見よう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s8" aria-label="⑪ ハッシュ体験 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>単語をいくつかランダムに選んでつなげたパスワード(パスフレーズ)のよいところはどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D4-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>短いので、すぐに入力できる</label><label class="ws-choice"><input type="radio" name="D4-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>長いのに覚えやすく、総当たりで見つけにくい</label><label class="ws-choice"><input type="radio" name="D4-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>記号を入れなくても、どのサービスでも同じものを使える</label></div></li><li class="ws-q"><p>2段階認証(多要素認証)を使うと、どんなよいことがある？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D4-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>パスワードを人に教えても大丈夫になる</label><label class="ws-choice"><input type="radio" name="D4-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>パスワードを決めなくてよくなる</label><label class="ws-choice"><input type="radio" name="D4-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>パスワードが知られても、スマホなどでの確認がないとログインされない</label></div></li><li class="ws-q"><p>フィッシングで、だます人がいちばんねらっているものはどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D4-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>パスワードや個人情報</label><label class="ws-choice"><input type="radio" name="D4-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>パソコンの画面の明るさ</label><label class="ws-choice"><input type="radio" name="D4-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>メールの文字の大きさ</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D4-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D4-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D4-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D4-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D4-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D4-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D4-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D4-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D4-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D5" data-code="D5" aria-labelledby="D5-h">
+<header class="ws-head">
+<h2 id="D5-h"><span class="ws-code">D5</span>ネット詐欺 追体験ラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>ネットの詐欺の手口(あわてさせる・気持ちをゆさぶる・お金や情報を求める)に気づき、「とまる・たしかめる・そうだんする」で行動できるようになる。<span class="ws-time">目安 50分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D5 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① ワンクリック詐欺</span> 「体験をはじめる」を押し、右の「あなたの行動」から選んで、やることリストの「？」を全部うめよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="① ワンクリック詐欺 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 「当選しました」メール</span> メールのリンクを使わずに、本物かどうかを確かめてクリアしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="② 「当選しました」メール でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ ウイルス付きメール</span><span class="ws-tag">提出</span> 添付ファイルを開く前に、本当に友達からのメールか確かめてクリアしよう。</p></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ にせのウイルス警告</span> 電話もソフトのインストールもしないで、警告の画面からぬけ出そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="④ にせのウイルス警告 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑤ にせの通販サイト</span> 買う前に、このお店で買ってよいかを確かめてクリアしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="⑤ にせの通販サイト でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑥ まとめとふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> どの詐欺にも共通する手口を読んで、ふりかえり3つを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="⑥ まとめとふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、ファイルを先生の言う場所に出そう。</p></div></li></ol><h3><span class="ws-n">2</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>動画サイトでボタンを1回押したら「登録完了・料金をはらってください」と出た。正しい考え方はどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D5-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>料金の説明もなくボタンを1回押しただけでは、契約したことにならない</label><label class="ws-choice"><input type="radio" name="D5-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>IPアドレスが出ているので、住所も知られている</label><label class="ws-choice"><input type="radio" name="D5-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>まちがえたことを、問い合わせから伝える</label></div></li><li class="ws-q"><p>パソコンに「ウイルスが検出されました。この番号に電話してください」と出た。どうする？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D5-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>データが消える前に電話する</label><label class="ws-choice"><input type="radio" name="D5-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>無料スキャンのソフトを入れる</label><label class="ws-choice"><input type="radio" name="D5-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>Esc キーで全画面を終わらせ、タブを閉じて大人に伝える</label></div></li><li class="ws-q"><p>ネットでお金をはらってしまったとき、家の人と相談できる「消費者ホットライン」の番号は？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D5-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>110</label><label class="ws-choice"><input type="radio" name="D5-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>188</label><label class="ws-choice"><input type="radio" name="D5-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>119</label></div></li></ol><h3><span class="ws-n">3</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D5-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D5-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D5-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D5-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D5-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D5-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D5-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D5-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D5-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D6" data-code="D6" aria-labelledby="D6-h">
+<header class="ws-head">
+<h2 id="D6-h"><span class="ws-code">D6</span>双方向コンテンツ制作スタジオ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>使う人の入力に応じて反応し、サーバーとデータをやりとりする双方向性のあるコンテンツを、作って・動かして・改善できるようになる。<span class="ws-time">目安 3時間ほど</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D6 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">作品</span> 「企画・改善メモ」に、だれのどんな困りごとを解決するかを書こう。「新しく作る」から見本を1つ選ぼう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="作品 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">エディタ</span> 部品を置き、パレットのブロックで処理を作ろう。サーバーとのやりとり(server の命令)を1つ以上入れよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="エディタ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">実行</span> 「▶ 実行」を押して、ボタンや入力に思ったとおり反応するか確かめよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="実行 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">デバッグ</span> うまく動かないところは「⏭ 1つずつ実行」で動かし、変数ウォッチで値の変化を見て原因を見つけよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="デバッグ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">サーバーのデータ</span> 友だちに使ってもらい、サーバーの箱と通信ログで集まったデータを見よう。わかった改善点は「企画・改善メモ」に書いて、エディタで直そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="サーバーのデータ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag ws-tag-r">まとめ</span> ふりかえりに、双方向性とサーバーとのやりとりをどう工夫したかを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="ふりかえり・記録 のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す（JSON）」を押し、ファイルを先生の言う場所に出そう。</p></div></li></ol><h3><span class="ws-n">2</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>双方向性のあるコンテンツの「双方向性」とは何？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D6-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>使う人の働きかけ(入力)に応じて、応答(出力)すること</label><label class="ws-choice"><input type="radio" name="D6-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>文字と画像の両方を使うこと</label><label class="ws-choice"><input type="radio" name="D6-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>2台の端末で同じ画面を表示すること</label></div></li><li class="ws-q"><p>作品が server.save などでサーバーにお願いを送るとき、作品(を動かす端末)は何とよばれる？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D6-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>ルータ</label><label class="ws-choice"><input type="radio" name="D6-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>サーバー</label><label class="ws-choice"><input type="radio" name="D6-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>クライアント</label></div></li><li class="ws-q"><p>「ボタンが押されたとき」のブロックの中は、いつ実行される？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D6-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>プログラムの最初に1回だけ</label><label class="ws-choice"><input type="radio" name="D6-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>ボタンが押されるたび</label><label class="ws-choice"><input type="radio" name="D6-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>上から順に、いつもくり返し</label></div></li></ol><h3><span class="ws-n">3</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D6-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D6-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D6-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D6-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D6-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D6-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D6-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D6-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D6-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D7" data-code="D7" aria-labelledby="D7-h">
+<header class="ws-head">
+<h2 id="D7-h"><span class="ws-code">D7</span>計測・制御シミュレータ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>センサで計測した値をプログラムで判断して、LED・モーター・ランプを自動で制御できるようになる。テストで確かめて直す流れも身につける。<span class="ws-time">目安 3時間</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D7 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">はじめに</span> 「センサ → インタフェース → マイコン → インタフェース → アクチュエータ」の図を読んでから、「場面をえらぶ」の場面①を開こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="はじめに でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 街灯</span> めあてと「場面の説明」を読み、暗くなったらつき、明るくなったら消えるプログラムにしよう。「✔ テストを実行」で全部合格をめざそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① 街灯 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 自動ドア</span> 人が近づいたら開き、いなくなったら閉まるドアにしよう。しきい値(距離の数)を変えながら、4つのテストに全部合格しよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② 自動ドア でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 信号機</span> 「待つ」を使って、車は 青→黄→赤→青、歩行者は車が赤のときだけ青になるようにしよう。テストに合格したら「改善メモ」に直したところを書いて「メモを保存」を押そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="③ 信号機 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ 押しボタン式信号機</span> ボタンが押されたときだけ、車を止めて歩行者をわたらせ、わたり終わったら車を青にもどそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="④ 押しボタン式信号機 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> 各場面のページのいちばん下の「ふりかえり」に、センサの値をどう使ったか、どんな工夫をしたかを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="ふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「JSONで書き出す（先生に出す）」を押し、できたファイルを先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑤ 自由に作る（仮想マイコン）</span> 身のまわりの計測・制御を1つ考えて、センサと出力を自由に組み合わせて動かそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="⑤ 自由に作る（仮想マイコン） でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>計測・制御システムで、センサの役割はどれ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D7-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>計測した値をプログラムに従って処理する</label><label class="ws-choice"><input type="radio" name="D7-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>光・温度・距離など周囲の状況を計測する</label><label class="ws-choice"><input type="radio" name="D7-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>LEDやモーターを動かして仕事をする</label></div></li><li class="ws-q"><p>「もし 明るさ &lt; 30 なら」の 30 のように、判断を切りかえる境目の値を何という？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D7-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>A/D変換</label><label class="ws-choice"><input type="radio" name="D7-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>変数</label><label class="ws-choice"><input type="radio" name="D7-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>しきい値</label></div></li><li class="ws-q"><p>押しボタン式の信号機が、時間だけで切りかえる信号機よりよいところは？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D7-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>歩行者がいないときは車を止めないので、車をむだに待たせない</label><label class="ws-choice"><input type="radio" name="D7-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>ランプの数が少なくてすむので、部品の費用が安くなる</label><label class="ws-choice"><input type="radio" name="D7-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>黄色のランプをつけなくても、安全に切りかえられる</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D7-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D7-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D7-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D7-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D7-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D7-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D7-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D7-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D7-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D8" data-code="D8" aria-labelledby="D8-h">
+<header class="ws-head">
+<h2 id="D8-h"><span class="ws-code">D8</span>生成AIのしくみラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>生成AIがもっともらしいまちがい(ハルシネーション)をするわけと、個人情報を入れてはいけないわけを、模型のAIで確かめて説明できるようになる。<span class="ws-time">目安 45分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D8 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">はじめに</span> 「生成AIが作るまでの3つの手順」を読んでから、「ステップ① もっともらしいまちがいからはじめよう →」を押そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="はじめに でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① もっともらしいまちがい</span> A で「AIに文を5本つくらせる」を押し、5本すべてを「本当」「まちがい」で判定しよう。B では、あやしい文をおしてから「答え合わせ」をしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① もっともらしいまちがい でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 個人情報が出てしまう？</span> Aさんになって入れる情報をえらび「AIに送る」を押し、Bさんの「わたしの電話番号は…」などのボタンで何が出るか確かめよう。③ 送る前チェックの6つの文も判定しよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② 個人情報が出てしまう？ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ クイズとふりかえり</span> 6問のクイズに答えて、答えのあとの説明も読もう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="③ クイズとふりかえり でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ クイズとふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> クイズの下の「ふりかえり」の3つの問いに、自分の言葉で答えを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="③ クイズとふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ つぎの言葉あて</span> 発展: ④〜⑧で、文章をつくるAIと画像をつくるAIのしくみを体験しよう。時間が少ないときは ⑥ と ⑧ を中心にしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="④ つぎの言葉あて でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>生成AIが、本当のことのように見えるまちがいを答えることを何という？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D8-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>ハルシネーション</label><label class="ws-choice"><input type="radio" name="D8-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>トークン</label><label class="ws-choice"><input type="radio" name="D8-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>ノイズ</label></div></li><li class="ws-q"><p>AIの答えの中で、とくにまちがいが入りやすいのはどこ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D8-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>あいさつの言葉</label><label class="ws-choice"><input type="radio" name="D8-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>数字・年・人名・本の名前</label><label class="ws-choice"><input type="radio" name="D8-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>文の終わりの「です」「ます」</label></div></li><li class="ws-q"><p>「みどり市立さくら中学校2年1組の山田花子です。この作文を直して。」をAIに送る前に、どう直すとよい？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D8-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>作文の相談なので、そのまま送ってよい</label><label class="ws-choice"><input type="radio" name="D8-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>名前だけをローマ字にかえて送る</label><label class="ws-choice"><input type="radio" name="D8-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>「中学2年生です。この作文を直して。」にする</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D8-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D8-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D8-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D8-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D8-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D8-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D8-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D8-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D8-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D9" data-code="D9" aria-labelledby="D9-h">
+<header class="ws-head">
+<h2 id="D9-h"><span class="ws-code">D9</span>ハッシュ化体験ラボ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>ハッシュ値の性質(同じ文なら同じ値・少し変えると全体が変わる・元にもどせない)を確かめ、パスワードの保存や改ざんの見つけ方に使われていることを説明できるようになる。<span class="ws-time">目安 80分</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D9 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① ハッシュ値を作ってみよう</span> 「ハッシュ化する」を押して、短い文と30文字以上の長い文をふくむ3つ以上の文をハッシュ化しよう(チャレンジ)。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="① ハッシュ値を作ってみよう でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 1文字だけ変えると？</span> 文Bを1文字だけ変えて、ハッシュ値がどれだけ変わるか調べよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="② 1文字だけ変えると？ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 手作りハッシュの弱点</span> 手作りハッシュで、ちがう文なのに同じ値になる2つの文を見つけよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="③ 手作りハッシュの弱点 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ もとにもどせる？</span> 暗証番号のハッシュ値から、元の3けたの番号を見つけよう。自分で予想したあと、「総当たりをはじめる」でコンピュータにもさがさせよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="④ もとにもどせる？ でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑤ パスワードの守り方</span> 練習用のアカウントでログインしてみよう。次に、もれた会員表から同じパスワードを使っている2人を見つけよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="⑤ パスワードの守り方 でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑥ 改ざんを見つける</span><span class="ws-tag">提出</span> 3つのファイルのハッシュ値を計算し、公式のハッシュ値とくらべて「本物」か「書きかえられている」かを判定しよう。</p></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">⑦ クイズとふりかえり</span><span class="ws-tag ws-tag-r">まとめ</span> クイズに答えたあと、「ふりかえり」の3つの問いに答えを書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="⑦ クイズとふりかえり のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">ふりかえり・記録</span><span class="ws-tag">提出</span> 組と番号を入れて「記録を書き出す(JSON・提出用)」を押し、先生の言う場所に出そう。</p></div></li></ol><h3><span class="ws-n">2</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>SHA-256 のハッシュ値は、どんな文字でできている？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D9-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>ひらがなと漢字</label><label class="ws-choice"><input type="radio" name="D9-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>0〜9 と a〜f の16種類</label><label class="ws-choice"><input type="radio" name="D9-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>0 と 1 の2種類だけ</label></div></li><li class="ws-q"><p>ソルトを付けてハッシュ化すると、同じパスワードを使っている2人のハッシュ値はどうなる？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D9-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>ちがう値に見える</label><label class="ws-choice"><input type="radio" name="D9-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>まったく同じになる</label><label class="ws-choice"><input type="radio" name="D9-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>半分だけ同じになる</label></div></li><li class="ws-q"><p>サービスごとにちがうパスワードにするとよいのはなぜ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D9-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>ちがうパスワードにすると、ハッシュ値が短くなるから</label><label class="ws-choice"><input type="radio" name="D9-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>ちがうパスワードにすると、ログインが速くなるから</label><label class="ws-choice"><input type="radio" name="D9-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>1つのサービスでもれても、ほかのサービスが守られるから</label></div></li></ol><h3><span class="ws-n">3</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D9-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D9-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D9-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D9-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D9-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D9-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D9-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D9-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D9-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D10" data-code="D10" aria-labelledby="D10-h">
+<header class="ws-head">
+<h2 id="D10-h"><span class="ws-code">D10</span>火星探査ロボット・シミュレータ<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>距離センサとモーターでロボットを設計し、センサの値で動きを変えるプログラムで火星の課題を解決する。テストとレーダーチャートで評価して、改善を考えられるようになる。<span class="ws-time">目安 3時間</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D10 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">はじめに</span> 「問題解決の流れ」を読み、「1 問題の発見・課題の設定」の欄に自分の言葉で課題を書いてから、ステージ①を開こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="はじめに でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① まっすぐ走って止まる</span> 前進する時間を考えて、調査地点(青い円)の中で止まるようにしよう。「✔ テストを実行」で合格をめざそう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① まっすぐ走って止まる でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 岩の前で止まる・よける</span> 距離センサで岩の手前(40cm 以内)で止まり、よけて旗のエリアまで進もう。3つのケースすべてに合格しよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="② 岩の前で止まる・よける でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 迷路のような谷を探査する</span> 「ロボットの設計」で左右にも距離センサを付け、前の岩壁が近づいたら開いている方へ曲がるプログラムにしよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="③ 迷路のような谷を探査する でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">評価・振り返り</span> 「レーダーチャートで評価しよう」で、5つの観点を1〜5で評価しよう。はじめに「改善の前」、直したあとに「改善のあと」をつけよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="評価・振り返り でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">評価・振り返り</span><span class="ws-tag ws-tag-r">まとめ</span> ページの下の4つの振り返りに、設計の理由・直したところ・改善したいこと・社会への生かし方を書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="評価・振り返り のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">記録</span><span class="ws-tag">提出</span> 組と番号を入れて「JSONで書き出す（先生に出す）」を押し、先生の言う場所に出そう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">④ 色センサで線をたどる</span> 発展: ④で色センサを使って線をたどり、⑤でコースをえらんで点数・時間・電池の記録に挑戦しよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="④ 色センサで線をたどる でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>ふつうの速さ(1秒に20cm)で、300cm 先まで前進するには、何秒前進すればよい？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D10-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>6秒</label><label class="ws-choice"><input type="radio" name="D10-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>20秒</label><label class="ws-choice"><input type="radio" name="D10-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>15秒</label></div></li><li class="ws-q"><p>曲がりくねった谷で、左右のどちらが開いているかを知るには？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D10-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>左と右にも距離センサを付けて、値をくらべる</label><label class="ws-choice"><input type="radio" name="D10-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>前の距離センサの値だけで、曲がる向きを決める</label><label class="ws-choice"><input type="radio" name="D10-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>モーターの速さを「はやい」にして、早く曲がる</label></div></li><li class="ws-q"><p>距離センサを増やすと、どうなる？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D10-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>センサが仕事を分けるので、費用も電池の使い方も減る</label><label class="ws-choice"><input type="radio" name="D10-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>安全に走りやすくなるが、費用と電池の使い方が増える</label><label class="ws-choice"><input type="radio" name="D10-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>速く走れるようになるが、岩にぶつかりやすくなる</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D10-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D10-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D10-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D10-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D10-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D10-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D10-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D10-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D10-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+<section class="ws" id="D11" data-code="D11" aria-labelledby="D11-h">
+<header class="ws-head">
+<h2 id="D11-h"><span class="ws-code">D11</span>問題解決ノート<span class="ws-kind">自習ワークシート</span></h2>
+<div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
+</header>
+<p class="ws-goal"><b>ねらい</b>身の回りの「不便だな」から問題を見つけて課題を決め、作った作品を観点ごとに評価して、改善・修正の方法を考えられるようになる。<span class="ws-time">目安 1〜2時間</span></p>
+<p class="ws-how">タブレットで「情報の技術 教材集」を<b>自習モード</b>でひらき、<b>D11 のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<h3><span class="ws-n">1</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c0"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">はじめに</span> 「問題と課題のちがい」と「技術の見方・考え方の観点」を読んでから、「① 問題の発見から始める」を押そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s0" aria-label="はじめに でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c1"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 問題の発見(付箋・問題?課題?クイズ・課題の設定)</span> 「こうだったらいいのに」「不便だな」を3まい以上付箋に書いて「＋ 付箋をはる」を押そう。いちばん解決したい付箋に ★ を付けよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s1" aria-label="① 問題の発見(付箋・問題?課題?クイズ・課題の設定) でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c2"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">① 問題の発見(付箋・問題?課題?クイズ・課題の設定)</span> 「問題? 課題? クイズ」に答えてから、「3. 自分の課題を1つ決めよう」で、困っている人・課題・制約条件を書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s2" aria-label="① 問題の発見(付箋・問題?課題?クイズ・課題の設定) でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c3"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 評価、改善・修正(観点ごとの5段階とレーダーチャート)</span> 作ったコンテンツや計測・制御システムの名前を書き、「はじめの目標」と「できあがり(評価)」を、観点ごとに1〜5で入れよう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s3" aria-label="② 評価、改善・修正(観点ごとの5段階とレーダーチャート) でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c4"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">② 評価、改善・修正(観点ごとの5段階とレーダーチャート)</span> 「過程の評価」にチェックを入れ、「よかった点」と「改善・修正の方法」を書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s4" aria-label="② 評価、改善・修正(観点ごとの5段階とレーダーチャート) でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c6"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">振り返り</span><span class="ws-tag ws-tag-r">まとめ</span> 自己評価をえらび、「分かったこと・できるようになったこと」「これからの問題解決に生かしたいこと」を書こう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s6" aria-label="振り返り のまとめ" data-ph="画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう" style="--rows:3"></div></div></li><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c7"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">記録</span><span class="ws-tag">提出</span> 組・番号・名前を入れて「ファイルに書き出す(.json)」を押し、先生の言う場所に出そう。紙で出すときは「🖨 印刷する(問題解決シート)」を使おう。</p></div></li></ol><h3 class="ws-adv"><span class="ws-n">2</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps"><li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c5"><span class="ws-chk-mark" aria-hidden="true"></span><span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)</span> 社会の製品・技術を1つえらび、立場や観点の重みを変えて、「いちばんよい案」がどう入れかわるか試そう。</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="s5" aria-label="③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる) でわかったこと" data-ph="結果・わかったこと・気づいたこと" style="--rows:2"></div></div></li></ol><h3><span class="ws-n">3</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs"><li class="ws-q"><p>課題を決めるときの「制約条件」とは？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D11-q0" value="0" data-k="q0"><span class="ws-kana">ア</span>費用や時間など、守らなければならない条件</label><label class="ws-choice"><input type="radio" name="D11-q0" value="1" data-k="q0"><span class="ws-kana">イ</span>付箋の中で、いちばん解決したい問題</label><label class="ws-choice"><input type="radio" name="D11-q0" value="2" data-k="q0"><span class="ws-kana">ウ</span>作品を評価して見つけた、よかった点</label></div></li><li class="ws-q"><p>評価のときに「はじめの目標」も入れるのはなぜ？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D11-q1" value="0" data-k="q1"><span class="ws-kana">ア</span>できあがりの点を、目標より高く見せるため</label><label class="ws-choice"><input type="radio" name="D11-q1" value="1" data-k="q1"><span class="ws-kana">イ</span>目標とくらべて、足りない観点(改善点)を見つけるため</label><label class="ws-choice"><input type="radio" name="D11-q1" value="2" data-k="q1"><span class="ws-kana">ウ</span>ほかの人の作品と、点数で順位をつけるため</label></div></li><li class="ws-q"><p>問題を見つけたり評価したりするときの「技術の見方・考え方」の観点に入らないものは？</p><div class="ws-choices"><label class="ws-choice"><input type="radio" name="D11-q2" value="0" data-k="q2"><span class="ws-kana">ア</span>安全</label><label class="ws-choice"><input type="radio" name="D11-q2" value="1" data-k="q2"><span class="ws-kana">イ</span>環境</label><label class="ws-choice"><input type="radio" name="D11-q2" value="2" data-k="q2"><span class="ws-kana">ウ</span>流行</label></div></li></ol><h3><span class="ws-n">4</span>ふりかえり</h3>
+<table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody><tr><th scope="row">ねらいが分かった</th><td><label><input type="radio" name="D11-r0" value="◎" data-k="r0"><span>◎</span></label></td><td><label><input type="radio" name="D11-r0" value="○" data-k="r0"><span>○</span></label></td><td><label><input type="radio" name="D11-r0" value="△" data-k="r0"><span>△</span></label></td></tr><tr><th scope="row">自習ガイドを見ながら、自分で進められた</th><td><label><input type="radio" name="D11-r1" value="◎" data-k="r1"><span>◎</span></label></td><td><label><input type="radio" name="D11-r1" value="○" data-k="r1"><span>○</span></label></td><td><label><input type="radio" name="D11-r1" value="△" data-k="r1"><span>△</span></label></td></tr><tr><th scope="row">たしかめ問題の答えの理由が言える</th><td><label><input type="radio" name="D11-r2" value="◎" data-k="r2"><span>◎</span></label></td><td><label><input type="radio" name="D11-r2" value="○" data-k="r2"><span>○</span></label></td><td><label><input type="radio" name="D11-r2" value="△" data-k="r2"><span>△</span></label></td></tr></tbody></table>
+<div class="ws-two">
+<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f0" aria-label="きょう分かったこと" data-ph="" style="--rows:3"></div></div>
+<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p><div class="ws-box" contenteditable="true" role="textbox" aria-multiline="true" data-k="f1" aria-label="まだ分からないこと・先生に聞きたいこと" data-ph="" style="--rows:3"></div></div>
+</div>
+</section>
+</main>
+<script>
+(function () {
+  var KEY = 'eduit.ws.v1.', WHO = 'eduit.ws.v1.who';
+  function load(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  var sheets = Array.prototype.slice.call(document.querySelectorAll('.ws'));
+  var who = load(WHO);
+  sheets.forEach(function (ws) {
+    var code = ws.getAttribute('data-code'), st = load(KEY + code);
+    function put() { save(KEY + code, st); }
+    ws.querySelectorAll('[data-k]').forEach(function (el) {
+      var k = el.getAttribute('data-k');
+      if (el.type === 'checkbox') {
+        el.checked = !!st[k];
+        el.addEventListener('change', function () { st[k] = el.checked; put(); });
+      } else if (el.type === 'radio') {
+        el.checked = st[k] === el.value;
+        el.addEventListener('change', function () { if (el.checked) { st[k] = el.value; put(); } });
+      } else if (el.tagName === 'INPUT') {
+        el.value = st[k] || '';
+        el.addEventListener('input', function () { st[k] = el.value; put(); });
+      } else {
+        el.textContent = st[k] || '';
+        el.addEventListener('input', function () {
+          st[k] = el.innerText.replace(/\n$/, '');
+          if (!st[k]) el.innerHTML = '';  // 空にしたら、うすい字の案内をまた出す
+          put();
+        });
+        el.addEventListener('paste', function (ev) {  // 文字だけをはりつける
+          ev.preventDefault();
+          var t = (ev.clipboardData || window.clipboardData).getData('text');
+          document.execCommand('insertText', false, t);
+        });
+      }
+    });
+    // 組・番・名前は、どのワークシートでも同じ(どこかで入れると全部に入る)
+    ws.querySelectorAll('[data-w]').forEach(function (el) {
+      var k = el.getAttribute('data-w');
+      el.value = who[k] || '';
+      el.addEventListener('input', function () {
+        who[k] = el.value; save(WHO, who);
+        document.querySelectorAll('[data-w="' + k + '"]').forEach(function (o) { if (o !== el) o.value = el.value; });
+      });
+    });
+  });
+  // 教材をえらぶ(アドレスの #A2 などでも開ける)
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.ws-pick [data-code]'));
+  function show(code, scroll) {
+    var ws = document.getElementById(code) || sheets[0];
+    sheets.forEach(function (s) { s.classList.toggle('is-current', s === ws); });
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-code') === ws.id)); });
+    document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^[A-D]\d+/, '').replace('自習ワークシート', '') + ' 自習ワークシート';
+    if (location.hash.slice(1) !== ws.id) history.replaceState(null, '', '#' + ws.id);
+    if (scroll) window.scrollTo(0, 0);
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.getAttribute('data-code'), true); }); });
+  window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
+  document.getElementById('ws-print').addEventListener('click', function () { document.body.classList.remove('print-all'); window.print(); });
+  document.getElementById('ws-print-all').addEventListener('click', function () { document.body.classList.add('print-all'); window.print(); });
+  window.addEventListener('afterprint', function () { document.body.classList.remove('print-all'); });
+  document.getElementById('ws-clear').addEventListener('click', function () {
+    var ws = document.querySelector('.ws.is-current');
+    if (!confirm(ws.id + ' のワークシートに書いたことと ✓ を消します。よいですか?(組・番・名前は残ります)')) return;
+    try { localStorage.removeItem(KEY + ws.id); } catch (e) {}
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
