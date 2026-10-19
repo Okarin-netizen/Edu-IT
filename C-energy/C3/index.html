@@ -99,6 +99,8 @@ html,body{margin:0;height:100%;background:#f1f3ee;}
 .e3-modal .acts .e3-btn{min-width:150px;min-height:54px;font-size:calc(18px * var(--ea-fs, 1))}
 .e3-modal .acts.stk{position:sticky;bottom:-20px;background:#fff;margin:16px -24px -20px;padding:10px 24px 16px;border-top:1px solid var(--line)}
 .e3-modal .acts.stk .e3-btn{min-width:0;flex:1 1 auto;white-space:nowrap;padding:0 12px}
+.e3-refl label{display:block;font-weight:bold;margin:8px 0 4px;font-size:calc(16px * var(--ea-fs, 1))}
+.e3-refl textarea.e3-in{resize:vertical;min-height:4.5em;display:block}
 .e3-saved{color:#0d6b3a;font-weight:bold;min-height:1.6em;text-align:right}
 .e3 ruby{ruby-align:center}
 .e3 ruby rt{font-size:.55em;font-weight:normal;letter-spacing:0}
@@ -174,6 +176,7 @@ html,body{margin:0;height:100%;background:#f1f3ee;}
   .e3-modal{max-height:none!important;overflow:visible!important;box-shadow:none;max-width:none;padding:0;border-radius:0}
   .e3-printarea .e3-in{border:0;border-bottom:1.5px solid #333;border-radius:0;padding:4px 2px}
   .e3-printarea .e3-in::placeholder{color:transparent}
+  .e3-printarea textarea.e3-in{resize:none;field-sizing:content;min-height:3em;overflow:visible}
   .e3-printarea table,.e3-printarea tr,.e3-printarea img{break-inside:avoid}
   .e3-noprint{display:none!important}
 }
@@ -639,6 +642,7 @@ function loadSave() {
   d.tc = d.tc || {};
   if (d.speed == null) d.speed = 1;
   d.loss = !!d.loss;
+  d.refl = Object.assign({ q1: '', q2: '', q3: '' }, d.refl && typeof d.refl === 'object' ? d.refl : {});
   return d;
 }
 function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
@@ -1743,11 +1747,30 @@ function exportModal() {
   } else {
     h += '<h3>しくみ: ' + mechById(S.mech).name + '</h3>' + convSummaryTable();
   }
-  h += '<h3>メモ</h3><div style="border:1px solid #d8ded6;border-radius:8px;min-height:90px;padding:6px 10px;font-size:calc(15px * var(--ea-fs, 1));color:#5e6b64">気づいたこと・製作で気をつけること:</div></div>' +
+  h += '<h3>メモ</h3><div style="border:1px solid #d8ded6;border-radius:8px;min-height:90px;padding:6px 10px;font-size:calc(15px * var(--ea-fs, 1));color:#5e6b64">気づいたこと・製作で気をつけること:</div>' + reflBlock() + '</div>' +
     '<div class="e3-saved e3-noprint" data-ref="saved" role="status" aria-live="polite"></div>' +
     '<div class="acts stk e3-noprint"><button class="e3-btn" data-act="close">とじる</button><button class="e3-btn" data-act="import">📂 ファイルを読みこむ</button><button class="e3-btn" data-act="savejson">💾 ファイルに保存</button><button class="e3-btn primary" data-act="print">🖨️ 印刷</button></div>';
   modal(h);
+  S.ov.querySelectorAll('[data-refl]').forEach(function (ta) {
+    ta.addEventListener('input', function () { S.save.refl[ta.getAttribute('data-refl')] = ta.value.slice(0, 800); persist(); });
+  });
 }
+/* ✏️ 振り返り(設計図といっしょにファイルへ入る。先生が振り返りを隠す設定のときは data-ef-reflect で消える) */
+var REFL = [
+  { id: 'q1', q: '歯車やベルトで回転を伝えるとき、速度伝達比を大きくすると、出力の回転速度と回す力(トルク)はどうなりますか。' },
+  { id: 'q2', q: 'カムやリンク機構などで、回転運動をほかの動きに変えるしくみは、身の回りのどんな機械に使われていますか。1つあげて、どんな動きに変えているか説明しよう。' },
+  { id: 'q3', q: 'この機構を設計するとき、目的や条件に合わせて、どんな工夫をしましたか。' }
+];
+function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
+function reflBlock() {
+  return '<div class="e3-refl" data-ef-reflect><h3>✏️ 振り返り</h3>' +
+    '<p class="e3-noprint" style="margin:0 0 6px;font-size:calc(15px * var(--ea-fs, 1));color:#5e6b64">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 ファイルに保存」で設計図といっしょにファイルに入ります。</p>' +
+    REFL.map(function (r, i) {
+      return '<label for="e3-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label>' +
+        '<textarea class="e3-in" id="e3-' + r.id + '" data-refl="' + r.id + '" maxlength="800" rows="3">' + esc(S.save.refl[r.id] || '') + '</textarea>';
+    }).join('') + '</div>';
+}
+function reflData() { var o = {}; REFL.forEach(function (r) { o[r.id] = String(S.save.refl[r.id] || ''); }); return o; }
 /* 設計図の名前は、同じ画面(課題・しくみ)のときだけ引き継ぐ */
 function designKey() { return S.view + '/' + (S.task || '') + '/' + (S.view === 'conv' ? S.mech : ''); }
 function keepName() {
@@ -1785,6 +1808,7 @@ function whoForExport() {
 function saveJSON() {
   var nm = keepName();
   var obj = { schema: 'energyApps.artifact', version: 1, app: 'C3', type: 'mechanism', name: nm || '機構', savedAt: new Date().toISOString(), data: designData() };
+  if (fkOn()) obj.data.reflection = reflData();
   var who = whoForExport(); if (who) obj.who = who;
   var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);

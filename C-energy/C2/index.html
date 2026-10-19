@@ -139,6 +139,20 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e2-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .e2-steps div{background:#f3f7fc;border-radius:12px;padding:12px;font-size:calc(16px * var(--ea-fs, 1))}
 .e2-steps b{font-size:calc(18px * var(--ea-fs, 1))}
+/* 💾 記録(やったこと・振り返り・組・番号・名前 → ファイルに保存) */
+.e2-recl{list-style:none;padding:0;margin:4px 0}
+.e2-recl li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:5px 0;border-bottom:1px solid #e3e9ef;font-size:calc(16px * var(--ea-fs, 1));line-height:1.45}
+.e2-recl .nm{flex:1 1 13em;min-width:0}
+.e2-recl .qz{white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1));color:#1a7a48;font-weight:bold}
+.e2-recl .qz.no{color:var(--sub);font-weight:normal}
+.e2-recsum{background:#f3f7fc;border-radius:12px;padding:8px 12px;margin:6px 0;font-size:calc(16px * var(--ea-fs, 1))}
+.e2-field{display:flex;flex-direction:column;gap:4px;margin:10px 0;min-width:0}
+.e2-field label{font-weight:bold;line-height:1.5;font-size:calc(16px * var(--ea-fs, 1))}
+.e2-field textarea,.e2-field input{font:inherit;font-size:calc(17px * var(--ea-fs, 1));width:100%;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);user-select:text;-webkit-user-select:text}
+.e2-field textarea{min-height:5.4em;resize:vertical;line-height:1.5}
+.e2-field textarea:focus,.e2-field input:focus{outline:none;border-color:var(--accent)}
+.e2-two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.e2-saved{margin:8px 0 0;min-height:1.6em;color:#1a7a48;font-weight:bold}
 .e2-big{font-size:calc(46px * var(--ea-fs, 1));text-align:center;margin:4px 0}
 /* 安全体験・電気料金 */
 .e2-page{flex:1;display:flex;flex-direction:column;min-height:0}
@@ -196,6 +210,15 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   .e2-pside>.e2-card:first-child{grid-column:1/3}
   .e2-stgrid{grid-template-columns:repeat(2,1fr)}
   .e2-steps{grid-template-columns:1fr}
+}
+/* せまい画面(スマホの縦など): 上のバーのボタンは絵文字だけにして、はみ出さないようにする */
+@media (max-width:600px){
+  .e2-top{gap:3px;padding:0 4px}
+  .e2-top .lg2{display:none}
+  .e2-top .e2-btn{padding:0 4px;min-width:44px;flex:none}
+  .e2-stitle{min-width:0;padding-left:0}
+  .e2-two{grid-template-columns:1fr}
+  .e2-modal .acts .e2-btn{min-width:0;flex:1 1 40%}
 }
 </style>
 </head>
@@ -680,7 +703,10 @@ function loadSave() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { d = null; }
   d = d && typeof d === 'object' ? d : {};
-  return { free: d.free || [], chal: d.chal || {}, cleared: d.cleared || {}, quiz: d.quiz || {}, mode: d.mode || 'free', view: d.view || 'lab', sound: d.snd0 ? d.sound === true : false, snd0: true, flow: d.flow !== false, nums: d.nums !== false, seen: !!d.seen, cost: d.cost || null };
+  /* 💾 記録: 振り返り(q1〜q3)と組・番号・名前 */
+  var r = d.refl && typeof d.refl === 'object' ? d.refl : {}, w = d.who && typeof d.who === 'object' ? d.who : {};
+  return { free: d.free || [], chal: d.chal || {}, cleared: d.cleared || {}, quiz: d.quiz || {}, mode: d.mode || 'free', view: d.view || 'lab', sound: d.snd0 ? d.sound === true : false, snd0: true, flow: d.flow !== false, nums: d.nums !== false, seen: !!d.seen, cost: d.cost || null,
+    refl: { q1: String(r.q1 || ''), q2: String(r.q2 || ''), q3: String(r.q3 || '') }, who: { cls: String(w.cls || ''), name: String(w.name || '') } };
 }
 function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S.save)); } catch (e) {} }
 function cleanParts(ps) {
@@ -905,12 +931,13 @@ function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mo
 function buildShell() {
   var v = S.view, ch = chal();
   var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
-    '<button class="e2-btn' + (v === 'lab' && S.mode === 'free' ? ' on' : '') + '" data-act="free">🧪 自由に<span class="lg">つくる</span></button>' +
-    '<button class="e2-btn' + (v === 'lab' && S.mode !== 'free' ? ' on' : '') + '" data-act="chals">📋 課題</button>' +
-    '<button class="e2-btn' + (v === 'safety' ? ' on' : '') + '" data-act="safety">🏠 安全<span class="lg">体験</span></button>' +
-    '<button class="e2-btn' + (v === 'cost' ? ' on' : '') + '" data-act="cost">💴 <span class="lg">電気</span>料金</button>' +
+    '<button class="e2-btn' + (v === 'lab' && S.mode === 'free' ? ' on' : '') + '" data-act="free" aria-label="自由につくる">🧪<span class="lg2"> 自由に<span class="lg">つくる</span></span></button>' +
+    '<button class="e2-btn' + (v === 'lab' && S.mode !== 'free' ? ' on' : '') + '" data-act="chals" aria-label="課題">📋<span class="lg2"> 課題</span></button>' +
+    '<button class="e2-btn' + (v === 'safety' ? ' on' : '') + '" data-act="safety" aria-label="安全体験">🏠<span class="lg2"> 安全<span class="lg">体験</span></span></button>' +
+    '<button class="e2-btn' + (v === 'cost' ? ' on' : '') + '" data-act="cost" aria-label="電気料金">💴<span class="lg2"> <span class="lg">電気</span>料金</span></button>' +
     '<div class="e2-stitle" data-ref="stitle"></div>' +
-    '<button class="e2-btn" data-act="howto">❓ 使い方</button>' +
+    '<button class="e2-btn" data-act="howto" aria-label="使い方">❓<span class="lg2"> 使い方</span></button>' +
+    '<button class="e2-btn" data-act="rec" aria-label="記録">💾<span class="lg2"> 記録</span></button>' +
     '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' + efSlot() + '</div>';
   var main;
   if (v === 'lab') {
@@ -1209,6 +1236,67 @@ function showHowto(first) {
     '<div class="acts"><button class="e2-btn primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');
 }
 
+/* ---------- 💾 記録(やったこと・振り返り・組・番号・名前 → ファイルに保存) ---------- */
+var REFL = [
+  { id: 'q1', q: '回路とは何ですか。電流は乾電池のどちらの極から出て、どこを通って、どちらの極へもどりますか。' },
+  { id: 'q2', q: '直列回路と並列回路のちがいを、豆電球の1個をはずしたときのようすを例にして説明しよう。' },
+  { id: 'q3', q: 'ヒューズやブレーカーは何のためにありますか。家で電気を安全に使うために気をつけたいことも書こう。' }
+];
+var N_BASIC = 7;   /* 課題1〜7 が基本編、8〜11 が発展編 */
+function recItems() {
+  var a = CHALS.map(function (c, i) { return { id: c.id, no: '課題' + (i + 1), name: c.title, level: i < N_BASIC ? '基本編' : '発展編' }; });
+  SAFETY_CARDS.forEach(function (c) { a.push({ id: c.id, no: '安全体験', name: c.title, level: '基本編' }); });
+  return a;
+}
+function quizScore() { var ok = 0, n = 0; recItems().forEach(function (x) { if (quizFor(x.id)) { n++; if (S.save.quiz[x.id]) ok++; } }); return { ok: ok, total: n }; }
+function whoInit() {
+  var w = S.save.who;
+  if (!w.cls && !w.name) { try { var e5 = JSON.parse(localStorage.getItem('energyApps.C5.v1') || 'null'); if (e5 && e5.who && (e5.who.cls || e5.who.name)) { w.cls = String(e5.who.cls || ''); w.name = String(e5.who.name || ''); } } catch (e) {} }
+  return w;
+}
+function showRec() {
+  var w = whoInit(), s = S.save, qs = quizScore(), its = recItems();
+  var nc = its.filter(function (x) { return x.no !== '安全体験' && s.cleared[x.id]; }).length, ns = its.filter(function (x) { return x.no === '安全体験' && s.cleared[x.id]; }).length;
+  var rows = its.map(function (x, i) {
+    var ok = !!s.cleared[x.id];
+    return (i === N_BASIC ? '<li style="border:0;padding-top:10px"><b>発展編</b></li>' : i === 0 ? '<li style="border:0"><b>基本編</b></li>' : '') +
+      '<li><span aria-hidden="true">' + (ok ? '✅' : '⬜') + '</span><span class="nm">' + x.no + ' ' + esc(x.name) + (ok ? '' : '<small style="color:#5b6b7c">(まだ)</small>') + '</span>' +
+      '<span class="qz' + (s.quiz[x.id] ? '' : ' no') + '">🤔 ' + quizTitle() + (s.quiz[x.id] ? ' ✓' : ' まだ') + '</span></li>';
+  }).join('');
+  var h = '<h2>💾 記録</h2><p style="margin:0 0 6px">やったことと振り返りを、1つのファイルにして先生に出せます。</p>' +
+    '<h3>📊 やったこと</h3><div class="e2-recsum">課題 <b>' + nc + ' / ' + CHALS.length + '</b> クリア・安全体験 <b>' + ns + ' / ' + SAFETY_CARDS.length + '</b>・🤔 ' + quizTitle() + ' <b>' + qs.ok + ' / ' + qs.total + '</b> 問 正解</div>' +
+    '<ul class="e2-recl">' + rows + '</ul>' +
+    '<div data-ef-reflect><h3>✏️ 振り返り</h3><p style="margin:0">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存されます。</p>' +
+    REFL.map(function (r, i) { return '<div class="e2-field"><label for="e2-' + r.id + '">' + (i + 1) + '. ' + r.q + '</label><textarea id="e2-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(s.refl[r.id] || '') + '</textarea></div>'; }).join('') + '</div>' +
+    '<h3>👤 組・番号・名前</h3><div class="e2-two"><div class="e2-field"><label for="e2-cls">組・番号</label><input type="text" id="e2-cls" data-who="cls" maxlength="20" value="' + esc(w.cls || '') + '" placeholder="例: 2組15番"></div>' +
+    '<div class="e2-field"><label for="e2-name">名前</label><input type="text" id="e2-name" data-who="name" maxlength="30" value="' + esc(w.name || '') + '"></div></div>' +
+    '<p class="e2-note" style="font-size:calc(15px * var(--ea-fs, 1));margin:4px 0">やったこと<span data-ef-reflect>・振り返り</span>を、1つのファイル(<code>C2-kairo-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
+    '<div class="e2-saved" role="status" aria-live="polite"></div>' +
+    '<div class="acts"><button class="e2-btn" data-act="close">とじる</button><button class="e2-btn primary" data-act="recsave">💾 ファイルに保存</button></div>';
+  var ov = modal(h);
+  ov.addEventListener('input', function (ev) {
+    var t = ev.target, k = t.getAttribute('data-refl');
+    if (k) { S.save.refl[k] = t.value.slice(0, 800); persist(); return; }
+    k = t.getAttribute('data-who');
+    if (k) { S.save.who[k] = t.value.slice(0, k === 'cls' ? 20 : 30); persist(); }
+  });
+}
+function exportObj() {
+  var s = S.save, items = recItems().map(function (x) { return { id: x.id, no: x.no, name: x.name, level: x.level, cleared: !!s.cleared[x.id], quiz: !!s.quiz[x.id] }; });
+  return { schema: 'energyApps.artifact', app: 'C2', type: 'circuit-lab', version: 1, savedAt: new Date().toISOString(), who: { cls: s.who.cls, name: s.who.name },
+    data: { tasks: items.filter(function (x) { return x.no !== '安全体験'; }), safety: items.filter(function (x) { return x.no === '安全体験'; }),
+      cleared: nCleared(), quiz: quizScore(), cost: s.cost || null,
+      reflection: { q1: s.refl.q1, q2: s.refl.q2, q3: s.refl.q3 } } };
+}
+function saveFile() {
+  var p2 = function (n) { return (n < 10 ? '0' : '') + n; }, t = new Date();
+  var blob = new Blob([JSON.stringify(exportObj(), null, 1)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'C2-kairo-' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '-' + p2(t.getHours()) + p2(t.getMinutes()) + '.json';
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  var m = S.ov && S.ov.querySelector('.e2-saved'); if (m) m.textContent = '✅ 保存しました。ダウンロードのフォルダを見てね。';
+}
+
 /* ---------- 入力(盤面) ---------- */
 function svgPoint(ev) {
   var svg = S.el.svg, pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
@@ -1269,6 +1357,8 @@ function bindInput() {
       case 'sgo': closeModal(); S.stab = t.getAttribute('data-tab'); openView('safety'); break;
       case 'cost': openView('cost'); break;
       case 'howto': showHowto(false); break;
+      case 'rec': showRec(); break;
+      case 'recsave': saveFile(); break;
       case 'doclear': closeModal(); clearAll(); break;
       case 'sound': S.save.sound = !S.save.sound; persist(); renderTop(); break;
       case 'intro': showIntro(); break;
@@ -1675,7 +1765,7 @@ function mount(root) {
 
 NS.C2 = {
   mount: mount,
-  _test: { S: S, CHALS: CHALS, place: place, toEls: toEls, analyze: analyze, openMode: function (m) { openMode(m); }, openView: openView, partAt: partAt, changed: changed, toggleSw: toggleSw, flipPart: flipPart, repair: repair, setVal: setVal, snapshot: snapshot }
+  _test: { S: S, CHALS: CHALS, place: place, toEls: toEls, analyze: analyze, openMode: function (m) { openMode(m); }, openView: openView, partAt: partAt, changed: changed, toggleSw: toggleSw, flipPart: flipPart, repair: repair, setVal: setVal, snapshot: snapshot, exportObj: exportObj, REFL: REFL }
 };
 var auto = document.getElementById('e2-app');
 if (auto && !auto.getAttribute('data-manual')) mount(auto);

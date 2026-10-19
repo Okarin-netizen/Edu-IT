@@ -67,8 +67,16 @@
       if (head) head.focus();
     }
 
+    // 手順を最後まで読んだら記録に残す(工具ごとに1つ。読み直したら日時を新しくする)
+    function markRead(t) {
+      var a = G.newArtifact(APP, '手順を読んだ ' + t.name, { toolId: t.id, toolName: t.name, steps: t.steps.length }, 'read');
+      a.id = APP + '-read-' + t.id;
+      G.store.put(a).then(function () { if (records.refresh) records.refresh(); }).catch(function () {});
+    }
+
     function render() {
       var t = cur, st = t.steps[step];
+      if (step === t.steps.length - 1) markRead(t);
       clear(root);
       root.appendChild(h('div', { class: 'g-row' },
         h('button', { type: 'button', class: 'btn', onclick: list }, '◀ 工具の一覧'),
@@ -133,6 +141,7 @@
       var box = h('div', { class: 'card' });
       box.appendChild(h('h2', null, '作業開始チェックリスト'));
       box.appendChild(h('p', null, '作業を始める前に、1つずつ自分の目で確かめてからチェックしよう。すべて確かめるまで「完了」は押せません。'));
+      box.appendChild(h('p', { class: 'g-muted' }, '工作室で作業する日に使います。教室の外で自習するときは、チェックを付けずに、各項目の説明を読んで「なぜ必要か」を確かめておこう。'));
       box.appendChild(h('p', { class: 'a6-progress', 'aria-live': 'polite' },
         h('progress', { max: D.checklist.length, value: n, 'aria-hidden': 'true' }),
         ' ' + n + ' / ' + D.checklist.length + ' 確認ずみ'));
@@ -427,7 +436,8 @@
       clear(root);
       var card = h('div', { class: 'card' },
         h('h2', null, '実技の評価(自己評価・相互評価)'),
-        h('p', null, '実際に工具を使ったあとに、姿勢・安全・精度の3つの観点でふり返ろう。'));
+        h('p', null, '実際に工具を使ったあとに、姿勢・安全・精度の3つの観点でふり返ろう。'),
+        h('p', { class: 'g-muted' }, 'まだ実技をしていないときは保存せずに、観点ごとの A・B・C の説明を読んで、実技で何に気をつけるかを確かめておこう。'));
       card.appendChild(h('fieldset', { class: 'a6-fs' }, h('legend', null, '評価の種類'),
         radio('rtype', 'self', '自己評価(自分の作業)', form.type === 'self', function () { form.type = 'self'; render(); }),
         radio('rtype', 'peer', '相互評価(友だちの作業)', form.type === 'peer', function () { form.type = 'peer'; render(); })));
@@ -482,12 +492,13 @@
   /* =========================================================
    * 6. 記録
    * ======================================================= */
-  var KIND = { checklist: '作業前チェック', kyt: '危険を見つける', quiz: 'ならべかえ', rubric: '実技の評価' };
+  var KIND = { read: '工具の手順', checklist: '作業前チェック', kyt: '危険を見つける', quiz: 'ならべかえ', rubric: '実技の評価' };
   var records = (function () {
     var root = G.$('#p-records');
 
     function summary(a) {
       var d = a.data || {};
+      if (a.kind === 'read') return '最後まで読んだ(' + (d.steps || 0) + ' の手順)';
       if (a.kind === 'checklist') return 'すべて確認(' + (d.items ? d.items.length : 0) + ' こ)';
       if (a.kind === 'kyt') return d.found ? d.found.length + ' / ' + d.total + ' こ発見' : '';
       if (a.kind === 'quiz') return d.correctCount + ' / ' + d.total + ' こ正しい位置';
