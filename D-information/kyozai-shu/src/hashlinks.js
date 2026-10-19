@@ -14,7 +14,8 @@
     if (href === "#") return;
     if (href.charAt(1) !== "/") {
       // 「本文へ移動」などのページ内の場所へのリンク
-      var t = document.getElementById(decodeURIComponent(href.slice(1)));
+      var t = null;
+      try { t = document.getElementById(decodeURIComponent(href.slice(1))); } catch (err) { /* % のまちがった書き方は、そのままにする */ }
       if (t) {
         t.scrollIntoView();
         if (t.focus) t.focus();

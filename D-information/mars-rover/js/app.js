@@ -31,7 +31,7 @@ function designOf(s) {
   const d = store.getDesign(s.id);
   const base = s.design;
   if (!d) return { ...base, dist: [...base.dist] };
-  return { dist: (d.dist || []).filter((x) => s.allow.dist.includes(x)), color: s.allow.color.includes(Number(d.color)) ? Number(d.color) : base.color, speed: SPEEDS[d.speed] ? d.speed : base.speed };
+  return { dist: (Array.isArray(d.dist) ? d.dist : []).filter((x) => s.allow.dist.includes(x)), color: s.allow.color.includes(Number(d.color)) ? Number(d.color) : base.color, speed: SPEEDS[d.speed] ? d.speed : base.speed };
 }
 
 function designText(d) {
@@ -177,7 +177,7 @@ function renderStage(sid) {
   const history = undoHistories.get(s.id);
   if (history.at(-1) !== text) history.push(text);
   let editorTab = store.pref("editorTab") === "flow" ? "flow" : "blocks";
-  let caseIdx = Math.min(Number(store.pref(`case.${s.id}`)) || 0, s.cases.length - 1);
+  let caseIdx = Math.max(0, Math.min(Math.floor(Number(store.pref(`case.${s.id}`))) || 0, s.cases.length - 1));
   let sim = null;
   let running = false;
   let speed = Number(store.pref("simSpeed")) || 1;

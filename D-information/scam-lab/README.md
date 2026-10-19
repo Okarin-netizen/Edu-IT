@@ -44,7 +44,7 @@
 
 ```json
 { "app": "ネット詐欺 追体験ラボ", "exportedAt": "…", "student": { "cls": "2", "num": "15", "name": "" },
-  "scenarios": [{ "id": "oneclick", "no": "1", "title": "ワンクリック詐欺", "cleared": true, "clearedAt": "…", "misses": 1, "hints": 0, "steps": "5 / 5" }, …],
+  "scenarios": [{ "id": "oneclick", "no": "①", "title": "ワンクリック詐欺", "cleared": true, "clearedAt": "…", "misses": 1, "hints": 0, "steps": "5 / 5" }, …],
   "reflection": { "r1": "…", "r2": "…", "r3": "…" } }
 ```
 

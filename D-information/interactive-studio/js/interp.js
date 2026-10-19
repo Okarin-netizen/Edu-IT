@@ -20,19 +20,28 @@ export function formatNumber(n) {
   return String(Number(n.toPrecision(12)));
 }
 
-export function toText(v) {
+// リストの中に自分自身が入っている（push(a, a) など）ときは […] と出す（そのままだと終わらない）
+function listText(v, each, seen) {
+  if (seen.has(v)) return "[…]";
+  seen.add(v);
+  const s = "[" + v.map((x) => each(x, seen)).join(", ") + "]";
+  seen.delete(v);
+  return s;
+}
+
+export function toText(v, seen = new Set()) {
   if (typeof v === "number") return formatNumber(v);
   if (typeof v === "string") return v;
   if (typeof v === "boolean") return v ? "true" : "false";
-  if (Array.isArray(v)) return "[" + v.map(toText).join(", ") + "]";
+  if (Array.isArray(v)) return listText(v, toText, seen);
   if (v === null || v === undefined) return "";
   return String(v);
 }
 
 // 変数ウォッチ用の表示（文字は " でかこむ）
-export function toDisplay(v) {
+export function toDisplay(v, seen = new Set()) {
   if (typeof v === "string") return JSON.stringify(v);
-  if (Array.isArray(v)) return "[" + v.map(toDisplay).join(", ") + "]";
+  if (Array.isArray(v)) return listText(v, toDisplay, seen);
   return toText(v);
 }
 
@@ -149,7 +158,7 @@ export const BUILTINS = {
       if (opts.length === 1 && Array.isArray(opts[0])) opts = opts[0];
       if (opts.length < 1) throw new RunError("choose の選択肢が空です。", line);
       if (opts.length > LIMITS.maxChoices) throw new RunError(`choose の選択肢は${LIMITS.maxChoices}個までです。`, line);
-      const i = yield { k: "choose", prompt: toText(q), options: opts.map(toText) };
+      const i = yield { k: "choose", prompt: toText(q), options: opts.map((o) => toText(o)) };
       return opts[Math.max(0, Math.min(opts.length - 1, Number(i) || 0))];
     },
   },

@@ -81,7 +81,11 @@ export const server = {
   },
   addScore(work, box, name, score) {
     const d = load();
-    if (!d.boxes[box] && Object.keys(d.boxes).length >= MAX_BOXES) return false;
+    if (!d.boxes[box] && Object.keys(d.boxes).length >= MAX_BOXES) {
+      log(d, work, "addScore", box, `${name} ${score}点`, "失敗: 箱が多すぎます");
+      persist(d);
+      return false;
+    }
     const b = (d.boxes[box] ||= { type: "scores", records: [] });
     b.type = "scores";
     b.records.push({ name: String(name).slice(0, 30), score, at: new Date().toISOString(), work: String(work || "").slice(0, 40) });

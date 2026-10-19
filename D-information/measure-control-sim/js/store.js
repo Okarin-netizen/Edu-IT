@@ -5,12 +5,23 @@ function empty() {
   return { version: 1, student: { cls: "", num: "", name: "" }, programs: {}, records: [], prefs: {}, reflections: {} };
 }
 
+// load() の中で使うので、読みこみより前に用意しておく
+const isObj = (v) => Boolean(v) && typeof v === "object" && !Array.isArray(v);
+
 let state = load();
 
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...empty(), ...JSON.parse(raw) } : empty();
+    if (!raw) return empty();
+    const d = JSON.parse(raw);
+    if (!isObj(d)) return empty();
+    // こわれた所(形のちがう値)があっても、その所だけ空にして使い続ける
+    const st = { ...empty(), ...d };
+    for (const k of ["student", "programs", "prefs", "reflections"]) if (!isObj(st[k])) st[k] = empty()[k];
+    if (!Array.isArray(st.records)) st.records = [];
+    st.records = st.records.filter(isObj);
+    return st;
   } catch {
     return empty();
   }
