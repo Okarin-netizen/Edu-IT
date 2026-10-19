@@ -1,4 +1,4 @@
-// 4分野の eduit-info.js から自習ガイドの中身(jishu)と、教材の名前を取り出して JSON で出す(build.py が使う)
+// ガイダンス(G)と4分野の eduit-info.js から自習ガイドの中身(jishu)と、教材の名前を取り出して JSON で出す(build.py が使う)
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -11,7 +11,7 @@ function info(file) {
   return ctx.window.EDUIT_INFO;
 }
 // 教材の記号 → 名前(各分野のメニューと同じもの)
-const names = { A: {}, B: {}, C: {}, D: {} };
+const names = { G: { G: "技術分野のガイダンス" }, A: {}, B: {}, C: {}, D: {} };
 {
   const ctx = { self: {} };
   vm.runInNewContext(read("A-materials/common/apps.js"), ctx);
@@ -25,7 +25,7 @@ for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(C\d)'.*?name
 for (const m of JSON.parse(read("D-information/kyozai-shu/data/materials.json")).materials) names.D[m.code] = m.title;
 
 const out = [];
-for (const [key, dir] of [["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"], ["D", "D-information"]]) {
+for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"], ["D", "D-information"]]) {
   const I = info(`${dir}/eduit-info.js`);
   const J = I.jishu;
   if (!J || !J.apps) throw new Error(`${dir}/eduit-info.js: 自習ガイド(jishu)がありません`);

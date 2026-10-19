@@ -15,6 +15,10 @@
   .site-B { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }
   .site-C { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }
   .site-D { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }
+  .site-G { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }
+  .site-first { margin: 0 0 16px; }
+  .site-first .ef-mcard { max-width: none; }
+  .site-h2 { margin: 0 0 10px; font-size: 17px; }
   .site-note { margin: 22px 0 0; padding: 14px 18px; background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); }
   .site-note h2 { margin: 0 0 6px; font-size: 17px; }
   .site-note ul { margin: 0; padding-left: 1.3em; line-height: 1.8; }
@@ -29,6 +33,11 @@
 </header>
 <main class="site-main">
   <p class="site-lead">学習する分野をえらんで「ひらく」を押してください。先生が指示した分野をひらきます。</p>
+  <section class="site-first" aria-labelledby="site-first-h">
+    <h2 class="site-h2" id="site-first-h">はじめに(1年の最初)</h2>
+    <div id="site-guidance"></div>
+  </section>
+  <h2 class="site-h2">4つの分野</h2>
   <div class="site-grid" id="site-cards"></div>
   <section class="site-note site-jishu" aria-labelledby="site-jishu-h">
     <h2 id="site-jishu-h">ひとりで進めるとき(自習モード)</h2>
@@ -39,6 +48,7 @@
     <h2 id="site-ws-h">自習ワークシート</h2>
     <p>自習で進めるときに、教材といっしょに使うワークシートです(教材ごとに1枚)。ねらい・進め方・たしかめ問題・ふりかえりがあり、タブレットで書きこむ(この端末に保存)か、印刷して使います。</p>
     <p class="site-ws">
+      <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/G_技術分野のガイダンス_ワークシート.html">G ガイダンス</a>
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/A_材料と加工_ワークシート.html">A 材料と加工</a>
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/B_生物育成_ワークシート.html">B 生物育成</a>
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/C_エネルギー変換_ワークシート.html">C エネルギー変換</a>
@@ -60,7 +70,7 @@
   window.EDUIT_INFO = {
     suite: '技術分野 教材集',
     app: { name: '技術分野 教材集(入口)' },
-    safety: ['このページは、4つの分野の教材をひらくための入口です。教材はインターネットから読みこみますが、ひらいたあとは端末の中だけで動き、入力した内容や学習の記録をどこにも送りません。']
+    safety: ['このページは、ガイダンスと4つの分野の教材をひらくための入口です。教材はインターネットから読みこみますが、ひらいたあとは端末の中だけで動き、入力した内容や学習の記録をどこにも送りません。']
   };
 </script>
 <script src="../shared/eduit-frame.js"></script>
@@ -85,6 +95,13 @@
       location.href = location.pathname + '?jishu=' + (EduitFrame.jishu ? 'off' : 'on');
     });
     jishuShow();
+    // 技術分野のガイダンス(4分野の前に1回。教科書「技術分野のガイダンス」)
+    var G = { code: 'G', icon: '🧭', title: '技術分野のガイダンス', desc: '技術とは何か、技術の見方・考え方(4つの視点)、問題解決の流れ、3年間で学ぶ4つの分野を、クイズや自転車の設計で体験します。技術分野の学習を始める前に、最初にひらきます。', href: '../クラスルーム配布/生徒に配る/G_技術分野のガイダンス.html' };
+    var gs = document.createElement('span');
+    gs.textContent = '教科書 技術分野のガイダンス 1〜5';
+    var gc = EduitFrame.card({ code: G.code, icon: G.icon, title: G.title, desc: G.desc, extra: [gs], href: G.href });
+    gc.classList.add('site-G');
+    document.getElementById('site-guidance').appendChild(gc);
     var box = document.getElementById('site-cards');
     AREAS.forEach(function (a) {
       var range = document.createElement('span');

@@ -7,6 +7,7 @@
 
 ```
 Edu-IT/
+├─ G-guidance/       技術分野のガイダンス(1年の最初。4分野の前)
 ├─ A-materials/      A 材料と加工の技術
 ├─ B-bio/            B 生物育成の技術
 ├─ C-energy/         C エネルギー変換の技術
@@ -35,6 +36,8 @@ Edu-IT/
 - 分け方のもと: 各分野の `eduit-info.js` の `levels`(タブの部品は `shared/eduit-frame.js` の `EduitFrame.levels`)
 - 先生用の一覧(学習指導要領の項目と理由つき): [`teacher-tools/kihon-hatten/`](teacher-tools/kihon-hatten/) → `クラスルーム配布/先生用/全分野_基本編と発展編.html`
 
+1年の最初に使う **技術分野のガイダンス** は、どの分野にも入らないので記号を **G**(番号なし)にし、`G-guidance/` に置いています(色は青緑。生徒用サイトの入口ページのいちばん上)。
+
 ## 4つの分野の中は同じ形
 
 ```
@@ -50,6 +53,7 @@ Edu-IT/
 
 | フォルダ | 分野 | 教材 | 配布用(`dist/`) | 作り直すコマンド |
 |---|---|---|---|---|
+| [`G-guidance/`](G-guidance/) | G ガイダンス(分野の前) | 技術分野のガイダンス(教科書「技術分野のガイダンス」1〜5。教材は1つ) | `技術分野のガイダンス.html`・`先生用ガイド.html` | `python3 G-guidance/build.py` |
 | [`A-materials/`](A-materials/) | A 材料と加工 | A1 材料選択ナビ・A2 木材ラボ・A3 構造強化ラボ・A4 製図トレーナー・A5 木取り・A6 工具の安全・A7 第三角法 立体メーカー・A8 問題解決ノート・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
 | [`B-bio/`](B-bio/) | B 生物育成 | B1 育成環境コントローラ・B2 動物飼育・水産・B3 栽培暦ビルダー・B4 育成日誌・B5 植物工場の自動化 | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
 | [`C-energy/`](C-energy/) | C エネルギー変換 | C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート・C6 風力発電の羽根ラボ・C7 直流・交流と送電ラボ | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
@@ -71,9 +75,9 @@ Edu-IT/
 
 ## ホームページで公開する(GitHub Pages) → [`site/`](site/)
 
-生徒は URL を開くだけで、ダウンロードせずに使えます。公開するのは **入口ページ(A〜D の一覧)と4つの統一版だけ** で、先生用ガイドと `teacher-tools/` はホームページに出しません。
+生徒は URL を開くだけで、ダウンロードせずに使えます。公開するのは **入口ページ(ガイダンスと A〜D の一覧)・ガイダンス・4つの統一版・自習ワークシートだけ** で、先生用ガイドと `teacher-tools/` はホームページに出しません。
 
-- 公開されるもの: `index.html`(入口・[`site/index.html`](site/index.html))・`a.html`〜`d.html`(いちばん上に「◀ 分野をえらぶ」のバーがあり、その下に `apps/` に置いた `クラスルーム配布/生徒に配る/` の統一版を出す)
+- 公開されるもの: `index.html`(入口・[`site/index.html`](site/index.html))・`g.html`(ガイダンス)・`a.html`〜`d.html`(いちばん上に「◀ 分野をえらぶ」のバーがあり、その下に `apps/` に置いた `クラスルーム配布/生徒に配る/` の統一版を出す)
 - `main` に push すると、[`.github/workflows/pages.yml`](.github/workflows/pages.yml) が `python3 site/build.py` で `_site/` にまとめて公開します。
 - はじめに1回だけ: リポジトリの Settings → Pages → Source を「GitHub Actions」にします(無料プランではリポジトリを Public にする必要があります)。
 - 記録はホームページのアドレスごとに、その端末のブラウザの中に保存されます。ダウンロードしたファイルで使った記録とは別になります。
