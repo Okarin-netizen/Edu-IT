@@ -9,10 +9,20 @@ function empty() {
 
 let state = load();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...empty(), ...JSON.parse(raw) } : empty();
+    return raw ? mergeSaved(empty(), JSON.parse(raw)) : empty();
   } catch {
     return empty();
   }

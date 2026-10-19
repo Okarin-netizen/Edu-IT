@@ -414,15 +414,22 @@ export const soundModule = {
           h("div", {}, "録音しなくても、このステップはクリアできます。"),
         ];
       };
+      let micStarting = false; // 許可を待っているあいだに、もう一度押されても2つ目を始めない
       micBtn.addEventListener("click", async () => {
-        if (mic) return;
+        if (mic || micStarting) return;
         if (!navigator.mediaDevices?.getUserMedia) {
           micStatus.textContent = "この端末・ブラウザではマイクを使えません。";
           return;
         }
+        micStarting = true;
         try {
           const ac = ctx();
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          // 許可を待っているあいだに、ほかのページへ移っていたら、すぐにマイクを止める
+          if (!micBtn.isConnected) {
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
           const source = ac.createMediaStreamSource(stream);
           const proc = ac.createScriptProcessor(4096, 1, 1);
           const chunks = [];
@@ -453,6 +460,8 @@ export const soundModule = {
         } catch (err) {
           stopMic();
           micStatus.replaceChildren(...micErrorLines(err?.name));
+        } finally {
+          micStarting = false;
         }
       });
       micPlayOrig.addEventListener("click", () => recorded && playSamples(recorded, 0.8));

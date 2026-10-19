@@ -13,6 +13,8 @@ export function randomManualN(rand = Math.random, prev = null) {
   return n;
 }
 export const sumTo = (n) => (n * (n + 1)) / 2;
+// 手計算の記録（壊れた記録・秒のない記録は、記録なしとして扱う）
+const validManual = (rec) => (rec && Number.isFinite(rec.seconds) ? rec : null);
 // 前の版の記録には n がない（そのころは 20 で固定だった）
 export const recordN = (rec) => (rec && Number.isInteger(rec.n) ? rec.n : 20);
 // hz: 1秒の合図（クロック）の回数、cpi: 1命令にかかる合図の回数（目安）
@@ -46,7 +48,7 @@ export function renderAuto(view, { tasks, isa }) {
   const BIG_N = 100;
   const doneRule = h("p", { class: "done-rule", "aria-live": "polite" });
   const updateDone = () => {
-    const manualOk = Boolean(store.state.manual);
+    const manualOk = Boolean(validManual(store.state.manual));
     const bigOk = store.isDone("autoBigN");
     if (manualOk && bigOk && !store.isDone("auto")) {
       store.markDone("auto");
@@ -67,7 +69,7 @@ export function renderAuto(view, { tasks, isa }) {
   const startBtn = h("button", { class: "btn", type: "button" }, "スタート");
   const doneBtn = h("button", { class: "btn", type: "button", disabled: true }, "できた");
   const manualMsg = h("div", { "aria-live": "polite" });
-  const prevRec = store.state.manual;
+  const prevRec = validManual(store.state.manual);
   if (prevRec) manualMsg.append(explain("前回の記録", `1 から ${recordN(prevRec)} までの合計を ${prevRec.seconds.toFixed(1)}秒で正解しました。`, "good"));
   // N はスタートを押したときに決まる（先に計算しておけないように）
   let nManual = null;
@@ -107,7 +109,7 @@ export function renderAuto(view, { tasks, isa }) {
     }
   };
   doneBtn.addEventListener("click", finish);
-  answer.addEventListener("keydown", (e) => e.key === "Enter" && finish());
+  answer.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && finish());
 
   // ---- 2. プログラムなら ----
   // いちばん上の選択肢は、手計算で正解したときの N（記録がなければ 20）
@@ -116,7 +118,7 @@ export function renderAuto(view, { tasks, isa }) {
     manualOpt.value = String(n);
     manualOpt.textContent = `1 から ${n} まで`;
   };
-  setManualOption(recordN(store.state.manual));
+  setManualOption(recordN(validManual(store.state.manual)));
   const nSelect = h("select", { "aria-label": "N の大きさ" }, manualOpt, [100, 1000, 10000, 100000, 1000000].map((n) => h("option", { value: n }, `1 から ${n.toLocaleString("ja-JP")} まで`)));
   const compareBox = h("div", { "aria-live": "polite" });
 
@@ -124,7 +126,7 @@ export function renderAuto(view, { tasks, isa }) {
     const n = Number(nSelect.value);
     const m = runToEnd(createMachine(prog, { inputs: [n], maxSteps: 1e9 }));
     const steps = m.steps;
-    const manual = store.state.manual;
+    const manual = validManual(store.state.manual);
     compareBox.replaceChildren(
       h(
         "div",

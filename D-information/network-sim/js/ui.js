@@ -32,7 +32,6 @@ export function explainCard(label, body, kind = "info") {
   return card;
 }
 
-
 // 振り返りを出すか（先生が「振り返りを隠す」設定にしたときは false。shared/eduit-frame.js の EduitFrame.furikaeri）
 export function furikaeriOn() {
   return !(globalThis.EduitFrame && globalThis.EduitFrame.furikaeri === false);

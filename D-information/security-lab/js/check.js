@@ -52,6 +52,11 @@ export function orderByModules(questions, moduleOrder) {
   return questions.map((q, i) => [q, i]).sort((a, b) => rank(a[0].module) - rank(b[0].module) || a[1] - b[1]).map(([q]) => q);
 }
 
+// 点の文字「3/5」→ 正答率 0.6。読めない値・分母が0のときは null（records.js の集計でも使う）
+export function scoreRate(s) {
+  const [a, b] = String(s ?? "").split("/").map(Number);
+  return s && Number.isFinite(a) && b > 0 ? a / b : null;
+}
 const currentScores = () => ({ pre: store.getScore(ID, "事前テスト"), post: store.getScore(ID, "事後テスト") });
 
 export async function renderCheck(view, available, easy = "") {
@@ -64,8 +69,7 @@ export async function renderCheck(view, available, easy = "") {
   const history = () => {
     const pre = store.getScore(ID, "事前テスト");
     const post = store.getScore(ID, "事後テスト");
-    const rate = (s) => (s ? Number(s.split("/")[0]) / Number(s.split("/")[1]) : null);
-    const diff = pre && post ? Math.round((rate(post) - rate(pre)) * 100) : null;
+    const diff = scoreRate(pre) !== null && scoreRate(post) !== null ? Math.round((scoreRate(post) - scoreRate(pre)) * 100) : null;
     return h(
       "div",
       { class: "table-wrap" },

@@ -17,12 +17,21 @@ function emptyState() {
 let state = load();
 const listeners = new Set();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return emptyState();
-    const parsed = JSON.parse(raw);
-    const s = { ...emptyState(), ...parsed };
+    const s = mergeSaved(emptyState(), JSON.parse(raw));
     if (!s.net || !Array.isArray(s.net.nodes) || !Array.isArray(s.net.links)) s.net = defaultNetwork();
     else migrateShopNames(s.net);
     return s;
@@ -79,8 +88,10 @@ export const store = {
   getScore(moduleId, key) {
     return state.modules[moduleId]?.score?.[key];
   },
+  // 空の文を保存したとき（全部消したとき）は、記録からも消す（ほかの教材と同じ）
   setReflection(moduleId, text) {
-    state.reflections[moduleId] = { text, at: new Date().toISOString() };
+    if (text) state.reflections[moduleId] = { text, at: new Date().toISOString() };
+    else delete state.reflections[moduleId];
     save();
   },
   getReflection(moduleId) {

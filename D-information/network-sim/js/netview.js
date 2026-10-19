@@ -229,6 +229,7 @@ export function createNetView(opts) {
   function animate(path, { label = "", kind = "data", hopMs = 650, stopAt = null, onHop = null } = {}) {
     const pts = path.map((id) => nodeById(net, id)).filter(Boolean);
     if (stopAt !== null) pts.splice(stopAt + 1);
+    if (!pts.length) return Promise.resolve(); // 道の機器が見つからない（消された など）ときは何もしない
     const g = s("g", { class: `pkt k-${kind}` }, s("rect", { x: -16, y: -12, width: 32, height: 24, rx: 6 }), s("text", { y: 5, "text-anchor": "middle" }, label));
     pktLayer.append(g);
     const place = (x, y) => g.setAttribute("transform", `translate(${x} ${y - 30})`);

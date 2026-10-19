@@ -16,12 +16,21 @@ function emptyState() {
 let state = load();
 const listeners = new Set();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return emptyState();
-    const parsed = JSON.parse(raw);
-    return { ...emptyState(), ...parsed };
+    return mergeSaved(emptyState(), JSON.parse(raw));
   } catch {
     return emptyState();
   }
@@ -76,7 +85,7 @@ export const store = {
     save();
   },
   replaceAll(next) {
-    state = { ...emptyState(), ...next };
+    state = mergeSaved(emptyState(), next);
     save();
   },
   reset() {

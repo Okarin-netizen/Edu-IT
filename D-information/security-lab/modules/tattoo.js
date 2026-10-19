@@ -173,6 +173,7 @@ export const tattooModule = {
     };
     let deletedAt = 0;
     const step = () => {
+      if (!svg.isConnected) return stop(); // ほかのページへ移ったら止める（見えない所で進み続けないように）
       tick++;
       state = spreadStep(state, net.neighbors, Number(content.value) * Number(scope.value), deleted);
       const { seen } = draw();

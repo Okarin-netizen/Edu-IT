@@ -17,9 +17,18 @@ export function resetConfigCache() {
 // 生徒が画面で切りかえた設定（先生の設定ファイルの値が初期値）
 export function getPrefs() {
   try {
-    return JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+    const p = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+    return p && typeof p === "object" && !Array.isArray(p) ? p : {}; // 壊れた値（null など）のときは何も切りかえていない扱い
   } catch {
     return {};
+  }
+}
+// 生徒が切りかえた設定を消して、先生の設定ファイルの値にもどす
+export function clearPrefs() {
+  try {
+    localStorage.removeItem(PREF_KEY);
+  } catch {
+    // 消せない環境でも続ける
   }
 }
 export function setPref(key, value) {

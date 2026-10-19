@@ -19,7 +19,8 @@
   // ---- 端末の中だけの保存(使えなくても動く) ----
   var KEY = 'eduit-hash-lab';
   var saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {}; // 壊れた保存データ(null・文字など)は使わない
   function save(k, v) {
     saved[k] = v;
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ }
@@ -163,7 +164,12 @@
 
   // ---- ページ ----
   var timers = [];
-  function clearTimers() { timers.forEach(clearInterval); timers = []; }
+  function clearTimers() {
+    timers.forEach(clearInterval);
+    timers = [];
+    // とちゅうで止めた総当たり(④)は「さがしています…」のまま残さない(もどってきたら、もう一度はじめられるように)
+    s4.running = false;
+  }
 
   var SECTIONS = [
     { id: 'intro', group: '', no: '', icon: '⌂', title: 'はじめに', render: renderIntro },
@@ -1019,7 +1025,7 @@
       if (st.s3) { s3.a = String(st.s3.a || ''); s3.b = String(st.s3.b || ''); }
       if (st.s4) {
         if (D.charKinds.some(function (k) { return k.id === st.s4.kinds; })) s4.kinds = st.s4.kinds;
-        if (st.s4.len >= 1 && st.s4.len <= 16) s4.len = st.s4.len;
+        if (Number.isInteger(st.s4.len) && st.s4.len >= 1 && st.s4.len <= 16) s4.len = st.s4.len;
       }
       if (st.s5) { s5.salt = !!st.s5.salt; s5.dict = !!st.s5.dict; s5.picked = Array.isArray(st.s5.picked) ? st.s5.picked.slice(0, 2) : []; }
       if (st.s6) { s6.calc = st.s6.calc || {}; s6.judge = st.s6.judge || {}; }
