@@ -545,7 +545,7 @@
     if (slash > 0 && byId.has(id.slice(0, slash)) && /^[\w/-]+$/.test(id.slice(slash + 1))) {
       pendingInner = `#/${id.slice(slash + 1)}`;
       id = id.slice(0, slash);
-      history.replaceState(null, "", `#/${id}`);
+      try { history.replaceState(null, "", `#/${id}`); } catch (e) {}
     }
     const m = byId.get(id);
     document.body.classList.toggle("home-mode", !m);
