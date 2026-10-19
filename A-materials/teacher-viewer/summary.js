@@ -171,6 +171,7 @@
         texts: texts([['よかったところ・次に気をつけること', d.comment]]), reflected: !!trim(d.comment)
       };
     }
+    if (a.kind === 'read') return { fields: [['工具の手順', trim(d.toolName) + ' を最後まで読んだ']], texts: [], reflected: false };
     if (a.kind === 'checklist') return { fields: [['作業前チェック', (d.items ? d.items.length : 0) + ' こ すべて確認']], texts: [], reflected: false };
     if (a.kind === 'kyt') return { fields: [['危険を見つける', d.found ? d.found.length + ' / ' + d.total + ' こ発見' : '']], texts: [], reflected: false };
     if (a.kind === 'quiz') return { fields: [['手順ならべかえ', d.correctCount + ' / ' + d.total + ' こ正しい位置']], texts: [], reflected: false };

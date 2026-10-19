@@ -240,6 +240,87 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
 
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
 </style>
 <style>
 /* 技術分野アプリ 共通スタイル base.css(中学生向け・10インチ Chromebook 1280×800 / 1024×600 を基準)
@@ -590,14 +671,15 @@ window.EDUIT_INFO = {
   domain: 'A',
   domainName: '材料と加工の技術',
   suite: '材料と加工の技術 教材集',
-  version: '2.7',
-  updated: '2026-10-18',
+  version: '2.8',
+  updated: '2026-10-19',
   safety: [
     '「工具の使い方・安全トレーナー」は、作業前の確認と手順を覚えるためのものです。実際の工具の使い方は、必ず先生の説明と実技の指導を受けてから使ってください。',
     '材料の強さ・たわみ・収縮などの数値は、文献の代表値を丸めた目安です。実物の観察や実験と合わせて考えてください。',
     '作品や記録は IndexedDB(使えないときは localStorage)に保存されます。メニューの「保存したデータ」から、ファイルに書き出したり消したりできます。'
   ],
   history: [
+    { version: '2.8', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)', 'A5 の「ふりかえり」タブは、振り返りを隠す設定でも検査・点検・設計の自己評価・記録が出るようにした', 'A6 は ① 工具の手順を最後まで読むと記録に残るようにし、② 作業前チェック・⑤ 実技の評価に自習のときの使い方を書いた'] },
     {
       version: '2.7', date: '2026-10-18',
       items: ['ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)', 'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。メニューに「使い方」を足し、「くっきり」はアプリの中のバーだけにした', 'A8「問題解決ノート」を追加した(4分野で同じ形の教材): ① 「こうだったらいいのに」「不便だな」を付箋に書いて集め、社会・安全・環境・経済の観点のアイコンを付ける。「問題?課題?」クイズで2つのちがいを確かめ、自分の課題を1つ決める', 'A8: ② 作った製作品を、機能・構造・材料・加工・費用・安全性・環境への配慮の観点で5段階に評価し、レーダーチャートで「はじめの目標」とくらべて、よかった点・改善・修正の方法を書く', 'A8: ③(発展)飲み物の容器・学校の椅子・買い物の袋で、観点の重みや制約条件を変えると「いちばんよい案」が入れかわることを試す(技術の最適化)。ノートは問題解決シートとして印刷できる']
@@ -714,6 +796,163 @@ window.EDUIT_INFO.textbook = {
   }
 };
 
+/* 自習ガイド(自習モードのとき、各教材の右はしに出す「ねらい・進め方・ヒント・たしかめ問題」。shared/eduit-frame.js が使う)
+ * apps の記号ごとに goal・time・steps(where・do・hint・go・level・reflect)・check(q・choices・answer・explain)。形は shared/README.md の「自習モード」。
+ * where は画面のタブ・ページの名前(levels の parts と同じ番号)にそろえる。教材のタブの名前を変えたら、ここも直す。
+ */
+window.EDUIT_INFO.jishu = {
+  lead: '材料と加工は、A1 で材料をえらび、A2・A3 で材料と構造の性質を確かめ、A4・A5 で図と木取りをかき、A6 で工具の使い方と安全を身につけ、A8 で問題解決の流れをまとめます。',
+  apps: {
+    A1: {
+      goal: '使用目的・使用条件に合わせて、木材・金属・プラスチックの性質を比べ、材料を選んだ理由を説明できるようになる。',
+      time: '30分',
+      steps: [
+        { where: '① 材料カード', do: '木材・金属・プラスチックのカードを見くらべて、それぞれの得意なことと苦手なことを1つずつ見つけよう。', hint: '上の「すべて」「木材」「金属」「プラスチック」を選ぶと、種類をしぼりこめます。●が多いほど、その性質が大きいという意味です。密度の数が小さいほど軽い材料です。', go: '[role=tab][data-view="list"]' },
+        { where: '② 条件設定', do: '「作るもの(用途)」から1つ選んで、重視する観点の数(0〜5)を自分の考えに合わせて変えよう。', hint: '用途を選ぶと重みの例が入ります。どれか1つの数を大きくしたり0にしたりして、右の「いまの順位」がどう入れかわるかを見てみよう。', go: '[role=tab][data-view="cond"]' },
+        { where: '② 条件設定', do: '「電気・熱の通し方」で、「通しにくい方がよい」と「通しやすい方がよい」のどちらが合うか考えて選ぼう。', hint: 'なべしきや取っ手は熱を伝えないほうが安全です。電気を通す部品なら、通しやすいほうがよいです。この観点の数を0にすると考えません。' },
+        { where: '③ 比較結果', do: '「比較結果を見る」を押して、上位3つの材料のレーダーチャートと、よいところ・弱いところを読もう。', hint: 'レーダーチャートは外側ほどその観点にすぐれます。1位と2位の点数の差が小さいときは、重みを少し変えると順位が入れかわります。', go: '[role=tab][data-view="result"]' },
+        { where: '④ 理由を書く', do: '作るものと選んだ材料、選ばなかった材料を決めて、それぞれの理由を書き、「保存する」を押そう。', hint: '点数が1位の材料でなくてもかまいません。例の文の形(〇〇を重視したので、△△が□□な◇◇を選んだ)に、カードの性質の言葉を入れてみよう。', go: '[role=tab][data-view="reflect"]' },
+        { where: '④ 理由を書く', do: '「重みを変えて気づいたこと」に、重みを変えたら順位がどう変わったかを書こう。', hint: '「〇〇の重みを大きくしたら、△△が1位になった」のように、変えた数と結果をセットで書くと伝わります。', reflect: true },
+        { where: '記録', do: '④ 理由を書くの下の「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '書き出せるのは「保存する」を押したワークシートだけです。先に「保存する」を押して、「保存したワークシート」に出ているか確かめよう。' }
+      ],
+      check: [
+        { q: 'このアプリで重みを変えると順位が入れかわりました。ここから分かることはどれ?', choices: ['どんな物にも、いちばんよい材料は1つに決まっている', '最適な材料は、使用目的や使用条件によって変わる', '点数が高い材料を選べば、理由を書く必要はない'], answer: 1, explain: '何を重視するかで点数が変わります。条件と材料の性質を結びつけて選ぶことが大切です。' },
+        { q: 'スギ(密度 約0.38g/cm³)と鉄(約7.87g/cm³)で、同じ大きさの板が軽いのはどちら?', choices: ['鉄', 'どちらも同じ', 'スギ'], answer: 2, explain: '密度が小さいほど、同じ大きさでも軽くなります。' },
+        { q: 'なべしきの材料を選ぶとき、「電気・熱の通し方」はどちらがよい?', choices: ['通しにくい方がよい', '通しやすい方がよい', '考えなくてよい'], answer: 0, explain: '熱いなべの熱が机やテーブルに伝わらないように、熱を通しにくい材料が合います。' }
+      ]
+    },
+    A2: {
+      goal: '柾目と板目、木表と木裏のちがいと、乾燥による収縮や反り、繊維の方向と強さの関係を説明できるようになる。',
+      time: '40分',
+      steps: [
+        { where: '① 断面ビューア', do: 'スライダで板の位置を中心から外へ動かして、板の面の木目が柾目から板目に変わるところを見つけよう。', hint: '図の横の大きな字で「柾目」「板目」などの名前が出ます。年輪が板の面に直角に近いと柾目、平行に近いと板目です。「板の向き」をたてにしても試してみよう。', go: '[role=tab][data-tab="section"]' },
+        { where: '② 収縮ラボ', do: '板目板と柾目板を選んで「▶ 乾燥させる」を押し、幅の縮み方と反り方をくらべよう。', hint: '下の「方向別の収縮率」のグラフを見てみよう。接線方向がいちばん大きく縮みます。丸太(心持ち)と背割りした丸太もくらべると、割れの出方が分かります。', go: '[role=tab][data-tab="shrink"]' },
+        { where: '③ 反りの予測', do: '問題ごとに板の種類と上の面を見て、乾燥後の形を予測してから答えを確かめよう。5問以上やってみよう。', hint: 'まず柾目板か板目板かを見分けよう。板目板なら、上の面が木表か木裏かを見ます。迷ったら「丸太の中の位置を見せる(ヒント)」にチェックを入れてみよう。', go: '[role=tab][data-tab="quiz"]' },
+        { where: '④ 強度比較(繊維の向きと強さ)', do: '荷重のスライダを少しずつ大きくして、繊維の方向に力がかかる場合と、直角にかかる場合のどちらが先にこわれるか見よう。', hint: 'カードの「こわれた」の印が出る順番に注目しよう。「0にもどす」で何度でもやり直せます。', go: '[role=tab][data-tab="strength"]' },
+        { where: '⑤ 集成材・合板', do: '合板と集成材のつくり方を「▶ 再生」で見たあと、重ね方を変えて乾燥させ、縮みと反りをくらべよう。', hint: '「直交させて重ねる(合板)」と「無垢の板(1枚)」をくらべると、繊維の方向を交互にする効果が分かります。', go: '[role=tab][data-tab="panel"]' },
+        { where: '④ 強度比較', do: '7つの力の強さの数値をくらべて、強い順に3つ、弱い順に3つを書き出そう。', hint: '下の棒グラフの数値は、いちばん強いものを100としたときの目安です。引っぱる・押す・曲げる・ずらすのどれかに分けて考えてみよう。', level: 'advanced' },
+        { where: 'まとめ・記録', do: '3つの欄に、柾目と板目のちがい、反りや割れを防ぐ工夫、気づいたことを書いて「保存する」を押そう。', hint: '①〜⑤で見た図の言葉(接線方向・木表・直交など)を使うと、くわしく書けます。実物の板を観察できたら3つ目の欄に書こう。', reflect: true, go: '[role=tab][data-tab="notes"]' },
+        { where: '記録', do: 'まとめ・記録の「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '書き出すと、書いたまとめと予測クイズの記録がいっしょに入ります。' }
+      ],
+      check: [
+        { q: '木材が乾燥して縮むとき、いちばん縮みが大きい方向はどれ?', choices: ['繊維方向', '半径方向', '接線方向'], answer: 2, explain: 'およそ 接線方向:半径方向:繊維方向 = 10:5:0.5〜1 で、年輪に沿った接線方向がいちばん縮みます。' },
+        { q: '合板で、単板の繊維方向を交互に直交させて重ねるのはなぜ?', choices: ['縮みや反りを小さくするため', '木目を美しく見せるため', '板を軽くするため'], answer: 0, explain: '縮みやすい向きどうしをおさえ合うので、乾燥しても縮みや反りがほとんど出ません。' },
+        { q: '木材の強さで、いちばん弱いのはどの力のかけ方?', choices: ['繊維方向に引っぱる', '繊維に直角に引っぱる', '繊維方向に押す'], answer: 1, explain: '繊維方向に引っぱる力にはとても強いですが、繊維に直角に引っぱると、繊維どうしがはなれやすく弱くなります。' }
+      ]
+    },
+    A3: {
+      goal: '断面の形・三角形の構造(筋かい)・面構造・接合のしかたで、製品を丈夫にするしくみを説明できるようになる。',
+      time: '35分',
+      steps: [
+        { where: '① 梁(はり)', do: 'はじめの条件(スギ・幅200mm・厚み15mm)で「いまの設計を「比べる前」にする」を押し、「厚みを2倍」と「幅を2倍」をためしてたわみをくらべよう。', hint: 'ためしたあとは「はじめにもどす」で元にもどせます。表の「いま ÷ 前」の数を見ると、何分の1になったか分かります。', go: '[role=tab][data-tab="beam"]' },
+        { where: '① 梁(はり)', do: '断面の形をリブ付き・L形・コの字・箱形に変えて、たわみと重さがどう変わるかくらべよう。', hint: '重さがあまり増えないのにたわみが小さくなる形をさがしてみよう。支え方を「片方だけ固定(片持ち)」にすると、曲がり方が大きく変わります。' },
+        { where: '② 枠と筋かい', do: '補強なしの四角い枠を横におしてかたむくのを見てから、筋かい・たすき掛け・面材などに変えてくらべよう。', hint: '「← 左におす」「右におす →」のボタンでもおせます。筋かいは、おす向きによって引っ張られたり押されたりします。三角形ができているかに注目しよう。', go: '[role=tab][data-tab="frame"]' },
+        { where: '② 枠と筋かい', do: '身のまわりで三角形の構造が使われているものを考えて、下の欄に書こう。', hint: '橋・鉄塔・屋根の骨組み・自転車のフレームなどを思いうかべてみよう。' },
+        { where: '③ 接合', do: 'くぎ・木ねじ・接着剤・ほぞ接ぎ・金具のカードを読み、下のクイズで場面に合う接合を選ぼう。', hint: 'カードの「よいところ」「弱いところ」と、クイズの場面の言葉(分解する・見せない・引き抜く など)を結びつけて考えよう。', go: '[role=tab][data-tab="joint"]' },
+        { where: '① 梁(はり)の「くわしく見る(発展)」', do: '「くわしく見る(発展)」を開いて、厚みを2倍にすると断面二次モーメントと安全率がどう変わるか確かめよう。', hint: '板なら I = b × t × t × t ÷ 12 なので、t が2倍になると I は8倍になります。安全率は3以上なら「余裕あり」です。', level: 'advanced' },
+        { where: '④ 設計課題', do: '課題を選び、条件(たわみ・強さの余裕)をクリアしながら、できるだけ軽い棚板を設計しよう。', hint: '「この設計で試す(記録する)」を押すと、試した記録に残ります。はじめは厚い板で条件をクリアし、そこから板を薄くしてリブを足すなど、重さが減る組み合わせを試してみよう。', level: 'advanced', go: '[role=tab][data-tab="challenge"]' },
+        { where: '④ 設計課題', do: '「ふりかえり」に、いちばんよいと思った設計とその理由、実際に作るときにほかに考えることを書こう。', hint: '重さだけでなく、費用・見た目・作りやすさ・安全の面からも考えてみよう。', level: 'advanced', reflect: true },
+        { where: '記録', do: '画面の上の「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '記録は自動で保存されます。「記録の名前」に自分の名前を入れておくと分かりやすくなります。' }
+      ],
+      check: [
+        { q: '板の梁で、たわみをより小さくできるのはどちら?', choices: ['幅を2倍にする', '厚みを2倍にする', 'どちらも同じ'], answer: 1, explain: '幅を2倍にするとたわみは約1/2ですが、厚みを2倍にすると約1/8になります。' },
+        { q: '四角い枠に筋かいを入れると、横からおしても形が変わりにくいのはなぜ?', choices: ['三角形ができ、辺の長さが変わらないかぎり形が変わらないから', '材料が重くなるから', '角(節点)がまわりやすくなるから'], answer: 0, explain: '四角形は角がまわると形が変わりますが、三角形は形を保ちます。' },
+        { q: '同じ板・同じ長さで同じ重さをのせたとき、いちばん大きく曲がる支え方はどれ?', choices: ['両はしで支えて、まん中にのせる', '両はしで支えて、全体にのせる', '片方だけ固定して、先にのせる'], answer: 2, explain: '片持ちの先に力がかかると、両はしで支えるときよりずっと大きく曲がります。' }
+      ]
+    },
+    A4: {
+      goal: '立体と第三角法の三面図・等角図の対応を読み取り、線の種類を使い分けて図をかけるようになる。',
+      time: '45分',
+      steps: [
+        { where: '① 三面図クイズ', do: '「やさしい」から始めて、左の立体に合う三面図をア〜エから選ぼう。まちがえた問題はもう一度やろう。', hint: '立体はドラッグで回せます。まちがえたら「正面から見てみる」「上から見てみる」「右から見てみる」を押して、それぞれの図とくらべよう。', go: '[role=tab][data-tab="quiz"]' },
+        { where: '② 立体づくり', do: '三面図を読んで、台のマスを押してブロックを積み、「答え合わせ」をしよう。', hint: '台の下が正面(手前)です。まず平面図でブロックがあるマスを決め、次に正面図と右側面図で高さを決めると進めやすいです。', go: '[role=tab][data-tab="build"]' },
+        { where: '③ 三面図をかく', do: '立体を見て、正面図・平面図・右側面図を方眼にかき、それぞれ「答え合わせ」をしよう。', hint: 'ボードの ● から基準線をかき始めます。見えない部分は「かくれ線」に切りかえてかこう。こまったら「ヒント」を1段階ずつ使ってみよう。', go: '[role=tab][data-tab="draw"]' },
+        { where: '④ 等角図をかく', do: '三面図を読んで、立体を等角図でかき、「答え合わせ」をしよう。', hint: '高さは縦、横と奥行きは水平から30°の向きに引きます。ヒント1の「立体がちょうど入る箱」をかいてから、いらない部分をけずるように考えよう。', go: '[role=tab][data-tab="iso"]' },
+        { where: '⑤ 線と記号', do: 'ミニテスト10問にこたえて、8問以上正解をめざそう。', hint: '「もう一度」を押すと問題が入れかわります。まちがえた線や記号は、教科書の製図のページでも確かめよう。', go: '[role=tab][data-tab="terms"]' },
+        { where: '記録・ふりかえり', do: 'ふりかえりの自己評価を選び、わかったこと・むずかしかったことを書こう。', hint: '記録の表で、できた練習とまだの練習を見くらべて書くと、次にやることがはっきりします。', reflect: true, go: '[role=tab][data-tab="record"]' },
+        { where: '記録', do: '名前を入れてから「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '記録は自動で保存されています。名前の欄に入れた名前は、書き出すファイルに入ります。' }
+      ],
+      check: [
+        { q: '等角図をかくとき、見えない部分の線はどうする?', choices: ['かくれ線(破線)でかく', 'かかない', '外形線(実線)でかく'], answer: 1, explain: '等角図は見える線だけでかきます。かくれ線は三面図で使います。' },
+        { q: '第三角法の平面図で、正面図に近い側(図の下側)は、品物のどちら側?', choices: ['正面(手前)', '奥', '右側'], answer: 0, explain: '平面図は正面図の上に置き、下側が品物の正面(手前)になります。' },
+        { q: '三面図に合うようにブロックを積むとき、正しい積み方はいくつある?', choices: ['必ず1つだけ', '三面図からは決められない', '1つとは限らない'], answer: 2, explain: '外から見えない部分のブロックの数がちがっても、同じ三面図になることがあります。' }
+      ]
+    },
+    A5: {
+      goal: '部品表・木取り図・製作図・強度の見通しを立てて、製作の計画を考えられるようになる。',
+      time: '45分',
+      steps: [
+        { where: '① 材料・部品', do: '「ひな形から部品を作る」で作るもの(はじめは本立て)と幅・奥行き・高さを決め、「この寸法で部品表を作る」を押そう。', hint: 'はじめから本立て(400×180×220mm)の部品表が入っています。使う板の長さ・幅・厚さ・枚数と、切りしろ(のこぎりで削れる幅)も確かめよう。', go: '[role=tab][data-tab="parts"]' },
+        { where: '② 木取り', do: '「まだ置いていない部品」を板の上にドラッグして、全部の部品を重ならないように置こう。', hint: '斜線と「!」が出た部品は、重なり・はみ出し・木目の向きに問題があります。R キーで回せますが、「木目に合わせる」部品は回せません。こまったら「ヒント」を押そう。', go: '[role=tab][data-tab="layout"]' },
+        { where: '③ 製作図', do: '組み立て図(等角図・第三角法)と部品図を見て、部品がどう組み合わさるか確かめよう。', hint: '第三角法では、正面図の上に平面図、右に右側面図が並びます。部品図の寸法が部品表と同じか見くらべてみよう。', go: '[role=tab][data-tab="drawing"]' },
+        { where: '④ 強度', do: '「調べる部品」で底板などを選び、荷重を変えてたわみを見よう。「くふうを比べる」で、厚くする・補強材・ほかの材料をくらべよう。', hint: 'まず、作品にのせる物の重さを考えて荷重に入れてみよう。くふうの表で、たわみがいちばん小さくなるものを見つけよう。', go: '[role=tab][data-tab="strength"]' },
+        { where: '② 木取りの歩留まり・材料費', do: '① 材料・部品で「1枚の値段」を入れ、② 木取りで部品の置き方を変えて、歩留まりと材料費をくらべよう。', hint: '歩留まりは、使う板の中で部品になる割合です。部品を板のはしに寄せて、使う板の枚数を減らせないか試してみよう。', level: 'advanced' },
+        { where: '④ 強度の「発展」', do: '④ 強度の「くわしく見る(発展)」を開いて、計算の数値を確かめよう。', hint: '安全率が3以上なら「○ 余裕あり」です。「使う板」の厚さを変えると、安全率がどう変わるか見てみよう。', level: 'advanced' },
+        { where: 'ふりかえり', do: '設計の自己評価をして、工夫したところ・直したいところを書き、技術の見方・考え方の観点を0〜5で評価しよう。', hint: '「すべての部品を板に置けた」「重なり・はみ出しがない」の印が○になっているか、先に確かめよう。', reflect: true, go: '[role=tab][data-tab="review"]' },
+        { where: '記録', do: '画面の上の「保存」を押してから「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '「作品の名前」に作るものの名前を入れておくと、先生が見たときに分かりやすくなります。' }
+      ],
+      check: [
+        { q: '切りしろとは何のこと?', choices: ['部品を接着するためにのこす幅', 'のこぎりで切るときに削れてなくなる幅', '板の節や割れのある部分'], answer: 1, explain: '部品と部品の間には、切りしろの幅のすき間が必要です。' },
+        { q: 'このアプリの部品表で、部品の「長さ」はどの方向の寸法?', choices: ['板の厚さの方向', '木目に直角の方向', '木目(繊維)の方向'], answer: 2, explain: '長さは木目(繊維)の方向の寸法です。木目の向きは部品の強さに関係します。' },
+        { q: '木取りの前に板の現物を見て確かめることはどれ?', choices: ['節・割れ・反りなど使えない部分がないか', '板の色が好きかどうか', '板の値段が書いてあるか'], answer: 0, explain: '実際の板には節・割れ・反りがあるので、その部分をさけて部品を取ります。' }
+      ]
+    },
+    A6: {
+      goal: '工具の正しい使い方の手順と、作業前の安全確認、危険の見つけ方を身に付ける。',
+      time: '40分',
+      steps: [
+        { where: '① 工具の手順', do: '両刃のこぎりを選び、手順を「次の手順 ▶」で1つずつ読んで、⚠ 注意を確かめよう。', hint: '手順の絵の !の印や○よい/×だめのくらべに注目しよう。最後の手順まで読むと「記録」に残ります。終わったら平かんな・げんのうなど、ほかの工具もやってみよう。', go: '[role=tab][data-tab="tools"]' },
+        { where: '④ 手順ならべかえ', do: '手順を読んだ工具を選んで、↑↓ボタンで正しい順番にならべ、「答え合わせ」をしよう。', hint: 'まちがえたら「手順カードで確かめる」で① 工具の手順にもどれます。各手順の「なぜその順番か」を考えながらならべよう。', go: '[role=tab][data-tab="quiz"]' },
+        { where: '③ 危険を見つける', do: '場面を1つ選び、けがや事故につながりそうなところをタップして印をつけ、「答え合わせ」をしよう。3つの場面すべてやってみよう。', hint: '人の手の位置、工具の置き場所、服そう・髪、床や通路に注目しよう。場面の一覧に危険の数が出ています。', go: '[role=tab][data-tab="kyt"]' },
+        { where: '② 作業前チェック', do: '作業開始チェックリストの8つの項目を読んで、それぞれなぜ必要か考えよう。', hint: '工作室で作業する前に、1つずつ自分の目で確かめてからチェックします。自習で作業をしないときは、項目を読むだけにして「完了」は実際の作業の前に押そう。', go: '[role=tab][data-tab="check"]' },
+        { where: '⑤ 実技の評価', do: '実際に工具を使ったあとに、姿勢・安全・精度の3つの観点で自己評価(または相互評価)をして「保存する」を押そう。', hint: 'まだ実技をしていないときは、どんな作業ができたらAになるかを読んでおこう。3つの観点すべてを選ぶと保存できます。', go: '[role=tab][data-tab="rubric"]' },
+        { where: '記録', do: '記録の「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '記録の表に、読んだ工具の手順・ならべかえ・危険を見つけるの結果が入っているか確かめてから書き出そう。', go: '[role=tab][data-tab="records"]' }
+      ],
+      check: [
+        { q: '日本の両刃のこぎりは、どのようにすると切れる?', choices: ['引くときに切れる', '押すときに切れる', '押すときも引くときも同じように切れる'], answer: 0, explain: '日本ののこぎりは引くときに切れます。押すときは力をぬきます。' },
+        { q: 'のこぎりで切り始めるとき、刃はどこに当てる?', choices: ['切断線のちょうど上', '切断線の外側(捨てる側)', '切断線の内側(使う側)'], answer: 1, explain: '切りしろの分だけ削れるので、捨てる側に刃を当てると部品が小さくなりません。' },
+        { q: '平かんなを使い終わったときの置き方はどれ?', choices: ['下面を下にして置く', '刃を出したまま立てて置く', '刃を少し引っこめ、横向きに置く'], answer: 2, explain: '下面を下にして置くと刃先がいたみ、さわったときにけがをしやすくなります。' }
+      ]
+    },
+    A7: {
+      goal: '第三角法の三面図から立体を考え、等角図・キャビネット図との関係を確かめて、寸法の入った図面にまとめられるようになる。',
+      time: '30分',
+      steps: [
+        { where: '① 三面図をかく', do: '「お手本の形」で「L字ブロック」を選んで「かきこむ」を押し、右の「できる立体」で三面図と立体の対応を確かめよう。', hint: '平面図は正面図の上、右側面図は正面図の右にあります。お手本を少し消してみて、立体がどう変わるかを見ると対応が分かります。', go: '[role=tab][data-tab="draw"]' },
+        { where: '① 三面図をかく', do: '「ぜんぶ消す」を押して、自分で考えた形の三面図をマスをぬってかこう。赤い点線のマスが出なくなるまで直そう。', hint: '赤い点線のマスは、ほかの図と位置がそろっていないマスです。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置を、3つの図でくらべてみよう。ななめの形は ◣◢◥◤ でぬれます。' },
+        { where: '② 立体を見る', do: '等角図・キャビネット図・3D(回して見る)を切りかえて、同じ立体の表し方のちがいをくらべよう。', hint: '下に出る説明の角度(30°・45°)と長さに注目しよう。3D では「正面」「上」「右」のボタンを押して、三面図のそれぞれの図と同じ形に見えるか確かめよう。', go: '[role=tab][data-tab="view"]' },
+        { where: '③ 図面・印刷', do: '図名・材料・組・番号・氏名を入れ、「寸法を入れる」にチェックして、図面の見本を確かめよう。', hint: '尺度は「自動」のままでかまいません。先生の指示があれば「印刷する」か「PDF で保存」で出そう。', go: '[role=tab][data-tab="sheet"]' },
+        { where: 'ふりかえり', do: '自己評価を選び、わかったこと・むずかしかったこと・自分の作品にどう生かしたいかを書こう。', hint: '等角図とキャビネット図のちがいを、自分の言葉で説明できるか考えてから書こう。', reflect: true, go: '[role=tab][data-tab="review"]' },
+        { where: '記録', do: '画面の上の「保存」を押してから「ファイルに書き出す」で記録を書き出して、先生の言う場所に出そう。', hint: '「作品の名前」を入れておくと、先生が見たときに分かりやすくなります。' }
+      ],
+      check: [
+        { q: 'キャビネット図で、奥行きの線はどうかく?', choices: ['水平から30°かたむけ、実物と同じ長さ', '45°かたむけ、実物の1/2の長さ', '垂直に、実物の2倍の長さ'], answer: 1, explain: 'キャビネット図は正面の形をそのままかき、奥行きは45°かたむけて長さを1/2にします。' },
+        { q: '三面図をかいたら赤い点線のマスが出た。これは何を表している?', choices: ['かくれ線をかく場所', '寸法を入れる場所', 'ほかの図と位置がそろっていないマス'], answer: 2, explain: '3つの図で幅・高さ・奥行きの位置が合っていないと、立体にならず赤い点線で知らせます。' },
+        { q: '三面図だけでは立体の形が1つに決まらないことがあるのはなぜ?', choices: ['見えない部分のくぼみなどが、外形線だけでは表せないから', '三面図は大きさを表せないから', '第三角法は正しくないから'], answer: 0, explain: '見えない部分は、かくれ線を使うと表せます。' }
+      ]
+    },
+    A8: {
+      goal: '生活の中から問題を見つけて課題を設定し、製作品を観点ごとに評価して改善・修正の方法を考えられるようになる。',
+      time: '30分',
+      steps: [
+        { where: 'はじめに', do: '問題解決の流れと、「問題」と「課題」のちがい、4つの観点(社会・安全・環境・経済)を読もう。', hint: '読み終わったら、下の「① 問題の発見から始める」を押すと次へ進めます。', go: '[role=tab][data-tab="intro"]' },
+        { where: '① 問題の発見', do: '「こうだったらいいのに」「不便だな」を付箋に3まい以上書き、観点のアイコンを付けて「＋ 付箋をはる」を押そう。', hint: '思いつかないときは「ヒント」の例を押すと書く欄に入ります。学校の机や椅子、家の物入れなど、毎日使う物を思いうかべてみよう。', go: '[role=tab][data-tab="find"]' },
+        { where: '① 問題の発見', do: '「これは問題? 課題? クイズ」にこたえて、問題と課題のちがいを確かめよう。', hint: '「こまっている」「不便」は問題、「何を、どうする(作る)」まで決めているのは課題です。' },
+        { where: '① 問題の発見', do: 'いちばん解決したい付箋に★を付け、困っている人・どうなれば解決するか・課題・観点・制約条件を書いて、わたしの課題カードを完成させよう。', hint: '課題は「文の形を入れる」を押すと、(　)が(　)ように、(　)を作る。の形が入ります。制約条件は、費用や時間など守らなければならない条件です。' },
+        { where: '② 評価、改善・修正', do: '製作品の名前を書き、観点ごとに1〜5で評価して、よかった点と改善・修正の方法を書こう。', hint: 'まだ製作品ができていないときは、「はじめの目標」の点だけ入れておこう。できあがったら「できあがり(評価)」を入れ、レーダーチャートで目標とくらべます。', go: '[role=tab][data-tab="eval"]' },
+        { where: '③ 技術の最適化', do: '社会の製品を1つ選び、観点の重みや制約条件を変えて、3つの案をそれぞれ1位にしてみよう。', hint: '「だれの立場で考える?」のボタンを押すと重みが入ります。どの重みを変えたときに1位が入れかわったかを、「気づいたこと」に書こう。', level: 'advanced', go: '[role=tab][data-tab="opt"]' },
+        { where: '振り返り', do: '自己評価を選び、分かったこと・これからの問題解決に生かしたいことを書こう。', hint: '① で決めた課題と、② の評価を見なおしてから書くと、具体的になります。', reflect: true, go: '[role=tab][data-tab="refl"]' },
+        { where: '記録', do: '記録の「ファイルに書き出す」で記録を書き出すか、「印刷する(問題解決シート)」で印刷して、先生の言う場所に出そう。', hint: 'ノートは自動で保存されています。名前が入っているか確かめてから書き出そう。', go: '[role=tab][data-tab="rec"]' }
+      ],
+      check: [
+        { q: '課題を設定するときの「制約条件」とは何?', choices: ['問題を感じている人の名前', '費用や時間など、守らなければならない条件', 'いちばん解決したい付箋'], answer: 1, explain: '制約条件は、時間・費用・材料・安全など、解決策が守らなければならない条件です。' },
+        { q: '問題解決を評価するとき、教科書ではどのように評価するとよいとしている?', choices: ['できあがった見た目だけで評価する', '友だちの製作品と点数を競う', '製作品の品質と製作工程を分けて評価する'], answer: 2, explain: '品質は図と照合したり使ってみたりして、工程は材料取り図や製作工程表、記録をもとに評価します。' },
+        { q: '技術の見方・考え方の観点として、このノートで使っていないものはどれ?', choices: ['流行', '安全性', '環境への負荷', '経済性'], answer: 0, explain: '付箋のアイコンは、社会からの要求・安全性・環境への負荷・経済性の4つの観点です。' }
+      ]
+    }
+  }
+};
+
 </script>
 <script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: 'A7 第三角法 立体メーカー' };</script>
 <script>
@@ -762,6 +1001,15 @@ window.EDUIT_INFO.textbook = {
  *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
  *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -785,23 +1033,29 @@ window.EDUIT_INFO.textbook = {
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
 
   // ---- 振り返りを隠す設定 ----
-  var FK_KEY = 'eduit.furikaeri';
-  function furikaeriSetting() {
-    var w = window, v = null;
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
     for (var i = 0; i < 8 && v === null; i++) {
       try {
-        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
-        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
-        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
       } catch (e) { break; }  // ちがうサイトの親は見ない
       if (w === w.parent) break;
       w = w.parent;
     }
-    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
-    return v !== 'off';
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
   }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
   var furikaeri = furikaeriSetting();
   if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -982,6 +1236,11 @@ window.EDUIT_INFO.textbook = {
           var go = c.querySelector('.ef-mcard-go');
           c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
         }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
         if (!tb || !tb.groups) { grid.appendChild(c); return; }
         var gi = 0;
         tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
@@ -995,6 +1254,7 @@ window.EDUIT_INFO.textbook = {
         blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
       if (opts.code && cur === 'basic') {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
@@ -1135,8 +1395,226 @@ window.EDUIT_INFO.textbook = {
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 
 </script>
