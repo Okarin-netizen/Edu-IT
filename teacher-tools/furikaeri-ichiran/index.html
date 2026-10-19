@@ -96,7 +96,7 @@
 <script>
 (function () {
   'use strict';
-  var DOMAINS = { A: 'A 材料と加工', B: 'B 生物育成', C: 'C エネルギー変換', D: 'D 情報' };
+  var DOMAINS = { G: 'G ガイダンス', A: 'A 材料と加工', B: 'B 生物育成', C: 'C エネルギー変換', D: 'D 情報' };
   var files = [];   // { name, ok, format, error, entries }
   var tab = 'list';
   var $ = function (id) { return document.getElementById(id); };
@@ -188,7 +188,9 @@
     files.forEach(function (f) { (f.entries || []).forEach(function (e) { out.push({ s: canon(e.student), domain: e.domain, app: e.app, n: e.rows.filter(function (r) { return r.type === 'ふりかえり'; }).length }); }); });
     return out;
   }
-  function appOrder(a, b) { return a.domain < b.domain ? -1 : a.domain > b.domain ? 1 : FKR.natural(a.app, b.app); }
+  // 分野の順: G(ガイダンス)→ A → B → C → D
+  function domIdx(d) { var i = 'GABCD'.indexOf(d); return i < 0 ? 9 : i; }
+  function appOrder(a, b) { return domIdx(a.domain) - domIdx(b.domain) || FKR.natural(a.app, b.app); }
 
   /* ---------- 絞りこみ ---------- */
   function fillSelect(sel, values, all) {
@@ -201,7 +203,7 @@
   function updateFilters() {
     var ents = allEntries(), doms = {}, apps = {}, clss = {};
     ents.forEach(function (e) { doms[e.domain] = 1; clss[e.s.cls] = 1; });
-    fillSelect($('f-domain'), Object.keys(doms).sort().map(function (d) { return [d, DOMAINS[d]]; }), 'すべて');
+    fillSelect($('f-domain'), Object.keys(doms).sort(function (x, y) { return domIdx(x) - domIdx(y); }).map(function (d) { return [d, DOMAINS[d]]; }), 'すべて');
     var dom = $('f-domain').value;
     ents.forEach(function (e) { if (!dom || e.domain === dom) apps[e.domain + '\u0001' + e.app] = e; });
     fillSelect($('f-app'), Object.keys(apps).map(function (k) { return apps[k]; }).sort(appOrder).map(function (e) { return [e.app, e.app]; }), 'すべて');
