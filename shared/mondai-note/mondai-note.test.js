@@ -68,3 +68,13 @@ test('こわれた中身もノートの形にそろう・要約が作れる', ()
   assert.match(s[1].rows.find(r => r[0] === '観点ごとの評価(5段階)')[1], /機能 4/);
   assert.ok(MN.radarSVG(['a', 'b', 'c'], [{ values: [1, 2, 3] }]).startsWith('<svg'));
 });
+
+test('形のちがう値(数・文字・null)も直る', () => {
+  const d = MN.normalize({ task: { problem: 5, who: null }, ev: { mode: 'x', res: 'abc' }, student: { no: 15 } }, 'B');
+  assert.strictEqual(d.task.problem, '5');
+  assert.strictEqual(d.task.who, '');
+  assert.strictEqual(d.ev.mode, 'res');
+  assert.deepStrictEqual(d.ev.res, {});
+  assert.strictEqual(d.student.no, '15');
+  assert.ok(MN.summary(d, 'B').length === 4);
+});

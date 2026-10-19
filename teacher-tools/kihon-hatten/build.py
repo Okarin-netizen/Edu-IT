@@ -10,7 +10,11 @@ import html, json, pathlib, subprocess
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent.parent
 out = here / "dist" / "基本編と発展編.html"
-data = json.loads(subprocess.run(["node", str(here / "extract.cjs")], check=True, capture_output=True, text=True).stdout)
+proc = subprocess.run(["node", str(here / "extract.cjs")], capture_output=True, text=True, encoding="utf-8")
+if proc.returncode != 0:
+    # extract.cjs のエラー(levels の id がメニューにない など)を、そのまま見せて止める
+    raise SystemExit(f"extract.cjs でエラーになりました:\n{proc.stderr.strip()}")
+data = json.loads(proc.stdout)
 
 # 配布用フォルダ(クラスルーム配布/生徒に配る/)の統一版のファイル名
 FILES = {"A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html"}

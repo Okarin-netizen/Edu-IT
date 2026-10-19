@@ -24,8 +24,23 @@ for d in (student, teacher):
 
 
 def copy(src, dst):
+    if not src.is_file():
+        raise SystemExit(f"{src.relative_to(repo)} がありません。先にその分野のビルドをしてから、もう一度実行してください")
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
+
+
+HEAD_LIMIT = 2000  # <head> はファイルの先頭のほうにあるはず(これより後ろなら、ちがう <head> を見つけている)
+
+
+def add_after_head(src, dst, tag):
+    """src の <head> のすぐあとに tag(設定を決める <script>)を入れて dst に書く"""
+    html = src.read_text(encoding="utf-8")
+    m = re.search(r"<head[^>]*>", html)
+    if not m or m.start() > HEAD_LIMIT or "window.EduitFrame" not in html:
+        raise SystemExit(f"{src}: 設定を入れた版を作れません(<head> か共通の枠が見つからない)")
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(html[:m.end()] + tag + html[m.end():], encoding="utf-8")
 
 
 # ---- 生徒に配る(1分野につき1ファイルの統一版。どれもメニューが「基本編」「発展編」に分かれている) ----
@@ -128,13 +143,7 @@ FK_TAG = "<script>window.EDUIT_FURIKAERI = 'off';</script>"
 for p in sorted(student.rglob("*.html")):
     if nofk in p.parents:
         continue
-    html = p.read_text(encoding="utf-8")
-    m = re.search(r"<head[^>]*>", html)
-    if not m or m.start() > 2000 or "window.EduitFrame" not in html:
-        raise SystemExit(f"{p}: 振り返りなし版を作れません(<head> か共通の枠が見つからない)")
-    out = nofk / p.relative_to(student)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html[:m.end()] + FK_TAG + html[m.end():], encoding="utf-8")
+    add_after_head(p, nofk / p.relative_to(student), FK_TAG)
 
 # ---- 自習用(生徒に配るものと同じ中身で、自習モードを入れた版) ----
 # 先生の説明なしで進めるときに配る。<head> のすぐあとに window.EDUIT_JISHU = 'on' を入れるだけ
@@ -144,11 +153,7 @@ JS_TAG = "<script>window.EDUIT_JISHU = 'on';</script>"
 for p in sorted(student.rglob("*.html")):
     if nofk in p.parents or jishu in p.parents:
         continue
-    html = p.read_text(encoding="utf-8")
-    m = re.search(r"<head[^>]*>", html)
-    out = jishu / p.relative_to(student)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html[:m.end()] + JS_TAG + html[m.end():], encoding="utf-8")
+    add_after_head(p, jishu / p.relative_to(student), JS_TAG)
 
 # ---- 自習ワークシート(教材ごとに1枚。タブレットで書きこむか印刷して使う)と、その答え(先生用) ----
 # 中身は自習ガイドと同じ eduit-info.js の jishu。振り返りなし・自習用の版は作らない(上の2つのあとで入れる)

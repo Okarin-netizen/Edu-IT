@@ -19,6 +19,7 @@ const names = { G: { G: "技術分野のガイダンス" }, A: {}, B: {}, C: {},
 }
 {
   const m = read("B-bio/build/menu.html").match(/^var APPS = (\{.*\});$/m);
+  if (!m) throw new Error("B-bio/build/menu.html: var APPS = {…}; の行が見つかりません");
   for (const a of Object.values(JSON.parse(m[1]))) names.B[a.code] = a.plain;
 }
 for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(C\d)'.*?name='([^']+)'/g)) names.C[m[1]] = m[2];
@@ -34,7 +35,7 @@ for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bi
     if (!names[key][code]) throw new Error(`${dir}/eduit-info.js: jishu の記号「${code}」がメニューにありません`);
     apps.push(Object.assign({ code, name: names[key][code] }, a));
   }
-  apps.sort((a, b) => parseInt(a.code.slice(1)) - parseInt(b.code.slice(1)));
+  apps.sort((a, b) => (parseInt(a.code.slice(1), 10) || 0) - (parseInt(b.code.slice(1), 10) || 0));  // A2 < A10(G は番号なし)
   out.push({ domain: key, domainName: I.domainName, version: I.version, lead: J.lead || "", apps });
 }
 process.stdout.write(JSON.stringify(out));

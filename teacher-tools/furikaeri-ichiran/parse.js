@@ -289,7 +289,7 @@
       mondaiRows(R, d.note);
       return [{ domain: 'C', app: C_APPS.C8, student: student(ns.cls || who.cls, ns.no, ns.name || who.name), rows: R.rows }];
     }
-    return [{ domain: 'C', app: C_APPS[obj.app] || String(obj.app), student: student(who.cls, '', who.name), rows: R.rows }];
+    return [{ domain: 'C', app: C_APPS[obj.app] || str(obj.app), student: student(who.cls, '', who.name), rows: R.rows }];
   }
 
   /* ================= D 情報 ================= */
@@ -524,7 +524,9 @@
       var a = ADAPTERS[i];
       if (!Array.isArray(obj) && !a[1](obj)) continue;
       if (Array.isArray(obj) && a[2] !== parseA) continue;
-      var entries = a[2](obj);
+      var entries;
+      // 形は合っていても、中の値が思っていた形でない(手で直したファイルなど)ときは、止めずに「読めなかった」にする
+      try { entries = a[2](obj); } catch (e) { return { ok: false, format: a[0], error: '記録の中に読めないところがありました' }; }
       if (!entries.length) return { ok: false, format: a[0], error: '記録が入っていませんでした' };
       var fromFile = studentFromFile(fileName || '');
       entries.forEach(function (e) {

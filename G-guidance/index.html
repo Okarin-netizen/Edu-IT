@@ -445,8 +445,15 @@
       t3: { q: {}, user: '', frame: '', power: '', light: '', tried: [], why: '' }, t4: { q: {}, qb: {}, ord: {}, problem: '', kadai: '' },
       t5: { q: {}, fav: '', goal: '' }, refl: { self: {}, learned: '', next: '' }, who: { cls: '', no: '', name: '' } };
   }
+  function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
+  // 保存していた中身を blank() に重ねる。形のちがう値(配列のはずが文字など)は入れない(こわれた保存で止まらないように)
   function merge(a, b) {
-    for (var k in b) if (b[k] !== null && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object') merge(a[k], b[k]); else a[k] = b[k];
+    for (var k in b) {
+      if (k === '__proto__') continue;
+      var av = a[k], bv = b[k];
+      if (isObj(av) && isObj(bv)) merge(av, bv);
+      else if (av === undefined || (typeof av === typeof bv && Array.isArray(av) === Array.isArray(bv))) a[k] = bv;
+    }
     return a;
   }
   var S = blank();
@@ -535,8 +542,16 @@
   }
 
   // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
+  var FS_STEPS = [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']];  // 文字の大きさの段(倍率)
   var prefs = { ruby: false, fs: 1 };
-  try { var pr = JSON.parse(localStorage.getItem(PREF) || 'null'); if (pr) { prefs.ruby = !!pr.ruby; prefs.fs = +pr.fs || 1; } } catch (e) {}
+  try {
+    var pr = JSON.parse(localStorage.getItem(PREF) || 'null');
+    if (pr) {
+      prefs.ruby = !!pr.ruby;
+      var fs = +pr.fs;  // 段の範囲の外(こわれた値)は「中」にもどす
+      prefs.fs = fs >= FS_STEPS[0][0] && fs <= FS_STEPS[FS_STEPS.length - 1][0] ? fs : 1;
+    }
+  } catch (e) {}
   function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
   function applyPrefs() {
     root.classList.toggle('g-noruby', !prefs.ruby);
@@ -545,7 +560,7 @@
   }
   $('g-ruby').addEventListener('click', function () { prefs.ruby = !prefs.ruby; savePrefs(); applyPrefs(); });
   EduitFrame.sizeButton($('g-size'), {
-    steps: [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']],
+    steps: FS_STEPS,
     get: function () { return prefs.fs; },
     set: function (v) { prefs.fs = v; savePrefs(); applyPrefs(); }
   });
@@ -878,7 +893,7 @@
     ['t1', '① 工夫・創造: 発想のしかたクイズ ' + Q1.length + '問・製品の工夫', function () { return quizOk(Q1, S.t1.q) + ' / ' + Q1.length + ' 正解'; }],
     ['t2', '② 歩みと未来: 古い順にならべる ' + HIST.length + 'つ・かなえたい夢', function () { return ordOk(HIST, S.t2.ord) + ' / ' + HIST.length + ' 正解'; }],
     ['t3', '③ 見方・考え方: 4つの視点 ' + Q3.length + '問・自転車の設計', function () { return quizOk(Q3, S.t3.q) + ' / ' + Q3.length + ' 正解'; }],
-    ['t4', '④ 問題解決: 問題?課題?・流れ・ニーズ?シーズ?・自分の問題と課題', function () { return (quizOk(Q4, S.t4.q) + ordOk(FLOW, S.t4.ord) * 1 + quizOk(Q4B, S.t4.qb)) + ' / ' + (Q4.length + 1 + Q4B.length) + ' 正解'; }],
+    ['t4', '④ 問題解決: 問題?課題?・流れ・ニーズ?シーズ?・自分の問題と課題', function () { return (quizOk(Q4, S.t4.q) + ordOk(FLOW, S.t4.ord) + quizOk(Q4B, S.t4.qb)) + ' / ' + (Q4.length + 1 + Q4B.length) + ' 正解'; }],
     ['t5', '⑤ 4つの分野: どの分野の技術? ' + Q5.length + '問・3年間の目標', function () { return quizOk(Q5, S.t5.q) + ' / ' + Q5.length + ' 正解'; }],
     ['refl', '振り返り']
   ];
@@ -906,9 +921,11 @@
     };
   }
   $('g-export').addEventListener('click', function () {
-    var who = [S.who.cls, S.who.no].filter(Boolean).join('-');
+    // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
+    var safe = function (v) { return String(v || '').replace(/[\\/:*?"<>|\s]/g, ''); };
+    var who = [safe(S.who.cls), safe(S.who.no)].filter(Boolean).join('-');
     var d = new Date(), ds = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
-    var name = 'G_ガイダンス_' + (who ? who + '_' : '') + (S.who.name ? S.who.name.replace(/[\\/:*?"<>|\s]/g, '') + '_' : '') + ds + '.json';
+    var name = 'G_ガイダンス_' + (who ? who + '_' : '') + (safe(S.who.name) ? safe(S.who.name) + '_' : '') + ds + '.json';
     try {
       var blob = new Blob([JSON.stringify(exportObj(), null, 2)], { type: 'application/json' });
       var a = document.createElement('a');

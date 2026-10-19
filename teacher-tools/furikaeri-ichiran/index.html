@@ -120,15 +120,19 @@
     list = Array.prototype.filter.call(list, function (f) { return /\.json$/i.test(f.name); });
     if (!list.length) return;
     Promise.all(list.map(function (f) {
-      return f.text().then(function (t) {
-        var name = f.webkitRelativePath || f.name;
-        var r;
-        try { r = FKR.parse(JSON.parse(t.replace(/^﻿/, '')), f.name); }
-        catch (e) { r = { ok: false, error: 'JSON として読めませんでした' }; }
+      var name = f.webkitRelativePath || f.name;
+      function put(r) {
         r.name = name;
         files = files.filter(function (x) { return x.name !== name; });
         files.push(r);
-      });
+      }
+      // 1つのファイルが読めなくても(消された・権限がないなど)、ほかのファイルは表に出す
+      return f.text().then(function (t) {
+        var obj;
+        try { obj = JSON.parse(t.replace(/^﻿/, '')); }
+        catch (e) { put({ ok: false, error: 'JSON として読めませんでした' }); return; }
+        put(FKR.parse(obj, f.name));
+      }, function () { put({ ok: false, error: 'ファイルを開けませんでした' }); });
     })).then(refresh);
   }
   $('pick-files').addEventListener('change', function (e) { readFiles(e.target.files); e.target.value = ''; });
