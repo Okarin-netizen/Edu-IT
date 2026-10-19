@@ -69,7 +69,7 @@
  */
 (function () {
   'use strict';
-  var AUTHOR = '羽生市立南中学校　技術　岡田';
+  var AUTHOR = '技術　岡田';
   var info = window.EDUIT_INFO || {};
   var app = info.app || {};
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);

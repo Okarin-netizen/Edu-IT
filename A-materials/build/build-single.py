@@ -95,7 +95,7 @@ def main(out):
 <noscript><p>JavaScript を有効にしてください。</p></noscript>
 <iframe id="view" title="教材アプリ"></iframe>
 <script>
-/* 材料と加工の技術 教材集 1ファイル版(作成: 羽生市立南中学校 技術 岡田) */
+/* 材料と加工の技術 教材集 1ファイル版(作成: 技術 岡田) */
 (function () {
   'use strict';
   var DATA = %(data)s;

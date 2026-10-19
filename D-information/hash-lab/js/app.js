@@ -302,7 +302,7 @@
       h('div', { class: 'module-head' },
         h('h1', { class: 'sec-title', text: APP }),
         h('p', { class: 'meta' }, 'ハッシュ関数は、どんなデータからも決まった長さの「ハッシュ値」を作る計算です。ハッシュ値は「データの指紋」のようなもので、パスワードを守ったり、書きかえ(改ざん)を見つけたりするのに使われています。自分で動かして、そのしくみを確かめよう。'),
-        h('p', { class: 'muted author', text: '作成：羽生市立南中学校 技術 岡田' })),
+        h('p', { class: 'muted author', text: '作成：技術 岡田' })),
       h('section', { class: 'card' },
         h('h2', { text: 'ハッシュ化とは' }),
         h('div', { class: 'flow', role: 'img', 'aria-label': '文をハッシュ関数に入れると、ハッシュ値が出てくる' },

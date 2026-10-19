@@ -284,7 +284,7 @@
       h('div', { class: 'module-head' },
         h('h1', { class: 'sec-title', text: '生成AIのしくみラボ' }),
         h('p', { class: 'meta' }, '生成AIは、文章や絵などを「新しく作る」AIです。ブラウザの中で動く小さな模型のAIを自分で動かして、どうやって作っているのか、使うときに何に気をつけるのかを確かめよう。'),
-        h('p', { class: 'muted author', text: '作成：羽生市立南中学校 技術 岡田' })),
+        h('p', { class: 'muted author', text: '作成：技術 岡田' })),
       h('section', { class: 'card' },
         h('h2', { text: '生成AIが作るまでの3つの手順' }),
         h('p', { text: '文章をつくるAIも、画像をつくるAIも、次の3つの手順で作ります。どのステップでも、この手順が出てきます。' }),
