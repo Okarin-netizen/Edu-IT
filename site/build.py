@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """生徒用の公開サイト(GitHub Pages)を _site/ に作る。実行: python3 site/build.py
 
-入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ の4つの統一版と自習ワークシート(ws/)。
+入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ のガイダンス(g.html)・4つの統一版・自習ワークシート(ws/)。
 先生用ガイド(クラスルーム配布/先生用/)と teacher-tools/ は入れない。
-アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html という名前で置き、
-a.html〜d.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
+アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html(ガイダンスは apps/g.html)という名前で置き、
+a.html〜d.html・g.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
 先に python3 クラスルーム配布/まとめる.py で 生徒に配る/ を新しくしておく(.github/workflows/pages.yml は今あるファイルをそのまま使う)。
 """
 import pathlib, re, shutil
@@ -15,6 +15,7 @@ student = repo / "クラスルーム配布/生徒に配る"
 out = repo / "_site"
 
 PAGES = {
+    "G_技術分野のガイダンス.html": "g.html",
     "A_材料と加工_統一版.html": "a.html",
     "B_生物育成_統一版.html": "b.html",
     "C_エネルギー変換_統一版.html": "c.html",
@@ -77,7 +78,7 @@ FRAME = """<!doctype html>
 </body>
 </html>
 """
-TITLES = {"a.html": "材料と加工の技術 教材集", "b.html": "生物育成の技術 教材集", "c.html": "エネルギー変換の技術 教材集", "d.html": "情報の技術 教材集"}
+TITLES = {"g.html": "技術分野のガイダンス", "a.html": "材料と加工の技術 教材集", "b.html": "生物育成の技術 教材集", "c.html": "エネルギー変換の技術 教材集", "d.html": "情報の技術 教材集"}
 
 (out / "apps").mkdir()
 for src, dst in PAGES.items():
@@ -96,7 +97,7 @@ for src, dst in PAGES.items():
 
 # 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html に置く。
 # 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に入口へもどるリンクを足す
-WS = {"A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
+WS = {"G_技術分野のガイダンス_ワークシート.html": "g.html", "A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
       "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html"}
 (out / "ws").mkdir()
 for src, dst in WS.items():

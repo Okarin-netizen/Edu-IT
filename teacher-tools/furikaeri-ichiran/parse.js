@@ -453,8 +453,38 @@
     });
   }
 
+  /* ================= G 技術分野のガイダンス(G-guidance/index.html) =================
+   * { schema: 'eduit-guidance/1', app: 'G', exported, student: { cls, no, name }, score: { t1…t5 }, data: { first, t1…t5, refl } } */
+  var G_SELF = [['idea', '身の回りの製品に、問題を解決するための工夫があることが分かった'], ['view', '技術の見方・考え方(4つの視点)で、製品を見ることができた'],
+    ['flow', '問題と課題のちがいと、問題解決の流れが分かった'], ['plan', '4つの分野で何を学ぶかが分かり、3年間の目標を持てた']];
+  var G_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
+  var G_BIKE = { student: '通学する中学生', elder: '坂の多い町のお年寄り', racer: '自転車レースの選手', eco: '町のシェアサイクル',
+    iron: '鉄', alumi: 'アルミニウム', carbon: '炭素繊維', human: '人の力だけ', assist: '電動アシスト', battery: '電池のライト', dynamo: '自動でつくライト' };
+  function parseG(obj) {
+    var d = isObj(obj.data) ? obj.data : {}, sc = isObj(obj.score) ? obj.score : {}, st = isObj(obj.student) ? obj.student : {}, R = Rows(obj.exported);
+    var g = function (k) { return isObj(d[k]) ? d[k] : {}; };
+    var t1 = g('t1'), t2 = g('t2'), t3 = g('t3'), t4 = g('t4'), t5 = g('t5'), rf = g('refl'), sf = isObj(rf.self) ? rf.self : {};
+    if (Array.isArray(d.first)) R.add('ふりかえり', 'はじめに', '身の回りの技術', d.first.map(str).filter(Boolean).join('・'));
+    R.add('成績', '① 工夫・創造', '発想のしかたクイズ', sc.t1);
+    R.add('ふりかえり', '① 工夫・創造', '製品の工夫', [str(t1.product), str(t1.problem), str(t1.idea)].filter(Boolean).join(' / '));
+    R.add('成績', '② 歩みと未来', '古い順にならべる', sc.t2);
+    R.add('ふりかえり', '② 歩みと未来', '技術でかなえたい夢', t2.dream);
+    R.add('成績', '③ 見方・考え方', '4つの視点の仕分け', sc.t3);
+    if (t3.user) R.add('ふりかえり', '③ 見方・考え方', '自転車の設計', [t3.user, t3.frame, t3.power, t3.light].map(function (k) { return G_BIKE[k] || str(k); }).filter(Boolean).join(' / ') + (str(t3.why) ? ': ' + str(t3.why) : ''));
+    R.add('成績', '④ 問題解決', '問題?課題?・流れ・ニーズ?シーズ?', sc.t4);
+    R.add('ふりかえり', '④ 問題解決', '問題', t4.problem);
+    R.add('ふりかえり', '④ 問題解決', '課題', t4.kadai);
+    R.add('成績', '⑤ 4つの分野', 'どの分野の技術?', sc.t5);
+    R.add('ふりかえり', '⑤ 4つの分野', '楽しみな分野と目標', [str(t5.fav), str(t5.goal)].filter(Boolean).join(': '));
+    G_SELF.forEach(function (s) { R.add('自己評価', '振り返り', s[1], G_LV[sf[s[0]]]); });
+    R.add('ふりかえり', '振り返り', '技術とは何か', rf.learned);
+    R.add('ふりかえり', '振り返り', 'これからがんばりたいこと', rf.next);
+    return [{ domain: 'G', app: 'G 技術分野のガイダンス', student: student(st.cls, st.no, st.name), rows: R.rows }];
+  }
+
   /* ================= 形の見分け(上から順に試す) ================= */
   var ADAPTERS = [
+    ['G 技術分野のガイダンス', function (o) { return o.schema === 'eduit-guidance/1' && o.app === 'G'; }, parseG],
     ['情報の技術 体験教材集(記録まとめ)', function (o) { return o.kind === '記録まとめ' && Array.isArray(o.materials); }, parseKyozai],
     ['材料と加工', function (o) {
       return o.schema === 'gijutsu-bundle/1' || o.schema === 'gijutsu-artifact/1' ||

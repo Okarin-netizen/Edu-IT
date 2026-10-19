@@ -30,11 +30,14 @@ def copy(src, dst):
 
 # ---- 生徒に配る(1分野につき1ファイルの統一版。どれもメニューが「基本編」「発展編」に分かれている) ----
 STUDENT = {
+    "G": "G_技術分野のガイダンス.html",  # 4分野の前に1回使うガイダンス(分野に入らないので記号は G)
     "A": "A_材料と加工_統一版.html",
     "B": "B_生物育成_統一版.html",
     "C": "C_エネルギー変換_統一版.html",
     "D": "D_情報の技術_統一版.html",
 }
+subprocess.run([sys.executable, str(repo / "G-guidance/build.py")], check=True)  # → G-guidance/dist/
+copy(repo / "G-guidance/dist/技術分野のガイダンス.html", student / STUDENT["G"])
 subprocess.run([sys.executable, str(repo / "A-materials/build/build-single.py")], check=True)  # → A-materials/dist/
 copy(repo / "A-materials/dist/材料と加工_教材アプリ.html", student / STUDENT["A"])
 copy(repo / "B-bio/dist/生物育成教材集.html", student / STUDENT["B"])
@@ -49,6 +52,7 @@ for m in data["materials"]:
 # 先生用のファイルの名前は「分野_名前.html」にそろえる。分野ごとの先生用ガイドは、どれも同じ章立て・同じ見た目
 # (shared/eduit-guide.css)で、名前は「X_分野名_先生用ガイド.html」。4分野共通の道具は「全分野_名前.html」。
 TEACHER = {
+    "G": "G_技術分野のガイダンス_先生用ガイド.html",
     "A": "A_材料と加工_先生用ガイド.html",
     "B": "B_生物育成_先生用ガイド.html",
     "C": "C_エネルギー変換_先生用ガイド.html",
@@ -101,7 +105,8 @@ a7 = build_single.inline("a7-solid-maker/index.html")
 a7 = a7.replace("</head>", "<style>.ef-back { display: none !important; }</style>\n</head>", 1)
 (single / "A7_第三角法_立体メーカー.html").write_text(a7, encoding="utf-8")
 
-# 分野ごとの先生用ガイド
+# 分野ごとの先生用ガイド(G はガイダンス)
+guide(repo / "G-guidance/dist/先生用ガイド.html", "G", built=True)
 guide(repo / "A-materials/docs/先生用ガイド.html", "A")
 guide(repo / "B-bio/dist/先生用ガイド.html", "B", built=True)
 guide(repo / "C-energy/docs/先生用ガイド.html", "C", built=True)
@@ -149,7 +154,7 @@ for p in sorted(student.rglob("*.html")):
 # 中身は自習ガイドと同じ eduit-info.js の jishu。振り返りなし・自習用の版は作らない(上の2つのあとで入れる)
 subprocess.run([sys.executable, str(repo / "worksheet/build.py")], check=True)
 ws_src = repo / "worksheet/dist"
-for k in ("A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術"):
+for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術"):
     copy(ws_src / f"{k}_ワークシート.html", student / "ワークシート" / f"{k}_ワークシート.html")
 copy(ws_src / "ワークシートの答え.html", teacher / "全分野_ワークシートの答え.html")
 
