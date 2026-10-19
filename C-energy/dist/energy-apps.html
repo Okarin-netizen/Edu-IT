@@ -229,6 +229,87 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 }
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
 </style>
 <script>
 /* エネルギー変換の技術 教材集(C1〜C8)の版・更新履歴など。
@@ -240,8 +321,8 @@ window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
   suite: 'エネルギー変換の技術 教材集',
-  version: '1.7',
-  updated: '2026-10-18',
+  version: '1.8',
+  updated: '2026-10-19',
   safety: [
     'C2 電気回路ラボ・C5 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
     'C3・C4 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
@@ -249,6 +330,7 @@ window.EDUIT_INFO = {
     'C6 で本物の扇風機と羽根の模型を使うときは、回っている羽根に指や顔を近づけないでください。C7 の回路はシミュレーションです。コンセントや送電線に物をさしこんだり、近づいたりしないでください。'
   ],
   history: [
+    { version: '1.8', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)'] },
     { version: '1.7', date: '2026-10-18', items: [
       'ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)',
       'メニューの上のバー(最初の画面の上の帯)を4分野でそろえた: 左に記号と「〇〇の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ(字だけ・同じ大きさ)。「全画面」はアプリを開いたときの上のバーだけにした',
@@ -355,6 +437,158 @@ window.EDUIT_INFO.textbook = {
     'C8': { g: 'solve', ref: '3編2章 1・4、3章 1' }
   }
 };
+
+/* 自習ガイド(自習モードのとき、各教材の右はしに出す「ねらい・進め方・ヒント・たしかめ問題」。shared/eduit-frame.js が使う)
+ * apps の記号ごとに goal・time・steps(where・do・hint・go・level・reflect)・check(q・choices・answer・explain)。形は shared/README.md の「自習モード」。
+ * where は画面のタブ・ページの名前(levels の parts と同じ番号)にそろえる。教材のタブの名前を変えたら、ここも直す。
+ */
+window.EDUIT_INFO.jishu = {
+  lead: 'エネルギー変換は、C1 で変換と効率をつかみ、C2〜C4 で電気回路・機構・保守点検を確かめ、C5 で回路を設計し、C6・C7 で発電と送電を学び、C8 で問題解決の流れをまとめます。',
+  apps: {
+    C1: {
+      goal: '部品をつないでエネルギーの形が変わっていくようすをたどり、効率・CO₂・費用をくらべて、目的に合った組み合わせを考えられるようになる。',
+      time: '45分',
+      steps: [
+        { where: '❓ 使い方', do: '最初に出る「使い方」を読んで「はじめる」を押そう。部品を選ぶ → 置く → つなぐ → 「⚡ スイッチON(ためす)」の順をおぼえよう。', hint: '「❓ 使い方」でいつでも見直せます。部品の左右の丸(エネルギーの形)が同じ色どうしだけつなげます。', go: '.e1-top [data-act="howto"]' },
+        { where: 'ステージ1〜3(懐中電灯・自転車のライト・クレーン)', do: 'まず★1つ(明かりがつく・荷物が上がる)をめざそう。クリアしたら「ふりかえり」の問題に答え、できたら★3つにも挑戦しよう。', hint: '「🎯 目標」で★の条件を、「💡 ヒント」でつなぐ順番を確かめよう。スイッチONのあと、足りない理由が上に出ます。効率の★は、熱になるロスが少ない部品を選ぶと取りやすくなります。', go: '.e1-top [data-act="stages"]' },
+        { where: 'ステージ4・5(火力発電所・再生可能エネルギー)', do: '燃料からはじめて家まで電気を届けよう。ステージ5では CO₂ を出さない発電だけで届けよう。', hint: '燃料1つでは足りないときは、いくつか置いて同じボイラーにつなごう。スイッチONのあとのサンキー図で、どこでいちばん多く熱になって逃げているかを見てみよう。くもりの日は太陽の光が40%しかないので、ほかの発電と組み合わせよう。' },
+        { where: 'ステージ6 町の電源を決めよう', do: '「晴れの昼」「くもりの昼」「夜」を切りかえて、どの時間も家と工場に電気が届く組み合わせをつくろう。答えは1つではありません。', hint: 'まず天気に左右されない発電を1つつくり、足りない時間を確かめてから、ほかの発電で足そう。費用は「💴 発電方法の値段くらべ」も参考になります。' },
+        { where: 'ステージ7 たこ足配線に注意', do: 'ドライヤー・電気ポット・テレビ・スマホ充電を、どのコンセントも1500Wをこえないように安全につなごう。', hint: '器具ごとの消費電力(W)と、コンセントごとの合計を見てみよう。電気をたくさん使う器具どうしを同じコンセントにすると、すぐにこえてしまいます。' },
+        { where: 'ステージ8・自由・💴 発電方法の値段くらべ', do: '蓄電池を使って、昼の電気を夜にも使えるようにしよう。そのあと自由実験で、CO₂ がいちばん少ない組み合わせと、いちばん安い組み合わせをくらべよう。', hint: '「昼」「夜」のボタンで、時間ごとの流れを見てみよう。昼に余った電気がないと、夜にためた分も足りません。', level: 'advanced' },
+        { where: '記録', do: '★と「ふりかえり」の結果は、この端末に自動で保存されます。「☰ ステージ」で★の数を確かめ、先生の言う方法で見せよう。', hint: 'このアプリには提出用のファイルを作るボタンはありません。同じ端末・同じブラウザなら、続きからできます。' }
+      ],
+      check: [
+        { q: 'ある部品に100のエネルギーが入り、目的の形で40出ていった。この部品のエネルギー変換効率は?', choices: ['40%', '60%', '140%'], answer: 0, explain: '効率は、目的に使われたエネルギー ÷ 入ったエネルギー。残りの60は熱などになって逃げたエネルギー損失です。' },
+        { q: '火力発電所で、エネルギーの形が変わる順として正しいものは?', choices: ['熱 → 化学 → 電気 → 運動', '化学 → 電気 → 熱 → 運動', '化学 → 熱 → 運動 → 電気'], answer: 2, explain: '燃料の化学エネルギーを燃やして熱にし、蒸気でタービンを回し(運動)、発電機で電気にします。' },
+        { q: '次のうち、再生可能エネルギーはどれ?', choices: ['天然ガス', '風', 'ウラン', '石炭'], answer: 1, explain: '風や太陽の光はなくならず、発電のときに CO₂ を出しません。天然ガス・石炭・ウランは量に限りがある資源です。' }
+      ]
+    },
+    C2: {
+      goal: '回路は電流が流れる1周の道であることを、直列・並列・スイッチ・モーターで確かめ、ヒューズ・ブレーカー・漏電遮断器が事故を防ぐしくみを説明できるようになる。',
+      time: '45分',
+      steps: [
+        { where: '📋 課題', do: '「📋 課題」を押して、課題1から順に選ぼう。はじめに出る説明を読んでから始めよう。', hint: '部品を選んで点と点の間をタップすると置けます。導線は「〰️ 導線」を選んで点から点へなぞります。困ったら「❓ 使い方」と「💡 ヒント」を見てみよう。', go: '.e2-top [data-act="chals"]' },
+        { where: '課題1〜4 豆電球・スイッチ・直列・並列', do: '豆電球を光らせ、スイッチ・直列・並列の回路をつくろう。クリアしたら「ふりかえり」の問題に答えよう。', hint: '豆電球をタップすると、電圧と電流が右に出ます。直列と並列で、豆電球の明るさや電圧がどう変わるかくらべてみよう。' },
+        { where: '課題5 モーターを逆に回そう', do: 'スイッチを入れて回る向きを見てから、モーターを反対向きに回そう。', hint: 'モーターは動かせませんが、乾電池はタップすると「🔄 向きを逆に」ができます。電池が2個あることに注意しよう。' },
+        { where: '課題6・7 ヒューズ・ブレーカー', do: 'ヒューズやブレーカーが切れるようすを見て、原因を取り除いてから直そう。', hint: 'ヒューズは「ショート用」スイッチを切ってから交換します。ブレーカーは、スイッチをいくつか切ってから入れなおそう。' },
+        { where: '🏠 安全体験', do: '「🔌 たこ足配線」「⚡ 漏電とアース」「🔥 ショート」を順に開き、条件を変えると何が起こるか確かめよう。', hint: '漏電では「アース線をつなぐ」「漏電遮断器を使う」を入れたり外したりして、「✋ 洗濯機にさわる」で体に流れる電流をくらべてみよう。', go: '.e2-top [data-act="safety"]' },
+        { where: '課題8〜11・💴 電気料金', do: '電流計・電圧計ではかる課題、電池の持ち、LEDと抵抗に取り組もう。「💴 電気料金」で電力量と料金も計算しよう。', hint: '電流計と電圧計は、つなぎ方がちがいます。課題の説明を読んでからつなごう。電力量[Wh] = 電力[W] × 時間[h] です。', level: 'advanced' },
+        { where: '記録', do: '課題の ✅ と「ふりかえり」の結果は自動で保存されます。「📋 課題」の一覧でどこまでクリアしたか確かめ、先生の言う方法で見せよう。', hint: 'このアプリには提出用のファイルを作るボタンはありません。同じ端末・同じブラウザなら続きからできます。' }
+      ],
+      check: [
+        { q: '家のコンセントや照明は、どのつなぎ方でつながっている?', choices: ['直列', '並列', 'どちらでもない'], answer: 1, explain: '並列なので、どの器具にも同じ電圧がかかり、1つを切ってもほかの器具はそのまま使えます。' },
+        { q: 'ショート(短絡)とは、どんなこと?', choices: ['電池の向きを逆にして、モーターを反対に回すこと', 'スイッチを切って、回路に電流が流れなくなること', '電流が電気器具を通らず、抵抗のほとんどない近道を流れること'], answer: 2, explain: 'ショートすると大きな電流が流れ、電線が熱くなって火災の原因になります。' },
+        { q: '漏電遮断器のはたらきとして正しいものは?', choices: ['電気料金が高くなりすぎないように電気を止める', '電気がもれたのを見つけて、すぐに電気を止める', '電圧を上げて、器具を強く動かす'], answer: 1, explain: 'もれた電流を見つけると、0.1秒以内に電気を止めて、感電や火災を防ぎます。' },
+        { q: '電気部品が安全に使える電流や電圧の限度を何という?', choices: ['定格', '効率', '短絡'], answer: 0, explain: '流してよい電流を定格電流、加えてよい電圧を定格電圧といいます。こえて使うと危険です。' }
+      ]
+    },
+    C3: {
+      goal: '歯車・ベルト・チェーンで回転を伝えるときの速度伝達比と回る向き、カムやリンクなどで回転をほかの動きに変えるしくみを、組み立てて確かめられるようになる。',
+      time: '45分',
+      steps: [
+        { where: '⚙️ 回転を伝える', do: '左の「見本」を出したり歯車をつないだりして、「▶ 動かす」で動かそう。歯数を変えると、出力の回転速度と向きがどう変わるか見よう。', hint: '部品をタップすると、右で歯数や直径を変えられます。緑が入力(回す側)、だいだい色が出力(回される側)です。', go: '.e3-top [data-act="build"]' },
+        { where: '🔄 運動を変える', do: 'ラックとピニオン・カム・リンク・スライダクランク・ねじを1つずつ選んで、回転がどんな動きに変わるか見よう。', hint: '右の説明を読んで、身の回りのどこに使われているか考えてみよう。長さや形を変えると、動きの幅が変わります。', go: '.e3-top [data-act="conv"]' },
+        { where: '📋 設計課題(課題1〜5)', do: '課題1「ゆっくり巻き上げ」から順に、条件に合う機構を組み立てよう。条件がぜんぶ ✅ になればクリアです。', hint: '速度伝達比 = 従動(回される側)の歯数 ÷ 原動(回す側)の歯数。「💡 ヒント」は押すたびにくわしくなります。', go: '.e3-top [data-act="tasks"]' },
+        { where: '📋 設計課題(課題6〜9)', do: 'ポンプ・カム・同じ向きで届ける・ワイパーの課題に取り組もう。', hint: '歯車はかみ合うたびに向きが逆になります。ワイパーは、いちばん短い棒をどれにするかから考えよう。' },
+        { where: '設計課題10〜12・📦 ブラックボックス', do: '2段歯車・力持ちの巻き上げ機・ねじジャッキに挑戦しよう。ブラックボックスでは、入力と出力の回り方から箱の中の歯数を当てよう。', hint: '2段にすると、速度伝達比はかけ算になります。ブラックボックスは、入力を1回転させたとき出力が何回転するかを数えてみよう。', level: 'advanced' },
+        { where: '📄 設計図', do: 'いちばん工夫した機構で「📄 設計図」を開き、名前とメモを書いて「💾 ファイルに保存」しよう。紙で出すときは「🖨️ 印刷」。', hint: '設計図は「回転を伝える」「運動を変える」「設計課題」の画面で作れます。ファイルは先生の言う場所に出そう。', go: '.e3-top [data-act="export"]' }
+      ],
+      check: [
+        { q: '原動の歯車10枚で、従動の歯車30枚を回す。原動が60回/分のとき、従動は何回/分?', choices: ['180回/分', '20回/分', '60回/分'], answer: 1, explain: '速度伝達比は 30 ÷ 10 = 3。従動の回転速度は 1/3 の20回/分になります。' },
+        { q: '速度伝達比を大きくして回転をおそくすると、回す力(トルク)はどうなる?', choices: ['小さくなる', '変わらない', '大きくなる'], answer: 2, explain: '回転はおそくなるかわりに、回す力は大きくなります。クレーンの巻き上げなどに使われます。' },
+        { q: 'はなれた軸に、すべらずに回転を伝えたい。どれを使う?', choices: ['チェーンとスプロケット', '平ベルトとプーリー', 'カムと従動節'], answer: 0, explain: 'チェーンはスプロケットの歯とかみ合うので、すべりません。平ベルトはすべることがあります。' }
+      ]
+    },
+    C4: {
+      goal: '機械に共通して使われる部品の役割と点検ポイントを知り、症状から原因を考えて、点検の方法と間隔を決めた点検表をつくれるようになる。',
+      time: '45分',
+      steps: [
+        { where: '📖 部品図鑑', do: 'ねじ・軸受・歯車・ばねなどのカードを開いて、役割と点検ポイントを読もう。', hint: '上の分類のボタンで、しめる部品・支える部品・回転を伝える部品などに分けて見られます。', go: '.e4-top [data-v="book"]' },
+        { where: '🔍 機械を見る', do: '自転車と扇風機の図の「?」をタップして、どこにどの部品が使われているかさがそう。', hint: '名前がわからない部品は「📖 図鑑で見る」を押してみよう。全部見つけると次の機械へ進めます。', go: '.e4-top [data-v="mach"]' },
+        { where: '🎯 クイズ', do: '「🩺 不具合事例クイズ」で、症状を「🔍 よく調べる(見る・聞く・さわる)」で調べてから、原因の部品と対処を選ぼう。つぎに「🧩 部品あてクイズ」もやろう。', hint: 'いきなり答えず、まず調べた結果を読もう。まちがえた選択肢にも理由が出るので、読んでから次へ進もう。', go: '.e4-top [data-v="quiz"]' },
+        { where: '🎞️ ゆるみ・摩耗', do: 'ねじのゆるみ・軸受の摩耗・チェーンのたるみから1つ選び、「▶ 動かす」で使ううちに進むようすを見よう。「🔧 点検する」で、こわれる前に直そう。', hint: '「条件を変える」でゆるみ止めなどを変えてくらべよう。「📊 計算してくらべる」で、点検の間隔によって故障の回数がどう変わるか見られます。', go: '.e4-top [data-v="sim"]' },
+        { where: '📋 点検表づくり', do: '自転車・扇風機・製作した機構モデルなどから1つ選び、点検する項目・方法・間隔を決めて点検表をつくろう。', hint: '★の付いた項目は大切な項目です。間隔に迷ったら「💡 アドバイスをもらう」を押してみよう。', go: '.e4-top [data-v="check"]' },
+        { where: '記録', do: '点検表ができたら「💾 ファイルに保存」して、先生の言う場所に出そう。紙で出すときは「🖨️ 印刷」。', hint: '家で実際に点検したら「📒 点検して記録する」で結果も残せます。' }
+      ],
+      check: [
+        { q: 'ばね座金やダブルナットは、何のために使う?', choices: ['軸をなめらかに回すため', 'ねじのゆるみを止めるため', '回転をはなれた軸へ伝えるため'], answer: 1, explain: '振動などでねじがゆるむのを防ぐ「ゆるみ止め」です。' },
+        { q: '軸受の役割として正しいものは?', choices: ['2つの部品をしめつけて固定する', '衝撃をやわらげ、元の形にもどる', '回転する軸を支え、なめらかに回す'], answer: 2, explain: '軸受は回転する軸を支える部品で、転がり軸受と滑り軸受があります。' },
+        { q: '機械の保守点検について、正しいものは?', choices: ['大きな不具合が出ていなくても、決めた間隔で点検する', 'こわれてから直せばよいので、ふだんの点検はいらない', '一度点検した機械は、その後ずっと点検しなくてよい'], answer: 0, explain: '小さな部品がこわれて大きな事故になることがあるので、ふだんから点検して正常な状態を保ちます。' }
+      ]
+    },
+    C5: {
+      goal: '目的と条件に合う電気回路を構想し、回路図・部品表・製作手順をつくって、作った回路を設計値とくらべて評価・改善できるようになる。',
+      time: '50分',
+      steps: [
+        { where: '① 課題・構想', do: '組・番号と名前を書き、課題「懐中電灯」を選ぼう。目的と条件を読んで、どんな回路にするか(構想)を理由といっしょに書こう。', hint: '構想は「電池を〜にする。理由は〜だから。」の形で書くと書きやすいです。「💡 設計のヒント」も見てみよう。', go: '.e5-top [data-v="brief"]' },
+        { where: '② 回路図', do: '記号を選んで回路図をかき、スイッチを入れて確かめよう。条件がぜんぶ ✅ になればクリアです。', hint: 'タブの数字が赤なら ❌ まちがい、黄なら ⚠️ 注意があります。「🔍 自動チェック」の文を読んで、どこを直すか考えよう。', go: '.e5-top [data-v="edit"]' },
+        { where: '③ 部品表・手順', do: '自動でできた部品表と製作手順を読み、「できた!次へ ▶」で手順を1つずつ進めよう。', hint: '🧑‍🏫 の印がある手順では、先生に配線を点検してもらいます。実際の配線・通電は必ず先生の指導のもとで行います。', go: '.e5-top [data-v="bom"]' },
+        { where: '④ 評価', do: '作った回路で電流・電圧をはかり、実測値を入れて設計値とくらべよう。', hint: '0.3A は 300(mA)と入れます。差が大きいときは「💡 差が出る理由の例」を見てみよう。', go: '.e5-top [data-v="eval"]' },
+        { where: '④ 評価(振り返り)', do: '「うまくいったこと」と「改善案」を書こう。', hint: '条件が ✅ にならなかった所や、実測で差が大きかった所から考えよう。', reflect: true },
+        { where: '課題 2部屋の明かり・安全な扇風機', do: '懐中電灯ができたら、「① 課題・構想」で次の課題を選び、同じ流れでやろう。', hint: '課題ごとに回路図と記録は別々に保存されます。2部屋の明かりは、家の電灯がどうつながっているかを思い出そう。' },
+        { where: '課題 LEDライト・LED常夜灯・自由設計', do: 'LEDの電流が 5〜20mA になるように、抵抗の値を決めよう。', hint: '抵抗の目安 =(電源の電圧 − 1.8V)÷ 流したい電流。LEDには向きがあります。', level: 'advanced' },
+        { where: '💾 保存', do: '「💾 保存」から「💾 ファイルに保存」して、ファイルを先生の言う場所に出そう。紙で出すときは「🖨️ 印刷」。', hint: '印刷の前に「① 課題・構想」で名前を書いておこう。', go: '.e5-top [data-act="file"]' }
+      ],
+      check: [
+        { q: '回路図をかくときに使う、JISで決められた記号を何という?', choices: ['速度伝達比', '電気用図記号', '定格値'], answer: 1, explain: '電気用図記号を使うと、だれが見ても同じ回路だとわかります。' },
+        { q: '実測値とは、どんな値?', choices: ['作った回路で実際にはかった値', '設計のときに計算した値', '部品の箱に書いてある値'], answer: 0, explain: '実測値を設計値とくらべて、ちがいの原因を考え、改善につなげます。' },
+        { q: '懐中電灯の回路で、スイッチはどこに入れる?', choices: ['豆電球と並べて並列に入れる', '電池の+極と−極を直接つなぐ所に入れる', '電池と豆電球の間に直列に入れる'], answer: 2, explain: 'スイッチは回路のとちゅうに直列に入れて、道をつないだり切ったりします。並列に入れるとショートします。' }
+      ]
+    },
+    C6: {
+      goal: '発電機はコイルと磁石で電気をつくる(電磁誘導)ことを確かめ、羽根の条件を1つずつ変えて、効率のよい風力発電の羽根を考えられるようになる。',
+      time: '45分',
+      steps: [
+        { where: '① 発電機のしくみ', do: '磁石を指でなぞって回し、LEDが光るまで速く回そう。巻き数や磁石の強さも変えて、「たしかめ問題」に全部答えよう。', hint: '磁石が止まっていると針は動きません。「🔋 電池をつなぐ(モーター)」に切りかえると、同じつくりがモーターにもなることがわかります。', go: '.e6-tab[data-tab="gen"]' },
+        { where: '② 羽根をくらべる', do: '枚数・かたむき・長さ・形のどれか1つだけを変えて「📋 記録する」を押し、3つ以上くらべよう。', hint: '2つ以上いっぺんに変えると、どれが効いたかわかりません。表の黄色が変えたところ、緑がいちばん電力が大きかった記録です。', go: '.e6-tab[data-tab="cmp"]' },
+        { where: '③ 効率チャレンジ', do: '風速 4 m/s で、3つのチャレンジ(そよ風・パワー・いいとこどり)をクリアしよう。よい羽根ができたら「🏅 ランキングにのせる」。', hint: '②の記録で、どの条件で電力が大きくなったか見直そう。形によって、速く回るか・回り始めやすいかがちがいます。風が当たるのは中心から 22 cm(羽根 20 cm)までです。', go: '.e6-tab[data-tab="best"]' },
+        { where: '④ 発電方法くらべ・⑤ 風が変わる日', do: '5つの発電方法の変換の流れをならべよう。⑤では、1日の風の変化で発電量がどう変わるか見よう。', hint: '④は、はじめのエネルギーから電気までの順にタップします。1枚だけ、ちがう発電方法のカードがまざっています。', go: '.e6-tab[data-tab="meth"]', level: 'advanced' },
+        { where: '✏️ 振り返り', do: '3つの問いに、自分の言葉で答えよう。1つ目は「コイル」「磁石」という言葉を使って書こう。', hint: '③のランキングで、いちばんよかった羽根の枚数・かたむき・長さ・形を見直してから書こう。', go: '.e6-tab[data-tab="refl"]', reflect: true },
+        { where: '💾 記録', do: '組・番号と名前を書き、「💾 ファイルに保存」して、先生の言う場所に出そう。', hint: 'やったこと・ランキング・振り返りが1つのファイルに入ります。', go: '.e6-tab[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '羽根のかたむき(ピッチ角)を 0° や 90° にすると、羽根はどうなる?', choices: ['回らない', 'いちばんよく回る', '弱い風でも回り始める'], answer: 0, explain: '0° は風に正面を向け、90° は風と平行になるので、どちらも風が羽根を回す力になりません。' },
+        { q: '羽根の条件をくらべるとき、正しいやり方は?', choices: ['枚数・かたむき・長さ・形を一度に全部変える', '変える条件を1つだけにして、ほかは同じにする', '記録するたびに、風の強さも変える'], answer: 1, explain: '1つだけ変えれば、その条件が発電量にどう効いたかがわかります。' },
+        { q: '「風から電気へ」が20%のとき、のこりの80%の風のエネルギーはどうなった?', choices: ['電気としてためられた', '次の風のために羽根にたくわえられた', '羽根のまわりを通りぬけたり、熱や音になったりした'], answer: 2, explain: '風のエネルギーのすべてを電気にすることはできません。電気にならなかった分がエネルギー損失です。' }
+      ]
+    },
+    C7: {
+      goal: '電池の直流とコンセントの交流のちがいを説明でき、発電所から家庭まで電圧を変えながら電気を送るしくみと、高い電圧で送るわけを確かめられるようになる。',
+      time: '40分',
+      steps: [
+        { where: '① 直流と交流', do: '電池とコンセントのグラフを両方見て、電圧の変わり方をくらべよう。そのあと「どちらの電源から電気をもらう?」に全部正解しよう。', hint: '「🐢 スローモーション(1/50)にする」と、交流で赤と緑の LED がかわりばんこに光るのが見えます。', go: '.e7-tab[data-tab="dcac"]' },
+        { where: '② 送電・配電の道すじ', do: 'カードを発電所に近いほうから順にならべよう。網の目の図では、送電線を切っても町に電気が届くか確かめよう。', hint: '電圧の高いところから、少しずつ下げていく順です。カードの電圧の数字を見くらべよう。', go: '.e7-tab[data-tab="route"]' },
+        { where: '③ 高い電圧で送るわけ', do: '変圧器で電圧を上げる・下げるの両方をやってみよう。つぎに送る電圧を変えて、送電の損失を 1% 以下にしよう。', hint: '1次と2次の巻き数をくらべてみよう。「🔋 直流 100 V を入れる」とどうなるかもためそう。損失は、送電線の電流が大きいほど増えます。', go: '.e7-tab[data-tab="why"]' },
+        { where: '④ 損失の計算・⑤ 周波数 50Hz・60Hz', do: '電力 = 電圧 × 電流、損失 = 電流² × 抵抗 で計算問題を解こう。⑤では 50Hz・60Hz の地図を完成させよう。', hint: '先に電流(電力 ÷ 電圧)を求めてから、損失を計算しよう。', go: '.e7-tab[data-tab="calc"]', level: 'advanced' },
+        { where: '✏️ 振り返り', do: '3つの問いに、自分の言葉で答えよう。2つ目は「電流」「損失」という言葉を使って書こう。', hint: '③のまとめの文と、損失を 1% 以下にしたときの電圧を見直してから書こう。', go: '.e7-tab[data-tab="refl"]', reflect: true },
+        { where: '💾 記録', do: '組・番号と名前を書き、「💾 ファイルに保存」して、先生の言う場所に出そう。', hint: 'やったこと・振り返りが1つのファイルに入ります。', go: '.e7-tab[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '時間がたっても、電圧と電流の向きが変わらない電気を何という?', choices: ['交流(AC)', '直流(DC)', '周波数'], answer: 1, explain: '電池や太陽電池の電気は直流です。コンセントの電気は向きと大きさが周期的に変わる交流です。' },
+        { q: '変圧器で電圧を変えられるのはどれ?', choices: ['交流だけ', '直流だけ', '直流でも交流でも同じように変えられる'], answer: 0, explain: '変圧器は、向きと大きさが変わり続ける交流だから使えます。直流では2次コイルに電圧が生まれません。' },
+        { q: '同じ電力を送るとき、送る電圧を高くするとどうなる?', choices: ['電流が大きくなり、損失が減る', '電流も損失も変わらない', '電流が小さくなり、送電線で熱になる損失が減る'], answer: 2, explain: '電力 = 電圧 × 電流なので、電圧を高くすると電流が小さくなり、熱になって失われるエネルギーが少なくなります。' }
+      ]
+    },
+    C8: {
+      goal: '身の回りから「こうだったらいいのに」「不便だな」を見つけて問題と課題を分け、自分の課題を決められる。作った製作品を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
+      time: '45分',
+      steps: [
+        { where: '① 問題の発見', do: '光・熱・動力などに目を向けて、「こうだったらいいのに」「不便だな」を付箋に3まい以上書き、「＋ 付箋をはる」を押そう。社会・安全・環境・経済の観点のアイコンも付けよう。', hint: '思いうかばないときは、ヒントの例を押すと書く欄に入ります。停電のときや、お年寄りが使うときを想像してみよう。', go: '.e8-tab[data-tab="find"]' },
+        { where: '① 問題の発見(クイズ・課題)', do: '「問題?課題? クイズ」で2つのちがいを確かめよう。つぎに、いちばん解決したい付箋に★を付け、困っている人・制約条件などを書いて、自分の課題を1つ決めよう。', hint: '困っていることや願いが「問題」、何をどのように作るかを決めたものが「課題」です。「文の形を入れる」を押すと、課題の文の形が入ります。' },
+        { where: '② 評価、改善・修正', do: '製作品の名前を書き、機能・利便性・費用・安全性・環境への配慮を 1〜5 の5段階で評価しよう。「はじめの目標」も入れて、レーダーチャートでくらべよう。', hint: 'まだ製作していないときは、C5 回路設計シートで設計した回路を製作品として評価してみよう。', go: '.e8-tab[data-tab="eval"]' },
+        { where: '② 評価、改善・修正(よかった点・改善)', do: 'よかった点と、改善・修正の方法(どこを、どのように直すか)を書こう。過程の評価にもチェックを入れよう。', hint: '点を入れると、よかった点と改善点の候補が出ます。目標より低かった観点から考えよう。' },
+        { where: '③ 技術の最適化', do: '部屋の明かり・自動車・発電の方法から1つ選び、観点の重みや制約条件を変えて、「いちばんよい案」が入れかわるのを確かめよう。', hint: '「使う人」「お金を安く」などの立場のボタンを押すと、重みがまとめて入ります。', go: '.e8-tab[data-tab="opt"]', level: 'advanced' },
+        { where: '✏️ 振り返り', do: '分かったこと・できるようになったことと、これからの問題解決に生かしたいことを書こう。', hint: '①で決めた課題と、②の評価を見直してから書こう。', go: '.e8-tab[data-tab="refl"]', reflect: true },
+        { where: '💾 記録', do: '「💾 ファイルに書き出す(.json)」でファイルにして、先生の言う場所に出そう。紙で出すときは「🖨 印刷する(問題解決シート)」。', hint: 'ノートは自動で保存されます。組・番号と名前を書いてから書き出そう。', go: '.e8-tab[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '「課題」の説明として正しいものは?', choices: ['生活の中で不便だと感じていること', '問題を解決するために、何をどのようにするかを具体的に決めたもの', '製作品を5段階で評価した結果'], answer: 1, explain: '不便さや「こうだったらいいのに」は問題です。それを解決するために何をどうするかを決めたものが課題です。' },
+        { q: '製作品の評価のしかたとして、正しいものは?', choices: ['機能だけでなく、安全性・環境への配慮・費用など多くの観点で評価する', '動けば成功なので、機能だけを評価する', '費用がいちばん安ければ、ほかの観点は見なくてよい'], answer: 0, explain: '教科書では、機能・利便性・安全性・環境への配慮・費用など、多くの観点から評価します。' },
+        { q: '「制約条件」とは、どんな条件?', choices: ['なるべく守ったほうがよい希望', '評価のあとに書く感想', '費用や時間など、守らなければならない条件'], answer: 2, explain: '制約条件を守れない案は選べません。その中で、いちばんよい案を考えます。' }
+      ]
+    }
+  }
+};
 EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 </script>
 <script>
@@ -403,6 +637,15 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
  *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
  *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
  *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -426,23 +669,29 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
 
   // ---- 振り返りを隠す設定 ----
-  var FK_KEY = 'eduit.furikaeri';
-  function furikaeriSetting() {
-    var w = window, v = null;
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
     for (var i = 0; i < 8 && v === null; i++) {
       try {
-        var m = /[?&]furikaeri=(on|off)(?:&|$)/.exec(w.location.search || '');
-        if (m) { v = m[1]; try { localStorage.setItem(FK_KEY, v); } catch (e) {} }
-        else if (w.EDUIT_FURIKAERI === 'on' || w.EDUIT_FURIKAERI === 'off') v = w.EDUIT_FURIKAERI;
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
       } catch (e) { break; }  // ちがうサイトの親は見ない
       if (w === w.parent) break;
       w = w.parent;
     }
-    if (v === null) try { v = localStorage.getItem(FK_KEY); } catch (e) {}
-    return v !== 'off';
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
   }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
   var furikaeri = furikaeriSetting();
   if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
 
   var SAFETY = [
     'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
@@ -623,6 +872,11 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
           var go = c.querySelector('.ef-mcard-go');
           c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
         }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
         if (!tb || !tb.groups) { grid.appendChild(c); return; }
         var gi = 0;
         tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
@@ -636,6 +890,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
         blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
       if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
       if (opts.code && cur === 'basic') {
         var codes = (lv.items || []).map(opts.code).filter(Boolean);
@@ -776,8 +1031,226 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   }
   autoHide();
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
 <style>
@@ -2550,6 +3023,19 @@ body{overflow:hidden}
 <li>想定画面は10インチタブレット(横 1280×800 前後)・タッチ操作です。<b>縦向きにも対応</b>しています(作業エリアが全幅になり、パネルは上下に並びます)。マウス・キーボードでも操作できます。</li>
 <li><b>効果音は最初はOFF</b>です(教室で30台が同時に鳴らないように)。生徒が各アプリの 🔇/🔊 ボタンで入れられます。設定は端末ごとに記録されます。</li>
 </ul>
+<h4>自習で進めるとき(自習モード)</h4>
+<p>自習・家庭学習・欠席した生徒など、先生の説明なしで進めるときのための表示です(ふだんの授業では出ません)。</p>
+<ul>
+<li>先生の説明なしで生徒が1人で進めるときは、<b>自習モード</b>にします。各教材の右はしに「<b>自習ガイド</b>」のボタンが出て、押すと右(スマホは下)にパネルが開きます。パネルには、その教材の<b>ねらいと時間の目安</b>、上から順にやる<b>進め方</b>(どのタブで何をするか・「ヒント」・その場所へ移る「この場所へ」・「できた」の印)、<b>たしかめ問題</b>(3〜4問。答えるとその場で正誤と解説が出る)が出ます。発展編の手順は「発展(基本が終わった人)」にまとめてあります。はじめて開いた教材ではパネルが開いた状態で出ます。</li>
+<li>メニューでは、基本編の上に「ひとりで進めるとき(自習モード)」の進め方が出て、カードに「自習 進め方 3/6・たしかめ 2/3」のような進み具合が出ます。手順が全部できて、たしかめ問題に全部正解すると「✓ クリア」になります。</li>
+<li><b>Classroom で配るとき</b>: <code>生徒に配る/自習用/</code> の中の、同じ名前のファイルを配ります(中身は同じで、自習ガイドが出ます)。1つずつ配るときのファイルも <code>自習用/1つずつ配るとき/</code> にあります。</li>
+<li><b>生徒用サイトで使うとき</b>: 入口ページの「ひとりで進めるとき(自習モード)」のボタンを押すか、アドレスの最後に <code>?jishu=on</code> を付けて開くよう知らせます(例: <code>https://okarin-netizen.github.io/Edu-IT/?jishu=on</code>)。一度開くと、その端末で覚えています。<code>?jishu=off</code> を付けて開くと元にもどります。</li>
+<li>「できた」の印とたしかめ問題の答えは、その端末のブラウザの中だけに保存されます(提出するファイルには入りません)。振り返りを隠す設定といっしょに使うと、振り返りの手順は出ません。</li>
+<li>C1・C2 には、生徒が自分で書き出せる記録のファイルがありません(★・✅ は端末の中だけ)。自習ガイドでは「先生の言う方法で見せよう」としています。メニューの「先生用」の書き出しを使ってください。</li>
+<li>C3・C4 には振り返りを書く欄がありません。たしかめ問題で確かめます。</li>
+<li>C5 の「④」の実測は、本物の部品とテスターがないとできません。授業で作ったあとにやるよう書いています。</li>
+<li>C6 の「③ 効率チャレンジ」は、条件に届く羽根の組み合わせがかなりせまく、1人だと時間がかかります。ヒントでは見る場所だけを示し、答えの数値は書いていません。</li>
+</ul>
 <h4>振り返りを隠すとき</h4>
 <ul>
 <li>振り返りを Google フォームなど別の方法で集めるときは、教材の中の振り返りを出さないようにできます。このアプリでは、C5 の「④ 評価」の振り返りの欄(うまくいったこと・改善案)と、印刷した設計シートの「8 振り返り」、C6・C7 の「振り返り」のタブと「記録」のページの振り返り、C8 の「振り返り」のタブが出なくなります。C1・C2 のクイズは学習の一部なので出したままにし、見出しを「ふりかえり」から「たしかめ問題」に変えます。</li>
@@ -2623,6 +3109,10 @@ body{overflow:hidden}
 </dl>
 
 <h3 id="t-rireki">7. 更新履歴</h3>
+<h4>自習モード(2026-10-19・第1.8版)</h4>
+<ul>
+<li>自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)。</li>
+</ul>
 <h4>C8 問題解決ノートを追加(2026-10-18・第1.7版)</h4>
 <ul>
 <li>ふりがなは、はじめはなし(オフ)にした(4分野で同じ。上のバーの「ふりがな」で出せる)。</li>
@@ -12958,7 +13448,7 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
       var who = h('div', { class: 'mn-row mn-who' },
         field('組', 'cls', S, { rows: 0, max: 6 }), field('番号', 'no', S, { rows: 0, max: 4 }), field('名前', 'name', S, { rows: 0, max: 20 }));
       var tools = typeof opts.recordTools === 'function' ? opts.recordTools() : opts.recordTools;
-      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは「ファイルに書き出す」、紙で出すときは「印刷する」を使います。',
+      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは下の「…書き出す」ボタンでファイルにし、紙で出すときは「印刷する」を使います。',
         who, h('div', { class: 'mn-row mn-rec-tools' }, btn('🖨 印刷する(問題解決シート)', function () { api.print(); }, 'mn-btn-primary'), tools || null),
         h('p', { class: 'mn-help' }, '印刷すると、書いていない欄は線だけのわくになります。紙に書きこんで使うこともできます。')));
       var sum = MN.summary(D, D.domain), box = card('ノートのまとめ', null);
@@ -13455,12 +13945,14 @@ function openApp(id) {
       if (window.console) console.error(e);
     }
   }
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(id, id + ' ' + byId(id).name);  // 自習モードのとき、そのアプリの自習ガイドを出す(アプリを作ったあと)
   // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e5)のまま
   var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + id.slice(1));
   if (r && r.focus && !r.contains(document.activeElement)) { try { r.focus({ preventScroll: true }); } catch (e) {} }
 }
 function openHelp(tab) {
   setView('help');
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(null);
   showTab(tab || 's');
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
   document.title = '使い方 - エネルギー変換の技術 教材集';
@@ -13473,6 +13965,7 @@ function showTab(t) {
 }
 function openHome() {
   setView('home'); renderCards(); cur = null; lastView = 'home'; fromHome = false;
+  if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(null);
   APPS.forEach(function (a) { document.body.classList.remove('ea-on-' + a.id); });
   document.title = 'エネルギー変換の技術 教材集';
 }

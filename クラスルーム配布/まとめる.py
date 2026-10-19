@@ -131,6 +131,20 @@ for p in sorted(student.rglob("*.html")):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html[:m.end()] + FK_TAG + html[m.end():], encoding="utf-8")
 
+# ---- 自習用(生徒に配るものと同じ中身で、自習モードを入れた版) ----
+# 先生の説明なしで進めるときに配る。<head> のすぐあとに window.EDUIT_JISHU = 'on' を入れるだけ
+# (shared/eduit-frame.js がこれを見て、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・たしかめ問題)を出す。中身は各分野の eduit-info.js の jishu)
+jishu = student / "自習用"
+JS_TAG = "<script>window.EDUIT_JISHU = 'on';</script>"
+for p in sorted(student.rglob("*.html")):
+    if nofk in p.parents or jishu in p.parents:
+        continue
+    html = p.read_text(encoding="utf-8")
+    m = re.search(r"<head[^>]*>", html)
+    out = jishu / p.relative_to(student)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(html[:m.end()] + JS_TAG + html[m.end():], encoding="utf-8")
+
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):
         print(f"{p.relative_to(here)}  ({p.stat().st_size // 1024} KB)")

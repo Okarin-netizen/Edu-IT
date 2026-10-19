@@ -715,7 +715,7 @@
       var who = h('div', { class: 'mn-row mn-who' },
         field('組', 'cls', S, { rows: 0, max: 6 }), field('番号', 'no', S, { rows: 0, max: 4 }), field('名前', 'name', S, { rows: 0, max: 20 }));
       var tools = typeof opts.recordTools === 'function' ? opts.recordTools() : opts.recordTools;
-      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは「ファイルに書き出す」、紙で出すときは「印刷する」を使います。',
+      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは下の「…書き出す」ボタンでファイルにし、紙で出すときは「印刷する」を使います。',
         who, h('div', { class: 'mn-row mn-rec-tools' }, btn('🖨 印刷する(問題解決シート)', function () { api.print(); }, 'mn-btn-primary'), tools || null),
         h('p', { class: 'mn-help' }, '印刷すると、書いていない欄は線だけのわくになります。紙に書きこんで使うこともできます。')));
       var sum = MN.summary(D, D.domain), box = card('ノートのまとめ', null);

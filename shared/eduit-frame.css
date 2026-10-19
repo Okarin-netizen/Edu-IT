@@ -220,3 +220,84 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 }
 
 @media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
