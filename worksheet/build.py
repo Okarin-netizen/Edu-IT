@@ -14,8 +14,8 @@ dist = here / "dist"
 data = json.loads(subprocess.run(["node", str(here / "extract.cjs")], check=True, capture_output=True, text=True).stdout)
 
 # 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)と、そこから見た自習用の統一版
-FILES = {"A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html"}
-UNIFIED = {"A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html"}
+FILES = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html"}
+UNIFIED = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html"}
 ANSWERS = "ワークシートの答え.html"
 KANA = "アイウエオカキク"
 # 生徒用サイト(site/build.py)は、この印を入口へもどるリンクに、教材へのリンクを公開用の名前に書きかえる
@@ -57,6 +57,10 @@ def step_li(i, s):
 
 def sheet(d, a):
     c = a["code"]
+    if d["domain"] == "G":  # ガイダンスは教材が1つだけで、メニュー(カード)がない
+        how = f'タブレットで「{e(d["domainName"])}」を<b>自習モード</b>でひらき、上のタブを「はじめに」から順に進めます。'
+    else:
+        how = f'タブレットで「{e(d["domainName"])} 教材集」を<b>自習モード</b>でひらき、<b>{c} のカード</b>を押します。'
     steps = list(enumerate(a["steps"]))
     basic = [step_li(i, s) for i, s in steps if s.get("level") != "advanced"]
     adv = [step_li(i, s) for i, s in steps if s.get("level") == "advanced"]
@@ -90,7 +94,7 @@ def sheet(d, a):
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
 <p class="ws-goal"><b>ねらい</b>{e(a["goal"])}<span class="ws-time">目安 {e(a.get("time", ""))}</span></p>
-<p class="ws-how">タブレットで「{e(d["domainName"])} 教材集」を<b>自習モード</b>でひらき、<b>{c} のカード</b>を押します。右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<p class="ws-how">{how}右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
 {"".join(parts)}
 </section>'''
 
@@ -246,7 +250,7 @@ SCRIPT = r"""
     var ws = document.getElementById(code) || sheets[0];
     sheets.forEach(function (s) { s.classList.toggle('is-current', s === ws); });
     tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-code') === ws.id)); });
-    document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^[A-D]\d+/, '').replace('自習ワークシート', '') + ' 自習ワークシート';
+    document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^(?:[A-D]\d+|G)/, '').replace('自習ワークシート', '') + ' 自習ワークシート';
     // Claude のプレビューなど about:srcdoc で開くとアドレスを書きかえられないので、失敗しても止めない
     if (location.hash.slice(1) !== ws.id) { try { history.replaceState(null, '', '#' + ws.id); } catch (e) {} }
     if (scroll) window.scrollTo(0, 0);
