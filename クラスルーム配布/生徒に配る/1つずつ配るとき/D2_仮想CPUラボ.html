@@ -15,7 +15,7 @@
   <style id="eduit-frame-css">
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -42,6 +42,7 @@
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -1325,7 +1326,9 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -1404,7 +1407,7 @@ window.EDUIT_INFO.jishu = {
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -1418,7 +1421,7 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -1556,34 +1559,34 @@ window.EDUIT_INFO.jishu = {
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
@@ -1608,7 +1611,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1659,7 +1662,7 @@ window.EDUIT_INFO.jishu = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
         close
       ]),
       body
@@ -1969,10 +1972,20 @@ function empty() {
 
 let state = load();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...empty(), ...JSON.parse(raw) } : empty();
+    return raw ? mergeSaved(empty(), JSON.parse(raw)) : empty();
   } catch {
     return empty();
   }
@@ -2095,7 +2108,7 @@ function assemble(source, isa) {
     }
     for (const name of names) {
       if (name.toUpperCase() in ops || name.toUpperCase() === "DATA") errors.push({ line, message: `「${name}」は命令の名前なので、ラベル（番地の名前）には使えません` });
-      else if (name in labels || pending.some((p) => p.name === name)) errors.push({ line, message: `ラベル「${name}」が2回出てきます。名前は1つずつ別にしよう` });
+      else if (Object.hasOwn(labels, name) || pending.some((p) => p.name === name)) errors.push({ line, message: `ラベル「${name}」が2回出てきます。名前は1つずつ別にしよう` });
       else pending.push({ name, line });
     }
     if (!text) return;
@@ -2141,7 +2154,7 @@ function assemble(source, isa) {
       return n;
     }
     if (NAME_RE.test(tok)) {
-      if (tok in labels) return labels[tok];
+      if (Object.hasOwn(labels, tok)) return labels[tok]; // in だと「toString」などの名前が見つかったことになる
       const near = Object.keys(labels).find((k) => k.toLowerCase() === tok.toLowerCase());
       if (near) errors.push({ line, message: `「${tok}」という名前はありません。「${near}」のことかな？（名前は大文字と小文字を区別します）` });
       else if (JUMP_OPS.has(op)) errors.push({ line, message: `「${tok}」という名前の行がありません。とびたい行の先頭に「${tok}:」をつけよう` });
@@ -2689,7 +2702,7 @@ function createSimulator(opts) {
     return ev;
   }
 
-  async function manualStep(kind) {
+  function manualStep(kind) {
     if (running) stopRun();
     if (!ensureMachine()) return;
     if (kind === "phase") {
@@ -2749,7 +2762,9 @@ function createSimulator(opts) {
     const [x2, y2] = center((toCell || to).getBoundingClientRect());
     const chip = h("span", { class: "fly-chip" }, ev.flow.value);
     flyLayer.replaceChildren(chip);
-    chip.animate([{ transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { transform: `translate(${x2}px, ${y2}px) translate(-50%, -50%)`, opacity: 0 }], { duration: dur, easing: "ease-in-out" }).finished.finally(() => chip.remove());
+    chip.animate([{ transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { transform: `translate(${x2}px, ${y2}px) translate(-50%, -50%)`, opacity: 0 }], { duration: dur, easing: "ease-in-out" })
+      .finished.catch(() => {}) // 次の値が飛んで、とちゅうで消されたとき（エラーにしない）
+      .then(() => chip.remove());
   }
 
   function render(ev = lastEvent) {
@@ -3363,6 +3378,8 @@ function randomManualN(rand = Math.random, prev = null) {
   return n;
 }
 const sumTo = (n) => (n * (n + 1)) / 2;
+// 手計算の記録（壊れた記録・秒のない記録は、記録なしとして扱う）
+const validManual = (rec) => (rec && Number.isFinite(rec.seconds) ? rec : null);
 // 前の版の記録には n がない（そのころは 20 で固定だった）
 const recordN = (rec) => (rec && Number.isInteger(rec.n) ? rec.n : 20);
 // hz: 1秒の合図（クロック）の回数、cpi: 1命令にかかる合図の回数（目安）
@@ -3396,7 +3413,7 @@ function renderAuto(view, { tasks, isa }) {
   const BIG_N = 100;
   const doneRule = h("p", { class: "done-rule", "aria-live": "polite" });
   const updateDone = () => {
-    const manualOk = Boolean(store.state.manual);
+    const manualOk = Boolean(validManual(store.state.manual));
     const bigOk = store.isDone("autoBigN");
     if (manualOk && bigOk && !store.isDone("auto")) {
       store.markDone("auto");
@@ -3417,7 +3434,7 @@ function renderAuto(view, { tasks, isa }) {
   const startBtn = h("button", { class: "btn", type: "button" }, "スタート");
   const doneBtn = h("button", { class: "btn", type: "button", disabled: true }, "できた");
   const manualMsg = h("div", { "aria-live": "polite" });
-  const prevRec = store.state.manual;
+  const prevRec = validManual(store.state.manual);
   if (prevRec) manualMsg.append(explain("前回の記録", `1 から ${recordN(prevRec)} までの合計を ${prevRec.seconds.toFixed(1)}秒で正解しました。`, "good"));
   // N はスタートを押したときに決まる（先に計算しておけないように）
   let nManual = null;
@@ -3457,7 +3474,7 @@ function renderAuto(view, { tasks, isa }) {
     }
   };
   doneBtn.addEventListener("click", finish);
-  answer.addEventListener("keydown", (e) => e.key === "Enter" && finish());
+  answer.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && finish());
 
   // ---- 2. プログラムなら ----
   // いちばん上の選択肢は、手計算で正解したときの N（記録がなければ 20）
@@ -3466,7 +3483,7 @@ function renderAuto(view, { tasks, isa }) {
     manualOpt.value = String(n);
     manualOpt.textContent = `1 から ${n} まで`;
   };
-  setManualOption(recordN(store.state.manual));
+  setManualOption(recordN(validManual(store.state.manual)));
   const nSelect = h("select", { "aria-label": "N の大きさ" }, manualOpt, [100, 1000, 10000, 100000, 1000000].map((n) => h("option", { value: n }, `1 から ${n.toLocaleString("ja-JP")} まで`)));
   const compareBox = h("div", { "aria-live": "polite" });
 
@@ -3474,7 +3491,7 @@ function renderAuto(view, { tasks, isa }) {
     const n = Number(nSelect.value);
     const m = runToEnd(createMachine(prog, { inputs: [n], maxSteps: 1e9 }));
     const steps = m.steps;
-    const manual = store.state.manual;
+    const manual = validManual(store.state.manual);
     compareBox.replaceChildren(
       h(
         "div",

@@ -591,7 +591,9 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -670,7 +672,7 @@ window.EDUIT_INFO.jishu = {
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -684,7 +686,7 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -822,34 +824,34 @@ window.EDUIT_INFO.jishu = {
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;

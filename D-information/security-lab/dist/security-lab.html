@@ -15,7 +15,7 @@
   <style id="eduit-frame-css">
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -42,6 +42,7 @@
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -1332,7 +1333,9 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -1411,7 +1414,7 @@ window.EDUIT_INFO.jishu = {
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -1425,7 +1428,7 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -1563,34 +1566,34 @@ window.EDUIT_INFO.jishu = {
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
@@ -1615,7 +1618,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1666,7 +1669,7 @@ window.EDUIT_INFO.jishu = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
         close
       ]),
       body
@@ -1876,12 +1879,21 @@ function emptyState() {
 let state = load();
 const listeners = new Set();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return emptyState();
-    const parsed = JSON.parse(raw);
-    return { ...emptyState(), ...parsed };
+    return mergeSaved(emptyState(), JSON.parse(raw));
   } catch {
     return emptyState();
   }
@@ -1937,7 +1949,7 @@ const store = {
     save();
   },
   replaceAll(next) {
-    state = { ...emptyState(), ...next };
+    state = mergeSaved(emptyState(), next);
     save();
   },
   reset() {
@@ -2273,9 +2285,18 @@ function resetConfigCache() {
 // 生徒が画面で切りかえた設定（先生の設定ファイルの値が初期値）
 function getPrefs() {
   try {
-    return JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+    const p = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+    return p && typeof p === "object" && !Array.isArray(p) ? p : {}; // 壊れた値（null など）のときは何も切りかえていない扱い
   } catch {
     return {};
+  }
+}
+// 生徒が切りかえた設定を消して、先生の設定ファイルの値にもどす
+function clearPrefs() {
+  try {
+    localStorage.removeItem(PREF_KEY);
+  } catch {
+    // 消せない環境でも続ける
   }
 }
 function setPref(key, value) {
@@ -2384,7 +2405,7 @@ async function setRubyEnabled(root, on) {
   observer.observe(root, { childList: true, subtree: true });
 }
 
-return { getConfig, resetConfigCache, getPrefs, setPref, pref, rubyfy, unrubyfy, setRubyEnabled };
+return { getConfig, resetConfigCache, getPrefs, clearPrefs, setPref, pref, rubyfy, unrubyfy, setRubyEnabled };
 })();
 
 // ---- js/cryptolib.js ----
@@ -3662,7 +3683,7 @@ function factorChallenge(onDone) {
     showBtn.hidden = true;
     fb.replaceChildren();
   });
-  input.addEventListener("keydown", (e) => e.key === "Enter" && check());
+  input.addEventListener("keydown", (e) => e.key === "Enter" && !e.isComposing && check());
   return h(
     "div",
     { style: "margin-top:12px" },
@@ -4746,6 +4767,7 @@ const tattooModule = {
     };
     let deletedAt = 0;
     const step = () => {
+      if (!svg.isConnected) return stop(); // ほかのページへ移ったら止める（見えない所で進み続けないように）
       tick++;
       state = spreadStep(state, net.neighbors, Number(content.value) * Number(scope.value), deleted);
       const { seen } = draw();
@@ -5797,6 +5819,11 @@ function orderByModules(questions, moduleOrder) {
   return questions.map((q, i) => [q, i]).sort((a, b) => rank(a[0].module) - rank(b[0].module) || a[1] - b[1]).map(([q]) => q);
 }
 
+// 点の文字「3/5」→ 正答率 0.6。読めない値・分母が0のときは null（records.js の集計でも使う）
+function scoreRate(s) {
+  const [a, b] = String(s ?? "").split("/").map(Number);
+  return s && Number.isFinite(a) && b > 0 ? a / b : null;
+}
 const currentScores = () => ({ pre: store.getScore(ID, "事前テスト"), post: store.getScore(ID, "事後テスト") });
 
 async function renderCheck(view, available, easy = "") {
@@ -5809,8 +5836,7 @@ async function renderCheck(view, available, easy = "") {
   const history = () => {
     const pre = store.getScore(ID, "事前テスト");
     const post = store.getScore(ID, "事後テスト");
-    const rate = (s) => (s ? Number(s.split("/")[0]) / Number(s.split("/")[1]) : null);
-    const diff = pre && post ? Math.round((rate(post) - rate(pre)) * 100) : null;
+    const diff = scoreRate(pre) !== null && scoreRate(post) !== null ? Math.round((scoreRate(post) - scoreRate(pre)) * 100) : null;
     return h(
       "div",
       { class: "table-wrap" },
@@ -5964,7 +5990,7 @@ async function renderCheck(view, available, easy = "") {
   );
 }
 
-return { testPolicy, PRACTICE_MAX, practiceSet, orderByModules, renderCheck };
+return { testPolicy, PRACTICE_MAX, practiceSet, orderByModules, scoreRate, renderCheck };
 })();
 
 // ---- js/records.js ----
@@ -5973,8 +5999,10 @@ const { store } = __m_js_store_js;
 const { h, explainCard, toast, downloadFile, REFLECT_ATTR, recordsTitle } = __m_js_ui_js;
 const { CATALOG, moduleProgress } = __m_js_catalog_js;
 const { loadData, loadDefaultData, setOverride, listOverrides, DATA_NAMES } = __m_js_data_js;
-const { resetConfigCache } = __m_js_settings_js;
+const { resetConfigCache, clearPrefs } = __m_js_settings_js;
+const { scoreRate } = __m_js_check_js;
 // ふりかえり・記録（エクスポート）と、先生用ページ（集計・設定・問題データの差し替え）
+
 
 
 
@@ -6103,7 +6131,7 @@ function renderRecords(view, available, config, rerender, easy = "") {
     if (!f) return;
     try {
       const data = JSON.parse(await f.text());
-      if (data.app !== "seclab") throw new Error();
+      if (data?.app !== "seclab" || !Array.isArray(data.progress) || !Array.isArray(data.reflections)) throw new Error();
       const modules = {};
       for (const p of data.progress) {
         const stepsDef = CATALOG.find((c) => c.id === p.module)?.module.steps || [];
@@ -6186,7 +6214,8 @@ function renderTeacher(view, available, config, rerender) {
     for (const f of input.files) {
       try {
         const d = JSON.parse(await f.text());
-        if (d.app !== "seclab") throw new Error();
+        // 形のちがうファイル（progress・reflections が配列でない）は、集計の途中で止まらないよう読み込まない
+        if (d?.app !== "seclab" || !Array.isArray(d.progress) || !Array.isArray(d.reflections)) throw new Error();
         records.push(d);
       } catch {
         errors.push(f.name);
@@ -6201,15 +6230,14 @@ function renderTeacher(view, available, config, rerender) {
       const reflected = records.filter((r) => r.reflections.some((x) => x.module === id)).length;
       return h("tr", {}, h("td", {}, title), h("td", {}, `${done} / ${records.length} 人`), h("td", {}, `${reflected} / ${records.length} 人`));
     });
-    const rate = (s) => (s ? Number(s.split("/")[0]) / Number(s.split("/")[1]) : null);
     const pct = (v) => `${Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 100)}%`;
     const avg = (key) => {
-      const v = records.map((r) => rate(r.checks?.[key])).filter((x) => x !== null);
+      const v = records.map((r) => scoreRate(r.checks?.[key])).filter((x) => x !== null);
       return v.length ? `${pct(v)}（${v.length}人）` : "—";
     };
     // 伸びは、事前と事後の両方がある生徒だけでくらべる（SEC-55）
-    const both = records.filter((r) => rate(r.checks?.pre) !== null && rate(r.checks?.post) !== null);
-    const growth = both.length ? `事前 ${pct(both.map((r) => rate(r.checks.pre)))} → 事後 ${pct(both.map((r) => rate(r.checks.post)))}（${both.length}人）` : "—";
+    const both = records.filter((r) => scoreRate(r.checks?.pre) !== null && scoreRate(r.checks?.post) !== null);
+    const growth = both.length ? `事前 ${pct(both.map((r) => scoreRate(r.checks.pre)))} → 事後 ${pct(both.map((r) => scoreRate(r.checks.post)))}（${both.length}人）` : "—";
     out.replaceChildren(
       h("p", {}, `${records.length} 人分を読み込みました。`),
       errors.length ? explainCard("読み込めなかったファイル", errors.join("、"), "warn") : "",
@@ -6266,11 +6294,7 @@ function renderTeacher(view, available, config, rerender) {
               if (!confirm(CONFIRM_APPLY)) return;
               setOverride("config", buildConfig());
               resetConfigCache();
-              try {
-                localStorage.removeItem("seclab.prefs");
-              } catch {
-                /* 何もしない */
-              }
+              clearPrefs();
               toast("この端末に反映しました");
               rerender();
             },
@@ -6286,11 +6310,7 @@ function renderTeacher(view, available, config, rerender) {
             onclick: () => {
               setOverride("config", null);
               resetConfigCache();
-              try {
-                localStorage.removeItem("seclab.prefs");
-              } catch {
-                /* 何もしない */
-              }
+              clearPrefs();
               toast("標準の設定に戻しました");
               rerender();
             },
@@ -6505,7 +6525,7 @@ function renderHome() {
       h("span", { class: "mc-num" }, `モジュール${c.label}・${c.module.minutes}`),
       h("span", { class: "mc-title" }, c.title),
       h("span", { class: "mc-desc" }, c.desc),
-      h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${(p.done / p.total) * 100}%` })),
+      h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${p.total ? (p.done / p.total) * 100 : 0}%` })),
       h("span", { class: "hint" }, p.complete ? "✓ 完了" : `${p.done} / ${p.total} ステップ`),
     );
   });
@@ -6612,7 +6632,10 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") flushReflections();
 });
 
-reloadConfig();
+reloadConfig().catch((e) => {
+  // 設定や問題のデータを読めなかったとき（ファイルを直接開いた など）は、白い画面のままにせず知らせる
+  view.replaceChildren(h("div", { class: "card" }, h("h1", {}, "読み込めませんでした"), h("p", {}, `${e?.message || e}。単一HTML版（dist/security-lab.html）を使うか、Webサーバー経由で開いてください。`)));
+});
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});

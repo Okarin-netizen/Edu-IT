@@ -15,7 +15,7 @@
   <style id="eduit-frame-css">
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D"> で切りかわる。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -42,6 +42,7 @@
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -1317,7 +1318,9 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('click', function () { select(i); });
       t.addEventListener('keydown', function (e) {
         var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (n) { e.preventDefault(); select((i + n + panels.length) % panels.length); tabEls[(i + n + panels.length) % panels.length].focus(); }
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
       });
       tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
     });
@@ -1396,7 +1399,7 @@ window.EDUIT_INFO.jishu = {
     opts = opts || {};
     var store = 'eduit.level.' + (info.domain || 'x');
     var cur = 'basic';
-    try { if (LEVEL_KEYS.indexOf(localStorage.getItem(store)) >= 0) cur = localStorage.getItem(store); } catch (e) {}
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
     var uid = 'ef-lv-' + (info.domain || 'x');
     var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
     var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
@@ -1410,7 +1413,7 @@ window.EDUIT_INFO.jishu = {
       t.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        var n = LEVEL_KEYS[(i + 1) % LEVEL_KEYS.length];
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
         select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
       });
       tabs.appendChild(t);
@@ -1548,34 +1551,34 @@ window.EDUIT_INFO.jishu = {
   function autoHide() {
     var lastY = window.pageYOffset || 0, ticking = false;
     function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
-    function show(el) { el.classList.remove('ef-ah-hide'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
     function run() {
       ticking = false;
       var y = window.pageYOffset || 0, dy = y - lastY;
       if (Math.abs(dy) < 6 && y > 0) return;
       lastY = y;
-      Array.prototype.forEach.call(bars(), function (el) {
-        if (dy < 0 || y <= 0 || el.contains(document.activeElement)) { show(el); return; }
-        if (el.classList.contains('ef-ah-hide')) return;
-        var cs = getComputedStyle(el), top = parseFloat(cs.top) || 0;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
-        if (el.getBoundingClientRect().top > top + 1) return;
-        el.style.setProperty('--ef-ah-y', -(top + el.offsetHeight + 4) + 'px');
-        el.classList.add('ef-ah-hide');
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
       });
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
     document.addEventListener('focusin', function (e) {
-      var el = e.target.closest && e.target.closest('[data-ef-autohide]');
-      if (el) show(el);
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
     });
     // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
     function reveal() {
-      Array.prototype.forEach.call(bars(), function (el) {
-        var t = el.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
         if (!t) return;
-        for (var sc = t.parentElement; sc && sc !== el.parentElement; sc = sc.parentElement) {
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
           if (sc.scrollWidth > sc.clientWidth + 1) {
             var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
             if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
@@ -1600,7 +1603,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1651,7 +1654,7 @@ window.EDUIT_INFO.jishu = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^[A-D]\d+\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
         close
       ]),
       body
@@ -2300,12 +2303,21 @@ function emptyState() {
 let state = load();
 const listeners = new Set();
 
+// 保存データを、はじめの形に重ねる。壊れたデータ（オブジェクトのはずの所が別の値など）は、はじめの形にもどす
+function mergeSaved(base, saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
+  const out = { ...base, ...saved };
+  for (const [k, v] of Object.entries(base)) {
+    if (v && typeof v === "object" && (!out[k] || typeof out[k] !== "object" || Array.isArray(out[k]))) out[k] = v;
+  }
+  return out;
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return emptyState();
-    const parsed = JSON.parse(raw);
-    const s = { ...emptyState(), ...parsed };
+    const s = mergeSaved(emptyState(), JSON.parse(raw));
     if (!s.net || !Array.isArray(s.net.nodes) || !Array.isArray(s.net.links)) s.net = defaultNetwork();
     else migrateShopNames(s.net);
     return s;
@@ -2362,8 +2374,10 @@ const store = {
   getScore(moduleId, key) {
     return state.modules[moduleId]?.score?.[key];
   },
+  // 空の文を保存したとき（全部消したとき）は、記録からも消す（ほかの教材と同じ）
   setReflection(moduleId, text) {
-    state.reflections[moduleId] = { text, at: new Date().toISOString() };
+    if (text) state.reflections[moduleId] = { text, at: new Date().toISOString() };
+    else delete state.reflections[moduleId];
     save();
   },
   getReflection(moduleId) {
@@ -2417,7 +2431,6 @@ function explainCard(label, body, kind = "info") {
   else card.append(body);
   return card;
 }
-
 
 // 振り返りを出すか（先生が「振り返りを隠す」設定にしたときは false。shared/eduit-frame.js の EduitFrame.furikaeri）
 function furikaeriOn() {
@@ -2871,6 +2884,7 @@ function createNetView(opts) {
   function animate(path, { label = "", kind = "data", hopMs = 650, stopAt = null, onHop = null } = {}) {
     const pts = path.map((id) => nodeById(net, id)).filter(Boolean);
     if (stopAt !== null) pts.splice(stopAt + 1);
+    if (!pts.length) return Promise.resolve(); // 道の機器が見つからない（消された など）ときは何もしない
     const g = s("g", { class: `pkt k-${kind}` }, s("rect", { x: -16, y: -12, width: 32, height: 24, rx: 6 }), s("text", { y: 5, "text-anchor": "middle" }, label));
     pktLayer.append(g);
     const place = (x, y) => g.setAttribute("transform", `translate(${x} ${y - 30})`);
@@ -3974,12 +3988,12 @@ const faultModule = {
       const r = resolveName(net, from.id, server.host);
       const direct = shortestPath(net, from.id, server.id);
       if (r.ok) {
-        dnsResult.replaceChildren(explainCard("開けた", `DNSサーバ（${escape(r.dns.name)}）が「${server.host} は ${r.ip}」と答えました。${direct ? "" : "でも、Webサーバまでの道はとぎれています。"}DNSサーバを止めて、もう一度ためそう。`, direct ? "good" : "warn"));
+        dnsResult.replaceChildren(explainCard("開けた", `DNSサーバ（${escape(r.dns.name)}）が「${escape(server.host)} は ${escape(r.ip)}」と答えました。${direct ? "" : "でも、Webサーバまでの道はとぎれています。"}DNSサーバを止めて、もう一度ためそう。`, direct ? "good" : "warn"));
       } else {
         dnsResult.replaceChildren(
           explainCard(
             "名前がわからない",
-            `DNSサーバに問い合わせできないので、<code>${server.host}</code> のIPアドレスがわかりません。${direct ? `<br>Webサーバ（${server.ip}）までの道は<strong>つながっている</strong>のに、名前では開けません。` : ""}`,
+            `DNSサーバに問い合わせできないので、<code>${escape(server.host)}</code> のIPアドレスがわかりません。${direct ? `<br>Webサーバ（${escape(server.ip)}）までの道は<strong>つながっている</strong>のに、名前では開けません。` : ""}`,
             "bad",
           ),
         );
@@ -4653,6 +4667,8 @@ function renderRecords() {
     }
     return true;
   };
+  // ファイル名の「組-番号-名前」（JSON と CSV で同じにする）
+  const who = (st) => [st.cls, st.num, st.name].filter(Boolean).join("-") || "記録";
   const exported = (filename) => {
     exportNote.className = "export-note good";
     exportNote.textContent = `ファイルを保存しました（ファイル名: ${filename}）。先生に言われた場所に出そう。`;
@@ -4669,8 +4685,7 @@ function renderRecords() {
       modules: Object.fromEntries(MODULES.map((m) => [m.id, { title: m.title, ...progress(m), steps: s.modules[m.id]?.steps || {}, score: s.modules[m.id]?.score || {} }])),
       reflections: s.reflections,
     };
-    const who = [s.student.cls, s.student.num, s.student.name].filter(Boolean).join("-") || "記録";
-    const filename = `ネットワーク_${who}.json`;
+    const filename = `ネットワーク_${who(s.student)}.json`;
     downloadFile(filename, JSON.stringify(data, null, 2));
     exported(filename);
   });
@@ -4684,7 +4699,7 @@ function renderRecords() {
       const p = progress(m);
       lines.push([s.student.cls, s.student.num, s.student.name, m.title, p.done, p.total, m.id === "drill" ? (store.getScore("drill", "best") ?? "") : "", store.getReflection(m.id)].map(q).join(","));
     }
-    const filename = `ネットワーク_${s.student.name || "記録"}.csv`;
+    const filename = `ネットワーク_${who(s.student)}.csv`;
     downloadFile(filename, "﻿" + lines.join("\r\n"), "text/csv");
     exported(filename);
   });
