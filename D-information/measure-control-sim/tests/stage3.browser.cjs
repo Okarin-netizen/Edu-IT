@@ -42,7 +42,7 @@ const ok = (c, m) => {
     await page.waitForTimeout(150);
   };
 
-  ok(/第\d+\.\d+版/.test(await page.textContent(".ef-footer")) && (await page.textContent(".ef-footer")).includes("技術 岡田"), "フッターに作成者と版（第○.○版）が出る（共通の枠）");
+  ok(/第\d+\.\d+版/.test(await page.textContent(".ef-footer")) && /技術[ 　]岡田/.test(await page.textContent(".ef-footer")), "フッターに作成者と版（第○.○版）が出る（共通の枠）");
 
   // ---- MC-17: 速さ×0.5で短く押しても気づく ----
   await go("#/s/traffic-button");
