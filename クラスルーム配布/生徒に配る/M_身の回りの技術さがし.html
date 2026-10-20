@@ -1,0 +1,1954 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M 身の回りの技術さがし</title>
+<!-- 身の回りの技術さがし(教科書の各編1章のはじめと終わり)。T-textbook/build.py が CSS・JS を中に入れて dist/ に1ファイルを作る -->
+<style>
+/* Edu-IT 共通の枠(4分野・全アプリ共通)
+ * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G|T|M|F|Z"> で切りかわる(G は分野に入らない「技術分野のガイダンス」。T・M・F・Z は T-textbook/ の教科書順コースと3つの教材)。
+ * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+ */
+:root {
+  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-bg: #f5f4f0;          /* 画面の地 */
+  --ef-surface: #ffffff;     /* カード・ヘッダー */
+  --ef-surface-2: #f8f7f4;   /* 一段下げた面 */
+  --ef-line: #d6d3cb;        /* 枠線 */
+  --ef-text: #1f2328;
+  --ef-muted: #565d68;
+  --ef-focus: #f08c00;       /* キーボード操作の枠 */
+  --ef-radius: 12px;
+  --ef-radius-s: 8px;
+  --ef-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 2px 8px rgba(0, 0, 0, .04);
+  --ef-header-h: 52px;
+  --ef-tap: 40px;            /* ボタンの最小の高さ */
+  /* 分野の色(既定は D) */
+  --ef-accent: #1a5fc8;
+  --ef-accent-ink: #ffffff;
+  --ef-accent-soft: #e6eefb;
+}
+:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
+:root[data-ef-domain="T"] { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }  /* 教科書の順に進む学習コース(T-textbook/): 灰青 */
+:root[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
+:root[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
+:root[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
+ * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
+ *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
+ *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: 3px solid var(--ef-accent);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* ---- ボタン ----
+ * .ef-btn          ふつうのボタン(白地・枠線・丸角)
+ * .ef-btn.is-on    ON の状態(分野の色で塗る)。aria-pressed="true" でも同じ
+ * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ */
+.ef-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 14px;
+  border: 1px solid var(--ef-line); border-radius: 999px;
+  background: var(--ef-surface); color: var(--ef-text);
+  font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap;
+}
+.ef-btn:hover { border-color: var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-back { color: var(--ef-accent); border-color: transparent; background: var(--ef-accent-soft); }
+/* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
+.ef-toggle[aria-pressed="true"]::before { content: "✓"; }
+.ef-size .ef-size-v {
+  display: inline-block; min-width: 2em; padding: 0 .3em; border-radius: 6px;
+  background: var(--ef-accent-soft); color: var(--ef-accent); font-weight: 700; text-align: center;
+}
+/* 「ふつう・大きい」の2段だけのとき: <button class="ef-btn ef-size" aria-pressed="false|true">文字 <span class="ef-size-v"></span></button>
+ * (中身が空の .ef-size-v に「中」「大」を出す。ON でもボタンは塗らない) */
+.ef-size[aria-pressed="true"] { background: var(--ef-surface); border-color: var(--ef-line); color: var(--ef-text); }
+.ef-size[aria-pressed]::before { content: none; }
+.ef-size[aria-pressed] .ef-size-v:empty::after { content: "中"; }
+.ef-size[aria-pressed="true"] .ef-size-v:empty::after { content: "大"; }
+/* タブの帯をスクロールで隠す(data-ef-autohide。隠すのは eduit-frame.js) */
+[data-ef-autohide] { transition: transform .2s ease; }
+[data-ef-autohide].ef-ah-hide { transform: translateY(var(--ef-ah-y, -110%)); }
+@media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
+.ef-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border: 0; border-radius: var(--ef-radius-s);
+  background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
+}
+.ef-btn-primary:hover { filter: brightness(1.08); }
+.ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
+  outline: 3px solid var(--ef-focus); outline-offset: 2px;
+}
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-card {
+  background: var(--ef-surface); border: 1px solid var(--ef-line); border-top: 4px solid var(--ef-accent);
+  border-radius: var(--ef-radius); box-shadow: var(--ef-shadow); padding: 16px 18px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
+.ef-code {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 .35em;
+  border-radius: 6px; background: var(--ef-accent); color: var(--ef-accent-ink);
+  font: 700 .9em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
+}
+.ef-title .ef-code { font-size: 15px; }
+.ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
+.ef-btn.is-on .ef-code, .ef-btn[aria-pressed="true"] .ef-code, .ef-btn[aria-current] .ef-code { background: var(--ef-accent-ink); color: var(--ef-accent); }
+
+/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
+.ef-mcard { display: flex; flex-direction: column; gap: 6px; min-height: 9rem; padding: 12px 16px 14px; cursor: pointer; font-family: var(--ef-font); color: var(--ef-text); transition: box-shadow .1s; }
+.ef-mcard:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, .14); }
+.ef-mcard-hd { display: flex; align-items: center; gap: 10px; }
+.ef-mcard-ic { flex: 0 0 auto; width: 1.4em; font-size: 2em; line-height: 1; text-align: center; }
+.ef-mcard-ht { min-width: 0; }
+.ef-mcard .ef-card-tag { margin: 0 0 2px; font-size: 14px; }
+.ef-mcard .ef-card-title { margin: 0; font-size: 1.12em; line-height: 1.4; }
+.ef-mcard-desc { margin: 0; font-size: .95em; line-height: 1.6; }
+.ef-mcard-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: .88em; color: var(--ef-muted); }
+.ef-mcard-go { margin-top: auto; align-self: flex-end; }
+.ef-level-order { margin: -4px 0 12px; font-size: .95em; line-height: 1.6; }
+
+/* ---- フッター(作成者・このアプリについて) ---- */
+.ef-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
+  margin: 24px 0 0; padding: 12px 16px;
+  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
+}
+.ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
+.ef-about-link {
+  border: 0; background: none; padding: 2px 4px; cursor: pointer;
+  font: inherit; color: var(--ef-accent); text-decoration: underline;
+}
+/* ヘッダーなどに置く小さい「このアプリについて」ボタン */
+.ef-about-btn { font-size: 14px; }
+
+/* ---- このアプリについて(ダイアログ) ---- */
+.ef-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--ef-accent); }
+.ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
+.ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
+.ef-tab { border: 1px solid var(--ef-line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--ef-surface-2);
+  padding: 6px 12px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-text); cursor: pointer; min-height: 36px; }
+.ef-tab[aria-selected="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
+.ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
+.ef-panel p { margin: 4px 0 8px; }
+.ef-howto .ef-panel { border-top: 0; }
+.ef-howto .ef-panel ol { margin: 4px 0 8px; padding-left: 1.5em; }
+.ef-howto .ef-panel li { margin: 2px 0; }
+.ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
+.ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
+
+/* 文字を大きくした・くっきりのときも読めるように */
+/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+.ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
+.ef-level-tabs { display: flex; gap: 0; border-bottom: 3px solid var(--ef-accent); }
+.ef-level-tab {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 22px; margin: 0 6px -3px 0;
+  font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
+  background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom: 3px solid var(--ef-accent);
+  border-radius: var(--ef-radius-s) var(--ef-radius-s) 0 0;
+}
+.ef-level-tab:hover { color: var(--ef-text) !important; }
+/* 教材ごとのボタンの色指定(#hub button など)に負けないように !important にする */
+.ef-level-tab[aria-selected="true"], .ef-level-tab[aria-selected="true"]:hover { color: var(--ef-accent-ink) !important; background: var(--ef-accent) !important; border-color: var(--ef-accent) !important; }
+.ef-level-tab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.ef-level-count { font-size: .72em; font-weight: 400; }
+.ef-level-panel { padding: 12px 0 0; }
+.ef-level-panel:focus { outline: none; }
+.ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
+.ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
+.ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
+.ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group:first-of-type { margin-top: 4px; }
+.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-parts-k {
+  display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
+  color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
+}
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- スマホ(せまい画面) ----
+ * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
+ * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
+ */
+@media (max-width: 640px) {
+  .ef-header { gap: 6px; padding: 6px 10px; }
+  .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
+  .ef-tools { gap: 4px; }
+  .ef-header .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
+  .ef-level-tab { padding: 6px 14px; min-height: 44px; font-size: 1.05em; }
+  .ef-mcard { min-height: 0; }
+  .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .ef-panel { padding: 12px; }
+}
+
+@media print { .ef-footer, .ef-dialog { display: none !important; } }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: 0; border-radius: 10px 0 0 10px;
+  background: var(--ef-accent); color: var(--ef-accent-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font); box-shadow: -2px 2px 10px rgba(0, 0, 0, .25);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, .25); border-radius: 999px; padding: 1px 5px; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .18); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
+.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
+.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: #2e7d32; }
+.ef-jishu-res.is-ng strong { color: #c62828; }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 2px solid var(--ef-accent); border-radius: var(--ef-radius); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
+@media (max-width: 640px) {
+  .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
+}
+@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
+</style>
+<style>
+/* 教科書順コースと M・F・Z の共通の見た目(もとは G-guidance/index.html の <style>。クラスの頭を g- から t- に変えたもの)
+ * build.py がページの中に入れる。 */
+  body { margin: 0; background: var(--ef-bg); }
+  #tapp { --t-fs: 1; font-family: var(--ef-font); font-size: calc(17px * var(--t-fs)); line-height: 1.75; color: var(--ef-text); }
+  #tapp *, #tapp *::before, #tapp *::after { box-sizing: border-box; }
+  #tapp.t-noruby rt { display: none; }
+  #tapp rt { font-size: .5em; color: var(--ef-muted); }
+  :where(#tapp button, #tapp input, #tapp textarea, #tapp select) { font: inherit; color: inherit; }
+  #tapp .ef-header .ef-btn { font-size: 15px; }
+  /* 上のバーとタブの帯(下へ読むと隠れ、上へもどすと出る) */
+  .t-top { position: sticky; top: 0; z-index: 30; background: var(--ef-surface); box-shadow: 0 2px 6px rgba(0, 0, 0, .08); }
+  .t-tabs { display: flex; gap: 4px; padding: 6px 12px 0; background: var(--ef-accent); overflow-x: auto; scrollbar-width: none; }
+  .t-tabs::-webkit-scrollbar { display: none; }
+  .t-tabs button { flex: 1 0 auto; border: 0; background: transparent; color: #fff; padding: 8px 12px; min-height: 46px; border-radius: 10px 10px 0 0;
+    font-weight: 700; font-size: min(.95em, 18px); white-space: nowrap; cursor: pointer; }
+  .t-tabs button:hover { background: rgba(255, 255, 255, .15); }
+  .t-tabs button[aria-selected="true"] { background: var(--ef-bg); color: var(--ef-accent); }
+  .t-tabs button:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: -3px; }
+  .t-tabs .t-done::after { content: " ✓"; }
+  .t-tabs rt { color: inherit; opacity: .85; }
+  main.t-main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 60px; }
+  .t-sec[hidden] { display: none !important; }
+  .t-sec > h2 { margin: 4px 0 2px; font-size: 1.45em; line-height: 1.4; color: var(--ef-accent); }
+  .t-ref { margin: 0 0 12px; font-size: .82em; color: var(--ef-muted); }
+  .t-card { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius); padding: 14px 18px; margin: 0 0 14px; box-shadow: var(--ef-shadow); }
+  .t-card > h3 { margin: 0 0 8px; font-size: 1.15em; line-height: 1.45; }
+  .t-card p { margin: .35em 0; }
+  .t-act > h3::before { content: "やってみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 6px; background: var(--ef-accent); color: #fff; font-size: .78em; vertical-align: 2px; }
+  .t-write > h3::before { content: "書いてみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 6px; background: #8a5a00; color: #fff; font-size: .78em; vertical-align: 2px; }
+  .t-lead { font-size: 1.05em; }
+  .t-key { background: var(--ef-accent-soft); border-left: 5px solid var(--ef-accent); border-radius: 0 var(--ef-radius-s) var(--ef-radius-s) 0; padding: 10px 14px; margin: 10px 0; }
+  .t-key b { color: var(--ef-accent); }
+  .t-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .t-mini { border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); padding: 10px 12px; background: var(--ef-surface-2); }
+  .t-mini h4 { margin: 0 0 4px; font-size: 1.02em; }
+  .t-mini p { margin: 0; font-size: .95em; }
+  .t-ic { font-size: 1.6em; line-height: 1; margin-right: .2em; vertical-align: -3px; }
+  .t-btn { display: inline-block; text-align: center; line-height: 1.5; min-height: 44px; padding: 8px 16px; border-radius: 10px;
+    border: 2px solid var(--ef-accent); background: #fff; color: var(--ef-accent); font-weight: 700; cursor: pointer; }
+  .t-btn:hover { background: var(--ef-accent-soft); }
+  .t-btn.t-pri { background: var(--ef-accent); color: #fff; }
+  .t-btn:focus-visible, .t-choice:focus-visible, .t-ord-item:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+  .t-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .t-score { font-weight: 700; color: var(--ef-accent); }
+  /* 書く欄 */
+  .t-field { display: block; margin: 8px 0; }
+  .t-field > span { display: block; font-weight: 600; font-size: .95em; }
+  .t-field input, .t-field textarea { width: 100%; border: 1.5px solid #9a968c; border-radius: 8px; padding: 6px 10px; background: #fff; line-height: 1.6; }
+  .t-field textarea { min-height: 4.2em; resize: vertical; }
+  .t-field input:focus, .t-field textarea:focus { outline: none; border-color: var(--ef-accent); box-shadow: 0 0 0 3px var(--ef-accent-soft); }
+  .t-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  /* 選ぶクイズ */
+  .t-quiz { list-style: none; margin: 0; padding: 0; counter-reset: q; }
+  .t-q { padding: 10px 0; border-top: 1px dashed var(--ef-line); counter-increment: q; }
+  .t-q:first-child { border-top: 0; }
+  .t-q-text { margin: 0 0 6px; }
+  .t-q-text::before { content: counter(q) ". "; font-weight: 700; color: var(--ef-accent); }
+  .t-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+  .t-choice { min-height: 42px; padding: 4px 14px; border: 1.5px solid var(--ef-line); border-radius: 999px; background: #fff; cursor: pointer; }
+  .t-choice:hover { border-color: var(--ef-accent); }
+  .t-choice.is-ok { background: #e3f3e5; border-color: #2e7d32; color: #1b5e20; font-weight: 700; }
+  .t-choice.is-ng { background: #fbeaea; border-color: #b23b3b; color: #8c1d1d; }
+  .t-choice.is-ok::before { content: "○ "; }
+  .t-choice.is-ng::before { content: "× "; }
+  .t-explain { margin: 6px 0 0; padding: 6px 10px; border-radius: 8px; background: var(--ef-surface-2); font-size: .93em; }
+  .t-explain[hidden] { display: none; }
+  /* ならべる */
+  .t-ord { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+  .t-ord h4 { margin: 0 0 6px; font-size: 1.05em; }
+  .t-ord-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .t-ord-item { position: relative; min-height: 48px; padding: 6px 14px 6px 40px; border: 1.5px solid var(--ef-line); border-radius: 10px; background: #fff; cursor: pointer; text-align: left; }
+  .t-ord-item .t-ord-n { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; border: 1.5px dashed #9a968c;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+  .t-ord-item.is-picked { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+  .t-ord-item.is-picked .t-ord-n { border: 0; background: var(--ef-accent); color: #fff; }
+  .t-ord-item.is-ok { border-color: #2e7d32; background: #e3f3e5; }
+  .t-ord-item.is-ok .t-ord-n { background: #2e7d32; }
+  .t-ord-item.is-ng { border-color: #b23b3b; background: #fbeaea; }
+  .t-ord-item.is-ng .t-ord-n { background: #b23b3b; }
+  .t-ord-msg { margin: 8px 0 0; font-size: .95em; }
+  .t-arrow { color: var(--ef-muted); font-size: .9em; }
+  /* 発想のしかた */
+  .t-idea { border-top: 5px solid var(--ef-accent); }
+  /* 問題と課題の図 */
+  .t-gap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; text-align: center; margin: 10px 0; }
+  .t-gap > div { padding: 10px; border-radius: var(--ef-radius-s); border: 2px solid var(--ef-line); background: #fff; }
+  .t-gap .t-now { border-color: #b23b3b; }
+  .t-gap .t-goal { border-color: #2e7d32; }
+  .t-gap .t-mid { border: 0; background: transparent; font-weight: 700; color: #8c1d1d; }
+  .t-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 8px 0; padding: 0; list-style: none; }
+  .t-flow li { padding: 4px 10px; border-radius: 8px; background: var(--ef-accent-soft); font-weight: 600; }
+  .t-flow li + li::before { content: "→"; margin-right: 6px; color: var(--ef-muted); font-weight: 400; }
+  /* 自転車の設計 */
+  .t-design { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .t-opt { margin: 0 0 10px; border: 0; padding: 0; }
+  .t-opt legend { font-weight: 700; margin-bottom: 4px; padding: 0; }
+  .t-choice.t-pick[aria-pressed="true"]::before { content: "✓ "; }
+  .t-choice.t-pick[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; font-weight: 700; }
+  .t-bars { margin: 0; padding: 0; list-style: none; }
+  .t-bar { display: grid; grid-template-columns: 8.5em 1fr 2.2em; gap: 8px; align-items: center; margin: 6px 0; }
+  .t-bar-track { display: block; height: 22px; border-radius: 11px; background: #ebe8e1; overflow: hidden; }
+  .t-bar-fill { display: block; height: 100%; border-radius: 11px; background: var(--ef-accent); transition: width .3s; }
+  .t-bar-v { font-weight: 700; text-align: right; }
+  .t-bar.is-want .t-bar-label::after { content: " ★"; color: #c77700; }
+  .t-bike-msg { margin-top: 8px; }
+  /* 4つの分野 */
+  .t-areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .t-area { border-radius: var(--ef-radius); border: 1px solid var(--ef-line); border-top: 6px solid var(--c); background: #fff; padding: 12px 14px; }
+  .t-area h4 { margin: 0 0 4px; font-size: 1.1em; color: var(--c); }
+  .t-area p { margin: .25em 0; font-size: .95em; }
+  .t-area .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .55em; border-radius: 999px; border: 1.5px solid var(--c); color: var(--c); font-size: .85em; font-weight: 700; }
+  .t-area-A { --c: #985a26; } .t-area-B { --c: #2e7d32; } .t-area-C { --c: #b45309; } .t-area-D { --c: #1a5fc8; }
+  /* 振り返り */
+  .t-self { width: 100%; border-collapse: collapse; }
+  .t-self th, .t-self td { border: 1px solid var(--ef-line); padding: 6px 8px; }
+  .t-self thead th { background: var(--ef-surface-2); font-weight: 600; font-size: .9em; }
+  .t-self tbody th { text-align: left; font-weight: 400; }
+  .t-self td { text-align: center; width: 5.5em; }
+  .t-self label { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 40px; border-radius: 8px; cursor: pointer; }
+  .t-self input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .t-self label:has(input:checked) { background: var(--ef-accent); color: #fff; font-weight: 700; }
+  .t-self label:has(input:focus-visible) { outline: 3px solid var(--ef-focus); }
+  /* 記録 */
+  .t-who { display: grid; grid-template-columns: 6em 6em 1fr; gap: 8px; max-width: 560px; }
+  .t-prog { list-style: none; margin: 6px 0; padding: 0; }
+  .t-prog li { padding: 4px 0; border-bottom: 1px dashed var(--ef-line); }
+  .t-prog .ok { color: #2e7d32; font-weight: 700; }
+  .t-prog .no { color: var(--ef-muted); }
+  .t-toc { margin: 6px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; }
+  .t-toc button { width: 100%; text-align: left; min-height: 46px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: 10px; background: #fff; cursor: pointer; }
+  .t-toc button:hover { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
+  .t-toc b { color: var(--ef-accent); margin-right: .4em; }
+  .t-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .6em; border-radius: 999px; border: 1.5px solid var(--ef-accent); color: var(--ef-accent); font-size: .85em; font-weight: 700; }
+  /* 製品の工夫の話(問題 → 工夫) */
+  .t-case { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start; margin: 8px 0; padding: 10px 14px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px solid var(--ef-line); }
+  .t-case dt { font-weight: 700; color: var(--ef-accent); white-space: nowrap; }
+  .t-case dd { margin: 0; }
+  /* 技術のカード */
+  .t-techs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .t-tech { border: 1px solid var(--ef-line); border-top: 5px solid var(--ef-accent); border-radius: var(--ef-radius-s); padding: 10px 12px; background: #fff; }
+  .t-tech h4 { margin: 0 0 4px; font-size: 1.05em; }
+  .t-tech p { margin: .2em 0; font-size: .95em; }
+  .t-tech .t-plus::before { content: "よいところ: "; font-weight: 700; color: #2e7d32; }
+  .t-tech .t-minus::before { content: "心配なところ: "; font-weight: 700; color: #b23b3b; }
+  /* 4つの視点を 1〜5 でつける */
+  .t-rates { margin: 8px 0; padding: 0; list-style: none; }
+  .t-rate { display: grid; grid-template-columns: 8.5em 1fr; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px dashed var(--ef-line); }
+  .t-rate:first-child { border-top: 0; }
+  .t-rate-v { display: flex; flex-wrap: wrap; gap: 6px; }
+  .t-rate-v .t-choice { min-width: 44px; padding: 4px 10px; }
+  .t-rate-v .t-choice[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; font-weight: 700; }
+  .t-scale { font-size: .85em; color: var(--ef-muted); }
+  /* いくつでもえらんで答え合わせ(Z ② など) */
+  .t-multi { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .t-multi .t-choice[aria-pressed="true"] { background: var(--ef-accent-soft); border-color: var(--ef-accent); font-weight: 700; }
+  .t-multi .t-choice[aria-pressed="true"]::before { content: "✓ "; }
+  .t-memo { margin: 6px 0; padding: 8px 12px; border-radius: var(--ef-radius-s); background: #fff8e6; border: 1px solid #e7cf8f; }
+  .t-memo[hidden] { display: none; }
+  @media (max-width: 640px) {
+    .t-rate { grid-template-columns: 1fr; gap: 2px; }
+    .t-case { grid-template-columns: 1fr; }
+    main.t-main { padding: 10px 10px 60px; }
+    .t-card { padding: 12px; }
+    .t-tabs { padding: 4px 6px 0; }
+    .t-tabs button { flex: 0 0 auto; min-height: 42px; padding: 6px 10px; }
+    .t-row3, .t-design { grid-template-columns: 1fr; }
+    .t-gap { grid-template-columns: 1fr; }
+    .t-who { grid-template-columns: 1fr 1fr; }
+    .t-who .t-field:last-child { grid-column: 1 / -1; }
+    .t-bar { grid-template-columns: 7em 1fr 2em; }
+    .t-self td { width: 3.4em; padding: 4px 2px; }
+    .t-self thead th { font-size: .75em; padding: 4px 2px; }
+    .t-self tbody th { padding: 4px 6px; font-size: .95em; }
+    .t-self label { min-width: 36px; }
+  }
+  @media print {
+    .t-top, .t-btns, [data-ef-footer] { display: none !important; }
+    .t-sec[hidden] { display: block !important; }
+    .t-card { box-shadow: none; break-inside: avoid; }
+  }
+
+</style>
+<script>
+/* M 身の回りの技術さがし: 版と更新履歴・自習ガイド(shared/eduit-frame.js が読む)
+ * 教科書の各編の1章のはじめ(身の回りの〇〇の技術)と、1章の終わり(〇〇の技術の問題解決の工夫)に使う。4つの分野に1つずつタブがある。
+ * 記号は M(身の回り)。分野の色は赤紫(eduit-frame.css の data-ef-domain="M")。
+ * 新しい版を出すときは version・updated を変え、history のいちばん上に足す。
+ */
+window.EDUIT_INFO = {
+  domain: 'M',
+  domainName: '身の回りの技術さがし',
+  suite: '身の回りの技術さがし',
+  version: '1.0',
+  updated: '2026-10-20',
+  safety: [
+    '製品の工夫の説明は、学習のために短くまとめたものです。同じ製品でも、会社や型によって工夫がちがうことがあります。'
+  ],
+  history: [
+    { version: '1.0', date: '2026-10-20', items: [
+      '身の回りの技術さがしの教材を作った(教科書の各編1章のはじめと終わりに合わせ、4つの分野に1つずつタブ)。はじめに(どの技術の工夫? 8問・家や通学路で見つけた技術)・① 材料と加工・② 生物育成・③ エネルギー変換・④ 情報(どれも、どんな工夫? 4問・問題解決の工夫を4つの視点で読みとく・自分で見つけた製品の工夫)',
+      '振り返りと記録(書き出し)を付けた。自習モード(自習ガイド)と自習ワークシートに対応した'
+    ] }
+  ]
+};
+
+/* 自習ガイド(自習モードのときだけ出る。形は shared/README.md の「自習モード」) */
+window.EDUIT_INFO.jishu = {
+  lead: '身の回りの製品やしくみに、どの分野の技術が使われ、どんな工夫がこめられているかを見つけます。各分野の学習のはじめと、1章の終わりに使います。',
+  apps: {
+    M: {
+      goal: '身の回りの製品やしくみから4つの分野の技術を見つけ、作った人がどんな問題を、どの視点を大事にして解決したかを読みとる。',
+      time: '1つの分野で15分〜25分(4つで1〜2時間)',
+      steps: [
+        { where: 'はじめに', do: '「どの技術の工夫?」で、8つの工夫が A〜D のどの分野の技術かを答えよう。', hint: '材料の形や性質を生かすのは A、生き物を育てるのは B、エネルギーを変えたり送ったりするのは C、情報を集めて処理するのは D です。', go: '[data-tab="intro"]' },
+        { where: 'はじめに', do: '家の中や通学路で見つけた技術を、4つの分野に1つずつ書こう。', hint: '冷蔵庫・自転車・道路・畑・信号機など、見回すとたくさん見つかります。1つの製品にいくつもの分野の技術が入っていることもあります。' },
+        { where: '① 材料と加工', do: '「どんな工夫?」4問に答え、たためるいすの工夫を4つの視点に分けよう。', hint: '使う人の「こうしたい」は社会からの要求、けがを防ぐのは安全性、資源やごみのことは環境への負荷、お金のことは経済性です。', go: '[data-tab="a"]' },
+        { where: '② 生物育成', do: '「どんな工夫?」4問に答え、イチゴの高設栽培の工夫を4つの視点に分けよう。', hint: '育てる人(農家)の体の負担を減らすこと、食べる人の安全、水や肥料のむだ、作業の手間とお金、の4つを見分けよう。', go: '[data-tab="b"]' },
+        { where: '③ エネルギー変換', do: '「どんな工夫?」4問に答え、扇風機の工夫を4つの視点に分けよう。', hint: '電気が何のエネルギーに変わっているか(光・熱・運動)を考えると、工夫のわけが分かります。', go: '[data-tab="c"]' },
+        { where: '④ 情報', do: '「どんな工夫?」4問に答え、スマートフォンでの支払いの工夫を4つの視点に分けよう。', hint: '情報を「入力(読み取る)→ 処理(判断する)→ 出力(動かす・表示する)」の流れで考えると、しくみが見えてきます。', go: '[data-tab="d"]' },
+        { where: '①〜④', do: '自分で製品を1つえらび、どんな問題を解決しているか・どんな工夫があるか・どの視点を大事にしているかを書こう。', hint: 'その分野の学習を始めるときに、そのタブの「書いてみよう」を書きます。4つの分野が全部終わっていなくてもかまいません。' },
+        { where: '振り返り', do: '3つの自己評価をえらび、「技術を見る目が変わったところ」を書こう。', hint: 'はじめに書いた「見つけた技術」を見直して、新しく気づいた工夫があれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押し、できたファイルを先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '合板は、うすい板を繊維の向きが交互になるように重ねてはりあわせています。どの分野の技術の工夫?', choices: ['A 材料と加工', 'B 生物育成', 'D 情報'], answer: 0, explain: '材料(木材)の性質を生かして、反りにくく強い板にする工夫なので、材料と加工の技術です。' },
+        { q: '「指をはさまないように、たたむ部分にすきまがある」は、4つの視点のどれ?', choices: ['経済性', '安全性', '環境への負荷'], answer: 1, explain: 'けがを防ぐための工夫なので、安全性の視点です。' },
+        { q: '扇風機は、電気エネルギーを主に何のエネルギーに変えて使っている?', choices: ['光エネルギー', '運動エネルギー(回転)', '化学エネルギー'], answer: 1, explain: 'モーターで電気を回転の運動に変え、羽根を回して風を送っています。' },
+        { q: '交通系ICカードで改札が開くしくみで、カードの情報を読み取るのは「入力・処理・出力」のどれ?', choices: ['入力', '処理', '出力'], answer: 0, explain: 'カードの情報を読み取るのが入力、コンピュータが判断するのが処理、ゲートを開けるのが出力です。' }
+      ]
+    }
+  }
+};
+
+</script>
+<script>EDUIT_INFO.app = { name: 'M 身の回りの技術さがし' };</script>
+<script>
+/* Edu-IT 共通の枠: 作成者・安全と個人情報・ライセンス・更新履歴
+ * 使い方(classic script。file:// でも動く):
+ *   <link rel="stylesheet" href="…/shared/eduit-frame.css">
+ *   <script src="…/<分野>/eduit-info.js"><\/script>   … window.EDUIT_INFO を決める
+ *   <script src="…/shared/eduit-frame.js"><\/script>
+ * 置き場所(どれか):
+ *   - <div data-ef-footer></div> があればそこにフッターを出す
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - どちらもなければ <body> の最後にフッターを足す
+ *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
+ * EDUIT_INFO = {
+ *   domain: 'A',                     分野(A/B/C/D)。色が切りかわる
+ *   domainName: '材料と加工の技術',
+ *   suite: '材料と加工 教材アプリ',     教材集の名前
+ *   version: '2.1', updated: '2026-10-15',
+ *   safety: ['この分野だけの安全の説明', …],   共通の説明のあとに足す
+ *   history: [{ version: '2.1', date: '2026-10-15', items: ['…', …] }, …]   新しい順
+ *   app: { name: 'A3 構造強化ラボ' }   アプリごとに上書き(EDUIT_INFO.app を各ページで決めてもよい)
+ *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
+ * }
+ *
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
+ *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
+ * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
+ *   ボタンは字だけ(絵文字を付けない)。くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。
+ * 使い方のダイアログ: EduitFrame.howto(本文の HTML, { onOpen: function (dialogの中身) {…} }) → 「使い方」の題のダイアログを開く
+ *   (別の「使い方」の画面がない分野のメニューで使う。onOpen はふりがなを付けるときなどに)
+ * 記号の印: EduitFrame.code('A2') → <span class="ef-code">A2</span>(メニューの上のバー・アプリの上のバー・切りかえボタンで使う)
+ * メニューの上のバーの名前: EduitFrame.menuTitle(h1) → h1 の中を「[A] 材料と加工の技術 教材集」にする
+ * 上のバーの表示の道具(4分野で同じ形):
+ *   ふりがな・くっきり: <button class="ef-btn ef-toggle" aria-pressed="true|false">ふりがな</button>(ON は分野の色で塗り、✓ が付く)
+ *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
+ *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
+ *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
+ *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
+ *
+ * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
+ *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
+ *   1. アドレスの ?furikaeri=off / ?furikaeri=on(自分か、同じサイトの親の画面のアドレス)。localStorage 'eduit.furikaeri' に覚える
+ *   2. window.EDUIT_FURIKAERI = 'off' / 'on'(自分か親の画面。配布用の「振り返りなし」版はこれを入れてある)
+ *   3. localStorage 'eduit.furikaeri'(前に 1 で決めたもの)
+ *   JS で振り返りを出し分けるとき(振り返りを書かないと先へ進めない、など)は EduitFrame.furikaeri を見る。
+ *
+ * 自習モード: EduitFrame.jishu(true = 入っている。既定は切)。決め方は振り返りと同じで、?jishu=on|off → window.EDUIT_JISHU → localStorage 'eduit.jishu'。
+ *   入っているときは <html data-ef-jishu="on"> になり、アプリの右はしに「自習ガイド」のボタンとパネル(ねらい・進め方・ヒント・たしかめ問題)を出す。
+ *   中身は分野ごとの eduit-info.js の EDUIT_INFO.jishu.apps[記号](記号はアプリ名 EDUIT_INFO.app.name の先頭の「A3」など):
+ *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
+ *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
+ *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
+ * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
+ *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
+ *   EDUIT_INFO.levels = {
+ *     basic:    { title: '基本編', lead: '…', items: [{ id: 'M1', parts: ['材料カード', …], curr: 'A(1)ア', why: '…' }, …] },
+ *     advanced: { title: '発展編', lead: '…', items: [ … ] }
+ *   }
+ *   id はメニューごとのアプリの id。parts は生徒の画面に出るタブ・ページの名前(「使うところ」に出す)。
+ *   EDUIT_INFO.textbook があれば、カードを教科書の章ごとに見出しで区切り、カードに「教科書 1編1章 2」の行を出す:
+ *   EDUIT_INFO.textbook = {
+ *     groups: [{ key: 'know', ch: '1章', title: 'しくみを知る' }, { key: 'solve', ch: '2章', title: '問題を解決する' }, …],  見出しの順
+ *     items: { 'material-navi': { g: 'know', ref: '1編1章 1・2' }, … }   id ごとの区切りと、カードに出す教科書の節
+ *   }
+ *   curr(学習指導要領の項目)と why(分けた理由)は先生用の一覧だけに出し、生徒のカードには出さない。
+ *   選んだ編は localStorage の 'eduit.level.<分野>' に覚える(表示の設定なので「はじめから」でも消さない)。
+ */
+(function () {
+  'use strict';
+  var AUTHOR = '技術　岡田';
+  var info = window.EDUIT_INFO || {};
+  var app = info.app || {};
+  if (info.domain) document.documentElement.setAttribute('data-ef-domain', info.domain);
+
+  // ---- 振り返りを隠す設定 ----
+  // 決め方(先のものが勝つ): アドレスの ?名前=on|off(自分か、同じサイトの親の画面。localStorage に覚える)→ window.変数 → localStorage
+  function setting(param, globalName, key) {
+    var w = window, v = null, re = new RegExp('[?&]' + param + '=(on|off)(?:&|$)');
+    for (var i = 0; i < 8 && v === null; i++) {
+      try {
+        var m = re.exec(w.location.search || '');
+        if (m) { v = m[1]; try { localStorage.setItem(key, v); } catch (e) {} }
+        else if (w[globalName] === 'on' || w[globalName] === 'off') v = w[globalName];
+      } catch (e) { break; }  // ちがうサイトの親は見ない
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    if (v === null) try { v = localStorage.getItem(key); } catch (e) {}
+    return v;
+  }
+  function furikaeriSetting() { return setting('furikaeri', 'EDUIT_FURIKAERI', 'eduit.furikaeri') !== 'off'; }
+  var furikaeri = furikaeriSetting();
+  if (!furikaeri) document.documentElement.setAttribute('data-ef-furikaeri', 'off');
+
+  // ---- 自習モード(既定は切)。入っているときは <html data-ef-jishu="on"> にして、アプリに「自習ガイド」を出す ----
+  var JS_STORE = 'eduit.jishu.v1.';  // + 記号: { s: できた手順, q: たしかめ問題の答え, seen: ガイドを開いたことがある }
+  var jishu = setting('jishu', 'EDUIT_JISHU', 'eduit.jishu') === 'on';
+  if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
+
+  var SAFETY = [
+    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
+    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    '名前などの個人情報は、先生の指示がないときは入力しないでください。',
+    '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
+    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
+  ];
+  var LICENSE = [
+    '著作権: © 2026 ' + AUTHOR,
+    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
+    '販売すること、有料の教材や商品に入れて配ることはできません。',
+    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'class') e.className = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function list(items) { return el('ul', null, items.map(function (t) { return el('li', { text: t }); })); }
+  function appName() { return app.name || info.suite || document.title; }
+
+  var dlg = null;
+  function build() {
+    var safety = SAFETY.concat(info.safety || []).concat(app.safety || []);
+    var hist = info.history || [];
+    var panels = [
+      ['安全と個人情報', [el('h3', { text: 'この教材の安全について' }), list(safety)]],
+      ['ライセンス', [el('h3', { text: '使ってよい条件' }), list(LICENSE)]],
+      ['更新履歴', hist.length ? hist.map(function (h) {
+        return el('section', null, [
+          el('h3', null, [el('span', { class: 'ef-hist-ver', text: h.version ? '第' + h.version + '版' : '' }),
+            el('span', { class: 'ef-hist-date', text: h.date || '' })]),
+          list(h.items || [])
+        ]);
+      }) : [el('p', { text: 'まだありません。' })]],
+      ['作った人', [
+        el('h3', { text: appName() }),
+        el('p', { text: (info.domainName ? '中学校 技術・家庭科(技術分野)「' + info.domainName + '」の教材です。' : '中学校 技術・家庭科(技術分野)の教材です。') }),
+        el('p', { text: '作成: ' + AUTHOR }),
+        el('p', { text: (info.version ? '第' + info.version + '版' : '') + (info.updated ? '(' + info.updated + ' 更新)' : '') })
+      ]]
+    ];
+    var tabs = el('div', { class: 'ef-tabs', role: 'tablist' });
+    var body = el('div');
+    var tabEls = [], panelEls = [];
+    panels.forEach(function (p, i) {
+      var t = el('button', { type: 'button', class: 'ef-tab', role: 'tab', id: 'ef-tab-' + i, 'aria-controls': 'ef-panel-' + i, 'aria-selected': i ? 'false' : 'true', tabindex: i ? '-1' : '0', text: p[0] });
+      var pn = el('div', { class: 'ef-panel', role: 'tabpanel', id: 'ef-panel-' + i, 'aria-labelledby': 'ef-tab-' + i }, p[1]);
+      if (i) pn.hidden = true;
+      t.addEventListener('click', function () { select(i); });
+      t.addEventListener('keydown', function (e) {
+        var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!n) return;
+        var j = (i + n + panels.length) % panels.length;
+        e.preventDefault(); select(j); tabEls[j].focus();
+      });
+      tabEls.push(t); panelEls.push(pn); tabs.appendChild(t); body.appendChild(pn);
+    });
+    function select(i) {
+      tabEls.forEach(function (t, j) { t.setAttribute('aria-selected', i === j ? 'true' : 'false'); t.tabIndex = i === j ? 0 : -1; });
+      panelEls.forEach(function (p, j) { p.hidden = i !== j; });
+    }
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    close.addEventListener('click', function () { dlg.close(); });
+    dlg = el('dialog', { class: 'ef-dialog', 'aria-labelledby': 'ef-dialog-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [
+        el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-dialog-title', text: 'このアプリについて' }), close]),
+        tabs, body
+      ])
+    ]);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg._select = select;
+    document.body.appendChild(dlg);
+  }
+  function open(tab) {
+    if (!dlg) build();
+    dlg._select(typeof tab === 'number' ? tab : 0);
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  var howtoDlg = null;
+  function howto(html, opts) {
+    opts = opts || {};
+    if (!howtoDlg) {
+      var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+      close.addEventListener('click', function () { howtoDlg.close(); });
+      howtoDlg = el('dialog', { class: 'ef-dialog ef-howto', 'aria-labelledby': 'ef-howto-title' }, [
+        el('div', { class: 'ef-dialog-in' }, [
+          el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-howto-title', text: '使い方' }), close]),
+          el('div', { class: 'ef-panel' })
+        ])
+      ]);
+      howtoDlg.addEventListener('click', function (e) { if (e.target === howtoDlg) howtoDlg.close(); });
+      document.body.appendChild(howtoDlg);
+    }
+    var body = howtoDlg.querySelector('.ef-panel');
+    body.innerHTML = html;
+    if (opts.onOpen) opts.onOpen(body);
+    if (typeof howtoDlg.showModal === 'function') howtoDlg.showModal(); else howtoDlg.setAttribute('open', '');
+    body.scrollTop = 0;
+  }
+
+  function aboutButton(cls) {
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  function footer() {
+    var link = aboutButton('ef-about-link');
+    link.textContent = '安全と個人情報・ライセンス・更新履歴';
+    return el('footer', { class: 'ef-footer', role: 'contentinfo' }, [
+      el('span', null, ['作成: ', el('span', { class: 'ef-author', text: AUTHOR })]),
+      info.version ? el('span', { text: '第' + info.version + '版' + (info.updated ? '(' + info.updated + ')' : '') }) : null,
+      link
+    ]);
+  }
+  function mount() {
+    if (app.footer === false) return;
+    var slot = document.querySelector('[data-ef-footer]');
+    var about = document.querySelector('[data-ef-about]');
+    if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
+    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
+    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+  }
+
+  // ---- 基本編・発展編のタブ(メニュー用) ----
+  var LEVEL_KEYS = ['basic', 'advanced'];
+  function levels(box, opts) {
+    var L = info.levels;
+    if (!box || !L) return null;
+    opts = opts || {};
+    var store = 'eduit.level.' + (info.domain || 'x');
+    var cur = 'basic';
+    try { var saved = localStorage.getItem(store); if (LEVEL_KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
+    var uid = 'ef-lv-' + (info.domain || 'x');
+    var tabs = el('div', { class: 'ef-level-tabs', role: 'tablist', 'aria-label': '基本編と発展編' });
+    var panel = el('div', { class: 'ef-level-panel', role: 'tabpanel', id: uid + '-panel', tabindex: '-1' });
+    var tabEls = LEVEL_KEYS.map(function (k, i) {
+      var lv = L[k] || { items: [] };
+      var t = el('button', { type: 'button', role: 'tab', class: 'ef-level-tab ef-level-' + k, id: uid + '-' + k, 'aria-controls': uid + '-panel' }, [
+        el('span', { class: 'ef-level-name', text: lv.title || (k === 'basic' ? '基本編' : '発展編') }),
+        el('span', { class: 'ef-level-count', text: (lv.items || []).length + 'つ' })
+      ]);
+      t.addEventListener('click', function () { select(k, true); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var n = LEVEL_KEYS[(i + (e.key === 'ArrowRight' ? 1 : -1) + LEVEL_KEYS.length) % LEVEL_KEYS.length];
+        select(n, true); tabEls[LEVEL_KEYS.indexOf(n)].focus();
+      });
+      tabs.appendChild(t);
+      return t;
+    });
+    function partsEl(item) {
+      if (!item.parts || !item.parts.length) return null;
+      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+    }
+    function render() {
+      var lv = L[cur] || { items: [] };
+      tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', uid + '-' + cur);
+      var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
+      var tb = info.textbook, groups = [];
+      (lv.items || []).forEach(function (item) {
+        var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
+        if (!c) return;
+        var t = tb && tb.items && tb.items[item.id];
+        if (t && t.ref) {
+          var go = c.querySelector('.ef-mcard-go');
+          c.insertBefore(el('p', { class: 'ef-mcard-tb' }, [el('span', { class: 'ef-level-parts-k', text: '教科書' }), t.ref]), go && go.parentNode === c ? go : null);
+        }
+        var jc = jishu && opts.code ? opts.code(item) : null, jb = jc ? jishuBadge(jc) : null;
+        if (jb) {
+          var go2 = c.querySelector('.ef-mcard-go');
+          c.insertBefore(jb, go2 && go2.parentNode === c ? go2 : null);
+        }
+        if (!tb || !tb.groups) { grid.appendChild(c); return; }
+        var gi = 0;
+        tb.groups.forEach(function (g, i) { if (t && t.g === g.key) gi = i; });
+        (groups[gi] = groups[gi] || []).push(c);
+      });
+      // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
+      var blocks = [];
+      if (tb && tb.groups) tb.groups.forEach(function (g, i) {
+        if (!groups[i]) return;
+        blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
+        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+      });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
+      if (lv.lead) panel.appendChild(el('p', { class: 'ef-level-lead', text: lv.lead }));
+      if (opts.code && cur === 'basic') {
+        var codes = (lv.items || []).map(opts.code).filter(Boolean);
+        if (codes.length) panel.appendChild(el('p', { class: 'ef-level-order' }, [el('span', { class: 'ef-level-parts-k', text: 'おすすめの順番' }), codes.join(' → ')]));
+      }
+      if (blocks.length) blocks.forEach(function (b) { panel.appendChild(b); });
+      else panel.appendChild(grid);
+      if (opts.onRender) opts.onRender(panel, cur);
+    }
+    function select(k, byUser) {
+      if (LEVEL_KEYS.indexOf(k) < 0) return;
+      cur = k;
+      if (byUser) try { localStorage.setItem(store, k); } catch (e) {}
+      render();
+    }
+    while (box.firstChild) box.removeChild(box.firstChild);
+    box.classList.add('ef-levels');
+    box.appendChild(tabs);
+    box.appendChild(panel);
+    render();
+    return { render: render, select: select, current: function () { return cur; } };
+  }
+
+  // ---- 記号の印・メニューの上のバーの名前・メニューのカード(4分野共通の形) ----
+  function code(c) { return el('span', { class: 'ef-code', text: c }); }
+  function menuTitle(h) {
+    if (!h) return h;
+    while (h.firstChild) h.removeChild(h.firstChild);
+    h.classList.add('ef-title');
+    if (info.domain) h.appendChild(code(info.domain));
+    h.appendChild(el('span', { class: 'ef-title-name', text: (info.domainName || '') + ' 教材集' }));
+    return h;
+  }
+  function card(o) {
+    o = o || {};
+    var go = o.href
+      ? el('a', { class: 'ef-btn-primary ef-mcard-go', href: o.href, text: 'ひらく ▶' })
+      : el('button', { type: 'button', class: 'ef-btn-primary ef-mcard-go', text: 'ひらく ▶' });
+    if (o.openAttrs) for (var k in o.openAttrs) go.setAttribute(k, o.openAttrs[k]);
+    if (o.title) go.setAttribute('aria-label', (o.code ? o.code + ' ' : '') + o.title + ' をひらく');
+    if (o.onOpen) go.addEventListener('click', function (e) { o.onOpen(e); });
+    var extra = (o.extra || []).filter(Boolean);
+    var c = el('article', { class: 'ef-card ef-mcard' }, [
+      el('div', { class: 'ef-mcard-hd' }, [
+        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
+        el('div', { class: 'ef-mcard-ht' }, [
+          o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
+          el('h3', { class: 'ef-card-title', text: o.title || '' })
+        ])
+      ]),
+      o.desc ? el('p', { class: 'ef-mcard-desc', text: o.desc }) : null,
+      o.parts || null,
+      extra.length ? el('div', { class: 'ef-mcard-extra' }, extra) : null,
+      go
+    ]);
+    if (o.code) c.setAttribute('data-code', o.code);
+    // カードのどこを押しても開く(カードの中のほかのボタン・リンク・入力は、そのまま)
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, input, select, textarea, label, summary')) return;
+      go.click();
+    });
+    return c;
+  }
+
+  // ---- 文字の大きさのボタン(4分野で同じ形:「文字 中」。押すたびに次の大きさへ) ----
+  function sizeButton(btn, opt) {
+    var steps = opt.steps;
+    btn.classList.add('ef-btn', 'ef-size');
+    btn.type = 'button';
+    btn.textContent = '';
+    btn.appendChild(document.createTextNode('文字 '));
+    var v = document.createElement('span');
+    v.className = 'ef-size-v';
+    v.setAttribute('data-noruby', '');
+    btn.appendChild(v);
+    function idx() {
+      var cur = opt.get(), best = 0;
+      for (var i = 1; i < steps.length; i++) if (Math.abs(steps[i][0] - cur) < Math.abs(steps[best][0] - cur)) best = i;
+      return best;
+    }
+    function update() {
+      var s = steps[idx()][1];
+      v.textContent = s;
+      btn.title = '文字の大きさ(いまは「' + s + '」。押すと変わる)';
+      btn.setAttribute('aria-label', '文字の大きさ: ' + s);
+    }
+    btn.addEventListener('click', function () { opt.set(steps[(idx() + 1) % steps.length][0]); update(); });
+    update();
+    return update;
+  }
+
+  // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
+  function autoHide() {
+    var lastY = window.pageYOffset || 0, ticking = false;
+    function bars() { return document.querySelectorAll('[data-ef-autohide]'); }
+    function show(bar) { bar.classList.remove('ef-ah-hide'); }
+    function run() {
+      ticking = false;
+      var y = window.pageYOffset || 0, dy = y - lastY;
+      if (Math.abs(dy) < 6 && y > 0) return;
+      lastY = y;
+      Array.prototype.forEach.call(bars(), function (bar) {
+        if (dy < 0 || y <= 0 || bar.contains(document.activeElement)) { show(bar); return; }
+        if (bar.classList.contains('ef-ah-hide')) return;
+        var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
+        // 上に固定されている(画面の上にはりついている)ときだけ隠す
+        if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        if (bar.getBoundingClientRect().top > top + 1) return;
+        bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
+        bar.classList.add('ef-ah-hide');
+      });
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(run); } }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      var bar = e.target.closest && e.target.closest('[data-ef-autohide]');
+      if (bar) show(bar);
+    });
+    // 帯が横にスクロールするとき(スマホ)は、えらんでいるタブが見える位置まで帯を動かす
+    function reveal() {
+      Array.prototype.forEach.call(bars(), function (bar) {
+        var t = bar.querySelector('[role=tab][aria-selected="true"], [aria-current="page"]');
+        if (!t) return;
+        for (var sc = t.parentElement; sc && sc !== bar.parentElement; sc = sc.parentElement) {
+          if (sc.scrollWidth > sc.clientWidth + 1) {
+            var r = t.getBoundingClientRect(), b = sc.getBoundingClientRect();
+            if (r.left < b.left) sc.scrollLeft -= b.left - r.left + 12;
+            else if (r.right > b.right) sc.scrollLeft += r.right - b.right + 12;
+            return;
+          }
+        }
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-ef-autohide]')) setTimeout(reveal, 50);
+    });
+    window.addEventListener('hashchange', function () { setTimeout(reveal, 50); });
+    window.addEventListener('load', function () { setTimeout(reveal, 300); });
+  }
+  autoHide();
+
+  // ---- 自習ガイド(自習モードのときだけ。アプリの右はしに「自習ガイド」を出す) ----
+  function jishuData(c) {
+    var J = (window.EDUIT_INFO || info).jishu;
+    return c && J && J.apps ? J.apps[c] || null : null;
+  }
+  function appCode() {
+    var a = (window.EDUIT_INFO || info).app || app;
+    var m = /^([A-D]\d+|[GMFZ])\s/.exec(a.name || '');
+    return m ? m[1] : null;
+  }
+  function jishuLoad(c) {
+    try { var v = JSON.parse(localStorage.getItem(JS_STORE + c) || 'null'); if (v && typeof v === 'object') return { s: v.s || {}, q: v.q || {}, seen: !!v.seen }; } catch (e) {}
+    return { s: {}, q: {}, seen: false };
+  }
+  function jishuSave(c, st) { try { localStorage.setItem(JS_STORE + c, JSON.stringify(st)); } catch (e) {} }
+  function jishuSteps(d) {
+    // 振り返りを隠す設定のときは、振り返りの手順を出さない。i は steps の中の番号(できたの印はこれで覚える)
+    return (d.steps || []).map(function (s, i) { return { s: s, i: i }; }).filter(function (x) { return furikaeri || !x.s.reflect; });
+  }
+  // 進み具合: 基本の手順のうち「できた」の数、たしかめ問題の正解の数
+  function jishuProgress(c) {
+    var d = jishuData(c);
+    if (!d) return null;
+    var st = jishuLoad(c);
+    var basic = jishuSteps(d).filter(function (x) { return x.s.level !== 'advanced'; });
+    var ok = 0;
+    (d.check || []).forEach(function (q, i) { if (st.q[i] === q.answer) ok++; });
+    return {
+      done: basic.filter(function (x) { return st.s[x.i]; }).length, steps: basic.length,
+      ok: ok, checks: (d.check || []).length
+    };
+  }
+  function progressText(p) {
+    return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
+  }
+
+  // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
+  function whereText(w) {
+    return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
+  }
+  // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
+  function jishuMount(c, appTitle) {
+    if (!jishu) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
+    document.documentElement.classList.remove('ef-jishu-open');
+    if (c === undefined) c = appCode();
+    var d = jishuData(c);
+    if (!d) return;
+    var st = jishuLoad(c);
+    var narrow = function () { return window.innerWidth <= 640; };
+    var fab = el('button', { type: 'button', class: 'ef-jishu-fab kz-norb no-ruby', 'data-noruby': '', 'aria-expanded': 'false', 'aria-controls': 'ef-jishu', title: '自習ガイド(ひとりで進めるときの案内)' }, [
+      el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
+    ]);
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var body = el('div', { class: 'ef-jishu-body' });
+    var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
+    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+      el('div', { class: 'ef-jishu-head' }, [
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
+        close
+      ]),
+      body
+    ]);
+    function save() { jishuSave(c, st); updateFab(); }
+    function updateFab() {
+      var p = jishuProgress(c);
+      fab.querySelector('.ef-jishu-fab-p').textContent = p.done + '/' + p.steps;
+    }
+    function go(where) {
+      if (!where) return;
+      if (where.charAt(0) === '#') location.hash = where;
+      else { var t = document.querySelector(where); if (t) t.click(); }
+      if (narrow()) show(false);
+    }
+    function canGo(where) {
+      if (!where) return false;
+      if (where.charAt(0) === '#') return true;
+      try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    function stepEl(x, n) {
+      var s = x.s;
+      var cb = el('input', { type: 'checkbox', id: 'ef-js-s' + x.i });
+      cb.checked = !!st.s[x.i];
+      cb.addEventListener('change', function () { if (cb.checked) st.s[x.i] = 1; else delete st.s[x.i]; li.classList.toggle('is-done', cb.checked); save(); renderEnd(); });
+      var tools = el('div', { class: 'ef-jishu-tools' });
+      if (s.hint) {
+        var hint = el('p', { class: 'ef-jishu-hint', hidden: '', text: s.hint });
+        var hb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', 'aria-expanded': 'false', text: 'ヒント' });
+        hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+        tools.appendChild(hb);
+      }
+      if (canGo(s.go)) {
+        var gb = el('button', { type: 'button', class: 'ef-btn ef-jishu-small', text: 'この場所へ ▶' });
+        gb.addEventListener('click', function () { go(s.go); });
+        tools.appendChild(gb);
+      }
+      var li = el('li', { class: 'ef-jishu-step' + (cb.checked ? ' is-done' : '') }, [
+        el('div', { class: 'ef-jishu-step-hd' }, [
+          el('span', { class: 'ef-jishu-n', text: String(n) }),
+          s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
+        ]),
+        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        tools,
+        hint || null,
+        el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
+      ]);
+      if (s.reflect) li.setAttribute('data-ef-reflect', '');
+      return li;
+    }
+    function checkEl(q, i) {
+      var res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = (q.choices || []).map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st.q[i] = j; save(); paint(); renderEnd(); });
+        return b;
+      });
+      function paint() {
+        var a = st.q[i];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === q.answer && a === q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var endBox = el('div', { class: 'ef-jishu-end' });
+    function renderEnd() {
+      var p = jishuProgress(c);
+      while (endBox.firstChild) endBox.removeChild(endBox.firstChild);
+      var all = p.done === p.steps && p.ok === p.checks;
+      endBox.classList.toggle('is-clear', all);
+      endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
+      endBox.appendChild(el('p', { text: all
+        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+    }
+    function render() {
+      while (body.firstChild) body.removeChild(body.firstChild);
+      var steps = jishuSteps(d);
+      var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
+      var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
+      body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
+        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
+      ]));
+      body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
+      if (d.check && d.check.length) body.appendChild(el('section', null, [
+        el('h3', { text: 'たしかめ問題' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
+      ]));
+      body.appendChild(endBox);
+      renderEnd();
+      if (adv.length) {
+        var det = el('details', { class: 'ef-jishu-adv' }, [
+          el('summary', { text: '発展(基本が終わった人)' }),
+          el('ol', { class: 'ef-jishu-steps' }, adv.map(function (x, k) { return stepEl(x, k + 1); }))
+        ]);
+        body.appendChild(det);
+      }
+      document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
+    }
+    function show(on) {
+      panel.hidden = !on;
+      fab.setAttribute('aria-expanded', String(on));
+      document.documentElement.classList.toggle('ef-jishu-open', on);
+      if (on && !st.seen) { st.seen = true; save(); }
+    }
+    fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
+    close.addEventListener('click', function () { show(false); fab.focus(); });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
+    render();
+    updateFab();
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+    // はじめて開いた教材では、ガイドを開いておく
+    if (!st.seen) show(true);
+  }
+
+  // メニュー(自習モードのとき): 基本編・発展編の上に進め方の説明、カードに進み具合
+  function jishuMenuBox() {
+    var J = info.jishu || {};
+    return el('section', { class: 'ef-jishu-menu', 'aria-label': 'ひとりで進めるとき' }, [
+      el('h3', { text: 'ひとりで進めるとき(自習モード)' }),
+      J.lead ? el('p', { text: J.lead }) : null,
+      el('ol', null, [
+        el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
+        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+      ])
+    ]);
+  }
+  function jishuBadge(c) {
+    var p = jishuProgress(c);
+    if (!p) return null;
+    var b = el('p', { class: 'ef-mcard-jishu', 'data-jishu-code': c }, [el('span', { class: 'ef-level-parts-k', text: '自習' }), progressText(p)]);
+    if (p.done === p.steps && p.ok === p.checks) b.classList.add('is-clear');
+    return b;
+  }
+  if (jishu) window.addEventListener('storage', function (e) {
+    if (!e.key || e.key.indexOf(JS_STORE) !== 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-mcard-jishu'), function (b) {
+      var n = jishuBadge(b.getAttribute('data-jishu-code'));
+      if (n) b.parentNode.replaceChild(n, b);
+    });
+  });
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+  var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
+  function start() { mount(); if (!jishuSet) jishuMount(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+</script>
+<script>
+/* 教科書順コースと M・F・Z の教材で使う、ふりがなの読み(G-guidance/index.html の RUBY をもとに足したもの)
+ * 長い言葉が先に当たる(t-core.js)。文を足したら、その漢字の言葉もここに足す。 */
+window.T_RUBY = {
+
+    '上': 'うえ', '願': 'ねが', '進歩': 'しんぽ', '人々': 'ひとびと', '昔': 'むかし', '積み重ね': 'つみかさね', '授業': 'じゅぎょう', '暮': 'く', '熱く': 'あつく', 'たき火': 'たきび', '歩い': 'あるい', '組・番号': 'くみ・ばんごう', '反射板': 'はんしゃばん', '数': 'かず', '部品の数': 'ぶひんのかず',
+    '技術分野': 'ぎじゅつぶんや', '技術': 'ぎじゅつ', '分野': 'ぶんや', '世界': 'せかい', '教科書': 'きょうかしょ', '学習方法': 'がくしゅうほうほう', '学習': 'がくしゅう', '方法': 'ほうほう', '身': 'み', '回': 'まわ',
+    '人': 'ひと', '家': 'いえ', '道路': 'どうろ', '電気': 'でんき', '毎日': 'まいにち', '食': 'た', '野菜': 'やさい', '魚': 'さかな', '考': 'かんが', '工夫': 'くふう', '材料': 'ざいりょう',
+    '加工': 'かこう', '生物': 'せいぶつ', '育': 'そだ', '情報': 'じょうほう', '使': 'つか', '生活': 'せいかつ', '社会': 'しゃかい', '問題': 'もんだい', '解決': 'かいけつ', '書': 'か', '思': 'おも',
+    '正解': 'せいかい', '最後': 'さいご', '見直': 'みなお', '冷蔵庫': 'れいぞうこ', '学': 'まな', '創造': 'そうぞう', '力': 'ちから', '支': 'ささ', '製品': 'せいひん', '見': 'み', '夢': 'ゆめ',
+    '歩': 'あゆ', '見方': 'みかた', '考え方': 'かんがえかた', '視点': 'してん', '折': 'お', '合': 'あ', '未来': 'みらい', '創': 'つく', '課題': 'かだい', '流': 'なが', '始': 'はじ', '年間': 'ねんかん',
+    '学び方': 'まなびかた', '目標': 'もくひょう', '節': 'せつ', '初': 'はじ', '読': 'よ', '確': 'たし', '調': 'しら', '試': 'ため', '実験': 'じっけん', '観察': 'かんさつ', '体験': 'たいけん',
+    '教材': 'きょうざい', '自分': 'じぶん', '話': 'はなし', '伝': 'つた', '友': 'とも', '分': 'わ', '言葉': 'ことば', '次': 'つぎ', '作業': 'さぎょう', '楽': 'らく', '安全': 'あんぜん', '進': 'すす',
+    '環境': 'かんきょう', '場所': 'ばしょ', '整理': 'せいり', '整頓': 'せいとん', '通路': 'つうろ', '物': 'もの', '置': 'お', '換気': 'かんき', '明': 'あか', '気': 'き', '配': 'くば',
+    '行動': 'こうどう', '先生': 'せんせい', '説明': 'せつめい', '聞': 'き', '決': 'き', '手順': 'てじゅん', '守': 'まも', '走': 'はし', '服装': 'ふくそう', '保護': 'ほご', '工具': 'こうぐ',
+    '機械': 'きかい', '正': 'ただ', '姿勢': 'しせい', '目': 'め', '休': 'やす', '教': 'おし', '知': 'し', '個人情報': 'こじんじょうほう', '送': 'おく', '大切': 'たいせつ', '作': 'つく', '新': 'あたら',
+    '発想': 'はっそう', '転用': 'てんよう', '場面': 'ばめん', '別': 'べつ', '逆転': 'ぎゃくてん', '反対': 'はんたい', '失敗': 'しっぱい', '欠点': 'けってん', '役': 'やく', '立': 'た', '性質': 'せいしつ',
+    '不便': 'ふべん', '自然': 'しぜん', '体': 'からだ', '答': 'こた', '筆箱': 'ふでばこ', '水筒': 'すいとう', '文房具': 'ぶんぼうぐ', '手': 'て', '飲': 'の', '重': 'おも', '真空': 'しんくう',
+    '熱': 'ねつ', '夜': 'よる', '遠': 'とお', '快適': 'かいてき', '住': 'す', '人間': 'にんげん', '発達': 'はったつ', '今': 'いま', '長': 'なが', '歴史': 'れきし', '中': 'なか', '先人': 'せんじん',
+    '知恵': 'ちえ', '努力': 'どりょく', '結晶': 'けっしょう', '古': 'ふる', '順': 'じゅん', '押': 'お', '番号': 'ばんごう', '付': 'つ', '答え合わせ': 'こたえあわせ', '自動運転': 'じどううんてん',
+    '運転': 'うんてん', '年寄': 'としよ', '行': 'い', '自由': 'じゆう', '要求': 'ようきゅう', '負荷': 'ふか', '経済性': 'けいざいせい', '求': 'もと', '便利': 'べんり', '性能': 'せいのう', '事故': 'じこ',
+    '起': 'お', '資源': 'しげん', '電球': 'でんきゅう', '白熱': 'はくねつ', '同': 'おな', '値段': 'ねだん', '高': 'たか', '最適化': 'さいてきか', '関係': 'かんけい', '悪': 'わる', '文': 'ぶん',
+    '自転車': 'じてんしゃ', '設計': 'せっけい', '部品': 'ぶひん', '組': 'くみ', '大事': 'だいじ', '何': 'なに', '選': 'えら', '坂': 'さか', '町': 'まち', '電動': 'でんどう', '動力': 'どうりょく',
+    '一歩': 'いっぽ', '現状': 'げんじょう', '姿': 'すがた', '理想': 'りそう', '感': 'かん', '取': 'と', '探究': 'たんきゅう', '活用': 'かつよう', '知的財産': 'ちてきざいさん', '特許権': 'とっきょけん',
+    '意匠権': 'いしょうけん', '商標権': 'しょうひょうけん', '著作権': 'ちょさくけん', '教室': 'きょうしつ', '入': 'はい', '形': 'かたち', '年': 'ねん', '木材': 'もくざい', '金属': 'きんぞく', '構造': 'こうぞう',
+    '製図': 'せいず', '作品': 'さくひん', '作物': 'さくもつ', '動物': 'どうぶつ', '計画': 'けいかく', '循環型社会': 'じゅんかんがたしゃかい', '自然共生社会': 'しぜんきょうせいしゃかい', '変換': 'へんかん',
+    '電気回路': 'でんきかいろ', '動': 'うご', '機構': 'きこう', '脱炭素社会': 'だつたんそしゃかい', '省': 'しょう', '超': 'ちょう', '統合的': 'とうごうてき', '植物工場': 'しょくぶつこうじょう', '火星探査': 'かせいたんさ',
+    '知識': 'ちしき', '技能': 'ぎのう', '思考力': 'しこうりょく', '判断力': 'はんだんりょく', '表現力': 'ひょうげんりょく', '持続可能': 'じぞくかのう', '振り返': 'ふりかえ', '振': 'ふ', '返': 'かえ',
+    '自己評価': 'じこひょうか', '項目': 'こうもく', '少': 'すこ', '変': 'か', '記録': 'きろく', '端末': 'たんまつ', '自動': 'じどう', '保存': 'ほぞん', '名前': 'なまえ', '具合': 'ぐあい', '出': 'だ',
+    '印刷': 'いんさつ', '消': 'け', '指示': 'しじ', '一覧': 'いちらん', '全員': 'ぜんいん', '例': 'れい', '必要': 'ひつよう', '利用': 'りよう', '紙': 'かみ', '水': 'みず', '光': 'ひかり',
+    '電話': 'でんわ', '携帯': 'けいたい', '木造': 'もくぞう', '鉄': 'てつ', '電池': 'でんち', '炭素繊維': 'たんそせんい', '軽': 'かる', '強': 'つよ', '安': 'やす', '選手': 'せんしゅ', '通学': 'つうがく',
+    '中学生': 'ちゅうがくせい', '通信': 'つうしん', '農業': 'のうぎょう', '明かり': 'あかり', '暗': 'くら', '火': 'ひ', '近': 'ちか', '世紀': 'せいき', '電信': 'でんしん', '信号': 'しんごう',
+    '固定電話': 'こていでんわ', '牛': 'うし', '馬': 'うま', '耕': 'たがや', '住居': 'じゅうきょ', '五重塔': 'ごじゅうのとう', '電波塔': 'でんぱとう', '文字': 'もじ', '使い方': 'つかいかた', '一度': 'いちど',
+    '何度': 'なんど', '借': 'か', '面': 'めん', '野山': 'のやま', '服': 'ふく', '実': 'み', '虫': 'むし', '小': 'ちい', '植物': 'しょくぶつ', '付箋': 'ふせん', '接着剤': 'せっちゃくざい', '弱': 'よわ',
+    '長所': 'ちょうしょ', '刃': 'は', '刃先': 'はさき', '板': 'いた', '割': 'わ', '方': 'かた', '得': 'え', '切': 'き', '缶': 'かん', '開': 'あ', '外': 'はず', '道': 'みち', '原因': 'げんいん',
+    '新幹線': 'しんかんせん', '先頭': 'せんとう', '大': 'おお', '音': 'おと', '鳥': 'とり', '回転': 'かいてん', '屋': 'や', '工場': 'こうじょう', '運': 'はこ', '灯': 'とう', '赤': 'あか', '直': 'なお',
+    '穴': 'あな', '人工知能': 'じんこうちのう', '宇宙開発': 'うちゅうかいはつ', '再生可能': 'さいせいかのう', '仮想空間': 'かそうくうかん', '性': 'せい', '金': 'かね', '持': 'も', '個': 'こ', '全部': 'ぜんぶ',
+    '仕分': 'しわ', '部屋': 'へや', '照': 'て', '声': 'こえ', '広': 'ひろ', '時間': 'じかん', '発電': 'はつでん', '買': 'か', '回数': 'かいすう', '車': 'くるま', '防': 'ふせ', '坂道': 'さかみち',
+    '変速機': 'へんそくき', '終': 'お', '多': 'おお', '点': 'てん', '通': 'とお', '雨': 'あめ', '日': 'ひ', '昇降口': 'しょうこうぐち', '床': 'ゆか', '入り口': 'いりぐち', '箱': 'ばこ',
+    '夏休': 'なつやす', '花': 'はな', '土': 'つち', '改善': 'かいぜん', '修正': 'しゅうせい', '成果': 'せいか', '評価': 'ひょうか', '設定': 'せってい', '発見': 'はっけん', '製作': 'せいさく',
+    '制作': 'せいさく', '育成': 'いくせい', '荷物': 'にもつ', '車輪': 'しゃりん', '台車': 'だいしゃ', '青': 'あお', '発明': 'はつめい', '緑': 'みどり', '白': 'しろ', '照明': 'しょうめい', '整': 'ととの',
+    '解決策': 'かいけつさく', '向': 'む', '本立': 'ほんた', '肥料': 'ひりょう', '量': 'りょう', '風': 'かぜ', '発電機': 'はつでんき', '海': 'うみ', '養殖': 'ようしょく', '曲': 'ま', '歯車': 'はぐるま',
+    '相手': 'あいて', '理由': 'りゆう', '問': 'もん', '分別': 'ぶんべつ', '手紙': 'てがみ', '楽し': 'たのし', '生': 'い', '生み': 'うみ', '生ま': 'うま', '1人': 'ひとり',
+  // 教科書順コースと M・F・Z の文の言葉(Sudachi の読みをもとに足したもの)
+    '病気': 'びょうき', '被害': 'ひがい', '組み合': 'くみあ', '表': 'あらわ', '状態': 'じょうたい', '充電': 'じゅうでん', '距離': 'きょり', '年生': 'ねんせい', '章': 'しょう', '編': 'へん',
+    '枚': 'まい', '間': 'あいだ', '成長': 'せいちょう', '身の回': 'みのまわ', '取り組': 'とりく', '折り合': 'おりあ', '観点': 'かんてん', '大人': 'おとな', '相談': 'そうだん', '答え合': 'こたえあ',
+    '出荷': 'しゅっか', '温度': 'おんど', '色': 'いろ', '案': 'あん', '立場': 'たちば', '心': 'こころ', '残': 'のこ', '縮': 'ちぢ', '意見': 'いけん', '話し合': 'はなしあ',
+    '繊維': 'せんい', '交互': 'こうご', '止': 'と', '限': 'かぎ', '管理': 'かんり', '一人': 'ひとり', '火加減': 'ひかげん', '受': 'う', '客': 'きゃく', '会社': 'かいしゃ',
+    '公開': 'こうかい', '用': 'よう', '値': 'あたい', '反復': 'はんぷく', '正確': 'せいかく', '組み立': 'くみた', '進め方': 'すすめかた', '後輩': 'こうはい', '代': 'か', '建物': 'たてもの',
+    '取り出': 'とりだ', '加熱': 'かねつ', '閉': 'と', '対策': 'たいさく', '自習': 'じしゅう', '天気': 'てんき', '届': 'とど', '特徴': 'とくちょう', '短所': 'たんしょ', '心配': 'しんぱい',
+    '足配線': 'あしはいせん', '危': 'あぶ', '部分': 'ぶぶん', '具': 'ぐ', '反': 'そ', '見返': 'みかえ', '前': 'まえ', '処理': 'しょり', '十分': 'じゅうぶん', '全体': 'ぜんたい',
+    '早': 'はや', '打': 'う', '品種': 'ひんしゅ', '移': 'うつ', '厚': 'あつ', '空調': 'くうちょう', '選択肢': 'せんたくし', '進み具合': 'すすみぐあい', '座金': 'ざがね', '引': 'ひ',
+    '表示': 'ひょうじ', '植': 'う', '足': 'た', '品物': 'しなもの', '調整': 'ちょうせい', '網': 'あみ', '配置': 'はいち', '地面': 'じめん', '準備': 'じゅんび', '排気': 'はいき',
+    '火星': 'かせい', '探査': 'たんさ', '枠': 'わく', '巻き上': 'まきあ', '両方': 'りょうほう', '上手': 'じょうず', '注意': 'ちゅうい', '燃料': 'ねんりょう', '苗': 'なえ', '許可': 'きょか',
+    '持続': 'じぞく', '可能': 'かのう', '続': 'つづ', '地球': 'ちきゅう', '温暖化': 'おんだんか', '図': 'ず', '線': 'せん', '設': 'せつ', '栽培': 'さいばい', '腰': 'こし',
+    '棚': 'たな', '根': 'ね', '保': 'たも', '問題解決': 'もんだいかいけつ', '自動車': 'じどうしゃ', '読み取': 'よみと', '第': 'だい', '三角': 'さんかく', '法': 'ほう', '配布': 'はいふ',
+    '双': 'そう', '方向性': 'ほうこうせい', '判断': 'はんだん', '装置': 'そうち', '立体': 'りったい', '回路': 'かいろ', '支払': 'しはら', '岩': 'いわ', '汚': 'よご', '洗': 'あら',
+    '計測': 'けいそく', '入力': 'にゅうりょく', '調節': 'ちょうせつ', '集': 'あつ', '羽根': 'はね', '化': 'か', '出力': 'しゅつりょく', '栄養': 'えいよう', '発信': 'はっしん', '買い物': 'かいもの',
+    '詐欺': 'さぎ', '取っ手': 'とって', '側': 'がわ', '後': 'うし', '運動': 'うんどう', '画面': 'がめん', '小銭': 'こぜに', '作業時間': 'さぎょうじかん', '短': 'みじか', '三角形': 'さんかっけい',
+    '帯': 'おび', '洗濯': 'せんたく', '電熱': 'でんねつ', '中央処理装置': 'ちゅうおうしょりそうち', '中身': 'なかみ', '下': 'した', '中高層': 'ちゅうこうそう', '主': 'おも', '事実': 'じじつ', '対応': 'たいおう',
+    '交流': 'こうりゅう', '送電': 'そうでん', '交通': 'こうつう', '系': 'けい', '必': 'かなら', '勝手': 'かって', '雇': 'やと', '人手': 'ひとで', '介護': 'かいご', '仮想': 'かそう',
+    '負担': 'ふたん', '権利': 'けんり', '順番': 'じゅんばん', '条件': 'じょうけん', '生き物': 'いきもの', '応': 'おう', '困': 'こま', '操作': 'そうさ', '同時': 'どうじ', '保守': 'ほしゅ',
+    '点検': 'てんけん', '信号機': 'しんごうき', '停電': 'ていでん', '電源': 'でんげん', '働': 'はたら', '元気': 'げんき', '人工的': 'じんこうてき', '雑草': 'ざっそう', '直接': 'ちょくせつ', '入口': 'いりぐち',
+    '全自動': 'ぜんじどう', '洗濯機': 'せんたくき', '作り直': 'つくりなお', '再生': 'さいせい', '写真': 'しゃしん', '手間': 'てま', '分岐': 'ぶんき', '以上': 'いじょう', '制御': 'せいぎょ', '効き目': 'ききめ',
+    '飼育': 'しいく', '動画': 'どうが', '作品展': 'さくひんてん', '卵': 'たまご', '転送': 'てんそう', '点数': 'てんすう', '競': 'きそ', '双方向': 'そうほうこう', '反応': 'はんのう', '収穫': 'しゅうかく',
+    '逆算': 'ぎゃくさん', '収穫量': 'しゅうかくりょう', '収縮': 'しゅうしゅく', '収量': 'しゅうりょう', '台風': 'たいふう', '右': 'みぎ', '右側': 'みぎがわ', '合板': 'ごうはん', '平': 'たいら', '字': 'じ',
+    '改良': 'かいりょう', '四角': 'しかく', '横': 'よこ', '速': 'はや', '細': 'こま', '回収': 'かいしゅう', '回線': 'かいせん', '混': 'こ', '分け合': 'わけあ', '回路図': 'かいろず',
+    '往復': 'おうふく', '図書室': 'としょしつ', '本': 'ほん', '国': 'くに', '水分': 'すいぶん', '養分': 'ようぶん', '冷': 'ひ', '盛': 'も', '細長': 'ほそなが', '盛り上': 'もりあ',
+    '地域': 'ちいき', '地熱': 'じねつ', '場': 'ば', '地震': 'じしん', '型': 'かた', '売り切': 'うりき', '変圧器': 'へんあつき', '変電所': 'へんでんしょ', '電圧': 'でんあつ', '夏': 'なつ',
+    '忘': 'わす', '夜道': 'よみち', '大雨': 'おおあめ', '災害': 'さいがい', '天候': 'てんこう', '不順': 'ふじゅん', '気候': 'きこう', '変化': 'へんか', '天敵': 'てんてき', '害虫': 'がいちゅう',
+    '左右': 'さゆう', '季節': 'きせつ', '天気予報': 'てんきよほう', '太陽': 'たいよう', '太陽光': 'たいようこう', '飛': 'と', '風力': 'ふうりょく', '太陽光発電': 'たいようこうはつでん', '蓄電池': 'ちくでんち', '学校': 'がっこう',
+    '安全性': 'あんぜんせい', '実行': 'じっこう', '実際': 'じっさい', '新鮮': 'しんせん', '受け取': 'うけと', '電子': 'でんし', '処分': 'しょぶん', '通学路': 'つうがくろ', '配線': 'はいせん', '家庭菜園': 'かていさいえん',
+    '家電': 'かでん', '寒': 'さむ', '導線': 'どうせん', '人数': 'にんずう', '畑': 'はたけ', '世話': 'せわ', '山': 'やま', '設備': 'せつび', '左側': 'ひだりがわ', '平面図': 'へいめんず',
+    '年輪': 'ねんりん', '接線': 'せっせん', '底': 'そこ', '店': 'みせ', '断熱': 'だんねつ', '当': 'あ', '当選': 'とうせん', '循環': 'じゅんかん', '確保': 'かくほ', '思い出': 'おもいだ',
+    '費用': 'ひよう', '情報処理': 'じょうほうしょり', '感電': 'かんでん', '懐中電灯': 'かいちゅうでんとう', '手入': 'てい', '予測': 'よそく', '扇風機': 'せんぷうき', '手作業': 'てさぎょう', '式': 'しき', '指': 'ゆび',
+    '指紋': 'しもん', '支柱': 'しちゅう', '故障': 'こしょう', '記号': 'きごう', '各編': 'かくへん', '数字': 'すうじ', '秒': 'びょう', '写': 'うつ', '年月': 'としつき', '日光': 'にっこう',
+    '昼': 'ひる', '景色': 'けしき', '暑': 'あつ', '暗号化': 'あんごうか', '暗証番号': 'あんしょうばんごう', '顔': 'かお', '書き出': 'かきだ', '書き足': 'かきた', '最初': 'さいしょ', '一気': 'いっき',
+    '寸法': 'すんぽう', '朝': 'あさ', '寝': 'ね', '木': 'き', '炭素': 'たんそ', '層': 'そう', '直角': 'ちょっかく', '階段': 'かいだん', '木取': 'きと', '提案': 'ていあん',
+    '本人': 'ほんにん', '本物': 'ほんもの', '机': 'つくえ', '切り出': 'きりだ', '積み重': 'つみかさ', '選択': 'せんたく', '板目': 'いため', '幅': 'はば', '空気': 'くうき', '暦': 'れき',
+    '原料': 'げんりょう', '自動化': 'じどうか', '構想': 'こうそう', '強化': 'きょうか', '標準化': 'ひょうじゅんか', '橋': 'はし', '共通': 'きょうつう', '正面図': 'しょうめんず', '歯': 'は', '比': 'ひ',
+    '金額': 'きんがく', '段': 'だん', '毎回': 'まいかい', '食べ物': 'たべもの', '米': 'べい', '改善点': 'かいぜんてん', '管': 'くだ', '所': 'ところ', '湯': 'ゆ', '機器': 'きき',
+    '水力': 'すいりょく', '水温': 'すいおん', '水産': 'すいさん', '水田': 'すいでん', '水素': 'すいそ', '酸素': 'さんそ', '燃': 'も', '電流': 'でんりゅう', '発熱': 'はつねつ', '波': 'なみ',
+    '役目': 'やくめ', '波形': 'はけい', '柱': 'はしら', '注文': 'ちゅうもん', '洗い方': 'あらいかた', '流行': 'りゅうこう', '陸': 'りく', '清潔': 'せいけつ', '電気代': 'でんきだい', '漁獲': 'ぎょかく',
+    '演算': 'えんざん', '漢字': 'かんじ', '火事': 'かじ', '湿気': 'しっけ', '火力': 'かりょく', '炊飯器': 'すいはんき', '炭酸': 'たんさん', '炭酸飲料': 'たんさんいんりょう', '焼き畑': 'やきばた', '外国': 'がいこく',
+    '特大': 'とくだい', '生徒': 'せいと', '生成': 'せいせい', '風力発電所': 'ふうりょくはつでんしょ', '画像': 'がぞう', '画質': 'がしつ', '赤潮': 'あかしお', '発展': 'はってん', '発泡': 'はっぽう', '発電所': 'はつでんしょ',
+    '目的': 'もくてき', '直交': 'ちょっこう', '集成': 'しゅうせい', '直流': 'ちょくりゅう', '石油': 'せきゆ', '磁石': 'じしゃく', '種': 'たね', '種類': 'しゅるい', '空き地': 'あきち', '等角': 'とうかく',
+    '筋': 'すじ', '補強': 'ほきょう', '経路': 'けいろ', '結果': 'けっか', '統一': 'とういつ', '版': 'ばん', '統合': 'とうごう', '的': 'てき', '緑色': 'みどりいろ', '接着': 'せっちゃく',
+    '肉': 'にく', '日数': 'にっすう', '日誌': 'にっし', '脚': 'あし', '横木': 'よこぎ', '脱炭素': 'だつたんそ', '誕生日': 'たんじょうび', '自動販売機': 'じどうはんばいき', '分解': 'ぶんかい', '共生': 'きょうせい',
+    '変速': 'へんそく', '機': 'き', '混み合': 'こみあ', '英字': 'えいじ', '葉': 'は', '行列': 'ぎょうれつ', '街灯': 'がいとう', '補充': 'ほじゅう', '製作図': 'せいさくず', '要素': 'ようそ',
+    '見た目': 'みため', '親指': 'おやゆび', '聞き取': 'ききと', '先': 'さき', '計算': 'けいさん', '記憶装置': 'きおくそうち', '診断': 'しんだん', '参加': 'さんか', '書き方': 'かきかた', '質問': 'しつもん',
+    '軸受': 'じくう', '車体': 'しゃたい', '飛行機': 'ひこうき', '手前': 'てまえ', '農薬': 'のうやく', '落下': 'らっか', '追体験': 'ついたいけん', '追肥': 'ついひ', '送り主': 'おくりぬし', '送電線': 'そうでんせん',
+    '失': 'うしな', '速度': 'そくど', '伝達': 'でんたつ', '連絡先': 'れんらくさき', '位置': 'いち', '運営': 'うんえい', '運送': 'うんそう', '図鑑': 'ずかん', '金魚': 'きんぎょ', '録画': 'ろくが',
+    '番組': 'ばんぐみ', '間引': 'まび', '陸上': 'りくじょう', '集会': 'しゅうかい', '行事': 'ぎょうじ', '電柱': 'でんちゅう', '危険': 'きけん', '化学': 'かがく', '火力発電': 'かりょくはつでん', '静': 'しず',
+    '非表示': 'ひひょうじ', '順次': 'じゅんじ', '程度': 'ていど', '川': 'かわ', '一': 'いち', '食料': 'しょくりょう', '安定': 'あんてい', '飲み物': 'のみもの', '駅': 'えき', '改札': 'かいさつ',
+    '高齢化': 'こうれいか', '人手不足': 'ひとでふそく', '覚': 'おぼ', '体調': 'たいちょう', '黒': 'くろ'
+    ,'出る': 'でる'
+    ,'出て': 'でて'
+    ,'出ます': 'でます'
+    ,'出た': 'でた'
+    ,'出な': 'でな'
+    ,'開く': 'ひらく'
+    ,'開き': 'ひらき'
+    ,'開い': 'ひらい'
+    ,'開け': 'あけ'
+    ,'少な': 'すくな'
+    ,'入れ': 'いれ'
+    ,'重ね': 'かさね'
+    ,'問い': 'とい'
+    ,'数え': 'かぞえ'
+    ,'消える': 'きえる'
+    ,'消え': 'きえ'
+    ,'話す': 'はなす'
+    ,'話し': 'はなし'
+    ,'高設栽培': 'こうせつさいばい'
+    ,'1回': '1かい'
+    ,'年中': 'ねんじゅう','下げ': 'さげ','下が': 'さが','部品表': 'ぶひんひょう','点検表': 'てんけんひょう','水そう': 'すいそう','生え': 'はえ','生む': 'うむ','直交集成板': 'ちょっこうしゅうせいばん','細い': 'ほそい','花だん': 'かだん','平ら': 'たいら','冷たく': 'つめたく','光る': 'ひかる','外へ': 'そとへ','数日': 'すうじつ','数秒': 'すうびょう','数cm': 'すうcm','分だけ': 'ぶんだけ','夏休み中': 'なつやすみちゅう','空気中': 'くうきちゅう','何分': 'なんぷん','年が': 'としが','組・': 'くみ・'
+};
+
+</script>
+<script>
+/* 教科書順コースと、M 身の回りの技術さがし・F これからの技術ラボ・Z 学習を終えて で使う共通の部品。
+ * もとは G-guidance/index.html の中の部品(保存・ふりがな・表示の設定・タブ・クイズ・えらぶボタン・自己評価・書き出し)。
+ * 使い方(classic script。file:// でも動く。build.py がページの中に入れる):
+ *   <link rel="stylesheet" href="../../shared/eduit-frame.css">  <link rel="stylesheet" href="../common/t-core.css">
+ *   <script src="eduit-info.js"><\/script> <script>EDUIT_INFO.app = { name: 'M 身の回りの技術さがし' };<\/script>
+ *   <script src="../../shared/eduit-frame.js"><\/script> <script src="../common/t-ruby.js"><\/script> <script src="../common/t-core.js"><\/script>
+ *   var T = TCore.init({ key: 'eduit.m.v1', blank: function () { return {…}; } });
+ *   … T.quiz(…)・T.picker(…)・T.self(…) で中身を作り …
+ *   T.start({ status: function (S) { return { intro: true, … }; }, prog: [[タブ, 名前, 点数の関数], …], exp: { code, title, file, score } });
+ * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
+ *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
+ *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
+ */
+(function () {
+  'use strict';
+  var PREF = 'eduit.t.prefs';  // ふりがな・文字の大きさ(コースと M・F・Z で同じ)
+
+  function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
+  // 保存していた中身を blank() に重ねる。形のちがう値(配列のはずが文字など)は入れない(こわれた保存で止まらないように)
+  function merge(a, b) {
+    for (var k in b) {
+      if (k === '__proto__') continue;
+      var av = a[k], bv = b[k];
+      if (isObj(av) && isObj(bv)) merge(av, bv);
+      else if (av === undefined || (typeof av === typeof bv && Array.isArray(av) === Array.isArray(bv))) a[k] = bv;
+    }
+    return a;
+  }
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'text') e.textContent = attrs[k]; else if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function filled(v) { return String(v || '').trim().length > 0; }
+  // 毎回同じ順にまぜる(答えがいつも同じ場所にならないように)
+  function seeded(n, seed) {
+    var a = [], s = seed;
+    for (var i = 0; i < n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) { s = (s * 9301 + 49297) % 233280; var k = Math.floor(s / 233280 * (j + 1)); var t = a[j]; a[j] = a[k]; a[k] = t; }
+    return a;
+  }
+
+  function init(opts) {
+    var $ = function (id) { return document.getElementById(id); };
+    var root = $('tapp');
+    var KEY = opts.key;
+    var S = opts.blank();
+    if (KEY) try { var raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw && typeof raw === 'object') S = merge(opts.blank(), raw); } catch (e) {}
+    var onSave = [];
+    function save() { if (KEY) try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} onSave.forEach(function (f) { f(); }); }
+    function getK(path) { return path.split('.').reduce(function (o, k) { return o == null ? '' : o[k]; }, S); }
+    function setK(path, v) {
+      var ks = path.split('.'), o = S;
+      for (var i = 0; i < ks.length - 1; i++) { if (!isObj(o[ks[i]])) o[ks[i]] = {}; o = o[ks[i]]; }
+      o[ks[ks.length - 1]] = v;
+    }
+
+    // ---------- ふりがな(t-ruby.js の読み。長い言葉が先に当たる) ----------
+    var RUBY = window.T_RUBY || {};
+    var RUBY_RE = new RegExp(Object.keys(RUBY).sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') || '(?!)', 'g');
+    var SKIP = /^(RUBY|RT|RP|SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/;
+    function ruby(node) {
+      var top = node || root;
+      var walker = document.createTreeWalker(top, NodeFilter.SHOW_TEXT, {
+        acceptNode: function (n) {
+          for (var p = n.parentNode; p && p !== root.parentNode; p = p.parentNode) if (SKIP.test(p.nodeName) || (p.hasAttribute && p.hasAttribute('data-noruby'))) return NodeFilter.FILTER_REJECT;
+          return /[一-鿿]/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        }
+      });
+      var list = [];
+      while (walker.nextNode()) list.push(walker.currentNode);
+      list.forEach(function (n) {
+        var s = n.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+        RUBY_RE.lastIndex = 0;
+        while ((m = RUBY_RE.exec(s))) {
+          if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+          var r = document.createElement('ruby');
+          r.appendChild(document.createTextNode(m[0]));
+          var rt = document.createElement('rt'); rt.textContent = RUBY[m[0]];
+          r.appendChild(rt); f.appendChild(r);
+          last = m.index + m[0].length;
+        }
+        if (last === 0) return;
+        if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+        n.parentNode.replaceChild(f, n);
+      });
+    }
+    // 文を入れかえてからふりがなを付ける(説明・点数など、あとから変わる文に使う)
+    function text(node, s) { node.textContent = s; ruby(node); }
+
+    // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
+    var FS_STEPS = [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']];
+    var prefs = { ruby: false, fs: 1 };
+    try {
+      var pr = JSON.parse(localStorage.getItem(PREF) || 'null');
+      if (pr) {
+        prefs.ruby = !!pr.ruby;
+        var fs = +pr.fs;  // 段の範囲の外(こわれた値)は「中」にもどす
+        prefs.fs = fs >= FS_STEPS[0][0] && fs <= FS_STEPS[FS_STEPS.length - 1][0] ? fs : 1;
+      }
+    } catch (e) {}
+    function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
+    function applyPrefs() {
+      root.classList.toggle('t-noruby', !prefs.ruby);
+      $('t-ruby').setAttribute('aria-pressed', String(prefs.ruby));
+      root.style.setProperty('--t-fs', prefs.fs);
+    }
+    $('t-ruby').addEventListener('click', function () { prefs.ruby = !prefs.ruby; savePrefs(); applyPrefs(); });
+    EduitFrame.sizeButton($('t-size'), {
+      steps: FS_STEPS,
+      get: function () { return prefs.fs; },
+      set: function (v) { prefs.fs = v; savePrefs(); applyPrefs(); }
+    });
+    if (opts.howto) $('t-howto').addEventListener('click', function () {
+      EduitFrame.howto(opts.howto, { onOpen: function (box) { if (prefs.ruby) ruby(box); } });
+    });
+
+    // ---------- 書く欄(data-k)は自動で保存 ----------
+    function fields(box) {
+      Array.prototype.forEach.call((box || root).querySelectorAll('[data-k]'), function (f) {
+        if (f._tk) return;
+        f._tk = 1;
+        var k = f.getAttribute('data-k');
+        f.value = getK(k) || '';
+        f.addEventListener('input', function () { setK(k, f.value); save(); });
+      });
+    }
+
+    // ---------- 選ぶクイズ ----------
+    // items: [{ t: 文, a: 正解の番号, x: 説明, c: この問いだけの選択肢 }], choices: 選択肢, store: 答えを入れる S の中のオブジェクトを返す関数
+    // opts.mix: 数(seed)を渡すと、問いごとに選択肢の順をまぜて出す(答えの番号は元の順のまま保存する)
+    function quiz(box, score, choices, items, store, qopts) {
+      qopts = qopts || {};
+      if (typeof box === 'string') box = $(box);
+      if (typeof score === 'string') score = $(score);
+      function paintScore() {
+        if (!score) return;
+        var st = store(), ok = 0, n = 0;
+        items.forEach(function (it, i) { if (st[i] != null) { n++; if (+st[i] === it.a) ok++; } });
+        text(score, n ? '(' + ok + ' / ' + items.length + ' 正解' + (n < items.length ? '・のこり ' + (items.length - n) : '') + ')' : '');
+      }
+      items.forEach(function (it, i) {
+        var cs = it.c || choices;
+        var order = cs.map(function (c, j) { return j; });
+        if (qopts.mix != null) {  // まぜたうえで、さらに数でずらす(選択肢が少ないと、まぜても元の順のままのことがあるので)
+          var mx = seeded(cs.length, qopts.mix + i * 7), sh = (qopts.mix + i) % cs.length;
+          order = mx.slice(sh).concat(mx.slice(0, sh));
+        }
+        var ex = el('p', { class: 't-explain', hidden: '' });
+        var btns = [];
+        order.forEach(function (j) {
+          var b = el('button', { type: 'button', class: 't-choice', text: cs[j] });
+          b._j = j;
+          b.addEventListener('click', function () { store()[i] = j; save(); paint(); paintScore(); });
+          btns.push(b);
+        });
+        function paint() {
+          var v = store()[i];
+          btns.forEach(function (b) {
+            var j = b._j;
+            b.classList.toggle('is-ok', v != null && j === it.a && +v === j);
+            b.classList.toggle('is-ng', v != null && +v === j && j !== it.a);
+            b.setAttribute('aria-pressed', String(v != null && +v === j));
+          });
+          if (v != null) {
+            text(ex, (+v === it.a ? '正解! ' : 'ざんねん。正しくは「' + cs[it.a] + '」。 ') + (it.x || ''));
+            ex.hidden = false;
+          } else ex.hidden = true;
+        }
+        box.appendChild(el('li', { class: 't-q' }, [el('p', { class: 't-q-text', text: it.t }), el('div', { class: 't-choices' }, btns), ex]));
+        paint();
+      });
+      paintScore();
+    }
+    function quizDone(items, st) { return items.every(function (it, i) { return st[i] != null; }); }
+    function quizOk(items, st) { return items.filter(function (it, i) { return st[i] != null && +st[i] === it.a; }).length; }
+
+    // 1つだけ・いくつでも えらぶボタン(options: 文字か { id, label })。onChange は押したあとに呼ぶ。もどり値の関数で、表示を今の値に合わせる
+    function picker(box, options, get, set, multi, onChange) {
+      if (typeof box === 'string') box = $(box);
+      var bs = options.map(function (o) {
+        var id = o.id || o;
+        var b = el('button', { type: 'button', class: 't-choice t-pick', text: o.label || o });
+        b.addEventListener('click', function () {
+          if (multi) { var a = get(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); }
+          else set(id);
+          save(); paint();
+          if (onChange) onChange();
+        });
+        box.appendChild(b);
+        return { b: b, id: id };
+      });
+      function paint() {
+        var v = get();
+        bs.forEach(function (x) { x.b.setAttribute('aria-pressed', String(multi ? v.indexOf(x.id) >= 0 : v === x.id)); });
+      }
+      paint();
+      return paint;
+    }
+
+    // 自己評価の表(◎○△)。items: [[キー, 文], …]、store: 評価を入れる S の中のオブジェクトを返す関数
+    var LV = [['3', 'できた', '◎'], ['2', 'だいたい', '○'], ['1', 'もう少し', '△']];
+    function self(tbody, items, store, name) {
+      if (typeof tbody === 'string') tbody = $(tbody);
+      items.forEach(function (s) {
+        var tr = el('tr', null, [el('th', { scope: 'row', text: s[1] })]);
+        LV.forEach(function (l) {
+          var inp = el('input', { type: 'radio', name: (name || 't-self') + '-' + s[0], value: l[0] });
+          inp.checked = store()[s[0]] === l[0];
+          inp.addEventListener('change', function () { if (inp.checked) { store()[s[0]] = l[0]; save(); } });
+          tr.appendChild(el('td', null, [el('label', null, [inp, el('span', { text: l[2] }), el('span', { class: 't-sr', text: l[1] })])]));
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    function selfDone(items, st) { return items.every(function (s) { return st[s[0]]; }); }
+
+    // ---------- タブ ----------
+    var TABS = Array.prototype.slice.call(document.querySelectorAll('.t-tabs [data-tab]'));
+    var SECS = Array.prototype.slice.call(document.querySelectorAll('.t-sec'));
+    var onShow = {};
+    function visibleTabs() { return TABS.filter(function (t) { return EduitFrame.furikaeri || !t.hasAttribute('data-ef-reflect'); }); }
+    function select(name, scroll) {
+      if (!SECS.length) return;  // タブのないページ(教科書順コース)
+      if (!EduitFrame.furikaeri && name === 'refl') name = 'rec';
+      if (!SECS.some(function (s) { return s.getAttribute('data-sec') === name; })) name = SECS[0].getAttribute('data-sec');
+      TABS.forEach(function (t) { var on = t.getAttribute('data-tab') === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
+      SECS.forEach(function (s) { s.hidden = s.getAttribute('data-sec') !== name; });
+      if (onShow[name]) onShow[name]();
+      if (scroll) window.scrollTo(0, 0);
+      // Claude のプレビューなど about:srcdoc で開くとアドレスを書きかえられないので、失敗しても止めない
+      try { if (location.hash.slice(1) !== name) history.replaceState(null, '', location.pathname + location.search + '#' + name); } catch (e) {}
+      if (KEY) try { localStorage.setItem(KEY + '.tab', name); } catch (e) {}
+    }
+    TABS.forEach(function (t) {
+      t.setAttribute('aria-controls', 't-' + t.getAttribute('data-tab'));
+      t.addEventListener('click', function () { select(t.getAttribute('data-tab'), true); });
+      t.addEventListener('keydown', function (e) {
+        var v = visibleTabs(), j = v.indexOf(t);
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          var n = v[(j + (e.key === 'ArrowRight' ? 1 : v.length - 1)) % v.length];
+          n.focus(); n.click();
+        }
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) {
+      b.addEventListener('click', function () { select(b.getAttribute('data-goto'), true); });
+    });
+    window.addEventListener('hashchange', function () { select(location.hash.slice(1)); });
+
+    // ---------- 進み具合・書き出し・はじめから(T.start で始める) ----------
+    function start(o) {
+      function marks() {
+        var st = o.status(S);
+        TABS.forEach(function (t) { t.classList.toggle('t-done', !!st[t.getAttribute('data-tab')]); });
+      }
+      onSave.push(marks);
+      function progress() {
+        var st = o.status(S), ul = $('t-prog');
+        if (!ul) return;
+        ul.innerHTML = '';
+        o.prog.forEach(function (p) {
+          if (p[0] === 'refl' && !EduitFrame.furikaeri) return;
+          ul.appendChild(el('li', null, [el('span', { class: st[p[0]] ? 'ok' : 'no', text: st[p[0]] ? '✓ できた ' : '・ まだ ' }), p[1], p[2] ? '(' + p[2]() + ')' : '']));
+        });
+        ruby(ul);
+      }
+      var prevRec = onShow.rec;
+      onShow.rec = function () { if (prevRec) prevRec(); progress(); };
+      // 書き出し(振り返り一覧 teacher-tools/furikaeri-ichiran で読める)
+      function exportObj() {
+        var EI = window.EDUIT_INFO || {}, data = S;
+        if (!EduitFrame.furikaeri && o.exp.noRefl) data = o.exp.noRefl(JSON.parse(JSON.stringify(S)));
+        return {
+          schema: 'eduit-textbook/1', app: o.exp.code, title: o.exp.title, version: EI.version || '', exported: new Date().toISOString(),
+          student: { cls: S.who.cls, no: S.who.no, name: S.who.name }, score: o.exp.score ? o.exp.score(S) : {}, data: data
+        };
+      }
+      if ($('t-export')) $('t-export').addEventListener('click', function () {
+        // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
+        var safe = function (v) { return String(v || '').replace(/[\\/:*?"<>|\s]/g, ''); };
+        var who = [safe(S.who.cls), safe(S.who.no)].filter(Boolean).join('-');
+        var d = new Date(), ds = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+        var name = o.exp.file + '_' + (who ? who + '_' : '') + (safe(S.who.name) ? safe(S.who.name) + '_' : '') + ds + '.json';
+        try {
+          var blob = new Blob([JSON.stringify(exportObj(), null, 2)], { type: 'application/json' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = name;
+          document.body.appendChild(a); a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+          text($('t-export-msg'), '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生の指示があれば入れてから、もう一度書き出してください)'));
+        } catch (e) {
+          text($('t-export-msg'), 'ファイルを作れませんでした。先生に聞いてください。');
+        }
+      });
+      if ($('t-print')) $('t-print').addEventListener('click', function () { window.print(); });
+      if ($('t-reset')) $('t-reset').addEventListener('click', function () {
+        if (!confirm('この教材で書いたこと・答えを全部消して、はじめからにします。よいですか?')) return;
+        try { localStorage.removeItem(KEY); localStorage.removeItem(KEY + '.tab'); } catch (e) {}
+        location.reload();
+      });
+      fields();
+      applyPrefs();
+      ruby(root);
+      marks();
+      var first = location.hash.slice(1);
+      if (!first && KEY) try { first = localStorage.getItem(KEY + '.tab') || ''; } catch (e) {}
+      select(first || SECS[0].getAttribute('data-sec'));
+      return { marks: marks };
+    }
+
+    return {
+      S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
+      quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
+      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs
+    };
+  }
+
+  window.TCore = { init: init };
+})();
+
+</script>
+</head>
+<body class="ef-page">
+<div id="tapp" class="t-noruby">
+  <div class="t-top" data-ef-autohide>
+    <header class="ef-header">
+      <h1 class="ef-title"><span class="ef-code">M</span> <span class="ef-title-name">身の回りの技術さがし</span></h1>
+      <div class="ef-tools">
+        <button type="button" class="ef-btn ef-toggle" id="t-ruby" aria-pressed="false" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="t-size"></button>
+        <button type="button" class="ef-btn" id="t-howto">使い方</button>
+      </div>
+    </header>
+    <nav class="t-tabs" role="tablist" aria-label="技術さがしのページ">
+      <button type="button" role="tab" data-tab="intro">はじめに</button>
+      <button type="button" role="tab" data-tab="a">① 材料と加工</button>
+      <button type="button" role="tab" data-tab="b">② 生物育成</button>
+      <button type="button" role="tab" data-tab="c">③ エネルギー変換</button>
+      <button type="button" role="tab" data-tab="d">④ 情報</button>
+      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
+      <button type="button" role="tab" data-tab="rec">記録</button>
+    </nav>
+  </div>
+
+  <main class="t-main">
+    <!-- ===== はじめに ===== -->
+    <section class="t-sec" id="t-intro" data-sec="intro" role="tabpanel">
+      <h2>身の回りは技術でいっぱい</h2>
+      <p class="t-ref">教科書 1編〜4編の1章のはじめ(身の回りの技術)と、1章の終わり(問題解決の工夫)</p>
+      <div class="t-card">
+        <p class="t-lead">朝起きてから寝るまでに使うものを思いうかべてみましょう。机やいす、ごはん、電気、スマートフォン…。どれにも、だれかが問題を解決するために考えた技術が使われています。この教材では、4つの分野ごとに身の回りの技術をさがし、作った人の工夫を読みときます。</p>
+        <div class="t-key">工夫を見つけるコツは、<b>「もしこの工夫がなかったら、何がこまる?」</b>と考えることです。こまることが、その工夫が解決している<b>問題</b>です。</div>
+        <ol class="t-toc">
+          <li><button type="button" data-goto="a"><b>①</b>材料と加工の技術 ― 1編のはじめと1章の終わりに</button></li>
+          <li><button type="button" data-goto="b"><b>②</b>生物育成の技術 ― 2編のはじめと1章の終わりに</button></li>
+          <li><button type="button" data-goto="c"><b>③</b>エネルギー変換の技術 ― 3編のはじめと1章の終わりに</button></li>
+          <li><button type="button" data-goto="d"><b>④</b>情報の技術 ― 4編のはじめと1章の終わりに</button></li>
+        </ol>
+      </div>
+      <div class="t-card t-act">
+        <h3>どの技術の工夫?</h3>
+        <p>それぞれの工夫は、A〜D のどの分野の技術でしょう。 <span class="t-score" id="m-q0-score"></span></p>
+        <ol class="t-quiz" id="m-q0"></ol>
+      </div>
+      <div class="t-card t-write">
+        <h3>家の中や通学路で見つけた技術</h3>
+        <p>4つの分野に1つずつ書きましょう。分野の学習が進んだら、書き足してもかまいません。</p>
+        <div class="t-grid">
+          <label class="t-field"><span>A 材料と加工</span><input type="text" data-k="intro.a" placeholder="例: 木の階段の手すり"></label>
+          <label class="t-field"><span>B 生物育成</span><input type="text" data-k="intro.b" placeholder="例: 近くの畑のビニルハウス"></label>
+          <label class="t-field"><span>C エネルギー変換</span><input type="text" data-k="intro.c" placeholder="例: 電柱の上の変圧器"></label>
+          <label class="t-field"><span>D 情報</span><input type="text" data-k="intro.d" placeholder="例: 押しボタン式の信号機"></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ①〜④(中身は下の AREAS から作る) ===== -->
+    <section class="t-sec" id="t-a" data-sec="a" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-b" data-sec="b" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-c" data-sec="c" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-d" data-sec="d" role="tabpanel" hidden></section>
+
+    <!-- ===== 振り返り ===== -->
+    <section class="t-sec" id="t-refl" data-sec="refl" role="tabpanel" data-ef-reflect hidden>
+      <h2>振り返り</h2>
+      <p class="t-ref">身の回りの技術さがしで学んだことを振り返ります</p>
+      <div class="t-card">
+        <h3>自己評価</h3>
+        <table class="t-self">
+          <thead><tr><th scope="col">ふりかえる項目</th><th scope="col">できた</th><th scope="col">だいたい</th><th scope="col">もう少し</th></tr></thead>
+          <tbody id="m-self"></tbody>
+        </table>
+      </div>
+      <div class="t-card">
+        <h3>自分の言葉で書こう</h3>
+        <p id="m-first-view"></p>
+        <label class="t-field"><span>技術を見る目が変わったところ(新しく気づいた工夫)</span><textarea data-k="refl.learned"></textarea></label>
+        <label class="t-field"><span>もっと調べてみたい製品やしくみ</span><textarea data-k="refl.next"></textarea></label>
+      </div>
+    </section>
+
+    <!-- ===== 記録 ===== -->
+    <section class="t-sec" id="t-rec" data-sec="rec" role="tabpanel" hidden>
+      <h2>記録</h2>
+      <p class="t-ref">書いたこと・答えは、この端末のブラウザの中に自動で保存されています</p>
+      <div class="t-card">
+        <h3>組・番号・名前</h3>
+        <div class="t-who">
+          <label class="t-field"><span data-noruby>組</span><input type="text" data-k="who.cls" inputmode="numeric"></label>
+          <label class="t-field"><span>番号</span><input type="text" data-k="who.no" inputmode="numeric"></label>
+          <label class="t-field"><span>名前</span><input type="text" data-k="who.name"></label>
+        </div>
+      </div>
+      <div class="t-card">
+        <h3>進み具合</h3>
+        <ul class="t-prog" id="t-prog"></ul>
+        <div class="t-btns">
+          <button type="button" class="t-btn t-pri" id="t-export">記録を書き出す(ファイル)</button>
+          <button type="button" class="t-btn" id="t-print">印刷する</button>
+          <button type="button" class="t-btn" id="t-reset">はじめから(記録を消す)</button>
+        </div>
+        <p id="t-export-msg" aria-live="polite"></p>
+        <p>書き出したファイルは、先生の指示どおりに出します。先生は「振り返り一覧」で、クラス全員の振り返りをまとめて見られます。</p>
+      </div>
+    </section>
+  </main>
+</div>
+<div data-ef-footer></div>
+
+<script>
+(function () {
+  'use strict';
+  var VIEWS = ['社会からの要求', '安全性', '環境への負荷', '経済性'];
+  var AREA_NAMES = ['A 材料と加工', 'B 生物育成', 'C エネルギー変換', 'D 情報'];
+
+  // 分野ごとの中身。q: どんな工夫?(a は正しい選択肢の番号。画面では順をまぜて出す)、kase: 問題解決の工夫の話と、4つの工夫(v は視点の番号)
+  var AREAS = [
+    { id: 'a', n: '①', name: '材料と加工の技術', ref: '教科書 1編1章 1(身の回りの材料と加工の技術)・4(問題解決の工夫)',
+      lead: '家・机・いす・橋・文房具・ペットボトル。わたしたちの身の回りの物は、木材・金属・プラスチックなどの材料の性質を生かし、切る・曲げる・けずる・つなぐといった加工で形にしたものです。',
+      q: [
+        { t: '段ボール: 2枚の紙の間に、波の形に折った紙をはさんでいる。', c: ['軽いのに、上からおされてもつぶれにくくするため', '紙の色をきれいに見せるため', '水にぬれても、やぶれないようにするため'], a: 0, x: '波形の紙が柱のように支えるので、少ない紙でもじょうぶな箱になります。形の工夫で強くする例です。' },
+        { t: '炭酸飲料のペットボトル: 底が、花びらのようなでこぼこの形になっている。', c: ['中からおす力にたえて、ふくらまずにまっすぐ立つようにするため', '持ったときに手が冷たくならないようにするため', 'プラスチックをたくさん使って重くするため'], a: 0, x: '炭酸のガスは中から外へおします。でこぼこの形にすると、うすいプラスチックでも力にたえられます。' },
+        { t: '木のいす: 脚と脚の間に、横の木(ぬき)が入っている。', c: ['脚がぐらぐらしないように、枠にして支えるため', 'すわったときに、やわらかく感じるようにするため', 'いすの色を変えるため'], a: 0, x: '脚どうしを横木でつなぐと、ゆがみにくい枠になります。構造の工夫で、こわれにくくしています。' },
+        { t: '飲み物の缶: アルミニウムでできているものが多い。', c: ['軽くて加工しやすく、回収してまた缶にしやすいから', '磁石にくっつくので、集めやすいから', '燃やすと、よい燃料になるから'], a: 0, x: 'アルミニウムは軽く、うすくのばしやすい金属です。リサイクルすると、新しく作るより少ないエネルギーで材料にもどせます。' }
+      ],
+      kase: { name: 'たためるいす', icon: '🪑', problem: '集会や行事で使ういすを、使わないときは場所を取らずにしまいたい。', idea: 'いすを折りたたんで、うすくして重ねられるようにした。',
+        items: [
+          { t: '折りたたむとうすくなり、たくさん重ねてしまえる。', a: 0 },
+          { t: 'たたむ部分にすきまやとめ具があり、指をはさみにくい。', a: 1 },
+          { t: 'こわれた部品だけを取りかえて、長く使えるようにしている。', a: 2 },
+          { t: '同じ形の部品をたくさん作り、1きゃくの値段をおさえている。', a: 3 }
+        ] },
+      ph: { product: '例: ブックエンド', problem: '例: 本がたおれて取り出しにくい', idea: '例: 金属の板をL字に曲げ、本の重さで動かないようにしている' } },
+    { id: 'b', n: '②', name: '生物育成の技術', ref: '教科書 2編1章 1(身の回りの生物育成の技術)・6(問題解決の工夫)',
+      lead: '毎日食べる米・野菜・くだもの・肉・卵・魚。これらは、作物や動物、魚の育ち方を知り、育つ環境を整えたり、育ち方を管理したりする技術で育てられています。',
+      q: [
+        { t: 'ビニルハウス: 畑をビニルでおおった家のような建物の中で、野菜を育てる。', c: ['寒い季節でも中をあたたかく保ち、作物を育てられるようにするため', '畑に虫を集めるため', '日光をさえぎって、暗くするため'], a: 0, x: '温度や雨・風をある程度コントロールできるので、季節に関係なく育てたり、早く収穫したりできます。' },
+        { t: '畑のうね: 土を細長く盛り上げてから、種や苗を植える。', c: ['水はけをよくして、根がいたまず育ちやすくするため', '畑を広く見せるため', '作業をわざとむずかしくするため'], a: 0, x: '土を盛ると水がたまりにくく、根に空気がとどきやすくなります。作物の根の育ち方に合わせた工夫です。' },
+        { t: 'マルチ: 苗のまわりの土を、黒いビニルでおおう。', c: ['雑草が生えるのをおさえ、土の温度や水分を保つため', '土を冷やして作物の成長をおそくするため', '作物をかくして見えなくするため'], a: 0, x: '光をさえぎるので雑草が育ちにくく、土がかわきにくくなります。' },
+        { t: '魚の養殖: いけすのえさの量や水の温度を、毎日記録している。', c: ['魚の成長や体調を知り、育て方を調節するため', 'いけすの色を決めるため', '魚の名前を覚えるため'], a: 0, x: '記録をくらべると、えさが多すぎる・水温が高すぎる、などの問題に早く気づけます。' }
+      ],
+      kase: { name: 'イチゴの高設栽培', icon: '🍓', problem: '地面でイチゴを育てると、しゃがんだままの作業が長く、育てる人の体の負担が大きい。', idea: '腰の高さの棚の上でイチゴを育てるようにした。',
+        items: [
+          { t: '立ったまま作業でき、育てる人の腰やひざの負担が小さい。', a: 0 },
+          { t: '実が土につかないので、よごれや病気がつきにくい。', a: 1 },
+          { t: '水と肥料を管で必要な分だけ流し、むだを少なくしている。', a: 2 },
+          { t: '棚を作るお金はかかるが、収穫の時間が短くなり、人を雇うお金がへる。', a: 3 }
+        ] },
+      ph: { product: '例: 家庭菜園のプランター', problem: '例: 夏に水やりを忘れると、すぐにかれてしまう', idea: '例: 底に水をためるところがあり、数日は水やりをしなくても土がかわきにくい' } },
+    { id: 'c', n: '③', name: 'エネルギー変換の技術', ref: '教科書 3編1章 1(身の回りのエネルギー変換の技術)・10(問題解決の工夫)',
+      lead: '照明・電気ポット・洗濯機・自転車・自動車。わたしたちは、電気や燃料などのエネルギーを、光・熱・運動などの使いやすい形に変えて(変換して)利用しています。',
+      q: [
+        { t: '電気ポット: 電気を使って、水をお湯にする。', c: ['電気エネルギーを熱エネルギーに変えている', '電気エネルギーを光エネルギーに変えている', '電気エネルギーを音のエネルギーに変えている'], a: 0, x: '中の電熱線(ヒーター)に電気を流すと、熱が出て水があたたまります。' },
+        { t: '洗濯機のコンセント: 緑色の線(アース線)を、決められた所につなぐ。', c: ['もれた電気を地面ににがし、感電を防ぐため', '電気代を安くするため', '洗濯を速く終わらせるため'], a: 0, x: '水を使う電気機器は、電気がもれたときに危険です。アース線は、もれた電気を人の体ではなく地面へ流します。' },
+        { t: '自転車の変速機: ペダル側と後ろの車輪側の歯車の組み合わせを切りかえる。', c: ['坂道では軽い力でこげ、平らな道では速く走れるようにするため', '自転車を重くするため', 'ブレーキのかわりにするため'], a: 0, x: '歯車の大きさの組み合わせで、回る速さと力の大きさの関係が変わります。' },
+        { t: '洗濯機: 中の洗濯そうが、回ったり向きを変えたりする。', c: ['モーターで電気を回転の運動に変え、ベルトや歯車で伝えている', 'ヒーターで電気を熱に変え、水を回している', '電池で光を出して回している'], a: 0, x: 'モーターが電気エネルギーを運動エネルギーに変えます。その回転を、ベルトや歯車などのしくみで伝えます。' }
+      ],
+      kase: { name: '扇風機', icon: '🌀', problem: '夏の部屋をすずしくしたいが、なるべく電気を使いたくない。', idea: 'モーターで羽根を回し、風を送るようにした。',
+        items: [
+          { t: '羽根の形を工夫して、静かにたくさんの風を送れる。', a: 0 },
+          { t: '羽根のまわりに細かいガードがあり、指が入らない。', a: 1 },
+          { t: '回る速さを細かく変えられ、使う電気を少なくできる。', a: 2 },
+          { t: '部品の数を少なくして、買いやすい値段にしている。', a: 3 }
+        ] },
+      ph: { product: '例: 自転車のライト', problem: '例: 夜道で、車から自転車が見えにくい', idea: '例: 車輪の回転で発電して、暗くなると自動で光る' } },
+    { id: 'd', n: '④', name: '情報の技術', ref: '教科書 4編1章 1(身の回りの情報の技術)・6 のあと(問題解決の工夫)',
+      lead: 'スマートフォンやパソコンだけでなく、炊飯器・エアコン・信号機・自動販売機・駅の改札にもコンピュータが入っています。情報を集め(入力)、判断し(処理)、動かしたり表示したり(出力)して、生活を便利で安全にしています。',
+      q: [
+        { t: '駅の改札: 交通系ICカードをタッチすると、ゲートが開く。', c: ['カードの情報を読み取り、コンピュータが判断してゲートを開けている', 'カードの重さをはかって、ゲートを開けている', 'カードの色を見て、ゲートを開けている'], a: 0, x: '読み取る(入力)→ 残りの金額などを調べる(処理)→ ゲートを開ける(出力)の流れです。' },
+        { t: '炊飯器: スイッチを入れると、おいしくたけるように火加減が自動で変わる。', c: ['温度センサで調べ、マイコンが加熱の強さを調節している', '電気を止めたり流したりを、人が手で切りかえている', '毎回同じ強さで、ずっと加熱している'], a: 0, x: '計測(センサ)→ 判断(マイコン)→ 制御(ヒーター)をくり返す、計測・制御のしくみです。' },
+        { t: '自動販売機: 売り切れになりそうなことが、飲み物の会社にとどく。', c: ['ネットワークで品物の数の情報を送り、補充の計画に生かしている', '自動販売機が自分で工場へ注文に行く', 'お客さんが会社に電話して知らせている'], a: 0, x: '情報通信ネットワークでデータを集めると、むだなく品物を運べます。' },
+        { t: '動画サイト: 回線が混んでいると、画質が自動で下がる。', c: ['回線の速さに合わせて送るデータの量を調節し、止まらないようにするため', '画面を暗くして目を休ませるため', '動画を短くするため'], a: 0, x: '画質を下げるとデータ量が小さくなり、回線が混んでいてもとぎれにくくなります。' }
+      ],
+      kase: { name: 'スマートフォンでの支払い', icon: '📱', problem: 'レジで小銭を数えたり、おつりを受けわたしたりするのに時間がかかり、行列ができる。', idea: 'スマートフォンをかざすだけで支払いができるようにした。',
+        items: [
+          { t: 'かざすだけで、数秒で支払いが終わる。', a: 0 },
+          { t: '暗証番号や顔・指紋で、本人かどうかを確かめる。', a: 1 },
+          { t: 'レシートを紙ではなく画面で見られ、紙を使わずにすむ。', a: 2 },
+          { t: '店はお金を数える手間がへり、レジの作業時間を短くできる。', a: 3 }
+        ] },
+      ph: { product: '例: 押しボタン式の信号機', problem: '例: 人がいないのに赤になり、車が止まってしまう', idea: '例: ボタンが押されたときだけ、決まった順で信号を変える' } }
+  ];
+  // はじめに: どの技術の工夫?
+  var Q0 = [
+    { t: '合板は、うすい板を繊維の向きが交互になるように重ねてはりあわせ、反りにくくしている。', a: 0, x: '木材の性質を生かした材料の工夫なので、A 材料と加工の技術です。' },
+    { t: '水田に水をはって、イネの根のまわりの温度を保ったり、雑草をおさえたりする。', a: 1, x: '作物の育つ環境を整える工夫なので、B 生物育成の技術です。' },
+    { t: '発電所でつくった電気を、変電所で電圧を下げてから家にとどける。', a: 2, x: '電気を送るしくみなので、C エネルギー変換の技術です。' },
+    { t: '写真をデジタルのデータにして、メールで友だちに送る。', a: 3, x: '情報をデジタル化してネットワークで送るので、D 情報の技術です。' },
+    { t: 'フライパンの取っ手を、熱が伝わりにくい木やプラスチックで作る。', a: 0, x: '材料の性質(熱の伝わりやすさ)を生かした工夫なので、A 材料と加工の技術です。' },
+    { t: 'ニワトリのえさの栄養を、季節や成長に合わせて変える。', a: 1, x: '動物の育ち方に合わせた管理なので、B 生物育成の技術です。' },
+    { t: 'ドライヤーで、電気を熱と風(羽根の回転)に変える。', a: 2, x: 'エネルギーを変換して使っているので、C エネルギー変換の技術です。' },
+    { t: '天気予報のアプリが、雨がふる前に知らせてくれる。', a: 3, x: '集めたデータをコンピュータで処理して知らせるので、D 情報の技術です。' }
+  ];
+
+  function blank() {
+    var o = { intro: { q: {}, a: '', b: '', c: '', d: '' }, refl: { self: {}, learned: '', next: '' }, who: { cls: '', no: '', name: '' } };
+    AREAS.forEach(function (A) { o[A.id] = { q: {}, v: {}, product: '', problem: '', idea: '', view: '' }; });
+    return o;
+  }
+  var T = TCore.init({
+    key: 'eduit.m.v1', blank: blank,
+    howto: '<h3>この教材の進め方</h3><ol>' +
+      '<li>はじめに「はじめに」を開き、「どの技術の工夫?」に答えます。</li>' +
+      '<li>① 〜 ④ は4つの分野です。その分野の学習を始めるときに開き、「どんな工夫?」と「問題解決の工夫を読みとこう」に答えます。分野の1章が終わったら、「書いてみよう」で自分で見つけた製品の工夫を書きます。</li>' +
+      '<li>えらぶと、すぐに答えと説明が出ます。何度でもやり直せます。書いたことは、この端末のブラウザの中に自動で保存されます。</li>' +
+      '<li>最後に「振り返り」を書き、「記録」で組・番号・名前を入れて「記録を書き出す」を押し、できたファイルを先生の指示どおりに出します。</li></ol>' +
+      '<h3>上のボタン</h3><ul><li><b>ふりがな</b>: 漢字の読みを出す・かくす</li><li><b>文字</b>: 押すたびに文字の大きさが 小・中・大・特大 と変わる</li></ul>' +
+      '<p>タブに ✓ が付くのは、そのページの「やってみよう」と「書いてみよう」が全部終わったときです。</p>'
+  });
+  var S = T.S, el = T.el;
+
+  T.quiz('m-q0', 'm-q0-score', AREA_NAMES, Q0, function () { return S.intro.q; });
+
+  // ①〜④ のページを作る
+  AREAS.forEach(function (A, ai) {
+    var sec = T.$('t-' + A.id), st = S[A.id];
+    var score1 = el('span', { class: 't-score' }), score2 = el('span', { class: 't-score' });
+    var q1 = el('ol', { class: 't-quiz' }), q2 = el('ol', { class: 't-quiz' });
+    var K = A.kase;
+    sec.appendChild(el('h2', { text: A.n + ' ' + A.name }));
+    sec.appendChild(el('p', { class: 't-ref', text: A.ref }));
+    sec.appendChild(el('div', { class: 't-card' }, [el('p', { class: 't-lead', text: A.lead })]));
+    sec.appendChild(el('div', { class: 't-card t-act' }, [
+      el('h3', { text: 'どんな工夫?' }),
+      el('p', null, ['製品の工夫は、何のためでしょう。 ', score1]), q1
+    ]));
+    sec.appendChild(el('div', { class: 't-card t-act' }, [
+      el('h3', { text: '問題解決の工夫を読みとこう: ' + K.icon + ' ' + K.name }),
+      el('dl', { class: 't-case' }, [el('dt', { text: '問題' }), el('dd', { text: K.problem }), el('dt', { text: '解決' }), el('dd', { text: K.idea })]),
+      el('p', null, ['作った人は、ほかにも次の工夫をしています。それぞれ、4つの視点のどれを大事にした工夫でしょう。 ', score2]), q2,
+      el('div', { class: 't-key' }, ['作る人は、4つの視点のどれか1つだけでなく、全部を見て', el('b', { text: '折り合い' }), 'をつけています。ある視点をよくすると、別の視点が悪くなることもあります(', el('b', { text: 'トレードオフ' }), ')。'])
+    ]));
+    var w = el('div', { class: 't-card t-write' }, [
+      el('h3', { text: '身の回りの製品の工夫を見つけよう' }),
+      el('p', { text: 'この分野の技術が使われている製品やしくみを1つえらび、作った人の工夫を読みときましょう。' }),
+      el('label', { class: 't-field' }, [el('span', { text: 'えらんだ製品・しくみ' }), el('input', { type: 'text', 'data-k': A.id + '.product', placeholder: A.ph.product })]),
+      el('label', { class: 't-field' }, [el('span', { text: 'どんな問題を解決している?' }), el('textarea', { 'data-k': A.id + '.problem', placeholder: A.ph.problem })]),
+      el('label', { class: 't-field' }, [el('span', { text: 'どんな工夫がある?' }), el('textarea', { 'data-k': A.id + '.idea', placeholder: A.ph.idea })])
+    ]);
+    var vbox = el('div', { class: 't-choices' });
+    w.appendChild(el('p', { text: 'いちばん大事にしていると思う視点' }));
+    w.appendChild(vbox);
+    sec.appendChild(w);
+    T.quiz(q1, score1, null, A.q, function () { return st.q; }, { mix: 11 + ai * 17 });
+    T.quiz(q2, score2, VIEWS, K.items, function () { return st.v; });
+    T.picker(vbox, VIEWS, function () { return st.view; }, function (v) { st.view = v; });
+  });
+
+  // 振り返り
+  var SELF = [
+    ['find', '身の回りの製品やしくみから、4つの分野の技術を見つけられた'],
+    ['why', '製品の工夫が、どんな問題を解決しているかを考えられた'],
+    ['view', '工夫を4つの視点で分けて、折り合いのつけ方を考えられた']
+  ];
+  T.self('m-self', SELF, function () { return S.refl.self; }, 'm-self');
+  T.onShow.refl = function () {
+    var f = ['a', 'b', 'c', 'd'].map(function (k) { return S.intro[k]; }).filter(T.filled);
+    T.text(T.$('m-first-view'), f.length ? 'はじめに書いた「見つけた技術」: ' + f.join('・') : '');
+  };
+
+  // できたかどうか(タブの ✓ と、記録の進み具合)
+  function areaDone(A) {
+    var st = S[A.id];
+    return T.quizDone(A.q, st.q) && T.quizDone(A.kase.items, st.v) && T.filled(st.product) && T.filled(st.idea);
+  }
+  function areaScore(A) { var st = S[A.id]; return (T.quizOk(A.q, st.q) + T.quizOk(A.kase.items, st.v)) + ' / ' + (A.q.length + A.kase.items.length); }
+  var prog = [['intro', 'はじめに: どの技術の工夫? ' + Q0.length + '問・見つけた技術', function () { return T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length + ' 正解'; }]];
+  AREAS.forEach(function (A) { prog.push([A.id, A.n + ' ' + A.name + ': どんな工夫?・問題解決の工夫・製品の工夫', function () { return areaScore(A) + ' 正解'; }]); });
+  prog.push(['refl', '振り返り']);
+  T.start({
+    status: function () {
+      var o = { intro: T.quizDone(Q0, S.intro.q) && ['a', 'b', 'c', 'd'].some(function (k) { return T.filled(S.intro[k]); }),
+        refl: T.selfDone(SELF, S.refl.self) && T.filled(S.refl.learned) };
+      AREAS.forEach(function (A) { o[A.id] = areaDone(A); });
+      return o;
+    },
+    prog: prog,
+    exp: {
+      code: 'M', title: '身の回りの技術さがし', file: 'M_技術さがし',
+      score: function () {
+        var o = { intro: T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length };
+        AREAS.forEach(function (A) { o[A.id] = areaScore(A); });
+        return o;
+      },
+      noRefl: function (d) { d.refl = { self: {}, learned: '', next: '' }; return d; }
+    }
+  });
+})();
+</script>
+</body>
+</html>

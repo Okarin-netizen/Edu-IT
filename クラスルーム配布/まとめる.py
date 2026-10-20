@@ -50,6 +50,11 @@ STUDENT = {
     "B": "B_生物育成_統一版.html",
     "C": "C_エネルギー変換_統一版.html",
     "D": "D_情報の技術_統一版.html",
+    # 教科書の順に進む学習コース(入口)と、コースのために作った3つの教材(T-textbook/。分野に入らないので記号は M・F・Z)
+    "T": "教科書の順に進む_学習コース.html",
+    "M": "M_身の回りの技術さがし.html",
+    "F": "F_これからの技術ラボ.html",
+    "Z": "Z_学習を終えて.html",
 }
 subprocess.run([sys.executable, str(repo / "G-guidance/build.py")], check=True)  # → G-guidance/dist/
 copy(repo / "G-guidance/dist/技術分野のガイダンス.html", student / STUDENT["G"])
@@ -58,6 +63,9 @@ copy(repo / "A-materials/dist/材料と加工_教材アプリ.html", student / S
 copy(repo / "B-bio/dist/生物育成教材集.html", student / STUDENT["B"])
 copy(repo / "C-energy/dist/energy-apps.html", student / STUDENT["C"])
 copy(info / "dist/情報の技術_体験教材集.html", student / STUDENT["D"])  # 9つの教材(生成AI・ネット詐欺・ハッシュ化のラボも入っている)
+subprocess.run([sys.executable, str(repo / "T-textbook/build.py")], check=True)  # → T-textbook/dist/
+for k in ("T", "M", "F", "Z"):
+    copy(repo / "T-textbook/dist" / STUDENT[k], student / STUDENT[k])
 # 情報の技術で1つの教材だけを配りたいとき用(中身は統一版と同じ)
 data = json.loads((info / "kyozai-shu/data/materials.json").read_text(encoding="utf-8"))
 for m in data["materials"]:
@@ -68,6 +76,7 @@ for m in data["materials"]:
 # (shared/eduit-guide.css)で、名前は「X_分野名_先生用ガイド.html」。4分野共通の道具は「全分野_名前.html」。
 TEACHER = {
     "G": "G_技術分野のガイダンス_先生用ガイド.html",
+    "T": "T_教科書の順に進む学習コース_先生用ガイド.html",  # コースと M・F・Z をまとめた1つのガイド
     "A": "A_材料と加工_先生用ガイド.html",
     "B": "B_生物育成_先生用ガイド.html",
     "C": "C_エネルギー変換_先生用ガイド.html",
@@ -122,6 +131,7 @@ a7 = a7.replace("</head>", "<style>.ef-back { display: none !important; }</style
 
 # 分野ごとの先生用ガイド(G はガイダンス)
 guide(repo / "G-guidance/dist/先生用ガイド.html", "G", built=True)
+guide(repo / "T-textbook/dist/先生用ガイド.html", "T", built=True)
 guide(repo / "A-materials/docs/先生用ガイド.html", "A")
 guide(repo / "B-bio/dist/先生用ガイド.html", "B", built=True)
 guide(repo / "C-energy/docs/先生用ガイド.html", "C", built=True)
@@ -159,8 +169,16 @@ for p in sorted(student.rglob("*.html")):
 # 中身は自習ガイドと同じ eduit-info.js の jishu。振り返りなし・自習用の版は作らない(上の2つのあとで入れる)
 subprocess.run([sys.executable, str(repo / "worksheet/build.py")], check=True)
 ws_src = repo / "worksheet/dist"
-for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術"):
+for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術", "M_身の回りの技術さがし", "F_これからの技術ラボ", "Z_学習を終えて"):
     copy(ws_src / f"{k}_ワークシート.html", student / "ワークシート" / f"{k}_ワークシート.html")
+# 教科書順コースのワークシートへのリンクは「ワークシート/…」。1つ下のフォルダ(自習用・振り返りなし)の版では「../ワークシート/…」にする
+WS_LINK = "var BASE = '', WS_BASE = 'ワークシート/';"
+for sub in (nofk, jishu):
+    p = sub / STUDENT["T"]
+    html = p.read_text(encoding="utf-8")
+    if WS_LINK not in html:
+        raise SystemExit(f"{p}: ワークシートへのリンクの置き場所が見つかりません(T-textbook/build.py を直してください)")
+    p.write_text(html.replace(WS_LINK, "var BASE = '', WS_BASE = '../ワークシート/';"), encoding="utf-8")
 copy(ws_src / "ワークシートの答え.html", teacher / "全分野_ワークシートの答え.html")
 
 for d in (student, teacher):

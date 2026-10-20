@@ -1,4 +1,4 @@
-// ガイダンス(G)と4分野の eduit-info.js から自習ガイドの中身(jishu)と、教材の名前を取り出して JSON で出す(build.py が使う)
+// ガイダンス(G)・4分野・教科書順コースの M・F・Z の eduit-info.js から自習ガイドの中身(jishu)と、教材の名前を取り出して JSON で出す(build.py が使う)
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -11,7 +11,8 @@ function info(file) {
   return ctx.window.EDUIT_INFO;
 }
 // 教材の記号 → 名前(各分野のメニューと同じもの)
-const names = { G: { G: "技術分野のガイダンス" }, A: {}, B: {}, C: {}, D: {} };
+const names = { G: { G: "技術分野のガイダンス" }, A: {}, B: {}, C: {}, D: {},
+  M: { M: "身の回りの技術さがし" }, F: { F: "これからの技術ラボ" }, Z: { Z: "学習を終えて" } };
 {
   const ctx = { self: {} };
   vm.runInNewContext(read("A-materials/common/apps.js"), ctx);
@@ -26,7 +27,8 @@ for (const m of read("C-energy/build/help.py").matchAll(/dict\(id='(C\d)'.*?name
 for (const m of JSON.parse(read("D-information/kyozai-shu/data/materials.json")).materials) names.D[m.code] = m.title;
 
 const out = [];
-for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"], ["D", "D-information"]]) {
+for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bio"], ["C", "C-energy"], ["D", "D-information"],
+  ["M", "T-textbook/M-mimawari"], ["F", "T-textbook/F-korekara"], ["Z", "T-textbook/Z-owari"]]) {
   const I = info(`${dir}/eduit-info.js`);
   const J = I.jishu;
   if (!J || !J.apps) throw new Error(`${dir}/eduit-info.js: 自習ガイド(jishu)がありません`);
@@ -35,7 +37,7 @@ for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bi
     if (!names[key][code]) throw new Error(`${dir}/eduit-info.js: jishu の記号「${code}」がメニューにありません`);
     apps.push(Object.assign({ code, name: names[key][code] }, a));
   }
-  apps.sort((a, b) => (parseInt(a.code.slice(1), 10) || 0) - (parseInt(b.code.slice(1), 10) || 0));  // A2 < A10(G は番号なし)
+  apps.sort((a, b) => (parseInt(a.code.slice(1), 10) || 0) - (parseInt(b.code.slice(1), 10) || 0));  // A2 < A10(G・M・F・Z は番号なし)
   out.push({ domain: key, domainName: I.domainName, version: I.version, lead: J.lead || "", apps });
 }
 process.stdout.write(JSON.stringify(out));

@@ -16,6 +16,10 @@
   .site-C { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }
   .site-D { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }
   .site-G { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }
+  .site-T { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }
+  .site-M { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }
+  .site-F { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }
+  .site-Z { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }
   .site-first { margin: 0 0 16px; }
   .site-first .ef-mcard { max-width: none; }
   .site-h2 { margin: 0 0 10px; font-size: 17px; }
@@ -33,12 +37,18 @@
 </header>
 <main class="site-main">
   <p class="site-lead">学習する分野をえらんで「ひらく」を押してください。先生が指示した分野をひらきます。</p>
+  <section class="site-first" aria-labelledby="site-course-h">
+    <h2 class="site-h2" id="site-course-h">教科書の順に進む</h2>
+    <div id="site-course"></div>
+  </section>
   <section class="site-first" aria-labelledby="site-first-h">
     <h2 class="site-h2" id="site-first-h">はじめに(1年の最初)</h2>
     <div id="site-guidance"></div>
   </section>
   <h2 class="site-h2">4つの分野</h2>
   <div class="site-grid" id="site-cards"></div>
+  <h2 class="site-h2" style="margin-top:18px">教科書の順に進むための教材</h2>
+  <div class="site-grid" id="site-extra"></div>
   <section class="site-note site-jishu" aria-labelledby="site-jishu-h">
     <h2 id="site-jishu-h">ひとりで進めるとき(自習モード)</h2>
     <p>自習モードにすると、どの教材にも右はしに「自習ガイド」が出ます。ねらい・進め方・ヒント・たしかめ問題を見ながら、先生の説明がなくても1人で進められます。先生が「自習モードで」と言ったときに使います。</p>
@@ -53,6 +63,9 @@
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/B_生物育成_ワークシート.html">B 生物育成</a>
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/C_エネルギー変換_ワークシート.html">C エネルギー変換</a>
       <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/D_情報の技術_ワークシート.html">D 情報の技術</a>
+      <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/M_身の回りの技術さがし_ワークシート.html">M 身の回りの技術さがし</a>
+      <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/F_これからの技術ラボ_ワークシート.html">F これからの技術ラボ</a>
+      <a class="ef-btn" href="../クラスルーム配布/生徒に配る/ワークシート/Z_学習を終えて_ワークシート.html">Z 学習を終えて</a>
     </p>
   </section>
   <section class="site-note" aria-labelledby="site-note-h">
@@ -102,6 +115,23 @@
     var gc = EduitFrame.card({ code: G.code, icon: G.icon, title: G.title, desc: G.desc, extra: [gs], href: G.href });
     gc.classList.add('site-G');
     document.getElementById('site-guidance').appendChild(gc);
+    // 教科書の順に進む学習コース(記号なし)と、コースのための3つの教材 M・F・Z
+    var cs = document.createElement('span');
+    cs.textContent = 'ガイダンスから学習を終えてまで 65 の節';
+    var cc = EduitFrame.card({ icon: '📖', title: '教科書の順に進む 学習コース', desc: '教科書の節の順に、ねらい・使う教材・たしかめの1問がならんでいます。「ひらく」で教材のその場所が開くので、ひとりでも順番に進められます。', extra: [cs], href: '../クラスルーム配布/生徒に配る/教科書の順に進む_学習コース.html' });
+    cc.classList.add('site-T');
+    document.getElementById('site-course').appendChild(cc);
+    [
+      { code: 'M', icon: '🔍', title: '身の回りの技術さがし', desc: '身の回りの製品から4つの分野の技術を見つけ、作った人の工夫を4つの視点で読みときます。', when: '各編のはじめと1章の終わり', href: '../クラスルーム配布/生徒に配る/M_身の回りの技術さがし.html' },
+      { code: 'F', icon: '🚀', title: 'これからの技術ラボ', desc: '新しい技術のよいところと心配なところを4つの視点で評価し、技術を組み合わせて未来を提案します。', when: '1編〜3編の3章の終わり', href: '../クラスルーム配布/生徒に配る/F_これからの技術ラボ.html' },
+      { code: 'Z', icon: '🎓', title: '学習を終えて', desc: '3年間の学習をふりかえり、4つの分野のつながりと、これから技術とどうかかわるかを考えます。', when: '3年生の最後', href: '../クラスルーム配布/生徒に配る/Z_学習を終えて.html' }
+    ].forEach(function (x) {
+      var w = document.createElement('span');
+      w.textContent = '使うとき: ' + x.when;
+      var c = EduitFrame.card({ code: x.code, icon: x.icon, title: x.title, desc: x.desc, extra: [w], href: x.href });
+      c.classList.add('site-' + x.code);
+      document.getElementById('site-extra').appendChild(c);
+    });
     var box = document.getElementById('site-cards');
     AREAS.forEach(function (a) {
       var range = document.createElement('span');

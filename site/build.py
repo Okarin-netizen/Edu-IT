@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """生徒用の公開サイト(GitHub Pages)を _site/ に作る。実行: python3 site/build.py
 
-入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ のガイダンス(g.html)・4つの統一版・自習ワークシート(ws/)。
+入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ のガイダンス(g.html)・4つの統一版・
+教科書の順に進む学習コース(kyokasho.html)と M・F・Z(m.html・f.html・z.html)・自習ワークシート(ws/)。
 先生用ガイド(クラスルーム配布/先生用/)と teacher-tools/ は入れない。
 アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html(ガイダンスは apps/g.html)という名前で置き、
 a.html〜d.html・g.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
 先に python3 クラスルーム配布/まとめる.py で 生徒に配る/ を新しくしておく(.github/workflows/pages.yml は今あるファイルをそのまま使う)。
 """
-import pathlib, re, shutil
+import json, pathlib, re, shutil
 
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent
@@ -20,6 +21,10 @@ PAGES = {
     "B_生物育成_統一版.html": "b.html",
     "C_エネルギー変換_統一版.html": "c.html",
     "D_情報の技術_統一版.html": "d.html",
+    "教科書の順に進む_学習コース.html": "kyokasho.html",
+    "M_身の回りの技術さがし.html": "m.html",
+    "F_これからの技術ラボ.html": "f.html",
+    "Z_学習を終えて.html": "z.html",
 }
 
 
@@ -86,7 +91,36 @@ FRAME = """<!doctype html>
 </body>
 </html>
 """
-TITLES = {"g.html": "技術分野のガイダンス", "a.html": "材料と加工の技術 教材集", "b.html": "生物育成の技術 教材集", "c.html": "エネルギー変換の技術 教材集", "d.html": "情報の技術 教材集"}
+TITLES = {"g.html": "技術分野のガイダンス", "a.html": "材料と加工の技術 教材集", "b.html": "生物育成の技術 教材集", "c.html": "エネルギー変換の技術 教材集", "d.html": "情報の技術 教材集",
+          "kyokasho.html": "教科書の順に進む 学習コース", "m.html": "M 身の回りの技術さがし", "f.html": "F これからの技術ラボ", "z.html": "Z 学習を終えて"}
+
+WS = {"G_技術分野のガイダンス_ワークシート.html": "g.html", "A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
+      "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html",
+      "M_身の回りの技術さがし_ワークシート.html": "m.html", "F_これからの技術ラボ_ワークシート.html": "f.html", "Z_学習を終えて_ワークシート.html": "z.html"}
+
+
+def course_links(page):
+    """教科書順コースの var FILES = {…}; var WS = {…}; を公開用の名前にする"""
+    def repl(name, table, prefix):
+        nonlocal page
+        m = re.search(r"var " + name + r" = (\{.*?\});", page)
+        if not m:
+            raise SystemExit(f"教科書順コース: var {name} = {{…}}; が見つかりません(site/build.py を直してください)")
+        old = json.loads(m.group(1))
+        new = {}
+        for k, v in old.items():
+            if v not in table:
+                raise SystemExit(f"教科書順コース: {v} の公開用の名前がありません(site/build.py の PAGES・WS に足してください)")
+            new[k] = prefix + table[v]
+        page = page[:m.start(1)] + json.dumps(new, ensure_ascii=False) + page[m.end(1):]
+    base = "var BASE = '', WS_BASE = 'ワークシート/';"
+    if base not in page:
+        raise SystemExit("教科書順コース: var BASE = …; が見つかりません(site/build.py を直してください)")
+    page = page.replace(base, "var BASE = '', WS_BASE = '';")
+    repl("FILES", PAGES, "../")
+    repl("WS", WS, "../ws/")
+    return page
+
 
 (out / "apps").mkdir()
 for src, dst in PAGES.items():
@@ -100,13 +134,14 @@ for src, dst in PAGES.items():
         page, n = re.subn(r"embed = window\.self !== window\.top;", "embed = false;", page)
         if n == 0:
             raise SystemExit(f"{src}: 枠の中かどうかを調べるところが見つかりません(site/build.py を直してください)")
+    if dst == "kyokasho.html":
+        # コースは apps/ の中の枠で開くので、教材とワークシートへのリンクは1つ上の公開用の名前(../a.html・../ws/a.html など)にする
+        page = course_links(page)
     (out / "apps" / dst).write_text(page, encoding="utf-8")
     (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
 
-# 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html に置く。
+# 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html(と g・m・f・z)に置く。
 # 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に入口へもどるリンクを足す
-WS = {"G_技術分野のガイダンス_ワークシート.html": "g.html", "A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
-      "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html"}
 (out / "ws").mkdir()
 for src, dst in WS.items():
     old = "../クラスルーム配布/生徒に配る/ワークシート/" + src

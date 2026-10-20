@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>教科書の順に進む 学習コース</title>
+<!-- 教科書の順に進む学習コース(入口)。T-textbook/build.py が CSS・JS を中に入れて dist/教科書の順に進む_学習コース.html を作る -->
+<link rel="stylesheet" href="../shared/eduit-frame.css">
+<link rel="stylesheet" href="common/t-core.css">
+<script src="eduit-info.js"></script>
+<script>EDUIT_INFO.app = { name: '教科書の順に進む 学習コース' };</script>
+<script src="../shared/eduit-frame.js"></script>
+<script src="common/t-ruby.js"></script>
+<script src="common/t-core.js"></script>
+<script src="course-data.js"></script>
+<style>
+  .c-nav { display: flex; gap: 6px; padding: 6px 12px; background: var(--ef-accent-soft); overflow-x: auto; scrollbar-width: none; }
+  .c-nav::-webkit-scrollbar { display: none; }
+  .c-nav a { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 4px 12px; border-radius: 999px; border: 1.5px solid var(--ef-line); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 700; font-size: .9em; white-space: nowrap; }
+  .c-nav a:focus-visible { outline: 3px solid var(--ef-focus); }
+  .c-nav .c-n { font-weight: 400; color: var(--ef-muted); font-size: .85em; }
+  .c-nav a.is-all { border-color: #2e7d32; }
+  .c-nav a.is-all .c-n { color: #2e7d32; font-weight: 700; }
+  .c-steps { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .c-steps li { display: grid; grid-template-columns: 2em 1fr; align-items: center; gap: 8px; }
+  .c-steps b.c-num { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--ef-accent); color: #fff; }
+  .c-next { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .c-bar { flex: 1 1 200px; height: 14px; border-radius: 7px; background: #e6e3dc; overflow: hidden; }
+  .c-bar span { display: block; height: 100%; background: #2e7d32; border-radius: 7px; transition: width .3s; }
+  .c-hen { scroll-margin-top: 130px; margin: 26px 0 0; }
+  .c-hen > h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 4px; padding: 6px 12px; border-left: 8px solid var(--c, var(--ef-accent)); background: #fff; border-radius: 0 var(--ef-radius-s) var(--ef-radius-s) 0; font-size: 1.35em; }
+  .c-hen > h2 .c-n { font-size: .65em; font-weight: 400; color: var(--ef-muted); }
+  .c-when { margin: 0 0 6px; font-size: .9em; color: var(--ef-muted); }
+  .c-ch { margin: 16px 0 6px; font-size: 1.08em; color: var(--c, var(--ef-accent)); }
+  .c-hen-G { --c: #0f766e; } .c-hen-A { --c: #985a26; } .c-hen-B { --c: #2e7d32; } .c-hen-C { --c: #b45309; } .c-hen-D { --c: #1a5fc8; } .c-hen-I { --c: #475569; } .c-hen-Z { --c: #7c4a03; }
+  .c-sec { scroll-margin-top: 130px; position: relative; background: var(--ef-surface); border: 1px solid var(--ef-line); border-left: 6px solid var(--c, var(--ef-accent)); border-radius: var(--ef-radius); padding: 12px 16px; margin: 0 0 12px; box-shadow: var(--ef-shadow); }
+  .c-sec.is-done { background: #f3faf3; }
+  .c-sec.is-next { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+  .c-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .c-ref { font-size: .85em; font-weight: 700; color: var(--c, var(--ef-accent)); white-space: nowrap; }
+  .c-name { margin: 0; font-size: 1.12em; line-height: 1.45; flex: 1 1 14em; }
+  .c-aim { margin: 4px 0 8px; }
+  .c-aim::before { content: "🎯 "; }
+  .c-row { margin: 8px 0 0; }
+  .c-row-h { display: block; font-size: .85em; font-weight: 700; color: var(--ef-muted); }
+  .c-go { display: flex; flex-wrap: wrap; gap: 8px; }
+  .c-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; border-radius: 10px; border: 2px solid var(--c, var(--ef-accent)); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 700; line-height: 1.4; }
+  .c-open:hover { background: var(--ef-accent-soft); }
+  .c-open:focus-visible, .c-ws:focus-visible, .c-done:focus-within { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+  .c-open .c-tab { font-weight: 400; font-size: .9em; color: var(--ef-muted); }
+  .c-open .c-arrow { color: var(--c, var(--ef-accent)); white-space: nowrap; margin-left: auto; }
+  .c-ws { display: inline-flex; align-items: center; min-height: 44px; padding: 4px 10px; border-radius: 10px; color: var(--ef-muted); font-size: .9em; }
+  .c-q { margin: 0; padding: 0; list-style: none; }
+  .c-q .t-q { border-top: 0; padding: 4px 0 0; }
+  .c-q .t-q-text::before { content: "❓ "; color: inherit; }
+  .c-done { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 14px; border-radius: 999px; border: 2px solid #9a968c; background: #fff; cursor: pointer; font-weight: 700; white-space: nowrap; }
+  .c-done input { width: 22px; height: 22px; accent-color: #2e7d32; margin: 0; }
+  .c-done:has(input:checked) { border-color: #2e7d32; background: #e3f3e5; color: #1b5e20; }
+  .c-foot { display: flex; justify-content: flex-end; margin-top: 8px; }
+  @media (max-width: 640px) {
+    .c-nav { padding: 4px 8px; }
+    .c-sec { padding: 10px 12px; }
+    .c-open { width: 100%; }
+    .c-hen, .c-sec { scroll-margin-top: 150px; }
+  }
+  @media print {
+    .c-nav, .c-next .t-btn, .c-ws { display: none !important; }
+    .c-sec { break-inside: avoid; box-shadow: none; }
+  }
+</style>
+</head>
+<body class="ef-page">
+<div id="tapp" class="t-noruby">
+  <div class="t-top" data-ef-autohide>
+    <header class="ef-header">
+      <h1 class="ef-title"><span class="ef-title-name">教科書の順に進む 学習コース</span></h1>
+      <div class="ef-tools">
+        <button type="button" class="ef-btn ef-toggle" id="t-ruby" aria-pressed="false" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" class="ef-btn ef-size" id="t-size"></button>
+        <button type="button" class="ef-btn" id="t-howto">使い方</button>
+      </div>
+    </header>
+    <nav class="c-nav" id="c-nav" aria-label="編をえらぶ"></nav>
+  </div>
+
+  <main class="t-main">
+    <div class="t-card">
+      <h2 class="c-title" style="margin:0 0 4px;font-size:1.3em">教科書の順に、1つずつ進もう</h2>
+      <ol class="c-steps">
+        <li><b class="c-num">1</b><span>🎯 <b>ねらい</b>を読む</span></li>
+        <li><b class="c-num">2</b><span>「<b>ひらく ▶</b>」で教材を開いて、やってみる</span></li>
+        <li><b class="c-num">3</b><span>❓ <b>たしかめの1問</b>に答える</span></li>
+        <li><b class="c-num">4</b><span>「<b>できた</b>」に ✓ を入れて、次の節へ</span></li>
+      </ol>
+      <p class="t-memo" id="c-jishu"></p>
+      <div class="c-next">
+        <div class="c-bar" aria-hidden="true"><span id="c-bar"></span></div>
+        <span id="c-count" aria-live="polite"></span>
+        <button type="button" class="t-btn t-pri" id="c-go-next">つぎの節へ ▼</button>
+      </div>
+    </div>
+    <div id="c-list"></div>
+  </main>
+</div>
+<div data-ef-footer></div>
+
+<script>
+(function () {
+  'use strict';
+  // 配るファイルの名前(T-textbook/build.py が BASE を '' にする。site/build.py が公開用の名前に書きかえる)
+  var BASE = '../クラスルーム配布/生徒に配る/', WS_BASE = BASE + 'ワークシート/';
+  var FILES = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html", "M": "M_身の回りの技術さがし.html", "F": "F_これからの技術ラボ.html", "Z": "Z_学習を終えて.html"};
+  var WS = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html", "M": "M_身の回りの技術さがし_ワークシート.html", "F": "F_これからの技術ラボ_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"};
+
+  var APPS = window.COURSE_APPS, COURSE = window.COURSE;
+  var T = TCore.init({
+    key: 'eduit.course.v1', blank: function () { return { done: {}, q: {} }; },
+    howto: '<h3>このコースの使い方</h3><ol>' +
+      '<li>教科書の節の順に、カードがならんでいます。上から順に進みます。</li>' +
+      '<li>「ひらく ▶」を押すと、その節で使う教材が<b>新しいタブ</b>で開きます。終わったら、そのタブを閉じて、このページにもどります。</li>' +
+      '<li>「ワークシート」を押すと、その教材の自習ワークシートが開きます。</li>' +
+      '<li>❓ の問いに答えると、すぐに答えと説明が出ます。</li>' +
+      '<li>終わったら「できた」に ✓ を入れます。「つぎの節へ」を押すと、まだ ✓ のない節へ移ります。</li></ol>' +
+      '<p>✓ や答えは、この端末のブラウザの中に保存されます(書き出しはありません)。</p>'
+  });
+  var S = T.S, el = T.el, $ = T.$;
+
+  // 自習モードのとき(?jishu=on・自習用のファイル)は、ひらく教材も自習モードにする
+  var Q = EduitFrame.jishu ? '?jishu=on' : '';
+  T.text($('c-jishu'), EduitFrame.jishu ? '自習モードです。教材を開くと、右はしに「自習ガイド」が出ます。わからないときは、自習ガイドの「ヒント」を見よう。' :
+    '先生の説明を聞きながら進めるモードです。ひとりで進めるときは、先生に「自習モード」の開き方を聞こう。');
+
+  var all = [];  // [{ s: 節, card: 要素, hen }]
+  var nav = $('c-nav'), list = $('c-list');
+  var SHORT = { g: 'ガイダンス', a: '1編 材料と加工', b: '2編 生物育成', c: '3編 エネルギー変換', d: '4編 情報', i: '統合的な問題解決', z: '学習を終えて' };  // 上の帯の名前
+  var navLinks = {};
+  COURSE.forEach(function (H, hi) {
+    var n = 0;
+    H.chapters.forEach(function (C) { n += C.secs.length; });
+    var count = el('span', { class: 'c-n' });
+    var a = el('a', { href: '#hen-' + H.id }, [SHORT[H.id] || H.title, count]);
+    a.addEventListener('click', function (e) { e.preventDefault(); var t = $('hen-' + H.id); if (t) t.scrollIntoView({ behavior: 'smooth' }); });
+    nav.appendChild(a);
+    navLinks[H.id] = { a: a, n: count, total: n };
+    var box = el('section', { class: 'c-hen c-hen-' + H.key, id: 'hen-' + H.id, 'aria-labelledby': 'hen-h-' + H.id });
+    box.appendChild(el('h2', { id: 'hen-h-' + H.id }, [H.title, el('span', { class: 'c-n', id: 'hen-n-' + H.id })]));
+    if (H.when) box.appendChild(el('p', { class: 'c-when', text: 'いつ: ' + H.when }));
+    H.chapters.forEach(function (C) {
+      if (C.title) box.appendChild(el('h3', { class: 'c-ch', text: C.ch + ' ' + C.title }));
+      C.secs.forEach(function (s, si) {
+        var card = el('article', { class: 'c-sec', id: 'sec-' + s.id });
+        var chk = el('input', { type: 'checkbox' });
+        chk.checked = !!S.done[s.id];
+        chk.addEventListener('change', function () { S.done[s.id] = chk.checked; T.save(); paint(); });
+        card.appendChild(el('div', { class: 'c-head' }, [el('span', { class: 'c-ref', text: '教科書 ' + s.ref }), el('h4', { class: 'c-name', text: s.name })]));
+        card.appendChild(el('p', { class: 'c-aim', text: s.aim }));
+        var go = el('div', { class: 'c-go' });
+        s.go.forEach(function (g) {
+          var A = APPS[g[0]];
+          if (!A) throw new Error('course-data.js: 教材の記号「' + g[0] + '」が COURSE_APPS にありません');
+          var h = g[2] != null ? g[2] : A.h;
+          var href = BASE + FILES[A.f] + Q + (h ? '#' + h : '');
+          go.appendChild(el('a', { class: 'c-open', href: href, target: '_blank', rel: 'noopener' }, [
+            el('span', { class: 'ef-code', text: g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
+          go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + g[0], target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
+        });
+        card.appendChild(el('div', { class: 'c-row' }, [go]));
+        var qbox = el('ol', { class: 'c-q' });
+        card.appendChild(el('div', { class: 'c-row' }, [el('span', { class: 'c-row-h', text: 'たしかめの1問' }), qbox]));
+        card.appendChild(el('div', { class: 'c-foot' }, [el('label', { class: 'c-done' }, [chk, el('span', { text: 'できた' })])]));
+        box.appendChild(card);
+        // たしかめの1問(正しい答えは c の1つめ。画面では順をまぜる)
+        if (!S.q[s.id] || typeof S.q[s.id] !== 'object') S.q[s.id] = {};
+        T.quiz(qbox, null, null, [{ t: s.q.t, c: s.q.c, a: 0, x: s.q.x }], function () { return S.q[s.id]; }, { mix: 3 + hi * 31 + si * 7 + s.id.length });
+        all.push({ s: s, card: card, chk: chk, hen: H.id });
+      });
+    });
+    list.appendChild(box);
+  });
+
+  function next() { for (var i = 0; i < all.length; i++) if (!S.done[all[i].s.id]) return all[i]; return null; }
+  function paint() {
+    var done = all.filter(function (x) { return S.done[x.s.id]; }).length, nx = next();
+    $('c-bar').style.width = (done / all.length * 100) + '%';
+    T.text($('c-count'), done + ' / ' + all.length + ' 節 できた');
+    all.forEach(function (x) { x.card.classList.toggle('is-done', !!S.done[x.s.id]); x.card.classList.toggle('is-next', x === nx); x.chk.checked = !!S.done[x.s.id]; });
+    COURSE.forEach(function (H) {
+      var mine = all.filter(function (x) { return x.hen === H.id; }), d = mine.filter(function (x) { return S.done[x.s.id]; }).length;
+      var L = navLinks[H.id];
+      L.n.textContent = ' ' + d + '/' + L.total;
+      L.a.classList.toggle('is-all', d === L.total);
+      $('hen-n-' + H.id).textContent = d + ' / ' + L.total + ' できた';
+    });
+    T.text($('c-go-next'), nx ? 'つぎの節へ ▼' : '全部できた! 🎉');
+    $('c-go-next').disabled = !nx;
+  }
+  $('c-go-next').addEventListener('click', function () {
+    var nx = next();
+    if (nx) { nx.card.scrollIntoView({ behavior: 'smooth' }); try { history.replaceState(null, '', location.pathname + location.search + '#sec-' + nx.s.id); } catch (e) {} }
+  });
+  T.onSave.push(paint);
+  T.fields();
+  T.applyPrefs();
+  T.ruby(T.root);
+  paint();
+  // アドレスの #hen-a・#sec-a12 などで、その場所から始める
+  var h = location.hash.slice(1);
+  if (h && $(h)) setTimeout(function () { $(h).scrollIntoView(); }, 0);
+})();
+</script>
+</body>
+</html>

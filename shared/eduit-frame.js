@@ -446,7 +446,7 @@
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|[GMFZ])\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -497,7 +497,7 @@
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
         close
       ]),
       body
