@@ -483,7 +483,7 @@
   }
 
   /* ================= M・F・Z 教科書順コースの教材(T-textbook/) =================
-   * { schema: 'eduit-textbook/1', app: 'M'|'F'|'Z', exported, student: { cls, no, name }, score: {…}, data: {…, refl: { self, learned, next } } } */
+   * { schema: 'eduit-textbook/1', app: 'M'|'F'|'Z', area?: 'a'〜'e'(教科書順コースから分野だけで開いたとき), exported, student: { cls, no, name }, score: {…}, data: {…, refl: { self, learned, next } } } */
   var T_LV = { '3': 'できた', '2': 'だいたいできた', '1': 'もう少し' };
   var T_VIEWS = ['社会からの要求', '安全性', '環境への負荷', '経済性'];
   var M_AREAS = [['a', '① 材料と加工'], ['b', '② 生物育成'], ['c', '③ エネルギー変換'], ['d', '④ 情報']];
@@ -516,31 +516,44 @@
     var g = function (o, k) { return isObj(o) && isObj(o[k]) ? o[k] : {}; };
     var nm = function (k) { return T_NAMES[k] || str(k); };
     var app = obj.app;
+    // 教科書順コースから分野だけで開いたときの記録(area: 'a' など)は、その分野だけを出す
+    var area = /^[a-e]$/.test(obj.area) ? obj.area : '';
+    var only = function (A) { return !area || A[0] === area; };
+    var title = T_TITLE[app], self = T_SELF[app];
     if (app === 'M') {
       var it = g(d, 'intro');
-      R.add('成績', 'はじめに', 'どの技術の工夫?', sc.intro);
-      R.add('ふりかえり', 'はじめに', '見つけた技術', ['a', 'b', 'c', 'd'].map(function (k) { return str(it[k]) ? k.toUpperCase() + ': ' + str(it[k]) : ''; }).filter(Boolean).join(' / '));
-      M_AREAS.forEach(function (A) {
+      if (!area) R.add('成績', 'はじめに', 'どの技術の工夫?', sc.intro);
+      R.add('ふりかえり', 'はじめに', '見つけた技術', ['a', 'b', 'c', 'd'].filter(function (k) { return !area || k === area; }).map(function (k) { return str(it[k]) ? k.toUpperCase() + ': ' + str(it[k]) : ''; }).filter(Boolean).join(' / '));
+      M_AREAS.filter(only).forEach(function (A) {
+        if (area) {
+          title += ' ' + A[1];
+          self = self.map(function (s) { return s[0] === 'find' ? [s[0], s[1].replace('4つの分野の技術', A[1].slice(2) + 'の技術')] : s; });
+        }
         var a = g(d, A[0]);
         R.add('成績', A[1], 'どんな工夫?・問題解決の工夫', sc[A[0]]);
         R.add('ふりかえり', A[1], '見つけた製品の工夫', [str(a.product), str(a.problem), str(a.idea)].filter(Boolean).join(' / ') + (str(a.view) ? '(大事な視点: ' + str(a.view) + ')' : ''));
       });
     } else if (app === 'F') {
-      [['a', '① 材料と加工'], ['b', '② 生物育成'], ['c', '③ エネルギー変換']].forEach(function (A) {
+      [['a', '① 材料と加工'], ['b', '② 生物育成'], ['c', '③ エネルギー変換']].filter(only).forEach(function (A) {
         var a = g(d, A[0]), r = isObj(a.r) ? a.r[a.pick] : null;
+        if (area) title += ' ' + A[1];
         R.add('成績', A[1], 'どの技術?', sc[A[0]]);
         if (a.pick) R.add('ふりかえり', A[1], '評価した技術', nm(a.pick) + (Array.isArray(r) ? '(' + T_VIEWS.map(function (v, i) { return v + ' ' + (r[i] || '-'); }).join('・') + ')' : ''));
         R.add('ふりかえり', A[1], 'よいところ', a.good);
         R.add('ふりかえり', A[1], '心配なところ', a.bad);
         R.add('ふりかえり', A[1], 'これからの使い方', a.plan);
       });
-      var e = g(d, 'e');
-      if (e.prob) R.add('ふりかえり', '④ 未来を提案', '社会の問題', nm(e.prob));
-      if (Array.isArray(e.use) && e.use.length) R.add('ふりかえり', '④ 未来を提案', '使う技術', e.use.map(nm).join('・'));
-      R.add('ふりかえり', '④ 未来を提案', 'だれの何がよくなる', e.better);
-      R.add('ふりかえり', '④ 未来を提案', '技術の組み合わせ方', e.how);
-      R.add('ふりかえり', '④ 未来を提案', '心配なことと対策', e.worry);
-      R.add('ふりかえり', '④ 未来を提案', '立場を変えた見直し' + (e.who ? '(' + nm(e.who) + ')' : ''), e.review);
+      if (area) self = self.filter(function (s) { return s[0] === 'know' || (area === 'e') === (s[0] === 'plan'); });
+      if (area === 'e') title += ' ④ 未来を提案';
+      if (!area || area === 'e') {  // ④ は、分野だけで開いたときは別の記録
+        var e = g(d, 'e');
+        if (e.prob) R.add('ふりかえり', '④ 未来を提案', '社会の問題', nm(e.prob));
+        if (Array.isArray(e.use) && e.use.length) R.add('ふりかえり', '④ 未来を提案', '使う技術', e.use.map(nm).join('・'));
+        R.add('ふりかえり', '④ 未来を提案', 'だれの何がよくなる', e.better);
+        R.add('ふりかえり', '④ 未来を提案', '技術の組み合わせ方', e.how);
+        R.add('ふりかえり', '④ 未来を提案', '心配なことと対策', e.worry);
+        R.add('ふりかえり', '④ 未来を提案', '立場を変えた見直し' + (e.who ? '(' + nm(e.who) + ')' : ''), e.review);
+      }
     } else if (app === 'Z') {
       var t1 = g(d, 't1'), ck = isObj(t1.check) ? t1.check : {};
       Z_CHECK.forEach(function (c, i) { R.add('自己評価', '① ふりかえりチェック', c, T_LV[ck['c' + (i + 1)]]); });
@@ -557,10 +570,10 @@
       R.add('ふりかえり', '④ これからのわたし', '技術でかなえたい夢', t4.dream);
     }
     var rf = g(d, 'refl'), sf = isObj(rf.self) ? rf.self : {};
-    T_SELF[app].forEach(function (s) { R.add('自己評価', '振り返り', s[1], T_LV[sf[s[0]]]); });
+    self.forEach(function (s) { R.add('自己評価', '振り返り', s[1], T_LV[sf[s[0]]]); });
     R.add('ふりかえり', '振り返り', T_REFL[app][0], rf.learned);
     R.add('ふりかえり', '振り返り', T_REFL[app][1], rf.next);
-    return [{ domain: app, app: T_TITLE[app], student: student(st.cls, st.no, st.name), rows: R.rows }];
+    return [{ domain: app, app: title, student: student(st.cls, st.no, st.name), rows: R.rows }];
   }
 
   /* ================= 形の見分け(上から順に試す) ================= */

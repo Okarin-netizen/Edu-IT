@@ -127,6 +127,7 @@
 
   // 自習モードのとき(?jishu=on・自習用のファイル)は、ひらく教材も自習モードにする
   var Q = EduitFrame.jishu ? '?jishu=on' : '';
+  var AREA_APPS = { M: 1, F: 1 };  // 分野ごとに開く教材
   T.text($('c-jishu'), EduitFrame.jishu ? '自習モードです。\n教材を開くと、右はしに「自習ガイド」が出ます。上から順に進めよう。\n📝 ワークシートも開いて、書きながら進めよう。\nこまったら、自習ガイドの「ヒント」を押そう。' :
     '先生の説明を聞きながら進めるモードです。ひとりで進めるときは、先生に「自習モード」の開き方を聞こう。');
 
@@ -159,10 +160,13 @@
           var A = APPS[g[0]];
           if (!A) throw new Error('course-data.js: 教材の記号「' + g[0] + '」が COURSE_APPS にありません');
           var h = g[2] != null ? g[2] : A.h;
-          var href = BASE + FILES[A.f] + Q + (h ? '#' + h : '');
+          // M・F は、その分野のタブだけを出して開く(?bunya=a。生徒が分野を行き来して迷わないように)。ワークシートも分野のもの(MA など)
+          var area = AREA_APPS[g[0]] && h ? h : '', ws = area ? g[0] + area.toUpperCase() : g[0];
+          var qs = [Q.slice(1), area ? 'bunya=' + area : ''].filter(Boolean).join('&');
+          var href = BASE + FILES[A.f] + (qs ? '?' + qs : '') + (h ? '#' + h : '');
           go.appendChild(el('a', { class: 'c-open', href: href, target: '_blank', rel: 'noopener' }, [
             el('span', { class: 'ef-code', text: g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
-          go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + g[0], target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
+          go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
         });
         card.appendChild(el('div', { class: 'c-row' }, [go]));
         var qbox = el('ol', { class: 'c-q' });

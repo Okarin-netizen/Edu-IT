@@ -10,6 +10,9 @@
  * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
  *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
  *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
+ * 分野ごとに開く(教科書順コースから ?bunya=a のように開く): data-area="a" の部分は、その分野のときと全部のときだけ出す。
+ *   data-area="-" は全部のときだけ出す。分野のときは T.area がその記号になり、保存の場所も分野ごとに分かれる(key + '.a')。
+ *   ほかの分野へ行くタブやボタンは消えるので、操作に慣れない生徒が分野を行き来して迷わない。
  */
 (function () {
   'use strict';
@@ -41,10 +44,21 @@
     return a;
   }
 
+  // ?bunya=a の分野の記号(そのページのタブに data-area があるときだけ。ないときは null)
+  function areaOf() {
+    var m = /[?&]bunya=([a-z])(?:&|$)/.exec(location.search);
+    return m && document.querySelector('.t-tabs [data-tab="' + m[1] + '"][data-area]') ? m[1] : null;
+  }
+
   function init(opts) {
     var $ = function (id) { return document.getElementById(id); };
     var root = $('tapp');
-    var KEY = opts.key;
+    var AREA = areaOf();
+    // 分野のときは、ほかの分野の部分を消す(タブ・ページ・目次・書く欄)
+    if (AREA) Array.prototype.forEach.call(root.querySelectorAll('[data-area]'), function (e) {
+      if (e.getAttribute('data-area').split(' ').indexOf(AREA) < 0) e.parentNode.removeChild(e);
+    });
+    var KEY = opts.key && AREA ? opts.key + '.' + AREA : opts.key;
     var S = opts.blank();
     if (KEY) try { var raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw && typeof raw === 'object') S = merge(opts.blank(), raw); } catch (e) {}
     var onSave = [];
@@ -273,10 +287,12 @@
       function exportObj() {
         var EI = window.EDUIT_INFO || {}, data = S;
         if (!EduitFrame.furikaeri && o.exp.noRefl) data = o.exp.noRefl(JSON.parse(JSON.stringify(S)));
-        return {
+        var ob = {
           schema: 'eduit-textbook/1', app: o.exp.code, title: o.exp.title, version: EI.version || '', exported: new Date().toISOString(),
           student: { cls: S.who.cls, no: S.who.no, name: S.who.name }, score: o.exp.score ? o.exp.score(S) : {}, data: data
         };
+        if (AREA) ob.area = AREA;  // 分野ごとに開いたとき(振り返り一覧は、その分野だけを出す)
+        return ob;
       }
       if ($('t-export')) $('t-export').addEventListener('click', function () {
         // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
@@ -314,9 +330,9 @@
     return {
       S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
       quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
-      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs
+      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs, area: AREA
     };
   }
 
-  window.TCore = { init: init };
+  window.TCore = { init: init, area: areaOf };  // area: init の前に分野を知りたいとき(使い方の文を変えるなど)
 })();

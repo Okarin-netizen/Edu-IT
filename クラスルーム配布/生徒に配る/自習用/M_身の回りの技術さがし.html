@@ -505,6 +505,7 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 <script>
 /* M 身の回りの技術さがし: 版と更新履歴・自習ガイド(shared/eduit-frame.js が読む)
  * 教科書の各編の1章のはじめ(身の回りの〇〇の技術)と、1章の終わり(〇〇の技術の問題解決の工夫)に使う。4つの分野に1つずつタブがある。
+ * 教科書順コースからは ?bunya=a のように分野だけで開く。そのときの自習ガイドは MA〜MD(label の M① などを出す)。
  * 記号は M(身の回り)。分野の色は赤紫(eduit-frame.css の data-ef-domain="M")。
  * 新しい版を出すときは version・updated を変え、history のいちばん上に足す。
  */
@@ -512,12 +513,15 @@ window.EDUIT_INFO = {
   domain: 'M',
   domainName: '身の回りの技術さがし',
   suite: '身の回りの技術さがし',
-  version: '1.0',
+  version: '1.1',
   updated: '2026-10-20',
   safety: [
     '製品の工夫の説明は、学習のために短くまとめたものです。同じ製品でも、会社や型によって工夫がちがうことがあります。'
   ],
   history: [
+    { version: '1.1', date: '2026-10-20', items: [
+      '教科書順コースから開くと、その分野のタブだけが出るようにした(ほかの分野へ行き来しない)。記録も分野ごとに分けて保存・書き出しする。自習ガイドとワークシートも分野ごと(M①〜M④)'
+    ] },
     { version: '1.0', date: '2026-10-20', items: [
       '身の回りの技術さがしの教材を作った(教科書の各編1章のはじめと終わりに合わせ、4つの分野に1つずつタブ)。はじめに(どの技術の工夫? 8問・家や通学路で見つけた技術)・① 材料と加工・② 生物育成・③ エネルギー変換・④ 情報(どれも、どんな工夫? 4問・問題解決の工夫を4つの視点で読みとく・自分で見つけた製品の工夫)',
       '振り返りと記録(書き出し)を付けた。自習モード(自習ガイド)と自習ワークシートに対応した'
@@ -549,6 +553,78 @@ window.EDUIT_INFO.jishu = {
         { q: '扇風機は、電気エネルギーを主に何のエネルギーに変えて使っている?', choices: ['光エネルギー', '運動エネルギー(回転)', '化学エネルギー'], answer: 1, explain: 'モーターで電気を回転の運動に変え、羽根を回して風を送っています。' },
         { q: '交通系ICカードで改札が開くしくみです。カードの情報を読み取るのは「入力・処理・出力」のどれ?', choices: ['入力', '処理', '出力'], answer: 0, explain: 'カードの情報を読み取るのが入力です。コンピュータが判断するのが処理、ゲートを開けるのが出力です。' }
       ]
+    },
+    // MA: 教科書順コースから a の分野だけで開いたとき(?bunya=a)。ほかの分野のタブは出ない
+    MA: {
+      label: 'M①',
+      goal: '身の回りの製品やしくみから、材料と加工の技術を見つける。作った人が、どんな問題をどう解決したかを読みとる。',
+      time: '15分〜25分',
+      steps: [
+        { where: 'はじめに', do: '家の中や通学路で見つけた材料と加工の技術を、1つ書こう。', hint: '机・いす・文房具・ペットボトルを見回そう。木・金属・プラスチックの物をさがそう。', go: '[data-tab="intro"]' },
+        { where: '① 材料と加工', do: '「どんな工夫?」4問に答えよう。', hint: '「もしこの工夫がなかったら、何がこまる?」と考えよう。', go: '[data-tab="a"]' },
+        { where: '① 材料と加工', do: 'たためるいすの工夫を、4つの視点に分けよう。', hint: '使う人の「こうしたい」は社会からの要求、けがを防ぐのは安全性です。資源やごみは環境への負荷、お金は経済性です。' },
+        { where: '① 材料と加工', do: '自分で製品を1つえらぼう。解決している問題・工夫・大事にしている視点を書こう。', hint: '1章が終わったら書こう。はじめに書いた物をえらんでもかまいません。' },
+        { where: '振り返り', do: '自己評価をえらび、「技術を見る目が変わったところ」を書こう。', hint: 'はじめに書いた「見つけた技術」を見直そう。新しく気づいた工夫があれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '合板は、うすい板を繊維の向きが交互になるように重ねています。どの分野の技術の工夫?', choices: ['A 材料と加工', 'B 生物育成', 'D 情報'], answer: 0, explain: '木材の性質を生かして、反りにくく強い板にする工夫です。だから、材料と加工の技術です。' },
+        { q: '「指をはさまないように、たたむ部分にすきまがある」は、4つの視点のどれ?', choices: ['経済性', '安全性', '環境への負荷'], answer: 1, explain: 'けがを防ぐための工夫なので、安全性の視点です。' }
+      ]
+    },
+    // MB: 教科書順コースから b の分野だけで開いたとき(?bunya=b)。ほかの分野のタブは出ない
+    MB: {
+      label: 'M②',
+      goal: '身の回りの製品やしくみから、生物育成の技術を見つける。作った人が、どんな問題をどう解決したかを読みとる。',
+      time: '15分〜25分',
+      steps: [
+        { where: 'はじめに', do: '家の中や通学路で見つけた生物育成の技術を、1つ書こう。', hint: '毎日の食べ物を思い出そう。畑・田んぼ・ビニルハウス・プランターもさがそう。', go: '[data-tab="intro"]' },
+        { where: '② 生物育成', do: '「どんな工夫?」4問に答えよう。', hint: '作物や動物が育ちやすくなるかどうかを考えよう。', go: '[data-tab="b"]' },
+        { where: '② 生物育成', do: 'イチゴの高設栽培の工夫を、4つの視点に分けよう。', hint: '次の4つを見分けよう。育てる人の体の負担。食べる人の安全。水や肥料のむだ。作業の手間とお金。' },
+        { where: '② 生物育成', do: '自分で製品を1つえらぼう。解決している問題・工夫・大事にしている視点を書こう。', hint: '1章が終わったら書こう。はじめに書いた物をえらんでもかまいません。' },
+        { where: '振り返り', do: '自己評価をえらび、「技術を見る目が変わったところ」を書こう。', hint: 'はじめに書いた「見つけた技術」を見直そう。新しく気づいた工夫があれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: 'ビニルハウスの中で野菜を育てるのは、何のため?', choices: ['寒い季節でも、作物を育てられるようにするため', '畑に虫を集めるため', '日光をさえぎって、暗くするため'], answer: 0, explain: '中をあたたかく保てます。季節に関係なく育てたり、早く収穫したりできます。' },
+        { q: 'イチゴの高設栽培で「立ったまま作業できる」は、4つの視点のどれ?', choices: ['社会からの要求', '環境への負荷', '経済性'], answer: 0, explain: '育てる人の「楽に作業したい」という願いにこたえる工夫です。' }
+      ]
+    },
+    // MC: 教科書順コースから c の分野だけで開いたとき(?bunya=c)。ほかの分野のタブは出ない
+    MC: {
+      label: 'M③',
+      goal: '身の回りの製品やしくみから、エネルギー変換の技術を見つける。作った人が、どんな問題をどう解決したかを読みとる。',
+      time: '15分〜25分',
+      steps: [
+        { where: 'はじめに', do: '家の中や通学路で見つけたエネルギー変換の技術を、1つ書こう。', hint: '電気や燃料で動く物を見回そう。照明・電気ポット・自転車・自動車などがあります。', go: '[data-tab="intro"]' },
+        { where: '③ エネルギー変換', do: '「どんな工夫?」4問に答えよう。', hint: '電気が何のエネルギーに変わっているか、考えよう(光・熱・運動)。', go: '[data-tab="c"]' },
+        { where: '③ エネルギー変換', do: '扇風機の工夫を、4つの視点に分けよう。', hint: '使う人の「こうしたい」は社会からの要求、けがを防ぐのは安全性です。資源やごみは環境への負荷、お金は経済性です。' },
+        { where: '③ エネルギー変換', do: '自分で製品を1つえらぼう。解決している問題・工夫・大事にしている視点を書こう。', hint: '1章が終わったら書こう。はじめに書いた物をえらんでもかまいません。' },
+        { where: '振り返り', do: '自己評価をえらび、「技術を見る目が変わったところ」を書こう。', hint: 'はじめに書いた「見つけた技術」を見直そう。新しく気づいた工夫があれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '扇風機は、電気エネルギーを主に何のエネルギーに変えて使っている?', choices: ['光エネルギー', '運動エネルギー(回転)', '化学エネルギー'], answer: 1, explain: 'モーターで電気を回転の運動に変え、羽根を回して風を送っています。' },
+        { q: '洗濯機のアース線を正しくつなぐのは、何のため?', choices: ['もれた電気を地面ににがし、感電を防ぐため', '電気代を安くするため', '洗濯を速く終わらせるため'], answer: 0, explain: 'もれた電気を、人の体ではなく地面へ流します。' }
+      ]
+    },
+    // MD: 教科書順コースから d の分野だけで開いたとき(?bunya=d)。ほかの分野のタブは出ない
+    MD: {
+      label: 'M④',
+      goal: '身の回りの製品やしくみから、情報の技術を見つける。作った人が、どんな問題をどう解決したかを読みとる。',
+      time: '15分〜25分',
+      steps: [
+        { where: 'はじめに', do: '家の中や通学路で見つけた情報の技術を、1つ書こう。', hint: 'コンピュータが入っている物をさがそう。炊飯器・エアコン・信号機・改札などがあります。', go: '[data-tab="intro"]' },
+        { where: '④ 情報', do: '「どんな工夫?」4問に答えよう。', hint: '「入力(読み取る)→ 処理(判断する)→ 出力(動かす・表示する)」の流れで考えよう。', go: '[data-tab="d"]' },
+        { where: '④ 情報', do: 'スマートフォンでの支払いの工夫を、4つの視点に分けよう。', hint: '使う人の「こうしたい」は社会からの要求、けがを防ぐのは安全性です。資源やごみは環境への負荷、お金は経済性です。' },
+        { where: '④ 情報', do: '自分で製品を1つえらぼう。解決している問題・工夫・大事にしている視点を書こう。', hint: '1章が終わったら書こう。はじめに書いた物をえらんでもかまいません。' },
+        { where: '振り返り', do: '自己評価をえらび、「技術を見る目が変わったところ」を書こう。', hint: 'はじめに書いた「見つけた技術」を見直そう。新しく気づいた工夫があれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '交通系ICカードで改札が開くしくみです。カードの情報を読み取るのは「入力・処理・出力」のどれ?', choices: ['入力', '処理', '出力'], answer: 0, explain: 'カードの情報を読み取るのが入力です。コンピュータが判断するのが処理、ゲートを開けるのが出力です。' },
+        { q: '炊飯器の中で、温度をはかっている部品は?', choices: ['センサ', 'モーター', 'ヒーター'], answer: 0, explain: 'センサで計測し、マイコンが判断します。そして、ヒーターの加熱を調節します。' }
+      ]
     }
   }
 };
@@ -565,13 +641,16 @@ window.EDUIT_INFO.jishu.ruby = {
   "付けよう": "つけよう",
   "体": "からだ",
   "何": "なん",
+  "何が": "なにが",
   "作っ": "つくっ",
   "作れ": "つくれ",
   "作業": "さぎょう",
+  "作物": "さくもつ",
   "使い": "つかい",
   "使う": "つかう",
   "使っ": "つかっ",
   "使わ": "つかわ",
+  "保て": "たもて",
   "信号機": "しんごうき",
   "先生": "せんせい",
   "光": "ひかり",
@@ -589,9 +668,13 @@ window.EDUIT_INFO.jishu.ruby = {
   "分野": "ぶんや",
   "判断": "はんだん",
   "加工": "かこう",
+  "加熱": "かねつ",
   "動かす": "うごかす",
+  "動く": "うごく",
+  "動物": "どうぶつ",
   "化学": "かがく",
   "反り": "そり",
+  "収穫": "しゅうかく",
   "各": "かく",
   "合板": "ごうはん",
   "名前": "なまえ",
@@ -600,6 +683,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "問題": "もんだい",
   "回し": "まわし",
   "回転": "かいてん",
+  "地面": "じめん",
   "基本": "きほん",
   "場所": "ばしょ",
   "変え": "かえ",
@@ -607,15 +691,20 @@ window.EDUIT_INFO.jishu.ruby = {
   "変換": "へんかん",
   "大事": "だいじ",
   "始める": "はじめる",
+  "季節": "きせつ",
   "学習": "がくしゅう",
+  "安く": "やすく",
   "安全": "あんぜん",
   "安全性": "あんぜんせい",
   "家": "いえ",
+  "寒い": "さむい",
   "工夫": "くふう",
   "強い": "つよい",
   "形": "かたち",
+  "思い出そう": "おもいだそう",
   "性質": "せいしつ",
   "情報": "じょうほう",
+  "感電": "かんでん",
   "扇風機": "せんぷうき",
   "手間": "てま",
   "手順": "てじゅん",
@@ -627,29 +716,47 @@ window.EDUIT_INFO.jishu.ruby = {
   "支払い": "しはらい",
   "改札": "かいさつ",
   "教材": "きょうざい",
+  "文房具": "ぶんぼうぐ",
   "新しく": "あたらしく",
+  "日光": "にっこう",
+  "早く": "はやく",
   "時間": "じかん",
+  "暗く": "くらく",
   "書い": "かい",
   "書き": "かき",
   "書き出す": "かきだす",
   "書こう": "かこう",
+  "木": "き",
   "木材": "もくざい",
+  "机": "つくえ",
   "材料": "ざいりょう",
   "板": "いた",
   "栽培": "さいばい",
   "案内": "あんない",
+  "楽": "らく",
   "次": "つぎ",
+  "正しく": "ただしく",
   "正解": "せいかい",
+  "毎日": "まいにち",
   "気づい": "きづい",
   "水": "みず",
+  "洗濯": "せんたく",
+  "洗濯機": "せんたくき",
+  "流し": "ながし",
   "流れ": "ながれ",
   "減らす": "へらす",
+  "温度": "おんど",
+  "炊飯器": "すいはんき",
+  "照明": "しょうめい",
   "熱": "ねつ",
+  "燃料": "ねんりょう",
+  "物": "もの",
   "環境": "かんきょう",
   "生かし": "いかし",
   "生かす": "いかす",
   "生き物": "いきもの",
   "生物": "せいぶつ",
+  "田んぼ": "たんぼ",
   "畑": "はたけ",
   "番号": "ばんごう",
   "発展": "はってん",
@@ -657,25 +764,32 @@ window.EDUIT_INFO.jishu.ruby = {
   "目安": "めやす",
   "確かめよう": "たしかめよう",
   "社会": "しゃかい",
+  "立っ": "たっ",
   "章": "しょう",
   "答え": "こたえ",
   "答えよう": "こたえよう",
   "終わっ": "おわっ",
+  "終わら": "おわら",
   "終わり": "おわり",
   "組": "くみ",
   "経済性": "けいざいせい",
+  "線": "せん",
   "繊維": "せんい",
   "羽根": "はね",
   "考え": "かんがえ",
   "考えよう": "かんがえよう",
   "聞い": "きい",
   "肥料": "ひりょう",
+  "育ち": "そだち",
+  "育て": "そだて",
   "育てる": "そだてる",
   "育成": "いくせい",
   "自分": "じぶん",
+  "自動車": "じどうしゃ",
   "自己評価": "じこひょうか",
   "自習": "じしゅう",
   "自転車": "じてんしゃ",
+  "虫": "むし",
   "表示": "ひょうじ",
   "製品": "せいひん",
   "要求": "ようきゅう",
@@ -686,14 +800,18 @@ window.EDUIT_INFO.jishu.ruby = {
   "見る": "みる",
   "見分けよう": "みわけよう",
   "見回す": "みまわす",
+  "見回そう": "みまわそう",
   "見直し": "みなおし",
+  "見直そう": "みなおそう",
   "視点": "してん",
   "解決": "かいけつ",
   "言う": "いう",
+  "計測": "けいそく",
   "記録": "きろく",
   "設": "せつ",
   "読みとる": "よみとる",
   "読み取る": "よみとる",
+  "調節": "ちょうせつ",
   "負担": "ふたん",
   "負荷": "ふか",
   "資源": "しげん",
@@ -701,6 +819,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "農家": "のうか",
   "送っ": "おくっ",
   "通学路": "つうがくろ",
+  "速く": "はやく",
   "進める": "すすめる",
   "進め方": "すすめかた",
   "進もう": "すすもう",
@@ -708,16 +827,24 @@ window.EDUIT_INFO.jishu.ruby = {
   "道路": "どうろ",
   "選ぼう": "えらぼう",
   "部分": "ぶぶん",
+  "部品": "ぶひん",
   "重ね": "かさね",
+  "野菜": "やさい",
   "金のこ": "かなのこ",
+  "金属": "きんぞく",
   "閉じる": "とじる",
   "開く": "ひらく",
   "開ける": "あける",
+  "関係": "かんけい",
   "防ぐ": "ふせぐ",
   "集め": "あつめ",
+  "集める": "あつめる",
   "電気": "でんき",
+  "電気代": "でんきだい",
+  "願い": "ねがい",
   "風": "かぜ",
   "食べる": "たべる",
+  "食べ物": "たべもの",
   "高": "こう"
 };
 
@@ -1258,7 +1385,7 @@ window.EDUIT_INFO.jishu.ruby = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu kz-norb no-ruby', 'data-noruby': '', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(d.label || c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
         rb, close
       ]),
       body
@@ -1568,6 +1695,9 @@ window.T_RUBY = {
  * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
  *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
  *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
+ * 分野ごとに開く(教科書順コースから ?bunya=a のように開く): data-area="a" の部分は、その分野のときと全部のときだけ出す。
+ *   data-area="-" は全部のときだけ出す。分野のときは T.area がその記号になり、保存の場所も分野ごとに分かれる(key + '.a')。
+ *   ほかの分野へ行くタブやボタンは消えるので、操作に慣れない生徒が分野を行き来して迷わない。
  */
 (function () {
   'use strict';
@@ -1599,10 +1729,21 @@ window.T_RUBY = {
     return a;
   }
 
+  // ?bunya=a の分野の記号(そのページのタブに data-area があるときだけ。ないときは null)
+  function areaOf() {
+    var m = /[?&]bunya=([a-z])(?:&|$)/.exec(location.search);
+    return m && document.querySelector('.t-tabs [data-tab="' + m[1] + '"][data-area]') ? m[1] : null;
+  }
+
   function init(opts) {
     var $ = function (id) { return document.getElementById(id); };
     var root = $('tapp');
-    var KEY = opts.key;
+    var AREA = areaOf();
+    // 分野のときは、ほかの分野の部分を消す(タブ・ページ・目次・書く欄)
+    if (AREA) Array.prototype.forEach.call(root.querySelectorAll('[data-area]'), function (e) {
+      if (e.getAttribute('data-area').split(' ').indexOf(AREA) < 0) e.parentNode.removeChild(e);
+    });
+    var KEY = opts.key && AREA ? opts.key + '.' + AREA : opts.key;
     var S = opts.blank();
     if (KEY) try { var raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw && typeof raw === 'object') S = merge(opts.blank(), raw); } catch (e) {}
     var onSave = [];
@@ -1831,10 +1972,12 @@ window.T_RUBY = {
       function exportObj() {
         var EI = window.EDUIT_INFO || {}, data = S;
         if (!EduitFrame.furikaeri && o.exp.noRefl) data = o.exp.noRefl(JSON.parse(JSON.stringify(S)));
-        return {
+        var ob = {
           schema: 'eduit-textbook/1', app: o.exp.code, title: o.exp.title, version: EI.version || '', exported: new Date().toISOString(),
           student: { cls: S.who.cls, no: S.who.no, name: S.who.name }, score: o.exp.score ? o.exp.score(S) : {}, data: data
         };
+        if (AREA) ob.area = AREA;  // 分野ごとに開いたとき(振り返り一覧は、その分野だけを出す)
+        return ob;
       }
       if ($('t-export')) $('t-export').addEventListener('click', function () {
         // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
@@ -1872,11 +2015,11 @@ window.T_RUBY = {
     return {
       S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
       quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
-      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs
+      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs, area: AREA
     };
   }
 
-  window.TCore = { init: init };
+  window.TCore = { init: init, area: areaOf };  // area: init の前に分野を知りたいとき(使い方の文を変えるなど)
 })();
 
 </script>
@@ -1894,10 +2037,10 @@ window.T_RUBY = {
     </header>
     <nav class="t-tabs" role="tablist" aria-label="技術さがしのページ">
       <button type="button" role="tab" data-tab="intro">はじめに</button>
-      <button type="button" role="tab" data-tab="a">① 材料と加工</button>
-      <button type="button" role="tab" data-tab="b">② 生物育成</button>
-      <button type="button" role="tab" data-tab="c">③ エネルギー変換</button>
-      <button type="button" role="tab" data-tab="d">④ 情報</button>
+      <button type="button" role="tab" data-tab="a" data-area="a">① 材料と加工</button>
+      <button type="button" role="tab" data-tab="b" data-area="b">② 生物育成</button>
+      <button type="button" role="tab" data-tab="c" data-area="c">③ エネルギー変換</button>
+      <button type="button" role="tab" data-tab="d" data-area="d">④ 情報</button>
       <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
       <button type="button" role="tab" data-tab="rec">記録</button>
     </nav>
@@ -1909,37 +2052,37 @@ window.T_RUBY = {
       <h2>身の回りは技術でいっぱい</h2>
       <p class="t-ref">教科書 各編1章のはじめ(身の回りの技術)と、1章の終わり(問題解決の工夫)</p>
       <div class="t-card">
-        <p class="t-lead">朝起きてから寝るまでに使うものを、思いうかべてみましょう。机やいす、ごはん、電気、スマートフォン…。どれにも、だれかが問題を解決するために考えた技術が使われています。この教材では、4つの分野ごとに身の回りの技術をさがします。そして、作った人の工夫を読みときます。</p>
+        <p class="t-lead" id="m-lead">朝起きてから寝るまでに使うものを、思いうかべてみましょう。机やいす、ごはん、電気、スマートフォン…。どれにも、だれかが問題を解決するために考えた技術が使われています。この教材では、4つの分野ごとに身の回りの技術をさがします。そして、作った人の工夫を読みときます。</p>
         <div class="t-key">工夫を見つけるコツは、<b>「もしこの工夫がなかったら、何がこまる?」</b>と考えることです。こまることが、その工夫が解決している<b>問題</b>です。</div>
         <ol class="t-toc">
-          <li><button type="button" data-goto="a"><b>①</b>材料と加工の技術 ― 1編のはじめと1章の終わりに</button></li>
-          <li><button type="button" data-goto="b"><b>②</b>生物育成の技術 ― 2編のはじめと1章の終わりに</button></li>
-          <li><button type="button" data-goto="c"><b>③</b>エネルギー変換の技術 ― 3編のはじめと1章の終わりに</button></li>
-          <li><button type="button" data-goto="d"><b>④</b>情報の技術 ― 4編のはじめと1章の終わりに</button></li>
+          <li data-area="a"><button type="button" data-goto="a"><b>①</b>材料と加工の技術 ― 1編のはじめと1章の終わりに</button></li>
+          <li data-area="b"><button type="button" data-goto="b"><b>②</b>生物育成の技術 ― 2編のはじめと1章の終わりに</button></li>
+          <li data-area="c"><button type="button" data-goto="c"><b>③</b>エネルギー変換の技術 ― 3編のはじめと1章の終わりに</button></li>
+          <li data-area="d"><button type="button" data-goto="d"><b>④</b>情報の技術 ― 4編のはじめと1章の終わりに</button></li>
         </ol>
       </div>
-      <div class="t-card t-act">
+      <div class="t-card t-act" data-area="-">
         <h3>どの技術の工夫?</h3>
         <p>それぞれの工夫は、A〜D のどの分野の技術でしょう。 <span class="t-score" id="m-q0-score"></span></p>
         <ol class="t-quiz" id="m-q0"></ol>
       </div>
       <div class="t-card t-write">
         <h3>家の中や通学路で見つけた技術</h3>
-        <p>4つの分野に1つずつ書きましょう。分野の学習が進んだら、書き足してもかまいません。</p>
+        <p id="m-write-lead">4つの分野に1つずつ書きましょう。分野の学習が進んだら、書き足してもかまいません。</p>
         <div class="t-grid">
-          <label class="t-field"><span>A 材料と加工</span><input type="text" data-k="intro.a" placeholder="例: 木の階段の手すり"></label>
-          <label class="t-field"><span>B 生物育成</span><input type="text" data-k="intro.b" placeholder="例: 近くの畑のビニルハウス"></label>
-          <label class="t-field"><span>C エネルギー変換</span><input type="text" data-k="intro.c" placeholder="例: 電柱の上の変圧器"></label>
-          <label class="t-field"><span>D 情報</span><input type="text" data-k="intro.d" placeholder="例: 押しボタン式の信号機"></label>
+          <label class="t-field" data-area="a"><span>A 材料と加工</span><input type="text" data-k="intro.a" placeholder="例: 木の階段の手すり"></label>
+          <label class="t-field" data-area="b"><span>B 生物育成</span><input type="text" data-k="intro.b" placeholder="例: 近くの畑のビニルハウス"></label>
+          <label class="t-field" data-area="c"><span>C エネルギー変換</span><input type="text" data-k="intro.c" placeholder="例: 電柱の上の変圧器"></label>
+          <label class="t-field" data-area="d"><span>D 情報</span><input type="text" data-k="intro.d" placeholder="例: 押しボタン式の信号機"></label>
         </div>
       </div>
     </section>
 
     <!-- ===== ①〜④(中身は下の AREAS から作る) ===== -->
-    <section class="t-sec" id="t-a" data-sec="a" role="tabpanel" hidden></section>
-    <section class="t-sec" id="t-b" data-sec="b" role="tabpanel" hidden></section>
-    <section class="t-sec" id="t-c" data-sec="c" role="tabpanel" hidden></section>
-    <section class="t-sec" id="t-d" data-sec="d" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-a" data-sec="a" data-area="a" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-b" data-sec="b" data-area="b" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-c" data-sec="c" data-area="c" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-d" data-sec="d" data-area="d" role="tabpanel" hidden></section>
 
     <!-- ===== 振り返り ===== -->
     <section class="t-sec" id="t-refl" data-sec="refl" role="tabpanel" data-ef-reflect hidden>
@@ -2080,9 +2223,11 @@ window.T_RUBY = {
   }
   var T = TCore.init({
     key: 'eduit.m.v1', blank: blank,
-    howto: '<h3>この教材の進め方</h3><ol>' +
+    howto: '<h3>この教材の進め方</h3><ol>' + (TCore.area() ?
+      '<li>はじめに「はじめに」を開き、身の回りで見つけた技術を書きます。</li>' +
+      '<li>次に、となりの分野のタブを開きます。「どんな工夫?」と「問題解決の工夫を読みとこう」に答えます。分野の1章が終わったら、自分で見つけた製品の工夫を書きます。</li>' :
       '<li>はじめに「はじめに」を開き、「どの技術の工夫?」に答えます。</li>' +
-      '<li>① 〜 ④ は4つの分野です。その分野の学習を始めるときに開きます。「どんな工夫?」と「問題解決の工夫を読みとこう」に答えます。分野の1章が終わったら、「書いてみよう」に、自分で見つけた製品の工夫を書きます。</li>' +
+      '<li>① 〜 ④ は4つの分野です。その分野の学習を始めるときに開きます。「どんな工夫?」と「問題解決の工夫を読みとこう」に答えます。分野の1章が終わったら、「書いてみよう」に、自分で見つけた製品の工夫を書きます。</li>') +
       '<li>えらぶと、すぐに答えと説明が出ます。何度でもやり直せます。書いたことは、この端末のブラウザの中に自動で保存されます。</li>' +
       '<li>最後に「振り返り」を書きます。「記録」で組・番号・名前を入れて、「記録を書き出す」を押します。できたファイルを、先生の指示どおりに出します。</li></ol>' +
       '<h3>上のボタン</h3><ul><li><b>ふりがな</b>: 漢字の読みを出す・かくす</li><li><b>文字</b>: 押すたびに文字の大きさが 小・中・大・特大 と変わる</li></ul>' +
@@ -2090,10 +2235,20 @@ window.T_RUBY = {
   });
   var S = T.S, el = T.el;
 
-  T.quiz('m-q0', 'm-q0-score', AREA_NAMES, Q0, function () { return S.intro.q; });
+  // 分野ごとに開いたとき(教科書順コースから ?bunya=a): その分野だけを出す。ほかの分野のタブ・「どの技術の工夫?」は t-core が消している
+  var MINE = T.area ? AREAS.filter(function (A) { return A.id === T.area; }) : AREAS, A0 = MINE[0];
+  var TITLE = T.area ? '身の回りの技術さがし ' + A0.n + ' ' + A0.name.replace(/の技術$/, '') : '身の回りの技術さがし';
+  if (T.area) {
+    T.$('m-lead').textContent = '朝起きてから寝るまでに使うものを、思いうかべてみましょう。どれにも、だれかが問題を解決するために考えた技術が使われています。この教材では、身の回りの' + A0.name + 'をさがします。そして、作った人の工夫を読みときます。';
+    T.$('m-write-lead').textContent = A0.name + 'が使われている物を、1つ書きましょう。';
+    document.querySelector('.ef-title-name').textContent = TITLE;
+    document.title = 'M ' + TITLE;
+    EduitFrame.jishuApp('M' + T.area.toUpperCase(), 'M ' + TITLE);
+  } else T.quiz('m-q0', 'm-q0-score', AREA_NAMES, Q0, function () { return S.intro.q; });
 
   // ①〜④ のページを作る
-  AREAS.forEach(function (A, ai) {
+  MINE.forEach(function (A) {
+    var ai = AREAS.indexOf(A);
     var sec = T.$('t-' + A.id), st = S[A.id];
     var score1 = el('span', { class: 't-score' }), score2 = el('span', { class: 't-score' });
     var q1 = el('ol', { class: 't-quiz' }), q2 = el('ol', { class: 't-quiz' });
@@ -2129,13 +2284,13 @@ window.T_RUBY = {
 
   // 振り返り
   var SELF = [
-    ['find', '身の回りの製品やしくみから、4つの分野の技術を見つけられた'],
+    ['find', '身の回りの製品やしくみから、' + (T.area ? A0.name : '4つの分野の技術') + 'を見つけられた'],
     ['why', '製品の工夫が、どんな問題を解決しているかを考えられた'],
     ['view', '工夫を4つの視点で分けて、折り合いのつけ方を考えられた']
   ];
   T.self('m-self', SELF, function () { return S.refl.self; }, 'm-self');
   T.onShow.refl = function () {
-    var f = ['a', 'b', 'c', 'd'].map(function (k) { return S.intro[k]; }).filter(T.filled);
+    var f = MINE.map(function (A) { return S.intro[A.id]; }).filter(T.filled);
     T.text(T.$('m-first-view'), f.length ? 'はじめに書いた「見つけた技術」: ' + f.join('・') : '');
   };
 
@@ -2145,22 +2300,22 @@ window.T_RUBY = {
     return T.quizDone(A.q, st.q) && T.quizDone(A.kase.items, st.v) && T.filled(st.product) && T.filled(st.idea);
   }
   function areaScore(A) { var st = S[A.id]; return (T.quizOk(A.q, st.q) + T.quizOk(A.kase.items, st.v)) + ' / ' + (A.q.length + A.kase.items.length); }
-  var prog = [['intro', 'はじめに: どの技術の工夫? ' + Q0.length + '問・見つけた技術', function () { return T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length + ' 正解'; }]];
-  AREAS.forEach(function (A) { prog.push([A.id, A.n + ' ' + A.name + ': どんな工夫?・問題解決の工夫・製品の工夫', function () { return areaScore(A) + ' 正解'; }]); });
+  var prog = [T.area ? ['intro', 'はじめに: 見つけた技術'] : ['intro', 'はじめに: どの技術の工夫? ' + Q0.length + '問・見つけた技術', function () { return T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length + ' 正解'; }]];
+  MINE.forEach(function (A) { prog.push([A.id, A.n + ' ' + A.name + ': どんな工夫?・問題解決の工夫・製品の工夫', function () { return areaScore(A) + ' 正解'; }]); });
   prog.push(['refl', '振り返り']);
   T.start({
     status: function () {
-      var o = { intro: T.quizDone(Q0, S.intro.q) && ['a', 'b', 'c', 'd'].some(function (k) { return T.filled(S.intro[k]); }),
+      var o = { intro: (T.area || T.quizDone(Q0, S.intro.q)) && MINE.some(function (A) { return T.filled(S.intro[A.id]); }),
         refl: T.selfDone(SELF, S.refl.self) && T.filled(S.refl.learned) };
-      AREAS.forEach(function (A) { o[A.id] = areaDone(A); });
+      MINE.forEach(function (A) { o[A.id] = areaDone(A); });
       return o;
     },
     prog: prog,
     exp: {
-      code: 'M', title: '身の回りの技術さがし', file: 'M_技術さがし',
+      code: 'M', title: TITLE, file: 'M_技術さがし' + (T.area ? '_' + A0.name.replace(/の技術$/, '') : ''),
       score: function () {
-        var o = { intro: T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length };
-        AREAS.forEach(function (A) { o[A.id] = areaScore(A); });
+        var o = T.area ? {} : { intro: T.quizOk(Q0, S.intro.q) + ' / ' + Q0.length };
+        MINE.forEach(function (A) { o[A.id] = areaScore(A); });
         return o;
       },
       noRefl: function (d) { d.refl = { self: {}, learned: '', next: '' }; return d; }

@@ -253,3 +253,16 @@ test('M・F・Z: 教科書順コースの教材は、それぞれの分野(M・F
   assert.strictEqual(val(z, '身の回りの製品やしくみを見て、どんな技術の工夫があるかに気づける'), 'できた');
   assert.strictEqual(z.rows.filter((r) => r.part === '① ふりかえりチェック' && r.type === '自己評価').length, 10);
 });
+
+test('M・F: 教科書順コースから分野だけで開いた記録は、その分野だけを出す', () => {
+  const m = load('M_技術さがし_生物育成_2-15_山田花子_2026-10-20.json').entries[0];
+  assert.strictEqual(m.domain, 'M');
+  assert.strictEqual(m.app, 'M 身の回りの技術さがし ② 生物育成');
+  assert.deepStrictEqual([...new Set(m.rows.map((r) => r.part))], ['はじめに', '② 生物育成', '振り返り']);
+  assert.strictEqual(val(m, '見つけた技術'), 'B: 近くの畑のビニルハウス');
+  assert.strictEqual(val(m, '身の回りの製品やしくみから、生物育成の技術を見つけられた'), 'できた');
+  const f = load('F_これからの技術_E_2-15_山田花子_2026-10-20.json').entries[0];
+  assert.strictEqual(f.app, 'F これからの技術ラボ ④ 未来を提案');
+  assert.deepStrictEqual([...new Set(f.rows.map((r) => r.part))], ['④ 未来を提案']);
+  assert.strictEqual(val(f, '技術の組み合わせ方'), '植物工場とドローン');
+});
