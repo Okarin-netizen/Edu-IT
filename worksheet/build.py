@@ -127,7 +127,7 @@ def sheet(d, a):
     long = " ws-long" if len(steps) >= 9 else ""  # 手順が多い教材は、印刷で行の間を少しつめて B5 の2ページに入れる
     return f'''<section class="ws{long}" id="{c}" data-code="{c}" aria-labelledby="{c}-h">
 <header class="ws-head">
-<h2 id="{c}-h"><span class="ws-code">{c}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
+<h2 id="{c}-h"><span class="ws-code">{e(a.get("label", c))}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
 <p class="ws-goal"><b>ねらい</b>{r(a.get("goal", ""))}<span class="ws-time">目安 {r(a.get("time", ""))}</span></p>
@@ -333,7 +333,7 @@ SCRIPT = r"""
 
 def area_page(d):
     k = d["domain"]
-    pick = "".join(f'<button type="button" class="ef-btn" role="tab" data-code="{a["code"]}" aria-controls="{a["code"]}" title="{e(a["name"])}">{a["code"]}</button>' for a in d["apps"])
+    pick = "".join(f'<button type="button" class="ef-btn" role="tab" data-code="{a["code"]}" aria-controls="{a["code"]}" title="{e(a["name"])}">{e(a.get("label", a["code"]))}</button>' for a in d["apps"])
     set_ruby(d.get("ruby") or {})
     sheets = "\n".join(sheet(d, a) for a in d["apps"])
     set_ruby({})
@@ -382,7 +382,7 @@ def answers_page():
         for a in d["apps"]:
             qs = "".join(f'<li><p class="q">{e(q["q"])}</p><p class="a"><b>{KANA[q["answer"]]}</b> {e(q["choices"][q["answer"]])}</p>'
                          f'<p class="x">{e(q.get("explain", ""))}</p></li>' for q in a.get("check") or [])
-            items.append(f'<article><h3><span class="c">{a["code"]}</span>{e(a["name"])}</h3><ol>{qs}</ol></article>')
+            items.append(f'<article><h3><span class="c">{e(a.get("label", a["code"]))}</span>{e(a["name"])}</h3><ol>{qs}</ol></article>')
         secs.append(f'<section><h2>{d["domain"]} {e(d["domainName"])}<small>生徒のファイル: {FILES[d["domain"]]}</small></h2>{"".join(items)}</section>')
     return f'''<!doctype html>
 <html lang="ja">

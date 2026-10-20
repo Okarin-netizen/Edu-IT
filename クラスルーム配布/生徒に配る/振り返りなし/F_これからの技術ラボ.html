@@ -512,13 +512,16 @@ window.EDUIT_INFO = {
   domain: 'F',
   domainName: 'これからの技術ラボ',
   suite: 'これからの技術ラボ',
-  version: '1.0',
+  version: '1.1',
   updated: '2026-10-20',
   safety: [
     '新しい技術の説明は、学習のために短くまとめたものです。研究や開発が進んでいる技術は、これから説明が変わることがあります。',
     '4つの視点の点数は、自分の考えでつけるものです。正しい答えが1つに決まっているわけではありません。'
   ],
   history: [
+    { version: '1.1', date: '2026-10-20', items: [
+      '教科書順コースから開くと、その分野(または ④ 未来を提案)のタブだけが出るようにした。記録も分けて保存・書き出しする。自習ガイドとワークシートも分けた(F①〜F④)'
+    ] },
     { version: '1.0', date: '2026-10-20', items: [
       'これからの技術ラボを作った(教科書 1編〜3編の3章「これからの技術」に合わせ、分野ごとに1つずつタブ)。① 材料と加工・② 生物育成・③ エネルギー変換(どれも、新しい技術のカード5つ・どの技術? 5問・技術を4つの視点で評価する)・④ 未来を提案(社会の問題をえらび、技術を組み合わせて解決策を考える)',
       '振り返りと記録(書き出し)を付けた。自習モード(自習ガイド)と自習ワークシートに対応した'
@@ -549,6 +552,75 @@ window.EDUIT_INFO.jishu = {
         { q: '太陽光や風力でつくった電気を、使いたい時間まで ためておく技術は?', choices: ['蓄電池', '変圧器', 'ヒューズ'], answer: 0, explain: '太陽光や風力は、天気で発電量が変わります。蓄電池でためておくと、いつでも使えるようになります。' },
         { q: '新しい技術を評価するときの考え方として、よいものは?', choices: ['よいところだけを見て決める', 'よいところと心配なところの両方を、いろいろな立場から考える', '新しい技術は、何でもすぐに使う'], answer: 1, explain: 'どの技術にも長所と短所があります。4つの視点やいろいろな立場から考えて、どう使うかを決めます。' }
       ]
+    },
+    // FA: 教科書順コースから a の分野だけで開いたとき(?bunya=a)。ほかの分野のタブは出ない
+    FA: {
+      label: 'F①',
+      goal: 'これからの材料と加工の技術を、4つの視点で評価する。よいところと心配なところの両方を考える。',
+      time: '20分〜30分',
+      steps: [
+        { where: 'はじめに', do: '「技術を評価する」とはどういうことかを読もう。4つの視点と「循環型社会」を確かめよう。', hint: 'どの技術にも、よいところと心配なところがあります。両方を見てから、どう使うかを決めます。', go: '[data-tab="intro"]' },
+        { where: '① 材料と加工', do: '5つの技術のカードを読み、「どの技術?」5問に答えよう。', hint: 'カードの「よいところ」「心配なところ」に、答えのヒントがあります。', go: '[data-tab="a"]' },
+        { where: '① 材料と加工', do: '技術を1つえらび、4つの視点に 1〜5 の点をつけよう。よいところと心配なところを書こう。', hint: '5 はとてもよい、1 は心配が大きい、です。全部 5 になる技術はありません。' },
+        { where: '振り返り', do: '2つの自己評価をえらび、「これからの技術とどうかかわりたいか」を書こう。', hint: '使う人として、作る人として、社会のきまりを決める一人として。どの立場から考えてもよい。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '木の板を、繊維の向きが直角になるように重ねて接着した板は?(大きくて厚い板)', choices: ['CLT(直交集成板)', '段ボール', 'バイオマスプラスチック'], answer: 0, explain: 'CLT は強く、大きな建物のかべや床にも使えます。木を使うので、木がたくわえた炭素を長く閉じこめられます。' },
+        { q: '新しい技術を評価するときの考え方として、よいものは?', choices: ['よいところだけを見て決める', 'よいところと心配なところの両方を、いろいろな立場から考える', '新しい技術は、何でもすぐに使う'], answer: 1, explain: 'どの技術にも長所と短所があります。4つの視点やいろいろな立場から考えて、どう使うかを決めます。' }
+      ]
+    },
+    // FB: 教科書順コースから b の分野だけで開いたとき(?bunya=b)。ほかの分野のタブは出ない
+    FB: {
+      label: 'F②',
+      goal: 'これからの生物育成の技術を、4つの視点で評価する。よいところと心配なところの両方を考える。',
+      time: '20分〜30分',
+      steps: [
+        { where: 'はじめに', do: '「技術を評価する」とはどういうことかを読もう。4つの視点と「自然共生社会」を確かめよう。', hint: 'どの技術にも、よいところと心配なところがあります。両方を見てから、どう使うかを決めます。', go: '[data-tab="intro"]' },
+        { where: '② 生物育成', do: '5つの技術のカードを読み、「どの技術?」5問に答えよう。', hint: '植物工場は B5 でくわしく体験できます。カードに答えのヒントがあります。', go: '[data-tab="b"]' },
+        { where: '② 生物育成', do: '技術を1つえらび、4つの視点に 1〜5 の点をつけよう。よいところと心配なところを書こう。', hint: '育てる人・食べる人・自然、それぞれの立場で考えよう。全部 5 になる技術はありません。' },
+        { where: '振り返り', do: '2つの自己評価をえらび、「これからの技術とどうかかわりたいか」を書こう。', hint: '使う人として、作る人として、社会のきまりを決める一人として。どの立場から考えてもよい。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '建物の中で、光や温度を調節して、天気に関係なく育てる技術は?', choices: ['植物工場', '陸上養殖', '天敵を利用した害虫対策'], answer: 0, explain: 'LED の光・温度・水・養分を、コンピュータで調節して育てます。電気代が多くかかるのが心配なところです。' },
+        { q: '新しい技術を評価するときの考え方として、よいものは?', choices: ['よいところだけを見て決める', 'よいところと心配なところの両方を、いろいろな立場から考える', '新しい技術は、何でもすぐに使う'], answer: 1, explain: 'どの技術にも長所と短所があります。4つの視点やいろいろな立場から考えて、どう使うかを決めます。' }
+      ]
+    },
+    // FC: 教科書順コースから c の分野だけで開いたとき(?bunya=c)。ほかの分野のタブは出ない
+    FC: {
+      label: 'F③',
+      goal: 'これからのエネルギー変換の技術を、4つの視点で評価する。よいところと心配なところの両方を考える。',
+      time: '20分〜30分',
+      steps: [
+        { where: 'はじめに', do: '「技術を評価する」とはどういうことかを読もう。4つの視点と「脱炭素社会」を確かめよう。', hint: 'どの技術にも、よいところと心配なところがあります。両方を見てから、どう使うかを決めます。', go: '[data-tab="intro"]' },
+        { where: '③ エネルギー変換', do: '5つの技術のカードを読み、「どの技術?」5問に答えよう。', hint: 'カードの「よいところ」「心配なところ」に、答えのヒントがあります。', go: '[data-tab="c"]' },
+        { where: '③ エネルギー変換', do: '技術を1つえらび、4つの視点に 1〜5 の点をつけよう。よいところと心配なところを書こう。', hint: '作るとき・こわれたとき・すてるときのことも考えよう。心配なところが見えてきます。' },
+        { where: '振り返り', do: '2つの自己評価をえらび、「これからの技術とどうかかわりたいか」を書こう。', hint: '使う人として、作る人として、社会のきまりを決める一人として。どの立場から考えてもよい。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: '太陽光や風力でつくった電気を、使いたい時間まで ためておく技術は?', choices: ['蓄電池', '変圧器', 'ヒューズ'], answer: 0, explain: '太陽光や風力は、天気で発電量が変わります。蓄電池でためておくと、いつでも使えるようになります。' },
+        { q: '新しい技術を評価するときの考え方として、よいものは?', choices: ['よいところだけを見て決める', 'よいところと心配なところの両方を、いろいろな立場から考える', '新しい技術は、何でもすぐに使う'], answer: 1, explain: 'どの技術にも長所と短所があります。4つの視点やいろいろな立場から考えて、どう使うかを決めます。' }
+      ]
+    },
+    // FE: 教科書順コースから ④ 未来を提案 だけで開いたとき(?bunya=e。統合的な問題解決)
+    FE: {
+      label: 'F④',
+      goal: '社会の問題を1つえらぶ。分野のちがう技術を組み合わせて、解決策を考える。',
+      time: '30分〜50分',
+      steps: [
+        { where: 'はじめに', do: '4つの「めざす社会」を読もう。どの社会にも、いくつもの分野の技術がかかわります。', hint: '循環型社会・自然共生社会・脱炭素社会・超スマート社会の4つです。', go: '[data-tab="intro"]' },
+        { where: '④ 未来を提案', do: '社会の問題を1つえらび、使う技術をえらぼう。', hint: '分野のちがう技術を2つ以上組み合わせると、よい案になりやすい。', go: '[data-tab="e"]' },
+        { where: '④ 未来を提案', do: '解決策を書こう。心配なことと、その対策も書こう。', hint: '「だれの、どんなこまりごとが、どうよくなる?」から書くと、書きやすい。' },
+        { where: '④ 未来を提案', do: 'ちがう立場の人(使う人・作る人・近くに住む人)になって、自分の案を見直そう。', hint: '立場が変わると、大事にしたい視点も変わります。いちばん大事にする視点を決めて、折り合いをつけよう。', level: 'advanced' },
+        { where: '振り返り', do: '2つの自己評価をえらび、「これからの技術とどうかかわりたいか」を書こう。', hint: '使う人として、作る人として、社会のきまりを決める一人として。どの立場から考えてもよい。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+      ],
+      check: [
+        { q: 'よい解決策にするために、大切なことは?', choices: ['分野のちがう技術を組み合わせ、心配なことへの対策も考える', '1つの技術だけを使う', '心配なことは考えない'], answer: 0, explain: '社会の大きな問題は、1つの技術だけでは解決しにくいです。心配なことへの対策も考えると、よい案になります。' },
+        { q: '新しい技術を評価するときの考え方として、よいものは?', choices: ['よいところだけを見て決める', 'よいところと心配なところの両方を、いろいろな立場から考える', '新しい技術は、何でもすぐに使う'], answer: 1, explain: 'どの技術にも長所と短所があります。4つの視点やいろいろな立場から考えて、どう使うかを決めます。' }
+      ]
     }
   }
 };
@@ -558,8 +630,10 @@ window.EDUIT_INFO.jishu.ruby = {
   "一人": "ひとり",
   "一度": "いちど",
   "両方": "りょうほう",
+  "中": "なか",
   "人": "ひと",
   "付けよう": "つけよう",
+  "以上": "いじょう",
   "住む": "すむ",
   "体験": "たいけん",
   "何": "なん",
@@ -570,12 +644,14 @@ window.EDUIT_INFO.jishu.ruby = {
   "使え": "つかえ",
   "使える": "つかえる",
   "先生": "せんせい",
+  "光": "ひかり",
   "入れ": "いれ",
   "全部": "ぜんぶ",
   "共生": "きょうせい",
   "出": "で",
   "分": "ふん",
   "分野": "ぶんや",
+  "利用": "りよう",
   "加工": "かこう",
   "厚い": "あつい",
   "各": "かく",
@@ -590,12 +666,16 @@ window.EDUIT_INFO.jishu.ruby = {
   "変わる": "かわる",
   "変圧器": "へんあつき",
   "変換": "へんかん",
+  "多く": "おおく",
   "大きい": "おおきい",
   "大きく": "おおきく",
   "大きな": "おおきな",
   "大事": "だいじ",
+  "大切": "たいせつ",
+  "天敵": "てんてき",
   "天気": "てんき",
   "太陽光": "たいようこう",
+  "害虫": "がいちゅう",
   "対策": "たいさく",
   "工場": "こうじょう",
   "広がっ": "ひろがっ",
@@ -615,7 +695,9 @@ window.EDUIT_INFO.jishu.ruby = {
   "教材": "きょうざい",
   "新しい": "あたらしい",
   "時間": "じかん",
+  "書き": "かき",
   "書き出す": "かきだす",
+  "書く": "かく",
   "書こう": "かこう",
   "最後": "さいご",
   "木": "き",
@@ -628,8 +710,10 @@ window.EDUIT_INFO.jishu.ruby = {
   "次": "つぎ",
   "正解": "せいかい",
   "段ボール": "だんぼーる",
+  "水": "みず",
   "決め": "きめ",
   "決める": "きめる",
+  "温度": "おんど",
   "炭素": "たんそ",
   "点": "てん",
   "生物": "せいぶつ",
@@ -656,6 +740,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "考える": "かんがえる",
   "考え方": "かんがえかた",
   "聞い": "きい",
+  "育て": "そだて",
   "育てる": "そだてる",
   "育成": "いくせい",
   "脱炭素": "だつたんそ",
@@ -676,6 +761,8 @@ window.EDUIT_INFO.jishu.ruby = {
   "説明": "せつめい",
   "読み": "よみ",
   "読もう": "よもう",
+  "調節": "ちょうせつ",
+  "超": "ちょう",
   "近く": "ちかく",
   "進める": "すすめる",
   "進め方": "すすめかた",
@@ -687,11 +774,16 @@ window.EDUIT_INFO.jishu.ruby = {
   "長所": "ちょうしょ",
   "閉じこめ": "とじこめ",
   "閉じる": "とじる",
+  "関係": "かんけい",
+  "陸上": "りくじょう",
   "集成": "しゅうせい",
   "集成板": "しゅうせいばん",
   "電気": "でんき",
+  "電気代": "でんきだい",
   "風力": "ふうりょく",
-  "食べる": "たべる"
+  "食べる": "たべる",
+  "養分": "ようぶん",
+  "養殖": "ようしょく"
 };
 
 </script>
@@ -1231,7 +1323,7 @@ window.EDUIT_INFO.jishu.ruby = {
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
     var panel = el('aside', { class: 'ef-jishu kz-norb no-ruby', 'data-noruby': '', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(d.label || c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
         rb, close
       ]),
       body
@@ -1541,6 +1633,9 @@ window.T_RUBY = {
  * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
  *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
  *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
+ * 分野ごとに開く(教科書順コースから ?bunya=a のように開く): data-area="a" の部分は、その分野のときと全部のときだけ出す。
+ *   data-area="-" は全部のときだけ出す。分野のときは T.area がその記号になり、保存の場所も分野ごとに分かれる(key + '.a')。
+ *   ほかの分野へ行くタブやボタンは消えるので、操作に慣れない生徒が分野を行き来して迷わない。
  */
 (function () {
   'use strict';
@@ -1572,10 +1667,21 @@ window.T_RUBY = {
     return a;
   }
 
+  // ?bunya=a の分野の記号(そのページのタブに data-area があるときだけ。ないときは null)
+  function areaOf() {
+    var m = /[?&]bunya=([a-z])(?:&|$)/.exec(location.search);
+    return m && document.querySelector('.t-tabs [data-tab="' + m[1] + '"][data-area]') ? m[1] : null;
+  }
+
   function init(opts) {
     var $ = function (id) { return document.getElementById(id); };
     var root = $('tapp');
-    var KEY = opts.key;
+    var AREA = areaOf();
+    // 分野のときは、ほかの分野の部分を消す(タブ・ページ・目次・書く欄)
+    if (AREA) Array.prototype.forEach.call(root.querySelectorAll('[data-area]'), function (e) {
+      if (e.getAttribute('data-area').split(' ').indexOf(AREA) < 0) e.parentNode.removeChild(e);
+    });
+    var KEY = opts.key && AREA ? opts.key + '.' + AREA : opts.key;
     var S = opts.blank();
     if (KEY) try { var raw = JSON.parse(localStorage.getItem(KEY) || 'null'); if (raw && typeof raw === 'object') S = merge(opts.blank(), raw); } catch (e) {}
     var onSave = [];
@@ -1804,10 +1910,12 @@ window.T_RUBY = {
       function exportObj() {
         var EI = window.EDUIT_INFO || {}, data = S;
         if (!EduitFrame.furikaeri && o.exp.noRefl) data = o.exp.noRefl(JSON.parse(JSON.stringify(S)));
-        return {
+        var ob = {
           schema: 'eduit-textbook/1', app: o.exp.code, title: o.exp.title, version: EI.version || '', exported: new Date().toISOString(),
           student: { cls: S.who.cls, no: S.who.no, name: S.who.name }, score: o.exp.score ? o.exp.score(S) : {}, data: data
         };
+        if (AREA) ob.area = AREA;  // 分野ごとに開いたとき(振り返り一覧は、その分野だけを出す)
+        return ob;
       }
       if ($('t-export')) $('t-export').addEventListener('click', function () {
         // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
@@ -1845,11 +1953,11 @@ window.T_RUBY = {
     return {
       S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
       quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
-      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs
+      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs, area: AREA
     };
   }
 
-  window.TCore = { init: init };
+  window.TCore = { init: init, area: areaOf };  // area: init の前に分野を知りたいとき(使い方の文を変えるなど)
 })();
 
 </script>
@@ -1867,10 +1975,10 @@ window.T_RUBY = {
     </header>
     <nav class="t-tabs" role="tablist" aria-label="これからの技術ラボのページ">
       <button type="button" role="tab" data-tab="intro">はじめに</button>
-      <button type="button" role="tab" data-tab="a">① 材料と加工</button>
-      <button type="button" role="tab" data-tab="b">② 生物育成</button>
-      <button type="button" role="tab" data-tab="c">③ エネルギー変換</button>
-      <button type="button" role="tab" data-tab="e">④ 未来を提案</button>
+      <button type="button" role="tab" data-tab="a" data-area="a">① 材料と加工</button>
+      <button type="button" role="tab" data-tab="b" data-area="b">② 生物育成</button>
+      <button type="button" role="tab" data-tab="c" data-area="c">③ エネルギー変換</button>
+      <button type="button" role="tab" data-tab="e" data-area="e">④ 未来を提案</button>
       <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
       <button type="button" role="tab" data-tab="rec">記録</button>
     </nav>
@@ -1888,30 +1996,30 @@ window.T_RUBY = {
       <div class="t-card">
         <h3>技術でめざす社会</h3>
         <div class="t-grid">
-          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">♻️</span>循環型社会</h4><p>資源をくり返し使い、ごみを少なくする社会。材料と加工の技術が大きくかかわります。</p></div>
-          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🌳</span>自然共生社会</h4><p>自然や生き物のめぐみを守りながら利用する社会。生物育成の技術が大きくかかわります。</p></div>
-          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🌏</span>脱炭素社会</h4><p>CO2 などを出す量を少なくし、地球温暖化を防ぐ社会。エネルギー変換の技術が大きくかかわります。</p></div>
-          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">📡</span>超スマート社会</h4><p>情報の技術で人やものがつながる社会。必要なものを、必要なときに届けられる。これからの情報の技術は D8 生成AIのしくみラボで学びます。</p></div>
+          <div class="t-mini" data-area="a e"><h4><span class="t-ic" aria-hidden="true">♻️</span>循環型社会</h4><p>資源をくり返し使い、ごみを少なくする社会。材料と加工の技術が大きくかかわります。</p></div>
+          <div class="t-mini" data-area="b e"><h4><span class="t-ic" aria-hidden="true">🌳</span>自然共生社会</h4><p>自然や生き物のめぐみを守りながら利用する社会。生物育成の技術が大きくかかわります。</p></div>
+          <div class="t-mini" data-area="c e"><h4><span class="t-ic" aria-hidden="true">🌏</span>脱炭素社会</h4><p>CO2 などを出す量を少なくし、地球温暖化を防ぐ社会。エネルギー変換の技術が大きくかかわります。</p></div>
+          <div class="t-mini" data-area="e"><h4><span class="t-ic" aria-hidden="true">📡</span>超スマート社会</h4><p>情報の技術で人やものがつながる社会。必要なものを、必要なときに届けられる。これからの情報の技術は D8 生成AIのしくみラボで学びます。</p></div>
         </div>
       </div>
       <div class="t-card">
         <h3>このラボの進め方</h3>
         <ol class="t-toc">
-          <li><button type="button" data-goto="a"><b>①</b>これからの材料と加工の技術(1編3章のあとに)</button></li>
-          <li><button type="button" data-goto="b"><b>②</b>これからの生物育成の技術(2編3章のあとに)</button></li>
-          <li><button type="button" data-goto="c"><b>③</b>これからのエネルギー変換の技術(3編3章のあとに)</button></li>
-          <li><button type="button" data-goto="e"><b>④</b>技術を組み合わせて、未来を提案しよう(最後に)</button></li>
+          <li data-area="a"><button type="button" data-goto="a"><b>①</b>これからの材料と加工の技術(1編3章のあとに)</button></li>
+          <li data-area="b"><button type="button" data-goto="b"><b>②</b>これからの生物育成の技術(2編3章のあとに)</button></li>
+          <li data-area="c"><button type="button" data-goto="c"><b>③</b>これからのエネルギー変換の技術(3編3章のあとに)</button></li>
+          <li data-area="e"><button type="button" data-goto="e"><b>④</b>技術を組み合わせて、未来を提案しよう(最後に)</button></li>
         </ol>
       </div>
     </section>
 
     <!-- ===== ①〜③(中身は下の AREAS から作る) ===== -->
-    <section class="t-sec" id="t-a" data-sec="a" role="tabpanel" hidden></section>
-    <section class="t-sec" id="t-b" data-sec="b" role="tabpanel" hidden></section>
-    <section class="t-sec" id="t-c" data-sec="c" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-a" data-sec="a" data-area="a" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-b" data-sec="b" data-area="b" role="tabpanel" hidden></section>
+    <section class="t-sec" id="t-c" data-sec="c" data-area="c" role="tabpanel" hidden></section>
 
     <!-- ===== ④ 未来を提案 ===== -->
-    <section class="t-sec" id="t-e" data-sec="e" role="tabpanel" hidden>
+    <section class="t-sec" id="t-e" data-sec="e" data-area="e" role="tabpanel" hidden>
       <h2>④ 技術を組み合わせて、未来を提案しよう</h2>
       <p class="t-ref">教科書 1編〜4編の3章(4編は4章)・統合的な問題解決</p>
       <div class="t-card">
@@ -1924,7 +2032,7 @@ window.T_RUBY = {
       </div>
       <div class="t-card t-write">
         <h3>2 使う技術をえらぼう(いくつでも)</h3>
-        <p>①〜③ のカードの技術と、情報の技術から えらびます。分野のちがう技術を2つ以上組み合わせてみよう。</p>
+        <p id="f-use-lead">①〜③ のカードの技術と、情報の技術から えらびます。分野のちがう技術を2つ以上組み合わせてみよう。</p>
         <div class="t-choices" id="f-use"></div>
         <p class="t-memo" id="f-use-memo" hidden></p>
       </div>
@@ -2050,17 +2158,29 @@ window.T_RUBY = {
     key: 'eduit.f.v1', blank: blank,
     howto: '<h3>この教材の進め方</h3><ol>' +
       '<li>「はじめに」で、技術を評価するときの4つの視点と、めざす社会を確かめます。</li>' +
+      (TCore.area() === 'e' ? '<li>次に「④ 未来を提案」を開きます。社会の問題をえらび、技術を組み合わせて、解決策を考えます。</li>' :
+        TCore.area() ? '<li>次に、となりの分野のタブを開きます。技術のカードを読んで、「どの技術?」に答えます。そして、1つの技術を4つの視点で評価します。</li>' :
       '<li>① 〜 ③ は分野ごとのページです。その分野の3章を学んだら開きます。技術のカードを読んで、「どの技術?」に答えます。そして、1つの技術を4つの視点で評価します。</li>' +
-      '<li>④ では、社会の問題をえらびます。技術を組み合わせて、解決策を考えます。4つの分野の学習が進んでから取り組みます。</li>' +
+      '<li>④ では、社会の問題をえらびます。技術を組み合わせて、解決策を考えます。4つの分野の学習が進んでから取り組みます。</li>') +
       '<li>最後に「振り返り」を書きます。「記録」で組・番号・名前を入れて、「記録を書き出す」を押します。できたファイルを、先生の指示どおりに出します。</li></ol>' +
       '<h3>上のボタン</h3><ul><li><b>ふりがな</b>: 漢字の読みを出す・かくす</li><li><b>文字</b>: 押すたびに文字の大きさが 小・中・大・特大 と変わる</li></ul>' +
       '<p>「やってみよう」と「書いてみよう」が全部終わると、タブに ✓ が付きます。</p>'
   });
   var S = T.S, el = T.el;
 
+  // 分野ごとに開いたとき(教科書順コースから ?bunya=a。e は ④ 未来を提案): その分野だけを出す。ほかのタブは t-core が消している
+  var MINE = T.area ? AREAS.filter(function (A) { return A.id === T.area; }) : AREAS;
+  var TITLE = 'これからの技術ラボ' + (T.area === 'e' ? ' ④ 未来を提案' : T.area ? ' ' + MINE[0].n + ' ' + MINE[0].name.replace(/^これからの|の技術$/g, '') : '');
+  if (T.area) {
+    document.querySelector('.ef-title-name').textContent = TITLE;
+    document.title = 'F ' + TITLE;
+    EduitFrame.jishuApp('F' + T.area.toUpperCase(), 'F ' + TITLE);
+    if (T.area === 'e') T.$('f-use-lead').textContent = 'これまでに学んだ技術と、情報の技術から えらびます。分野のちがう技術を2つ以上組み合わせてみよう。';
+  }
+
   // ①〜③ のページを作る。評価は S.a.r = { 技術の id: [4つの視点の点 1〜5(0 はまだ)] }、えらんでいる技術は S.a.pick
-  AREAS.forEach(function (A, ai) {
-    var sec = T.$('t-' + A.id), st = S[A.id];
+  MINE.forEach(function (A) {
+    var ai = AREAS.indexOf(A), sec = T.$('t-' + A.id), st = S[A.id];
     var names = A.techs.map(function (t) { return t.name; });
     sec.appendChild(el('h2', { text: A.n + ' ' + A.name }));
     sec.appendChild(el('p', { class: 't-ref', text: A.ref }));
@@ -2117,52 +2237,54 @@ window.T_RUBY = {
     paintRate();
   });
 
-  // ④ 未来を提案
-  function memo(id, list, v) { var o = list.filter(function (x) { return x.id === v; })[0], p = T.$(id); if (o) { T.text(p, o.memo); p.hidden = false; } else p.hidden = true; }
-  T.picker('f-prob', PROBS, function () { return S.e.prob; }, function (v) { S.e.prob = v; }, false, function () { memo('f-prob-memo', PROBS, S.e.prob); });
-  memo('f-prob-memo', PROBS, S.e.prob);
-  var ALL = [];
-  AREAS.forEach(function (A) { A.techs.forEach(function (t) { ALL.push({ id: t.id, label: t.name, area: A.id }); }); });
-  D_TECHS.forEach(function (t) { ALL.push({ id: t.id, label: t.label, area: 'd' }); });
-  function useMemo() {
-    var areas = {};
-    ALL.forEach(function (t) { if (S.e.use.indexOf(t.id) >= 0) areas[t.area] = 1; });
-    var n = Object.keys(areas).length, p = T.$('f-use-memo');
-    if (!S.e.use.length) { p.hidden = true; return; }
-    T.text(p, 'えらんだ技術: ' + S.e.use.length + 'つ(' + n + 'つの分野)。' + (n >= 2 ? '分野のちがう技術を組み合わせられました。' : 'ほかの分野の技術も組み合わせてみよう。'));
-    p.hidden = false;
+  // ④ 未来を提案(分野ごとに開いたときは、e のときだけある)
+  if (T.$('t-e')) {
+    function memo(id, list, v) { var o = list.filter(function (x) { return x.id === v; })[0], p = T.$(id); if (o) { T.text(p, o.memo); p.hidden = false; } else p.hidden = true; }
+    T.picker('f-prob', PROBS, function () { return S.e.prob; }, function (v) { S.e.prob = v; }, false, function () { memo('f-prob-memo', PROBS, S.e.prob); });
+    memo('f-prob-memo', PROBS, S.e.prob);
+    var ALL = [];
+    AREAS.forEach(function (A) { A.techs.forEach(function (t) { ALL.push({ id: t.id, label: t.name, area: A.id }); }); });
+    D_TECHS.forEach(function (t) { ALL.push({ id: t.id, label: t.label, area: 'd' }); });
+    function useMemo() {
+      var areas = {};
+      ALL.forEach(function (t) { if (S.e.use.indexOf(t.id) >= 0) areas[t.area] = 1; });
+      var n = Object.keys(areas).length, p = T.$('f-use-memo');
+      if (!S.e.use.length) { p.hidden = true; return; }
+      T.text(p, 'えらんだ技術: ' + S.e.use.length + 'つ(' + n + 'つの分野)。' + (n >= 2 ? '分野のちがう技術を組み合わせられました。' : 'ほかの分野の技術も組み合わせてみよう。'));
+      p.hidden = false;
+    }
+    T.picker('f-use', ALL, function () { return S.e.use; }, null, true, useMemo);
+    useMemo();
+    T.picker('f-who', WHO, function () { return S.e.who; }, function (v) { S.e.who = v; }, false, function () { memo('f-who-memo', WHO, S.e.who); });
+    memo('f-who-memo', WHO, S.e.who);
   }
-  T.picker('f-use', ALL, function () { return S.e.use; }, null, true, useMemo);
-  useMemo();
-  T.picker('f-who', WHO, function () { return S.e.who; }, function (v) { S.e.who = v; }, false, function () { memo('f-who-memo', WHO, S.e.who); });
-  memo('f-who-memo', WHO, S.e.who);
 
   // 振り返り
   var SELF = [
     ['know', 'これからの技術のしくみと、めざす社会とのつながりが分かった'],
     ['eval', '技術のよいところと心配なところを、4つの視点で評価できた'],
     ['plan', '技術を組み合わせて、社会の問題を解決する案を考えられた']
-  ];
+  ].filter(function (x) { return !T.area || x[0] === 'know' || (T.area === 'e') === (x[0] === 'plan'); });
   T.self('f-self', SELF, function () { return S.refl.self; }, 'f-self');
 
   function rated(A) { var r = S[A.id].r[S[A.id].pick]; return !!(r && r.every(function (v) { return v > 0; })); }
   function areaDone(A) { var st = S[A.id]; return T.quizDone(A.techs, st.q) && rated(A) && T.filled(st.good) && T.filled(st.bad); }
   function quizScore(A) { var items = A.techs.map(function (t, i) { return { a: i }; }); return T.quizOk(items, S[A.id].q) + ' / ' + A.techs.length; }
   var prog = [['intro', 'はじめに: 4つの視点とめざす社会']];
-  AREAS.forEach(function (A) { prog.push([A.id, A.n + ' ' + A.name + ': どの技術? ' + A.techs.length + '問・技術の評価', function () { return quizScore(A) + ' 正解'; }]); });
-  prog.push(['e', '④ 未来を提案: 社会の問題・使う技術・解決策']);
+  MINE.forEach(function (A) { prog.push([A.id, A.n + ' ' + A.name + ': どの技術? ' + A.techs.length + '問・技術の評価', function () { return quizScore(A) + ' 正解'; }]); });
+  if (!T.area || T.area === 'e') prog.push(['e', '④ 未来を提案: 社会の問題・使う技術・解決策']);
   prog.push(['refl', '振り返り']);
   T.start({
     status: function () {
       var o = { intro: true, e: !!S.e.prob && S.e.use.length > 0 && T.filled(S.e.better) && T.filled(S.e.how) && T.filled(S.e.worry),
         refl: T.selfDone(SELF, S.refl.self) && T.filled(S.refl.learned) };
-      AREAS.forEach(function (A) { o[A.id] = areaDone(A); });
+      MINE.forEach(function (A) { o[A.id] = areaDone(A); });
       return o;
     },
     prog: prog,
     exp: {
-      code: 'F', title: 'これからの技術ラボ', file: 'F_これからの技術',
-      score: function () { var o = {}; AREAS.forEach(function (A) { o[A.id] = quizScore(A); }); return o; },
+      code: 'F', title: TITLE, file: 'F_これからの技術' + (T.area ? '_' + T.area.toUpperCase() : ''),
+      score: function () { var o = {}; MINE.forEach(function (A) { o[A.id] = quizScore(A); }); return o; },
       noRefl: function (d) { d.refl = { self: {}, learned: '', next: '' }; return d; }
     }
   });
