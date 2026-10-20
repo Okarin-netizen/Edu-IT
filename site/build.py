@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """生徒用の公開サイト(GitHub Pages)を _site/ に作る。実行: python3 site/build.py
 
-入れるのは生徒用のものだけ: 入口ページ(site/index.html)と、クラスルーム配布/生徒に配る/ のガイダンス(g.html)・4つの統一版・
+入れるのは生徒用のものだけ: 入り口のページ(site/index.html と、そこからえらぶ「授業で使う」jugyo.html・「自習で使う」jishu.html)と、クラスルーム配布/生徒に配る/ のガイダンス(g.html)・4つの統一版・
 教科書の順に進む学習コース(kyokasho.html)と M・F・Z(m.html・f.html・z.html)・自習ワークシート(ws/)。
 先生用ガイド(クラスルーム配布/先生用/)と teacher-tools/ は入れない。
 アドレスに日本語が入らないように、統一版は apps/a.html〜apps/d.html(ガイダンスは apps/g.html)という名前で置き、
-a.html〜d.html・g.html は、いちばん上の「分野をえらぶ」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
+a.html〜d.html・g.html は、いちばん上の「◀ 入り口へもどる」のバーの下に統一版を出すページにする(配るファイルそのものは変えない)。
 先に python3 クラスルーム配布/まとめる.py で 生徒に配る/ を新しくしておく(.github/workflows/pages.yml は今あるファイルをそのまま使う)。
 """
 import json, pathlib, re, shutil
@@ -39,7 +39,8 @@ if out.exists():
     shutil.rmtree(out)
 out.mkdir()
 
-html = (here / "index.html").read_text(encoding="utf-8")
+# 入り口のページ: トップ(授業か自習かをえらぶ)・授業で使う・自習で使う。CSS・JS は中に入れる
+ENTRIES = ["index.html", "jugyo.html", "jishu.html"]
 
 
 def css(m):
@@ -50,12 +51,25 @@ def js(m):
     return "<script>\n" + (here / m.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script") + "\n</script>"
 
 
-html, n1 = re.subn(r'<link rel="stylesheet" href="([^"]+)">', css, html)
-html, n2 = re.subn(r'<script src="([^"]+)"></script>', js, html)
-if (n1, n2) != (1, 1):
-    raise SystemExit("site/index.html: 共通の枠(eduit-frame.css・eduit-frame.js)を中に入れられませんでした")
+entries = {}
+for name in ENTRIES:
+    page = (here / name).read_text(encoding="utf-8")
+    page, n1 = re.subn(r'<link rel="stylesheet" href="([^"]+)">', css, page)
+    page, n2 = re.subn(r'<script src="([^"]+)"></script>', js, page)
+    if n1 < 2 or n2 < 1:
+        raise SystemExit(f"site/{name}: 共通の枠(eduit-frame.css・eduit-frame.js)と site.css を中に入れられませんでした")
+    entries[name] = page
 
-# 統一版は apps/ に置き、a.html〜d.html は「入口へもどる」の細いバーの下に統一版を画面いっぱいに出すページにする。
+
+def relink(old, new):
+    """入り口のページの中の、手元で開いたときの場所(old)を公開用の名前(new)にする"""
+    if not any(old in page for page in entries.values()):
+        raise SystemExit(f"site/: {old} へのリンクがありません(site/site.js を見てください)")
+    for name in entries:
+        entries[name] = entries[name].replace(old, new)
+
+
+# 統一版は apps/ に置き、a.html〜d.html は「入り口へもどる」の細いバーの下に統一版を画面いっぱいに出すページにする。
 # 統一版の中(上のバーが固定のものもある)には手を入れないので、見た目や動きは配るファイルと同じ(配るファイルそのものも変えない)。
 FRAME = """<!doctype html>
 <html lang="ja">
@@ -74,11 +88,16 @@ FRAME = """<!doctype html>
 </style>
 </head>
 <body>
-<nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 分野をえらぶ(技術分野 教材集)</a></nav>
+<nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 入り口(技術分野 教材集)</a></nav>
 <iframe src="apps/{file}" title="{title}" allow="fullscreen; microphone; camera; clipboard-write" allowfullscreen></iframe>
 <script>
   // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
   var f = document.querySelector('iframe');
+  // もどる先は、自習モード(?jishu=on か、この端末で覚えている)なら「自習で使う」、そうでなければ「授業で使う」の入り口
+  var back = document.querySelector('#site-topbar a'), jm = /[?&]jishu=(on|off)(?:&|$)/.exec(location.search), jv = jm ? jm[1] : null;
+  if (!jv) try {{ jv = localStorage.getItem('eduit.jishu'); }} catch (e) {{}}
+  back.href = jv === 'on' ? 'jishu.html' : 'jugyo.html';
+  back.textContent = jv === 'on' ? '◀ 自習で使う(入り口)' : '◀ 授業で使う(入り口)';
   // ?jishu=on などの設定も中の教材に渡す(ワークシートの「教材をひらく(自習モード)」が使う)
   if (location.search || location.hash) f.src = 'apps/{file}' + location.search + location.hash;
   f.addEventListener('load', function () {{
@@ -124,10 +143,7 @@ def course_links(page):
 
 (out / "apps").mkdir()
 for src, dst in PAGES.items():
-    old = "../クラスルーム配布/生徒に配る/" + src
-    if old not in html:
-        raise SystemExit(f"site/index.html: {old} へのリンクがありません")
-    html = html.replace(old, dst)
+    relink("../クラスルーム配布/生徒に配る/" + src, dst)
     page = read(student / src)
     if dst == "b.html":
         # 生物育成の教材は「ほかのページの枠の中」だと見出し(◀ メニューなど)をかくす。ここの枠では見出しを出したままにする
@@ -141,23 +157,21 @@ for src, dst in PAGES.items():
     (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
 
 # 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html(と g・m・f・z)に置く。
-# 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に入口へもどるリンクを足す
+# 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に「自習で使う」の入り口へもどるリンクを足す
 (out / "ws").mkdir()
 for src, dst in WS.items():
-    old = "../クラスルーム配布/生徒に配る/ワークシート/" + src
-    if old not in html:
-        raise SystemExit(f"site/index.html: {old} へのリンクがありません")
-    html = html.replace(old, "ws/" + dst)
+    relink("../クラスルーム配布/生徒に配る/ワークシート/" + src, "ws/" + dst)
     page = read(student / "ワークシート" / src)
     unified = next(k for k, v in PAGES.items() if v == dst)
     n = page.count(f'href="../自習用/{unified}"') + page.count("<!--site-home-->")
     if n != 2:
         raise SystemExit(f"{src}: 教材へのリンクか入口へもどる印が見つかりません(worksheet/build.py を直してください)")
     page = page.replace(f'href="../自習用/{unified}"', f'href="../{dst}?jishu=on"')
-    page = page.replace("<!--site-home-->", '<a class="ef-btn ef-back" href="../">◀ 入口</a>')
+    page = page.replace("<!--site-home-->", '<a class="ef-btn ef-back" href="../jishu.html">◀ 自習の入り口</a>')
     (out / "ws" / dst).write_text(page, encoding="utf-8")
 
-(out / "index.html").write_text(html, encoding="utf-8")
+for name, page in entries.items():
+    (out / name).write_text(page, encoding="utf-8")
 (out / ".nojekyll").write_text("", encoding="utf-8")
 
 for p in sorted(out.rglob("*")):
