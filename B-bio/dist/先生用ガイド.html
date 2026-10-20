@@ -7,7 +7,7 @@
 <style data-ef-css>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G|T|M|F|Z"> で切りかわる(G は分野に入らない「技術分野のガイダンス」。T・M・F・Z は T-textbook/ の教科書順コースと3つの教材)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -35,6 +35,10 @@
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 :root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
+:root[data-ef-domain="T"] { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }  /* 教科書の順に進む学習コース(T-textbook/): 灰青 */
+:root[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
+:root[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
+:root[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -253,12 +257,13 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 .ef-jishu[hidden] { display: none; }
 .ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
 .ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu rt { display: ruby-text !important; font-size: .55em; font-weight: 400; }  /* 教材のふりがなをオフにしても、ガイドのふりがなはガイドのボタンで決める */
 .ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
 .ef-jishu-k { color: var(--ef-accent); }
 .ef-jishu-name { font-weight: 700; }
 .ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
 .ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
-.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu p { margin: 0 0 6px; line-height: 1.85; }
 .ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
 .ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
 .ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
@@ -269,6 +274,7 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
   background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
 .ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-jishu-do { font-weight: 600; }
+.ef-jishu-line { display: block; }
 .ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 .ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
@@ -501,7 +507,7 @@ window.EDUIT_INFO.jishu = {
       time: '45分',
       steps: [
         { where: 'はじめに', do: '作物・育てる場所・季節をえらび、「🌱 この条件で育てはじめる」を押そう。', hint: '迷ったら、はじめから選ばれている ミニトマト・露地(畑)・初夏 でよい。天気の番号は、先生の指示がなければ 1 のままにしよう。', go: '.b1-tab[data-tab="start"]' },
-        { where: '① そだてる', do: '天気予報と「今日の環境の予想」を見て、温度・光・水やり・肥料・見回りをえらび「次の日へ ▶」で30日目まで進めよう。', hint: '▼の予想が、しま模様の「ちょうどよい範囲」に入るようにえらんでみよう。調子が悪くなったら「◀ 1日もどす」でやり直せます。', go: '.b1-tab[data-tab="grow"]' },
+        { where: '① そだてる', do: '天気予報と「今日の環境の予想」を見て、温度・光・水やり・肥料・見回りをえらぼう。「次の日へ ▶」で30日目まで進めよう。', hint: '▼の予想が、しま模様の「ちょうどよい範囲」に入るようにえらんでみよう。調子が悪くなったら「◀ 1日もどす」でやり直せます。', go: '.b1-tab[data-tab="grow"]' },
         { where: '② 結果・原因さがし', do: 'グラフで、緑の帯から外れた日を数えて「原因さがし」の問題に答え、ヒントを読もう。', hint: '帯より上なら「多すぎ・高すぎ」、下なら「足りない・低すぎ」です。くもりや雨で光が弱いのは天気のせいで、操作では変えられません。', go: '.b1-tab[data-tab="result"]' },
         { where: '② 結果・原因さがし', do: '「🔁 同じ条件で再挑戦」で、原因の条件を直してもう一度育て、◎か○をめざそう。', hint: '1回目とくらべて、何を変えたら結果がどう変わったかをメモしておくと、振り返りに書けます。' },
         { where: '③ くらべる', do: '「ためしてみよう」の組み合わせを1つえらび、「🌱🌱 30日間育ててくらべる」でAとBのちがいを見よう。', hint: 'AとBで変えるのは条件1つだけです(条件制御)。差が小さいときは、天気の番号や場所を変えてみよう。', level: 'advanced', go: '.b1-tab[data-tab="compare"]' },
@@ -515,7 +521,7 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     B2: {
-      goal: '温度・えさ・水替え・数などを調節して生き物を30日間育て、食欲・動き・体の色などの様子から状態を読み取り、世話を改善できるようになる。',
+      goal: '温度・えさ・水替え・数などを調節して、生き物を30日間育てる。食欲・動き・体の色などから様子を読み取り、世話をよくできるようになる。',
       time: '60分',
       steps: [
         { where: 'はじめに', do: '育てる生き物を1つえらぼう。', hint: '水産生物ならメダカ、陸の動物ならニワトリから始めると、数値の見方がわかりやすいです。', go: '.b2-nav [data-tab="home"]' },
@@ -552,7 +558,7 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     B4: {
-      goal: '育てている生物の育成計画を立て、観察記録(数値・写真)をつけ続け、グラフや診断をもとに管理作業を見直し、育成後に評価できるようになる。',
+      goal: '育てている生物の育成計画を立て、観察記録(数値・写真)をつけ続ける。グラフや診断をもとに管理作業を見直し、育て終わったら評価できるようになる。',
       time: '初回30分・毎回10分',
       steps: [
         { where: 'ホーム', do: '自分の名前(または班の名前)を登録しよう。', hint: '同じタブレットを何人かで使うときは、右上の名前で自分をえらんでから使います。操作を試したいだけなら「サンプルデータを入れる」も使えます。', go: '#b4-tabs [data-v="home"]' },
@@ -571,7 +577,7 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     B5: {
-      goal: '露地栽培と植物工場をくらべ、センサとプログラムで照明や水やりを自動にして、育成環境を調節する計測・制御のしくみを説明できるようになる。',
+      goal: '露地栽培と植物工場をくらべる。センサとプログラムで照明や水やりを自動にして、計測・制御で育成環境を調節するしくみを説明できるようになる。',
       time: '50分',
       steps: [
         { where: 'はじめに', do: 'まんがと「入力(センサ)→プログラム→出力(機器)」の図を読み、ミッションを確かめよう。', hint: '基本は①〜③のミッションです。★の数は「ミッション」の表で見られます。', go: '.b5-nav [data-tab="home"]' },
@@ -589,7 +595,7 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     B6: {
-      goal: '身の回りから生物育成の技術に関わる問題を見つけて課題を設定し、育てた結果を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
+      goal: '身の回りから、生物育成の技術に関わる問題を見つけて課題を決める。育てた結果を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
       time: '50分',
       steps: [
         { where: 'はじめに', do: '問題と課題のちがいと、4つの観点(社会・安全・環境・経済)を読もう。', hint: '問題は「こまっていること」、課題は「何を、どのようにするか」を決めたものです。', go: '.b6-nav [data-tab="intro"]' },
@@ -608,6 +614,491 @@ window.EDUIT_INFO.jishu = {
       ]
     }
   }
+};
+
+/* ---- 自習ガイドのふりがな(自動で作る: python3 shared/jishu-ruby.py。この行から下は手で直さない) ---- */
+window.EDUIT_INFO.jishu.ruby = {
+  "お金": "おかね",
+  "くり返す": "くりかえす",
+  "しきい値": "しきいち",
+  "やり直せ": "やりなおせ",
+  "一度": "いちど",
+  "一緒": "いっしょ",
+  "上": "うえ",
+  "上がり": "あがり",
+  "上げ": "あげ",
+  "下": "した",
+  "下がっ": "さがっ",
+  "下がる": "さがる",
+  "下げ": "さげ",
+  "下書き": "したがき",
+  "不便": "ふべん",
+  "不良": "ふりょう",
+  "不足": "ふそく",
+  "与える": "あたえる",
+  "世話": "せわ",
+  "中": "なか",
+  "予想": "よそう",
+  "予測": "よそく",
+  "人": "ひと",
+  "今日": "きょう",
+  "仕分け": "しわけ",
+  "付け": "つけ",
+  "付けよう": "つけよう",
+  "付箋": "ふせん",
+  "以上": "いじょう",
+  "以下": "いか",
+  "休み": "やすみ",
+  "休日": "きゅうじつ",
+  "休業": "きゅうぎょう",
+  "低": "ひく",
+  "低い": "ひくい",
+  "住む": "すむ",
+  "体": "からだ",
+  "何": "なに",
+  "何と": "なんと",
+  "何人": "なんにん",
+  "作り": "つくり",
+  "作れ": "つくれ",
+  "作業": "さぎょう",
+  "作物": "さくもつ",
+  "使い": "つかい",
+  "使い方": "つかいかた",
+  "使う": "つかう",
+  "使え": "つかえ",
+  "使おう": "つかおう",
+  "使っ": "つかっ",
+  "使わ": "つかわ",
+  "例": "れい",
+  "保存": "ほぞん",
+  "修正": "しゅうせい",
+  "値段": "ねだん",
+  "健康": "けんこう",
+  "健康度": "けんこうど",
+  "傷み": "いたみ",
+  "傷む": "いたむ",
+  "先": "さき",
+  "先生": "せんせい",
+  "光": "ひかり",
+  "入っ": "はいっ",
+  "入り": "はいり",
+  "入る": "はいる",
+  "入れ": "いれ",
+  "入れかえ": "いれかえ",
+  "入れかわる": "いれかわる",
+  "入れよう": "いれよう",
+  "入れる": "いれる",
+  "入力": "にゅうりょく",
+  "全部": "ぜんぶ",
+  "具体的": "ぐたいてき",
+  "再": "さい",
+  "写ら": "うつら",
+  "写真": "しゃしん",
+  "冬": "ふゆ",
+  "出": "で",
+  "出す": "だす",
+  "出力": "しゅつりょく",
+  "分": "ふん",
+  "分かっ": "わかっ",
+  "分解": "ぶんかい",
+  "初回": "しょかい",
+  "初夏": "しょか",
+  "判断": "はんだん",
+  "制御": "せいぎょ",
+  "制約": "せいやく",
+  "前": "まえ",
+  "効果": "こうか",
+  "動かす": "うごかす",
+  "動き": "うごき",
+  "動く": "うごく",
+  "動物": "どうぶつ",
+  "区画": "くかく",
+  "印刷": "いんさつ",
+  "卵": "たまご",
+  "原因": "げんいん",
+  "収穫": "しゅうかく",
+  "収穫量": "しゅうかくりょう",
+  "収量": "しゅうりょう",
+  "取りのぞく": "とりのぞく",
+  "右上": "みぎうえ",
+  "同じ": "おなじ",
+  "名前": "なまえ",
+  "名札": "なふだ",
+  "向け": "むけ",
+  "呼吸": "こきゅう",
+  "品種": "ひんしゅ",
+  "品質": "ひんしつ",
+  "問": "もん",
+  "問題": "もんだい",
+  "問題解決": "もんだいかいけつ",
+  "回": "かい",
+  "回数": "かいすう",
+  "困っ": "こまっ",
+  "図": "ず",
+  "土": "つち",
+  "地域": "ちいき",
+  "地面": "じめん",
+  "基本": "きほん",
+  "場所": "ばしょ",
+  "変え": "かえ",
+  "変える": "かえる",
+  "変わっ": "かわっ",
+  "変わり": "かわり",
+  "変わる": "かわる",
+  "夏": "なつ",
+  "夏休み": "なつやすみ",
+  "外": "そと",
+  "外れ": "はずれ",
+  "外来種": "がいらいしゅ",
+  "多": "おお",
+  "多い": "おおい",
+  "夜": "よる",
+  "大きく": "おおきく",
+  "大きさ": "おおきさ",
+  "大切": "たいせつ",
+  "天気": "てんき",
+  "天気予報": "てんきよほう",
+  "始めよう": "はじめよう",
+  "始める": "はじめる",
+  "季節": "きせつ",
+  "学校": "がっこう",
+  "安全": "あんぜん",
+  "安全性": "あんぜんせい",
+  "安定": "あんてい",
+  "完了": "かんりょう",
+  "実": "み",
+  "実行": "じっこう",
+  "実際": "じっさい",
+  "実験": "じっけん",
+  "家": "いえ",
+  "寒い": "さむい",
+  "寒く": "さむく",
+  "寒冷地": "かんれいち",
+  "対処": "たいしょ",
+  "対策": "たいさく",
+  "小さい": "ちいさい",
+  "小さく": "ちいさく",
+  "少ない": "すくない",
+  "少なく": "すくなく",
+  "工場": "こうじょう",
+  "差": "さ",
+  "帯": "おび",
+  "年": "とし",
+  "底": "そこ",
+  "弱い": "よわい",
+  "当たる": "あたる",
+  "形": "かたち",
+  "影響": "えいきょう",
+  "徒長": "とちょう",
+  "必ず": "かならず",
+  "思いつか": "おもいつか",
+  "思い出し": "おもいだし",
+  "性質": "せいしつ",
+  "悪く": "わるく",
+  "意味": "いみ",
+  "成り立た": "なりたた",
+  "成果": "せいか",
+  "成長": "せいちょう",
+  "手がかり": "てがかり",
+  "手入れ": "ていれ",
+  "手間": "てま",
+  "手順": "てじゅん",
+  "技術": "ぎじゅつ",
+  "折り合い": "おりあい",
+  "押し": "おし",
+  "押す": "おす",
+  "押そう": "おそう",
+  "指示": "しじ",
+  "挑戦": "ちょうせん",
+  "振り返り": "ふりかえり",
+  "換気": "かんき",
+  "操作": "そうさ",
+  "改善": "かいぜん",
+  "改善案": "かいぜんあん",
+  "改良": "かいりょう",
+  "放流": "ほうりゅう",
+  "教材": "きょうざい",
+  "教科書": "きょうかしょ",
+  "数": "すう",
+  "数え": "かぞえ",
+  "数は": "かずは",
+  "数を": "かずを",
+  "数を減らすことを考えます": "すうをへらすことをかんがえます",
+  "数値": "すうち",
+  "数字": "すうじ",
+  "整える": "ととのえる",
+  "方": "かた",
+  "方法": "ほうほう",
+  "日": "ひ",
+  "日かげ": "ひかげ",
+  "日とも": "にちとも",
+  "日なた": "ひなた",
+  "日にち": "ひにち",
+  "日も": "にちも",
+  "日光": "にっこう",
+  "日数": "にっすう",
+  "日目": "にちめ",
+  "日誌": "にっし",
+  "日間": "かかん",
+  "早く": "はやく",
+  "早まる": "はやまる",
+  "早送り": "はやおくり",
+  "明るさ": "あかるさ",
+  "春": "はる",
+  "時刻": "じこく",
+  "時期": "じき",
+  "時間": "じかん",
+  "晴れ": "はれ",
+  "暑く": "あつく",
+  "暖地": "だんち",
+  "暖房": "だんぼう",
+  "暦": "れき",
+  "曲線": "きょくせん",
+  "書い": "かい",
+  "書か": "かか",
+  "書き": "かき",
+  "書きこむ": "かきこむ",
+  "書き出し": "かきだし",
+  "書き出す": "かきだす",
+  "書く": "かく",
+  "書け": "かけ",
+  "書こう": "かこう",
+  "最初": "さいしょ",
+  "最適化": "さいてきか",
+  "本当": "ほんとう",
+  "条件": "じょうけん",
+  "枚": "まい",
+  "株": "かぶ",
+  "根": "ね",
+  "根ぐされ": "ねぐされ",
+  "根拠": "こんきょ",
+  "栽培": "さいばい",
+  "案": "あん",
+  "案内": "あんない",
+  "棚": "たな",
+  "植物": "しょくぶつ",
+  "検査": "けんさ",
+  "様子": "ようす",
+  "模様": "もよう",
+  "機器": "きき",
+  "次": "つぎ",
+  "次の日": "つぎのひ",
+  "正しい": "ただしい",
+  "正解": "せいかい",
+  "残す": "のこす",
+  "毎回": "まいかい",
+  "毎年": "まいとし",
+  "毎日": "まいにち",
+  "気": "き",
+  "気づい": "きづい",
+  "気温": "きおん",
+  "水": "みず",
+  "水そう": "すいそう",
+  "水やり": "みずやり",
+  "水分": "すいぶん",
+  "水替え": "みずがえ",
+  "水温": "すいおん",
+  "水産": "すいさん",
+  "水草": "みずくさ",
+  "汚れ": "よごれ",
+  "決まり": "きまり",
+  "決め": "きめ",
+  "決めよう": "きめよう",
+  "決める": "きめる",
+  "注目": "ちゅうもく",
+  "流れ": "ながれ",
+  "流行": "りゅうこう",
+  "減らす": "へらす",
+  "温": "おん",
+  "温室": "おんしつ",
+  "温度": "おんど",
+  "温度計": "おんどけい",
+  "測り": "はかり",
+  "測る": "はかる",
+  "溶存": "ようぞん",
+  "点": "てん",
+  "点数": "てんすう",
+  "点線": "てんせん",
+  "照明": "しょうめい",
+  "特徴": "とくちょう",
+  "状態": "じょうたい",
+  "班": "はん",
+  "理由": "りゆう",
+  "環境": "かんきょう",
+  "生かし": "いかし",
+  "生かす": "いかす",
+  "生き物": "いきもの",
+  "生態系": "せいたいけい",
+  "生物": "せいぶつ",
+  "生育": "せいいく",
+  "生長点": "せいちょうてん",
+  "産地": "さんち",
+  "産業": "さんぎょう",
+  "畑": "はたけ",
+  "番": "ばん",
+  "番号": "ばんごう",
+  "異常": "いじょう",
+  "病気": "びょうき",
+  "発展": "はってん",
+  "発見": "はっけん",
+  "登録": "とうろく",
+  "目": "め",
+  "目安": "めやす",
+  "目標": "もくひょう",
+  "直し": "なおし",
+  "直す": "なおす",
+  "直せる": "なおせる",
+  "直接": "ちょくせつ",
+  "知り": "しり",
+  "短い": "みじかい",
+  "確かめ": "たしかめ",
+  "確かめよう": "たしかめよう",
+  "社会": "しゃかい",
+  "秋": "あき",
+  "科": "とが",
+  "種まき": "たねまき",
+  "積算": "せきさん",
+  "窓": "まど",
+  "立て": "たて",
+  "立てる": "たてる",
+  "立場": "たちば",
+  "答え": "こたえ",
+  "答えよう": "こたえよう",
+  "管理": "かんり",
+  "範囲": "はんい",
+  "約": "やく",
+  "紙": "かみ",
+  "終わっ": "おわっ",
+  "組": "くみ",
+  "組み合わせ": "くみあわせ",
+  "経済": "けいざい",
+  "結果": "けっか",
+  "給餌": "きゅうじ",
+  "続い": "つづい",
+  "続く": "つづく",
+  "続け": "つづけ",
+  "続ける": "つづける",
+  "緑": "みどり",
+  "線": "せん",
+  "練習": "れんしゅう",
+  "置く": "おく",
+  "考え": "かんがえ",
+  "肥料": "ひりょう",
+  "育ち": "そだち",
+  "育つ": "そだつ",
+  "育て": "そだて",
+  "育てよう": "そだてよう",
+  "育てる": "そだてる",
+  "育成": "いくせい",
+  "自分": "じぶん",
+  "自動": "じどう",
+  "自動化": "じどうか",
+  "自己評価": "じこひょうか",
+  "自習": "じしゅう",
+  "色": "いろ",
+  "茎": "くき",
+  "草丈": "くさたけ",
+  "葉": "は",
+  "薬": "くすり",
+  "行っ": "おこなっ",
+  "行事": "ぎょうじ",
+  "衛生": "えいせい",
+  "表": "ひょう",
+  "表示": "ひょうじ",
+  "表面": "ひょうめん",
+  "見": "み",
+  "見つけ": "みつけ",
+  "見つけよう": "みつけよう",
+  "見よう": "みよう",
+  "見る": "みる",
+  "見回り": "みまわり",
+  "見方": "みかた",
+  "見直し": "みなおし",
+  "見直す": "みなおす",
+  "見直そう": "みなおそう",
+  "観察": "かんさつ",
+  "観点": "かんてん",
+  "解決": "かいけつ",
+  "解説": "かいせつ",
+  "言う": "いう",
+  "計測": "けいそく",
+  "計画": "けいかく",
+  "計画書": "けいかくしょ",
+  "記録": "きろく",
+  "設定": "せってい",
+  "診断": "しんだん",
+  "評価": "ひょうか",
+  "試し": "ためし",
+  "試そう": "ためそう",
+  "説明": "せつめい",
+  "読み": "よみ",
+  "読み取り": "よみとり",
+  "読もう": "よもう",
+  "読ん": "よん",
+  "課題": "かだい",
+  "調べ": "しらべ",
+  "調子": "ちょうし",
+  "調節": "ちょうせつ",
+  "費用": "ひよう",
+  "質問": "しつもん",
+  "起き": "おき",
+  "起こり": "おこり",
+  "足し": "たし",
+  "足り": "たり",
+  "足りる": "たりる",
+  "身の回り": "みのまわり",
+  "農業": "のうぎょう",
+  "農薬": "のうやく",
+  "迷っ": "まよっ",
+  "逆算": "ぎゃくさん",
+  "速さ": "はやさ",
+  "連休": "れんきゅう",
+  "連休中": "れんきゅうちゅう",
+  "連作": "れんさく",
+  "週": "しゅう",
+  "進めよう": "すすめよう",
+  "進める": "すすめる",
+  "進め方": "すすめかた",
+  "進もう": "すすもう",
+  "過程": "かてい",
+  "適切": "てきせつ",
+  "適期": "てっき",
+  "遮光": "しゃこう",
+  "選ば": "えらば",
+  "選ん": "えらん",
+  "配慮": "はいりょ",
+  "酸素": "さんそ",
+  "重さ": "おもさ",
+  "重み": "おもみ",
+  "野菜": "やさい",
+  "量": "りょう",
+  "鉢": "ばち",
+  "閉じる": "とじる",
+  "開け": "あけ",
+  "開始": "かいし",
+  "開花": "かいか",
+  "関わる": "かかわる",
+  "除": "じょ",
+  "陸": "りく",
+  "障害": "しょうがい",
+  "雨": "あめ",
+  "雨よけ": "あまよけ",
+  "電気代": "でんきだい",
+  "露地": "ろじ",
+  "順": "じゅん",
+  "順番": "じゅんばん",
+  "顔": "かお",
+  "風通し": "かぜとおし",
+  "食べ": "たべ",
+  "食べ残し": "たべのこし",
+  "食欲": "しょくよく",
+  "飼う": "かう",
+  "飼育": "しいく",
+  "養分": "ようぶん",
+  "養殖": "ようしょく",
+  "高": "たか",
+  "高い": "たかい",
+  "高さ": "たかさ"
 };
 </script>
 <script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '先生用ガイド(生物育成の技術)' };</script>
@@ -1060,7 +1551,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|[GMFZ])\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -1089,6 +1580,40 @@ window.EDUIT_INFO.jishu = {
     return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
   }
 
+  // 自習ガイドのふりがな: EDUIT_INFO.jishu.ruby(言葉 → 読み。shared/jishu-ruby.py で作る)の言葉に、長いものから順に付ける。
+  // ガイドの上の「ふりがな」で消せる(はじめは付いている。その端末で覚える)
+  var JS_RUBY = 'eduit.jishu.ruby', KJ = /[一-鿿々〆]/, rubyRe = null;
+  function jishuRubyOn() { try { return localStorage.getItem(JS_RUBY) !== 'off'; } catch (e) { return true; } }
+  function rubyDict() { var J = (window.EDUIT_INFO || info).jishu; return (J && J.ruby) || {}; }
+  // 言葉の中のかなのところには付けない(「下げる」→ 下(さ)げる)。読みと合わないときは、言葉ぜんぶに付ける
+  function rubyParts(k, r) {
+    var parts = k.match(/[一-鿿々〆]+|[^一-鿿々〆]+/g);
+    var m = new RegExp('^' + parts.map(function (p) { return KJ.test(p) ? '(.+?)' : '(' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')'; }).join('') + '$').exec(r);
+    if (!m) return [[k, r]];
+    return parts.map(function (p, i) { return [p, KJ.test(p) ? m[i + 1] : null]; });
+  }
+  function jishuRuby(node) {
+    var D = rubyDict(), keys = Object.keys(D);
+    if (!keys.length) return;
+    if (!rubyRe) rubyRe = new RegExp(keys.sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null), list = [];
+    while (w.nextNode()) if (KJ.test(w.currentNode.nodeValue) && !w.currentNode.parentNode.closest('ruby, rt, script, style')) list.push(w.currentNode);
+    list.forEach(function (n) {
+      var s = n.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      rubyRe.lastIndex = 0;
+      while ((m = rubyRe.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        rubyParts(m[0], D[m[0]]).forEach(function (x) {
+          f.appendChild(x[1] ? el('ruby', null, [x[0], el('rt', { text: x[1] })]) : document.createTextNode(x[0]));
+        });
+        last = m.index + m[0].length;
+      }
+      if (!last) return;
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      n.parentNode.replaceChild(f, n);
+    });
+  }
+
   // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
   function whereText(w) {
     return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
@@ -1107,12 +1632,13 @@ window.EDUIT_INFO.jishu = {
       el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
     ]);
     var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var rb = Object.keys(rubyDict()).length ? el('button', { type: 'button', class: 'ef-btn ef-toggle ef-jishu-small', 'aria-pressed': String(jishuRubyOn()), text: 'ふりがな' }) : null;
     var body = el('div', { class: 'ef-jishu-body' });
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
-    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+    var panel = el('aside', { class: 'ef-jishu kz-norb no-ruby', 'data-noruby': '', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
-        close
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
+        rb, close
       ]),
       body
     ]);
@@ -1131,6 +1657,10 @@ window.EDUIT_INFO.jishu = {
       if (!where) return false;
       if (where.charAt(0) === '#') return true;
       try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    // 1つの手順に文が2つ以上あるときは、文ごとに行を分ける(読む人が、いまどこをしているか追いやすいように)
+    function lines(t) {
+      return String(t || '').replace(/。(?=[^」』）)])/g, '。\n').split('\n').map(function (x) { return el('span', { class: 'ef-jishu-line', text: x }); });
     }
     function stepEl(x, n) {
       var s = x.s;
@@ -1154,7 +1684,7 @@ window.EDUIT_INFO.jishu = {
           el('span', { class: 'ef-jishu-n', text: String(n) }),
           s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
         ]),
-        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        el('p', { class: 'ef-jishu-do' }, lines(s.do)),
         tools,
         hint || null,
         el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
@@ -1181,6 +1711,7 @@ window.EDUIT_INFO.jishu = {
         res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
         res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
         if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+        if (rb && jishuRubyOn()) jishuRuby(res);
       }
       paint();
       return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
@@ -1195,6 +1726,7 @@ window.EDUIT_INFO.jishu = {
       endBox.appendChild(el('p', { text: all
         ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
         : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+      if (rb && jishuRubyOn()) jishuRuby(endBox);
     }
     function render() {
       while (body.firstChild) body.removeChild(body.firstChild);
@@ -1202,7 +1734,7 @@ window.EDUIT_INFO.jishu = {
       var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
       var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
       body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
-        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        el('h3', { text: 'ねらい' }), el('p', null, lines(d.goal)),
         d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
       ]));
       body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
@@ -1220,6 +1752,7 @@ window.EDUIT_INFO.jishu = {
         ]);
         body.appendChild(det);
       }
+      if (rb && jishuRubyOn()) jishuRuby(body);
       document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
     }
     function show(on) {
@@ -1230,6 +1763,12 @@ window.EDUIT_INFO.jishu = {
     }
     fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
     close.addEventListener('click', function () { show(false); fab.focus(); });
+    if (rb) rb.addEventListener('click', function () {
+      var on = !jishuRubyOn();
+      try { localStorage.setItem(JS_RUBY, on ? 'on' : 'off'); } catch (e) {}
+      rb.setAttribute('aria-pressed', String(on));
+      render();
+    });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
     render();
     updateFab();

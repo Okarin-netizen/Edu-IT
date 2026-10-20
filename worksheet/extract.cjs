@@ -38,6 +38,6 @@ for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bi
     apps.push(Object.assign({ code, name: names[key][code] }, a));
   }
   apps.sort((a, b) => (parseInt(a.code.slice(1), 10) || 0) - (parseInt(b.code.slice(1), 10) || 0));  // A2 < A10(G・M・F・Z は番号なし)
-  out.push({ domain: key, domainName: I.domainName, version: I.version, lead: J.lead || "", apps });
+  out.push({ domain: key, domainName: I.domainName, version: I.version, lead: J.lead || "", ruby: J.ruby || {}, apps });
 }
 process.stdout.write(JSON.stringify(out));

@@ -6,7 +6,7 @@
 中身のもとは各分野の eduit-info.js の jishu(自習ガイドと同じ ねらい・進め方・たしかめ問題)。
 自習ガイドを直したら、これをもう一度実行する(クラスルーム配布/まとめる.py も実行する)。
 """
-import html, json, pathlib, subprocess
+import html, json, pathlib, re, subprocess
 
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent
@@ -37,6 +37,34 @@ def read(p):
     return p.read_text(encoding="utf-8")
 
 
+# ふりがな: 自習ガイドと同じ、各分野の eduit-info.js の jishu.ruby(shared/jishu-ruby.py で作る)。area_page が分野ごとに入れかえる
+RUBY = {"table": {}, "rx": None}
+KJ = re.compile(r"[一-鿿々〆]")
+
+
+def set_ruby(table):
+    RUBY["table"] = table
+    RUBY["rx"] = re.compile("|".join(map(re.escape, sorted(table, key=len, reverse=True)))) if table else None
+
+
+def r(s):
+    """文に <ruby> を付けて HTML にする(言葉の中のかなのところには付けない)"""
+    s = str(s)
+    if not RUBY["rx"]:
+        return e(s)
+    out, last = [], 0
+    for m in RUBY["rx"].finditer(s):
+        out.append(e(s[last:m.start()]))
+        k, rd = m.group(0), RUBY["table"][m.group(0)]
+        parts = re.findall(r"[一-鿿々〆]+|[^一-鿿々〆]+", k)
+        mm = re.fullmatch("".join("(.+?)" if KJ.match(p) else "(" + re.escape(p) + ")" for p in parts), rd)
+        pairs = [(p, mm.group(i + 1) if KJ.match(p) else None) for i, p in enumerate(parts)] if mm else [(k, rd)]
+        out.append("".join(f"<ruby>{e(p)}<rt>{e(x)}</rt></ruby>" if x else e(p) for p, x in pairs))
+        last = m.end()
+    out.append(e(s[last:]))
+    return "".join(out)
+
+
 def is_submit(s):
     """記録を書き出して出すだけの手順(書く欄はいらない)"""
     return not s.get("reflect") and any(w in s.get("do", "") for w in ("ファイル", "先生の言"))
@@ -59,8 +87,8 @@ def step_li(i, s):
         tail = ""
         body = box(f"s{i}", f"{where} でわかったこと", "結果・わかったこと・気づいたこと", 2)
     return (f'<li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c{i}"><span class="ws-chk-mark" aria-hidden="true"></span>'
-            f'<span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">{e(where)}</span>{tail} '
-            f'{e(s.get("do", ""))}</p>{body}</div></li>')
+            f'<span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">{r(where)}</span>{tail} '
+            f'{r(s.get("do", ""))}</p>{body}</div></li>')
 
 
 def sheet(d, a):
@@ -75,8 +103,8 @@ def sheet(d, a):
     qs = []
     for qi, q in enumerate(a.get("check") or []):
         ch = "".join(f'<label class="ws-choice"><input type="radio" name="{c}-q{qi}" value="{ci}" data-k="q{qi}">'
-                     f'<span class="ws-kana">{KANA[ci]}</span>{e(t)}</label>' for ci, t in enumerate(q["choices"]))
-        qs.append(f'<li class="ws-q"><p>{e(q["q"])}</p><div class="ws-choices">{ch}</div></li>')
+                     f'<span class="ws-kana">{KANA[ci]}</span>{r(t)}</label>' for ci, t in enumerate(q["choices"]))
+        qs.append(f'<li class="ws-q"><p>{r(q["q"])}</p><div class="ws-choices">{ch}</div></li>')
     rate = [("r0", "ねらいが分かった"), ("r1", "自習ガイドを見ながら、自分で進められた"), ("r2", "たしかめ問題の答えの理由が言える")]
     rows = "".join(f'<tr><th scope="row">{t}</th>' + "".join(
         f'<td><label><input type="radio" name="{c}-{k}" value="{v}" data-k="{k}"><span>{v}</span></label></td>' for v in "◎○△") + "</tr>"
@@ -101,7 +129,7 @@ def sheet(d, a):
 <h2 id="{c}-h"><span class="ws-code">{c}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
-<p class="ws-goal"><b>ねらい</b>{e(a.get("goal", ""))}<span class="ws-time">目安 {e(a.get("time", ""))}</span></p>
+<p class="ws-goal"><b>ねらい</b>{r(a.get("goal", ""))}<span class="ws-time">目安 {r(a.get("time", ""))}</span></p>
 <p class="ws-how">{how}右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
 {"".join(parts)}
 </section>'''
@@ -178,6 +206,8 @@ STYLE = r"""
   .ws-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 10px; }
   .ws-lbl { margin: 0; font-size: 14px; font-weight: 600; }
   .ws-saved { font-size: 13px; color: var(--ef-muted); }
+  .ws rt { font-size: .55em; font-weight: 400; }
+  .ws-noruby .ws rt { display: none; }
   @media (max-width: 640px) {
     .ws-pick { flex-wrap: nowrap; overflow-x: auto; }
     .ws-pick-all { margin-left: 0; }
@@ -214,6 +244,12 @@ SCRIPT = r"""
     try { var v = JSON.parse(localStorage.getItem(k) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch (e) { return {}; }
   }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  // ふりがな(はじめは付いている。この端末で覚える)
+  var RB = 'eduit.ws.ruby', rb = document.getElementById('ws-ruby');
+  function rubyOn() { try { return localStorage.getItem(RB) !== 'off'; } catch (e) { return true; } }
+  function rubyShow() { var on = rubyOn(); document.body.classList.toggle('ws-noruby', !on); rb.setAttribute('aria-pressed', String(on)); }
+  rb.addEventListener('click', function () { try { localStorage.setItem(RB, rubyOn() ? 'off' : 'on'); } catch (e) {} rubyShow(); });
+  rubyShow();
   var sheets = Array.prototype.slice.call(document.querySelectorAll('.ws'));
   var who = load(WHO);
   sheets.forEach(function (ws) {
@@ -285,7 +321,9 @@ SCRIPT = r"""
 def area_page(d):
     k = d["domain"]
     pick = "".join(f'<button type="button" class="ef-btn" role="tab" data-code="{a["code"]}" aria-controls="{a["code"]}" title="{e(a["name"])}">{a["code"]}</button>' for a in d["apps"])
+    set_ruby(d.get("ruby") or {})
     sheets = "\n".join(sheet(d, a) for a in d["apps"])
+    set_ruby({})
     return f'''<!doctype html>
 <html lang="ja" data-ef-domain="{k}">
 <head>
@@ -303,6 +341,7 @@ def area_page(d):
 <header class="ef-header">
 {SITE_HOME}<h1 class="ef-title"><span class="ef-code">{k}</span> {e(d["domainName"])} 自習ワークシート</h1>
 <div class="ef-tools">
+<button type="button" class="ef-btn ef-toggle" id="ws-ruby" aria-pressed="true">ふりがな</button>
 <a class="ef-btn" id="ws-open" href="../自習用/{UNIFIED[k]}" target="_blank" rel="noopener">教材をひらく(自習モード)</a>
 <button type="button" class="ef-btn" id="ws-print">印刷</button>
 </div>

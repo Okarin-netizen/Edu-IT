@@ -73,6 +73,9 @@
   `goal`(ねらい)・`time`(時間の目安)・`steps`(`where` 画面のタブの名前 / `do` やること / `hint` ヒント / `go` 「この場所へ」の行き先: `#` で始まれば location.hash、ほかは click する CSS セレクタ / `level: 'advanced'` 発展にまとめる / `reflect: true` 振り返りを隠す設定のとき出さない)・`check`(`q`・`choices`・`answer` 0からの正解の番号・`explain`)。
   `where` は `levels` の `parts` と同じ番号・名前にそろえる。タブの名前やセレクタを変えたら、ここも直す。
 - できた印と答えは localStorage `eduit.jishu.v1.<記号>`(書き出すファイルには入らない)。
+- ふりがな: パネルの文には、`EDUIT_INFO.jishu.ruby`(言葉 → 読み)で長い言葉から順にふりがなを付ける(言葉の中のかなには付けない)。パネルの「ふりがな」ボタンで消せる(はじめは付いている。localStorage `eduit.jishu.ruby`)。教材のふりがなのオン・オフとは別。
+  `jishu.ruby` は `python3 shared/jishu-ruby.py` が形態素解析(Sudachi。`python3 -m pip install sudachipy sudachidict_core`)で作り、各 `eduit-info.js` のいちばん下に書きこむ。**jishu の文を直したら実行しなおす**(読みのまちがいは、そのスクリプトの `OVERRIDES`・`ACCEPT` で直す)。自習ワークシートも同じ表を使う。
+- 文の書き方: 1つの手順に文が2つ以上あると、パネルでは文ごとに行を分ける。読むのが苦手な生徒のために、1つの文は短く(50字くらいまで)、1つの文でしてほしいことは1つにする。
 - `クラスルーム配布/まとめる.py` は、`<head>` のすぐあとに `window.EDUIT_JISHU = 'on'` を入れた版を `生徒に配る/自習用/` に作る。生徒用サイトの入口ページには自習モードの切りかえボタンがある。
 
 ## 基本編・発展編のタブ(メニュー用)

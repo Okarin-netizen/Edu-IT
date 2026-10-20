@@ -475,6 +475,40 @@
     return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
   }
 
+  // 自習ガイドのふりがな: EDUIT_INFO.jishu.ruby(言葉 → 読み。shared/jishu-ruby.py で作る)の言葉に、長いものから順に付ける。
+  // ガイドの上の「ふりがな」で消せる(はじめは付いている。その端末で覚える)
+  var JS_RUBY = 'eduit.jishu.ruby', KJ = /[一-鿿々〆]/, rubyRe = null;
+  function jishuRubyOn() { try { return localStorage.getItem(JS_RUBY) !== 'off'; } catch (e) { return true; } }
+  function rubyDict() { var J = (window.EDUIT_INFO || info).jishu; return (J && J.ruby) || {}; }
+  // 言葉の中のかなのところには付けない(「下げる」→ 下(さ)げる)。読みと合わないときは、言葉ぜんぶに付ける
+  function rubyParts(k, r) {
+    var parts = k.match(/[一-鿿々〆]+|[^一-鿿々〆]+/g);
+    var m = new RegExp('^' + parts.map(function (p) { return KJ.test(p) ? '(.+?)' : '(' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')'; }).join('') + '$').exec(r);
+    if (!m) return [[k, r]];
+    return parts.map(function (p, i) { return [p, KJ.test(p) ? m[i + 1] : null]; });
+  }
+  function jishuRuby(node) {
+    var D = rubyDict(), keys = Object.keys(D);
+    if (!keys.length) return;
+    if (!rubyRe) rubyRe = new RegExp(keys.sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null), list = [];
+    while (w.nextNode()) if (KJ.test(w.currentNode.nodeValue) && !w.currentNode.parentNode.closest('ruby, rt, script, style')) list.push(w.currentNode);
+    list.forEach(function (n) {
+      var s = n.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      rubyRe.lastIndex = 0;
+      while ((m = rubyRe.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        rubyParts(m[0], D[m[0]]).forEach(function (x) {
+          f.appendChild(x[1] ? el('ruby', null, [x[0], el('rt', { text: x[1] })]) : document.createTextNode(x[0]));
+        });
+        last = m.index + m[0].length;
+      }
+      if (!last) return;
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      n.parentNode.replaceChild(f, n);
+    });
+  }
+
   // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
   function whereText(w) {
     return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
@@ -493,12 +527,13 @@
       el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
     ]);
     var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var rb = Object.keys(rubyDict()).length ? el('button', { type: 'button', class: 'ef-btn ef-toggle ef-jishu-small', 'aria-pressed': String(jishuRubyOn()), text: 'ふりがな' }) : null;
     var body = el('div', { class: 'ef-jishu-body' });
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
-    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+    var panel = el('aside', { class: 'ef-jishu kz-norb no-ruby', 'data-noruby': '', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
         el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
-        close
+        rb, close
       ]),
       body
     ]);
@@ -517,6 +552,10 @@
       if (!where) return false;
       if (where.charAt(0) === '#') return true;
       try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    // 1つの手順に文が2つ以上あるときは、文ごとに行を分ける(読む人が、いまどこをしているか追いやすいように)
+    function lines(t) {
+      return String(t || '').replace(/。(?=[^」』）)])/g, '。\n').split('\n').map(function (x) { return el('span', { class: 'ef-jishu-line', text: x }); });
     }
     function stepEl(x, n) {
       var s = x.s;
@@ -540,7 +579,7 @@
           el('span', { class: 'ef-jishu-n', text: String(n) }),
           s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
         ]),
-        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        el('p', { class: 'ef-jishu-do' }, lines(s.do)),
         tools,
         hint || null,
         el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
@@ -567,6 +606,7 @@
         res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
         res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
         if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+        if (rb && jishuRubyOn()) jishuRuby(res);
       }
       paint();
       return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
@@ -581,6 +621,7 @@
       endBox.appendChild(el('p', { text: all
         ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
         : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+      if (rb && jishuRubyOn()) jishuRuby(endBox);
     }
     function render() {
       while (body.firstChild) body.removeChild(body.firstChild);
@@ -588,7 +629,7 @@
       var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
       var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
       body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
-        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        el('h3', { text: 'ねらい' }), el('p', null, lines(d.goal)),
         d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
       ]));
       body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
@@ -606,6 +647,7 @@
         ]);
         body.appendChild(det);
       }
+      if (rb && jishuRubyOn()) jishuRuby(body);
       document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
     }
     function show(on) {
@@ -616,6 +658,12 @@
     }
     fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
     close.addEventListener('click', function () { show(false); fab.focus(); });
+    if (rb) rb.addEventListener('click', function () {
+      var on = !jishuRubyOn();
+      try { localStorage.setItem(JS_RUBY, on ? 'on' : 'off'); } catch (e) {}
+      rb.setAttribute('aria-pressed', String(on));
+      render();
+    });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
     render();
     updateFab();
