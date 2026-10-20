@@ -17,7 +17,7 @@ export const pageText = (server) => `${server.name}へようこそ！今日の�
 export const flowModule = {
   id: ID,
   minutes: "15分",
-  lead: "ブラウザにサイトの名前を入れてからWebページが表示されるまでに、ネットワークの中では何が起きているのでしょう。DNSへの問い合わせ、パケットへの分割、ルータによる中継、組み立てを順番に見てみよう。",
+  lead: "ブラウザにサイトの名前を入れると、Webページが表示されます。そのあいだ、ネットワークの中では何が起きているのでしょう。DNSへの問い合わせ、パケットへの分割、ルータの中継、組み立てを順番に見てみよう。",
   steps: STEPS,
   render(root) {
     const cards = STEPS.map((s, i) => stepCard(ID, s, i));
@@ -138,13 +138,13 @@ export const flowModule = {
 
         // パケットに分けて送る
         const packets = splitIntoPackets(pageText(server), 8, { from: server.ip, to: client.ip });
-        const li5 = say(`⑤ Webサーバは、ページを <strong>${packets.length}個のパケット</strong> に分けて送り返します。一つ一つに「宛先」「送信元」「番号」が付いています（パケットについている、こうした情報を<strong>ヘッダ</strong>といいます）。`);
+        const li5 = say(`⑤ Webサーバは、ページを <strong>${packets.length}個のパケット</strong> に分けて送り返します。一つ一つに「宛先」「送信元」「番号」が付いています。こうした情報を<strong>ヘッダ</strong>といいます。`);
         const rows = packets.map((p) => h("tr", { "data-seq": p.seq }, h("td", {}, `${p.seq}/${p.total}`), h("td", { class: "mono" }, p.to), h("td", { class: "mono" }, p.from), h("td", {}, p.data), h("td", { class: "arrive" }, "…")));
         const packetBox = h("div", { class: "packet-box" });
         li5.append(packetBox);
         packetBox.replaceChildren(h("div", { class: "table-wrap" }, h("table", { class: "data packets-table" }, h("caption", { class: "hint" }, "送られるパケット"), h("thead", {}, h("tr", {}, h("th", {}, "番号"), h("th", {}, "宛先IP"), h("th", {}, "送信元IP"), h("th", {}, "中身"), h("th", {}, "とう着"))), h("tbody", {}, rows))),
           h("p", { class: "hint packets-note" }, "※ しくみを見やすくするため、ここでは暗号化しないで送っています。暗号化するとどうなるかは「④ のぞき見と暗号化」で比べます。"),
-          h("p", { class: "hint packets-note" }, "※ 192.168.… のような家の中の番号は、そのままではインターネットに出られません。ほんとうは、家のルータが、外に出るときに自分の番号に付けかえています（NAT）。"),
+          h("p", { class: "hint packets-note" }, "※ 192.168.… のような家の中の番号は、そのままではインターネットに出られません。じつは、家のルータが、外に出るときに自分の番号に付けかえています（NAT）。"),
         );
         split.scrollSideToEnd();
         await gate();
@@ -196,25 +196,25 @@ export const flowModule = {
       ...(!clients.length || !servers.length ? [explainCard("たりない機器", "「ネットワークを組み立てる」で、パソコンかスマホとWebサーバを置こう。", "warn")] : []),
       explainCard(
         "プロトコル（通信の約束ごと）",
-        "ネットワークでは、送る側と受け取る側が、同じ<strong>約束ごと</strong>を守って通信します。この約束ごとを<strong>プロトコル</strong>といいます。Webページのやりとりには <strong>HTTP</strong>（暗号化するときは <strong>HTTPS</strong>）というプロトコルを使います。「GET」は、HTTPで「ページをください」とたのむときの言葉です。パケットをIPアドレスで相手に届けるきまり（<strong>IP</strong>）も、プロトコルの1つです。",
+        "ネットワークでは、送る側と受け取る側が、同じ<strong>約束ごと</strong>を守って通信します。この約束ごとを<strong>プロトコル</strong>といいます。Webページのやりとりには、<strong>HTTP</strong> というプロトコルを使います。暗号化するときは <strong>HTTPS</strong> です。「GET」は、HTTPで「ページをください」とたのむときの言葉です。パケットをIPアドレスで相手に届けるきまり（<strong>IP</strong>）も、プロトコルの1つです。",
       ),
     );
 
     cards[1].body.append(
-      explainCard("DNSは電話帳", "人は <code>kumo-store.example</code> のような<strong>名前</strong>で覚えますが、機器どうしは <strong>IPアドレス</strong>（数字）で相手を見分けます。名前からIPアドレスを調べるのがDNSサーバのしごとです。"),
+      explainCard("DNSは電話帳", "人は <code>kumo-store.example</code> のような<strong>名前</strong>で覚えます。でも機器どうしは、<strong>IPアドレス</strong>（数字）で相手を見分けます。名前からIPアドレスを調べるのがDNSサーバのしごとです。"),
       choiceQuiz(
         {
           question: "DNSサーバが止まってしまったら、どうなる？",
           choices: ["サイトの名前からIPアドレスを調べられず、名前ではページを開けなくなる", "回線がすべて切れる", "パソコンの電源が切れる", "ページの文字が暗号化される"],
           answer: 0,
-          explain: "ネットワークがつながっていても、名前からIPアドレスがわからないと相手に送れません。「回線が切れたら？」でDNSサーバを止めて試せます。",
+          explain: "ネットワークがつながっていても、送れません。名前からIPアドレスがわからないからです。「回線が切れたら？」でDNSサーバを止めて試せます。",
         },
         () => cards[1].done(),
         { retry: true },
       ),
     );
     cards[2].body.append(
-      explainCard("パケット通信", "データを小さなパケットに分けると、<strong>1本の回線をたくさんの人で分け合える</strong>うえ、こわれたパケットだけを送り直したり、混んでいない道を通したりできます。番号が付いているので、ばらばらの順に届いても組み立てられます。"),
+      explainCard("パケット通信", "データを小さなパケットに分けると、<strong>1本の回線をたくさんの人で分け合えます</strong>。こわれたパケットだけを送り直すこともできます。混んでいない道を通すこともできます。番号が付いているので、ばらばらの順に届いても組み立てられます。"),
       choiceQuiz(
         {
           question: "パケットに「番号」が付いているのはなぜ？",

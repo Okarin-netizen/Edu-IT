@@ -79,7 +79,7 @@ export const faultModule = {
       const lack = [];
       if (!clients().length) lack.push("パソコンかスマホ");
       if (!targets().length) lack.push("Webサーバ（またはDNSサーバ）");
-      return lack.length ? `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。` : "";
+      return lack.length ? `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう。「はじめの形にもどす」でもかまいません。` : "";
     };
     const missingCard = () => explainCard("たりない機器", missingText(), "warn");
 
@@ -127,8 +127,8 @@ export const faultModule = {
     dnsBtn.addEventListener("click", () => {
       const from = nodeById(net, fromSel.value);
       const server = net.nodes.find((n) => n.type === "server" && n.host);
-      if (!from) return dnsResult.replaceChildren(explainCard("たりない機器", "パソコンかスマホがありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。", "warn"));
-      if (!server) return dnsResult.replaceChildren(explainCard("たりない機器", "Webサーバがありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。", "warn"));
+      if (!from) return dnsResult.replaceChildren(explainCard("たりない機器", "パソコンかスマホがありません。「ネットワークを組み立てる」で置いて、線でつなごう。「はじめの形にもどす」でもかまいません。", "warn"));
+      if (!server) return dnsResult.replaceChildren(explainCard("たりない機器", "Webサーバがありません。「ネットワークを組み立てる」で置いて、線でつなごう。「はじめの形にもどす」でもかまいません。", "warn"));
       const r = resolveName(net, from.id, server.host);
       const direct = shortestPath(net, from.id, server.id);
       if (r.ok) {
@@ -167,16 +167,16 @@ export const faultModule = {
     );
     cards[1].body.append(
       h("p", {}, "今度は、わざと届かない状態を作ってみよう。どこを切ると届かなくなる？　何か所こわすと届かなくなる？"),
-      explainCard("ポイント", "道が1本しかないところ（たとえば家のパソコンと家のルータの間）が切れると、ほかに回り道がないので届かなくなります。大事なところは道を2本以上にしておく（<strong>冗長化</strong>）のが、こわれにくいネットワークの工夫です。"),
+      explainCard("ポイント", "道が1本しかないところが切れると、回り道がないので届きません。たとえば、家のパソコンと家のルータの間です。大事なところは、道を2本以上にしておきます（<strong>冗長化</strong>）。こわれにくいネットワークの工夫です。"),
     );
-    cards[2].body.append(h("p", {}, "DNSサーバを止めて（図のDNSサーバを押す）、名前でWebページを開いてみよう。Webサーバまでの道がつながっていても開ける？"), h("div", { class: "btn-row" }, dnsBtn), dnsResult);
+    cards[2].body.append(h("p", {}, "DNSサーバを止めよう（図のDNSサーバを押す）。そして、名前でWebページを開いてみよう。Webサーバまでの道がつながっていても開ける？"), h("div", { class: "btn-row" }, dnsBtn), dnsResult);
     cards[3].body.append(
       choiceQuiz(
         {
           question: "ルータAが止まったのに、Webページがちゃんと表示された。いちばんの理由は？",
           choices: ["ほかのルータを通る別の道があり、パケットがその道を通ったから", "ルータは止まってもパケットを通すから", "Webページはパケットを使わないから", "DNSサーバがページを送ってくれたから"],
           answer: 0,
-          explain: "ネットワークは網の目のようにつながっているので、一部がこわれても別の経路で届けられます。全部の道がとぎれると「到達できない」になります。",
+          explain: "ネットワークは、網の目のようにつながっています。だから、一部がこわれても別の経路で届けられます。全部の道がとぎれると「到達できない」になります。",
         },
         () => cards[3].done(),
         { retry: true },

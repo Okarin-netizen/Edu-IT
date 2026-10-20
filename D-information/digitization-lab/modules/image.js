@@ -245,7 +245,7 @@ export const imageModule = {
           h("div", {}, `1画素: ${mode.bits}ビット → ${fmt(colorCount(mode))}通りの色`),
           h("div", {}, "データ量: ", h("strong", { class: "big-number" }, formatBits(bits))),
           h("div", { class: "math-line" }, `${fmt(n * n)} × ${mode.bits} ＝ ${unitSteps(bits).join("　")}`),
-          h("div", { class: "hint unit-rule" }, "単位: 8ビット ＝ 1バイト、1024バイト ＝ 1KB、1024KB ＝ 1MB（このラボでは 1KB ＝ 1024バイトで計算します）"),
+          h("div", { class: "hint unit-rule" }, "単位: 8ビット ＝ 1バイト、1024バイト ＝ 1KB、1024KB ＝ 1MB（このラボは 1KB ＝ 1024バイト）"),
         );
       };
       const onMove = (k) => {
@@ -291,13 +291,13 @@ export const imageModule = {
       };
 
       c.body.append(
-        h("p", {}, "画素の数を減らすとき（標本化を粗くする）と、色の段階を減らすとき（量子化を粗くする）で、見た目とデータ量はどう変わるかな？ 白黒 → グレー → カラーの順に、色の表し方も変えてみよう。"),
+        h("p", {}, "画素の数を減らす（標本化を粗くする）と、どう変わるかな？ 色の段階を減らす（量子化を粗くする）と、どうかな？ 見た目とデータ量をくらべよう。白黒 → グレー → カラーの順に、色の表し方も変えてみよう。"),
         srcButtons,
         fileInput,
-        h("div", { class: "field-row digital-row" }, h("div", {}, canvas), h("div", {}, res.el, modeSel.el, h("p", { class: "hint mode-note" }, "注意：「グレー256段階」（1画素8ビット）から「カラー8色」（1画素3ビット）に進むと、データ量は減ります。データ量を決めるのは、白黒・グレー・カラーのちがいではなく、1画素のビット数です。"), info)),
+        h("div", { class: "field-row digital-row" }, h("div", {}, canvas), h("div", {}, res.el, modeSel.el, h("p", { class: "hint mode-note" }, "注意：「グレー256段階」は1画素8ビット、「カラー8色」は1画素3ビットです。だから、カラー8色に進むとデータ量は減ります。データ量を決めるのは、色の種類ではなく1画素のビット数です。"), info)),
         h("div", { class: "btn-row" }, h("button", { class: "btn small secondary", type: "button", onclick: addCompare }, "＋ この設定をくらべる表に入れる")),
         h("div", { class: "table-wrap" }, h("table", { class: "data compare" }, h("thead", {}, h("tr", {}, h("th", {}, "見た目"), h("th", {}, "画素の数"), h("th", {}, "色"), h("th", {}, "データ量"))), compareBody)),
-        explainCard("わかったこと", "画素の数が多いほど（解像度が高いほど）細かく表せ、色の段階が多いほど（階調が多いほど）なめらかに表せます。どちらもデータ量が増えます。横と縦を2倍にするとデータ量は4倍、1画素のビット数を2倍にするとデータ量も2倍です。"),
+        explainCard("わかったこと", "画素の数が多い（解像度が高い）ほど、細かく表せます。色の段階が多い（階調が多い）ほど、なめらかに表せます。どちらもデータ量が増えます。横と縦を2倍にすると、データ量は4倍です。1画素のビット数を2倍にすると、データ量も2倍です。"),
         h("p", { class: "hint" }, "※自分の写真は、この画面の中で計算に使うだけです。保存も送信もせず、ほかのページに移ると消えます。人の写真を使うときは、写っている人の許可を取ろう。"),
       );
       setSrc("landscape");
@@ -338,7 +338,7 @@ export const imageModule = {
           h("div", {}, `G ${String(g).padStart(3)} → ${toBinary(g, 8)}`),
           h("div", {}, `B ${String(b).padStart(3)} → ${toBinary(b, 8)}`),
           h("div", { class: "hint" }, `合わせて24ビット　カラーコード #${hex(r)}${hex(g)}${hex(b)}`),
-          h("div", { class: "hint wrap-note" }, "カラーコードは、ウェブページの色の書き方です（16進数という数の表し方を使います）。"),
+          h("div", { class: "hint wrap-note" }, "カラーコードは、ウェブページの色の書き方です。16進数という数の表し方を使います。"),
         );
         for (const gl of goals) if (gl.test(val)) hit.add(gl.name);
         goalList.replaceChildren(...goals.map((gl) => h("li", { class: hit.has(gl.name) ? "done" : "" }, hit.has(gl.name) ? "✓ " : "□ ", gl.name)));
@@ -362,7 +362,7 @@ export const imageModule = {
       };
       c.body.append(
         choiceQuiz({ question: "画像の横と縦の画素の数を、それぞれ2倍にしました。データ量は何倍になる？", choices: ["4倍", "2倍", "8倍"], answer: 0, explain: "画素の数は 横 × 縦 なので、2 × 2 ＝ 4倍。データ量も4倍になります。" }, () => mark(1)),
-        choiceQuiz({ question: "グレー16段階の画像を、グレー256段階にしました。1画素のビット数は？", choices: ["4ビット → 8ビット", "16ビット → 256ビット", "1ビット → 2ビット"], answer: 0, explain: "16段階は 2⁴（2×2×2×2）なので4ビット、256段階は 2⁸（2を8回かける）なので8ビット。データ量は2倍になります。" }, () => mark(2)),
+        choiceQuiz({ question: "グレー16段階の画像を、グレー256段階にしました。1画素のビット数は？", choices: ["4ビット → 8ビット", "16ビット → 256ビット", "1ビット → 2ビット"], answer: 0, explain: "16段階は 2⁴（2×2×2×2）なので4ビット。256段階は 2⁸（2を8回かける）なので8ビット。データ量は2倍になります。" }, () => mark(2)),
         choiceQuiz({ question: "横100 × 縦100画素・フルカラー（24ビット）の画像のデータ量は？", choices: ["30,000バイト", ...pickAround(["3,750バイト", "10,000バイト"], ["240,000バイト", "1,920,000バイト"])], answer: 0, explain: "100 × 100 × 24 ＝ 240,000ビット。8でわって 30,000バイト。さらに1024でわると、約29KBです。" }, () => mark(3)),
       );
     }

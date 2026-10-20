@@ -26,7 +26,7 @@
   var api = {
     list: list,
     kinds: { wood: '木材', metal: '金属', plastic: 'プラスチック' },
-    source: '一般的な文献値(木材工業の便覧、理科年表、材料メーカーの公開資料など)を丸めた目安値です。',
+    source: '一般的な文献値を丸めた目安値です。もとは木材工業の便覧、理科年表、材料メーカーの公開資料などです。',
     get: function (id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; },
     byKind: function (k) { return list.filter(function (m) { return m.kind === k; }); }
   };

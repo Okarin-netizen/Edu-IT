@@ -93,7 +93,7 @@ function asNumber(v, what, line) {
 
 function asBool(v, where, line) {
   if (typeof v === "boolean") return v;
-  throw new RunError(`${where}の条件が「${short(v)}」になっています。条件は score > 3 や answer == "はい" のように、正しいか正しくないか（true か false）が決まる式にしましょう。`, line);
+  throw new RunError(`${where}の条件が「${short(v)}」になっています。条件は、正しいか正しくないか（true か false）が決まる式にしましょう（例: score > 3、answer == "はい"）。`, line);
 }
 
 function checkString(s, line) {

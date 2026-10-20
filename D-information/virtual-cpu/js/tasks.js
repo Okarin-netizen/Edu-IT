@@ -57,7 +57,7 @@ export function renderTaskList(view, { tasks }) {
         h("div", { class: "module-grid" }, list.map(card)),
       ];
     }),
-    h("p", { class: "hint concept-note" }, "考え方: 「順次」は上から順に1つずつ、「反復」はくり返し、「分岐」は条件によって進む道を変えることです（教科書の「順次・分岐・反復」）。"),
+    h("p", { class: "hint concept-note" }, "考え方: 「順次」は、上から順に1つずつ進むことです。「反復」は、くり返すことです。「分岐」は、条件によって進む道を変えることです。"),
     h("p", { class: "hint next-guide" }, "課題を上から順にやろう。課題1〜4（必修）が終わったら（先生に言われたところまで）、", h("span", REFLECT_ATTR, "下のふりかえりを書いて、"), "記録を書き出そう。"),
     h("div", { class: "btn-row next-link" }, h("a", { class: "btn", href: "#/records" }, `次: ${recordsTitle()}へ →`)),
   );
@@ -96,7 +96,7 @@ export function renderTask(view, { tasks, isa }, id) {
     const r = checkProgram(sim.source, task, isa);
     resultBox.replaceChildren();
     if (r.assembleErrors.length) {
-      resultBox.append(explain("まだ答え合わせできません", "プログラムの書きまちがいを先に直そう（プログラム欄の下の赤い枠に、何行目がおかしいか出ています）。", "bad"));
+      resultBox.append(explain("まだ答え合わせできません", "プログラムの書きまちがいを先に直そう。プログラム欄の下の赤い枠に、何行目がおかしいか出ています。", "bad"));
       // 赤い枠が見えるところまで動かす
       sim.el.querySelector(".asm-errors")?.scrollIntoView?.({ block: "center", behavior: "smooth" });
       return;
@@ -135,7 +135,7 @@ export function renderTask(view, { tasks, isa }, id) {
       }
     } else {
       const tooFew = r.results.some((x) => x.tooFew);
-      const advice = tooFew ? "答えは合っていますが、答えを直接書くのではなく、くり返しを使ってコンピュータに計算させよう。" : "× の行の「この入力でためす」を押して、「1命令すすむ」で、どこで思った動きとちがうか確かめよう。";
+      const advice = tooFew ? "答えは合っています。でも、答えを直接書いてはいけません。くり返しを使って、コンピュータに計算させよう。" : "× の行の「この入力でためす」を押そう。次に「1命令すすむ」で進めて、思った動きとちがうところを確かめよう。";
       const notes = tooFew ? [] : r.notes || [];
       resultBox.append(explain("もう少し", notes.length ? h("div", {}, h("p", {}, advice), h("ul", {}, notes.map((n) => h("li", {}, `${n.line}行目: ${n.message}`)))) : advice, "warn"));
     }
@@ -148,7 +148,7 @@ export function renderTask(view, { tasks, isa }, id) {
     "details",
     { class: "answer", hidden: true },
     h("summary", {}, "答えの例を見る"),
-    h("p", { class: "answer-note" }, "答えの例を見たことは、記録に残ります。見ただけで終わりにせず、なぜこう書くのかを考えながら、自分でプログラム欄に打ちこもう。"),
+    h("p", { class: "answer-note" }, "答えの例を見たことは、記録に残ります。見ただけで終わりにしないでね。なぜこう書くのかを考えて、自分でプログラム欄に打ちこもう。"),
     h("pre", { class: "code-block" }, task.answer),
   );
   answerBox.addEventListener("toggle", () => {

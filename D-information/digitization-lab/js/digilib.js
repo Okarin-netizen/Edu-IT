@@ -440,7 +440,7 @@ function drillVideo(rand) {
   const bits = videoBits(w, hgt, 24, fps, sec);
   const unit = bestUnit(bits);
   return {
-    question: `横${fmtInt(w)} × 縦${fmtInt(hgt)}画素・フルカラー（24ビット）の画像を、1秒に${fps}枚 切りかえる動画を ${sec}秒。圧縮しない（音なし）ときのデータ量は？`,
+    question: `横${fmtInt(w)} × 縦${fmtInt(hgt)}画素・フルカラー（24ビット）の動画。1秒に${fps}枚 切りかえて、${sec}秒。圧縮しない（音なし）ときのデータ量は？`,
     ...amountChoices(rand, bits, unit, [bits / fps, bits / sec, bits / 3, bits / 8, bits / 1024, bits / 10, bits * 8, bits * 1024, bits * 10, bits * fps, bits * 2]),
     explain: [`${fmtInt(w)} × ${fmtInt(hgt)} × 24 × ${fps} × ${sec} ＝ ${fmtInt(bits)}ビット`, ...unitSteps(bits).slice(1)].join("　"),
   };

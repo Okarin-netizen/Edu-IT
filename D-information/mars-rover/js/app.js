@@ -65,7 +65,7 @@ function renderHome() {
     );
   });
   const kadaiId = "kadai-text";
-  const kadai = h("textarea", { id: kadaiId, maxlength: "300", rows: "3", placeholder: "例: 人が直接行けない火星の地面を、障害物を自動でよけながら走って調査するロボットを開発する。" });
+  const kadai = h("textarea", { id: kadaiId, maxlength: "300", rows: "3", placeholder: "例: 人が行けない火星の地面を調査するロボットを開発する。障害物は自動でよけて走る。" });
   kadai.value = store.state.kadai || "";
   const kadaiNote = h("div", { class: "saved-note", "aria-live": "polite" });
   attachAutosave(kadai, (t) => store.setKadai(t.trim()), { onSaved: () => (kadaiNote.textContent = AUTOSAVE_DONE) });
@@ -74,7 +74,7 @@ function renderHome() {
       "section",
       { class: "card hero" },
       h("h1", {}, "火星探査ロボット・シミュレータ"),
-      h("p", { class: "lead" }, "未知の場所への調査ロボットを開発しよう。上から見た火星のフィールドを、自分で設計したロボットが、自分で作ったプログラムで走ります。距離センサで岩をよけ、色センサで線をたどり、サンプルを集めて基地をめざそう。"),
+      h("p", { class: "lead" }, "未知の場所への調査ロボットを開発しよう。火星のフィールドを、上から見ています。自分で設計したロボットが、自分で作ったプログラムで走ります。距離センサで岩をよけ、色センサで線をたどり、サンプルを集めて基地をめざそう。"),
       h(
         "div",
         { class: "io-flow", role: "img", "aria-label": "センサ から コンピュータ から モーター" },
@@ -112,11 +112,11 @@ function renderHome() {
       h(
         "ol",
         { class: "how-to" },
-        h("li", {}, h("strong", {}, "ロボットを設計する"), "：距離センサをどこに付けるか、色センサを付けるか、モーターの速さをどうするかをえらぶ。部品の費用も出ます。"),
-        h("li", {}, h("strong", {}, "プログラムを作る"), "：ブロックを「① 入れたい場所の「＋ ここに入れる」を押す → ② 命令のボタンを押す」の順で入れます。計測・制御シミュレータ（D7）と同じ使い方です。フローチャートでも見られます。"),
-        h("li", {}, h("strong", {}, "走らせて確かめる"), "：▶ 実行・⏸ 一時停止・⏭ 1ステップで、ロボットの動きとセンサの値を見ながらデバッグします。"),
+        h("li", {}, h("strong", {}, "ロボットを設計する"), "：距離センサを付ける場所、色センサを付けるか、モーターの速さをえらぶ。部品の費用も出ます。"),
+        h("li", {}, h("strong", {}, "プログラムを作る"), "：まず、入れたい場所の「＋ ここに入れる」を押します。次に、命令のボタンを押すと、ブロックが入ります。計測・制御シミュレータ（D7）と同じ使い方です。フローチャートでも見られます。"),
+        h("li", {}, h("strong", {}, "走らせて確かめる"), "：▶ 実行・⏸ 一時停止・⏭ 1ステップで動かします。ロボットの動きとセンサの値を見ながら、デバッグします。"),
         h("li", {}, h("strong", {}, "テストする"), "：岩の場所や谷の形がちがういくつかのケースで、合格か不合格かを自動で調べます。"),
-        h("li", {}, h("strong", {}, "評価する"), `：「${T_EVAL}」で、レーダーチャートを使って自分のロボットを評価し、改善を考えます。`),
+        h("li", {}, h("strong", {}, "評価する"), `：「${T_EVAL}」で、レーダーチャートを使って自分のロボットを評価します。そして、改善を考えます。`),
       ),
       explainCard("この教材について", "ブラウザの中だけで動き、インターネットには接続しません。作ったプログラムや記録は、この端末のブラウザの中にだけ保存されます。実際のロボット（マイコンボードとモーター・センサ）での学習と組み合わせて使ってください。"),
     ),
@@ -340,7 +340,7 @@ function renderStage(sid) {
       edBody.replaceChildren(blockEd.el);
     } else {
       renderFlow();
-      edBody.replaceChildren(h("p", { class: "hint" }, "フローチャートはプログラムから自動でかかれます（解決策の構想で考えた流れと同じになっているか、くらべよう）。直すときは「ブロック」で。"), flowBox);
+      edBody.replaceChildren(h("p", { class: "hint" }, "フローチャートは、プログラムから自動でかかれます。解決策の構想で考えた流れと同じになっているか、くらべよう。直すときは「ブロック」で。"), flowBox);
     }
     highlight();
   }
@@ -421,7 +421,7 @@ function renderStage(sid) {
         "section",
         { class: "card test-card", "aria-label": "記録に挑戦" },
         h("h2", {}, "記録に挑戦"),
-        h("p", {}, "えらんだコースで、ロボットを最後まで走らせて点数を出します（時間・電池の残り・ぶつかったかも記録されます）。"),
+        h("p", {}, "えらんだコースで、ロボットを最後まで走らせて点数を出します。時間・電池の残り・ぶつかったかも記録されます。"),
         h("p", { class: "hint" }, s.hints[0]),
         h("div", { class: "btn-row" }, h("button", { type: "button", class: "btn", onclick: () => runChallenge() }, "🏆 記録に挑戦")),
         resultsBox,
@@ -524,7 +524,7 @@ function renderStage(sid) {
     renderMini();
     const { results } = lastResults;
     const passed = results.filter((r) => r.pass).length;
-    const summary = passed === results.length ? explainCard("全部合格！", "すべてのケースでミッションを達成しました。どこを工夫したかを「改善メモ」に書いておこう。次は、電池や時間をもっとへらせないか考えてみよう。", "good") : explainCard(`${results.length}つのケースのうち ${passed}つ合格`, "不合格のケースを「再生」して、どこで思った通りに動かないのかを、1ステップやセンサの値で調べよう。", "warn");
+    const summary = passed === results.length ? explainCard("全部合格！", "すべてのケースでミッションを達成しました。どこを工夫したかを「改善メモ」に書いておこう。次は、電池や時間をもっとへらせないか考えてみよう。", "good") : explainCard(`${results.length}つのケースのうち ${passed}つ合格`, "不合格のケースを「再生」しよう。どこで思った通りに動かないのかを、1ステップやセンサの値で調べよう。", "warn");
     resultsBox.replaceChildren(
       ...[resultsStale ? explainCard("プログラムが変わりました", "下の結果は前のプログラムのものです。もう一度「テストを実行」しよう。", "warn") : null, summary].filter(Boolean),
       h(
@@ -801,7 +801,7 @@ function renderEval() {
       "section",
       { class: "card" },
       h("h2", {}, h("span", { class: "ps-tag" }, "4 評価、改善・修正"), "レーダーチャートで評価しよう"),
-      h("p", {}, "自分のロボット（設計とプログラム）を、5つの観点で 1〜5 の5段階で評価しよう。はじめに「改善の前」をつけ、直したあとに「改善のあと」をつけると、どこがよくなったかが見えます。"),
+      h("p", {}, "自分のロボット（設計とプログラム）を、5つの観点で評価しよう。1〜5 の5段階です。はじめに「改善の前」をつけ、直したあとに「改善のあと」をつけよう。どこがよくなったかが見えます。"),
       h("div", { class: "eval-grid" }, chartBox, h("div", { class: "eval-sliders" }, sliders("before", "改善の前"), sliders("after", "改善のあと"))),
       h("dl", { class: "axis-notes" }, AXES.map((a) => [h("dt", {}, a), h("dd", {}, AXIS_NOTE[a])])),
     ),
@@ -810,7 +810,7 @@ function renderEval() {
       { class: "card" },
       h("h2", {}, "評価の参考になる自分の記録"),
       h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "ステージ"), h("th", {}, "いちばんよい結果"), h("th", {}, "費用（最新）"), h("th", {}, "設計（最新）"))), h("tbody", {}, facts))),
-      h("p", { class: "hint" }, "テストの「電池の残り」や「ぶつかった」も、環境への配慮・安全性を評価するときの手がかりになります。"),
+      h("p", { class: "hint" }, "テストの「電池の残り」や「ぶつかった」も、評価の手がかりになります。環境への配慮や安全性を評価するときに使おう。"),
     ),
     h("section", { class: "card reflection", "data-ef-reflect": "" }, h("h2", {}, "振り返り"), h("p", { class: "hint" }, AUTOSAVE_HINT), reflect),
   );

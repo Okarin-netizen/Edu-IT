@@ -731,8 +731,8 @@ var CROPS = [
   tasks:[[30,'芽かき'],[32,'追肥'],[33,'土寄せ'],[50,'土寄せ(2回目)'],[100,'収穫(目安)']],
   sow:[2,3,8,9], sowText:'植えつけは2〜3月か8〜9月',
   water:'水のやりすぎはいもが腐る原因。土が乾いてから水やり。',
-  note:'いもに日光が当たると緑色になる(有毒なソラニンが増える)ので土寄せが大切。',
-  safety:'ジャガイモの芽とそのまわり、緑色になった部分には毒(ソラニン・チャコニン)が多い。芽とそのまわり・緑色の部分は厚く取りのぞく。小さい・未熟ないもは食べない。加熱しても毒は減りにくい。食べて苦い・えぐいときは食べるのをやめる。調理は必ず先生の指示で行う。'},
+  note:'いもに日光が当たると、緑色になる(有毒なソラニンが増える)。だから土寄せが大切。',
+  safety:'ジャガイモの芽とそのまわり、緑色の部分には、毒(ソラニン・チャコニン)が多い。芽とそのまわり・緑色の部分は厚く取りのぞく。小さい・未熟ないもは食べない。加熱しても毒は減りにくい。食べて苦い・えぐいときは食べるのをやめる。調理は必ず先生の指示で行う。'},
  {id:'quail', cat:'animal', name:'ウズラ', icon:'🐦', base:0, range:[20,30], K:150, startLabel:'ふ化日',
   m1:{label:'体重',unit:'g'}, m2:null, waterDays:1,
   stages:[{n:'羽がそろう',days:21},{n:'産卵はじめ',days:45}],
@@ -1112,7 +1112,7 @@ function askName(first){
   var p=P();
   var others = S.order.filter(function(id){ return S.profiles[id]; }).map(function(id){ var q=S.profiles[id]; return '<button type="button" class="btn wide'+(q.id===S.current?' pri':'')+'" style="margin-bottom:8px" data-act="switchProfile" data-id="'+q.id+'">'+(q.demo?'🧪 ':'👤 ')+esc(q.name)+(q.id===S.current?'(いま使用中)':'')+'</button>'; }).join('');
   var o = overlay('<h2>'+(first?'🌱 はじめに名前を登録しよう':'👤 だれの記録?')+'</h2>'+
-    (first?'<p>この記録は、このタブレットの中に保存されます。<br>同じタブレットを班やクラスで使うときは、自分の名前(または班の名前)を選んでから使います。</p>':'')+
+    (first?'<p>この記録は、このタブレットの中に保存されます。<br>同じタブレットを班やクラスで使うときは、自分の名前(または班の名前)を選んでから使おう。</p>':'')+
     (others? '<h3>登録されている名前</h3>'+others+'<hr style="margin:14px 0;border:0;border-top:1px solid #ccc">':'')+
     '<label class="f"><span>新しく登録する名前(班名でもよい)</span><input type="text" id="b4-newname" maxlength="20" enterkeyhint="done" autocomplete="off" placeholder="例: 2年1組 3班 / やまだ"></label>'+
     '<div class="row end">'+(first&&!others?'':'<button type="button" class="btn" data-act="closeOv">とじる</button>')+'<button type="button" class="btn pri" data-act="addProfile">登録する</button></div>');
@@ -1310,7 +1310,7 @@ function saveEntry(){
 function saveEntry2(e){
   var p=P();
   var same = p.entries.filter(function(x){ return x.planId===e.planId && x.date===e.date && x.id!==e.id; })[0];
-  if(same){ kzConfirm(mdw(e.date)+'の記録はすでにあります。\n上書きすると、前の記録の数値・天気・メモは消えて、いま入力した内容になります(写真は残ります)。上書きしますか?', {ok:'上書きする', danger:true}).then(function(ok){ if(ok) saveEntry3(e, same); }); return; }
+  if(same){ kzConfirm(mdw(e.date)+'の記録はすでにあります。\n上書きすると、前の記録の数値・天気・メモは消えます。いま入力した内容になります(写真は残ります)。上書きしますか?', {ok:'上書きする', danger:true}).then(function(ok){ if(ok) saveEntry3(e, same); }); return; }
   saveEntry3(e, null);
 }
 function saveEntry3(e, same){
@@ -1518,14 +1518,14 @@ var WHATIF = {
   plant:[
     {k:'water', label:'水やり', opts:[['less','少なくする',{r:0.85,K:0.85,y:0.75,why:'水が足りないと、光合成や養分の吸収がにぶり、成長がおそくなる。しおれの原因にも。'}],['norm','ふつう',null],['more','多すぎる',{r:0.9,K:0.9,y:0.85,why:'水のやりすぎは土の中の空気が減り、根が弱る(根腐れ)。'}]]},
     {k:'sun', label:'日当たり', opts:[['full','よく当たる',null],['half','半日陰(遮光)',{r:0.95,K:1.05,y:0.8,why:'光が少ないと、茎がひょろ長く伸びる(徒長)。草丈は高くなっても、実や根は少なくなりやすい。'}],['shade','日陰',{r:0.8,K:1.0,y:0.55,why:'光合成でつくる養分が大きく減る。徒長して倒れやすく、収穫量も大きく減る。'}]]},
-    {k:'fert', label:'肥料', opts:[['none','やらない',{r:0.85,K:0.85,y:0.75,why:'養分(窒素・リン酸・カリウム)が足りないと、葉が黄色くなり成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:1.05,K:1.05,y:0.8,why:'肥料が多すぎると、茎や葉ばかり茂って実がつきにくい(トマトでは「木ぼけ」、サツマイモなどでは「つるぼけ」という)。根をいためることも。'}]]}
+    {k:'fert', label:'肥料', opts:[['none','やらない',{r:0.85,K:0.85,y:0.75,why:'養分(窒素・リン酸・カリウム)が足りないと、葉が黄色くなり成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:1.05,K:1.05,y:0.8,why:'肥料が多すぎると、茎や葉ばかり茂って実がつきにくい。トマトでは「木ぼけ」、サツマイモなどでは「つるぼけ」という。根をいためることも。'}]]}
   ],
   animal:[
     {k:'feed', label:'えさ', opts:[['less','少なくする',{r:0.8,K:0.85,y:0.8,why:'えさが足りないと体重が増えにくく、病気にも弱くなる。'}],['norm','ふつう',null],['more','多すぎる',{r:1.05,K:1.05,y:0.9,why:'食べ残しが増えると不衛生になり、太りすぎで健康をそこねることも。'}]]},
     {k:'dens', label:'飼育する数(密度)', opts:[['low','ゆったり',null],['norm','ふつう',null],['high','ぎゅうぎゅう(過密)',{r:0.85,K:0.9,y:0.8,why:'せまいとストレスでつつき合いが起き、病気も広がりやすい。'}]]}
   ],
   aquatic:[
-    {k:'feed', label:'えさ', opts:[['less','少なくする',{r:0.8,K:0.85,y:0.85,why:'えさが足りないと成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:0.9,K:0.95,y:0.8,why:'食べ残しが水をよごし、酸素不足や病気の原因になる(えさの量と水質はトレードオフ)。'}]]},
+    {k:'feed', label:'えさ', opts:[['less','少なくする',{r:0.8,K:0.85,y:0.85,why:'えさが足りないと成長がおそくなる。'}],['norm','ふつう',null],['more','多すぎる',{r:0.9,K:0.95,y:0.8,why:'食べ残しが水をよごし、酸素不足や病気の原因になる。えさの量と水質はトレードオフ。'}]]},
     {k:'wc', label:'水替え', opts:[['none','しない',{r:0.8,K:0.85,y:0.7,why:'ふんや食べ残しで水質が悪化(アンモニアがたまる)し、元気がなくなる。'}],['norm','週1回(1/3)',null],['many','毎日全部かえる',{r:0.9,K:0.95,y:0.9,why:'水を一度に全部かえると、水温や水質が急に変わって生き物の負担になる。'}]]}
   ]
 };
@@ -1542,26 +1542,26 @@ R.predict = function(){
   /* What-if 操作 */
   h+='<div class="card"><h3>🎛️ 条件を変えてみよう(これから先の条件)</h3>'+
     '<label class="f"><span>これからの平均'+F.t+'(予想): <b id="b4-ft">'+wi.futureT+'</b>℃ <span class="small">'+(dt.recent!=null?'(最近7回の記録の平均 '+round(dt.recent,1)+'℃ からスタート)':'(記録がないので適温の中間からスタート)')+'</span></span><input type="range" min="0" max="35" step="0.5" value="'+wi.futureT+'" data-chg="wiFT" aria-label="これからの平均'+F.t+'"></label>'+
-    '<p class="small" style="margin-top:-6px">※ この予測は、これから先もずっと同じ'+F.t+'が続くとして計算します。<b>季節が変わると'+F.t+'も変わる</b>ので、何か月も先の予測は、季節に合わせてこの値を動かしてみよう。</p>'+
+    '<p class="small" style="margin-top:-6px">※ この予測は、これから先もずっと同じ'+F.t+'が続くとして計算します。<b>季節が変わると、'+F.t+'も変わります。</b>何か月も先の予測では、季節に合わせてこの値を動かしてみよう。</p>'+
     '<label class="f"><span>もしも'+F.t+'を変えたら: <b id="b4-wd">'+(wi.delta>0?'+':'')+wi.delta+'</b>℃ <span class="small">(加温・保温や日よけ・換気など)</span></span><input type="range" min="-5" max="5" step="1" value="'+wi.delta+'" data-chg="wiD" aria-label="もしも'+F.t+'を変えたら"></label>'+
     WHATIF[c.cat].map(function(f){ var v=wi.sel[f.k]||'norm'; if(!f.opts.some(function(o){return o[0]===v;})) v=f.opts[0][0]==='norm'?'norm':(f.opts.some(function(o){return o[0]==='norm';})?'norm':f.opts[0][0]);
       return '<div class="f"><span style="font-weight:700;display:block;margin-bottom:4px">'+f.label+'</span><div class="seg">'+f.opts.map(function(o){ return '<button data-act="wiSel" data-k="'+f.k+'" data-v="'+o[0]+'" class="'+(v===o[0]?'on':'')+'">'+o[1]+'</button>'; }).join('')+'</div></div>'; }).join('')+
     '<div class="row end"><button type="button" class="btn sm" data-act="wiReset">条件をもとにもどす</button></div></div>';
   h+='<div id="b4-pres"></div>';
-  h+='<div class="card"><h3>🧠 予測と実際のちがいを考えよう</h3><p class="small">予測した日と、実際に発芽・開花・収穫した日(または大きさ)はどれくらいちがった? そのちがいはなぜ生まれたと思う?</p><textarea data-note="predict" placeholder="例: 予測より5日早く開花した。7月は予想より気温が高かったからだと思う。">'+esc(notes.predict||'')+'</textarea>'+autoLabel()+'</div>';
+  h+='<div class="card"><h3>🧠 予測と実際のちがいを考えよう</h3><p class="small">予測と実際に発芽・開花・収穫した日(または大きさ)は、どれくらいちがった? そのちがいは、なぜ生まれたと思う?</p><textarea data-note="predict" placeholder="例: 予測より5日早く開花した。7月は予想より気温が高かったからだと思う。">'+esc(notes.predict||'')+'</textarea>'+autoLabel()+'</div>';
   var b0=c.base, ex=[[b0+12,'12'],[b0-2,'0'],[b0+10,'10']], acc=0;
   h+='<details><summary>📐 計算のしくみ(どうやって予測しているの?)</summary><div>'+
-    '<p><b>① 積算温度</b><br>毎日の「平均'+F.t+' − 基準温度」を、<b>貯金箱にお金をためるように</b>毎日たしていきます。基準温度は「これより低いと育たない温度」で、'+esc(c.name)+'は '+b0+'℃ です。平均'+F.t+'が基準温度より低い日は「0」として数えます(マイナスにはしません)。たまった合計の単位は「℃・日(ど・にち)」です。この合計が生物ごとに決まった値に達すると、発芽・開花などが起こると考えます。</p>'+
+    '<p><b>① 積算温度</b><br>毎日の「平均'+F.t+' − 基準温度」を、毎日たしていきます。<b>貯金箱にお金をためるように</b>たします。基準温度は「これより低いと育たない温度」です。'+esc(c.name)+'は '+b0+'℃ です。平均'+F.t+'が基準温度より低い日は、「0」として数えます(マイナスにはしません)。たまった合計の単位は「℃・日(ど・にち)」です。この合計が、生物ごとに決まった値に達すると、発芽・開花などが起こると考えます。</p>'+
     '<div class="scrollx"><table class="t" style="max-width:560px"><tr><th>日</th><th>平均'+F.t+'</th><th>その日の分</th><th>合計(貯金)</th></tr>'+
       ex.map(function(x,i){ acc+=Number(x[1]); return '<tr><td>'+(i+1)+'日目</td><td>'+x[0]+'℃</td><td>'+(x[1]==='0'?x[0]+' − '+b0+' はマイナスなので <b>0</b>':x[0]+' − '+b0+' = <b>'+x[1]+'</b>')+'</td><td>'+acc+' ℃・日</td></tr>'; }).join('')+'</table></div>'+
-    '<p class="small">記録がない日は、直前に記録した温度を使います。高すぎる温度(適温の上限+2℃より上)は、それ以上は成長を速めないものとして計算します。「もしも〜なら」で日当たり・水・肥料などを変えると、これから先の1日分のたまり方も変わります。</p>'+
-    '<p><b>② 成長曲線(S字の線)</b><br>生物の成長は「はじめはゆっくり → ぐんぐん伸びる → やがて止まる」というS字の形になることが多いです。記録した点にいちばん近くなるS字の線を計算で探して、これから先の大きさを予測します。記録が5回以上たまると予測できます。うすい帯は「このくらいずれるかもしれない」という目安です。</p>'+
+    '<p class="small">記録がない日は、直前に記録した温度を使います。高すぎる温度(適温の上限+2℃より上)では、それ以上は成長が速くならないとして計算します。「もしも〜なら」で日当たり・水・肥料などを変えると、これから先のたまり方も変わります。</p>'+
+    '<p><b>② 成長曲線(S字の線)</b><br>生物の成長は、S字の形になることが多いです。はじめはゆっくり → ぐんぐん伸びる → やがて止まる、という形です。記録した点にいちばん近いS字の線を、計算で探します。その線で、これから先の大きさを予測します。記録が5回以上たまると予測できます。うすい帯は「このくらいずれるかもしれない」という目安です。</p>'+
     '<svg viewBox="0 0 240 90" width="240" height="90" role="img" aria-label="S字の成長曲線の図" style="max-width:100%;display:block;margin:0 0 8px"><line x1="20" y1="80" x2="235" y2="80" stroke="#8a9886"/><line x1="20" y1="80" x2="20" y2="5" stroke="#8a9886"/><path d="M20 78 C 80 78, 90 70, 120 45 S 170 12, 230 10" fill="none" stroke="#0d47a1" stroke-width="3"/><text x="28" y="72" font-size="11" fill="#475547">ゆっくり</text><text x="122" y="56" font-size="11" fill="#475547">ぐんぐん</text><text x="180" y="26" font-size="11" fill="#475547">止まる</text></svg>'+
-    '<p><b>③ もしも〜なら</b><br>条件を変えたときの影響は、教科書などで知られている傾向をもとにした<b>かんたんなルール</b>です(例: 日陰 → 成長の速さ×0.8)。本当にそうなるかは、実際に育てて確かめよう。</p>'+
+    '<p><b>③ もしも〜なら</b><br>条件を変えたときの影響は、<b>かんたんなルール</b>で計算します(例: 日陰 → 成長の速さ×0.8)。ルールは、教科書などで知られている傾向をもとにしています。本当にそうなるかは、実際に育てて確かめよう。</p>'+
     '<details class="more"><summary>🎓 くわしく知りたい人へ(高校で学ぶ式)</summary><div>'+
       '<p><span class="formula">積算温度 = Σ max(0, 平均'+F.t+' − 基準温度)</span><br>Σ(シグマ)は「全部たす」という記号です。</p>'+
-      '<p><span class="formula">h(t) = K ÷ (1 + e<sup>−r(t − t₀)</sup>)</span><br>ロジスティック曲線という式です。K: 最終的な大きさ、r: 成長の速さ、t₀: いちばん伸びる日。e は約2.718 の数です。記録した値とのずれ(の2乗の合計)がいちばん小さくなるように K・r・t₀ を決めます(最小二乗法)。</p>'+
-      '<p>「当てはまりのよさ」は、決定係数 R² という数で判断しています(1に近いほどよく合っている)。◎は0.9より大きい、○は0.7より大きい、△はそれ以下です。</p></div></details>'+
+      '<p><span class="formula">h(t) = K ÷ (1 + e<sup>−r(t − t₀)</sup>)</span><br>ロジスティック曲線という式です。K: 最終的な大きさ、r: 成長の速さ、t₀: いちばん伸びる日。e は約2.718 の数です。K・r・t₀ は、記録した値とのずれ(の2乗の合計)がいちばん小さくなるように決めます(最小二乗法)。</p>'+
+      '<p>「当てはまりのよさ」は、決定係数 R² という数で判断しています。1に近いほど、よく合っています。◎は0.9より大きい、○は0.7より大きい、△はそれ以下です。</p></div></details>'+
     '</div></details>';
   el.innerHTML=h;
   renderPredictResult();
@@ -1593,7 +1593,7 @@ function renderPredictResult(){
         '<td>'+(s.date? (s.done?'✅ '+mdw(s.date)+'ごろ<br><span class="small">達成ずみ(計算上)</span>':mdw(s.date)+'<br><span class="small">'+s.d+'日目・あと'+diffDays(t,s.date)+'日</span>'):'400日以内には届かない')+'</td>'+
         '<td>'+(s.done?'—': a.date? mdw(a.date)+(dd? '<br><b style="color:'+(dd<0?'#1b5e20':'#b71c1c')+'">'+(dd<0?'▲ '+(-dd)+'日早い':'▼ '+dd+'日おそい')+'</b>':'<br><span class="small">変わらない</span>') : '届かない')+'</td></tr>'; }).join('')+'</table></div>';
   if(hasGdd && wi.delta===0) h+='<p class="small">💡 「もしも'+F.t+'を変えたら」を動かすと、節目の日がどう変わるか比べられます。</p>';
-  h+='<p class="small">①は、温度(積算温度)と、「もしも〜なら」で変えた日当たり・水・肥料などの条件(成長の速さ)から計算しています。</p>';
+  h+='<p class="small">①は、温度(積算温度)から計算しています。「もしも〜なら」で変えた条件(日当たり・水・肥料など)も、成長の速さに入れています。</p>';
   if(c.tasks.some(function(k){ return /収穫/.test(k[1]); })) h+='<p class="hint">📌 計画の作業予定にある「収穫(目安)」は、'+esc(c.startLabel)+'からの<b>日数で決めた目安</b>です。ここの予測は、<b>記録した'+F.t+'からの計算</b>です。2つの日付がずれることがあります。実際の育ち方を見て決めよう。</p>';
   h+='</div>';
   /* 成長曲線 */
@@ -1718,7 +1718,7 @@ R.diag = function(){
   }
   h+='</div>';
   h+='<div class="caution"><b>⚠ 安全と環境のために</b><ul style="margin:.3em 0 0;padding-left:1.2em">'+
-    '<li>農薬や薬品は、<b>必ず先生と一緒に</b>使います。ラベルに書かれた<b>使用量・使用方法・使用時期を守り</b>、手袋・マスクをつけ、使用後は手を洗います。</li>'+
+    '<li>農薬や薬品は、<b>必ず先生と一緒に</b>使います。ラベルに書かれた<b>使用量・使用方法・使用時期を守ります</b>。手袋・マスクをつけ、使用後は手を洗います。</li>'+
     '<li>まずは、薬を使わない方法(取りのぞく・ネット・風通し・天敵)を考えよう。</li>'+
     '<li>育てた生き物や水草を、川・池・野原に<b>放したり捨てたりしない</b>。その地域にもともといる生き物(生態系)に悪い影響を与えるおそれがあります。</li>'+
     '<li>病気の株や落ち葉は、畑に残さず決められた方法で処分します。</li></ul></div>';
@@ -1734,7 +1734,7 @@ R.eval = function(){
   var c=crop(ap.cropId), ev=P().evals[ap.id]||{};
   var h='<h2>📝 収穫(育成)後の評価シート</h2>'+planPicker();
   if(c.safety) h+='<p class="caution">⚠️ '+esc(c.safety)+'</p>';
-  h+='<div class="card long"><p class="small" style="margin-top:0">育て終わったら(または途中でも)、結果をふりかえって評価し、次の改善につなげよう。</p><div class="grid2"><div>'+
+  h+='<div class="card long"><p class="small" style="margin-top:0">育て終わったら(または途中でも)、結果をふりかえって評価しよう。次の改善につなげよう。</p><div class="grid2"><div>'+
     '<label class="f"><span>'+(c.cat==='plant'?'収穫量(個数や重さ)':'育成の結果(数・大きさ・卵の数など)')+'</span><input type="text" data-ev="yield" maxlength="60" value="'+esc(ev.yield||'')+'" placeholder="'+(c.cat==='plant'?'例: 42個 / 520g':'例: 10匹ふ化、8匹が20mm以上に')+'"></label>'+
     '<div class="f"><span style="font-weight:700;display:block">'+(c.cat==='plant'?'品質(味・形・大きさ)':'健康のようす')+'</span>'+stars('quality',ev.quality)+'</div>'+
     '<div class="f"><span style="font-weight:700;display:block">目標の達成度 <span class="small">(目標: '+esc(ap.goal||'未設定')+')</span></span>'+stars('goal',ev.goal)+'</div>'+
@@ -1858,20 +1858,20 @@ R.help = function(opt){
      '<span class="row" style="gap:6px"><span>文字の大きさ</span><button type="button" class="btn sm" data-act="fsDec" aria-label="文字を小さくする"'+(PF.fs<=kzPrefs.FS_MIN?' disabled':'')+'>A−</button><b id="b4-set-fsv" style="min-width:3.2em;text-align:center">'+PF.fs+'px</b><button type="button" class="btn sm" data-act="fsInc" aria-label="文字を大きくする"'+(PF.fs>=kzPrefs.FS_MAX?' disabled':'')+'>A＋</button></span></div>'+
      '<p class="small" style="margin-bottom:0">上のバーの「ふりがな」「文字 中」と同じ設定です。教材集のほかの教材にも同じように反映されます。</p></div>';
   h+='<details open><summary>📖 この教材の使い方(6ステップ)</summary><div><ol>'+
-    '<li><b>計画</b>: 育てる生物・開始日・場所と、<b>育成環境の調節方法</b>(日よけ・かん水・保温など)を決める。作業の予定が自動でカレンダーに入ります。</li>'+
-    '<li><b>記録</b>: 観察した日に、天気・温度・水やり・草丈(体重/体長)・メモ・写真を記録する。前の記録を直すときは、「これまでの記録」の「直す」を押します。</li>'+
+    '<li><b>計画</b>: 育てる生物・開始日・場所と、<b>育成環境の調節方法</b>(日よけ・かん水・保温など)を決める。作業の予定が、自動でカレンダーに入ります。</li>'+
+    '<li><b>記録</b>: 観察した日に記録する(天気・温度・水やり・草丈(体重/体長)・メモ・写真)。前の記録を直すときは、「これまでの記録」の「直す」を押します。</li>'+
     '<li><b>グラフ・写真</b>: 成長と温度の関係を読み取る。写真を2枚ならべて変化を比べる。</li>'+
     '<li><b>診断・評価</b>: 困ったときは診断で原因を調べる。育て終わったら評価シートを書く。</li>'+
-    '<li><b>予測(発展)</b>: 積算温度で発芽・開花・収穫の時期を、成長曲線でこれからの大きさを予測する。「もしも〜なら?」で条件を変えて比べる。</li>'+
+    '<li><b>予測(発展)</b>: 積算温度で、発芽・開花・収穫の時期を予測する。成長曲線で、これからの大きさを予測する。「もしも〜なら?」で条件を変えて比べる。</li>'+
     '<li data-ef-reflect><b>振り返り</b>: さいごに振り返りを書いて、次の改善につなげる。</li></ol>'+
-    '<p class="hint">ホームの「今日のやること」と「お知らせ」で、水やり・低温・追肥の時期などを確認できます。</p></div></details>';
+    '<p class="hint">ホームの「今日のやること」と「お知らせ」を見よう。水やり・低温・追肥の時期などを確認できます。</p></div></details>';
   h+='<details id="b4-kensa"'+(opt.anchor==='kensa'?' open':'')+'><summary>📏 正しい測り方(検査ガイド)</summary><div>'+
-    '<p><b>🌱 草丈</b>: 土の表面から、茎のいちばん先(生長点)までを、ものさしでまっすぐ測る。毎回同じ株・同じ方法で測る。</p>'+
-    '<p><b>🍃 葉数</b>: 本葉を数える(最初に出る子葉は数えない)。かれた葉は数えない、などルールを決めておく。</p>'+
-    '<p><b>🌡️ 気温</b>: 日なたに温度計を直接置かず、日かげ・風通しのよい場所で、地面から約1.5mの高さで測る。最高・最低温度計があれば便利。</p>'+
+    '<p><b>🌱 草丈</b>: 土の表面から、茎のいちばん先(生長点)までを測る。ものさしで、まっすぐ測る。毎回同じ株・同じ方法で測る。</p>'+
+    '<p><b>🍃 葉数</b>: 本葉を数える(最初に出る子葉は数えない)。「かれた葉は数えない」などのルールを決めておく。</p>'+
+    '<p><b>🌡️ 気温</b>: 日なたに温度計を直接置かない。日かげ・風通しのよい場所で、地面から約1.5mの高さで測る。最高・最低温度計があれば便利。</p>'+
     '<p><b>⚖️ 体重(動物)</b>: 容器ごとはかりにのせて、あとで容器の重さを引く。毎回同じ時間(えさの前など)に測る。</p>'+
-    '<p><b>📐 体長(魚)</b>: 透明な容器に入れ、外側からものさしを当てて、口の先から尾びれのつけ根まで(または尾の先まで、決めておく)を測る。魚にさわりすぎない。</p>'+
-    '<p><b>🌡️ 水温</b>: 水温計を水の中ほどまで入れて、1分ほど待ってから、目の高さを合わせて読む。毎回同じ時間・同じ場所で測る。</p>'+
+    '<p><b>📐 体長(魚)</b>: 透明な容器に入れ、外側からものさしを当てる。口の先から尾びれのつけ根まで(または尾の先まで。どちらか決めておく)を測る。魚にさわりすぎない。</p>'+
+    '<p><b>🌡️ 水温</b>: 水温計を水の中ほどまで入れて、1分ほど待つ。目の高さを合わせて読む。毎回同じ時間・同じ場所で測る。</p>'+
     '<p><b>🧪 pH</b>: 試験紙を水にひたし、すぐに色見本とくらべる。</p></div></details>';
   h+='<details><summary>💾 データの保存・書き出し</summary><div>'+
     '<p>記録はこのタブレットのブラウザの中に保存されます(インターネットは使いません)。<b>ブラウザのデータを消したり、端末を初期化したりすると記録が消えます。</b>週に1回は書き出しをしよう。</p>'+

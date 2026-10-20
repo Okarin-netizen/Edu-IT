@@ -290,7 +290,7 @@
           a.href = URL.createObjectURL(blob); a.download = name;
           document.body.appendChild(a); a.click();
           setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-          text($('t-export-msg'), '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生の指示があれば入れてから、もう一度書き出してください)'));
+          text($('t-export-msg'), '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生に言われたら入れて、もう一度書き出してください)'));
         } catch (e) {
           text($('t-export-msg'), 'ファイルを作れませんでした。先生に聞いてください。');
         }

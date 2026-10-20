@@ -373,7 +373,7 @@ export function checkNetwork(net) {
   const issues = [];
   const byIp = new Map();
   for (const n of net.nodes) {
-    if (!isValidIPv4(n.ip)) issues.push({ kind: "bad-ip", node: n.id, text: `「${n.name}」のIPアドレス「${n.ip || "（空）"}」は正しい形ではありません（0〜255の数を4つ、点で区切る）` });
+    if (!isValidIPv4(n.ip)) issues.push({ kind: "bad-ip", node: n.id, text: `「${n.name}」のIPアドレス「${n.ip || "（空）"}」は正しい形ではありません。0〜255の数を4つ、点で区切ります` });
     else if (byIp.has(n.ip)) issues.push({ kind: "dup-ip", node: n.id, text: `「${n.name}」と「${byIp.get(n.ip).name}」が同じIPアドレス ${n.ip} です。同じだと、どちらに届ければよいかわかりません` });
     else byIp.set(n.ip, n);
     if (!net.links.some((l) => l.a === n.id || l.b === n.id)) issues.push({ kind: "isolated", node: n.id, text: `「${n.name}」がどこにもつながっていません` });

@@ -94,16 +94,16 @@ def step_li(i, s):
 def sheet(d, a):
     c = a["code"]
     if d["domain"] in SINGLE:
-        how = f'タブレットで「{e(d["domainName"])}」を<b>自習モード</b>でひらき、上のタブを「はじめに」から順に進めます。'
+        how = f'タブレットで「{e(d["domainName"])}」を<b>自習モード</b>でひらきます。上のタブを「はじめに」から順に進めます。'
     else:
-        how = f'タブレットで「{e(d["domainName"])} 教材集」を<b>自習モード</b>でひらき、<b>{c} のカード</b>を押します。'
+        how = f'タブレットで「{e(d["domainName"])} 教材集」を<b>自習モード</b>でひらきます。<b>{c} のカード</b>を押します。'
     steps = list(enumerate(a["steps"]))
     basic = [step_li(i, s) for i, s in steps if s.get("level") != "advanced"]
     adv = [step_li(i, s) for i, s in steps if s.get("level") == "advanced"]
     qs = []
     for qi, q in enumerate(a.get("check") or []):
         ch = "".join(f'<label class="ws-choice"><input type="radio" name="{c}-q{qi}" value="{ci}" data-k="q{qi}">'
-                     f'<span class="ws-kana">{KANA[ci]}</span>{r(t)}</label>' for ci, t in enumerate(q["choices"]))
+                     f'<span class="ws-kana">{KANA[ci]}</span><span>{r(t)}</span></label>' for ci, t in enumerate(q["choices"]))
         qs.append(f'<li class="ws-q"><p>{r(q["q"])}</p><div class="ws-choices">{ch}</div></li>')
     rate = [("r0", "ねらいが分かった"), ("r1", "自習ガイドを見ながら、自分で進められた"), ("r2", "たしかめ問題の答えの理由が言える")]
     rows = "".join(f'<tr><th scope="row">{t}</th>' + "".join(
@@ -124,13 +124,14 @@ def sheet(d, a):
 <div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p>{box("f0", "きょう分かったこと", "", 3)}</div>
 <div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p>{box("f1", "まだ分からないこと・先生に聞きたいこと", "", 3)}</div>
 </div>''')
-    return f'''<section class="ws" id="{c}" data-code="{c}" aria-labelledby="{c}-h">
+    long = " ws-long" if len(steps) >= 9 else ""  # 手順が多い教材は、印刷で行の間を少しつめて B5 の2ページに入れる
+    return f'''<section class="ws{long}" id="{c}" data-code="{c}" aria-labelledby="{c}-h">
 <header class="ws-head">
 <h2 id="{c}-h"><span class="ws-code">{c}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
 <p class="ws-goal"><b>ねらい</b>{r(a.get("goal", ""))}<span class="ws-time">目安 {r(a.get("time", ""))}</span></p>
-<p class="ws-how">{how}右はしの「自習ガイド」でヒントを見たり、「この場所へ ▶」で移ったりしながら進めましょう。</p>
+<p class="ws-how">{how}こまったら、右はしの「自習ガイド」でヒントを見ましょう。</p>
 {"".join(parts)}
 </section>'''
 
@@ -218,9 +219,13 @@ STYLE = r"""
     .ws-time { float: none; display: block; margin: 0; }
     .ws-rate th, .ws-rate td { padding: 3px 4px; }
   }
-  @page { size: A4 portrait; margin: 11mm 12mm; }
+  @page { size: 182mm 257mm; margin: 8mm 9mm; }  /* B5(JIS)たて */
   @media print {
-    body { background: #fff; font-size: 10.5pt; line-height: 1.45; }
+    html, body { background: #fff; }
+    body { font-size: 10pt; line-height: 1.4; }
+    .ws rt { font-size: .5em; }
+    .ws-how { font-size: 8.5pt; margin: 3px 0 0; }
+    .ws-goal { margin: 8px 0 4px; padding: 5px 10px; }
     .ws-bar, .ws-intro, [data-ef-footer], .ef-footer { display: none !important; }
     main { max-width: none; padding: 0; }
     .ws { border: 0; box-shadow: none; padding: 0; border-radius: 0; }
@@ -229,10 +234,18 @@ STYLE = r"""
     .ws h3 { margin: 9px 0 3px; font-size: 12pt; break-after: avoid; }
     .ws-step, .ws-q, .ws-rate, .ws-two { break-inside: avoid; }
     .ws-step { padding: 4px 0; }
-    .ws-box { --line: 7.5mm; }
+    .ws-box { --line: 7mm; margin-top: 3px; }
+    .ws-long .ws-box { --line: 5.5mm; }
+    .ws-long .ws-choice { padding: 0 6px 0 3px; }
+    .ws-long .ws-rate label { height: 4.5mm; }
+    .ws-long .ws-step { padding: 2px 0; }
+    .ws-long .ws-q { padding: 3px 0; }
     .ws-box:empty::before { content: none; }
     .ws-choice { min-height: 0; padding: 2px 8px 2px 4px; }
-    .ws-rate label { height: 7mm; color: #888; }
+    .ws-rate label { height: 5.5mm; color: #888; }
+    .ws-rate th, .ws-rate td { padding: 1px 6px; }
+    .ws-two .ws-box, .ws-tag-r ~ .ws-box, .ws-step-main .ws-box[style*="--rows:3"] { --rows: 2 !important; }
+    .ws h3 { margin: 6px 0 2px; }
     .ws-head, .ws-goal, .ws-code, .ws-n, .ws-chk-mark, .ws-rate label, .ws-choice, .ws-kana { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 """
@@ -350,9 +363,9 @@ def area_page(d):
 </div>
 <main>
 <div class="ws-intro">
-<p><b>使い方</b> 上のボタンで、いま進める教材をえらびます。タブレットでは、□を押して✓を付け、わくの中に書きこめます(<b>この端末に自動で保存</b>され、次に開いても残っています)。紙で使うときは「印刷」を押します。</p>
-<p>教材は「教材をひらく(自習モード)」から、ちがうタブで開きます。2つのタブを行き来しながら進めましょう。</p>
-<p class="ws-saved">先生に出すときは、先生の指示どおりに「印刷」(PDFに保存)するか、紙に印刷して書いて出します。<button type="button" class="ef-btn" id="ws-print-all">全部の教材を印刷</button> <button type="button" class="ef-btn" id="ws-clear">この教材の書いたことを消す</button></p>
+<p><b>使い方</b> 上のボタンで、いま進める教材をえらびます。タブレットでは、□を押すと✓が付きます。わくの中に書きこめます。書いたことは<b>この端末に自動で保存</b>されます。紙で使うときは「印刷」を押します(用紙は <b>B5 たて</b>)。</p>
+<p>「教材をひらく(自習モード)」を押すと、教材がちがうタブで開きます。2つのタブを行き来して進めましょう。</p>
+<p class="ws-saved">先生に出すときは、先生の指示を聞きます。「印刷」で紙に印刷するか、PDFに保存して出します。<button type="button" class="ef-btn" id="ws-print-all">全部の教材を印刷</button> <button type="button" class="ef-btn" id="ws-clear">この教材の書いたことを消す</button></p>
 </div>
 {sheets}
 </main>

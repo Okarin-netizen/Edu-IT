@@ -225,7 +225,7 @@ export function stepPhase(m, quiet = false) {
       if (!m.mem.some(isInstruction)) return fail(m, "まだ命令がありません。プログラム欄に命令を書こう");
       if (m.pc === 0) return fail(m, `0番地には命令ではなく数（${word}）が入っています。DATA の行は、HALT のあと（いちばん下）に書こう`);
       if (m.jumped) return fail(m, `とび先の ${m.pc}番地には命令ではなく数（${word}）が入っています。とび先の名前（ラベル）が、命令の行についているか確かめよう`);
-      return fail(m, `${m.pc}番地には命令ではなく数（${word}）が入っています。命令のおわりに HALT を書いたか確かめよう（DATA の行は HALT のあとに書こう）`);
+      return fail(m, `${m.pc}番地には命令ではなく数（${word}）が入っています。命令のおわりに HALT を書いたか確かめよう。DATA の行は HALT のあとに書こう`);
     }
     m.ir = word;
     m.irAddr = m.pc;

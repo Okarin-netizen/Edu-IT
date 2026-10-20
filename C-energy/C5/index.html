@@ -605,7 +605,7 @@ var TASKS = [
         noNG(X)];
     } },
   { id: 'rooms', icon: '🏠', title: '2部屋の明かり', use: '電源・スイッチ2個・豆電球2個',
-    goal: '2つの部屋の明かりを、それぞれの部屋のスイッチで別々に点けたり消したりできる配線を設計する。',
+    goal: '2つの部屋の明かりの配線を設計する。それぞれの部屋のスイッチで、別々に点けたり消したりできるようにする。',
     hint: ['家の電灯は「並列」につながっている。', '豆電球ごとに、その豆電球と直列にスイッチを入れる。', '電源装置は3Vくらいにすると豆電球にちょうどよい。'],
     req: function (X) {
       var L = X.of('lamp'), sw = X.of('sw');
@@ -888,7 +888,7 @@ function analyze(ps, notes) {
           if (Math.abs(x.I) > C.valOf(p)) add('ng', nm + 'に ' + fA(x.I) + ' 流れて、ヒューズ(' + C.valOf(p) + 'A)が切れてしまう。', [p.id], 'ふだんの電流より少し大きいヒューズを選ぼう。');
           break;
         case 'battery':
-          if (Math.abs(x.Iout) > 1.5) add('ng', nm + 'に ' + fA(x.Iout) + ' も流れる。電池どうしがショートしているかも(電気を使う部品を通らない輪がある)。', [p.id], '電池の+と+、−と−をつなぐ「並列」の向きがそろっているか、電池だけで輪になっていないか確かめよう。電池が熱くなって危険。');
+          if (Math.abs(x.Iout) > 1.5) add('ng', nm + 'に ' + fA(x.Iout) + ' も流れる。電池どうしがショートしているかも(電気を使う部品を通らない輪がある)。', [p.id], '「並列」の向き(+と+、−と−)がそろっているか確かめよう。電池だけで輪になっていないかも確かめよう。電池が熱くなって危険。');
           else if (x.Iout < -0.01) add('warn', nm + 'の向きが逆。電流が逆向きに流れこみ、電池がいたむ。', [p.id], '直列の電池は「+と−」をつなごう。部品を選んで「向きを逆に」。');
           else if (x.Iout > 1) add('warn', nm + 'から ' + fA(x.Iout) + ' も流れる。電池が熱くなり、すぐなくなる。', [p.id]);
           break;
@@ -942,7 +942,7 @@ function analyze(ps, notes) {
       var Y = solveParts(cp), hit = leds.filter(function (q) { return Math.abs(Y.el[q.id].I - r(q).I) > 0.0005; });
       if (hit.length < 2) return;
       var par = hit.some(function (a) { var cp2 = clone(on); cp2.forEach(function (q) { if (q.id === a.id) q.broken = true; }); var Y2 = solveParts(cp2); return hit.some(function (b) { return b !== a && Y2.el[b.id].I >= 0.003; }); });
-      if (par) add('warn', hit.map(function (q) { return lblFull(L, q); }).join('・') + 'が、' + lblFull(L, R) + 'を1個で共用している。', hit.map(function (q) { return q.id; }).concat([R.id]), 'LEDは1個ずつ光り始める電圧がちがうので、明るさがばらついたり、1個に電流が集まったりする。LED1個ごとに抵抗を1個、直列に入れよう。');
+      if (par) add('warn', hit.map(function (q) { return lblFull(L, q); }).join('・') + 'が、' + lblFull(L, R) + 'を1個で共用している。', hit.map(function (q) { return q.id; }).concat([R.id]), 'LEDは1個ずつ光り始める電圧がちがう。だから、明るさがばらついたり、1個に電流が集まったりする。LED1個ごとに抵抗を1個、直列に入れよう。');
     });
     /* 意味のないスイッチ */
     var flowOn = ps.some(function (p) { return LOADK[PARTS[p.type].kind] && Math.abs(r(p).I) > 0.001; });
@@ -1056,7 +1056,7 @@ function makeSteps(ps, A) {
       st.push({ t: lblShort(L, a.p) + 'の' + termName(a.p, a.i) + ' と ' + lblShort(L, b.p) + 'の' + termName(b.p, b.i) + ' を導線でつなぐ。', note: note, ids: [a.p.id, b.p.id], terms: [a, b], net: o.net, wire: true });
     }
   });
-  st.push({ t: '回路図と見比べて、配線をすべて確かめる。', note: 'つなぎ忘れ・まちがい・ショート(はだかの線どうしがふれていないか)・ねじのゆるみを確認。', ids: all, allWire: true });
+  st.push({ t: '回路図と見比べて、配線をすべて確かめる。', note: 'つなぎ忘れ・まちがい・ショート・ねじのゆるみを確認。はだかの線どうしがふれていないかも見る。', ids: all, allWire: true });
   st.push({ t: '先生に配線を点検してもらう。', note: '先生の「OK」が出るまで、電池を入れたり電源を入れたりしない。', ids: all, allWire: true, teacher: true });
   if (hasBat) st.push({ t: '電池を電池ボックスに入れる。', note: '+と−の向きに気をつける。', ids: comps.filter(function (p) { return p.type === 'battery'; }).map(function (p) { return p.id; }) });
   if (hasSup) st.push({ t: '電源装置のつまみを最小(0V)にしてから電源を入れ、少しずつ上げて電圧を合わせる。', note: '合わせる電圧 → ' + comps.filter(function (p) { return p.type === 'supply'; }).map(function (p) { return lblShort(L, p) + ':' + C.valOf(p) + 'V'; }).join('、') + '。いきなり高い電圧にしない。', ids: comps.filter(function (p) { return p.type === 'supply'; }).map(function (p) { return p.id; }) });
@@ -1587,7 +1587,7 @@ function showFile() {
   var t = task();
   modal('<h2>💾 保存・読みこみ</h2><p>回路図や記録は、このタブレットのブラウザに<b>自動で保存</b>されています。<br>ほかの端末に移したり、先生に提出したりするときは、ファイルに保存してね。<br><b>ファイルに保存されるのは、今の課題(' + t.icon + ' ' + esc(t.title) + ')の1つだけ</b>です。</p>' +
     '<div class="e5-row"><button class="e5-btn big primary" data-act="export">💾 「' + esc(t.title) + '」をファイルに保存</button></div><div class="e5-row"><button class="e5-btn big" data-act="import">📂 ファイルを読みこむ</button></div>' +
-    '<p style="font-size:calc(14px * var(--ea-fs, 1));color:#5b6b7c">読みこむと、ファイルの課題の今の回路図と記録は置きかわります(読みこむ前に確かめます)。</p><div class="acts"><button class="e5-btn" data-act="close">とじる</button></div>');
+    '<p style="font-size:calc(14px * var(--ea-fs, 1));color:#5b6b7c">読みこむと、その課題の今の回路図と記録は置きかわります。読みこむ前に確かめます。</p><div class="acts"><button class="e5-btn" data-act="close">とじる</button></div>');
 }
 
 /* ---------- モーダル ---------- */

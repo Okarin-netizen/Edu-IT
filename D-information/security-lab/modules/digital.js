@@ -100,7 +100,7 @@ const HEART = ["0000000000000000", "0011100000111000", "0111110001111100", "1111
 export const digitalModule = {
   id: ID,
   minutes: "15〜20分",
-  lead: "コンピュータは、画像も音も「0と1の数」にして扱います（デジタル化）。どうやって数にするのか、そのときデータの量（情報量）がどう変わるのかを体験しよう。",
+  lead: "コンピュータは、画像も音も「0と1の数」にして扱います（デジタル化）。どうやって数にするのかな？ データの量（情報量）はどう変わるのかな？ 体験しよう。",
   steps: STEPS,
   async render(root) {
     const cards = STEPS.map((s, i) => stepCard(ID, s, i));
@@ -121,7 +121,7 @@ export const digitalModule = {
       c.body.append(
         h("p", {}, "デジタルの画像は、小さな四角（画素・ピクセル）がたくさん集まってできています。画素の数を変えてみよう。"),
         h("div", { class: "field-row digital-row" }, h("div", {}, canvas), h("div", {}, res.el, info)),
-        explainCard("解像度", "画素の数が多いほど（解像度が高いほど）細かいところまで表せますが、データ量は画素の数に比例して増えます。横と縦を2倍にすると、データ量は4倍です。"),
+        explainCard("解像度", "画素の数が多い（解像度が高い）ほど、細かいところまで表せます。でも、データ量は画素の数に比例して増えます。横と縦を2倍にすると、データ量は4倍です。"),
       );
       update(false);
     }
@@ -201,10 +201,10 @@ export const digitalModule = {
       const play = h("button", { class: "btn secondary", type: "button" }, "🔊 この設定の音を聞く");
       play.addEventListener("click", () => playTone(rate.value(), depth.value()));
       c.body.append(
-        h("p", {}, "音は空気のふるえ（波）です。デジタル化では、波の高さを一定の時間ごとにはかり（標本化）、その高さを決まった段階の数で表します（量子化）。最後に、その段階の番号を0と1の並びにします（符号化）。"),
+        h("p", {}, "音は空気のふるえ（波）です。デジタル化では、まず波の高さを一定の時間ごとにはかります（標本化）。次に、その高さを決まった段階の数で表します（量子化）。最後に、その段階の番号を0と1の並びにします（符号化）。"),
         h("ul", { class: "legend", "aria-hidden": "true" }, h("li", {}, h("span", { class: "sw", style: "background:var(--text-muted)" }), "もとの音の波"), h("li", {}, h("span", { class: "sw", style: "background:var(--series-1)" }), "デジタル化した波"), h("li", {}, h("span", { class: "sw", style: "background:var(--series-2);height:8px;width:8px;border-radius:50%" }), "はかった点")),
         chart,
-        h("p", { class: "hint step-goal" }, "「標本化周波数」と「量子化ビット数」の両方のスライダーを動かしてみよう（2つとも動かすと「✓ できた」になります）。"),
+        h("p", { class: "hint step-goal" }, "「標本化周波数」と「量子化ビット数」の、両方のスライダーを動かしてみよう。2つとも動かすと「✓ できた」になります。"),
         h("div", { class: "field-row" }, rate.el, depth.el),
         info,
         h("div", { class: "btn-row" }, play, h("span", { class: "hint" }, "音が出ます。音量に注意しよう。")),
@@ -237,7 +237,7 @@ export const digitalModule = {
         info.replaceChildren(
           h("div", { class: "result-box" }, `もとのデータ: ${original}ビット（1画素1ビット）→ 圧縮後: ${compressed}ビット（${runs}組 × 5ビット）＝ もとの `, h("strong", {}, `${ratio}%`)),
           kind === "heart"
-            ? explainCard("小さくなった！", "同じ色が続くところを「白が5個」のようにまとめると、データを小さくできます（ランレングス圧縮）。", "good")
+            ? explainCard("小さくなった！", "同じ色が続くところは、「白が5個」のようにまとめられます。こうするとデータを小さくできます（ランレングス圧縮）。", "good")
             : explainCard("逆に大きくなった！", "同じ色が続かないデータは、まとめられないので、かえって大きくなることもあります。圧縮できる量は、データの性質で変わります。", "warn"),
         );
         seen.add(kind);
@@ -246,13 +246,13 @@ export const digitalModule = {
       const noise = () => Array.from({ length: 16 }, () => Array.from({ length: 16 }, () => (Math.random() < 0.5 ? "1" : "0")).join(""));
       c.body.append(
         h("p", {}, "データ量を小さくすることを「圧縮」といいます。白黒の絵で、同じ色が続く数を数えてまとめる方法を試そう。"),
-        h("p", { class: "hint step-goal" }, "「でたらめな点の絵」も押して、ハートの絵とくらべよう（でたらめな点の絵も見ると「✓ できた」になります）。"),
+        h("p", { class: "hint step-goal" }, "「でたらめな点の絵」も押して、ハートの絵とくらべよう。でたらめな点の絵も見ると「✓ できた」になります。"),
         h("div", { class: "btn-row" }, h("button", { class: "btn small secondary", type: "button", onclick: () => show(HEART, "heart") }, "ハートの絵"), h("button", { class: "btn small secondary", type: "button", onclick: () => show(noise(), "noise") }, "でたらめな点の絵")),
         h("div", { class: "field-row digital-row" }, grid, h("details", { open: true }, h("summary", {}, "各行の圧縮結果"), codes)),
         info,
         explainCard(
           "可逆圧縮と非可逆圧縮",
-          "ランレングス圧縮のように、完全に元に戻せる圧縮を<strong>可逆圧縮</strong>（例: ZIP、PNG）といいます。写真の JPEG や音楽の MP3 などは、人が気づきにくい細かい部分を捨ててさらに小さくする<strong>非可逆圧縮</strong>で、元には完全には戻りません。",
+          "ランレングス圧縮のように、完全に元に戻せる圧縮を<strong>可逆圧縮</strong>（例: ZIP、PNG）といいます。写真の JPEG や音楽の MP3 などは<strong>非可逆圧縮</strong>です。人が気づきにくい細かい部分を捨てて、さらに小さくします。完全には元に戻りません。",
         ),
       );
       show(HEART, "heart"); // はじめに出ているハートも「見た」に数える（SEC-16）
@@ -279,10 +279,10 @@ export const digitalModule = {
         ),
         choiceQuiz(
           {
-            question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で、1分間録音したときのデータ量はおよそいくら？",
+            question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で、1分間録音した。データ量はおよそいくら？",
             choices: ["約1MB", "約10MB", "約100MB"],
             answer: 1,
-            explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット ＝ 10,584,000バイト。1024 で2回わると約10MBです。",
+            explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット。これは 10,584,000バイトです。1024 で2回わると約10MBです。",
           },
           () => mark("audio"),
         ),

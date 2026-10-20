@@ -368,7 +368,7 @@
     leg.innerHTML = '';
     leg.appendChild(h('span', null, h('span', { class: 'sw', 'aria-hidden': 'true' }), 'いま'));
     if (sameView) leg.appendChild(h('span', null, h('span', { class: 'sw before', 'aria-hidden': 'true' }), '比べる前(点線)'));
-    else if (pr && pr.ok) leg.appendChild(h('span', { class: 'g-muted' }, '支え方か支点間の距離がちがうので、「比べる前」は図に重ねていません(表で比べられます)。'));
+    else if (pr && pr.ok) leg.appendChild(h('span', { class: 'g-muted' }, '支え方か支点間の距離がちがいます。そのため「比べる前」は図に重ねていません(表で比べられます)。'));
 
     var out = $('#beam-result');
     out.innerHTML = '';
@@ -388,7 +388,7 @@
           stat('曲げの応力(目安)', fmtSig(r.stress), 'N/mm²'),
           stat('安全率(強さ ÷ 応力)', isFinite(r.safety) ? fmt(r.safety, 1) : '—', ''),
           stat('断面二次モーメント I', fmtSig(r.I), 'mm⁴')),
-        h('p', { class: 'g-muted' }, '安全率は、材料の強さが板の中の力(応力)の何倍あるかを表す数。3以上で「○ 余裕あり」、1.5〜3で「△ 注意」、1.5より小さいと「! こわれるおそれ」と表示しています。')));
+        h('p', { class: 'g-muted' }, '安全率は、材料の強さが板の中の力(応力)の何倍あるかを表す数。3以上は「○ 余裕あり」、1.5〜3は「△ 注意」と表示します。1.5より小さいと「! こわれるおそれ」です。')));
       if (r.deflection > 0 && isFinite(r.ratio) && r.ratio >= 2) {
         out.appendChild(h('p', null, 'たわみは支点間の距離の 約 1/' + fmt(r.ratio, 0) + '。棚板なら 1/200 より小さいと安心と言われます。'));
       }
@@ -405,7 +405,7 @@
   function formulaText(B) {
     var f = { simple: { point: 'δ = P × L³ ÷ (48 × E × I)', uniform: 'δ = 5 × P × L³ ÷ (384 × E × I)' },
       cantilever: { point: 'δ = P × L³ ÷ (3 × E × I)', uniform: 'δ = P × L³ ÷ (8 × E × I)' } }[B.support][B.loadType];
-    return 'たわみ ' + f + '(P: 荷重 N、L: 支点間の距離 mm、E: ヤング率 N/mm²、I: 断面二次モーメント mm⁴)。1kg のおもりは 約 9.8N の力。';
+    return 'たわみ ' + f + '。P: 荷重 N、L: 支点間の距離 mm、E: ヤング率 N/mm²、I: 断面二次モーメント mm⁴。1kg のおもりは 約 9.8N の力。';
   }
   function renderCompare(r, pr) {
     var box = $('#beam-compare');
@@ -606,7 +606,7 @@
           h('dt', null, '向いている場面'), h('dd', null, j.use),
           h('dt', null, 'こつ'), h('dd', null, j.tip))));
     });
-    box.appendChild(h('div', null, G.noteEstimate('ゆるみにくさ(■が多いほどゆるみにくい)は、使い方・材料・加工の正確さで変わる目安です。')));
+    box.appendChild(h('div', null, G.noteEstimate('ゆるみにくさは、■が多いほどゆるみにくい。使い方・材料・加工の正確さで変わる目安です。')));
   }
   function renderQuiz() {
     var box = $('#joint-quiz');
@@ -715,8 +715,8 @@
     var tries = rows.length, best = bestStars(lv.id);
     if (tries >= 3 && best < 3) {
       out.appendChild(h('p', { class: 'g-note' }, best === 0
-        ? 'ヒント:たわみが大きいときは、厚みを増やすと効果が大きい(厚み2倍でたわみは1/8)。'
-        : 'ヒント:板を厚くするより、薄い板に細いリブを付けて「高さ」を出すほうが、軽くて曲がりにくくなることがある。'));
+        ? 'ヒント:たわみが大きいときは、厚みを増やすと効果が大きい。厚み2倍でたわみは1/8になる。'
+        : 'ヒント:薄い板に細いリブを付けて「高さ」を出してみよう。板を厚くするより、軽くて曲がりにくくなることがある。'));
     }
     $('#c-reflect').value = S.challenge.reflect || '';
     $('#c-reflect2').value = S.challenge.reflect2 || '';

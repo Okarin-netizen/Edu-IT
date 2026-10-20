@@ -161,12 +161,12 @@ export function renderRecords(view, available, config, rerender, easy = "") {
       h("h2", {}, "ファイルに書き出す（提出用）"),
       h("p", {}, h("strong", {}, `${MSG_HAND_IN}。`), "クラス（組）と出席番号を入れてから、「JSONで書き出す」を押そう。"),
       h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: () => doExport("json", jsonMsg) }, "JSONで書き出す"), jsonMsg),
-      explainCard("入っていないもの", "パスワード強度ラボやハッシュ体験で入力した文字は、どこにも保存されないので、書き出したファイルにも入りません。", "good"),
+      explainCard("入っていないもの", "パスワード強度ラボやハッシュ体験で入力した文字は、どこにも保存されません。だから、書き出したファイルにも入りません。", "good"),
       h(
         "div",
         { class: "sub-tools" },
         h("h3", {}, "自分で見る・端末をかえるとき用"),
-        h("p", { class: "hint" }, "CSV は、表計算ソフトで自分の記録を見るためのファイルです。「JSONから読み込む」は、前に書き出した自分の JSON を、この端末にもどすときに使います。"),
+        h("p", { class: "hint" }, "CSV は、表計算ソフトで自分の記録を見るためのファイルです。「JSONから読み込む」は、前に書き出した自分の JSON を、この端末にもどすボタンです。"),
         h(
           "div",
           { class: "btn-row" },
