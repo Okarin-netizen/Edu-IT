@@ -149,7 +149,7 @@ export function createSimulator(opts) {
   let cellInfoAddr = null;
   // 用語の説明（押すと出る）
   const tPC = term("PC（次の番地）", "PC は「プログラムカウンタ」。次に取り出す命令の番地を覚えておく、CPU の中の小さな記憶の箱（レジスタ）です。");
-  const tIR = term("いまの命令", "制御装置が記憶装置から取り出して、いま解読・実行している命令です（命令レジスタという箱に入っています）。");
+  const tIR = term("いまの命令", "制御装置が記憶装置から取り出して、いま解読・実行している命令です。命令レジスタという箱に入っています。");
   const tACC = term("ACC（計算用の箱）", "ACC は「アキュムレータ」。計算に使う、CPU の中の小さな記憶の箱（レジスタ）です。LOAD で数を入れ、ADD・SUB で計算します。");
 
   const board = h(
@@ -389,7 +389,7 @@ export function createSimulator(opts) {
       listing.querySelector(".now")?.scrollIntoView?.({ block: "nearest" });
     }
     // 説明
-    if (!mach) narration.textContent = editing ? "「▶ 実行」か「1段階すすむ」を押すと、プログラムが記憶装置に読み込まれて動き始めます。" : "";
+    if (!mach) narration.textContent = editing ? "「▶ 実行」か「1段階すすむ」を押そう。プログラムが記憶装置に読み込まれて、動き始めます。" : "";
     else if (ev) narration.replaceChildren(h("span", { class: `phase-tag ${ev.phase}` }, PHASE_NAMES[ev.phase] || "停止"), " ", ev.message);
     else narration.textContent = "プログラムを記憶装置の 0番地から順に読み込みました。PC は 0。ここから命令を1つずつ取り出して実行します。";
 

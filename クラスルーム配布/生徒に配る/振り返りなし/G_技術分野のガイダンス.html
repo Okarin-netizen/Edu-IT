@@ -8,7 +8,7 @@
 <style>
 /* Edu-IT 共通の枠(4分野・全アプリ共通)
  * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D|G"> で切りかわる(G は分野に入らない「技術分野のガイダンス」)。
+ * 分野の色は <html data-ef-domain="A|B|C|D|G|T|M|F|Z"> で切りかわる(G は分野に入らない「技術分野のガイダンス」。T・M・F・Z は T-textbook/ の教科書順コースと3つの教材)。
  * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
  */
 :root {
@@ -36,6 +36,10 @@
 :root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
 :root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
 :root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
+:root[data-ef-domain="T"] { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }  /* 教科書の順に進む学習コース(T-textbook/): 灰青 */
+:root[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
+:root[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
+:root[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
 
 /* ---- ヘッダー ----
  * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
@@ -254,12 +258,13 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 .ef-jishu[hidden] { display: none; }
 .ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
 .ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ef-accent); }
+.ef-jishu rt { display: ruby-text !important; font-size: .55em; font-weight: 400; }  /* 教材のふりがなをオフにしても、ガイドのふりがなはガイドのボタンで決める */
 .ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
 .ef-jishu-k { color: var(--ef-accent); }
 .ef-jishu-name { font-weight: 700; }
 .ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
 .ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
-.ef-jishu p { margin: 0 0 6px; }
+.ef-jishu p { margin: 0 0 6px; line-height: 1.85; }
 .ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
 .ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
 .ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
@@ -270,6 +275,7 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
   background: var(--ef-accent); color: var(--ef-accent-ink); font-size: 13px; font-weight: 700; }
 .ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
 .ef-jishu-do { font-weight: 600; }
+.ef-jishu-line { display: block; }
 .ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 .ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
@@ -338,35 +344,236 @@ window.EDUIT_INFO = {
 
 /* 自習ガイド(自習モードのときだけ出る。形は shared/README.md の「自習モード」) */
 window.EDUIT_INFO.jishu = {
-  lead: '技術分野の学習を始める前に、技術とは何か、技術をどんな見方で見るか、3年間で何を学ぶかをつかみます。',
+  lead: '技術分野の学習を始める前に、次のことをつかみます。技術とは何か。技術をどんな見方で見るか。3年間で何を学ぶか。',
   apps: {
     G: {
-      goal: '身の回りの製品にこめられた工夫を見つけ、技術の見方・考え方(4つの視点)と問題解決の流れを知って、3年間の技術分野の学習の見通しを持つ。',
+      goal: '身の回りの製品にこめられた工夫を見つける。技術の見方・考え方(4つの視点)と、問題解決の流れを知る。3年間の学習の見通しを持つ。',
       time: '50分〜100分(1〜2時間)',
       steps: [
-        { where: 'はじめに', do: '「技術って何だろう?」を読み、身の回りで「技術だ」と思うものを3つ書こう。', hint: 'スマートフォン・自転車・冷蔵庫・道路・野菜など、人がつくったり育てたりしたものは何でもよい。思いつかないときは、教室の中を見回してみよう。', go: '[data-tab="intro"]' },
-        { where: '① 工夫・創造', do: '「発想のしかたクイズ」で、6つの製品がどの発想から生まれたかを答えよう。', hint: '「ほかの場面から借りた」なら転用、「ふつうと反対」なら逆転、「生き物や自然をまねた」なら自然から、「生活の中の不便」なら身の回りのヒントです。', go: '[data-tab="t1"]' },
-        { where: '① 工夫・創造', do: '身の回りの製品を1つえらび、どんな問題を解決しているか・どんな工夫があるかを書こう。', hint: '筆箱・水筒・かさなど、手もとにあるものでよい。「もしこの工夫がなかったら、何がこまる?」と考えると見つけやすい。' },
+        { where: 'はじめに', do: '「技術って何だろう?」を読み、身の回りで「技術だ」と思うものを3つ書こう。', hint: '人がつくったり育てたりしたものなら、何でもよい。スマートフォン・自転車・冷蔵庫・道路・野菜などです。思いつかないときは、教室の中を見回してみよう。', go: '[data-tab="intro"]' },
+        { where: '① 工夫・創造', do: '「発想のしかたクイズ」で、6つの製品がどの発想から生まれたかを答えよう。', hint: '「ほかの場面から借りた」なら転用。「ふつうと反対」なら逆転。「生き物や自然をまねた」なら自然から。「生活の中の不便」なら身の回りのヒントです。', go: '[data-tab="t1"]' },
+        { where: '① 工夫・創造', do: '身の回りの製品を1つえらぼう。どんな問題を解決しているか、どんな工夫があるかを書こう。', hint: '筆箱・水筒・かさなど、手もとにあるものでよい。「もしこの工夫がなかったら、何がこまる?」と考えると見つけやすい。' },
         { where: '② 歩みと未来', do: '明かり・情報通信・農業・住まいの4つの技術を、古い順にならべよう。', hint: '押した順に番号が付きます。まちがえたら「やり直す」。全部そろうと、何がよくなってきたかの説明が出ます。', go: '[data-tab="t2"]' },
-        { where: '② 歩みと未来', do: '気になる未来の技術をえらび、「技術でかなえたい夢」を書こう。', hint: '「〜でこまっている人が、〜できるようになる」のように、だれの何がよくなるかを入れて書こう。' },
-        { where: '③ 見方・考え方', do: '「4つの視点で仕分けよう」で、8つの文が社会からの要求・安全性・環境への負荷・経済性のどれかを答えよう。', hint: 'だれかの「〜したい」は社会からの要求、けがや事故は安全性、資源やCO2は環境への負荷、お金は経済性です。', go: '[data-tab="t3"]' },
-        { where: '③ 見方・考え方', do: '自転車を使う人を1人えらび、フレーム・動力・ライトを組み合わせて設計し、どの視点を大事にしたかを書こう。', hint: '全部の視点が5になる組み合わせはありません。使う人にとって何がいちばん大事かを考えて、折り合いをつけよう。' },
+        { where: '② 歩みと未来', do: '気になる未来の技術をえらび、「技術でかなえたい夢」を書こう。', hint: 'だれの何がよくなるかを入れて書こう。「〜でこまっている人が、〜できるようになる」のように書くとよい。' },
+        { where: '③ 見方・考え方', do: '「4つの視点で仕分けよう」で、8つの文がどの視点のことかを答えよう。', hint: 'だれかの「〜したい」は社会からの要求。けがや事故は安全性。資源やCO2は環境への負荷。お金は経済性です。', go: '[data-tab="t3"]' },
+        { where: '③ 見方・考え方', do: '自転車を使う人を1人えらぼう。フレーム・動力・ライトを組み合わせて設計しよう。どの視点を大事にしたかを書こう。', hint: '全部の視点が5になる組み合わせはありません。使う人にとって何がいちばん大事かを考えて、折り合いをつけよう。' },
         { where: '③ 見方・考え方', do: '使う人を変えて、もう一度設計しよう。選んだ部品はどう変わったかくらべよう。', hint: '使う人や目的が変わると、ちょうどよい組み合わせ(最適な答え)も変わります。これを「最適化」といいます。', level: 'advanced' },
-        { where: '④ 問題解決', do: '「問題?課題?」と「問題解決の流れ」「ニーズ?シーズ?」の3つに答えよう。', hint: '問題は「こまっていること(今と理想のずれ)」、課題は「解決のためにやること」です。流れは「見つける → 決める → 計画 → つくる → 評価 → 直す」の順です。', go: '[data-tab="t4"]' },
-        { where: '④ 問題解決', do: '自分の身の回りの問題を1つ見つけ、それを解決するための課題を書こう。', hint: '学校や家で「不便だな」「こうだったらいいのに」と思うことを問題に、「〜を〜する方法を考える」を課題に書くと分けやすい。' },
-        { where: '⑤ 4つの分野', do: '4つの分野のカードを読み、「どの分野の技術?」で8つの技術を仕分けよう。', hint: '木や金属をけずる・組み立てるは A、作物や生き物を育てるは B、電気や動くしくみは C、コンピュータや通信は D です。', go: '[data-tab="t5"]' },
+        { where: '④ 問題解決', do: '「問題?課題?」と「問題解決の流れ」「ニーズ?シーズ?」の3つに答えよう。', hint: '問題は「こまっていること(今と理想のずれ)」です。課題は「解決のためにやること」です。流れは「見つける → 決める → 計画 → つくる → 評価 → 直す」の順です。', go: '[data-tab="t4"]' },
+        { where: '④ 問題解決', do: '自分の身の回りの問題を1つ見つけ、それを解決するための課題を書こう。', hint: '学校や家で「不便だな」「こうだったらいいのに」と思うことが問題です。課題は「〜を〜する方法を考える」の形で書くと分けやすい。' },
+        { where: '⑤ 4つの分野', do: '4つの分野のカードを読み、「どの分野の技術?」で8つの技術を仕分けよう。', hint: '木や金属をけずる・組み立てるは A。作物や生き物を育てるは B。電気や動くしくみは C。コンピュータや通信は D です。', go: '[data-tab="t5"]' },
         { where: '⑤ 4つの分野', do: 'いちばん楽しみな分野をえらび、技術分野の学習でがんばりたいことを書こう。', hint: '「どうしてその分野が楽しみか」もいっしょに書くと、3年間の目標になります。' },
-        { where: '振り返り', do: '3つの自己評価をえらび、「技術とは何か」と「これからがんばりたいこと」を自分の言葉で書こう。', hint: 'はじめに書いた「技術だと思うもの」を見直して、考えが変わったところがあれば書こう。', reflect: true, go: '[data-tab="refl"]' },
-        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押し、できたファイルを先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
+        { where: '振り返り', do: '4つの自己評価をえらぼう。「技術とは何か」と「これからがんばりたいこと」を、自分の言葉で書こう。', hint: 'はじめに書いた「技術だと思うもの」を見直そう。考えが変わったところがあれば書こう。', reflect: true, go: '[data-tab="refl"]' },
+        { where: '記録', do: '組・番号・名前を入れて「記録を書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'ファイルが作れないときは、先生に聞いてください。', go: '[data-tab="rec"]' }
       ],
       check: [
-        { q: '技術の見方・考え方で、製品を見るときの4つの視点の組み合わせはどれ?', choices: ['色・形・大きさ・重さ', '社会からの要求・安全性・環境への負荷・経済性', '速さ・強さ・高さ・長さ'], answer: 1, explain: '技術は、社会からの要求・安全性・環境への負荷・経済性などの視点で、折り合いをつけて(最適化して)作られています。' },
+        { q: '技術の見方・考え方で、製品を見るときの4つの視点の組み合わせはどれ?', choices: ['色・形・大きさ・重さ', '社会からの要求・安全性・環境への負荷・経済性', '速さ・強さ・高さ・長さ'], answer: 1, explain: '技術は、社会からの要求・安全性・環境への負荷・経済性などの視点で考えます。その折り合いをつけて(最適化して)作られています。' },
         { q: '問題解決の「問題」の説明として正しいのはどれ?', choices: ['今のようす(現状)と、こうありたい姿(目標)とのずれ', '問題を解決するために取り組むこと', 'テストに出る問い'], answer: 0, explain: '問題は現状と目標(理想)のずれ(ギャップ)です。そのずれをうめるために取り組むことが「課題」です。' },
         { q: '面ファスナーは、ゴボウの実(ひっつき虫)が服にくっつくしくみから生まれました。これはどの発想?', choices: ['逆転の発想', 'アイデアの転用', '自然からの発想'], answer: 2, explain: '生き物や自然のしくみをまねて製品に生かすのが、自然からの発想です。新幹線の先頭の形(カワセミのくちばし)も同じです。' },
-        { q: '技術分野で学ぶ4つの内容の組み合わせはどれ?', choices: ['材料と加工・生物育成・エネルギー変換・情報', '調理・被服・住まい・家族', '物理・化学・生物・地学'], answer: 0, explain: '技術の授業で3年間に学ぶのは、材料と加工・生物育成・エネルギー変換・情報の4つの技術です。' }
+        { q: '技術分野で学ぶ4つの内容の組み合わせはどれ?', choices: ['材料と加工・生物育成・エネルギー変換・情報', '調理・被服・住まい・家族', '物理・化学・生物・地学'], answer: 0, explain: '3年間で学ぶのは、材料と加工・生物育成・エネルギー変換・情報の4つの技術です。' }
       ]
     }
   }
+};
+
+/* ---- 自習ガイドのふりがな(自動で作る: python3 shared/jishu-ruby.py。この行から下は手で直さない) ---- */
+window.EDUIT_INFO.jishu.ruby = {
+  "1人": "ひとり",
+  "お金": "おかね",
+  "やり直す": "やりなおす",
+  "一度": "いちど",
+  "不便": "ふべん",
+  "中": "なか",
+  "事故": "じこ",
+  "人": "ひと",
+  "今": "いま",
+  "仕分けよう": "しわけよう",
+  "付き": "つき",
+  "付けよう": "つけよう",
+  "住まい": "すまい",
+  "何": "なに",
+  "何だろう": "なんだろう",
+  "何で": "なんで",
+  "作ら": "つくら",
+  "作れ": "つくれ",
+  "作物": "さくもつ",
+  "使う": "つかう",
+  "借り": "かり",
+  "先生": "せんせい",
+  "先頭": "せんとう",
+  "入れ": "いれ",
+  "全部": "ぜんぶ",
+  "内容": "ないよう",
+  "冷蔵庫": "れいぞうこ",
+  "出": "で",
+  "出る": "でる",
+  "分": "ふん",
+  "分け": "わけ",
+  "分野": "ぶんや",
+  "前": "まえ",
+  "創造": "そうぞう",
+  "加工": "かこう",
+  "動く": "うごく",
+  "動力": "どうりょく",
+  "化学": "かがく",
+  "反対": "はんたい",
+  "取り組む": "とりくむ",
+  "古い": "ふるい",
+  "同じ": "おなじ",
+  "名前": "なまえ",
+  "問い": "とい",
+  "問題": "もんだい",
+  "問題解決": "もんだいかいけつ",
+  "地学": "ちがく",
+  "基本": "きほん",
+  "場所": "ばしょ",
+  "場面": "ばめん",
+  "変え": "かえ",
+  "変わっ": "かわっ",
+  "変わり": "かわり",
+  "変わる": "かわる",
+  "変換": "へんかん",
+  "夢": "ゆめ",
+  "大きさ": "おおきさ",
+  "大事": "だいじ",
+  "始める": "はじめる",
+  "姿": "すがた",
+  "学ぶ": "まなぶ",
+  "学校": "がっこう",
+  "学習": "がくしゅう",
+  "安全性": "あんぜんせい",
+  "実": "み",
+  "家": "いえ",
+  "家族": "かぞく",
+  "工夫": "くふう",
+  "年間": "ねんかん",
+  "強さ": "つよさ",
+  "形": "かたち",
+  "思いつか": "おもいつか",
+  "思う": "おもう",
+  "情報": "じょうほう",
+  "手もと": "てもと",
+  "手順": "てじゅん",
+  "技術": "ぎじゅつ",
+  "折り合い": "おりあい",
+  "押し": "おし",
+  "押そう": "おそう",
+  "持つ": "もつ",
+  "挑戦": "ちょうせん",
+  "振り返り": "ふりかえり",
+  "教室": "きょうしつ",
+  "教材": "きょうざい",
+  "文": "ぶん",
+  "新幹線": "しんかんせん",
+  "方法": "ほうほう",
+  "明かり": "あかり",
+  "時間": "じかん",
+  "書い": "かい",
+  "書き出す": "かきだす",
+  "書く": "かく",
+  "書こう": "かこう",
+  "最適": "さいてき",
+  "最適化": "さいてきか",
+  "服": "ふく",
+  "木": "き",
+  "未来": "みらい",
+  "材料": "ざいりょう",
+  "案内": "あんない",
+  "楽しみ": "たのしみ",
+  "次": "つぎ",
+  "正しい": "ただしい",
+  "正解": "せいかい",
+  "歩み": "あゆみ",
+  "気": "き",
+  "水筒": "すいとう",
+  "決める": "きめる",
+  "流れ": "ながれ",
+  "物理": "ぶつり",
+  "現状": "げんじょう",
+  "理想": "りそう",
+  "環境": "かんきょう",
+  "生かす": "いかす",
+  "生き物": "いきもの",
+  "生まれ": "うまれ",
+  "生活": "せいかつ",
+  "生物": "せいぶつ",
+  "番号": "ばんごう",
+  "発展": "はってん",
+  "発想": "はっそう",
+  "目安": "めやす",
+  "目標": "もくひょう",
+  "目的": "もくてき",
+  "直す": "なおす",
+  "知る": "しる",
+  "確かめよう": "たしかめよう",
+  "社会": "しゃかい",
+  "筆箱": "ふでばこ",
+  "答え": "こたえ",
+  "答えよう": "こたえよう",
+  "終わっ": "おわっ",
+  "組": "くみ",
+  "組み合わせ": "くみあわせ",
+  "組み立てる": "くみたてる",
+  "経済性": "けいざいせい",
+  "考え": "かんがえ",
+  "考える": "かんがえる",
+  "考え方": "かんがえかた",
+  "聞い": "きい",
+  "育て": "そだて",
+  "育てる": "そだてる",
+  "育成": "いくせい",
+  "自分": "じぶん",
+  "自己評価": "じこひょうか",
+  "自然": "しぜん",
+  "自習": "じしゅう",
+  "自転車": "じてんしゃ",
+  "色": "いろ",
+  "虫": "むし",
+  "被服": "ひふく",
+  "製品": "せいひん",
+  "要求": "ようきゅう",
+  "見つけ": "みつけ",
+  "見つける": "みつける",
+  "見る": "みる",
+  "見回し": "みまわし",
+  "見方": "みかた",
+  "見直そう": "みなおそう",
+  "見通し": "みとおし",
+  "視点": "してん",
+  "解決": "かいけつ",
+  "言う": "いう",
+  "言葉": "ことば",
+  "計画": "けいかく",
+  "記録": "きろく",
+  "設計": "せっけい",
+  "評価": "ひょうか",
+  "説明": "せつめい",
+  "読み": "よみ",
+  "課題": "かだい",
+  "調理": "ちょうり",
+  "負荷": "ふか",
+  "資源": "しげん",
+  "身の回り": "みのまわり",
+  "転用": "てんよう",
+  "農業": "のうぎょう",
+  "逆転": "ぎゃくてん",
+  "通信": "つうしん",
+  "速さ": "はやさ",
+  "進める": "すすめる",
+  "進め方": "すすめかた",
+  "進もう": "すすもう",
+  "道路": "どうろ",
+  "選ぼう": "えらぼう",
+  "選ん": "えらん",
+  "部品": "ぶひん",
+  "重さ": "おもさ",
+  "野菜": "やさい",
+  "金属": "きんぞく",
+  "長さ": "ながさ",
+  "閉じる": "とじる",
+  "電気": "でんき",
+  "面": "めん",
+  "順": "じゅん",
+  "高さ": "たかさ"
 };
 
 </script>
@@ -474,20 +681,20 @@ window.EDUIT_INFO.jishu = {
   if (jishu) document.documentElement.setAttribute('data-ef-jishu', 'on');
 
   var SAFETY = [
-    'この教材はインターネットに接続しません。外部のサイトやサーバーへ、入力した内容や学習の記録を送ることはありません。',
-    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンへ自動で送られることはありません。',
-    '提出するときは、自分で「書き出す」などのボタンでファイルにして、先生の指示どおりに出します。',
+    'この教材は、インターネットにつながりません。入力したことや学習の記録を、外のサイトに送ることはありません。',
+    '学習の記録は、開いた端末のブラウザの中だけに保存されます。ほかの端末や先生のパソコンには送られません。',
+    '提出するときは、「書き出す」などのボタンでファイルにします。そのファイルを、先生の指示どおりに出します。',
     '名前などの個人情報は、先生の指示がないときは入力しないでください。',
     '端末をほかの人と共有するときは、提出したあとに記録を消してください。',
-    '教材に出てくる会社名・人名・アドレス・数値は、学習のために作ったものです(実在のものではありません。数値は目安です)。',
+    '教材に出てくる会社名・人名・アドレスは、学習のために作ったものです。実在しません。数値は目安です。',
     '広告・アクセス解析・Cookie による追跡はありません。外部のプログラム(CDN など)も読み込みません。'
   ];
   var LICENSE = [
     '著作権: © 2026 ' + AUTHOR,
-    '学校の授業・家庭学習など、学習のためであれば、だれでも無料で使用・コピー・配布できます(ほかの学校の先生も使えます)。',
+    '学習のためなら、だれでも無料で使い、コピーし、配ることができます。ほかの学校の先生も使えます。',
     '授業に合わせて直して使うこともできます。直したものを配るときは、直したことと、もとの作者(' + AUTHOR + ')を書いてください。',
     '販売すること、有料の教材や商品に入れて配ることはできません。',
-    'この教材は今のまま提供します。使ったことで起きた不具合や損害について、作者は責任を負いません。',
+    'この教材は、今のまま提供します。使って起きた不具合や損害に、作者は責任を負いません。',
     '教科書の図や文章は使っていません。図や文章はこの教材のために作ったものです。'
   ];
 
@@ -820,7 +1027,7 @@ window.EDUIT_INFO.jishu = {
   }
   function appCode() {
     var a = (window.EDUIT_INFO || info).app || app;
-    var m = /^([A-D]\d+|G)\s/.exec(a.name || '');
+    var m = /^([A-D]\d+|[GMFZ])\s/.exec(a.name || '');
     return m ? m[1] : null;
   }
   function jishuLoad(c) {
@@ -849,6 +1056,40 @@ window.EDUIT_INFO.jishu = {
     return '進め方 ' + p.done + '/' + p.steps + (p.checks ? '・たしかめ ' + p.ok + '/' + p.checks : '');
   }
 
+  // 自習ガイドのふりがな: EDUIT_INFO.jishu.ruby(言葉 → 読み。shared/jishu-ruby.py で作る)の言葉に、長いものから順に付ける。
+  // ガイドの上の「ふりがな」で消せる(はじめは付いている。その端末で覚える)
+  var JS_RUBY = 'eduit.jishu.ruby', KJ = /[一-鿿々〆]/, rubyRe = null;
+  function jishuRubyOn() { try { return localStorage.getItem(JS_RUBY) !== 'off'; } catch (e) { return true; } }
+  function rubyDict() { var J = (window.EDUIT_INFO || info).jishu; return (J && J.ruby) || {}; }
+  // 言葉の中のかなのところには付けない(「下げる」→ 下(さ)げる)。読みと合わないときは、言葉ぜんぶに付ける
+  function rubyParts(k, r) {
+    var parts = k.match(/[一-鿿々〆]+|[^一-鿿々〆]+/g);
+    var m = new RegExp('^' + parts.map(function (p) { return KJ.test(p) ? '(.+?)' : '(' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')'; }).join('') + '$').exec(r);
+    if (!m) return [[k, r]];
+    return parts.map(function (p, i) { return [p, KJ.test(p) ? m[i + 1] : null]; });
+  }
+  function jishuRuby(node) {
+    var D = rubyDict(), keys = Object.keys(D);
+    if (!keys.length) return;
+    if (!rubyRe) rubyRe = new RegExp(keys.sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null), list = [];
+    while (w.nextNode()) if (KJ.test(w.currentNode.nodeValue) && !w.currentNode.parentNode.closest('ruby, rt, script, style')) list.push(w.currentNode);
+    list.forEach(function (n) {
+      var s = n.nodeValue, f = document.createDocumentFragment(), last = 0, m;
+      rubyRe.lastIndex = 0;
+      while ((m = rubyRe.exec(s))) {
+        if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+        rubyParts(m[0], D[m[0]]).forEach(function (x) {
+          f.appendChild(x[1] ? el('ruby', null, [x[0], el('rt', { text: x[1] })]) : document.createTextNode(x[0]));
+        });
+        last = m.index + m[0].length;
+      }
+      if (!last) return;
+      if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+      n.parentNode.replaceChild(f, n);
+    });
+  }
+
   // 振り返りを隠す設定のときは、タブの名前から「ふりかえり」を消す(D の「ふりかえり・記録」→「記録」など。教材の側も同じように変わる)
   function whereText(w) {
     return furikaeri ? w : w.replace(/(ふりかえり|振り返り)・/g, '').replace(/と(ふりかえり|振り返り)/g, '');
@@ -867,12 +1108,13 @@ window.EDUIT_INFO.jishu = {
       el('span', { class: 'ef-jishu-fab-t', text: '自習ガイド' }), el('span', { class: 'ef-jishu-fab-p' })
     ]);
     var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var rb = Object.keys(rubyDict()).length ? el('button', { type: 'button', class: 'ef-btn ef-toggle ef-jishu-small', 'aria-pressed': String(jishuRubyOn()), text: 'ふりがな' }) : null;
     var body = el('div', { class: 'ef-jishu-body' });
     var name = appTitle || ((window.EDUIT_INFO || info).app || app).name || '';
-    var panel = el('aside', { class: 'ef-jishu', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
+    var panel = el('aside', { class: 'ef-jishu kz-norb no-ruby', 'data-noruby': '', id: 'ef-jishu', 'aria-label': '自習ガイド', hidden: '' }, [
       el('div', { class: 'ef-jishu-head' }, [
-        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|G)\s*/, '') })]),
-        close
+        el('h2', null, [el('span', { class: 'ef-jishu-k', text: '自習ガイド' }), code(c), el('span', { class: 'ef-jishu-name', text: name.replace(/^(?:[A-D]\d+|[GMFZ])\s*/, '') })]),
+        rb, close
       ]),
       body
     ]);
@@ -891,6 +1133,10 @@ window.EDUIT_INFO.jishu = {
       if (!where) return false;
       if (where.charAt(0) === '#') return true;
       try { return !!document.querySelector(where); } catch (e) { return false; }
+    }
+    // 1つの手順に文が2つ以上あるときは、文ごとに行を分ける(読む人が、いまどこをしているか追いやすいように)
+    function lines(t) {
+      return String(t || '').replace(/。(?=[^」』）)])/g, '。\n').split('\n').map(function (x) { return el('span', { class: 'ef-jishu-line', text: x }); });
     }
     function stepEl(x, n) {
       var s = x.s;
@@ -914,7 +1160,7 @@ window.EDUIT_INFO.jishu = {
           el('span', { class: 'ef-jishu-n', text: String(n) }),
           s.where ? el('span', { class: 'ef-jishu-where', text: whereText(s.where) }) : null
         ]),
-        el('p', { class: 'ef-jishu-do', text: s.do || '' }),
+        el('p', { class: 'ef-jishu-do' }, lines(s.do)),
         tools,
         hint || null,
         el('label', { class: 'ef-jishu-done', for: 'ef-js-s' + x.i }, [cb, 'できた'])
@@ -939,8 +1185,9 @@ window.EDUIT_INFO.jishu = {
         while (res.firstChild) res.removeChild(res.firstChild);
         if (a === undefined) return;
         res.className = 'ef-jishu-res ' + (a === q.answer ? 'is-ok' : 'is-ng');
-        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選んでみよう。' }));
+        res.appendChild(el('strong', { text: a === q.answer ? '正解!' : 'ちがいます。もう一度考えて、ほかのものを選ぼう。' }));
         if (a === q.answer && q.explain) res.appendChild(el('span', { text: ' ' + q.explain }));
+        if (rb && jishuRubyOn()) jishuRuby(res);
       }
       paint();
       return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
@@ -953,8 +1200,9 @@ window.EDUIT_INFO.jishu = {
       endBox.classList.toggle('is-clear', all);
       endBox.appendChild(el('p', { class: 'ef-jishu-prog', text: progressText(p) }));
       endBox.appendChild(el('p', { text: all
-        ? 'この教材の基本はクリアです。発展に挑戦するか、メニューにもどって、おすすめの順番の次の教材へ進もう。'
-        : 'できた手順に ✓ を付けよう。全部できて、たしかめ問題に全部正解したらクリアです。' }));
+        ? '基本はクリアです。発展に挑戦しよう。または、メニューにもどって次の教材へ進もう。'
+        : 'できた手順に ✓ を付けよう。手順が全部できて、たしかめ問題が全部正解ならクリアです。' }));
+      if (rb && jishuRubyOn()) jishuRuby(endBox);
     }
     function render() {
       while (body.firstChild) body.removeChild(body.firstChild);
@@ -962,13 +1210,13 @@ window.EDUIT_INFO.jishu = {
       var basic = steps.filter(function (x) { return x.s.level !== 'advanced'; });
       var adv = steps.filter(function (x) { return x.s.level === 'advanced'; });
       body.appendChild(el('section', { class: 'ef-jishu-goal' }, [
-        el('h3', { text: 'ねらい' }), el('p', { text: d.goal || '' }),
+        el('h3', { text: 'ねらい' }), el('p', null, lines(d.goal)),
         d.time ? el('p', { class: 'ef-jishu-time', text: '時間の目安: ' + d.time }) : null
       ]));
       body.appendChild(el('section', null, [el('h3', { text: '進め方' }), el('ol', { class: 'ef-jishu-steps' }, basic.map(function (x, k) { return stepEl(x, k + 1); }))]));
       if (d.check && d.check.length) body.appendChild(el('section', null, [
         el('h3', { text: 'たしかめ問題' }),
-        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめてからでよい。' }),
+        el('p', { class: 'ef-jishu-note', text: '進め方が終わったら答えよう。わからないときは、教材にもどって確かめよう。' }),
         el('ol', { class: 'ef-jishu-qs' }, d.check.map(checkEl))
       ]));
       body.appendChild(endBox);
@@ -980,6 +1228,7 @@ window.EDUIT_INFO.jishu = {
         ]);
         body.appendChild(det);
       }
+      if (rb && jishuRubyOn()) jishuRuby(body);
       document.dispatchEvent(new CustomEvent('eduit-jishu-render', { detail: panel }));
     }
     function show(on) {
@@ -990,6 +1239,12 @@ window.EDUIT_INFO.jishu = {
     }
     fab.addEventListener('click', function () { show(panel.hidden); if (!panel.hidden) close.focus(); });
     close.addEventListener('click', function () { show(false); fab.focus(); });
+    if (rb) rb.addEventListener('click', function () {
+      var on = !jishuRubyOn();
+      try { localStorage.setItem(JS_RUBY, on ? 'on' : 'off'); } catch (e) {}
+      rb.setAttribute('aria-pressed', String(on));
+      render();
+    });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { show(false); fab.focus(); } });
     render();
     updateFab();
@@ -1007,10 +1262,10 @@ window.EDUIT_INFO.jishu = {
       J.lead ? el('p', { text: J.lead }) : null,
       el('ol', null, [
         el('li', { text: '基本編のカードを、おすすめの順番に開きます。' }),
-        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進め、できたら「できた」に ✓ を付けます。' }),
-        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のタブやページに移ります。' }),
+        el('li', { text: '教材の右はしの「自習ガイド」を押すと、ねらいと進め方が出ます。上から順に進めます。できたら「できた」に ✓ を付けます。' }),
+        el('li', { text: 'こまったら「ヒント」を押します。「この場所へ」を押すと、その手順のページに移ります。' }),
         el('li', { text: '最後に「たしかめ問題」に答えます。全部正解したら、次の教材へ進みます。' }),
-        furikaeri ? el('li', { text: '振り返りを書いて、記録を書き出し、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
+        furikaeri ? el('li', { text: '振り返りを書きます。記録を書き出して、先生の指示どおりに出します。' }) : el('li', { text: '記録を書き出して、先生の指示どおりに出します。' })
       ])
     ]);
   }
@@ -1041,7 +1296,8 @@ window.EDUIT_INFO.jishu = {
   #gapp { --g-fs: 1; font-family: var(--ef-font); font-size: calc(17px * var(--g-fs)); line-height: 1.75; color: var(--ef-text); }
   #gapp *, #gapp *::before, #gapp *::after { box-sizing: border-box; }
   #gapp.g-noruby rt { display: none; }
-  #gapp rt { font-size: .5em; color: var(--ef-muted); }
+  #gapp rt, .ef-howto rt { font-size: .5em; color: var(--ef-muted); }
+  .g-noruby-doc .ef-howto rt { display: none; }
   :where(#gapp button, #gapp input, #gapp textarea, #gapp select) { font: inherit; color: inherit; }
   #gapp .ef-header .ef-btn { font-size: 15px; }
   /* 上のバーとタブの帯(下へ読むと隠れ、上へもどすと出る) */
@@ -1217,8 +1473,8 @@ window.EDUIT_INFO.jishu = {
       <p class="g-ref">教科書「技術分野のガイダンス」・技術分野の学習方法</p>
       <div class="g-card">
         <h3>技術って何だろう?</h3>
-        <p class="g-lead">わたしたちのまわりには、人がつくったもの・育てたものがたくさんあります。家、道路、電気、スマートフォン、毎日食べる野菜や魚…。どれも、だれかが「こまった」「こうしたい」を解決するために考え、工夫して生みだしてきたものです。</p>
-        <div class="g-key"><b>技術</b>とは、材料を加工したり、生物を育てたり、エネルギーや情報を使ったりして、<b>生活や社会の問題を解決する</b>ための工夫や方法のことです。</div>
+        <p class="g-lead">わたしたちのまわりには、人がつくったもの・育てたものがたくさんあります。家、道路、電気、スマートフォン、毎日食べる野菜や魚…。どれも、だれかの「こまった」「こうしたい」から生まれました。人が考え、工夫して生みだしてきたものです。</p>
+        <div class="g-key"><b>技術</b>とは、<b>生活や社会の問題を解決する</b>ための工夫や方法のことです。材料を加工する、生物を育てる、エネルギーや情報を使う、などの方法があります。</div>
       </div>
       <div class="g-card g-write">
         <h3>身の回りの「技術」を3つ書こう</h3>
@@ -1242,10 +1498,10 @@ window.EDUIT_INFO.jishu = {
       <div class="g-card">
         <h3>技術分野の学び方</h3>
         <div class="g-grid">
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🎯</span>目標をつかむ</h4><p>教科書の節の初めの【目標】と【学習課題】を読み、何ができるようになればよいかを確かめます。</p></div>
+          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🎯</span>目標をつかむ</h4><p>教科書の節の初めにある【目標】と【学習課題】を読みます。何ができるようになればよいかを確かめます。</p></div>
           <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🔍</span>調べる・試す</h4><p>実験・観察・体験の教材で、しくみを自分で確かめます。フィールドワークやインタビューも使います。</p></div>
           <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">💬</span>話し合う</h4><p>考えたことを伝え合い、友だちの考えとくらべて、よりよい考えにします。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">📝</span>まとめる</h4><p>【まとめよう】で、分かったことを自分の言葉でまとめ、次の学習や生活に生かします。</p></div>
+          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">📝</span>まとめる</h4><p>【まとめよう】で、分かったことを自分の言葉でまとめます。次の学習や生活に生かします。</p></div>
         </div>
       </div>
       <div class="g-card">
@@ -1253,9 +1509,9 @@ window.EDUIT_INFO.jishu = {
         <div class="g-grid">
           <div class="g-mini"><h4>1 安全な環境</h4><p>作業する場所を整理・整頓し、通路に物を置かない。換気や明るさにも気を配る。</p></div>
           <div class="g-mini"><h4>2 安全な行動</h4><p>先生の説明をよく聞き、決められた手順を守る。ふざけたり走ったりしない。</p></div>
-          <div class="g-mini"><h4>3 安全な作業</h4><p>作業に合った服装・保護めがねを使い、工具や機械は正しい使い方で使う。</p></div>
+          <div class="g-mini"><h4>3 安全な作業</h4><p>作業に合った服装をし、保護めがねを使う。工具や機械は正しく使う。</p></div>
         </div>
-        <p>コンピュータを使うときは、正しい姿勢で、ときどき目を休めます。パスワードを人に教えない、知らない人に個人情報を送らない、なども大切です。</p>
+        <p>コンピュータを使うときは、正しい姿勢で、ときどき目を休めます。パスワードを人に教えない。知らない人に個人情報を送らない。これらも大切です。</p>
       </div>
     </section>
 
@@ -1264,11 +1520,11 @@ window.EDUIT_INFO.jishu = {
       <h2>① 製品にこめられた工夫と創造</h2>
       <p class="g-ref">教科書 ガイダンス 1</p>
       <div class="g-card">
-        <p class="g-lead">身の回りの製品には、「もっと使いやすく」「こまっていることをなくしたい」という作った人の思いと、問題を解決するための工夫がこめられています。新しいアイデアは、次のような発想から生まれることがあります。</p>
+        <p class="g-lead">身の回りの製品には、作った人の思いがこめられています。「もっと使いやすく」「こまっていることをなくしたい」という思いです。そして、問題を解決するための工夫があります。新しいアイデアは、次のような発想から生まれることがあります。</p>
         <div class="g-grid">
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🔁</span>アイデアの転用</h4><p>ほかの場面で使われているしくみやアイデアを借りて、別の場面に生かす。</p></div>
+          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🔁</span>アイデアの転用</h4><p>ほかの場面のしくみやアイデアを借りて、別の場面に生かす。</p></div>
           <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🙃</span>逆転の発想</h4><p>ふつうとは反対に考える。「失敗」や「欠点」に見えるものを、役に立つ性質として使う。</p></div>
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🏠</span>身の回りのヒント</h4><p>生活の中の「不便だな」「こまったな」に気づき、それをなくす方法を考える。</p></div>
+          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🏠</span>身の回りのヒント</h4><p>生活の中の「不便だな」「こまったな」に気づく。それをなくす方法を考える。</p></div>
           <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🌿</span>自然からの発想</h4><p>生き物の体のつくりや、自然のしくみをまねて製品に生かす。</p></div>
         </div>
       </div>
@@ -1291,18 +1547,18 @@ window.EDUIT_INFO.jishu = {
       <h2>② 夢をかなえてきた技術の歩み</h2>
       <p class="g-ref">教科書 ガイダンス 2</p>
       <div class="g-card">
-        <p class="g-lead">「夜も明るくしたい」「遠くの人と話したい」「たくさん食べ物をつくりたい」「安全で快適な家に住みたい」。技術は、こうした人々の願いにこたえようとして進歩してきました。わたしたちが今使っている技術は、昔の人たちが長い時間をかけて考え、試し、積み重ねてきた工夫の上にあります。</p>
+        <p class="g-lead">人々には「夜も明るくしたい」「遠くの人と話したい」などの願いがあります。「たくさん食べ物をつくりたい」「安全で快適な家に住みたい」という願いもあります。技術は、こうした願いにこたえて進歩してきました。今の技術は、昔の人たちが長い時間をかけて積み重ねてきた工夫の上にあります。</p>
       </div>
       <div class="g-card g-act">
         <h3>技術の歩みを古い順にならべよう</h3>
-        <p>古いと思うものから順に押します。押した順に番号が付き、4つそろうと答え合わせをします。</p>
+        <p>古いと思うものから順に押します。押した順に番号が付きます。4つそろうと答え合わせをします。</p>
         <div id="g-ord-hist"></div>
       </div>
       <div class="g-card g-write">
         <h3>これからの技術で、どんな夢をかなえたい?</h3>
         <p>気になる未来の技術を、いくつでもえらびましょう。</p>
         <div class="g-choices" id="g-future"></div>
-        <label class="g-field"><span>技術でかなえたい夢(だれの、何がよくなる?)</span><textarea data-k="t2.dream" placeholder="例: 自動運転のバスが走れば、車を運転できないお年寄りも、行きたいところへ自由に行けるようになる"></textarea></label>
+        <label class="g-field"><span>技術でかなえたい夢(だれの、何がよくなる?)</span><textarea data-k="t2.dream" placeholder="例: 自動運転のバスがあれば、運転できないお年寄りも、行きたいところへ行ける"></textarea></label>
       </div>
     </section>
 
@@ -1318,7 +1574,7 @@ window.EDUIT_INFO.jishu = {
           <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🌏</span>環境への負荷</h4><p>資源やエネルギーをむだに使わないか。CO2やごみを出しすぎないか。</p></div>
           <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">💴</span>経済性</h4><p>つくるとき・使うとき・すてるときにかかるお金。</p></div>
         </div>
-        <div class="g-key">例: <b>LED電球</b>は、白熱電球と同じ明るさで使う電気が少なく(環境への負荷)、熱くなりにくく(安全性)、長持ちします。でも、1個の値段は高めです(経済性)。どの視点も全部いちばんにすることはむずかしいので、作る人は視点どうしの<b>折り合い</b>をつけて、いちばんよい答えをさがします(<b>最適化</b>)。ある視点をよくすると別の視点が悪くなる関係を<b>トレードオフ</b>といいます。</div>
+        <div class="g-key">例: <b>LED電球</b>は、白熱電球と同じ明るさでも使う電気が少ないです(環境への負荷)。熱くなりにくく(安全性)、長持ちします。でも、1個の値段は高めです(経済性)。ある視点をよくすると、別の視点が悪くなることがあります。この関係を<b>トレードオフ</b>といいます。全部の視点をいちばんにするのはむずかしいです。作る人は、視点どうしの<b>折り合い</b>をつけて、いちばんよい答えをさがします(<b>最適化</b>)。</div>
       </div>
       <div class="g-card g-act">
         <h3>4つの視点で仕分けよう</h3>
@@ -1327,7 +1583,7 @@ window.EDUIT_INFO.jishu = {
       </div>
       <div class="g-card g-act">
         <h3>自転車を設計して、折り合いをつけよう</h3>
-        <p>まず、使う人を1人えらびます(★がその人がとくに大事にしたい視点です)。次に部品を組み合わせて、4つの視点のバランスを見ましょう。</p>
+        <p>まず、使う人を1人えらびます。★は、その人がとくに大事にしたい視点です。次に部品を組み合わせて、4つの視点のバランスを見ましょう。</p>
         <div class="g-design">
           <div>
             <fieldset class="g-opt"><legend>使う人</legend><div class="g-choices" id="g-bike-user"></div></fieldset>
@@ -1340,7 +1596,7 @@ window.EDUIT_INFO.jishu = {
             <p class="g-bike-msg" id="g-bike-msg"></p>
           </div>
         </div>
-        <label class="g-field"><span>使う人のために、どの視点を大事にして、何を選んだ? そのかわりに、何をがまんした?</span><textarea data-k="t3.why" placeholder="例: 坂の多い町のお年寄りのために、楽に走れる電動アシストにした。そのかわり値段は高くなった"></textarea></label>
+        <label class="g-field"><span>使う人のために、何を選んだ? どの視点を大事にした? そのかわりに、何をがまんした?</span><textarea data-k="t3.why" placeholder="例: 坂の多い町のお年寄りのために、楽に走れる電動アシストにした。そのかわり値段は高くなった"></textarea></label>
       </div>
     </section>
 
@@ -1349,7 +1605,7 @@ window.EDUIT_INFO.jishu = {
       <h2>④ 技術で問題を解決するには</h2>
       <p class="g-ref">教科書 ガイダンス 4</p>
       <div class="g-card">
-        <p class="g-lead">技術の授業では、作品をつくったり作物を育てたりしながら、身の回りや社会の問題を解決する力をつけます。はじめの一歩は、問題を見つけて、課題を決めることです。</p>
+        <p class="g-lead">技術の授業では、作品をつくったり、作物を育てたりします。その中で、身の回りや社会の問題を解決する力をつけます。はじめの一歩は、問題を見つけて、課題を決めることです。</p>
         <div class="g-gap" aria-label="問題と課題の図">
           <div class="g-now"><b>現状</b><br>今のようす</div>
           <div class="g-mid">← ずれ(ギャップ) →<br>これが「問題」</div>
@@ -1374,7 +1630,7 @@ window.EDUIT_INFO.jishu = {
       </div>
       <div class="g-card g-act">
         <h3>ニーズ? シーズ?</h3>
-        <p>使う人の求めから考えたもの(ニーズ)か、技術から考えたもの(シーズ)か、えらびましょう。 <span class="g-score" id="g-q4b-score"></span></p>
+        <p>使う人の求めから考えたものはニーズ、技術から考えたものはシーズです。どちらでしょう。 <span class="g-score" id="g-q4b-score"></span></p>
         <ol class="g-quiz" id="g-q4b"></ol>
       </div>
       <div class="g-card g-write">
@@ -1391,13 +1647,13 @@ window.EDUIT_INFO.jishu = {
       <div class="g-card">
         <p class="g-lead">技術分野では、3年間で次の4つの技術について学びます。それぞれの技術で、どんな社会をめざすのかも考えます。</p>
         <div class="g-areas">
-          <div class="g-area g-area-A"><h4>A 材料と加工の技術</h4><p>木材・金属・プラスチックの性質を知り、じょうぶな構造を考えて、製図をかき、作品をつくります。</p><p><span class="g-tag">循環型社会</span></p></div>
-          <div class="g-area g-area-B"><h4>B 生物育成の技術</h4><p>作物や動物・魚の育つ環境を整えるしくみを知り、計画を立てて作物を育てます。</p><p><span class="g-tag">自然共生社会</span></p></div>
-          <div class="g-area g-area-C"><h4>C エネルギー変換の技術</h4><p>電気をつくる・送るしくみ、電気回路、動きを伝える機構を知り、製品を設計します。</p><p><span class="g-tag">脱炭素社会</span><span class="g-tag">省エネルギー</span></p></div>
+          <div class="g-area g-area-A"><h4>A 材料と加工の技術</h4><p>木材・金属・プラスチックの性質を知ります。じょうぶな構造を考え、製図をかいて、作品をつくります。</p><p><span class="g-tag">循環型社会</span></p></div>
+          <div class="g-area g-area-B"><h4>B 生物育成の技術</h4><p>作物や動物・魚が育つ環境を整えるしくみを知ります。計画を立てて作物を育てます。</p><p><span class="g-tag">自然共生社会</span></p></div>
+          <div class="g-area g-area-C"><h4>C エネルギー変換の技術</h4><p>電気をつくる・送るしくみ、電気回路、動きを伝える機構を知ります。それを使って製品を設計します。</p><p><span class="g-tag">脱炭素社会</span><span class="g-tag">省エネルギー</span></p></div>
           <div class="g-area g-area-D"><h4>D 情報の技術</h4><p>コンピュータやネットワークのしくみを知り、プログラミングで問題を解決します。</p><p><span class="g-tag">超スマート社会</span><span class="g-tag">プログラミング</span></p></div>
         </div>
-        <p>最後に、4つの技術を組み合わせた<b>統合的な問題解決</b>(植物工場や火星探査ロボットなど)にも取り組みます。</p>
-        <div class="g-key">技術分野で身につける力: <b>知識・技能</b>(しくみが分かり、使える)・<b>思考力・判断力・表現力</b>(問題を見つけ、解決策を考えて伝える)・<b>学びに向かう力</b>(暮らしや社会を、未来までもっとよくしようとする)</div>
+        <p>最後に、4つの技術を組み合わせた<b>統合的な問題解決</b>にも取り組みます。植物工場や火星探査ロボットなどです。</p>
+        <div class="g-key">技術分野で身につける力:<br><b>知識・技能</b>: しくみが分かり、使える。<br><b>思考力・判断力・表現力</b>: 問題を見つけ、解決策を考えて伝える。<br><b>学びに向かう力</b>: 暮らしや社会を、未来までもっとよくしようとする。</div>
       </div>
       <div class="g-card g-act">
         <h3>どの分野の技術?</h3>
@@ -1538,7 +1794,9 @@ window.EDUIT_INFO.jishu = {
     '夏休': 'なつやす', '花': 'はな', '土': 'つち', '改善': 'かいぜん', '修正': 'しゅうせい', '成果': 'せいか', '評価': 'ひょうか', '設定': 'せってい', '発見': 'はっけん', '製作': 'せいさく',
     '制作': 'せいさく', '育成': 'いくせい', '荷物': 'にもつ', '車輪': 'しゃりん', '台車': 'だいしゃ', '青': 'あお', '発明': 'はつめい', '緑': 'みどり', '白': 'しろ', '照明': 'しょうめい', '整': 'ととの',
     '解決策': 'かいけつさく', '向': 'む', '本立': 'ほんた', '肥料': 'ひりょう', '量': 'りょう', '風': 'かぜ', '発電機': 'はつでんき', '海': 'うみ', '養殖': 'ようしょく', '曲': 'ま', '歯車': 'はぐるま',
-    '相手': 'あいて', '理由': 'りゆう', '問': 'もん', '分別': 'ぶんべつ', '手紙': 'てがみ', '楽し': 'たのし', '生': 'い', '生み': 'うみ', '生ま': 'うま', '1人': 'ひとり'
+    '相手': 'あいて', '理由': 'りゆう', '問': 'もん', '分別': 'ぶんべつ', '手紙': 'てがみ', '楽し': 'たのし', '生': 'い', '生み': 'うみ', '生ま': 'うま', '1人': 'ひとり',
+    '出る': 'でる', '出ま': 'でま', '少な': 'すくな', '入れ': 'いれ', '光る': 'ひかる', '上げ': 'あげ', '地震': 'じしん', '建物': 'たてもの', '畑': 'はたけ', '世話': 'せわ', '特大': 'とくだい', '修理': 'しゅうり', '人数': 'にんずう', '長持': 'ながも',
+    '閉じ': 'とじ', '漢字': 'かんじ', '欄': 'らん', '開き': 'ひらき', '小・中・大・特大': 'しょう・ちゅう・だい・とくだい', '速く': 'はやく', '空で': 'からで'
   };
   var RUBY_RE = new RegExp(Object.keys(RUBY).sort(function (a, b) { return b.length - a.length; }).join('|'), 'g');
   var SKIP = /^(RUBY|RT|RP|SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/;
@@ -1582,6 +1840,7 @@ window.EDUIT_INFO.jishu = {
   function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
   function applyPrefs() {
     root.classList.toggle('g-noruby', !prefs.ruby);
+    document.documentElement.classList.toggle('g-noruby-doc', !prefs.ruby);  // 使い方のダイアログ(#gapp の外)のふりがな
     $('g-ruby').setAttribute('aria-pressed', String(prefs.ruby));
     root.style.setProperty('--g-fs', prefs.fs);
   }
@@ -1596,9 +1855,9 @@ window.EDUIT_INFO.jishu = {
       '<li>上のタブを「はじめに」から順に開きます。① 〜 ⑤ が教科書の「技術分野のガイダンス」1〜5 にあたります。</li>' +
       '<li>「やってみよう」はクイズやならべかえです。えらぶと、すぐに答えと説明が出ます。何度でもやり直せます。</li>' +
       '<li>「書いてみよう」は、自分の考えを書く欄です。書いたことは、この端末のブラウザの中に自動で保存されます。</li>' +
-      '<li>最後に「振り返り」を書き、「記録」で組・番号・名前を入れて「記録を書き出す」を押し、できたファイルを先生の指示どおりに出します。</li></ol>' +
+      '<li>最後に「振り返り」を書きます。「記録」で組・番号・名前を入れ、「記録を書き出す」を押します。できたファイルを、先生の指示どおりに出します。</li></ol>' +
       '<h3>上のボタン</h3><ul><li><b>ふりがな</b>: 漢字の読みを出す・かくす</li><li><b>文字</b>: 押すたびに文字の大きさが 小・中・大・特大 と変わる</li></ul>' +
-      '<p>タブに ✓ が付くのは、そのページの「やってみよう」と「書いてみよう」が全部終わったときです。</p>');
+      '<p>「やってみよう」と「書いてみよう」が全部終わると、タブに ✓ が付きます。</p>', { onOpen: function (body) { ruby(body.parentNode); } });
   });
 
   // ---------- タブ ----------
@@ -1750,12 +2009,12 @@ window.EDUIT_INFO.jishu = {
   // ---------- ① 工夫・創造 ----------
   var IDEAS = ['アイデアの転用', '逆転の発想', '身の回りのヒント', '自然からの発想'];
   var Q1 = [
-    { t: '面ファスナー: 野山を歩いたあと服にくっついていたゴボウの実(ひっつき虫)の、小さなかぎのような形をまねて作られた。', a: 3, x: '植物の実のつくりをまねています。生き物のしくみを生かすのが、自然からの発想です。' },
-    { t: 'はってはがせる付箋: 「よくくっつく接着剤」を作ろうとして、できてしまった「弱い接着剤」を、何度もはりなおせるメモに生かした。', a: 1, x: '失敗に見えた「くっつく力が弱い」という性質を、反対に長所として使った、逆転の発想です。' },
-    { t: '刃を折って使うカッターナイフ: 板チョコの割れ目や、ガラスの割れ方からヒントを得て、切れなくなった刃先を折れば、新しい刃が出るようにした。', a: 0, x: 'チョコレートやガラスという別の場面のしくみを借りた、アイデアの転用です。' },
-    { t: '缶のステイオンタブ: 開けたあとのふた(プルタブ)が外れて道にすてられ、ごみになったり、けがの原因になったりしていたので、ふたが缶からはなれないようにした。', a: 2, x: '生活や社会で起きている「こまった」に気づいて解決した、身の回りのヒントからの発想です。' },
-    { t: '新幹線の先頭の形: トンネルに入るときの大きな音をへらすため、水にとびこんでも水しぶきの少ないカワセミのくちばしの形をまねた。', a: 3, x: '鳥の体の形をまねています。自然からの発想です。' },
-    { t: '回転ずし: すし屋のいそがしさをなくすため、ビール工場でびんを運ぶベルトコンベアのしくみを、すしを運ぶのに使った。', a: 0, x: '工場の機械のしくみを、すし屋という別の場面に生かした、アイデアの転用です。' }
+    { t: '面ファスナー: 野山を歩くと、服にゴボウの実(ひっつき虫)がくっつく。その実の、小さなかぎのような形をまねて作った。', a: 3, x: '植物の実のつくりをまねています。生き物のしくみを生かすのが、自然からの発想です。' },
+    { t: 'はってはがせる付箋: 強い接着剤を作ろうとして、弱い接着剤ができてしまった。それを、何度もはりなおせるメモに生かした。', a: 1, x: '失敗に見えた「くっつく力が弱い」性質を、長所として使いました。逆転の発想です。' },
+    { t: '刃を折って使うカッターナイフ: 板チョコやガラスの割れ方をヒントにした。切れなくなった刃先を折ると、新しい刃が出る。', a: 0, x: 'チョコレートやガラスという別の場面のしくみを借りた、アイデアの転用です。' },
+    { t: '缶のステイオンタブ: 開けたあとのふた(プルタブ)が外れて、道にすてられていた。ごみになったり、けがの原因になったりしていた。そこで、ふたが缶からはなれないようにした。', a: 2, x: '生活や社会の「こまった」に気づいて、解決しました。身の回りのヒントからの発想です。' },
+    { t: '新幹線の先頭の形: トンネルに入るときの大きな音をへらしたい。そこで、カワセミのくちばしの形をまねた。カワセミは、水にとびこんでも水しぶきが少ない。', a: 3, x: '鳥の体の形をまねています。自然からの発想です。' },
+    { t: '回転ずし: すし屋のいそがしさをへらしたい。そこで、ビール工場でびんを運ぶベルトコンベアを、すしを運ぶのに使った。', a: 0, x: '工場の機械のしくみを、すし屋という別の場面に生かした、アイデアの転用です。' }
   ];
   quiz('g-q1', 'g-q1-score', IDEAS, Q1, function () { return S.t1.q; });
 
@@ -1764,7 +2023,7 @@ window.EDUIT_INFO.jishu = {
     { id: 'light', title: '💡 明かりの技術', items: ['たき火・ろうそく', 'ガス灯', '白熱電球', 'LED電球'], msg: 'だんだん明るく、火を使わず安全に、使う電気が少なくなってきました。' },
     { id: 'info', title: '📡 情報通信の技術', items: ['のろし・手紙', '電信(モールス信号)', '固定電話', 'スマートフォン'], msg: '遠くへ、速く、たくさんの情報を、いつでもどこでも送れるようになってきました。' },
     { id: 'farm', title: '🌾 農業の技術', items: ['人の手で耕す', '牛や馬で耕す', 'トラクターで耕す', '自動運転のトラクター・ドローン'], msg: '少ない人数・少ない力で、広い畑を世話できるようになってきました。' },
-    { id: 'house', title: '🏯 住まいの技術', items: ['たて穴住居', '木造の五重塔', '鉄とコンクリートのビル', '高さ634mの電波塔'], msg: '材料や構造の工夫で、地震や風に強く、高く大きな建物をつくれるようになってきました。' }
+    { id: 'house', title: '🏯 住まいの技術', items: ['たて穴住居', '木造の五重塔', '鉄とコンクリートのビル', '高さ634mの電波塔'], msg: '材料や構造の工夫で、地震や風に強くなってきました。高く大きな建物もつくれるようになりました。' }
   ];
   var hb = $('g-ord-hist');
   HIST.forEach(function (s, i) { orderer(hb, s, function () { return S.t2.ord; }, 7 + i * 13); });
@@ -1776,13 +2035,13 @@ window.EDUIT_INFO.jishu = {
   // ---------- ③ 見方・考え方 ----------
   var VIEWS = ['社会からの要求', '安全性', '環境への負荷', '経済性'];
   var Q3 = [
-    { t: 'LED電球: 「部屋のすみまで明るく照らしてほしい」という声にこたえて、光が広がる形にした。', a: 0, x: '使う人の求め(明るさ・使いやすさ)にこたえるのは、社会からの要求の視点です。' },
+    { t: 'LED電球: 「部屋のすみまで明るく」という声にこたえて、光が広がる形にした。', a: 0, x: '使う人の求め(明るさ・使いやすさ)にこたえるのは、社会からの要求の視点です。' },
     { t: 'LED電球: 長い時間つけても熱くなりにくく、さわってもやけどしにくい。', a: 1, x: 'けがをしにくいかどうかは、安全性の視点です。' },
     { t: 'LED電球: 同じ明るさでも使う電気が少なく、発電のときに出るCO2をへらせる。', a: 2, x: '資源やエネルギー、CO2のことは、環境への負荷の視点です。' },
     { t: 'LED電球: 1個の値段は高いが、長持ちするので、買いかえる回数が少なくてすむ。', a: 3, x: 'かかるお金のことは、経済性の視点です。' },
     { t: '自転車: 夜でも車から見えるように、反射板とライトを付ける。', a: 1, x: '事故を防ぐための工夫なので、安全性の視点です。' },
     { t: '自転車: 坂道でも楽に走りたいという人のために、変速機を付ける。', a: 0, x: '使う人の「こうしたい」にこたえるのは、社会からの要求の視点です。' },
-    { t: '自転車: 使い終わったあと、フレームの金属をとかして、また材料として使えるようにする。', a: 2, x: '資源をくり返し使うことは、環境への負荷をへらす視点です。' },
+    { t: '自転車: 使い終わったら、フレームの金属をとかして、また材料にする。', a: 2, x: '資源をくり返し使うことは、環境への負荷をへらす視点です。' },
     { t: '自転車: たくさんの人が買えるように、部品の数をへらして値段をおさえる。', a: 3, x: '値段をおさえるのは、経済性の視点です。' }
   ];
   quiz('g-q3', 'g-q3-score', VIEWS, Q3, function () { return S.t3.q; });
@@ -1960,8 +2219,10 @@ window.EDUIT_INFO.jishu = {
       document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
       $('g-export-msg').textContent = '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生の指示があれば入れてから、もう一度書き出してください)');
+      ruby($('g-export-msg'));
     } catch (e) {
       $('g-export-msg').textContent = 'ファイルを作れませんでした。先生に聞いてください。';
+      ruby($('g-export-msg'));
     }
   });
   $('g-print').addEventListener('click', function () { window.print(); });

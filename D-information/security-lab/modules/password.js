@@ -42,7 +42,7 @@ function rateSelect(idSuffix) {
 export const passwordModule = {
   id: ID,
   minutes: "15分",
-  lead: "パスワードは「長さ」と「文字の種類」で強さが決まります。総当たり（すべての組み合わせを試す）で解読するのに、どれくらい時間がかかるかを体験しよう。",
+  lead: "パスワードは「長さ」と「文字の種類」で強さが決まります。総当たり（すべての組み合わせを試す）で解読すると、どれくらい時間がかかるかな？ 体験しよう。",
   steps: STEPS,
   async render(root) {
     rateListeners.clear();
@@ -54,7 +54,7 @@ export const passwordModule = {
     root.append(
       explainCard(
         "⚠ 本物のパスワードは入力しないで",
-        "ここには、練習用のでたらめな文字を入れてください。入力した文字はこの画面の中だけで計算に使い、保存も送信もしません（ページを閉じると消えます）。",
+        "ここには、練習用のでたらめな文字を入れてください。入力した文字は、この画面の中で計算に使うだけです。保存も送信もしません。ページを閉じると消えます。",
         "warn",
       ),
     );
@@ -91,7 +91,7 @@ export const passwordModule = {
           a.weakness
             ? explainCard(
                 "総当たりより先に見つかる理由",
-                `${a.weakness.text}。${/^leet/.test(a.weakness.kind) ? "a を @ に、o を 0 にするような置きかえはよく知られていて、辞書の言葉と同じように最初に試されます。" : ""}攻撃する側は、まず「よく使われるパスワードの一覧（辞書）」や決まったパターンから試すので、組み合わせの数に関係なくすぐに見つかってしまいます。`,
+                `${a.weakness.text}。${/^leet/.test(a.weakness.kind) ? "a を @ に、o を 0 にするような置きかえはよく知られていて、辞書の言葉と同じように最初に試されます。" : ""}攻撃する側は、まず「よく使われるパスワードの一覧（辞書）」や決まったパターンから試します。だから、組み合わせの数に関係なく、すぐに見つかってしまいます。`,
                 "bad",
               )
             : "",
@@ -105,14 +105,14 @@ export const passwordModule = {
           a.converted ? h("p", { class: "hint" }, "全角の英数字や記号は、半角にそろえて計算しました。") : "",
           a.hasOther ? h("p", { class: "hint" }, "全角の文字やひらがな・漢字は、パスワードに使えないサービスが多いよ。") : "",
           note ? h("p", { class: "hint" }, note) : "",
-          h("p", { class: "hint" }, "記号を混ぜたり、文字を記号に置きかえたりするより、長くする・使い回さないほうが効きます。"),
+          h("p", { class: "hint" }, "記号を混ぜる・文字を記号に置きかえるより、長くする・使い回さないほうが効きます。"),
         );
         if (a.length >= 4) c.done();
       };
       input.addEventListener("input", update);
       rateListeners.add(update);
       c.body.append(
-        h("p", {}, "文字の種類（英小文字・英大文字・数字・記号）と長さを変えると、解読にかかる時間はどう変わるかな？"),
+        h("p", {}, "文字の種類（英小文字・英大文字・数字・記号）と長さを変えてみよう。解読にかかる時間はどう変わるかな？"),
         h("div", { class: "field" }, h("label", { for: "pw-input" }, "練習用の文字"), input, quick),
         h("div", { class: "btn-row" }, h("span", { class: "hint" }, "例:"), samples.map((s) => h("button", { class: "btn small secondary", type: "button", onclick: () => ((input.value = s), update()) }, s))),
         result,
@@ -134,7 +134,7 @@ export const passwordModule = {
       rateListeners.add(drawChart);
       drawChart();
       c.body.append(
-        h("p", {}, "横じくが「長さ」、たてじくが「すべて試し終わるまでの時間」です。たてじくは、ふつうのグラフとちがい、上に行くほど時間が何千倍・何万倍にものびる目もりです（1秒→1日は約9万倍、1日→1年は365倍）。線が少し上がるだけで、時間はとても長くなります。"),
+        h("p", {}, "横じくが「長さ」、たてじくが「すべて試し終わるまでの時間」です。たてじくは、ふつうのグラフとちがいます。上に行くほど、時間が何千倍・何万倍にものびる目もりです（1秒→1日は約9万倍、1日→1年は365倍）。線が少し上がるだけで、時間はとても長くなります。"),
         h("ul", { class: "legend", "aria-hidden": "true" }, SERIES.map((s) => h("li", {}, h("span", { class: "sw", style: `background:${s.color}` }), s.label))),
         rateNote,
         chart,
@@ -174,7 +174,7 @@ export const passwordModule = {
             "もし攻撃する側が「この単語リストから選んだ」と知っていたら？",
             `このラボの単語リストは${words.length.toLocaleString("ja-JP")}語。組み合わせは ${words.length.toLocaleString("ja-JP")} の ${n} 乗 ＝ 約${bigJaLog10(n * Math.log10(words.length))}通り。${rateLabel(rateLog10)}試すと、すべて試すのに ${formatDuration(logSecWords)}${universeCompare(logSecWords) ? `（${universeCompare(logSecWords)}）` : ""}。${
               logSecWords < Math.log10(86400 * 365 * 100) ? "これでは足りません。単語の数を増やしてみよう。" : "リストを知られていても、ランダムに選んでいれば、とても時間がかかります。"
-            }単語をランダムに選ぶことが大切です。有名な言葉の組み合わせや、少ない単語の中から選んだもの、辞書にある単語1つだけは弱いので注意。`,
+            }単語をランダムに選ぶことが大切です。弱いものに注意。有名な言葉の組み合わせ、少ない単語の中から選んだもの、辞書にある単語1つだけ、などです。`,
             logSecWords < Math.log10(86400 * 365 * 100) ? "warn" : "good",
           ),
           powNote(a.log10Combos, n * Math.log10(words.length), durationLog10(logSecChars), durationLog10(logSecWords)) ? h("p", { class: "hint" }, powNote(a.log10Combos, n * Math.log10(words.length), durationLog10(logSecChars), durationLog10(logSecWords))) : "",
@@ -188,7 +188,7 @@ export const passwordModule = {
         h("div", { class: "field-row" }, h("div", { class: "field" }, h("label", { for: "pp-count" }, "単語の数"), countSel)),
         h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: gen }, "パスフレーズを作る")),
         out,
-        explainCard("覚え方のコツ", "単語から情景を思いうかべると覚えやすくなります（例: neko-sora-hashiru-ringo-yuki-densha → 猫が空を走って、りんごと雪の電車に乗る）。ただし、有名な歌詞やことわざは辞書に入っていることがあるので避けよう。"),
+        explainCard("覚え方のコツ", "単語から情景を思いうかべると、覚えやすくなります。例: neko-sora-hashiru-ringo-yuki-densha → 猫が空を走って、りんごと雪の電車に乗る。ただし、有名な歌詞やことわざは避けよう。辞書に入っていることがあります。"),
       );
     }
 
@@ -201,7 +201,7 @@ export const passwordModule = {
             question: "次のうち、いちばん強いパスワードはどれ？（どれも練習用の例）",
             choices: ["P@ssw0rd", "Sakura2026!", "Xy7#", "kumo-ringo-hashiru-ame"],
             answer: 3,
-            explain: "「P@ssw0rd」は password の文字を記号に置きかえただけで、辞書攻撃ですぐに見つかります。「Sakura2026!」も言葉＋年号の定番パターン。「Xy7#」は文字の種類は多いけれど4文字しかありません。「kumo-ringo-hashiru-ame」は、ランダムに選んだ単語がいくつもつながっていて長いので、この中ではいちばん強くなります。ただし、有名な言葉の組み合わせや、少ない単語の中から選んだものは弱くなります。本物のパスフレーズは、数千語の中からランダムに5〜6個を選ぼう。",
+            explain: "「P@ssw0rd」は、password の文字を記号に置きかえただけです。辞書攻撃ですぐに見つかります。「Sakura2026!」も言葉＋年号の定番パターン。「Xy7#」は文字の種類は多いけれど4文字しかありません。「kumo-ringo-hashiru-ame」は、ランダムに選んだ単語がいくつもつながっていて長いです。だから、この中ではいちばん強くなります。ただし、有名な言葉の組み合わせや、少ない単語の中から選んだものは弱くなります。本物のパスフレーズは、数千語の中からランダムに5〜6個を選ぼう。",
           },
           () => c.done(),
         ),
@@ -211,10 +211,10 @@ export const passwordModule = {
           {},
           h("li", {}, h("strong", {}, "長くする: "), "12文字以上。パスフレーズなら、ランダムに選んだ単語を5〜6個に。"),
           h("li", {}, h("strong", {}, "使い回さない: "), "1つのサービスから流出すると、同じパスワードの別のサービスまで乗っ取られます。"),
-          h("li", {}, h("strong", {}, "覚えきれないとき: "), "パスワード管理アプリやブラウザの保存機能を、家の人と相談して使おう（紙に書くなら持ち歩かず、家の決まった場所にしまう）。"),
+          h("li", {}, h("strong", {}, "覚えきれないとき: "), "パスワード管理アプリやブラウザの保存機能を、家の人と相談して使おう。紙に書くなら持ち歩かず、家の決まった場所にしまう。"),
           h("li", {}, h("strong", {}, "定期的に変えなくてよい: "), "変えるのは、もれたかもしれないときや、人に見られたとき。そのときはすぐに変えよう。"),
           h("li", {}, h("strong", {}, "2段階認証（多要素認証）を使う: "), "パスワードが知られても、スマホなどの確認がないとログインできません。"),
-          h("li", {}, h("strong", {}, "人に教えない: "), "仲のよい友達でも教えない。メールやメッセージでパスワードを聞かれても答えない（先生や家族を名乗っていても、直接会って確かめる）。家の人と決めたルールがあれば、それにしたがおう。"),
+          h("li", {}, h("strong", {}, "人に教えない: "), "仲のよい友達でも教えない。メールやメッセージでパスワードを聞かれても、答えない。先生や家族を名乗っていても、直接会って確かめる。家の人と決めたルールがあれば、それにしたがおう。"),
         ),
         threeSteps({ stop: "パスワードを聞かれたら手を止める", check: "本当に公式の画面か確かめる", ask: "変だと思ったら大人に相談" }),
       );

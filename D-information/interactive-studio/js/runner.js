@@ -90,9 +90,9 @@ export class Runner {
         const y = r.value;
         if (y.k === "step") {
           this.line = y.line;
-          if (++this.steps > RUN_LIMITS.maxSteps) throw new RunError(`命令を ${RUN_LIMITS.maxSteps.toLocaleString()} 回実行しても終わらないので止めました。終わらないくり返し（無限ループ）になっていないか、くり返しが終わる条件を確かめよう。`, y.line);
+          if (++this.steps > RUN_LIMITS.maxSteps) throw new RunError(`命令を ${RUN_LIMITS.maxSteps.toLocaleString()} 回実行しても終わらないので、止めました。終わらないくり返し（無限ループ）かもしれません。くり返しが終わる条件を確かめよう。`, y.line);
           const used = this.activeMs + (performance.now() - t0);
-          if (used > RUN_LIMITS.maxActiveMs) throw new RunError(`${RUN_LIMITS.maxActiveMs / 1000}秒たっても終わらないので止めました。終わらないくり返し（無限ループ）になっていないか確かめよう。`, y.line);
+          if (used > RUN_LIMITS.maxActiveMs) throw new RunError(`${RUN_LIMITS.maxActiveMs / 1000}秒たっても終わらないので、止めました。終わらないくり返し（無限ループ）になっていないか確かめよう。`, y.line);
           if (this.breakpoints.has(y.line) && this.mode !== "step") {
             this.activeMs = used;
             this.emit("break", y.line);

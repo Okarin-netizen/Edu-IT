@@ -253,7 +253,7 @@ var PARTS = {
     role: '歯車やプーリーを固定して回転を伝える棒。同じ軸に付いた部品は同じ速さ・同じ向きに回る。',
     where: ['すべての回転する機械'], care: ['曲がっていないか', 'ガタつきがないか'] },
   bearing: { name: '軸受(ベアリング)', yomi: 'じくうけ(べありんぐ)', cat: '支える・つなぐ',
-    role: '回転する軸を支え、摩擦(まさつ)を小さくする。玉などが転がる「転がり軸受」(玉軸受=ボールベアリングなど)と、軸が面の上をすべる「滑り(すべり)軸受」がある。',
+    role: '回転する軸を支え、摩擦(まさつ)を小さくする。「転がり軸受」は、玉などが転がる(玉軸受=ボールベアリングなど)。「滑り(すべり)軸受」は、軸が面の上をすべる。',
     where: ['自転車の車輪', '扇風機', 'スケートボード'], care: ['回すと異音やガタがないか', '油が切れていないか'] },
   rack: { name: 'ラックとピニオン', yomi: 'らっく・ぴにおん', cat: '運動を変える',
     role: '小さな歯車(ピニオン)の回転を、まっすぐな歯(ラック)の直線運動に変える。',
@@ -392,11 +392,11 @@ function linkType(a, b, c, d) {
   var arr = [a, b, c, d], s = Math.min.apply(null, arr), l = Math.max.apply(null, arr), pq = a + b + c + d - s - l;
   var sh = d === s ? 'd' : (a === s ? 'a' : (c === s ? 'c' : 'b'));
   if (s + l > pq + 1e-9) return { id: 'rocker2', name: '両てこ機構', full: false, outFull: false, shortest: sh, note: '最短+最長が残り2本の和より長いので、どの棒も1回転できない' };
-  if (s + l > pq - 1e-9) return { id: 'change', name: '変化点のあるリンク機構', full: false, outFull: false, shortest: sh, note: '最短+最長が残り2本の和と同じなので、棒が一直線にそろう所(変化点)で動く向きが決まらなくなる' };
+  if (s + l > pq - 1e-9) return { id: 'change', name: '変化点のあるリンク機構', full: false, outFull: false, shortest: sh, note: '最短+最長が、残り2本の和と同じ。だから、棒が一直線にそろう所(変化点)で動く向きが決まらなくなる' };
   if (sh === 'd') return { id: 'crank2', name: '両クランク機構', full: true, outFull: true, shortest: sh, note: 'いちばん短いのが固定リンクなので、クランクもてこも1回転できる' };
-  if (sh === 'a') return { id: 'crankrocker', name: 'てこクランク機構', full: true, outFull: false, shortest: sh, note: 'いちばん短いクランクが固定リンクのとなりにあるので、クランクが1回転し、てこは往復する' };
+  if (sh === 'a') return { id: 'crankrocker', name: 'てこクランク機構', full: true, outFull: false, shortest: sh, note: 'いちばん短いクランクが、固定リンクのとなりにある。だから、クランクが1回転し、てこは往復する' };
   if (sh === 'c') return { id: 'rockercrank', name: 'てこクランク機構(出力側が回る)', full: false, outFull: true, shortest: sh, note: 'いちばん短いのは出力側の棒。入力の棒は1回転できずに往復し、出力側が1回転する(足踏みミシンと同じ)' };
-  return { id: 'rocker2', name: '両てこ機構', full: false, outFull: false, shortest: sh, note: 'いちばん短いのは連結棒で、固定リンクのとなりにないので、クランクもてこも1回転できない' };
+  return { id: 'rocker2', name: '両てこ機構', full: false, outFull: false, shortest: sh, note: 'いちばん短いのは連結棒で、固定リンクのとなりにない。だから、クランクもてこも1回転できない' };
 }
 /* クランクを1周動かして、てこの振れ角などを調べる */
 function fourBarSweep(a, b, c, d) {
@@ -551,7 +551,7 @@ var MAINT = {
   lock: { how: 'ばね座金は一度使ってつぶれたら新しいものにする。割りピンは再使用しない。', trouble: 'ゆるみ止めがないと、繰り返しの振動でナットが少しずつ回ってゆるむ' },
   coupling: { how: 'ボルトの増しじめ、ゴム部品の交換。点検は必ず電源を切ってから。', trouble: '軸の中心がずれる → 振動・異音・軸受の早い摩耗' },
   shaft: { how: '曲がった軸は交換する。軸と部品を固定するねじやキーのゆるみも確かめる。', trouble: '曲がり → 振動・異音、ガタ → 部品の摩耗' },
-  bearing: { how: '指定があれば油・グリースを補給する(家電の含油軸受のように、ふつうは注油しないものもあるので説明書で確かめる)。ガタや異音が大きいときは交換する。', trouble: '油切れ → キーキー音・回りが重い → 摩耗・焼き付き' },
+  bearing: { how: '指定があれば油・グリースを補給する。家電の含油軸受のように、ふつうは注油しないものもある。説明書で確かめる。ガタや異音が大きいときは交換する。', trouble: '油切れ → キーキー音・回りが重い → 摩耗・焼き付き' },
   gear: { how: 'グリースを補給し、歯の欠けやすり減りがあれば交換する。', trouble: '歯の欠け → 空回り・カチカチ音、油切れ → 摩耗・異音' },
   pulley: { how: 'ベルトの張りを調整する。すべりが続くとベルトが熱をもってすり減る。', trouble: 'ベルトのゆるみ → すべり(キュルキュル音)・回転が上がらない' },
   belt: { how: '張りを調整し、ひび割れたら交換する。ベルトに油が付くとすべるので注意。', trouble: 'ゆるみ・ひび → すべり・切れる' },
@@ -581,8 +581,8 @@ var SHORT = {
 };
 /* もっと知る(教科書の用語) */
 var NOTE = {
-  bolt: '座金(ワッシャー)のうち、平らな「平座金」は、しめつける面を広げて部品を傷めにくくする。小さな部品には「小ねじ」、木材には先のとがった「木ねじ」を使う。',
-  bearing: '軸受には、玉やころが転がる「転がり軸受」(ボールベアリングなど)と、軸が面の上をすべる「滑り軸受」(含油軸受など)がある。',
+  bolt: '平らな座金(ワッシャー)を「平座金」という。しめつける面を広げて、部品を傷めにくくする。小さな部品には「小ねじ」、木材には先のとがった「木ねじ」を使う。',
+  bearing: '軸受には2種類ある。玉やころが転がる「転がり軸受」(ボールベアリングなど)。軸が面の上をすべる「滑り軸受」(含油軸受など)。',
   belt: '断面がV字形の「Vベルト」は、プーリーのみぞにくいこんで平ベルトよりすべりにくい。ボール盤や自動車のエンジンに使われる。'
 };
 var CAT_OF = { shaft: 'support', bearing: 'support', gear: 'turn', pulley: 'turn', belt: 'turn', sprocket: 'turn', chain: 'turn', rack: 'conv', cam: 'conv', link: 'conv', crank: 'conv', screw: 'conv' };
@@ -762,7 +762,7 @@ var CASES = [
       { t: '前のスプロケットを留めるねじのゆるみ', ok: false, why: 'スプロケットがぐらつく原因で、ペダルとクランクのつけ根はぐらつかない。' },
       { t: 'クランクの腕の曲がり', ok: false, why: '曲がるとペダルが回るときに足の位置がぶれるが、つけ根がぐらぐら動くことはない。' }],
     fix: [
-      { t: '大人とスパナでしめ直す。左ペダルは逆ねじなので回す向きに注意', ok: true, why: '左ペダルは、こぐ回転でゆるむ向きの力がかからないように、逆ねじ(左に回すとしまる)になっている。' },
+      { t: '大人とスパナでしめ直す。左ペダルは逆ねじなので回す向きに注意', ok: true, why: '左ペダルは逆ねじ(左に回すとしまる)になっている。こぐ回転で、ゆるむ向きの力がかからないようにするためだ。' },
       { t: 'ねじのすき間に接着剤を流しこみ、二度とゆるまないように固めてしまう', ok: false, why: '点検や交換ができなくなる。ねじは「分解できる」のが長所。' },
       { t: '左ペダルも右と同じ向き(右回り)に、スパナで力いっぱいしめる', ok: false, why: '左ペダルは逆ねじなので、右回りではゆるんでしまう。力いっぱいしめるとねじ山も傷む。' }],
     safety: 'ねじがつぶれていたら無理にしめず、自転車店で部品を交換する。',
@@ -855,7 +855,7 @@ var CASES = [
     symptom: 'テレビの裏のコンセントのあたりから、少しこげたようなにおいがする。',
     clue: 'コンセントにはテレビのプラグ1つだけが差してある。何年もさしっぱなしのプラグの刃と刃の間に、ほこりがたまっている。部屋は湿気が多い。',
     cause: [
-      { t: 'ほこりと湿気で、プラグの刃の間に電気が流れた(トラッキング現象)', ok: true, why: 'たまったほこりが湿気を吸うと、刃と刃の間に電気が流れて熱をもち、こげて発火することがある。' },
+      { t: 'ほこりと湿気で、プラグの刃の間に電気が流れた(トラッキング現象)', ok: true, why: 'たまったほこりが湿気を吸うと、刃と刃の間に電気が流れる。熱をもってこげ、発火することがある。' },
       { t: 'テレビの中の部品が古くなって熱をもち、においが出ている', ok: false, why: 'においの場所はコンセントのあたり。テレビ本体ではない。' },
       { t: 'コンセントの中の金具がゆるみ、プラグとの接触が悪くなって熱をもった', ok: false, why: 'ゆるみも発熱の原因になるが、今回はほこりと湿気がたまっていることが手がかり。' },
       { t: 'たこ足配線で、1つのコンセントに電気製品をつなぎすぎた', ok: false, why: 'つなぎすぎも発熱の原因だが、今回はテレビ1台だけ。ほこりと湿気が手がかり。' }],
@@ -883,7 +883,7 @@ var CASES = [
     symptom: 'ミキサーの刃のまわりから水がもれる。回すとガタガタ音がする。',
     clue: '刃を手でゆする(電源プラグは抜いてある)と、刃の軸がガタガタ動く。容器の底はしっかりしまっている。',
     cause: [
-      { t: '刃の軸を支える軸受とパッキンの摩耗', ok: true, why: '軸受がすり減ると軸がガタつき、すき間をふさぐパッキン(水をふせぐゴム)も傷んで水がもれる。' },
+      { t: '刃の軸を支える軸受とパッキンの摩耗', ok: true, why: '軸受がすり減ると、軸がガタつく。すき間をふさぐパッキン(水をふせぐゴム)も傷んで、水がもれる。' },
       { t: '刃の先が欠けたり丸くなったりして、切れ味が落ちた', ok: false, why: '切れ味は落ちても、水もれや軸のガタの原因ではない。' },
       { t: '容器の底のふたのしめ方がゆるい', ok: false, why: 'ゆるいと底から水がもれることはあるが、今回はしっかりしまっている。刃の軸のガタが手がかり。' },
       { t: '一度に入れた材料と水が多すぎた', ok: false, why: '入れすぎると上からあふれるが、刃のまわりからはもれない。' }],
@@ -1062,7 +1062,7 @@ var MACHINES = [
       { id: 'blade', x: 300, y: 130, label: '羽根', part: null, role: 'モーターの回転で空気を押し出す。電気エネルギー → 運動エネルギー(風)。', care: 'ひび・欠け・ほこり' },
       { id: 'spinner', x: 318, y: 250, label: '押さえナット', part: 'bolt', role: '羽根を軸に固定するナット。回転でゆるまないよう逆ねじが多い。', care: 'ゆるみ' },
       { id: 'shaft', x: 402, y: 250, lp: 'd', label: 'モーターの軸', part: 'shaft', role: 'モーターの回転を羽根に伝える軸。', care: '曲がり・ガタ' },
-      { id: 'bearing', x: 635, y: 250, lp: 'd', label: '軸受', part: 'bearing', role: 'モーターの軸を両はしで支え、摩擦を小さくする。家庭用の扇風機は、油をしみこませた「含油軸受」が多く、ふつうは注油しない(説明書で確かめる)。', care: 'キーキー音・回りの重さ' },
+      { id: 'bearing', x: 635, y: 250, lp: 'd', label: '軸受', part: 'bearing', role: 'モーターの軸を両はしで支え、摩擦を小さくする。家庭用の扇風機は、油をしみこませた「含油軸受」が多い。ふつうは注油しない(説明書で確かめる)。', care: 'キーキー音・回りの重さ' },
       { id: 'gear', x: 712, y: 210, label: '首ふりの歯車', part: 'gear', role: 'モーターの速い回転を、ウォームギヤなどで大きく減速して首ふりに使う。', care: 'カチカチ音(歯の欠け)' },
       { id: 'link', x: 740, y: 330, lp: 'r', label: '首ふりのリンク', part: 'link', role: '減速した回転を、リンクで左右の往復運動(首ふり)に変える。', care: 'ピンの外れ・ガタ' },
       { id: 'guard', x: 205, y: 330, label: 'ガード', part: null, role: '回る羽根に指がふれないようにする安全カバー。ねじやクリップで留める。', care: '変形・留め具のゆるみ' },
@@ -1260,7 +1260,7 @@ function renderBook() {
   }).join('');
   setBody('<div class="e4-page"><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
     '<div class="e4-chips">' + chips + '</div></div>' +
-    '<p style="margin:0 0 12px;color:#5f6670">機械は、ねじ・軸・軸受・歯車・ばねなど「どの機械にも使われる部品(共通部品)」の組み合わせでできています。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
+    '<p style="margin:0 0 12px;color:#5f6670">機械は、ねじ・軸・軸受・歯車・ばねなどの組み合わせでできています。これらは「どの機械にも使われる部品(共通部品)」です。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
     '<div class="e4-pgrid">' + cards + '</div></div>');
 }
 function partModal(k) {
@@ -1423,9 +1423,9 @@ function renderQuizMenu() {
   }).join('');
   var mbtn = function (f, label) { return '<button class="e4-btn' + (f === 'all' ? ' primary' : '') + '" data-act="caseset" data-v="' + f + '">' + label + '</button>'; };
   setBody('<div class="e4-page"><div class="e4-h"><h2>🎯 クイズ</h2><span class="e4-prog">事例 満点 ' + done + ' / ' + D.CASES.length + '</span></div>' +
-    '<div class="e4-modes"><div class="e4-mode"><div class="t">🩺 不具合事例クイズ</div><div class="l">「ペダルが重い」「扇風機がキーキー」などの症状から、まず<b>🔍 よく調べて</b>、<b>① 原因の部品</b> と <b>② 対処のしかた</b> を選ぶ。全部の選択肢に理由の解説が出ます。</div>' +
+    '<div class="e4-modes"><div class="e4-mode"><div class="t">🩺 不具合事例クイズ</div><div class="l">「ペダルが重い」「扇風機がキーキー」などの症状を、まず<b>🔍 よく調べる</b>。そして、<b>① 原因の部品</b> と <b>② 対処のしかた</b> を選ぶ。全部の選択肢に理由の解説が出ます。</div>' +
     '<div class="e4-chips">' + mbtn('rand', '🎲 ランダム5問') + mbtn('bike', '🚲 自転車') + mbtn('home', '🏠 家の電気製品') + mbtn('school', '🏫 学校') + mbtn('all', '全部(' + D.CASES.length + '問)') + '</div></div>' +
-    '<div class="e4-mode"><div class="t">🧩 部品あてクイズ</div><div class="l">はたらき・使われている所・点検ポイントのヒントから、共通部品の名前を当てる(10問)。最高記録: <b>' + S.save.pq.best + ' / 10</b></div>' +
+    '<div class="e4-mode"><div class="t">🧩 部品あてクイズ</div><div class="l">共通部品の名前を当てる(10問)。ヒントは、はたらき・使われている所・点検ポイント。最高記録: <b>' + S.save.pq.best + ' / 10</b></div>' +
     '<div class="e4-chips"><button class="e4-btn primary" data-act="pqstart">スタート</button></div></div></div>' +
     '<h3 style="margin:4px 0 8px">事例を1つずつ選ぶ</h3><div class="e4-tgrid">' + cards + '</div></div>');
 }
@@ -1868,7 +1868,7 @@ function renderCheck() {
   var L = curList();
   if (!L) {
     setBody('<div class="e4-page"><div class="e4-h"><h2>📋 点検表づくり</h2></div>' +
-      '<p>ふだん使っている機械や、自分で製作した作品について、<b>何を・どうやって・どのくらいの間隔で</b>点検するかを決めて、点検表(チェックリスト)をつくろう。作ったら印刷して、実際に点検した記録もつけられます。</p>' +
+      '<p>ふだん使っている機械や、自分で製作した作品の点検表(チェックリスト)をつくろう。<b>何を・どうやって・どのくらいの間隔で</b>点検するかを決めよう。作ったら印刷して、実際に点検した記録もつけられます。</p>' +
       targetPicker() +
       '<div class="e4-chips" style="margin-top:12px"><button class="e4-btn" data-act="cload">📂 ファイルを読みこむ</button><span style="color:#5f6670;align-self:center">(前に「💾 ファイルに保存」した点検表を開く)</span></div>' +
       safetyCard() + '</div>');
@@ -1924,14 +1924,14 @@ function renderCheck() {
 }
 /* ✏️ 振り返り(点検表といっしょにファイルへ入る。先生が振り返りを隠す設定のときは data-ef-reflect で消える) */
 var REFL = [
-  { id: 'q1', q: '機械に共通して使われる部品(ねじ・軸受・ばね など)を1つ選び、その役割を説明しよう。' },
+  { id: 'q1', q: '機械に共通して使われる部品(ねじ・軸受・ばね など)を1つ選ぼう。その役割を説明しよう。' },
   { id: 'q2', q: '機械を長く安全に使うために、なぜ定期的に保守点検をするのですか。' },
   { id: 'q3', q: 'つくった点検表で、いちばん大切だと思う点検項目はどれですか。その理由と、点検するときに気をつけることを書こう。' }
 ];
 function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function reflCard() {
   return '<div class="e4-card e4-refl" data-ef-reflect style="margin-top:14px"><h3 style="margin:0 0 4px">✏️ 振り返り</h3>' +
-    '<p style="margin:0 0 8px;color:#5f6670">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存され、「💾 ファイルに保存」で点検表といっしょにファイルに入ります。</p>' +
+    '<p style="margin:0 0 8px;color:#5f6670">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存されます。「💾 ファイルに保存」で、点検表といっしょにファイルに入ります。</p>' +
     REFL.map(function (r, i) {
       return '<label for="e4-' + r.id + '" style="display:block;font-weight:bold;margin:8px 0 4px">' + (i + 1) + '. ' + r.q + '</label>' +
         '<textarea class="e4-in" id="e4-' + r.id + '" data-refl="' + r.id + '" maxlength="800" rows="3" style="resize:vertical">' + esc(S.save.refl[r.id]) + '</textarea>';
@@ -2142,7 +2142,7 @@ function modal(html) {
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function showHowto(first) {
   modal('<h2>❓ 保守点検ラボの使い方</h2><div class="e4-steps">' +
-    '<div><b>📖 部品図鑑</b><br>ねじ・軸受・歯車・ばねなど、どの機械にも使われる<b>共通部品</b>の役割と点検ポイントを調べる。</div>' +
+    '<div><b>📖 部品図鑑</b><br><b>共通部品</b>の役割と点検ポイントを調べる。共通部品は、ねじ・軸受・歯車・ばねなど。</div>' +
     '<div><b>🔍 機械を見る</b><br>自転車や扇風機の図の <b>?</b> をタップして、使われている部品をさがす。</div>' +
     '<div><b>🎯 クイズ</b><br>「ペダルが重い」などの症状を<b>よく調べて</b>、<b>原因の部品</b>と<b>対処</b>を選ぶ。全部の選択肢に理由が出る。</div>' +
     '<div><b>🎞️ ゆるみ・摩耗</b><br>ねじのゆるみ・軸受の摩耗・チェーンのたるみが、使ううちに進むようすを見る。点検の間隔もくらべられる。</div>' +

@@ -237,3 +237,19 @@ test('G: 技術分野のガイダンスの書き出し(組・番号・名前、�
   assert.strictEqual(val(e, '課題'), 'たおれにくいかさ立てを考える');
   assert.strictEqual(val(e, '問題と課題のちがいと、問題解決の流れが分かった'), 'できた');
 });
+
+test('M・F・Z: 教科書順コースの教材は、それぞれの分野(M・F・Z)として読める', () => {
+  const m = load('M_技術さがし_2-15_山田花子_2026-10-20.json').entries[0];
+  assert.strictEqual(m.domain, 'M');
+  assert.strictEqual(m.app, 'M 身の回りの技術さがし');
+  assert.deepStrictEqual(m.student, { cls: '2', num: '15', name: '山田花子' });
+  assert.match(val(m, '見つけた製品の工夫'), /大事な視点: 社会からの要求/);
+  const f = load('F_これからの技術_2-15_山田花子_2026-10-20.json').entries[0];
+  assert.strictEqual(f.domain, 'F');
+  assert.match(val(f, '評価した技術'), /^CLT\(直交集成板\)\(社会からの要求 \d/);
+  assert.strictEqual(val(f, '社会の問題'), '高齢化と人手不足');
+  const z = load('Z_学習を終えて_2-15_山田花子_2026-10-20.json').entries[0];
+  assert.strictEqual(z.domain, 'Z');
+  assert.strictEqual(val(z, '身の回りの製品やしくみを見て、どんな技術の工夫があるかに気づける'), 'できた');
+  assert.strictEqual(z.rows.filter((r) => r.part === '① ふりかえりチェック' && r.type === '自己評価').length, 10);
+});

@@ -68,7 +68,7 @@ function photoSvg(blurred = new Set()) {
 export const snsModule = {
   id: ID,
   minutes: "15分",
-  lead: "何気ない写真や一言から、住んでいる場所や学校、毎日の行動が分かってしまうことがあります。投稿を「見る人の目」でチェックしてみよう。",
+  lead: "何気ない写真や一言から、分かってしまうことがあります。住んでいる場所や学校、毎日の行動などです。投稿を「見る人の目」でチェックしてみよう。",
   steps: STEPS,
   async render(root) {
     const cards = STEPS.map((s, i) => stepCard(ID, s, i));
@@ -169,7 +169,7 @@ export const snsModule = {
               type: "button",
               onclick: () => {
                 const ok = infer.every((it, i) => boxes[i].querySelector("input").checked === it.ok);
-                fb.replaceChildren(explainCard(ok ? "そのとおり！" : "答え", "誕生日と年齢、毎朝7時に土手にいること、学校から自転車で15分の範囲に家があること。1つ1つは小さな情報でも、ジグソーパズルのように組み合わせると、本人や生活が特定されてしまいます。過去の投稿もさかのぼって見られることを忘れずに。", ok ? "good" : "warn"));
+                fb.replaceChildren(explainCard(ok ? "そのとおり！" : "答え", "誕生日と年齢。毎朝7時に土手にいること。学校から自転車で15分の範囲に家があること。1つ1つは小さな情報です。でも、ジグソーパズルのように組み合わせると、本人や生活が特定されてしまいます。過去の投稿もさかのぼって見られることを忘れずに。", ok ? "good" : "warn"));
                 c.done();
               },
             },

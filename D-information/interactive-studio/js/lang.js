@@ -94,7 +94,7 @@ export function tokenize(src) {
         while (j < src.length && ID_PART.test(src[j])) j++;
       }
       const v = src.slice(i, j);
-      if (v === "for" && /^[ \t　]*\(/.test(src.slice(j))) throw err("for は使えません。決まった回数くり返すときは repeat (3) { }、条件で続けるときは while ( ) { } を使います。");
+      if (v === "for" && /^[ \t　]*\(/.test(src.slice(j))) throw err("for は使えません。決まった回数くり返すときは repeat (3) { } を使います。条件で続けるときは while ( ) { } を使います。");
       toks.push({ t: KEYWORDS.has(v) ? "kw" : "id", v, line, start: i, end: j });
       i = j;
       continue;

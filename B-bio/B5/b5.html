@@ -1064,19 +1064,19 @@ RENDER.home=function(el){
     koma('👧','教室を植物工場にするってこと?')+
     koma('👦','暗くなったら自動で明るくしたり、水やりも自動でできたらいいな。')+
     koma('🧑‍🌾','自動化しても、ずっと見ていたら意味がないと思うんだけど…')+'</div>';
-  h+='<p><b>問題</b>:リーフレタスを、手間をかけずに安定して収穫したい。<br><b>課題</b>:教室の棚で、リーフレタスの育成環境の調節(照明・温度・水やり)を自動にする。</p>';
+  h+='<p><b>問題</b>:リーフレタスを、手間をかけずに安定して収穫したい。<br><b>課題</b>:教室の棚で、リーフレタスの照明・温度・水やりの調節を自動にする。</p>';
   h+='<div class="b5-sys"><div class="b5-in"><b>入力(センサ)</b><br>明るさ・温度・土の水分を測る</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-pg"><b>プログラム</b><br>「もし〜なら」で判断する</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-ot"><b>出力(機器)</b><br>LED・ポンプ・ヒーター・冷房を動かす</div></div>';
-  h+='<p class="b5-small">センサで測り、プログラムで判断して、機器を動かすしくみを「計測・制御」といいます。情報の技術(D)で学ぶしくみを、生物育成に使います。</p>';
+  h+='<p class="b5-small">センサで測り、プログラムで判断して、機器を動かします。このしくみを「計測・制御」といいます。情報の技術(D)で学ぶしくみを、生物育成に使います。</p>';
   h+='<ol class="b5-flow"><li><b>1 問題の発見・課題の設定</b>① くらべる</li><li><b>2 解決策の構想</b>② ③ プログラムを考える</li><li><b>3 制作</b>②〜④ ためして直す</li><li><b>4 評価・改善</b>④ レーダーチャート</li><li><b>5 これからの技術</b>⑤ スマート農業</li></ol>';
   h+='<div class="b5-note">🥬 これは授業用のかんたんなシミュレーションです。数値(重さ・電気代など)は目安です。本物の作物を育てるときの考え方に生かしましょう。</div></div>';
   h+='<div class="b5-card"><h2>ミッション</h2><ul class="b5-mis">';
   var c1=(ST.cmpRuns.length?1:0)+(ST.sort&&ST.sort.score>=6?1:0)+(ST.cmpRuns.map(function(r){return r.season}).filter(function(v,i,a){return a.indexOf(v)===i}).length>=2?1:0);
   var best4=ST.trials.reduce(function(m,t){return Math.max(m,t.score)},0),s4=best4>=85?3:best4>=70?2:best4>=50?1:0;
   var s5=ST.smartBest?(ST.smartBest.score>=6?3:ST.smartBest.score>=4?2:1):0;
-  h+=mis('cmp','① 露地栽培と植物工場をくらべ、仕分けクイズで6問以上正解する(2つ以上の季節でくらべると★3)',c1,'基本');
+  h+=mis('cmp','① 露地栽培と植物工場をくらべる。仕分けクイズで6問以上正解する(2つ以上の季節でくらべると★3)',c1,'基本');
   h+=mis('light','② 明るさセンサで照明を自動にして、7日とも光を足りるようにする',ST.best2,'基本');
   h+=mis('water','③ 土の水分センサで水やりを自動にして、連休中もしおれさせない',ST.best3,'基本');
-  h+=mis('all','④ 照明・水やり・温度を全部自動にして、電気代と収量の折り合いをつける(点数 50・70・85)',s4,'発展');
+  h+=mis('all','④ 照明・水やり・温度を全部自動にする。電気代と収量の折り合いをつける(点数 50・70・85)',s4,'発展');
   h+=mis('smart','⑤ スマート農業のデータを見て、異常のある棚と対策を見つける',s5,'発展');
   h+='</ul></div>';
   el.innerHTML=h;rb(el);
@@ -1092,22 +1092,22 @@ var SORT=[
   {t:'太陽の光や雨を、そのまま利用できる',a:'o',e:'露地栽培は、太陽の光や雨を使うので、照明や水の費用が少ない。'},
   {t:'照明や空調を動かす電気代がかかる',a:'f',e:'植物工場は、LED・空調・ポンプなどを動かす電気が必要。'},
   {t:'畑や設備を保つのに費用がかかる',a:'b',e:'教科書にあるとおり、どちらも畑や設備を維持するのに費用がかかる。'},
-  {t:'環境に負荷をかけることがある',a:'b',e:'露地栽培は肥料や農薬が流れ出ること、植物工場は電気をたくさん使うことなど、どちらにも環境への負荷がある。'},
+  {t:'環境に負荷をかけることがある',a:'b',e:'どちらにも環境への負荷がある。露地栽培は肥料や農薬が流れ出る。植物工場は電気をたくさん使う。'},
   {t:'台風や大雨で被害を受けることがある',a:'o',e:'露地栽培は外で育てるので、台風・大雨・暑さなどの天候の影響を受ける。'}
 ];
 var SORT_L={o:'露地栽培',f:'植物工場',b:'両方'};
 var cmpRes=null;
 RENDER.cmp=function(el){
   var h='<div class="b5-card"><h1>① 露地栽培と植物工場をくらべよう</h1>';
-  h+='<p><b>露地栽培</b>は、畑で太陽の光や雨を利用して育てる方法です。<b>植物工場</b>は、建物の中で、光(LED)・温度・水や養分を人工的に調節して育てる方法(施設栽培の1つ)です。同じリーフレタスを1m²で育てて、収穫までの日数や、とれる量、費用をくらべてみよう。</p>';
+  h+='<p><b>露地栽培</b>は、畑で太陽の光や雨を利用して育てる方法です。<b>植物工場</b>は、建物の中で育てる方法です(施設栽培の1つ)。光(LED)・温度・水や養分を、人工的に調節します。同じリーフレタスを1m²で育ててみよう。収穫までの日数・とれる量・費用をくらべよう。</p>';
   h+='<div class="b5-row"><span>季節</span>'+seasonHTML(ST.cmpSeason,'data-cs')+seedHTML('b5-cseed',ST.cmpSeed)+'</div>';
   h+='<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-crun">▶ 育ててくらべる</button>'+speedHTML()+'</div>';
   h+='<div class="b5-vs"><div><h3>🌤️ 露地栽培(畑)</h3><div id="b5-cfield"></div><div class="b5-wbar"><i id="b5-cfw"></i></div><div id="b5-cft" class="b5-small">-</div></div>'+
      '<div><h3>🏭 植物工場</h3><div id="b5-cfac"></div><div class="b5-wbar"><i id="b5-cpw"></i></div><div id="b5-cpt" class="b5-small">-</div></div></div>';
   h+='<div id="b5-cres"></div></div>';
-  h+='<div class="b5-card"><h2>仕分けクイズ:どちらの特徴かな?</h2><p>それぞれの文は「露地栽培」「植物工場」「両方」のどれにあてはまるかな。全部えらんだら「答え合わせ」を押そう。</p><div class="b5-sort" id="b5-sort"></div>'+
+  h+='<div class="b5-card"><h2>仕分けクイズ:どちらの特徴かな?</h2><p>それぞれの文は、「露地栽培」「植物工場」「両方」のどれにあてはまるかな。全部えらんだら「答え合わせ」を押そう。</p><div class="b5-sort" id="b5-sort"></div>'+
     '<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-scheck">答え合わせ</button><button type="button" class="b5-btn" id="b5-sagain">もう一度(順番を変える)</button></div><div id="b5-sres"></div></div>';
-  h+='<div class="b5-card"><h2>考えよう</h2><p>植物工場は、どんな場所・どんな人の役に立つでしょうか。反対に、露地栽培のほうがよいのはどんなときでしょうか。結果の数字を使って、振り返りに書きましょう。</p><p class="b5-small">教科書(2編1章6)のように、技術は「品質・収量・費用・安全性・環境への配慮」などの制約条件の中で選ばれています。</p></div>';
+  h+='<div class="b5-card"><h2>考えよう</h2><p>植物工場は、どんな場所・どんな人の役に立つでしょうか。反対に、露地栽培のほうがよいのはどんなときでしょうか。結果の数字を使って、振り返りに書きましょう。</p><p class="b5-small">技術は、制約条件の中で選ばれています(教科書 2編1章6)。制約条件には、品質・収量・費用・安全性・環境への配慮などがあります。</p></div>';
   el.innerHTML=h;
   $('#b5-cfield').innerHTML=fieldSVG();$('#b5-cfac').innerHTML=factorySVG();
   rb(el);bindSpeed(el);
@@ -1206,8 +1206,8 @@ function lightRef(seed){
 function starsLight(r,seed){var t=r.tot,n=0;if(t.lackDays===0){n=1;if(t.nodark===0){n=2;if(t.cost<=Math.ceil(lightRef(seed)*1.15))n=3}}return n}
 RENDER.light=function(el){
   var h='<div class="b5-card"><h1>② 明るさセンサで照明を自動にしよう</h1>';
-  h+='<p>教室の窓ぎわの棚でリーフレタスを育てます(4月)。くもりや雨の日は光が足りません。<b>明るさセンサ</b>で窓の外の明るさを測り、暗いときだけ <b>LED</b> をつけるプログラムをつくろう。教科書のプログラムは「ずっと / もし 明るさ &lt; 50 なら LED を ON / でなければ OFF」です。</p>';
-  h+='<p class="b5-small">リーフレタスは、1日に「明るさ100で10時間ぶん」くらいの光が必要とします(このシミュレーションの目安)。夜は暗くして休ませることも大切です。水やりは、ここでは人がしています(③で自動にします)。</p></div>';
+  h+='<p>教室の窓ぎわの棚でリーフレタスを育てます(4月)。くもりや雨の日は光が足りません。<b>明るさセンサ</b>で、窓の外の明るさを測ります。暗いときだけ <b>LED</b> をつけるプログラムをつくろう。教科書のプログラムは、次のとおりです。<br>「ずっと / もし 明るさ &lt; 50 なら LED を ON / でなければ OFF」</p>';
+  h+='<p class="b5-small">リーフレタスには、1日に「明るさ100で10時間ぶん」くらいの光が必要です。これは、このシミュレーションの目安です。夜は暗くして休ませることも大切です。水やりは、ここでは人がしています(③で自動にします)。</p></div>';
   h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p2"></div>';
   h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s2',ST.seed2)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run2">▶ 7日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar2"></i></div></div></div>';
   h+='<div class="b5-card b5-view" id="b5-v2"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
@@ -1259,14 +1259,14 @@ function sim3(prog,manual){return simulate({season:'spring',seed:ST.seed3,days:1
 function starsWater(r){var t=r.tot;if(t.wilt>0)return 0;var n=1;if(t.wet===0&&t.overflow===0){n=2;if(r.w>=74)n=3}return n}
 RENDER.water=function(el){
   var h='<div class="b5-card"><h1>③ 水やり(かん水)を自動にしよう</h1>';
-  h+='<p>5月の連休をはさむ10日間です。<b>1日目は金曜日</b>で、土・日と連休のあいだ(2〜7日目)は、だれも水やりができません。<b>土の水分センサ</b>で土のかわき方を測り、かわいたら <b>ポンプ</b> で水をやるプログラムをつくろう。</p>';
+  h+='<p>5月の連休をはさむ10日間です。<b>1日目は金曜日</b>です。土・日と連休のあいだ(2〜7日目)は、だれも水やりができません。<b>土の水分センサ</b>で、土のかわき方を測ります。かわいたら <b>ポンプ</b> で水をやるプログラムをつくろう。</p>';
   h+='<p class="b5-small">土の水分が20%より少ないと、しおれて傷みます。90%より多いと、根が酸素不足になって傷みます。40〜80%がちょうどよい範囲です。ポンプは1時間で2Lの水をやります。</p></div>';
   h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p3"></div>';
   h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s3',ST.seed3)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run3">▶ 10日間 早送りで実行</button><button type="button" class="b5-btn" id="b5-man3">人が水やりすると?(平日の朝だけ)</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar3"></i></div></div></div>';
   h+='<div class="b5-card b5-view" id="b5-v3"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
   h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>土の水分(%)</h4><div id="b5-g3"></div><div class="b5-legend"><span><i style="border-color:#1e6fd9"></i>土の水分</span><span><i style="border-color:#888;border-top-style:dashed"></i>人が水やり(くらべるとき)</span><span><i class="band" style="background:#e3f3e3"></i>ちょうどよい範囲</span><span><i class="band" style="background:#cfe4ff"></i>ポンプが ON</span><span><i class="band" style="background:#eee"></i>連休(水やりできない日)</span></div></div></div>';
   h+='<div class="b5-card b5-res" id="b5-r3" hidden></div>';
-  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10・30・50・70・95 に変えると、しおれ・根の傷み・水の量はどう変わるかな。</li><li>「人が水やりすると?」とくらべて、自動にするよさを説明しよう。</li><li>教科書の例のように、夏休みのかん水作業を自動にするとき、ほかに気をつけることは何かな(水がなくなる・ホースがはずれる など)。</li></ul>'+
+  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10・30・50・70・95 に変えてみよう。しおれ・根の傷み・水の量はどう変わるかな。</li><li>「人が水やりすると?」とくらべて、自動にするよさを説明しよう。</li><li>夏休みのかん水作業を自動にするとき(教科書の例)、ほかに気をつけることは何かな。(水がなくなる・ホースがはずれる など)</li></ul>'+
     '<p class="b5-small">★1:しおれなかった ★2:そのうえ、水が多すぎて根が傷まなかった ★3:そのうえ、レタスがよく育った(1株 74g 以上)</p></div>';
   el.innerHTML=h;rb(el);bindSpeed(el);
   bindProg($('#b5-p3'),ST.prog3,{lockS:true,lockDev:true,canTime:true},function(){save();$('#b5-r3').hidden=true});
@@ -1296,7 +1296,7 @@ function run3(manual,quiet){
       var h='<h2>'+(manual?'人が水やりしたとき(平日の朝8時だけ)':'結果 <span class="b5-stars">'+stars(n)+'</span>')+'</h2><div class="b5-kpi">'+
         kpi('しおれた時間',t.wilt+'時間',t.wilt>0)+kpi('水が多すぎた時間',t.wet+'時間',t.wet>0)+kpi('水があふれた回数',t.overflow+'回',t.overflow>0)+kpi('使った水',t.water+'L')+kpi('1株の重さ',Math.round(res.w)+'g')+kpi('品質',res.q)+'</div>';
       var msg=[];
-      if(manual)msg.push('連休のあいだ水やりができず、土がかわいてしおれてしまいました。もう一度「▶ 10日間 早送りで実行」を押すと、自動の結果と灰色の点線でくらべられます。');
+      if(manual)msg.push('連休のあいだ水やりができず、土がかわいてしおれてしまいました。もう一度「▶ 10日間 早送りで実行」を押そう。自動の結果と、灰色の点線でくらべられます。');
       else{if(t.wilt>0)msg.push('土がかわいてしおれた時間がありました。しきい値を大きくして、早めに水をやるようにしよう。');
         if(t.wet>0||t.overflow>0)msg.push('水が多すぎて、根が傷んだり、水があふれたりしました。しきい値を小さくしよう。'+(t.overflow>0?'水があふれると、床がぬれて危険です(安全性)。':''));
         if(!msg.length&&n<3)msg.push('しおれも根の傷みもありません。もう少し水分の多いところを保つと、レタスがもっと育つかもしれません。');
@@ -1332,7 +1332,7 @@ function prog4(){if(!ST.prog4)ST.prog4=JSON.parse(JSON.stringify(ST.prog2.concat
 RENDER.all=function(el){
   var prog=prog4();
   var h='<div class="b5-card"><h1>④ 照明・水やり・温度を全部自動にしよう</h1>';
-  h+='<p>35日間育てて、リーフレタスを収穫します(12株)。②・③でつくったプログラムに、<b>温度</b>のルール(ヒーター・冷房)を足して、全部を自動にしよう。<b>収量や品質を上げると、電気代がふえることがあります</b>。どこで折り合いをつけるかを考えよう(最適化)。</p>';
+  h+='<p>35日間育てて、リーフレタスを収穫します(12株)。②・③でつくったプログラムに、<b>温度</b>のルール(ヒーター・冷房)を足そう。全部を自動にしよう。<b>収量や品質を上げると、電気代がふえることがあります</b>。どこで折り合いをつけるかを考えよう(最適化)。</p>';
   h+='<p class="b5-small">リーフレタスは 15〜22℃くらいがよく育ちます。32℃より暑いと葉の先が傷み、4℃より寒いと傷みます。1株 80g 以上で品質 60 以上なら出荷できます。電気代の目安(1時間):LED '+PRICE.led+'円・ポンプ '+PRICE.pump+'円・ヒーター '+PRICE.heat+'円・冷房 '+PRICE.cool+'円。</p></div>';
   h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p4"></div>';
   h+='<div class="b5-row" style="margin-top:8px"><span>季節</span>'+seasonHTML(ST.season4,'data-s4')+'</div><div class="b5-row" style="margin-top:6px">'+seedHTML('b5-s4',ST.seed4)+'</div>';
@@ -1424,7 +1424,7 @@ function roundData(r){
 function leafAI(res){var t=res.tot;if(t.wilt>0)return '😣 しおれている';if(t.hot>0)return '🟤 葉の先が傷んでいる';if(t.cold>0)return '🥶 寒さで傷んでいる';if(t.lackDays>0)return '🌱 育ちがおそい';var f=res.days.reduce(function(a,d){return a+d.f},0)/res.days.length;return f<0.6?'🌱 育ちがおそい':'😊 元気'}
 RENDER.smart=function(el){
   var h='<div class="b5-card"><h1>⑤ スマート農業 ― データを見て決めよう</h1>';
-  h+='<p>農業の担い手がへっています。そこで、<b>IoT</b>(いろいろな物をインターネットにつなぐ)、<b>AI</b>(人工知能)、<b>農業用ロボット</b>を使う「スマート農業」が進んでいます。センサのデータを遠くからスマートフォンで見たり、AI がカメラの画像から葉のようすを判断したりして、省力化・コスト削減・品質の向上につなげています。</p>';
+  h+='<p>農業の担い手がへっています。そこで、「スマート農業」が進んでいます。<b>IoT</b>(いろいろな物をインターネットにつなぐ)、<b>AI</b>(人工知能)、<b>農業用ロボット</b>を使います。たとえば、センサのデータを遠くからスマートフォンで見ます。AI が、カメラの画像から葉のようすを判断します。こうして、省力化・コスト削減・品質の向上につなげています。</p>';
   h+='<div class="b5-ai"><div><b>📡 IoT</b>センサの値を、学校の外からでも見られる。異常があればお知らせが届く。</div><div><b>🤖 AI</b>カメラの画像から、葉のようすや収穫の時期を判断する。</div><div><b>🦾 ロボット</b>種まき・収穫・運ぶ作業などを自動で行う。</div></div></div>';
   h+='<div class="b5-card" id="b5-q5"></div>';
   h+='<div class="b5-card" id="b5-d5"></div>';
@@ -1464,7 +1464,7 @@ function d5Render(){
   var el=$('#b5-d5');if(!el)return;
   var tr=ST.trials,h='<h2>データを見て決める:自分の植物工場の「いちばんよい」設定は?</h2>';
   if(tr.length<2){el.innerHTML=h+'<p>④ で2回以上ためすと、ここに結果の散布図が出ます。<button type="button" class="b5-btn" data-go="all">④ をひらく</button></p>';rb(el);return}
-  h+='<p>④ でためした結果を、横に電気代、たてに1株の重さ(収量)をとった<b>散布図</b>にしました。何を大事にするか(重み)を決めると、AI が点数を計算して「おすすめ」を出します。</p>';
+  h+='<p>④ でためした結果を、<b>散布図</b>にしました。横は電気代、たては1株の重さ(収量)です。何を大事にするか(重み)を決めよう。AI が点数を計算して、「おすすめ」を出します。</p>';
   h+='<div class="b5-chart" id="b5-sc"></div>';
   h+='<div class="b5-row">'+[['y','収量'],['q','品質'],['c','費用の少なさ'],['e','環境への配慮']].map(function(a){return '<span class="b5-row" style="gap:6px"><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-w="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'の重みをへらす">−</button><input type="number" readonly value="'+ST.smartW[a[0]]+'" aria-label="'+a[1]+'の重み"><button type="button" data-w="'+a[0]+'" data-d="1" aria-label="'+a[1]+'の重みをふやす">＋</button></span></span>'}).join('')+'</div>';
   var best=aiPick();
@@ -1494,11 +1494,11 @@ function scatterSVG(el,tr,best){
 
 /* ================= 振り返り ================= */
 var RQ=[
- {k:'q1',t:'露地栽培と植物工場をくらべて、それぞれのよいところと課題は何ですか。数字を使って書きましょう。',ph:'例:植物工場は30日で収穫でき、1m²で露地栽培の約5倍とれたが、電気代が約1800円かかった。'},
- {k:'q2',t:'センサとプログラムで照明や水やりを自動にして、分かったことは何ですか(しきい値や条件を変えたときの変化など)。',ph:'例:明るさのしきい値を大きくすると、くもりの日も光が足りたが、夜もLEDがついたので時刻の条件を足した。'},
- {k:'q3',t:'収量・品質と、電気代・水の量の折り合いを、どのようにつけましたか。',ph:'例:冬はヒーターを使わないと育たないが、15℃にすると電気代が高いので12℃にした。'},
- {k:'q4',t:'評価して見つかった新しい問題と、それを解決する改善のアイデアを書きましょう。',ph:'例:近くにいないと急な対応ができないので、異常があるとスマートフォンに知らせるしくみをつくる。'},
- {k:'q5',t:'スマート農業など、これからの生物育成の技術でどんなことができるとよいと思いますか。社会や環境への影響も考えて書きましょう。',ph:''}
+ {k:'q1',t:'露地栽培と植物工場をくらべて、それぞれのよいところと課題は何ですか。数字を使って書きましょう。',ph:'例:植物工場は30日で収穫でき、1m²で露地栽培の約5倍とれた。でも電気代が約1800円かかった。'},
+ {k:'q2',t:'センサとプログラムで照明や水やりを自動にして、分かったことは何ですか。(しきい値や条件を変えたときの変化など)',ph:'例:明るさのしきい値を大きくすると、くもりの日も光が足りた。でも夜もLEDがついたので、時刻の条件を足した。'},
+ {k:'q3',t:'収量・品質と、電気代・水の量の折り合いを、どのようにつけましたか。',ph:'例:冬はヒーターを使わないと育たない。でも15℃にすると電気代が高いので、12℃にした。'},
+ {k:'q4',t:'評価して見つかった新しい問題と、それを解決する改善のアイデアを書きましょう。',ph:'例:近くにいないと、急な対応ができない。異常があるとスマートフォンに知らせるしくみをつくる。'},
+ {k:'q5',t:'これからの生物育成の技術(スマート農業など)で、どんなことができるとよいと思いますか。社会や環境への影響も考えて書きましょう。',ph:''}
 ];
 var EV=[
  {k:'e1',t:'センサとプログラムで、育成環境を自動で調節するしくみが分かった'},
@@ -1523,7 +1523,7 @@ RENDER.refl=function(el){
   var h='<div class="b5-card"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>';
   h+='<div class="b5-who"><div><label class="b5-f" for="b5-r-cls">組</label><input type="text" id="b5-r-cls" data-who="cls" value="'+esc(d.cls)+'"></div><div><label class="b5-f" for="b5-r-no">番号</label><input type="text" id="b5-r-no" data-who="no" value="'+esc(d.no)+'" inputmode="numeric"></div><div><label class="b5-f" for="b5-r-name">名前</label><input type="text" id="b5-r-name" data-who="name" value="'+esc(d.name)+'"></div></div></div>';
   h+='<div class="b5-card"><h2>学習の記録(自動)</h2><div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
-  h+='<div class="b5-card"><h2>評価のレーダーチャート</h2><p>自分がつくった植物工場(④でいちばん点数の高い設定)を、5つの観点で評価しよう(1〜5)。点線はシミュレーションの点数から出した目安です。</p><div class="b5-radar-wrap"><div id="b5-rd">'+radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}])+'</div><div class="b5-rs">'+
+  h+='<div class="b5-card"><h2>評価のレーダーチャート</h2><p>自分がつくった植物工場を、5つの観点で評価しよう(1〜5)。④でいちばん点数の高い設定を使います。点線はシミュレーションの点数から出した目安です。</p><div class="b5-radar-wrap"><div id="b5-rd">'+radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}])+'</div><div class="b5-rs">'+
     RADAR_AX.map(function(a){return '<div><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-rd="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'を下げる">−</button><input type="number" readonly value="'+d.radar[a[0]]+'" data-rv="'+a[0]+'" aria-label="'+a[1]+'"><button type="button" data-rd="'+a[0]+'" data-d="1" aria-label="'+a[1]+'を上げる">＋</button></span></div>'}).join('')+'</div></div></div>';
   h+='<div class="b5-card"><h2>ふり返りを書こう</h2>';
   RQ.forEach(function(q,i){h+='<label class="b5-f" for="b5-r-'+q.k+'">'+(i+1)+'. '+q.t+'</label><textarea id="b5-r-'+q.k+'" data-r="'+q.k+'" placeholder="'+esc(q.ph)+'">'+esc(d[q.k]||'')+'</textarea>'});

@@ -419,7 +419,7 @@ function renderIntro(box) {
   var go1 = function (id, i, t, s, adv) { return '<button class="e6-go' + (adv ? ' adv' : '') + '" data-go="' + id + '"><span class="i">' + i + '</span><span><b>' + t + '</b><small>' + s + '</small></span></button>'; };
   box.innerHTML = '<div class="e6-card lead"><h2>🌬️ 風力発電の羽根ラボ</h2>' +
     '<p><b>めあて: 羽根の形や枚数を工夫して、少ない風でもたくさん電気をつくれる風車を考えよう。</b></p>' +
-    '<p>このラボでは、扇風機の風で回す「風力発電のモデル」を画面の中で作ります。羽根の<b>枚数・かたむき・長さ・形</b>と<b>風の強さ</b>を変えて、どれだけ電気ができるかをくらべましょう。</p>' +
+    '<p>このラボでは、扇風機の風で回す「風力発電のモデル」を画面の中で作ります。羽根の<b>枚数・かたむき・長さ・形</b>と<b>風の強さ</b>を変えてみよう。どれだけ電気ができるかをくらべましょう。</p>' +
     '<p style="color:#5b6b7c;font-size:.92em">考えること: 電気はどうやってつくられているのか。風車が回ると電気が生まれるのはなぜか。</p></div>' +
     '<div class="e6-card"><span class="e6-kicker">基本編</span><div class="e6-start">' +
     go1('gen', '🧲', '① 発電機のしくみ', 'コイルと磁石で電気が生まれるわけ(電磁誘導)') +
@@ -428,7 +428,7 @@ function renderIntro(box) {
     '<span class="e6-kicker adv" style="margin-top:10px">発展編</span><div class="e6-start">' +
     go1('meth', '🏭', '④ 発電方法くらべ', '火力・水力・太陽光・風力・燃料電池の変換の流れと特徴', 1) +
     go1('day', '📅', '⑤ 風の強さが変わる日の発電量', '1日の風の変化で、発電量はどう変わる?', 1) + '</div></div>' +
-    '<div class="e6-card tip"><b>⚠️ 注意</b> 数値は、小さなモデルを理想化した計算による目安です。本物の扇風機で羽根の模型を回すときは、回っている羽根に指や顔を近づけないようにし、先生の指示にしたがいましょう。</div>';
+    '<div class="e6-card tip"><b>⚠️ 注意</b> 数値は、小さなモデルを理想化した計算による目安です。本物の扇風機で羽根の模型を回すときは、回っている羽根に指や顔を近づけないこと。先生の指示にしたがいましょう。</div>';
   box.addEventListener('click', function (ev) { var t = ev.target.closest('[data-go]'); if (t) go(t.getAttribute('data-go')); });
 }
 
@@ -437,7 +437,7 @@ var QUIZ = [
   { id: 'q1', q: '発電機のコイルに電流が流れるのは、どんなときですか。', a: 'コイルの近くで磁石を回しているとき', w: ['コイルの近くに磁石を止めておくとき', 'コイルと磁石を遠くにはなしたとき'],
     why: 'コイルの中の磁石の向きや強さが変わるときに電流が流れます(電磁誘導)。止めたままでは流れません。' },
   { id: 'q2', q: '発電機の電圧を大きくするには、どうすればよいですか。', a: '巻き数を多くし、磁石を速く回す', w: ['巻き数を少なくし、磁石を速く回す', '巻き数を多くし、磁石をゆっくり回す'],
-    why: 'コイルの巻き数が多いほど、また磁石が速く回るほど(強い磁石ほど)、大きな電圧が生まれます。' },
+    why: 'コイルの巻き数が多いほど、大きな電圧が生まれます。磁石が速く回るほど(強い磁石ほど)、大きくなります。' },
   { id: 'q3', q: '発電機とモーターについて、正しいものはどれですか。', a: 'どちらもコイルと磁石からできている', w: ['発電機は磁石だけでできている', 'モーターはコイルだけでできている'],
     why: '発電機とモーターは同じつくりです。電流を流すと回り(モーター)、回すと電流が生まれます(発電機)。' }
 ];
@@ -463,7 +463,7 @@ function renderGen(box) {
     '<div class="e6-ctl"><label>コイルの巻き数</label><div class="e6-seg">' + [50, 100, 200].map(function (n) { return '<button class="e6-btn sm" data-turn="' + n + '">' + n + '回</button>'; }).join('') + '</div></div>' +
     '<div class="e6-ctl"><label>磁石の強さ</label><div class="e6-seg"><button class="e6-btn sm" data-mag="0.5">弱い磁石</button><button class="e6-btn sm" data-mag="1">強い磁石</button></div></div>' +
     '<div class="e6-msg" data-ref="gmsg" role="status" aria-live="polite"></div>' +
-    '<h3>風力発電では</h3><p>風が羽根(風車)を回し、羽根の軸が発電機の中の磁石(またはコイル)を回します。<br><b>風の運動エネルギー → 羽根の回転 → 発電機 → 電気エネルギー</b></p>' +
+    '<h3>風力発電では</h3><p>風が羽根(風車)を回します。羽根の軸が、発電機の中の磁石(またはコイル)を回します。<br><b>風の運動エネルギー → 羽根の回転 → 発電機 → 電気エネルギー</b></p>' +
     '<div data-ref="quiz"></div></div></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
   /* コイル(左右に2つ) */
@@ -540,7 +540,7 @@ function renderGen(box) {
     var msg = G.mode === 'motor' ? '🔋 電池をつなぐと、コイルに電流が流れて磁石が回りました。<b>同じつくりで、モーターにも発電機にもなります。</b>' :
       rps < 0.05 ? '磁石が止まっていると、電圧計の針は動きません。磁石を回してみよう。' :
       on ? '💡 LED が光った! 磁石が速く回るほど、大きな電圧が生まれます。針が<b>左右にふれる</b>のは、電流の向きが変わるからです。' :
-      '針がふれています。LED を光らせるには、もっと大きな電圧が必要です(巻き数・磁石・速さを変えてみよう)。';
+      '針がふれています。LED を光らせるには、もっと大きな電圧が必要です。巻き数・磁石・速さを変えてみよう。';
     if (el.gmsg._m !== msg) { el.gmsg._m = msg; el.gmsg.innerHTML = msg; el.gmsg.className = 'e6-msg' + (on || G.mode === 'motor' ? ' ok' : ''); }
   };
 }
@@ -548,10 +548,10 @@ function renderGen(box) {
 /* ================= ② 羽根を変えて発電量をくらべる ================= */
 function renderCmp(box) {
   var b = S.save.blade;
-  box.innerHTML = '<div class="e6-card"><p>🔬 <b>1つだけ変えてくらべよう。</b> 枚数・かたむき・長さ・形のどれか1つを変えて「📋 記録する」を押すと、前の羽根と何がちがうかが黄色で表の中に出ます。</p></div>' +
+  box.innerHTML = '<div class="e6-card"><p>🔬 <b>1つだけ変えてくらべよう。</b> 枚数・かたむき・長さ・形のどれか1つを変えて「📋 記録する」を押そう。前の羽根とちがう所が、表の中に黄色で出ます。</p></div>' +
     '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div style="margin-top:8px" data-ref="meters">' + meterHtml() + '</div>' +
     '<div class="e6-msg" style="margin-top:8px" data-ref="msg" role="status" aria-live="polite"></div>' +
-    '<p style="font-size:.88em;color:#5b6b7c;margin-top:6px">羽根は、見やすいようにほんとうの速さの 1/10 で回しています。「風から電気へ」は、羽根に当たった風のエネルギーのうち、電気になった割合(エネルギー変換効率)です。</p></div>' +
+    '<p style="font-size:.88em;color:#5b6b7c;margin-top:6px">羽根は、見やすいようにほんとうの速さの 1/10 で回しています。「風から電気へ」は、電気になった割合(エネルギー変換効率)です。羽根に当たった風のエネルギーのうちの割合です。</p></div>' +
     '<div class="e6-card" data-ref="ctl"></div></div>' +
     '<div class="e6-card"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">📋 くらべた記録</h2><div class="e6-row"><button class="e6-btn primary" data-act="rec">📋 記録する</button><button class="e6-btn sm" data-act="clr">🗑 記録を消す</button></div></div>' +
     '<div class="e6-scroll" data-ref="tbl"></div>' +
@@ -619,7 +619,7 @@ function renderCmp(box) {
 var MIS = [
   { id: 'm1', ic: '🍃', t: 'そよ風チャレンジ', d: '風速 1.0 m/s のそよ風で回る羽根を作ろう(回り始める風が 1.0 m/s 未満)。', ok: function (b) { return r1(calc(b, 4).vs) < 1.0; } },
   { id: 'm2', ic: '⚡', t: 'パワーチャレンジ', d: '風速 4 m/s で、電力 1.10 W 以上を出そう。', ok: function (b) { return calc(b, 4).P >= 1.10; } },
-  { id: 'm3', ic: '⚖️', t: 'いいとこどりチャレンジ', d: '回り始める風が 1.0 m/s 未満で、しかも 4 m/s で 0.85 W 以上を出そう。', ok: function (b) { var c = calc(b, 4); return r1(c.vs) < 1.0 && c.P >= 0.85; } }
+  { id: 'm3', ic: '⚖️', t: 'いいとこどりチャレンジ', d: '回り始める風を 1.0 m/s 未満にしよう。しかも、4 m/s で 0.85 W 以上を出そう。', ok: function (b) { var c = calc(b, 4); return r1(c.vs) < 1.0 && c.P >= 0.85; } }
 ];
 function renderBest(box) {
   var b = S.save.blade;
@@ -694,9 +694,9 @@ function renderMeth(box) {
   var M = S.meth = S.meth || { cur: 'fire', pick: [], pool: null, feat: null, fi: 0, score: 0, ans: null };
   function pool() { var m = METH.filter(function (x) { return x.id === M.cur; })[0]; M.pool = shuffle(m.flow.concat([m.fake])); M.pick = []; }
   if (!M.pool) pool();
-  box.innerHTML = '<div class="e6-card adv"><span class="e6-kicker adv">発展編</span><h2>🏭 発電方法くらべ</h2><p>発電のしかたには、蒸気・水・風の力で発電機を回す方法のほか、光を太陽電池で電気に変える方法や、水素と酸素の反応を燃料電池で電気に変える方法があります。発電方法ごとに、<b>エネルギーがどのように変わって電気になるか</b>をならべてみましょう。(発電にかかる費用は C1 の「💴 発電方法の値段くらべ」で見られます)</p></div>' +
+  box.innerHTML = '<div class="e6-card adv"><span class="e6-kicker adv">発展編</span><h2>🏭 発電方法くらべ</h2><p>発電のしかたには、蒸気・水・風の力で発電機を回す方法があります。光を太陽電池で電気に変える方法もあります。水素と酸素の反応を、燃料電池で電気に変える方法もあります。発電方法ごとに、<b>エネルギーがどのように変わって電気になるか</b>をならべてみましょう。(発電にかかる費用は、C1 の「💴 発電方法の値段くらべ」で見られます)</p></div>' +
     '<div class="e6-grid"><div class="e6-card"><h2>🔗 変換の流れをならべよう</h2><div class="e6-meth" data-ref="mlist"></div>' +
-    '<p style="margin-top:8px">下のカードを、<b>はじめ → 電気</b> の順にタップしよう(1つだけ、ちがう発電方法のカードがまざっています)。</p>' +
+    '<p style="margin-top:8px">下のカードを、<b>はじめ → 電気</b> の順にタップしよう。1つだけ、ちがう発電方法のカードがまざっています。</p>' +
     '<div class="e6-flow" data-ref="flow"></div><div class="e6-chips" data-ref="pool" style="margin-top:8px"></div>' +
     '<div class="e6-row" style="margin-top:8px"><button class="e6-btn sm" data-act="undo">↩ 1つもどす</button></div><div class="e6-msg" data-ref="fmsg" style="margin-top:8px"></div></div>' +
     '<div class="e6-card"><h2>🎯 この特徴はどの発電方法?</h2><p>特徴を読んで、あてはまる発電方法をえらぼう。</p><div class="e6-feat" data-ref="feat"></div><div class="e6-meth" data-ref="fans" style="margin-top:8px"></div>' +
@@ -778,7 +778,7 @@ function renderDay(box) {
     '<div class="e6-card"><div class="e6-days" data-ref="days"></div></div>' +
     '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div class="e6-row" style="margin-top:8px"><button class="e6-btn primary" data-act="play"></button><label style="flex:1;min-width:160px">時刻 <b data-ref="hlab"></b><input type="range" min="0" max="23.9" step="0.1" data-ref="hr"></label></div><div class="e6-msg" data-ref="dmsg" style="margin-top:8px"></div></div>' +
     '<div class="e6-card"><h2>1日の風と電力</h2><div data-ref="chart"></div><div class="e6-leg" data-ref="leg"></div><div class="e6-scroll" data-ref="tot" style="margin-top:8px"></div></div></div>' +
-    '<div class="e6-card tip"><b>考えよう</b> 風が弱い日・強い日で、いちばんたくさん発電した羽根は同じでしたか。風力発電は、風の強さで発電量が変わります。電気を安定して届けるために、どんな工夫ができるでしょうか(蓄電池にためる、ほかの発電方法と組み合わせる など)。<br><small>本物の大きな風車も、強すぎる風ではこわれないように羽根のかたむきを変えて止めます。このモデルでは風速 ' + CUT + ' m/s 以上で止めます。</small></div>';
+    '<div class="e6-card tip"><b>考えよう</b> 風が弱い日・強い日で、いちばんたくさん発電した羽根は同じでしたか。風力発電は、風の強さで発電量が変わります。電気を安定して届けるために、どんな工夫ができるでしょうか。たとえば、蓄電池にためる、ほかの発電方法と組み合わせる など。<br><small>本物の大きな風車も、強すぎる風では止めます。こわれないように、羽根のかたむきを変えるのです。このモデルでは風速 ' + CUT + ' m/s 以上で止めます。</small></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
   var spin = spinner('e6-r5'), dots = windDots('e6-r5');
   el.stage.innerHTML = turbineSvg(S.save.blade, { id: 'e6-r5' });

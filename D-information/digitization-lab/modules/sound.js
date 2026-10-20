@@ -232,7 +232,7 @@ function stopMic() {
 export const soundModule = {
   id: ID,
   minutes: "20分",
-  lead: "音は空気のふるえ（波）です。デジタル化では、波の高さを一定の時間ごとにはかり（標本化）、その高さを決まった段階の数にあてはめ（量子化）、0と1にします（符号化）。はかる回数や段階の数を変えて、見て・聞いてくらべよう。",
+  lead: "音は空気のふるえ（波）です。デジタル化では、まず波の高さを一定の時間ごとにはかります（標本化）。次に、その高さを決まった段階の数にあてはめます（量子化）。最後に0と1にします（符号化）。はかる回数や段階の数を変えて、見て・聞いてくらべよう。",
   steps: STEPS,
   leave: stopMic,
   async render(root) {
@@ -366,12 +366,12 @@ export const soundModule = {
             if (ok) {
               solved = true;
               btn.classList.add("correct");
-              fb.replaceChildren(explainCard("正解！", "標本化周波数 2,000Hz で記録できるのは、その半分の 1,000Hz より低い音だけです。鈴の音の成分はどれも約2,000Hz より高いので、何も残りませんでした。はかる回数が少ないと、高い音から消えていきます。", "good"));
+              fb.replaceChildren(explainCard("正解！", "標本化周波数 2,000Hz で記録できるのは、半分の 1,000Hz より低い音だけです。鈴の音の成分は、どれも約2,000Hz より高いです。だから何も残りませんでした。はかる回数が少ないと、高い音から消えていきます。", "good"));
               c.done();
             } else {
               btn.classList.add("wrong");
               lockedAt = heard.size;
-              fb.replaceChildren(explainCard("もう一度", "「鈴の音」を選んでから「はかる回数がとても少ない」を押して、上の図と説明を見てみよう。新しい設定をためすと、もう一度答えられます。", "warn"));
+              fb.replaceChildren(explainCard("もう一度", "「鈴の音」を選んで、「はかる回数がとても少ない」を押そう。上の図と説明を見てみよう。新しい設定をためすと、もう一度答えられます。", "warn"));
               update();
             }
           });
@@ -381,12 +381,12 @@ export const soundModule = {
           const left = Math.max(0, NEED - heard.size);
           const locked = heard.size <= lockedAt;
           for (const btn of buttons) btn.disabled = !solved && (left > 0 || locked);
-          gate.textContent = solved ? "" : left > 0 ? `あと${left}つの設定をためすと、答えられます（「▶ この設定で聞く」か「おすすめ」を押そう）。` : locked ? "新しい設定をためすと、もう一度答えられます。" : "答えを選ぼう。";
+          gate.textContent = solved ? "" : left > 0 ? `あと${left}つの設定をためすと、答えられます。「▶ この設定で聞く」か「おすすめ」を押そう。` : locked ? "新しい設定をためすと、もう一度答えられます。" : "答えを選ぼう。";
         };
         update();
         return {
           update,
-          el: h("div", { class: "listen-quiz" }, h("p", {}, h("strong", {}, "問題：「鈴の音」を「はかる回数がとても少ない」（2,000Hz）にすると、どうなった？")), gate, h("ul", { class: "choice-list" }, buttons.map((btn) => h("li", {}, btn))), fb),
+          el: h("div", { class: "listen-quiz" }, h("p", {}, h("strong", {}, "問題：「鈴の音」を「はかる回数がとても少ない」（2,000Hz）にした。どうなった？")), gate, h("ul", { class: "choice-list" }, buttons.map((btn) => h("li", {}, btn))), fb),
         };
       })();
       rate.input.addEventListener("input", drawListen);
@@ -498,7 +498,7 @@ export const soundModule = {
         ),
         h("div", { class: "hint" }, "ためした設定"),
         log,
-        explainCard("聞こえ方のちがい", "はかる回数（標本化周波数）が少ないと、高い音の成分を記録できず、音がこもります。標本化周波数の半分より高い音は記録できないため、鈴の音のような高い音は消えてしまいます。段階の数（量子化ビット数）が少ないと、ザラザラした雑音がまじります。"),
+        explainCard("聞こえ方のちがい", "はかる回数（標本化周波数）が少ないと、高い音の成分を記録できません。音がこもります。標本化周波数の半分より高い音は、記録できません。だから鈴の音のような高い音は消えます。段階の数（量子化ビット数）が少ないと、ザラザラした雑音がまじります。"),
         quiz.el,
         h(
           "details",
@@ -536,7 +536,7 @@ export const soundModule = {
         explainCard("計算のしかた", "音のデータ量（ビット）＝ 標本化周波数 × 量子化ビット数 × 秒数 × チャンネル数<br>8ビット ＝ 1バイト、1024バイト ＝ 1KB、1024KB ＝ 1MB"),
         h("div", { class: "field-row" }, rate.el, depth.el, secs.el, chs.el),
         info,
-        choiceQuiz({ question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で1分間録音したときのデータ量は、およそいくら？", choices: ["約10MB", ...pickAround(["約1MB", "約100KB"], ["約100MB", "約1GB"])], answer: 0, explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット ＝ 10,584,000バイト。1024で2回わると約10MBです。" }, () => mark(1)),
+        choiceQuiz({ question: "音楽CDと同じ設定（44,100Hz・16ビット・ステレオ）で1分間録音した。データ量は、およそいくら？", choices: ["約10MB", ...pickAround(["約1MB", "約100KB"], ["約100MB", "約1GB"])], answer: 0, explain: "44,100 × 16 × 60 × 2 ＝ 84,672,000ビット。これは 10,584,000バイトです。1024で2回わると約10MBです。" }, () => mark(1)),
         choiceQuiz({ question: "標本化周波数を2倍にすると、記録できる音とデータ量はどうなる？", choices: ["より高い音まで記録でき、データ量は2倍", "音は変わらず、データ量は2倍", "より高い音まで記録でき、データ量は変わらない"], answer: 0, explain: "1秒にはかる回数が2倍になるので、データ量も2倍。標本化周波数の半分までの高さの音を記録できるので、より高い音まで記録できます。" }, () => mark(2)),
       );
       update();

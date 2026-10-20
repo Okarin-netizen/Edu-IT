@@ -29,7 +29,7 @@ export function httpLeakText(seenSeqs, total) {
   else if (id.state === "part") parts.push(`IDの一部「${code(id.text)}」`);
   if (pass.state === "all") parts.push(`パスワード（${code(DEMO.pass)}）`);
   else if (pass.state === "part") parts.push(`パスワードの一部「${code(pass.text)}」`);
-  const head = `暗号化していないので、通ったパケットの中身がそのまま読めてしまいました（${total}個のうち${seenSeqs.length}個）。`;
+  const head = `暗号化していないので、パケットの中身がそのまま読めてしまいました（${total}個のうち${seenSeqs.length}個）。`;
   const what = parts.length ? `${parts.join("と、")}が見えています。` : "";
   return `${head}${what}ほかのパケットも同じ回線を通れば、全部読まれてしまいます。`;
 }
@@ -37,7 +37,7 @@ export function httpLeakText(seenSeqs, total) {
 export const spyModule = {
   id: ID,
   minutes: "10〜15分",
-  lead: "パケットはいくつもの回線や機器を通って届きます。もし途中の回線をのぞき見している人がいたら、何が見えてしまうのでしょう。暗号化しない HTTP と、暗号化する HTTPS（どちらもWebページをやりとりするためのプロトコル＝通信の約束ごと）で比べてみよう。",
+  lead: "パケットはいくつもの回線や機器を通って届きます。もし途中の回線をのぞき見している人がいたら、何が見えてしまうのでしょう。暗号化しない HTTP と、暗号化する HTTPS で比べてみよう。どちらも、Webページをやりとりするプロトコル（通信の約束ごと）です。",
   steps: STEPS,
   render(root) {
     const cards = STEPS.map((s, i) => stepCard(ID, s, i));
@@ -94,8 +94,8 @@ export const spyModule = {
       const lack = [];
       if (!client) lack.push("パソコンかスマホ");
       if (!server) lack.push("Webサーバ");
-      if (lack.length) return `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう（「はじめの形にもどす」でもかまいません）。`;
-      if (!spyLink) return "回線（線）が1本もありません。「ネットワークを組み立てる」で、機器を線でつなごう（「はじめの形にもどす」でもかまいません）。";
+      if (lack.length) return `${lack.join("と、")}がありません。「ネットワークを組み立てる」で置いて、線でつなごう。「はじめの形にもどす」でもかまいません。`;
+      if (!spyLink) return "回線（線）が1本もありません。「ネットワークを組み立てる」で、機器を線でつなごう。「はじめの形にもどす」でもかまいません。";
       return "";
     };
     let split = null;
@@ -169,13 +169,13 @@ export const spyModule = {
       ...(lackNow ? [explainCard("たりない機器", lackNow, "warn")] : []),
       h("div", { class: "btn-row" }, sendBtn, speedControl(h)),
       split.el,
-      h("p", { class: "hint" }, "※ のぞき見の画面の「POST /login」は、HTTPで「入力した内容（IDとパスワード）を送ります」というお願いの書き方です。"),
-      h("p", { class: "hint" }, "※ HTTPS の暗号文は、しくみを見せるための模型です（本物の暗号ではありません）。"),
+      h("p", { class: "hint" }, "※ のぞき見の画面の「POST /login」は、HTTPでのお願いの書き方です。「入力した内容（IDとパスワード）を送ります」という意味です。"),
+      h("p", { class: "hint" }, "※ HTTPS の暗号文は、しくみを見せるための模型です。本物の暗号ではありません。"),
     );
     cards[1].body.append(h("p", {}, "上の「HTTPS（暗号化あり）」に切りかえて、もう一度送ってみよう。のぞき見している人には何が見える？"));
     cards[2].body.append(
       h("p", {}, "図の別の回線を押して、のぞき見する人の場所を変えてから送ってみよう。パケットが通らない回線では、何も見えません。"),
-      explainCard("考えよう", "いちばん危ないのは、<strong>毎回かならず通る場所</strong>です。たとえば、あなたの端末とWi‑Fiの間。だれでも使えるフリーWi‑Fiでは、暗号化されていない通信を見られるおそれがあります。"),
+      explainCard("考えよう", "いちばん危ないのは、<strong>毎回かならず通る場所</strong>です。たとえば、あなたの端末とWi‑Fiの間。フリーWi‑Fiは、だれでも使えます。暗号化されていない通信を、見られるおそれがあります。"),
     );
     cards[3].body.append(
       choiceQuiz(
@@ -183,7 +183,7 @@ export const spyModule = {
           question: "HTTPS（鍵マーク）について正しいのはどれ？",
           choices: ["通信の中身が暗号化され、途中でのぞかれても読まれにくい", "鍵マークがあれば、そのサイトは必ず安全な本物のサイトだ", "HTTPSなら、パスワードをどのサイトに入れても大丈夫", "HTTPSにすると、通信の行き先もすべて見えなくなる"],
           answer: 0,
-          explain: "HTTPSが守るのは「通信の途中」です。にせもののサイトも鍵マークを付けられるので、サイトのアドレスが本物かどうかは別に確かめる必要があります。HTTPSでも、通信の相手（IPアドレスやサイト名）や、いつ・どれくらい通信したかは見えることがあります。",
+          explain: "HTTPSが守るのは「通信の途中」です。にせもののサイトも、鍵マークを付けられます。だから、アドレスが本物かどうかは別に確かめよう。HTTPSでも、通信の相手（IPアドレスやサイト名）や、いつ・どれくらい通信したかは見えることがあります。",
         },
         () => cards[3].done(),
         { retry: true },
@@ -192,7 +192,7 @@ export const spyModule = {
     cards[4].body.append(
       reflectionBox(ID, "フリーWi‑Fiを使うとき、どんなことに気をつける？　理由もいっしょに書こう。", () => cards[4].done(), {
         placeholder: "例: 〇〇に気をつける。なぜなら、のぞき見している人に△△が見えてしまうから。",
-        hint: "HTTPとHTTPSで、のぞき見している人の画面がどうちがったかを思い出して書こう。",
+        hint: "のぞき見している人の画面は、HTTPとHTTPSでどうちがったかな？ 思い出して書こう。",
       }),
     );
     root.append(...cards.map((c) => c.el));

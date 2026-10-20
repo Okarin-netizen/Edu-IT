@@ -459,7 +459,7 @@
     root.appendChild(h('div', { class: 'a4-cols' },
       h('div', { class: 'card' }, h('h3', null, '問題 ' + (drawState.idx + 1) + ' の立体'), v.el,
         h('p', { class: 'g-muted' }, '第三角法: 平面図は正面図の上、右側面図は正面図の右に置きます。'),
-        h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点(外形が入る範囲の左下の角)から、下の線(基準線)を横に ' + D0.U + ' マス、左の線を縦に ' + D0.V + ' マス引きます。そのあと内側の線をかきます。')),
+        h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点から始めます(外形が入る範囲の左下の角)。下の線(基準線)を横に ' + D0.U + ' マス、左の線を縦に ' + D0.V + ' マス引きます。そのあと内側の線をかきます。')),
       h('div', { class: 'card' },
         h('h3', null, VIEW_NAME[view] + 'をかく(' + VIEW_DIR[view] + '見た図)'), viewTabs,
         board.el,
@@ -484,7 +484,7 @@
     var result = h('div', { class: 'a4-result', 'aria-live': 'polite' });
     var hintBox = h('div', { class: 'a4-hintbox', 'aria-live': 'polite' });
     var board = SK.create({ mode: 'iso', iMax: 12, jMax: 16, cell: 34, tools: ['v', 'erase'],
-      label: '等角図をかくボード。矢印キーで点を動かし(Q E Z C でななめ)、スペースキーで線の始めと終わりを決めます。',
+      label: '等角図をかくボード。矢印キーで点を動かします(Q E Z C でななめ)。スペースキーで線の始めと終わりを決めます。',
       onChange: function (d) { isoState.drawings[key] = d; if (!answer || !answer.isOn()) result.innerHTML = ''; },
       onClearAll: function () { answer.off(); result.innerHTML = ''; setHintLevel(0); } });
     if (isoState.drawings[key]) board.setDrawn(isoState.drawings[key]);
@@ -531,7 +531,7 @@
         [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(function (e) {
           nodes.push(SK.svgEl('line', { class: 'a4-box', x1: pts[e[0]][0], y1: pts[e[0]][1], x2: pts[e[1]][0], y2: pts[e[1]][1] }));
         });
-        hintBox.appendChild(h('p', null, 'ヒント1: 立体がちょうど入る箱(横 ' + W + '・奥行き ' + D + '・高さ ' + Hh + ')を補助線でかきました。この箱からいらない部分をけずるように考えます。'));
+        hintBox.appendChild(h('p', null, 'ヒント1: 立体がちょうど入る箱を補助線でかきました(横 ' + W + '・奥行き ' + D + '・高さ ' + Hh + ')。この箱からいらない部分をけずるように考えます。'));
       }
       if (hintLevel >= 2) {
         var v = V3.widget();
@@ -579,7 +579,7 @@
       h('div', { class: 'card' }, h('h3', null, '問題 ' + (isoState.idx + 1) + ' の三面図'), legendLines(),
         svgNode(SV.threeView(M.threeViews(s), { cell: 28, guides: true, aria: '問題の三面図' })),
         h('p', { class: 'g-muted' }, '等角図は、右手前の上から見たようにかきます。正面は左下の面、右側面は右下の面になります。'),
-        h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点(立体が入る箱の、手前の下の角)から始めます。水平な基準線から30°上がる線を左右に引き、左上に横 ' + s.w + '、右上に奥行き ' + s.d + '、真上に高さ ' + s.h + ' をとります。'),
+        h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点(立体が入る箱の、手前の下の角)から始めます。水平な基準線から30°上がる線を左右に引きます。左上に横 ' + s.w + '、右上に奥行き ' + s.d + '、真上に高さ ' + s.h + ' をとります。'),
         v3wrap),
       h('div', { class: 'card' }, h('h3', null, '等角図をかく'),
         board.el,

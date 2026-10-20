@@ -198,7 +198,7 @@
       G.h('div', null, G.h('span', { class: 'lab' }, '部品の数'), G.h('span', { class: 'stat-big' }, String(instances.length)), ' 個'),
       G.h('div', null, G.h('span', { class: 'lab' }, '部品の面積の合計'), G.h('span', { class: 'stat-big' }, G.fmt(st.totalArea / 100, 0)), ' cm²'),
       G.h('div', null, G.h('span', { class: 'lab' }, '面積から見た最低の板の枚数'), G.h('span', { class: 'stat-big' }, String(st.minBoardsByArea)), ' 枚')));
-    box.appendChild(G.h('p', { class: 'g-muted' }, '実際は、切りしろや板の形のために、面積から見た枚数より多く必要になることがあります。「木取り」タブで確かめましょう。'));
+    box.appendChild(G.h('p', { class: 'g-muted' }, '実際は、面積から見た枚数より多く必要になることがあります。切りしろや板の形があるからです。「木取り」タブで確かめましょう。'));
   }
   G.$('#add-part').addEventListener('click', function () {
     P.parts.push({ id: G.uid('p'), name: '部品' + (P.parts.length + 1), l: 300, w: Math.min(100, P.stock.w), t: P.stock.t, qty: 1, grain: true });
@@ -578,7 +578,7 @@
     logHint(hintStage);
     if (hintStage === 1) {
       box.appendChild(G.h('div', { class: 'hint-card' }, G.h('strong', null, 'ヒント1: '),
-        '大きい部品から先に置くと、すき間が少なくなります。板の長い方向に部品を並べ、のこぎりで端から端までまっすぐ切れる並べ方にすると、作業も楽になります。今いちばん大きいのは、点線で囲んだ部品です。'));
+        '大きい部品から先に置くと、すき間が少なくなります。部品は板の長い方向に並べましょう。のこぎりで端から端までまっすぐ切れる並べ方だと、作業も楽になります。今いちばん大きいのは、点線で囲んだ部品です。'));
     } else if (hintStage === 2) {
       var big = largestUnplaced();
       var spot = big && K.findSpot(big, P.placements, instances, P.stock, P.kerf);
@@ -595,7 +595,7 @@
       var st = K.stats(instances, plan.placements, { l: P.stock.l, w: P.stock.w, count: 10 }, P.kerf);
       var cur = K.stats(instances, P.placements, P.stock, P.kerf);
       box.appendChild(G.h('div', { class: 'hint-card' }, G.h('strong', null, 'ヒント3(配置の案): '),
-        'コンピュータの案では、板 ' + plan.boardsUsed + ' 枚・歩留まり ' + G.fmt(st.yield * 100, 1) + ' % になります(今は ' + cur.usedBoards + ' 枚・' + G.fmt(cur.yield * 100, 1) + ' %)。',
+        'コンピュータの案では、板 ' + plan.boardsUsed + ' 枚・歩留まり ' + G.fmt(st.yield * 100, 1) + ' % になります。今は ' + cur.usedBoards + ' 枚・' + G.fmt(cur.yield * 100, 1) + ' % です。',
         plan.unplaced.length ? ' ただし ' + plan.unplaced.length + ' 個の部品は板より大きくて入りません。' : '',
         ' 案はひとつの例です。木目や節の位置、切る手間も考えて、自分で決めましょう。',
         G.h('div', { class: 'g-row' },
@@ -634,7 +634,7 @@
       var r = T.build(P.template.type, P.template.W, P.template.D, P.template.H, P.stock.t);
       if (r.ok) {
         D.assembly(acv, r.parts.map(function (p) { return p.box; }), { title: (art.title || T.list[P.template.type].label) + '(' + T.list[P.template.type].label + ')', t: P.stock.t });
-        if (P.template.dirty) msg.appendChild(G.h('p', { class: 'g-note' }, '部品表を手で変えたので、組み立て図はひな形の寸法(幅 ' + P.template.W + '・奥行き ' + P.template.D + '・高さ ' + P.template.H + ')のままです。'));
+        if (P.template.dirty) msg.appendChild(G.h('p', { class: 'g-note' }, '部品表を手で変えました。そのため組み立て図は、ひな形の寸法のままです(幅 ' + P.template.W + '・奥行き ' + P.template.D + '・高さ ' + P.template.H + ')。'));
       } else msg.appendChild(G.h('p', { class: 'g-note' }, r.error));
       acv.hidden = !r.ok;
     } else {
@@ -746,7 +746,7 @@
     if (me !== '' && me !== null && isFinite(me)) {
       var diff = cur.deflection > 0 ? (me - cur.deflection) / cur.deflection * 100 : 0;
       er.appendChild(G.h('p', null, '計算 ' + G.fmt(cur.deflection, 2) + ' mm / 実験 ' + G.fmt(+me, 2) + ' mm(差 ' + (diff >= 0 ? '+' : '') + G.fmt(diff, 0) + ' %)'));
-      er.appendChild(G.h('p', { class: 'g-muted' }, Math.abs(diff) < 25 ? '計算とだいたい合っています。' : '差が大きいときは、節や木目の向き、支える位置、測り方、含水率などの違いを考えてみましょう。'));
+      er.appendChild(G.h('p', { class: 'g-muted' }, Math.abs(diff) < 25 ? '計算とだいたい合っています。' : '差が大きいときは、違いの理由を考えてみましょう。節や木目の向き、支える位置、測り方、含水率などです。'));
     }
     animateBeam(cur);
   }
