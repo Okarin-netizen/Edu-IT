@@ -496,7 +496,7 @@ window.EDUIT_INFO.jishu = {
       time: '45分',
       steps: [
         { where: '⚙️ 回転を伝える', do: '左の「見本」を出したり、歯車をつないだりしよう。「▶ 動かす」で動かそう。歯数を変えると、出力の回転速度と向きがどう変わるか見よう。', hint: '部品をタップすると、右で歯数や直径を変えられます。緑が入力(回す側)、だいだい色が出力(回される側)です。', go: '.e3-top [data-act="build"]' },
-        { where: '🔄 運動を変える', do: 'ラックとピニオン・カム・リンク・スライダクランク・ねじを1つずつ選ぼう。回転がどんな動きに変わるか見よう。', hint: '右の説明を読もう。身の回りのどこに使われているか考えよう。長さや形を変えると、動きの幅が変わります。', go: '.e3-top [data-act="conv"]' },
+        { where: '🔄 運動を変える', do: 'ラックとピニオン・カム・リンク・スライダクランク・ねじを1つずつ選ぼう。回転がどんな動きに変わるか見よう。', hint: '緑の部分が入力です。指でぐるっとなぞると、手で回せます。ねじは、緑のハンドルを回そう。右の説明を読み、身の回りのどこに使われているか考えよう。', go: '.e3-top [data-act="conv"]' },
         { where: '📋 設計課題(課題1〜5)', do: '課題1「ゆっくり巻き上げ」から順に取り組もう。条件に合う機構を組み立てよう。条件がぜんぶ ✅ になればクリアです。', hint: '速度伝達比 = 従動(回される側)の歯数 ÷ 原動(回す側)の歯数。「💡 ヒント」は押すたびにくわしくなります。', go: '.e3-top [data-act="tasks"]' },
         { where: '📋 設計課題(課題6〜9)', do: 'ポンプ・カム・同じ向きで届ける・ワイパーの課題に取り組もう。', hint: '歯車はかみ合うたびに向きが逆になります。ワイパーは、いちばん短い棒をどれにするかから考えよう。' },
         { where: '設計課題10〜12・📦 ブラックボックス', do: '2段歯車・力持ちの巻き上げ機・ねじジャッキに挑戦しよう。ブラックボックスでは、箱の中の歯数を当てよう。入力と出力の回り方が手がかりです。', hint: '2段にすると、速度伝達比はかけ算になります。ブラックボックスは、入力を1回転させよう。出力が何回転するかを数えよう。', level: 'advanced' },
@@ -7242,7 +7242,10 @@ function render() {
   if (S.view === 'tasks') { renderTasks(); return; }
   if (S.view !== 'quiz') renderPal();
   renderBar(); renderSide(); renderMsg();
-  if (S.el.hint) S.el.hint.textContent = S.view === 'quiz' ? '入力の歯車を指でなぞると、手で回せる' : (S.view === 'build' ? '部品をタップで選ぶ/指でなぞると手で回せる' : '入力(緑)のまわりを指でなぞると、手で回せる');
+  renderHint();
+}
+function renderHint() {
+  if (S.el.hint) S.el.hint.textContent = S.view === 'quiz' ? '入力の歯車を指でなぞると、手で回せる' : (S.view === 'build' ? '部品をタップで選ぶ/指でなぞると手で回せる' : (S.mech === 'screw' ? '緑のハンドルを指で回すと、ナットが進む' : '入力(緑)のまわりを指でなぞると、手で回せる'));
 }
 function renderTop() {
   var tk = curTask(), t = '';
@@ -7615,6 +7618,15 @@ function spinArrow(c, x, y, R, dir, col) {
   arrowHead(c, x + R * Math.cos(ae), y + R * Math.sin(ae), tang, 10, col);
 }
 
+/* だ円にそった矢印(ねじのハンドル用)。左側に、回る向きを出す */
+function ellipseArrow(c, x, y, rx, ry, dir, col) {
+  var a0 = Math.PI - 0.7, a1 = Math.PI + 0.7, ae = dir > 0 ? a1 : a0;
+  c.strokeStyle = col; c.lineWidth = 4; c.lineCap = 'round';
+  c.beginPath(); c.ellipse(x, y, rx, ry, 0, a0, a1); c.stroke();
+  var tdx = -rx * Math.sin(ae) * dir, tdy = ry * Math.cos(ae) * dir;
+  arrowHead(c, x + rx * Math.cos(ae), y + ry * Math.sin(ae), Math.atan2(tdy, tdx), 10, col);
+}
+
 /* ---------- 歯車・プーリーの絵 ---------- */
 function gearShape(c, x, y, r, z, ang, m, sharp) {
   var tip = r + m * 0.85, root = Math.max(1, r - m * 1.0), hp = Math.PI / z, k1 = sharp ? 0.55 : 0.62, k2 = sharp ? 0.12 : 0.3;
@@ -7745,13 +7757,13 @@ function mechIntro(id) {
     cam: 'カムが回ると、上の棒(' + rb('従動節', 'じゅうどうせつ') + '。カムに押されて動く棒)が上下する。形を変えて、右のグラフで動き方をくらべよう。',
     link: '4本の棒の長さで動きが変わる。緑のクランク(入力)を回したとき、だいだい色のてこ(出力)がどう動くか見よう。',
     slider: 'クランクが回ると、ピストンがまっすぐ往復する。往復の幅(ストローク)を調べよう。',
-    screw: 'ハンドルを回すと、ナット(送り台)がまっすぐ進む。1回転で進む距離はピッチ(ねじ山の間かく)で決まる。'
+    screw: '緑のハンドルを指で回そう。だいだい色のナット(送り台)が、まっすぐ進む。1回転で進む距離は、ピッチ(ねじ山の間かく)で決まる。'
   }[id];
 }
 function setMech(id) {
   S.mech = id; S.save.mech = id; S.cp = S.save.conv[id]; convReset();
   beep('tap'); say(mechIntro(id)); persist();
-  renderTop(); renderPal(); renderBar(); renderSide();
+  renderTop(); renderPal(); renderBar(); renderSide(); renderHint();
 }
 /* manual=true は指で回しているとき(指と同じ向きに動かし、はしで止める) */
 function convAdvance(dth, manual) {
@@ -7970,7 +7982,7 @@ function drawConv(c) {
     return;
   }
   if (S.mech === 'screw') {
-    fitBox(-24, -26, 64, 26, 30, 70, 60, 14);
+    fitBox(-34, -26, 64, 36, 30, 70, 60, 14);
     var s0 = tx(0), s1 = tx(60), cy2 = ty(0), sc3 = S.fit.sc, rad = 5 * sc3;
     // ねじ棒
     c.fillStyle = '#c9d3dc'; c.fillRect(s0, cy2 - rad, s1 - s0, rad * 2);
@@ -7983,17 +7995,23 @@ function drawConv(c) {
     c.restore();
     // ナット(送り台)
     var nx0 = tx(C.s + 2), nw = 8 * sc3;
-    c.fillStyle = '#e9c46a'; c.fillRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4); c.strokeStyle = '#8a6d1a'; c.lineWidth = 2; c.strokeRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4);
+    c.fillStyle = '#f8cfae'; c.fillRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4); c.strokeStyle = COL_OUT; c.lineWidth = 3; c.strokeRect(nx0, cy2 - rad * 2.2, nw, rad * 4.4);
     text(c, 'ナット(出力)', nx0 + nw / 2, cy2 - rad * 2.2 - 12, 14, COL_OUT);
-    // ハンドル(ななめから見た円)
-    var hx = tx(-12), rx = 4 * sc3, ry = 14 * sc3;
+    // ハンドル(ななめから見た円)。入力なので緑。にぎり(●)は指と同じ向きに回る
+    var hx = tx(-12), rx = 6 * sc3, ry = 14 * sc3;
     c.fillStyle = '#2d3a33'; c.fillRect(hx, cy2 - 4, s0 - hx, 8);
-    c.beginPath(); c.ellipse(hx, cy2, rx, ry, 0, 0, TAU); c.strokeStyle = '#5c6b77'; c.lineWidth = 5; c.stroke();
-    var kx = hx + rx * Math.cos(th + Math.PI / 2), ky = cy2 - ry * Math.sin(th + Math.PI / 2);
-    c.beginPath(); c.arc(kx, ky, 9, 0, TAU); c.fillStyle = '#d62828'; c.fill();
+    if (!S.screwTried) {   // まだ手で回していないときは、回すところを光らせる
+      var gl = 0.5 + 0.5 * Math.sin(performance.now() / 300);
+      c.beginPath(); c.ellipse(hx, cy2, rx, ry, 0, 0, TAU); c.strokeStyle = 'rgba(43,122,75,' + (0.15 + 0.25 * gl) + ')'; c.lineWidth = 18; c.stroke();
+    }
+    c.beginPath(); c.ellipse(hx, cy2, rx, ry, 0, 0, TAU); c.strokeStyle = COL_IN; c.lineWidth = 7; c.stroke();
+    var kx = hx + rx * Math.cos(th - Math.PI / 2), ky = cy2 + ry * Math.sin(th - Math.PI / 2);
+    c.beginPath(); c.arc(kx, ky, 11, 0, TAU); c.fillStyle = COL_IN; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 3; c.stroke();
+    ellipseArrow(c, hx, cy2, rx + 14, ry + 8, S.spinSign, COL_IN);
     pill(c, 'ハンドル(入力)', hx, cy2 + ry + 18, { size: 14, color: COL_IN });
+    if (!S.screwTried) pill(c, '👆 緑のハンドルを、指でぐるっと回そう', S.cw / 2, 66, { size: 15, color: COL_IN });
     // 目盛り
-    var by2 = ty(18);
+    var by2 = ty(29);
     for (var mm2 = 0; mm2 <= 60; mm2 += 1) { c.beginPath(); c.moveTo(tx(mm2), by2); c.lineTo(tx(mm2), by2 - (mm2 % 10 ? (mm2 % 5 ? 5 : 9) : 14)); c.strokeStyle = '#8a958e'; c.lineWidth = 1; c.stroke(); if (!(mm2 % 10)) text(c, mm2 + '', tx(mm2), by2 + 11, 13, '#5e6b64', 'center', false); }
     text(c, 'mm', tx(60) + 18, by2 + 11, 13, '#5e6b64');
     c.beginPath(); c.moveTo(tx(C.s + 2) + 0, by2 - 18); c.lineTo(tx(C.s + 2), by2); c.strokeStyle = '#c2410c'; c.lineWidth = 3; c.stroke();
@@ -8518,9 +8536,9 @@ function bindCanvas() {
       if (Q.hidden && S.quizIn) { D.wheel = 0; D.cx = S.quizIn.x; D.cy = S.quizIn.y; D.g = 1; }
       else { D.wheel = hitWheel(p); if (D.wheel >= 0) { var q2 = S.trainP[D.wheel]; D.cx = q2.x; D.cy = q2.y; D.g = M.solveTrain(S.train).wheels[D.wheel].g; } }
     } else if (S.view === 'conv') {
-      var o = convCenter(); D.wheel = 0; D.cx = o.x; D.cy = o.y; D.g = o.g;
+      var o = convCenter(); D.wheel = 0; D.cx = o.x; D.cy = o.y; D.g = o.g; D.k = o.k || 1;
     }
-    D.last = Math.atan2(p.y - D.cy, p.x - D.cx);
+    D.last = Math.atan2(p.y - D.cy, (p.x - D.cx) * (D.k || 1));
     S.drag = D;
     try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
     ev.preventDefault();
@@ -8530,12 +8548,12 @@ function bindCanvas() {
     var p = cvPoint(ev);
     if (!D.moved && Math.hypot(p.x - D.x0, p.y - D.y0) > 8) { D.moved = true; if (D.wheel >= 0) { S.playing = false; stopSpin(); renderBar(); } }
     if (!D.moved || D.wheel < 0) return;
-    var a = Math.atan2(p.y - D.cy, p.x - D.cx), da = a - D.last;
+    var a = Math.atan2(p.y - D.cy, (p.x - D.cx) * (D.k || 1)), da = a - D.last;
     if (da > Math.PI) da -= TAU; if (da < -Math.PI) da += TAU;
     D.last = a;
     if (Math.hypot(p.x - D.cx, p.y - D.cy) < 6) return;
     var dA = da / (D.g || 1);
-    if (S.view === 'conv') convAdvance(dA, true); else { S.A += dA; if (dA) S.spinSign = dA > 0 ? 1 : -1; }
+    if (S.view === 'conv') { convAdvance(dA, true); if (S.mech === 'screw') S.screwTried = true; } else { S.A += dA; if (dA) S.spinSign = dA > 0 ? 1 : -1; }
   });
   var end = function (ev) {
     var D = S.drag; if (!D || D.id !== ev.pointerId) return;
@@ -8557,7 +8575,7 @@ function bindCanvas() {
 function convCenter() {
   if (!S.fit) return { x: S.cw / 2, y: S.ch / 2, g: 1 };
   if (S.mech === 'link') return { x: tx(0), y: ty(0), g: -1 };   // 数学の向きで角度が増える(画面では反時計回り)
-  if (S.mech === 'screw') return { x: tx(-12), y: ty(0), g: 1 };
+  if (S.mech === 'screw') return { x: tx(-12), y: ty(0), g: 1, k: 14 / 6 };   // ハンドルはだ円(縦14:横6)。にぎりが指についてくるように
   if (S.mech === 'cam') return { x: tx(0), y: ty(0), g: 1 };
   return { x: tx(0), y: ty(0), g: 1 };
 }
