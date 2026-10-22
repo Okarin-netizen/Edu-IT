@@ -14892,16 +14892,20 @@ window.addEventListener('hashchange', route);
 var D = document;
 try { if (window.top !== window && window.top.document.getElementById('site-fs')) D = window.top.document; } catch (e) {}
 var fsOK = !!(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+// キー(F11・Chromebook の全画面キー)で全画面にしたときも「全画面をやめる」にする。ページからはやめられないので、押したら同じキーでもどせると伝える
+var W = D.defaultView || window, keyMq = W.matchMedia ? W.matchMedia('(display-mode: fullscreen)') : null;
 function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+function isKeyFull() { return !isFull() && !!(keyMq && keyMq.matches); }
 function toggleFull() {
   var el = D.documentElement;
   try {
     if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+    else if (isKeyFull()) toast('キーで全画面にしたときは、同じキー(F11 など)でもどせます');
     else { var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(function () {}); }
   } catch (e) {}
 }
 function updFull() {
-  var on = isFull();
+  var on = isFull() || isKeyFull();
   root.querySelectorAll('[data-ea="fs"]').forEach(function (b) {
     b.hidden = !fsOK;
     b.innerHTML = '🖥️<span class="t"> ' + (on ? '全画面をやめる' : '全画面') + '</span>';
@@ -14911,6 +14915,8 @@ function updFull() {
 }
 D.addEventListener('fullscreenchange', updFull);
 D.addEventListener('webkitfullscreenchange', updFull);
+if (keyMq) { if (keyMq.addEventListener) keyMq.addEventListener('change', updFull); else if (keyMq.addListener) keyMq.addListener(updFull); }
+W.addEventListener('resize', updFull);
 updFull();
 
 /* ---- 学習記録の書き出し・読み込み・消去(先生向け) ---- */

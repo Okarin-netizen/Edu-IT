@@ -89,11 +89,16 @@ FRAME = """<!doctype html>
   #site-fs:hover, #site-fs:focus-visible {{ background: rgba(255, 255, 255, .2); outline: 2px solid #f08c00; outline-offset: 0; }}
   #site-fs[aria-pressed="true"] {{ background: #fff; color: #33373d; }}
   #site-fs[hidden] {{ display: none; }}
+  #site-fs-note {{ position: fixed; top: 38px; right: 8px; z-index: 10; max-width: calc(100% - 16px); padding: 8px 12px; border-radius: 8px; box-sizing: border-box;
+    background: #33373d; color: #fff; font: 600 14px/1.5 "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }}
+  #site-fs-note[hidden] {{ display: none; }}
   iframe {{ flex: 1 1 auto; width: 100%; border: 0; background: #fff; }}
 </style>
 </head>
 <body>
 <nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 入り口(技術分野 教材集)</a><button id="site-fs" type="button" aria-pressed="false" hidden>全画面</button></nav>
+<div id="site-fs-note" role="status" hidden></div>
 <iframe src="apps/{file}" title="{title}" allow="fullscreen; microphone; camera; clipboard-write" allowfullscreen></iframe>
 <script>
   // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
@@ -106,11 +111,16 @@ FRAME = """<!doctype html>
   // ?jishu=on などの設定も中の教材に渡す(ワークシートの「教材をひらく(自習モード)」が使う)
   if (location.search || location.hash) f.src = 'apps/{file}' + location.search + location.hash;
   // 全画面: このバーごと画面いっぱいにする(ブラウザのタブやアドレスバーが消える。やめるときはもう一度押すか Esc)。
-  // 全画面にできないブラウザ(iPhone の Safari など)では、ボタンを出さない
-  var D = document, fs = document.getElementById('site-fs');
+  // 全画面にできないブラウザ(iPhone の Safari など)では、ボタンを出さない。
+  // キー(F11・Chromebook の全画面キー)で全画面にしたときも、ボタンは「全画面をやめる」にする。
+  // ただしキーの全画面はページからはやめられないので、押したら「同じキーでもどせます」と出す
+  var D = document, fs = document.getElementById('site-fs'), note = document.getElementById('site-fs-note');
+  var keyMq = window.matchMedia ? window.matchMedia('(display-mode: fullscreen)') : null;
   function isFull() {{ return !!(D.fullscreenElement || D.webkitFullscreenElement); }}
+  function isKeyFull() {{ return !isFull() && !!(keyMq && keyMq.matches); }}
   function updFull() {{
-    var on = isFull();
+    var on = isFull() || isKeyFull();
+    if (!on) note.hidden = true;
     fs.textContent = on ? '全画面をやめる' : '全画面';
     fs.setAttribute('aria-pressed', on ? 'true' : 'false');
   }}
@@ -120,11 +130,19 @@ FRAME = """<!doctype html>
       var el = D.documentElement;
       try {{
         if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+        else if (isKeyFull()) {{
+          note.textContent = 'キーで全画面にしたときは、同じキー(F11 など)でもどせます';
+          note.hidden = false;
+          clearTimeout(note.t); note.t = setTimeout(function () {{ note.hidden = true; }}, 4000);
+        }}
         else {{ var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(function () {{}}); }}
       }} catch (e) {{}}
     }});
     D.addEventListener('fullscreenchange', updFull);
     D.addEventListener('webkitfullscreenchange', updFull);
+    if (keyMq) {{ if (keyMq.addEventListener) keyMq.addEventListener('change', updFull); else if (keyMq.addListener) keyMq.addListener(updFull); }}
+    window.addEventListener('resize', updFull);
+    updFull();
   }}
   f.addEventListener('load', function () {{
     try {{
