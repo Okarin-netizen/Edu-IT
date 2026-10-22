@@ -172,8 +172,11 @@ for src, dst in PAGES.items():
     relink("../クラスルーム配布/生徒に配る/" + src, dst)
     page = read(student / src)
     if dst == "b.html":
-        # 生物育成の教材は「ほかのページの枠の中」だと見出し(◀ メニューなど)をかくす。ここの枠では見出しを出したままにする
-        page, n = re.subn(r"embed = window\.self !== window\.top;", "embed = false;", page)
+        # 生物育成の教材は「ほかのページの枠の中」だと見出し(◀ メニューなど)をかくす。このサイトの枠(上に「◀ 入り口」のバー)の
+        # すぐ中にある統一版のメニューだけは見出しを出したままにする。統一版の中で開く B1〜B6 は、これまでどおり見出しをかくす
+        # (全部を「枠の外」あつかいにすると、B1〜B6 の見出しが統一版のバーの下にもう1本出て、上のバーが二重になる)
+        page, n = re.subn(r"embed = window\.self !== window\.top;",
+                          "embed = window.parent !== window && !window.parent.document.getElementById('site-topbar');", page)
         if n == 0:
             raise SystemExit(f"{src}: 枠の中かどうかを調べるところが見つかりません(site/build.py を直してください)")
     if dst == "kyokasho.html":
