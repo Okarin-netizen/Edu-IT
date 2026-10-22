@@ -84,11 +84,16 @@ FRAME = """<!doctype html>
     font: 600 14px/1.4 "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif; }}
   #site-topbar a {{ color: #fff; text-decoration: none; padding: 4px 10px; border-radius: 6px; }}
   #site-topbar a:hover, #site-topbar a:focus-visible {{ background: rgba(255, 255, 255, .2); outline: 2px solid #f08c00; outline-offset: 0; }}
+  #site-fs {{ margin-left: auto; flex: none; min-height: 28px; padding: 2px 12px; border: 1px solid rgba(255, 255, 255, .6); border-radius: 6px;
+    background: transparent; color: #fff; font: inherit; cursor: pointer; white-space: nowrap; }}
+  #site-fs:hover, #site-fs:focus-visible {{ background: rgba(255, 255, 255, .2); outline: 2px solid #f08c00; outline-offset: 0; }}
+  #site-fs[aria-pressed="true"] {{ background: #fff; color: #33373d; }}
+  #site-fs[hidden] {{ display: none; }}
   iframe {{ flex: 1 1 auto; width: 100%; border: 0; background: #fff; }}
 </style>
 </head>
 <body>
-<nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 入り口(技術分野 教材集)</a></nav>
+<nav id="site-topbar" aria-label="ホームページ"><a href="./" target="_top">◀ 入り口(技術分野 教材集)</a><button id="site-fs" type="button" aria-pressed="false" hidden>全画面</button></nav>
 <iframe src="apps/{file}" title="{title}" allow="fullscreen; microphone; camera; clipboard-write" allowfullscreen></iframe>
 <script>
   // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
@@ -100,6 +105,27 @@ FRAME = """<!doctype html>
   back.textContent = jv === 'on' ? '◀ 自習で使う(入り口)' : '◀ 授業で使う(入り口)';
   // ?jishu=on などの設定も中の教材に渡す(ワークシートの「教材をひらく(自習モード)」が使う)
   if (location.search || location.hash) f.src = 'apps/{file}' + location.search + location.hash;
+  // 全画面: このバーごと画面いっぱいにする(ブラウザのタブやアドレスバーが消える。やめるときはもう一度押すか Esc)。
+  // 全画面にできないブラウザ(iPhone の Safari など)では、ボタンを出さない
+  var D = document, fs = document.getElementById('site-fs');
+  function isFull() {{ return !!(D.fullscreenElement || D.webkitFullscreenElement); }}
+  function updFull() {{
+    var on = isFull();
+    fs.textContent = on ? '全画面をやめる' : '全画面';
+    fs.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }}
+  if (D.fullscreenEnabled || D.webkitFullscreenEnabled) {{
+    fs.hidden = false;
+    fs.addEventListener('click', function () {{
+      var el = D.documentElement;
+      try {{
+        if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+        else {{ var r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(function () {{}}); }}
+      }} catch (e) {{}}
+    }});
+    D.addEventListener('fullscreenchange', updFull);
+    D.addEventListener('webkitfullscreenchange', updFull);
+  }}
   f.addEventListener('load', function () {{
     try {{
       document.title = f.contentDocument.title || document.title;

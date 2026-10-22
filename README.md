@@ -81,7 +81,7 @@ Edu-IT/
 
 生徒は URL を開くだけで、ダウンロードせずに使えます。公開するのは **入り口のページ(トップで「授業で使う」「自習で使う」をえらぶ。どちらにもコース・ガイダンス・A〜D・M・F・Z の一覧)・ガイダンス・4つの統一版・学習コースと M・F・Z・自習ワークシートだけ** で、先生用ガイドと `teacher-tools/` はホームページに出しません。
 
-- 公開されるもの: `index.html`(トップ。2つの入り口をえらぶ・[`site/index.html`](site/index.html))・`jugyo.html`(授業で使う。教材を `?jishu=off` で開く)・`jishu.html`(自習で使う。学習コース・自習ワークシート・教材を `?jishu=on` で開く)・`g.html`(ガイダンス)・`kyokasho.html`(学習コース)・`m.html`・`f.html`・`z.html`・`a.html`〜`d.html`(いちばん上に「◀ 授業で使う/自習で使う(入り口)」のバーがあり、その下に `apps/` に置いた `クラスルーム配布/生徒に配る/` の統一版を出す)
+- 公開されるもの: `index.html`(トップ。2つの入り口をえらぶ・[`site/index.html`](site/index.html))・`jugyo.html`(授業で使う。教材を `?jishu=off` で開く)・`jishu.html`(自習で使う。学習コース・自習ワークシート・教材を `?jishu=on` で開く)・`g.html`(ガイダンス)・`kyokasho.html`(学習コース)・`m.html`・`f.html`・`z.html`・`a.html`〜`d.html`(いちばん上に「◀ 授業で使う/自習で使う(入り口)」と「全画面」ボタンのバーがあり、その下に `apps/` に置いた `クラスルーム配布/生徒に配る/` の統一版を出す)
 - `main` に push すると、[`.github/workflows/pages.yml`](.github/workflows/pages.yml) が `python3 site/build.py` で `_site/` にまとめて公開します。
 - はじめに1回だけ: リポジトリの Settings → Pages → Source を「GitHub Actions」にします(無料プランではリポジトリを Public にする必要があります)。
 - 記録はホームページのアドレスごとに、その端末のブラウザの中に保存されます。ダウンロードしたファイルで使った記録とは別になります。
