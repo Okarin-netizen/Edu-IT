@@ -14866,7 +14866,10 @@ root.addEventListener('click', function (ev) {
 window.addEventListener('hashchange', route);
 
 // 全画面(Chromebook やパソコンでは、ブラウザのタブやアドレスバーの分だけ作業する場所が広くなる)
-var D = document, fsOK = !!(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+// 生徒用サイトの枠(上に「◀ 入り口」と「全画面」のバー)の中で開いたときは、枠のページごと全画面にする(枠の「全画面」ボタンと同じ動き)
+var D = document;
+try { if (window.top !== window && window.top.document.getElementById('site-fs')) D = window.top.document; } catch (e) {}
+var fsOK = !!(D.fullscreenEnabled || D.webkitFullscreenEnabled);
 function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
 function toggleFull() {
   var el = D.documentElement;
