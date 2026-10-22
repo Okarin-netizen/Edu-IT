@@ -850,6 +850,7 @@ function changeWater(st,frac,full){
   st.dirt*=(1-frac);
   st.no3=(st.no3||0)*(1-frac);
   st.ph+=(7.2-st.ph)*frac;
+  st.left=0; // 水替えのとき、底にたまった食べ残し・フンも吸い出す(絵の茶色のつぶが消える)
   if(full){st.bio*=0.35;st.shock=(st.shock||0)+9;}
 }
 function stepDay(st){
@@ -1381,7 +1382,7 @@ function doAction(a){
   if(run.acted[key]===run.day){toast('今日はもうしました。1日すすめてからにしよう');return}
   run.acted[key]=run.day;
   var cc=COST[run.sp];
-  if(a==='w13'){changeWater(run,1/3,false);addCost(run,'water',cc.water,run.sp==='kingyo'?30:20);addLog(run,'くみ置きの水で、水を3分の1かえました。');}
+  if(a==='w13'){changeWater(run,1/3,false);addCost(run,'water',cc.water,run.sp==='kingyo'?30:20);addLog(run,'くみ置きの水で、水を3分の1かえました。底のフンや食べ残しも吸い出しました。');}
   if(a==='wall'){changeWater(run,0.97,true);addCost(run,'water',cc.wall,40);addLog(run,'水を全部かえました。水はきれいになりました。でも、急な変化で生き物がおどろきました。水をきれいにする微生物も減ってしまいました。');}
   if(a==='phm'||a==='php'){run.ph=clamp(run.ph+(a==='php'?0.2:-0.2),5,9);addCost(run,'water',20,5);addLog(run,'pH調整剤を入れました(pH '+run.ph.toFixed(1)+')。');}
   if(a==='water'){run.water=100;addCost(run,'water',cc.drink,3);addLog(run,'飲み水を新しくしました。');}
