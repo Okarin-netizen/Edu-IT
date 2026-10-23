@@ -1,5 +1,5 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "seclab-v12";
+const CACHE = "seclab-v13";
 const FILES = [
   "./",
   "index.html",

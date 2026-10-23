@@ -1,5 +1,5 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "vcpu-v7";
+const CACHE = "vcpu-v8";
 const FILES = [
   "./",
   "index.html",
