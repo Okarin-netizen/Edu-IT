@@ -50,7 +50,7 @@
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })

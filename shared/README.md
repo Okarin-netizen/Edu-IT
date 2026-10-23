@@ -36,7 +36,7 @@
   右の道具は4分野とも「ふりがな → 文字 中 → 使い方 → 先生用」の4つだけで、字だけ(絵文字なし)・同じ大きさ(名前 18px・ボタンの高さ 40px、スマホは 16px・36px)。
   くっきり・全画面・教材の切りかえボタンは、アプリを開いたときの上のバーにだけ出す。「使い方」の画面がない分野は `EduitFrame.howto(本文の HTML)` のダイアログを使う。「先生用」はその分野の先生用のところへ移る。
 - **アプリの上のバー** `.ef-header`: 白地・下に分野の色の線(3px)。左から「◀ メニュー」(`.ef-btn.ef-back`)→ 記号の印とアプリ名(`.ef-title`、「[A2] 木材の繊維・収縮ラボ」)→ 右寄せの道具(`.ef-tools`)。
-  道具の並びは「ふりがな → 文字の大きさ → くっきり → 使い方 → そのアプリだけのボタン」。同じ分野の教材を切りかえるボタンにも記号を出す(「[D2] CPU」)。
+  道具の並びは「ふりがな → 文字の大きさ → くっきり → 使い方 → そのアプリだけのボタン」。同じ分野の教材を切りかえるボタンにも記号を出す(「[D1] CPU」)。
 - **メニューの下の部分**: 基本編・発展編(カード)→ 記録(書き出し・データの管理)→ 先生用、の順。
 - **表示の道具**(4分野で同じ形): ふりがな・くっきりは `.ef-btn.ef-toggle`(`aria-pressed="true"` で分野の色に塗り、✓ が付く)。
   文字の大きさは「文字 中」の1つのボタン `.ef-btn.ef-size`。段が3つ以上なら `EduitFrame.sizeButton(btn, { steps, get, set })`(押すたびに次の段へ)、
@@ -67,7 +67,7 @@
 先生の説明なしで1人で進めるときのための表示です(既定は切)。決め方は振り返りと同じで、アドレスの `?jishu=on|off`(localStorage `eduit.jishu` に覚える)→ `window.EDUIT_JISHU = 'on'` → localStorage。入っているときは `<html data-ef-jishu="on">`、`EduitFrame.jishu = true` になります。
 
 - アプリ: `eduit-frame.js` が、アプリ名(`EDUIT_INFO.app.name` の先頭の「A3」など)の記号で `EDUIT_INFO.jishu.apps[記号]` を探し、あれば右はしに「自習ガイド」のボタン(`.ef-jishu-fab`)とパネル(`.ef-jishu`。スマホは下から出る)を出す。まわりを暗くしないので、教材を操作しながら読める。はじめて開いた教材ではパネルを開いておく。
-- 1つのページの中でアプリを切りかえる教材集(C)は、開いたときに `EduitFrame.jishuApp('C2', 'C2 電気回路ラボ')`、メニューなどにもどったら `EduitFrame.jishuApp(null)` を呼ぶ。
+- 1つのページの中でアプリを切りかえる教材集(C)は、開いたときに `EduitFrame.jishuApp('C4', 'C4 電気回路ラボ')`、メニューなどにもどったら `EduitFrame.jishuApp(null)` を呼ぶ。
 - メニュー: `EduitFrame.levels` に `code` を渡していれば、基本編の上に進め方の説明、カードに「自習 進め方 3/6・たしかめ 2/3」(全部できたら「✓ クリア」)を出す。
 - データ(各分野の `eduit-info.js` の `window.EDUIT_INFO.jishu = { lead, apps: { A1: {…}, … } }`):
   `goal`(ねらい)・`time`(時間の目安)・`steps`(`where` 画面のタブの名前 / `do` やること / `hint` ヒント / `go` 「この場所へ」の行き先: `#` で始まれば location.hash、ほかは click する CSS セレクタ / `level: 'advanced'` 発展にまとめる / `reflect: true` 振り返りを隠す設定のとき出さない)・`check`(`q`・`choices`・`answer` 0からの正解の番号・`explain`)。

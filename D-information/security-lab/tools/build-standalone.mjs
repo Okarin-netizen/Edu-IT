@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
 
 // 依存の順番（先に読み込まれるものが前）
-const ORDER = ["js/store.js", "js/ui.js", "js/data.js", "js/settings.js", "js/cryptolib.js", "js/passwordlib.js", "js/digitallib.js", "js/branch.js", "js/consult.js", "modules/password.js", "modules/crypto.js", "modules/hash.js", "modules/phishing.js", "modules/network.js", "modules/sns.js", "modules/tattoo.js", "modules/copyright.js", "modules/roleplay.js", "modules/declare.js", "modules/digital.js", "js/catalog.js", "js/check.js", "js/records.js", "js/app.js"];
+const ORDER = ["js/store.js", "js/ui.js", "js/data.js", "js/settings.js", "js/cryptolib.js", "js/passwordlib.js", "js/branch.js", "js/consult.js", "modules/password.js", "modules/crypto.js", "modules/phishing.js", "modules/sns.js", "modules/tattoo.js", "modules/copyright.js", "modules/roleplay.js", "modules/declare.js", "js/catalog.js", "js/check.js", "js/records.js", "js/app.js"];
 const varName = (p) => "__m_" + p.replace(/[^a-z0-9]/gi, "_");
 
 const chunks = ORDER.map((file) => {

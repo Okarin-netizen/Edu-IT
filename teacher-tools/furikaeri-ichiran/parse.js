@@ -245,18 +245,18 @@
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C1: 'C1 エネルギー変換ゲーム', C2: 'C2 電気回路ラボ', C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ', C8: 'C8 問題解決ノート' };
+  var C_APPS = { C1: 'C1 エネルギー変換ゲーム', C2: 'C2 風力発電の羽根ラボ', C3: 'C3 直流・交流と送電ラボ', C4: 'C4 電気回路ラボ', C5: 'C5 機構ラボ', C6: 'C6 保守点検ラボ', C7: 'C7 回路設計シート', C8: 'C8 問題解決ノート' };
   var C_REFL = {
     C1: [['q1', 'エネルギーの変換と、目的に使われなかったエネルギー'], ['q2', '総合効率を高くする工夫'], ['q3', '2つの発電方法のよいところと課題']],
-    C2: [['q1', '回路と電流の流れ'], ['q2', '直列回路と並列回路のちがい'], ['q3', 'ヒューズ・ブレーカーの役目と安全に使うための注意']],
-    C3: [['q1', '速度伝達比を大きくしたときの回転速度と回す力'], ['q2', '回転運動をほかの動きに変えるしくみが使われている機械'], ['q3', '機構を設計するときの工夫']],
-    C4: [['q1', '機械に共通する部品の役割'], ['q2', '定期的に保守点検をするわけ'], ['q3', 'いちばん大切な点検項目とその理由']],
-    C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
-    C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
+    C4: [['q1', '回路と電流の流れ'], ['q2', '直列回路と並列回路のちがい'], ['q3', 'ヒューズ・ブレーカーの役目と安全に使うための注意']],
+    C5: [['q1', '速度伝達比を大きくしたときの回転速度と回す力'], ['q2', '回転運動をほかの動きに変えるしくみが使われている機械'], ['q3', '機構を設計するときの工夫']],
+    C6: [['q1', '機械に共通する部品の役割'], ['q2', '定期的に保守点検をするわけ'], ['q3', 'いちばん大切な点検項目とその理由']],
+    C2: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
+    C3: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
   };
   function parseC(obj) {
     var R = Rows(obj.savedAt), d = obj.data || {}, who = obj.who || {};
-    if (obj.app === 'C5') {
+    if (obj.app === 'C7') {
       var n = d.notes || {}, part = str(obj.name) || str(d.task);
       R.add('ふりかえり', part, '目的', n.goal);
       R.add('ふりかえり', part, '条件', n.cond);
@@ -264,23 +264,23 @@
       R.add('ふりかえり', part, 'うまくいったこと', n.good);
       R.add('ふりかえり', part, '改善案', n.improve);
     }
-    if (obj.app === 'C6' || obj.app === 'C7') {
+    if (obj.app === 'C2' || obj.app === 'C3') {
       var steps = Array.isArray(d.steps) ? d.steps.filter(isObj) : [];
       if (steps.length) R.add('成績', '', 'やったこと', steps.filter(function (s) { return s.done; }).length + ' / ' + steps.length);
       var rk = Array.isArray(d.rank) && isObj(d.rank[0]) ? d.rank[0] : null;
-      if (obj.app === 'C6' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
-      if (obj.app === 'C6' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
-      if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
+      if (obj.app === 'C2' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
+      if (obj.app === 'C2' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
+      if (obj.app === 'C3' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
       var rf = isObj(d.reflection) ? d.reflection : {};
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
     }
-    if (obj.app === 'C1' || obj.app === 'C2') {
+    if (obj.app === 'C1' || obj.app === 'C4') {
       var q = isObj(d.quiz) ? d.quiz : {};
       if (obj.app === 'C1' && Array.isArray(d.stages)) R.add('成績', '', 'クリアしたステージ', (+d.cleared || 0) + ' / ' + d.stages.length + (d.maxStars ? '(★ ' + (+d.stars || 0) + ' / ' + d.maxStars + ')' : ''));
-      if (obj.app === 'C2' && Array.isArray(d.tasks)) R.add('成績', '', 'クリアした課題', (+d.cleared || 0) + ' / ' + d.tasks.length);
+      if (obj.app === 'C4' && Array.isArray(d.tasks)) R.add('成績', '', 'クリアした課題', (+d.cleared || 0) + ' / ' + d.tasks.length);
       if (+q.total > 0) R.add('成績', '', 'ふりかえりクイズの正解', (+q.ok || 0) + ' / ' + q.total);
     }
-    if ((obj.app === 'C1' || obj.app === 'C2' || obj.app === 'C3' || obj.app === 'C4') && isObj(d.reflection)) {
+    if ((obj.app === 'C1' || obj.app === 'C4' || obj.app === 'C5' || obj.app === 'C6') && isObj(d.reflection)) {
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], d.reflection[q[0]]); });
     }
     if (obj.app === 'C8' && isObj(d.note)) {
@@ -360,7 +360,7 @@
     reflObj(R, app, obj.reflections);
     return [{ domain: 'D', app: app, student: stD(obj.student), rows: R.rows }];
   }
-  // D10 火星探査ロボット・シミュレータ: テストの結果(①〜④)・記録に挑戦の点数(⑤)・課題・評価(レーダーチャート)・振り返り(4つの問い)
+  // D8 火星探査ロボット・シミュレータ: テストの結果(①〜④)・記録に挑戦の点数(⑤)・課題・評価(レーダーチャート)・振り返り(4つの問い)
   var ROVER_Q = { design: '解決策の構想(センサ・モーターの選び方と理由)', debug: '動作確認・デバッグ(動かなかったところと直し方)', improve: '評価して改善・修正したいこと', society: '社会や生活の問題の解決に生かせそうなこと' };
   var ROVER_AXES = ['機能', '利便性', '費用', '安全性', '環境への配慮'];
   function parseRover(obj) {
@@ -410,7 +410,7 @@
     var R = Rows(obj.exportedAt), q = obj.quiz || {}, r = obj.reflection || {};
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     GENAI_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'D8 生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D9 生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
   }
   var SCAM_Q = [['r1', '体験した詐欺で、だます人はどんな手口を使っていたか'], ['r2', 'あやしいと思ったとき、自分はどんな手順で行動するか'], ['r3', '家族や友達に伝えたいこと']];
   function parseScam(obj) {
@@ -432,7 +432,7 @@
     ch.forEach(function (x) { if (x.cleared) R.add('成績', 'ステップ' + str(x.no), 'チャレンジ', '達成: ' + str(x.title), x.at); });
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'D9 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D10 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
   // D11 問題解決ノート: { app: '問題解決ノート', student: { cls, num, name }, note }(ノートの中身は shared/mondai-note)
   function parseMondaiD(obj) {
@@ -441,7 +441,7 @@
     return [{ domain: 'D', app: 'D11 問題解決ノート', student: student(st.cls || ns.cls, st.num || ns.no, st.name || ns.name), rows: R.rows }];
   }
   // 教材の名前に記号(D1〜D11。教材集のおすすめの順 = materials.json の code)を付ける
-  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9', '火星探査ロボット・シミュレータ': 'D10', '問題解決ノート': 'D11' };
+  var D_CODE = { 'デジタル化ラボ': 'D2', '仮想CPUラボ': 'D1', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D9', 'ハッシュ化体験ラボ': 'D10', '火星探査ロボット・シミュレータ': 'D8', '問題解決ノート': 'D11' };
   function dName(t) { return D_CODE[t] ? D_CODE[t] + ' ' + t : t; }
   function parseKyozai(obj) {
     var st = stD(obj.student);
@@ -591,17 +591,17 @@
     ['B5 植物工場の自動化', function (o) { return o.app === 'B5' && isObj(o.data); }, parseB5],
     ['B6 問題解決ノート', function (o) { return o.app === 'B6' && isObj(o.data) && isObj(o.data.note); }, parseB6],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
-    ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
-    ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
+    ['D1 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
+    ['D2 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
     ['D3 ネットワーク通信シミュレータ', function (o) { return o.app === 'network-sim'; }, parseNet],
     ['D4 情報セキュリティ体験ラボ', function (o) { return o.app === 'seclab' && o.student !== undefined; }, parseSec],
     ['D7 計測・制御シミュレータ', function (o) { return o.app === '計測・制御シミュレータ'; }, parseMc],
     ['D6 双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
-    ['D8 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
+    ['D9 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
     ['D5 ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
-    ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
-    ['D10 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover],
+    ['D10 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
+    ['D8 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover],
     ['D11 問題解決ノート', function (o) { return o.app === '問題解決ノート' && isObj(o.note); }, parseMondaiD]
   ];
 

@@ -60,8 +60,8 @@ Edu-IT/
 | [`T-textbook/`](T-textbook/) | T 教科書の順(分野をまたぐ) | 教科書の順に進む学習コース(65節。節ごとに使う教材・タブ・ワークシート)・M 身の回りの技術さがし(各編のはじめ)・F これからの技術ラボ(各編の最後)・Z 学習を終えて(3年の最後) | `教科書の順に進む_学習コース.html`・`M_身の回りの技術さがし.html`・`F_これからの技術ラボ.html`・`Z_学習を終えて.html`・`先生用ガイド.html` | `python3 T-textbook/build.py` |
 | [`A-materials/`](A-materials/) | A 材料と加工 | A1 材料選択ナビ・A2 木材ラボ・A3 構造強化ラボ・A4 製図トレーナー・A5 木取り・A6 工具の安全・A7 第三角法 立体メーカー・A8 問題解決ノート・先生用ビューア | `材料と加工_教材アプリ.html` | `python3 A-materials/build/build-single.py` |
 | [`B-bio/`](B-bio/) | B 生物育成 | B1 育成環境コントローラ・B2 動物飼育・水産・B3 栽培暦ビルダー・B4 育成日誌・B5 植物工場の自動化 | `生物育成教材集.html`・`先生用ガイド.html`・zip | `node B-bio/build/rebuild.js` |
-| [`C-energy/`](C-energy/) | C エネルギー変換 | C1 エネルギー変換ゲーム・C2 電気回路ラボ・C3 機構ラボ・C4 保守点検ラボ・C5 回路設計シート・C6 風力発電の羽根ラボ・C7 直流・交流と送電ラボ | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
-| [`D-information/`](D-information/) | D 情報 | 体験教材集(D1 デジタル化・D2 仮想CPU・D3 ネットワーク・D4 セキュリティ・D5 ネット詐欺・D6 双方向・D7 計測制御・D8 生成AI・D9 ハッシュ化・D10 火星探査ロボット・D11 問題解決ノートの11教材) | `情報の技術_体験教材集.html`(11教材の統一版)・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html`(1つだけ配るとき) | [`D-information/README.md`](D-information/README.md) の順に |
+| [`C-energy/`](C-energy/) | C エネルギー変換 | C1 エネルギー変換ゲーム・C4 電気回路ラボ・C5 機構ラボ・C6 保守点検ラボ・C7 回路設計シート・C2 風力発電の羽根ラボ・C3 直流・交流と送電ラボ | `energy-apps.html`・zip | `python3 C-energy/build/build.py` |
+| [`D-information/`](D-information/) | D 情報 | 体験教材集(D2 デジタル化・D1 仮想CPU・D3 ネットワーク・D4 セキュリティ・D5 ネット詐欺・D6 双方向・D7 計測制御・D9 生成AI・D10 ハッシュ化・D8 火星探査ロボット・D11 問題解決ノートの11教材) | `情報の技術_体験教材集.html`(11教材の統一版)・zip・`生成AIのしくみラボ.html`・`ネット詐欺_追体験ラボ.html`・`ハッシュ化体験ラボ.html`(1つだけ配るとき) | [`D-information/README.md`](D-information/README.md) の順に |
 
 ## 先生用の道具 → [`teacher-tools/`](teacher-tools/)
 
@@ -94,7 +94,7 @@ Edu-IT/
 
 ## 気をつけること
 
-- 記号はフォルダ名・保存名・書き出しの app の値にも入っています(A `a2-wood-lab/`・`a2.*`、B `B-bio/B1/`・`b1_*`・`app: 'B1'`、C `C-energy/C1/`・`energyApps.C1.v1`・`app: 'C3'`)。
+- 記号はフォルダ名・保存名・書き出しの app の値にも入っています(A `a2-wood-lab/`・`a2.*`、B `B-bio/B1/`・`b1_*`・`app: 'B1'`、C `C-energy/C1/`・`energyApps.C1.v1`・`app: 'C5'`)。
   記号を変えるときは、これらと振り返り一覧(`teacher-tools/furikaeri-ichiran/parse.js`)をいっしょに直してください。
   2026-10-16 に記号をそろえたとき、それより前の版の記録との互換性はなくしました(リリース前のため)。
 - フォルダのまま Web サーバーに置くときは、その分野のフォルダと `shared/` を同じ並びで置きます。

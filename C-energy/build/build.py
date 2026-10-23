@@ -35,7 +35,11 @@ def ef_inline(text):
     return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
-# 各アプリの CSS・DOM の接頭辞(.e1〜.e8・e1-app など)は記号ではない中の名前なので、C1〜C8 にしても e1〜e8 のまま
+# 各アプリの CSS・DOM の接頭辞(.e1〜.e8・e1-app など)は記号ではない中の名前。
+# 2026-10-23 に記号を教科書の順に付け直したので、記号の番号と中の名前の番号はちがう(記号 → 中の名前の番号)
+INNER = {1: 1, 2: 6, 3: 7, 4: 2, 5: 3, 6: 4, 7: 5, 8: 8}
+
+
 def parts(n):
     s = open('%s/C%d/index.html' % (SRC, n), encoding='utf-8').read()
     css = re.findall(r'<style>(.*?)</style>', s, re.S)
@@ -59,11 +63,12 @@ for n in range(1, 9):
     hb = re.search(r'^html,body\{[^}]*\}\n', css, re.M)
     assert hb, ('C%d の <style> に html,body{...} の行がない' % n)
     css = must_replace(css, hb.group(0), '')
-    if n in (3, 4):
+    k = INNER[n]
+    if k in (3, 4):
         # 印刷時に他アプリの印刷範囲まで隠さないよう、表示中のアプリだけに効かせる
         css = must_replace(css, '  body *{visibility:hidden}', '  body.ea-on-C%d *{visibility:hidden}' % n)
-        css = must_replace(css, '  .e%d-printarea,.e%d-printarea *{visibility:visible}' % (n, n),
-                           '  body.ea-on-C%d .e%d-printarea,body.ea-on-C%d .e%d-printarea *{visibility:visible}' % (n, n, n, n))
+        css = must_replace(css, '  .e%d-printarea,.e%d-printarea *{visibility:visible}' % (k, k),
+                           '  body.ea-on-C%d .e%d-printarea,body.ea-on-C%d .e%d-printarea *{visibility:visible}' % (n, k, n, k))
     if n == 8:
         # 問題解決ノートの本体(見た目はすべて .mn- で始まるので、ほかのアプリには効かない)
         assert 'mondai-note/mondai-note.css' in open('%s/C8/index.html' % SRC, encoding='utf-8').read()
@@ -74,14 +79,14 @@ for n in range(1, 9):
     for i, code in enumerate(js):
         is_last = i == len(js) - 1
         if not is_last:
-            # 共有コア(回路コア・機構コア・C4データ)は1回だけ入れる
+            # 共有コア(回路コア・機構コア・C6データ)は1回だけ入れる
             if code in seen_cores:
                 continue
             seen_cores.add(code)
         else:
             # 自動起動は使わない(シェルが mount する)。念のため id を見つけても起動しないようにする
-            code = must_replace(code, "var auto = document.getElementById('e%d-app');" % n, 'var auto = null;')
-            if n in (3, 4):
+            code = must_replace(code, "var auto = document.getElementById('e%d-app');" % k, 'var auto = null;')
+            if k in (3, 4):
                 # 見えていない間はアニメーション・シミュレーションを止める(タブレットの電池と、見ていない間に時間が進むのを防ぐ)
                 code = must_replace(code, '  S.raf = requestAnimationFrame(frame);\n  var dt',
                                     '  S.raf = requestAnimationFrame(frame);\n  if (S.root.offsetParent === null) { S.last = 0; return; }\n  var dt')

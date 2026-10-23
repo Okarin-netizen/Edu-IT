@@ -94,8 +94,8 @@ test("SEC-13: フィッシングの危ない行動に danger が付いていて�
   assert.ok(pick("dm-prize", "名前だけ入力"));
 });
 
-test("SEC-13: 前半の6モジュールの選択クイズは、やり直せるクイズを使う", () => {
-  for (const m of ["password", "crypto", "hash", "phishing", "network", "digital"]) {
+test("SEC-13: 前半のモジュールの選択クイズは、やり直せるクイズを使う", () => {
+  for (const m of ["password", "crypto", "phishing"]) {
     const src = read(`modules/${m}.js`);
     // やり直せるクイズは js/ui.js の choiceQuiz にまとめた（ほかのモジュールも同じ動き）
     assert.match(src, /choiceQuiz\(/, m);

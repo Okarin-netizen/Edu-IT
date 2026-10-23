@@ -107,24 +107,24 @@ test('D11 問題解決ノート(課題・評価・最適化・振り返り)', ()
   assert.strictEqual(val(d, '分かったこと・できるようになったこと'), '使う人の立場で評価することが大切だと分かった');
 });
 
-test('C: C5 は「組・番号」1つの欄を分ける、C3 は振り返りなし', () => {
-  const e5 = load('C5-sekkei-flash-20261015-1405.json').entries[0];
+test('C: C7 は「組・番号」1つの欄を分ける、C5 は振り返りなし', () => {
+  const e5 = load('C7-sekkei-flash-20261015-1405.json').entries[0];
   assert.deepStrictEqual(e5.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(e5, '改善案'), '抵抗を大きく');
-  const e3 = load('C3-kikou-20261015-1405.json');
+  const e3 = load('C5-kikou-20261015-1405.json');
   assert.ok(e3.ok);
   assert.strictEqual(e3.entries[0].rows.length, 0);
 });
 
-test('C: C6・C7 は振り返り3つ・やったこと・最高点', () => {
-  const e6 = load('C6-fuuryoku-20261018-1405.json').entries[0];
-  assert.strictEqual(e6.app, 'C6 風力発電の羽根ラボ');
+test('C: C2・C3 は振り返り3つ・やったこと・最高点', () => {
+  const e6 = load('C2-fuuryoku-20261018-1405.json').entries[0];
+  assert.strictEqual(e6.app, 'C2 風力発電の羽根ラボ');
   assert.deepStrictEqual(e6.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(e6, 'やったこと'), '8 / 8');
   assert.strictEqual(e6.rows.filter((x) => x.type === 'ふりかえり').length, 2);  // 空の振り返りは入れない
   assert.ok(/W\)$/.test(val(e6, 'ランキング1位の羽根')));
-  const e7 = load('C7-souden-20261018-1410.json').entries[0];
-  assert.strictEqual(e7.app, 'C7 直流・交流と送電ラボ');
+  const e7 = load('C3-souden-20261018-1410.json').entries[0];
+  assert.strictEqual(e7.app, 'C3 直流・交流と送電ラボ');
   assert.strictEqual(val(e7, '高い電圧で電気を送るわけ'), '電流が小さくなって損失が減るから');
   assert.strictEqual(val(e7, '計算ドリル(最高)'), '5 / 5');
 });
@@ -148,13 +148,13 @@ test('D: 各教材の振り返りと成績', () => {
   assert.strictEqual(scam.rows.find((x) => x.part === '③ ウイルス付きメール').value, 'まだ(だまされた 2 回・ヒント 1 回)');
   assert.strictEqual(scam.rows.filter((x) => x.type === 'ふりかえり').length, 2);
   const hash = load('ハッシュ化体験ラボ_2_15_山田花子.json').entries[0];
-  assert.strictEqual(hash.app, 'D9 ハッシュ化体験ラボ');
+  assert.strictEqual(hash.app, 'D10 ハッシュ化体験ラボ');
   assert.deepStrictEqual(hash.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(val(hash, 'チャレンジ達成'), '4 / 6');
   assert.strictEqual(val(hash, '正解'), '6 / 8');
   assert.strictEqual(val(hash, 'パスワードを守るために、サービスを作る側と自分ができること'), 'サービスごとにちがう長いパスワードにする');
   const rover = load('火星探査ロボット_記録_215.json').entries[0];
-  assert.strictEqual(rover.app, 'D10 火星探査ロボット・シミュレータ');
+  assert.strictEqual(rover.app, 'D8 火星探査ロボット・シミュレータ');
   assert.deepStrictEqual(rover.student, { cls: '2', num: '15', name: '山田花子' });
   assert.strictEqual(rover.rows.find((x) => x.part === '② 岩の前で止まる・よける').value, '3 / 3');
   assert.match(val(rover, '記録に挑戦(コースB 長い谷)'), /^638点/);
@@ -166,12 +166,12 @@ test('D: 各教材の振り返りと成績', () => {
 
 test('D: 教材集の記録まとめは、記録のある教材だけ', () => {
   const r = load('情報の技術_記録まとめ_2組15番_2026-10-15.json');
-  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D2 仮想CPUラボ']);
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D1 仮想CPUラボ']);
 });
 
 test('D: 統一版(第1.6版)の記録まとめのラボは、問いの名前で読み、1つずつの書き出しと同じ行になる', () => {
   const r = load('情報の技術_記録まとめ_統一版_2組15番_2026-10-16.json');
-  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D9 ハッシュ化体験ラボ']);
+  assert.deepStrictEqual(r.entries.map((e) => e.app), ['D10 ハッシュ化体験ラボ']);
   const e = r.entries[0];
   assert.strictEqual(val(e, 'ハッシュ関数の性質'), '同じ文なら同じ値、1文字変えると全部変わる');
   // 振り返り一覧は「生徒・分野・教材・場面・種類・内容」が同じ行を1つにする

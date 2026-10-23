@@ -4,7 +4,6 @@ import assert from "node:assert/strict";
 import { caesar, vigenere, letterCounts, guessCaesarShift, gcd, modInverse, modPow, isPrime, rsaKeygen, rsaEncrypt, rsaDecrypt, sha256Hex, hexBitDiff } from "../js/cryptolib.js";
 import { analyze, findWeakness, formatDuration, bigJa, rating, crackSeconds } from "../js/passwordlib.js";
 import { readFileSync } from "node:fs";
-import { imageBits, audioBits, formatBits, quantize, rle, unrle } from "../js/digitallib.js";
 
 const cryptoData = JSON.parse(readFileSync(new URL("../data/crypto.json", import.meta.url)));
 const common = new Set(JSON.parse(readFileSync(new URL("../data/common-passwords.json", import.meta.url))).words);
@@ -154,17 +153,3 @@ test("教材データ: 設定ファイルとふりがな辞書", async () => {
   }
 });
 
-test("デジタル化: 画像・音のデータ量、量子化、ランレングス圧縮", () => {
-  assert.equal(imageBits(1920, 1080, 24), 49766400);
-  assert.equal(formatBits(imageBits(1920, 1080, 24)), "約5.93MB");
-  assert.equal(audioBits(44100, 16, 60, 2), 84672000);
-  assert.equal(formatBits(audioBits(44100, 16, 60, 2)), "約10.1MB");
-  assert.equal(formatBits(64), "64ビット");
-  assert.equal(formatBits(8 * 512), "512バイト");
-  assert.equal(quantize(0.49, 2), 0);
-  assert.equal(quantize(0.51, 2), 1);
-  assert.equal(quantize(0.5, 3), 0.5);
-  const row = [..."0011100000111000"];
-  assert.deepEqual(rle(row), [["0", 2], ["1", 3], ["0", 5], ["1", 3], ["0", 3]]);
-  assert.deepEqual(unrle(rle(row)), row);
-});

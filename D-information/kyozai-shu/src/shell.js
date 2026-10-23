@@ -104,7 +104,7 @@
     return el;
   }
 
-  // 記号の印（D1〜D9。materials.json の code。番号の順 = おすすめの順 = カードの順）
+  // 記号の印（D1〜D11。materials.json の code。番号の順 = おすすめの順 = カードの順）
   const codeEl = (m) => (window.EduitFrame && EduitFrame.code ? EduitFrame.code(m.code) : h("span", { class: "ef-code" }, m.code));
   // メニューのカード（4分野共通の形 EduitFrame.card）。アイコンは教材の SVG を入れる
   function card(m, parts) {
@@ -439,7 +439,7 @@
     document.getElementById("reset-all").focus();
   }
 
-  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D2 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
+  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D1 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
   function renderSwitcher(currentId) {
     switcher.replaceChildren(
       ...DATA.materials.map((m) =>
@@ -494,7 +494,7 @@
     else f.addEventListener("load", () => (f.contentWindow.location.hash = hash), { once: true });
   }
 
-  // 上のバーの名前: メニューのとき「D 情報の技術 教材集」、教材のとき「D2 仮想CPUラボ」
+  // 上のバーの名前: メニューのとき「D 情報の技術 教材集」、教材のとき「D1 仮想CPUラボ」
   function setBarTitle(m) {
     if (!m) {
       barTitle.removeAttribute("title");
