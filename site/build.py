@@ -197,6 +197,14 @@ for src, dst in PAGES.items():
                           "embed = window.parent !== window && !window.parent.document.getElementById('site-topbar');", page)
         if n == 0:
             raise SystemExit(f"{src}: 枠の中かどうかを調べるところが見つかりません(site/build.py を直してください)")
+    if dst in ("a.html", "b.html", "c.html", "d.html"):
+        # メニューの M・F へのリンク(shared/eduit-frame.js の SIBLINGS)は、配るフォルダでは同じフォルダのファイル名。公開用の名前(1つ上の m.html・f.html)にする
+        n = 0
+        for old, new in (("file: 'M_身の回りの技術さがし.html'", "file: '../m.html'"), ("file: 'F_これからの技術ラボ.html'", "file: '../f.html'")):
+            n += page.count(old)
+            page = page.replace(old, new)
+        if n < 2:
+            raise SystemExit(f"{src}: M・F へのリンクの置き場所が見つかりません(shared/eduit-frame.js の SIBLINGS を見てください)")
     if dst == "kyokasho.html":
         # コースは apps/ の中の枠で開くので、教材とワークシートへのリンクは1つ上の公開用の名前(../a.html・../ws/a.html など)にする
         page = course_links(page)

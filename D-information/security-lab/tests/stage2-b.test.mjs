@@ -41,7 +41,7 @@ test("SEC-55: 事前テストは1回目だけ記録し、事後テストが終�
   assert.equal(testPolicy("復習", { pre: "5/11", post: "8/11" }).hideCore, false);
   // 事後テストの前でも、練習できる問題がどのモジュールにも残る（理解度チェックが空にならない）
   const qs = json("data/quiz.json").questions;
-  assert.ok(qs.filter((q) => !q.core).length >= 20);
+  assert.ok(qs.filter((q) => !q.core).length >= 12);
 });
 
 // ---- SEC-60 ----

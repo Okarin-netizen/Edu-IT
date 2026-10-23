@@ -46,7 +46,7 @@
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -204,10 +204,23 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts summary { cursor: pointer; color: var(--ef-sub, #5e6b64); }
+.ef-level-parts p { margin: .2em 0 0; }
 .ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
 .ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+/* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
+.ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
+.ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
+.ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
+.ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
+.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: 2px solid var(--ef-accent); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
+.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-bg, #f6f7f5); }
+.ef-level-matome-t { font-weight: 700; }
+.ef-level-matome-d { color: var(--ef-sub, #5e6b64); font-size: .92em; }
+.ef-matome-score { font-weight: 700; }
+.ef-matome-h { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; font-size: 1.05em; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -410,7 +423,7 @@ window.EDUIT_INFO = {
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
@@ -597,6 +610,112 @@ window.EDUIT_INFO = {
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
   var LEVEL_KEYS = ['basic', 'advanced'];
+  // メニューから開く M・F(分野をまたぐ教材)。配るフォルダ(生徒に配る/)では同じフォルダにある。site/build.py がこの行を公開用の名前にする
+  var SIBLINGS = { M: { file: 'M_身の回りの技術さがし.html', name: '身の回りの技術さがし' }, F: { file: 'F_これからの技術ラボ.html', name: 'これからの技術ラボ' } };
+  // textbook.links の1つ: { code: 'M', area: 'a', when: '1章のはじめに', tab: '' }。M・F は ?bunya=a でその分野だけを開く(学習コースと同じ)
+  function linkRow(L) {
+    var S = SIBLINGS[L.code];
+    if (!S) return null;
+    var q = [jishu ? 'jishu=on' : '', L.area ? 'bunya=' + L.area : ''].filter(Boolean).join('&');
+    var href = S.file + (q ? '?' + q : '') + (L.area ? '#' + L.area : '');
+    return el('p', { class: 'ef-level-link' }, [
+      L.when ? el('span', { class: 'ef-level-parts-k', text: L.when }) : null,
+      el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
+    ]);
+  }
+  // 学習のまとめ: 基本編の教材の「たしかめ問題」(EDUIT_INFO.jishu.apps[記号].check)を集めて、編ごとの確かめにする。
+  // textbook.links[章].matome = { when: '3章のさいごに' } で、その章のおわりに行が出る。?matome=1 で開くと、すぐに開く(学習コースから)
+  var MT_STORE = 'eduit.matome.', matomeDlg = null;
+  function matomeQs(codes) {
+    var out = [];
+    codes.forEach(function (c) { var d = jishuData(c); if (d && d.check) d.check.forEach(function (q, i) { out.push({ c: c, i: i, q: q }); }); });
+    return out;
+  }
+  function matomeOpen(codes, names) {
+    var key = MT_STORE + (info.domain || 'x'), st = {};
+    try { st = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { st = {}; }
+    var list = matomeQs(codes), area = (info.domain || '').charAt(0).toUpperCase();
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var score = el('p', { class: 'ef-matome-score', 'aria-live': 'polite' });
+    var body = el('div', { class: 'ef-panel ef-matome' });
+    if (matomeDlg) matomeDlg.parentNode.removeChild(matomeDlg);
+    matomeDlg = el('dialog', { class: 'ef-dialog ef-matome-dlg', 'aria-labelledby': 'ef-matome-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-matome-title', text: (area ? area + ' ' : '') + '学習のまとめ' }), close]), body])
+    ]);
+    close.addEventListener('click', function () { matomeDlg.close(); });
+    function save() { try { localStorage.setItem(key, JSON.stringify(st)); } catch (e) {} }
+    function paintScore() {
+      var ok = list.filter(function (x) { return st[x.c + '.' + x.i] === x.q.answer; }).length;
+      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 🎉 全部できました。' : '');
+    }
+    function qEl(x) {
+      var k = x.c + '.' + x.i, res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = x.q.choices.map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st[k] = j; save(); paint(); paintScore(); });
+        return b;
+      });
+      function paint() {
+        var a = st[k];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === x.q.answer && a === x.q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== x.q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === x.q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === x.q.answer ? '正解!' : 'ちがいます。もう一度考えよう。' }));
+        if (a === x.q.answer && x.q.explain) res.appendChild(el('span', { text: ' ' + x.q.explain }));
+        if (jishuRubyOn()) jishuRuby(res);
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: x.q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var again = el('button', { type: 'button', class: 'ef-btn', text: 'はじめからやり直す' });
+    again.addEventListener('click', function () { st = {}; save(); matomeDlg.close(); matomeOpen(codes, names); });
+    body.appendChild(el('p', { text: '各教材のたしかめ問題です。答えると、すぐに答えが出ます。' }));
+    body.appendChild(score);
+    codes.forEach(function (c) {
+      var qs = list.filter(function (x) { return x.c === c; });
+      if (!qs.length) return;
+      body.appendChild(el('h3', { class: 'ef-matome-h' }, [code(c), names[c] || '']));
+      body.appendChild(el('ol', { class: 'ef-jishu-qs' }, qs.map(qEl)));
+    });
+    body.appendChild(el('p', null, [again]));
+    paintScore();
+    // ふりがなは問題の文だけ(教材の名前は、メニューのふりがなのしくみにまかせる)
+    if (jishuRubyOn()) Array.prototype.forEach.call(body.querySelectorAll('.ef-jishu-qs, p'), function (n) { jishuRuby(n); });
+    matomeDlg.addEventListener('click', function (e) { if (e.target === matomeDlg) matomeDlg.close(); });
+    document.body.appendChild(matomeDlg);
+    if (typeof matomeDlg.showModal === 'function') matomeDlg.showModal(); else matomeDlg.setAttribute('open', '');
+  }
+  // カードの名前(ふりがなの rt は入れない)
+  function plainTitle(c) {
+    var t = c.querySelector('.ef-card-title');
+    if (!t) return '';
+    var x = t.cloneNode(true);
+    Array.prototype.forEach.call(x.querySelectorAll('rt, rp'), function (r) { r.parentNode.removeChild(r); });
+    return x.textContent;
+  }
+  function matomeRow(M, codes, names) {
+    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '📝 学習のまとめ' }),
+      el('span', { class: 'ef-level-matome-d', text: matomeQs(codes).length + '問。基本編の教材のたしかめ問題をまとめて解く' }), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })]);
+    b.addEventListener('click', function () { matomeOpen(codes, names); });
+    return el('div', { class: 'ef-level-link' }, [M.when ? el('span', { class: 'ef-level-parts-k', text: M.when }) : null, b]);
+  }
+  // ?matome=1 は、1つのファイルにまとめた版(メニューが iframe の中)でも見えるように親もさがす。開くのは1回だけ
+  function matomeWanted() {
+    var w = window;
+    for (var i = 0; i < 8; i++) {
+      try {
+        if (/[?&]matome=1(&|$)/.test(w.location.search || '')) { if (w.__efMatomeDone) return false; w.__efMatomeDone = true; return true; }
+      } catch (e) { break; }
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    return false;
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -625,17 +744,20 @@ window.EDUIT_INFO = {
     });
     function partsEl(item) {
       if (!item.parts || !item.parts.length) return null;
-      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+      // カードには長い列を出さない(計画 6章のきまり10)。押すと開く
+      return el('details', { class: 'ef-level-parts' }, [el('summary', null, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.length + 'か所']), el('p', { text: item.parts.join('・') })]);
     }
     function render() {
       var lv = L[cur] || { items: [] };
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
-      var tb = info.textbook, groups = [];
+      var tb = info.textbook, groups = [], bcodes = [], bnames = {};
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
         if (!c) return;
+        var c0 = opts.code ? opts.code(item) : null;
+        if (c0) { bcodes.push(c0); bnames[c0] = plainTitle(c); }
         var t = tb && tb.items && tb.items[item.id];
         if (t && t.ref) {
           var go = c.querySelector('.ef-mcard-go');
@@ -652,11 +774,17 @@ window.EDUIT_INFO = {
         (groups[gi] = groups[gi] || []).push(c);
       });
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
-      var blocks = [];
+      // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
+      var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
+
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
-        if (!groups[i]) return;
+        var L = lk[g.key] || {};
+        if (!groups[i] && !L.first && !L.last && !L.matome) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
-        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.first) blocks.push(linkRow(L.first));
+        if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.last) blocks.push(linkRow(L.last));
+        if (L.matome && bcodes.length) blocks.push(matomeRow(L.matome, bcodes, bnames));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -680,6 +808,11 @@ window.EDUIT_INFO = {
     box.appendChild(tabs);
     box.appendChild(panel);
     render();
+    if (opts.code && matomeWanted()) {
+      var mc = (L.basic && L.basic.items || []).map(opts.code).filter(Boolean), mn = {};
+      Array.prototype.forEach.call(box.querySelectorAll('.ef-mcard[data-code]'), function (c) { mn[c.getAttribute('data-code')] = plainTitle(c); });
+      setTimeout(function () { matomeOpen(mc, mn); }, 0);
+    }
     return { render: render, select: select, current: function () { return cur; } };
   }
 
@@ -1321,18 +1454,18 @@ window.EDUIT_INFO = {
   }
 
   /* ================= C エネルギー変換(energyApps.artifact) ================= */
-  var C_APPS = { C1: 'C1 エネルギー変換ゲーム', C2: 'C2 電気回路ラボ', C3: 'C3 機構ラボ', C4: 'C4 保守点検ラボ', C5: 'C5 回路設計シート', C6: 'C6 風力発電の羽根ラボ', C7: 'C7 直流・交流と送電ラボ', C8: 'C8 問題解決ノート' };
+  var C_APPS = { C1: 'C1 エネルギー変換ゲーム', C2: 'C2 風力発電の羽根ラボ', C3: 'C3 直流・交流と送電ラボ', C4: 'C4 電気回路ラボ', C5: 'C5 機構ラボ', C6: 'C6 保守点検ラボ', C7: 'C7 回路設計シート', C8: 'C8 問題解決ノート' };
   var C_REFL = {
     C1: [['q1', 'エネルギーの変換と、目的に使われなかったエネルギー'], ['q2', '総合効率を高くする工夫'], ['q3', '2つの発電方法のよいところと課題']],
-    C2: [['q1', '回路と電流の流れ'], ['q2', '直列回路と並列回路のちがい'], ['q3', 'ヒューズ・ブレーカーの役目と安全に使うための注意']],
-    C3: [['q1', '速度伝達比を大きくしたときの回転速度と回す力'], ['q2', '回転運動をほかの動きに変えるしくみが使われている機械'], ['q3', '機構を設計するときの工夫']],
-    C4: [['q1', '機械に共通する部品の役割'], ['q2', '定期的に保守点検をするわけ'], ['q3', 'いちばん大切な点検項目とその理由']],
-    C6: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
-    C7: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
+    C4: [['q1', '回路と電流の流れ'], ['q2', '直列回路と並列回路のちがい'], ['q3', 'ヒューズ・ブレーカーの役目と安全に使うための注意']],
+    C5: [['q1', '速度伝達比を大きくしたときの回転速度と回す力'], ['q2', '回転運動をほかの動きに変えるしくみが使われている機械'], ['q3', '機構を設計するときの工夫']],
+    C6: [['q1', '機械に共通する部品の役割'], ['q2', '定期的に保守点検をするわけ'], ['q3', 'いちばん大切な点検項目とその理由']],
+    C2: [['q1', '風が吹くと、どのようにして電気ができるか'], ['q2', 'いちばん効率がよかった羽根とその理由'], ['q3', '風力発電のよいところと課題、組み合わせるわけ']],
+    C3: [['q1', '直流と交流のちがい'], ['q2', '高い電圧で電気を送るわけ'], ['q3', '電気を安全で安定して届けるための工夫']]
   };
   function parseC(obj) {
     var R = Rows(obj.savedAt), d = obj.data || {}, who = obj.who || {};
-    if (obj.app === 'C5') {
+    if (obj.app === 'C7') {
       var n = d.notes || {}, part = str(obj.name) || str(d.task);
       R.add('ふりかえり', part, '目的', n.goal);
       R.add('ふりかえり', part, '条件', n.cond);
@@ -1340,23 +1473,23 @@ window.EDUIT_INFO = {
       R.add('ふりかえり', part, 'うまくいったこと', n.good);
       R.add('ふりかえり', part, '改善案', n.improve);
     }
-    if (obj.app === 'C6' || obj.app === 'C7') {
+    if (obj.app === 'C2' || obj.app === 'C3') {
       var steps = Array.isArray(d.steps) ? d.steps.filter(isObj) : [];
       if (steps.length) R.add('成績', '', 'やったこと', steps.filter(function (s) { return s.done; }).length + ' / ' + steps.length);
       var rk = Array.isArray(d.rank) && isObj(d.rank[0]) ? d.rank[0] : null;
-      if (obj.app === 'C6' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
-      if (obj.app === 'C6' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
-      if (obj.app === 'C7' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
+      if (obj.app === 'C2' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
+      if (obj.app === 'C2' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
+      if (obj.app === 'C3' && +d.calcBest > 0) R.add('成績', '⑤ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
       var rf = isObj(d.reflection) ? d.reflection : {};
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
     }
-    if (obj.app === 'C1' || obj.app === 'C2') {
+    if (obj.app === 'C1' || obj.app === 'C4') {
       var q = isObj(d.quiz) ? d.quiz : {};
       if (obj.app === 'C1' && Array.isArray(d.stages)) R.add('成績', '', 'クリアしたステージ', (+d.cleared || 0) + ' / ' + d.stages.length + (d.maxStars ? '(★ ' + (+d.stars || 0) + ' / ' + d.maxStars + ')' : ''));
-      if (obj.app === 'C2' && Array.isArray(d.tasks)) R.add('成績', '', 'クリアした課題', (+d.cleared || 0) + ' / ' + d.tasks.length);
+      if (obj.app === 'C4' && Array.isArray(d.tasks)) R.add('成績', '', 'クリアした課題', (+d.cleared || 0) + ' / ' + d.tasks.length);
       if (+q.total > 0) R.add('成績', '', 'ふりかえりクイズの正解', (+q.ok || 0) + ' / ' + q.total);
     }
-    if ((obj.app === 'C1' || obj.app === 'C2' || obj.app === 'C3' || obj.app === 'C4') && isObj(d.reflection)) {
+    if ((obj.app === 'C1' || obj.app === 'C4' || obj.app === 'C5' || obj.app === 'C6') && isObj(d.reflection)) {
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], d.reflection[q[0]]); });
     }
     if (obj.app === 'C8' && isObj(d.note)) {
@@ -1436,7 +1569,7 @@ window.EDUIT_INFO = {
     reflObj(R, app, obj.reflections);
     return [{ domain: 'D', app: app, student: stD(obj.student), rows: R.rows }];
   }
-  // D10 火星探査ロボット・シミュレータ: テストの結果(①〜④)・記録に挑戦の点数(⑤)・課題・評価(レーダーチャート)・振り返り(4つの問い)
+  // D8 火星探査ロボット・シミュレータ: テストの結果(①〜④)・記録に挑戦の点数(⑤)・課題・評価(レーダーチャート)・振り返り(4つの問い)
   var ROVER_Q = { design: '解決策の構想(センサ・モーターの選び方と理由)', debug: '動作確認・デバッグ(動かなかったところと直し方)', improve: '評価して改善・修正したいこと', society: '社会や生活の問題の解決に生かせそうなこと' };
   var ROVER_AXES = ['機能', '利便性', '費用', '安全性', '環境への配慮'];
   function parseRover(obj) {
@@ -1486,7 +1619,7 @@ window.EDUIT_INFO = {
     var R = Rows(obj.exportedAt), q = obj.quiz || {}, r = obj.reflection || {};
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     GENAI_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'D8 生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D9 生成AIのしくみラボ', student: stD(obj.student), rows: R.rows }];
   }
   var SCAM_Q = [['r1', '体験した詐欺で、だます人はどんな手口を使っていたか'], ['r2', 'あやしいと思ったとき、自分はどんな手順で行動するか'], ['r3', '家族や友達に伝えたいこと']];
   function parseScam(obj) {
@@ -1508,7 +1641,7 @@ window.EDUIT_INFO = {
     ch.forEach(function (x) { if (x.cleared) R.add('成績', 'ステップ' + str(x.no), 'チャレンジ', '達成: ' + str(x.title), x.at); });
     if (q.total) R.add('成績', 'クイズ', '正解', q.correct + ' / ' + q.total);
     HASH_Q.forEach(function (x) { R.add('ふりかえり', '', x[1], r[x[0]]); });
-    return [{ domain: 'D', app: 'D9 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
+    return [{ domain: 'D', app: 'D10 ハッシュ化体験ラボ', student: stD(obj.student), rows: R.rows }];
   }
   // D11 問題解決ノート: { app: '問題解決ノート', student: { cls, num, name }, note }(ノートの中身は shared/mondai-note)
   function parseMondaiD(obj) {
@@ -1517,7 +1650,7 @@ window.EDUIT_INFO = {
     return [{ domain: 'D', app: 'D11 問題解決ノート', student: student(st.cls || ns.cls, st.num || ns.no, st.name || ns.name), rows: R.rows }];
   }
   // 教材の名前に記号(D1〜D11。教材集のおすすめの順 = materials.json の code)を付ける
-  var D_CODE = { 'デジタル化ラボ': 'D1', '仮想CPUラボ': 'D2', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D8', 'ハッシュ化体験ラボ': 'D9', '火星探査ロボット・シミュレータ': 'D10', '問題解決ノート': 'D11' };
+  var D_CODE = { 'デジタル化ラボ': 'D2', '仮想CPUラボ': 'D1', 'ネットワーク通信シミュレータ': 'D3', '情報セキュリティ体験ラボ': 'D4', 'ネット詐欺 追体験ラボ': 'D5', '双方向コンテンツ制作スタジオ': 'D6', '計測・制御シミュレータ': 'D7', '生成AIのしくみラボ': 'D9', 'ハッシュ化体験ラボ': 'D10', '火星探査ロボット・シミュレータ': 'D8', '問題解決ノート': 'D11' };
   function dName(t) { return D_CODE[t] ? D_CODE[t] + ' ' + t : t; }
   function parseKyozai(obj) {
     var st = stD(obj.student);
@@ -1667,17 +1800,17 @@ window.EDUIT_INFO = {
     ['B5 植物工場の自動化', function (o) { return o.app === 'B5' && isObj(o.data); }, parseB5],
     ['B6 問題解決ノート', function (o) { return o.app === 'B6' && isObj(o.data) && isObj(o.data.note); }, parseB6],
     ['エネルギー変換', function (o) { return o.schema === 'energyApps.artifact'; }, parseC],
-    ['D2 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
-    ['D1 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
+    ['D1 仮想CPUラボ', function (o) { return o.app === 'virtual-cpu'; }, parseVcpu],
+    ['D2 デジタル化ラボ', function (o) { return o.app === 'デジタル化ラボ'; }, parseDigi],
     ['D3 ネットワーク通信シミュレータ', function (o) { return o.app === 'network-sim'; }, parseNet],
     ['D4 情報セキュリティ体験ラボ', function (o) { return o.app === 'seclab' && o.student !== undefined; }, parseSec],
     ['D7 計測・制御シミュレータ', function (o) { return o.app === '計測・制御シミュレータ'; }, parseMc],
     ['D6 双方向コンテンツ制作スタジオ', function (o) { return o.app === 'interactive-studio' && Array.isArray(o.works); }, parseStudio],
     ['双方向コンテンツ制作スタジオ(作品ファイル)', function (o) { return o.format === 'interactive-studio-work' && isObj(o.work); }, parseStudioWork],
-    ['D8 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
+    ['D9 生成AIのしくみラボ', function (o) { return o.app === '生成AIのしくみラボ'; }, parseGenai],
     ['D5 ネット詐欺 追体験ラボ', function (o) { return o.app === 'ネット詐欺 追体験ラボ'; }, parseScam],
-    ['D9 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
-    ['D10 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover],
+    ['D10 ハッシュ化体験ラボ', function (o) { return o.app === 'ハッシュ化体験ラボ'; }, parseHash],
+    ['D8 火星探査ロボット・シミュレータ', function (o) { return o.app === '火星探査ロボット・シミュレータ'; }, parseRover],
     ['D11 問題解決ノート', function (o) { return o.app === '問題解決ノート' && isObj(o.note); }, parseMondaiD]
   ];
 

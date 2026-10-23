@@ -157,7 +157,7 @@ export const cryptoModule = {
           btn.addEventListener("click", () => {
             if (s === key) {
               tr.classList.add("hit");
-              fb.replaceChildren(explainCard("解読成功！", `鍵は「${key}」でした。鍵の候補が25通りしかないので、全部試せばすぐに見つかります。これが<strong>総当たり攻撃</strong>です。コンピュータなら一瞬です。`, "good"));
+              fb.replaceChildren(explainCard("解読成功！", `鍵は「${key}」でした。鍵の候補が25通りしかないので、全部試せばすぐに見つかります。これが<strong>総当たり攻撃</strong>です。`, "good"));
               c.done();
             } else {
               fb.replaceChildren(explainCard("もう一度", "その行は意味の通る文になっているかな？ ローマ字として読めるものを探そう。", "warn"));
@@ -263,7 +263,7 @@ export const cryptoModule = {
         out,
         detail,
         charts,
-        explainCard("でも…", "ヴィジュネル暗号も、鍵の長さを見つける方法が見つかり、19世紀には破られました。暗号の歴史は「作る人」と「破る人」の知恵くらべです。今の暗号は、数学を使って作られています。コンピュータでも、現実的な時間では解けません。"),
+        explainCard("でも…", "ヴィジュネル暗号も、鍵の長さを見つける方法が見つかり、19世紀には破られました。今の暗号は数学を使っていて、コンピュータでも現実的な時間では解けません。"),
       );
       update();
     }
@@ -285,7 +285,7 @@ export const cryptoModule = {
             question: "Aさんは、鍵をどうやってBさんに伝えればいい？",
             choices: ["暗号文と同じメールの最後に、鍵も書いていっしょに送る", "暗号文とは別のメールにして、鍵だけをあとから送る", "だれでも閉められ、Bさんだけが開ける南京錠を使う"],
             answer: 2,
-            explain: "同じ通信路で鍵を送ると、のぞき見ているEさんにも鍵が知られてしまいます。別のメールでも、同じように見られるかもしれません。そこで考えられたのが<strong>公開鍵暗号</strong>。Bさんは「開いた南京錠（公開鍵）」をみんなに配ります。「その鍵（秘密鍵）」は、自分だけが持ちます。Aさんは南京錠で箱を閉めて送るだけ。開けられるのはBさんだけです。",
+            explain: "鍵を送ると、のぞき見ているEさんにも知られます。そこで<strong>公開鍵暗号</strong>。Bさんは開いた南京錠（公開鍵）を配り、その鍵（秘密鍵）は自分だけが持ちます。南京錠で閉めた箱は、Bさんにしか開けられません。",
           },
           () => c.done(),
         ),
@@ -300,7 +300,7 @@ export const cryptoModule = {
         h("div", { class: "math-line" }, "かけ算: 11 × 13 ＝ 143 …… すぐできる"),
         h("div", { class: "math-line" }, "もどす: 143 ＝ ？ × ？ …… どの数でわればいい？"),
         factorChallenge(() => c.done()),
-        explainCard("なぜ安全なの？", "けたが増えると、わり切れる数を探すのはどんどん大変になります。実際に使われる n は、600けた以上もあります。今のコンピュータでも、現実的な時間では分解できません。だから、n を公開しても安全なのです。"),
+        explainCard("なぜ安全なの？", "けたが増えると、わり切れる数を探すのはどんどん大変になります。実際の n は600けた以上あり、分解できないので、公開しても安全です。"),
         h("p", { class: "hint" }, `時間がある人は、${furikaeriOn() ? "ふりかえりのあと" : "このページのさいご"}の「発展」で、RSA の計算をたどってみよう。`),
       );
     }
@@ -324,7 +324,7 @@ export const cryptoModule = {
             h("div", { class: "math-line" }, `φ（ファイ）＝ (p − 1) × (q − 1) ＝ ${p - 1} × ${q - 1} ＝ ${keys.phi}`),
             h("div", { class: "math-line" }, `e ＝ ${keys.e}（φ ＝ ${keys.phi} と、1 のほかに共通の約数がない数を選ぶ）`),
             h("div", { class: "math-line" }, `d ＝ ${keys.d}（e × d を φ でわると 1 あまる数: ${keys.e} × ${keys.d} ＝ ${keys.e * keys.d} ＝ ${keys.phi} × ${(keys.e * keys.d) / keys.phi} ＋ 1）`),
-            h("p", { class: "hint", style: "margin:4px 0" }, "φ（ギリシャ文字。「ファイ」と読む）は、鍵を作るときだけ使う数です。e と d の決め方のくわしい理由は、高校・大学で学ぶ数学です。ここでは、決めた鍵で「元に戻る」ことを確かめよう。"),
+            h("p", { class: "hint", style: "margin:4px 0" }, "φ（ギリシャ文字。「ファイ」と読む）は、鍵を作るときだけ使う数です。e と d の決め方は、高校・大学で学ぶ数学です。ここでは、決めた鍵で「元に戻る」ことを確かめよう。"),
             h(
               "div",
               { class: "field-row", style: "margin-top:10px" },
@@ -367,16 +367,16 @@ export const cryptoModule = {
           h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "文字"), h("th", {}, "数にする"), h("th", {}, "公開鍵で暗号化"), h("th", {}, "秘密鍵で復号"), h("th", {}, "元の文字"))), h("tbody", {}, rows))),
           explainCard(
             "なぜ安全なの？",
-            `秘密鍵 d を計算するには、n ＝ ${keys.n} を素数 p と q のかけ算に分けます（素因数分解）。小さな数なら、すぐに分かります。でも、実際に使われる n は600けた以上もあります。今のコンピュータでは、現実的な時間で分解できません。`,
+            `秘密鍵 d を計算するには、n ＝ ${keys.n} を素数 p と q のかけ算に分けます（素因数分解）。小さな数ならすぐですが、実際の n は600けた以上あり、分解できません。`,
           ),
-          explainCard("注意", "ここでは、1文字ずつ暗号にしています。だから、同じ文字は同じ数になり、頻度分析で破られてしまいます。これは<strong>しくみを体験するための小さな模型</strong>です。実際の暗号は、もっと大きな数と工夫を使っています。", "warn"),
+          explainCard("注意", "ここでは、1文字ずつ暗号にしています。同じ文字は同じ数になるので、これは<strong>しくみを見るための小さな模型</strong>です。", "warn"),
         );
         c.done();
       };
       pSel.addEventListener("change", makeKeys);
       qSel.addEventListener("change", makeKeys);
       c.body.append(
-        h("p", {}, "ここは、やれる人だけの発展です。やらなくても、このモジュールは完了になります。公開鍵暗号のRSAは、ステップ6で見たことを利用しています。「かけ算は簡単だけど、その逆（素因数分解）はとても難しい」ことです。小さな素数で、しくみをたどってみよう。"),
+        h("p", {}, "ここは、やれる人だけの発展です。RSAは「かけ算は簡単、その逆（素因数分解）は難しい」ことを使います。小さな素数でたどってみよう。"),
         h("div", { class: "field-row" }, h("div", { class: "field" }, h("label", { for: "rsa-p" }, "素数 p"), pSel), h("div", { class: "field" }, h("label", { for: "rsa-q" }, "素数 q"), qSel)),
         keyOut,
         h("div", { class: "field" }, h("label", { for: "rsa-msg" }, "暗号にする言葉（英字10文字まで）"), msgIn),

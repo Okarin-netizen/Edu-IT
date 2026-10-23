@@ -1,5 +1,5 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "seclab-v10";
+const CACHE = "seclab-v13";
 const FILES = [
   "./",
   "index.html",
@@ -15,24 +15,21 @@ const FILES = [
   "js/data.js",
   "js/cryptolib.js",
   "js/passwordlib.js",
-  "js/digitallib.js",
   "js/settings.js",
   "js/branch.js",
   "js/consult.js",
   "js/catalog.js",
   "js/check.js",
   "js/records.js",
+  "modules/protect.js",
   "modules/password.js",
   "modules/crypto.js",
-  "modules/hash.js",
   "modules/phishing.js",
-  "modules/network.js",
   "modules/sns.js",
   "modules/tattoo.js",
   "modules/copyright.js",
   "modules/roleplay.js",
   "modules/declare.js",
-  "modules/digital.js",
   "data/config.json",
   "data/quiz.json",
   "data/ruby.json",

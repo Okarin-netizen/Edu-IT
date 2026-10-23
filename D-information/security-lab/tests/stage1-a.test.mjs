@@ -104,17 +104,6 @@ test("SEC-04: ヒントの3つの候補（A・I・O）のどれかが、用意�
   }
 });
 
-// SEC-19: ハッシュの改ざん版は曜日で見分けられない
-test("SEC-19: 書きかえ版の日付と曜日が合っている", () => {
-  const src = read("modules/hash.js");
-  for (const name of ["PRINT_ORIGINAL", "PRINT_FAKE"]) {
-    const m = src.match(new RegExp(`const ${name} = ".*?10月(\\d+)日（(.)）`));
-    const day = new Date(2026, 9, Number(m[1])).getDay();
-    assert.equal("日月火水木金土"[day], m[2], name);
-  }
-  assert.ok(src.includes("16進数"));
-});
-
 // SEC-21: おかしな入力
 test("SEC-21: 300文字でも Infinity にならない／全角は半角にそろえる", () => {
   const a = analyze("x".repeat(300), common);

@@ -196,7 +196,7 @@ export const flowModule = {
       ...(!clients.length || !servers.length ? [explainCard("たりない機器", "「ネットワークを組み立てる」で、パソコンかスマホとWebサーバを置こう。", "warn")] : []),
       explainCard(
         "プロトコル（通信の約束ごと）",
-        "ネットワークでは、送る側と受け取る側が、同じ<strong>約束ごと</strong>を守って通信します。この約束ごとを<strong>プロトコル</strong>といいます。Webページのやりとりには、<strong>HTTP</strong> というプロトコルを使います。暗号化するときは <strong>HTTPS</strong> です。「GET」は、HTTPで「ページをください」とたのむときの言葉です。パケットをIPアドレスで相手に届けるきまり（<strong>IP</strong>）も、プロトコルの1つです。",
+        "ネットワークでは、送る側と受け取る側が、同じ<strong>約束ごと</strong>を守って通信します。この約束ごとを<strong>プロトコル</strong>といいます。Webページは <strong>HTTP</strong>（暗号化するときは <strong>HTTPS</strong>）、パケットを届けるのは <strong>IP</strong> というプロトコルです。",
       ),
     );
 
@@ -214,7 +214,7 @@ export const flowModule = {
       ),
     );
     cards[2].body.append(
-      explainCard("パケット通信", "データを小さなパケットに分けると、<strong>1本の回線をたくさんの人で分け合えます</strong>。こわれたパケットだけを送り直すこともできます。混んでいない道を通すこともできます。番号が付いているので、ばらばらの順に届いても組み立てられます。"),
+      explainCard("パケット通信", "データを小さなパケットに分けると、<strong>1本の回線をたくさんの人で分け合えます</strong>。こわれた分だけ送り直せて、番号があるので順番がばらばらでも組み立てられます。"),
       choiceQuiz(
         {
           question: "パケットに「番号」が付いているのはなぜ？",

@@ -46,7 +46,7 @@
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -204,10 +204,23 @@
 .ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { background: #5b3fa8 !important; border-color: #5b3fa8 !important; }
 .ef-level-tabs:has(.ef-level-advanced[aria-selected="true"]) { border-bottom-color: #5b3fa8; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
+.ef-level-parts summary { cursor: pointer; color: var(--ef-sub, #5e6b64); }
+.ef-level-parts p { margin: .2em 0 0; }
 .ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
 .ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+/* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
+.ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
+.ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
+.ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
+.ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
+.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: 2px solid var(--ef-accent); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
+.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-bg, #f6f7f5); }
+.ef-level-matome-t { font-weight: 700; }
+.ef-level-matome-d { color: var(--ef-sub, #5e6b64); font-size: .92em; }
+.ef-matome-score { font-weight: 700; }
+.ef-matome-h { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; font-size: 1.05em; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -411,7 +424,7 @@ window.EDUIT_INFO = {
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
@@ -598,6 +611,112 @@ window.EDUIT_INFO = {
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
   var LEVEL_KEYS = ['basic', 'advanced'];
+  // メニューから開く M・F(分野をまたぐ教材)。配るフォルダ(生徒に配る/)では同じフォルダにある。site/build.py がこの行を公開用の名前にする
+  var SIBLINGS = { M: { file: 'M_身の回りの技術さがし.html', name: '身の回りの技術さがし' }, F: { file: 'F_これからの技術ラボ.html', name: 'これからの技術ラボ' } };
+  // textbook.links の1つ: { code: 'M', area: 'a', when: '1章のはじめに', tab: '' }。M・F は ?bunya=a でその分野だけを開く(学習コースと同じ)
+  function linkRow(L) {
+    var S = SIBLINGS[L.code];
+    if (!S) return null;
+    var q = [jishu ? 'jishu=on' : '', L.area ? 'bunya=' + L.area : ''].filter(Boolean).join('&');
+    var href = S.file + (q ? '?' + q : '') + (L.area ? '#' + L.area : '');
+    return el('p', { class: 'ef-level-link' }, [
+      L.when ? el('span', { class: 'ef-level-parts-k', text: L.when }) : null,
+      el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
+    ]);
+  }
+  // 学習のまとめ: 基本編の教材の「たしかめ問題」(EDUIT_INFO.jishu.apps[記号].check)を集めて、編ごとの確かめにする。
+  // textbook.links[章].matome = { when: '3章のさいごに' } で、その章のおわりに行が出る。?matome=1 で開くと、すぐに開く(学習コースから)
+  var MT_STORE = 'eduit.matome.', matomeDlg = null;
+  function matomeQs(codes) {
+    var out = [];
+    codes.forEach(function (c) { var d = jishuData(c); if (d && d.check) d.check.forEach(function (q, i) { out.push({ c: c, i: i, q: q }); }); });
+    return out;
+  }
+  function matomeOpen(codes, names) {
+    var key = MT_STORE + (info.domain || 'x'), st = {};
+    try { st = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { st = {}; }
+    var list = matomeQs(codes), area = (info.domain || '').charAt(0).toUpperCase();
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var score = el('p', { class: 'ef-matome-score', 'aria-live': 'polite' });
+    var body = el('div', { class: 'ef-panel ef-matome' });
+    if (matomeDlg) matomeDlg.parentNode.removeChild(matomeDlg);
+    matomeDlg = el('dialog', { class: 'ef-dialog ef-matome-dlg', 'aria-labelledby': 'ef-matome-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-matome-title', text: (area ? area + ' ' : '') + '学習のまとめ' }), close]), body])
+    ]);
+    close.addEventListener('click', function () { matomeDlg.close(); });
+    function save() { try { localStorage.setItem(key, JSON.stringify(st)); } catch (e) {} }
+    function paintScore() {
+      var ok = list.filter(function (x) { return st[x.c + '.' + x.i] === x.q.answer; }).length;
+      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 🎉 全部できました。' : '');
+    }
+    function qEl(x) {
+      var k = x.c + '.' + x.i, res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = x.q.choices.map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st[k] = j; save(); paint(); paintScore(); });
+        return b;
+      });
+      function paint() {
+        var a = st[k];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === x.q.answer && a === x.q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== x.q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === x.q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === x.q.answer ? '正解!' : 'ちがいます。もう一度考えよう。' }));
+        if (a === x.q.answer && x.q.explain) res.appendChild(el('span', { text: ' ' + x.q.explain }));
+        if (jishuRubyOn()) jishuRuby(res);
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: x.q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var again = el('button', { type: 'button', class: 'ef-btn', text: 'はじめからやり直す' });
+    again.addEventListener('click', function () { st = {}; save(); matomeDlg.close(); matomeOpen(codes, names); });
+    body.appendChild(el('p', { text: '各教材のたしかめ問題です。答えると、すぐに答えが出ます。' }));
+    body.appendChild(score);
+    codes.forEach(function (c) {
+      var qs = list.filter(function (x) { return x.c === c; });
+      if (!qs.length) return;
+      body.appendChild(el('h3', { class: 'ef-matome-h' }, [code(c), names[c] || '']));
+      body.appendChild(el('ol', { class: 'ef-jishu-qs' }, qs.map(qEl)));
+    });
+    body.appendChild(el('p', null, [again]));
+    paintScore();
+    // ふりがなは問題の文だけ(教材の名前は、メニューのふりがなのしくみにまかせる)
+    if (jishuRubyOn()) Array.prototype.forEach.call(body.querySelectorAll('.ef-jishu-qs, p'), function (n) { jishuRuby(n); });
+    matomeDlg.addEventListener('click', function (e) { if (e.target === matomeDlg) matomeDlg.close(); });
+    document.body.appendChild(matomeDlg);
+    if (typeof matomeDlg.showModal === 'function') matomeDlg.showModal(); else matomeDlg.setAttribute('open', '');
+  }
+  // カードの名前(ふりがなの rt は入れない)
+  function plainTitle(c) {
+    var t = c.querySelector('.ef-card-title');
+    if (!t) return '';
+    var x = t.cloneNode(true);
+    Array.prototype.forEach.call(x.querySelectorAll('rt, rp'), function (r) { r.parentNode.removeChild(r); });
+    return x.textContent;
+  }
+  function matomeRow(M, codes, names) {
+    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '📝 学習のまとめ' }),
+      el('span', { class: 'ef-level-matome-d', text: matomeQs(codes).length + '問。基本編の教材のたしかめ問題をまとめて解く' }), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })]);
+    b.addEventListener('click', function () { matomeOpen(codes, names); });
+    return el('div', { class: 'ef-level-link' }, [M.when ? el('span', { class: 'ef-level-parts-k', text: M.when }) : null, b]);
+  }
+  // ?matome=1 は、1つのファイルにまとめた版(メニューが iframe の中)でも見えるように親もさがす。開くのは1回だけ
+  function matomeWanted() {
+    var w = window;
+    for (var i = 0; i < 8; i++) {
+      try {
+        if (/[?&]matome=1(&|$)/.test(w.location.search || '')) { if (w.__efMatomeDone) return false; w.__efMatomeDone = true; return true; }
+      } catch (e) { break; }
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    return false;
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -626,17 +745,20 @@ window.EDUIT_INFO = {
     });
     function partsEl(item) {
       if (!item.parts || !item.parts.length) return null;
-      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+      // カードには長い列を出さない(計画 6章のきまり10)。押すと開く
+      return el('details', { class: 'ef-level-parts' }, [el('summary', null, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.length + 'か所']), el('p', { text: item.parts.join('・') })]);
     }
     function render() {
       var lv = L[cur] || { items: [] };
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
-      var tb = info.textbook, groups = [];
+      var tb = info.textbook, groups = [], bcodes = [], bnames = {};
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
         if (!c) return;
+        var c0 = opts.code ? opts.code(item) : null;
+        if (c0) { bcodes.push(c0); bnames[c0] = plainTitle(c); }
         var t = tb && tb.items && tb.items[item.id];
         if (t && t.ref) {
           var go = c.querySelector('.ef-mcard-go');
@@ -653,11 +775,17 @@ window.EDUIT_INFO = {
         (groups[gi] = groups[gi] || []).push(c);
       });
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
-      var blocks = [];
+      // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
+      var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
+
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
-        if (!groups[i]) return;
+        var L = lk[g.key] || {};
+        if (!groups[i] && !L.first && !L.last && !L.matome) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
-        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.first) blocks.push(linkRow(L.first));
+        if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.last) blocks.push(linkRow(L.last));
+        if (L.matome && bcodes.length) blocks.push(matomeRow(L.matome, bcodes, bnames));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -681,6 +809,11 @@ window.EDUIT_INFO = {
     box.appendChild(tabs);
     box.appendChild(panel);
     render();
+    if (opts.code && matomeWanted()) {
+      var mc = (L.basic && L.basic.items || []).map(opts.code).filter(Boolean), mn = {};
+      Array.prototype.forEach.call(box.querySelectorAll('.ef-mcard[data-code]'), function (c) { mn[c.getAttribute('data-code')] = plainTitle(c); });
+      setTimeout(function () { matomeOpen(mc, mn); }, 0);
+    }
     return { render: render, select: select, current: function () { return cur; } };
   }
 
@@ -1111,92 +1244,87 @@ window.EDUIT_INFO = {
 </ul>
 </div>
 <section class="dom">
-<h2>A 材料と加工の技術<span class="file">配るファイル: A_材料と加工_統一版.html(第2.8版)</span></h2>
+<h2>A 材料と加工の技術<span class="file">配るファイル: A_材料と加工_統一版.html(第2.9版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
 <tr class="basic"><th rowspan="7" class="lv lv-basic">基本編</th><td class="app">A1 材料選択ナビ</td><td class="tb">1編1章 1・2</td><td>① 材料カード・② 条件設定・③ 比較結果・④ 理由を書く</td><td class="curr">A(1)ア・A(2)ア</td><td>木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容</td></tr>
 <tr class="basic"><td class="app">A2 木材の繊維・収縮ラボ</td><td class="tb">1編1章 2</td><td>① 断面ビューア・② 収縮ラボ・③ 反りの予測・④ 強度比較(繊維の向きと強さ)・⑤ 集成材・合板・まとめ・記録</td><td class="curr">A(1)ア</td><td>柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本</td></tr>
 <tr class="basic"><td class="app">A3 構造強化ラボ</td><td class="tb">1編1章 3</td><td>① 梁(はり)・② 枠と筋かい・③ 接合</td><td class="curr">A(1)イ</td><td>断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本</td></tr>
-<tr class="basic"><td class="app">A4 製図トレーナー</td><td class="tb">1編2章 2</td><td>① 三面図クイズ・② 立体づくり・③ 三面図をかく・④ 等角図をかく・⑤ 線と記号・記録・ふりかえり</td><td class="curr">A(2)イ</td><td>等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本</td></tr>
-<tr class="basic"><td class="app">A5 木取り・構想シミュレータ</td><td class="tb">1編2章 2・3</td><td>① 材料・部品・② 木取り・③ 製作図・④ 強度・ふりかえり</td><td class="curr">A(2)ア・イ</td><td>構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本</td></tr>
+<tr class="basic"><td class="app">A4 製図トレーナー</td><td class="tb">1編2章 2</td><td>① 三面図クイズ・② 立体づくり・③ 三面図をかく・④ 等角図をかく・⑤ キャビネット図・⑥ 線と記号・記録・ふりかえり</td><td class="curr">A(2)イ</td><td>等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本</td></tr>
+<tr class="basic"><td class="app">A5 木取り・構想シミュレータ</td><td class="tb">1編2章 2・3</td><td>① 材料・部品・② 木取り・③ 製作図・④ 強度・⑤ 製作工程表・ふりかえり</td><td class="curr">A(2)ア・イ</td><td>構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本</td></tr>
 <tr class="basic"><td class="app">A6 工具の使い方・安全トレーナー</td><td class="tb">1編2章 4</td><td>① 工具の手順・② 作業前チェック・③ 危険を見つける・④ 手順ならべかえ・⑤ 実技の評価・記録</td><td class="curr">A(2)イ</td><td>工具の安全で正しい使い方は、製作の前に全員が身に付ける内容</td></tr>
-<tr class="basic"><td class="app">A8 問題解決ノート</td><td class="tb">1編2章 1・5、3章 1</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td class="curr">A(2)イ</td><td>生活の中から問題を見いだして課題を設定し、製作品を評価して改善・修正を考える流れは、教科書の2章の1と5にある問題解決の基本</td></tr>
-<tr class="advanced"><th rowspan="5" class="lv lv-advanced">発展編</th><td class="app">A2 木材の繊維・収縮ラボ</td><td class="tb">1編1章 2</td><td>④ 強度比較(7つの力の数値くらべ)</td><td class="curr">A(1)ア(発展)</td><td>力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容</td></tr>
+<tr class="basic"><td class="app">A8 問題解決ノート</td><td class="tb">1編2章 1・5、3章 1</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)・振り返り・記録</td><td class="curr">A(2)イ</td><td>生活の中から問題を見いだして課題を設定し、製作品を評価して改善・修正を考える流れは、教科書の2章の1と5にある問題解決の基本</td></tr>
+<tr class="advanced"><th rowspan="4" class="lv lv-advanced">発展編</th><td class="app">A2 木材の繊維・収縮ラボ</td><td class="tb">1編1章 2</td><td>④ 強度比較(7つの力の数値くらべ)</td><td class="curr">A(1)ア(発展)</td><td>力の種類ごとの強さを数値でくらべるのは、教科書の基本より先の内容</td></tr>
 <tr class="advanced"><td class="app">A3 構造強化ラボ</td><td class="tb">1編1章 3</td><td>① 梁(はり)の「くわしく見る(発展)」・④ 設計課題(安全率を考えて、軽くて丈夫な構造を設計する)</td><td class="curr">A(1)イ・A(2)ア(発展)</td><td>応力・安全率・断面の数値を使う設計は、教科書では発展の扱い</td></tr>
 <tr class="advanced"><td class="app">A5 木取り・構想シミュレータ</td><td class="tb">1編2章 2・3</td><td>② 木取りの歩留まり・材料費・④ 強度の「発展」</td><td class="curr">A(2)ア・A(3)イ(発展)</td><td>材料のむだ(歩留まり)や費用を数値で考える評価は、発展の内容</td></tr>
 <tr class="advanced"><td class="app">A7 第三角法 立体メーカー</td><td class="tb">1編2章 2</td><td>① 三面図をかく(三面図から立体をつくる)・② 立体を見る(3D)・③ 図面・印刷(寸法の入った図面)・ふりかえり</td><td class="curr">A(2)イ・A(3)イ(発展)</td><td>三面図から立体を作る CAD のような使い方や 3Dプリンタ用の STL は、教科書のコラム・発展にあたる新しい技術</td></tr>
-<tr class="advanced"><td class="app">A8 問題解決ノート</td><td class="tb">1編2章 1・5、3章 1</td><td>③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)</td><td class="curr">A(3)ア(発展)</td><td>社会の製品が制約条件の中で折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、3章の内容を数値で深める発展</td></tr>
 </tbody>
 </table>
 </section>
 <section class="dom">
-<h2>B 生物育成の技術<span class="file">配るファイル: B_生物育成_統一版.html(第1.8版)</span></h2>
+<h2>B 生物育成の技術<span class="file">配るファイル: B_生物育成_統一版.html(第1.9版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
-<tr class="basic"><th rowspan="6" class="lv lv-basic">基本編</th><td class="app">B1 育成環境コントローラ体験</td><td class="tb">2編1章 2・3・6</td><td>はじめに・① そだてる・② 結果・原因さがし・振り返り</td><td class="curr">B(1)イ</td><td>温度・光・水・肥料など、育成環境を調節する技術は教科書の中心の内容</td></tr>
-<tr class="basic"><td class="app">B2 動物飼育・水産ミニシミュレータ</td><td class="tb">2編1章 4・5</td><td>はじめに・① 飼育シミュレーション・② 診断クイズ・③ 飼育計画書・振り返り</td><td class="curr">B(1)ア・イ</td><td>学習指導要領で作物の栽培・動物の飼育・水産生物の栽培のどれも扱うとされている</td></tr>
+<tr class="basic"><th rowspan="6" class="lv lv-basic">基本編</th><td class="app">B1 育成環境コントローラ体験</td><td class="tb">2編1章 2・3</td><td>はじめに・① そだてる・② 結果・原因さがし・③ 手入れのわけ・振り返り</td><td class="curr">B(1)イ</td><td>温度・光・水・肥料など、育成環境を調節する技術は教科書の中心の内容</td></tr>
+<tr class="basic"><td class="app">B2 動物飼育・水産ミニシミュレータ</td><td class="tb">2編1章 4・5、2章 2</td><td>はじめに・① 飼育シミュレーション・② 診断クイズ・③ 飼育計画書・振り返り</td><td class="curr">B(1)ア・イ</td><td>学習指導要領で作物の栽培・動物の飼育・水産生物の栽培のどれも扱うとされている</td></tr>
 <tr class="basic"><td class="app">B3 栽培暦ビルダー</td><td class="tb">2編2章 2</td><td>① 作物をえらぶ・② 計画をつくる・③ カレンダー・④ 記録と評価・振り返り</td><td class="curr">B(2)ア</td><td>収穫の時期から逆算した育成計画(栽培暦)づくりは、教科書の基本の活動</td></tr>
 <tr class="basic"><td class="app">B4 育成日誌＋成長予測</td><td class="tb">2編2章 3・4</td><td>ホーム・計画・記録・グラフ・写真・診断・評価・振り返り</td><td class="curr">B(2)ア・イ・B(3)</td><td>実際に育てながら記録・管理し、収穫後に評価・改善するのは問題解決の基本</td></tr>
 <tr class="basic"><td class="app">B5 植物工場の自動化</td><td class="tb">2編1章 6・3章 2・統合的な問題解決</td><td>はじめに・① くらべる・② 照明を自動に・③ 水やりを自動に・振り返り</td><td class="curr">B(1)イ・B(3)ア</td><td>露地栽培と植物工場(施設栽培)の比較と、育成環境を調節する技術のしくみ(センサで計測し機器を制御する)は教科書の本文と統合的な問題解決の例にある</td></tr>
-<tr class="basic"><td class="app">B6 問題解決ノート</td><td class="tb">2編2章 1・4、3章 1</td><td>はじめに・① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td class="curr">B(2)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、育てた結果を評価して改善・修正を考える流れは、教科書の2章の1と4にある問題解決の基本</td></tr>
-<tr class="advanced"><th rowspan="6" class="lv lv-advanced">発展編</th><td class="app">B1 育成環境コントローラ体験</td><td class="tb">2編1章 2・3・6</td><td>③ くらべる(2つの環境で条件をそろえてくらべる)・② の費用(コスト)</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>条件をそろえた比較実験や、費用からの評価は基本より先の内容</td></tr>
-<tr class="advanced"><td class="app">B2 動物飼育・水産ミニシミュレータ</td><td class="tb">2編1章 4・5</td><td>① の水の汚れ・pH・費用の数値・② 診断クイズ「生態系と産業」</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>水質の数値の読み取りや、生態系・産業への配慮はコラム・発展の内容</td></tr>
+<tr class="basic"><td class="app">B6 問題解決ノート</td><td class="tb">2編2章 1・4、3章 1</td><td>はじめに・① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)・振り返り・記録</td><td class="curr">B(2)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、育てた結果を評価して改善・修正を考える流れは、教科書の2章の1と4にある問題解決の基本</td></tr>
+<tr class="advanced"><th rowspan="5" class="lv lv-advanced">発展編</th><td class="app">B1 育成環境コントローラ体験</td><td class="tb">2編1章 2・3</td><td>④ くらべる(2つの環境で条件をそろえてくらべる)・② の費用(コスト)</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>条件をそろえた比較実験や、費用からの評価は基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">B2 動物飼育・水産ミニシミュレータ</td><td class="tb">2編1章 4・5、2章 2</td><td>① の水の汚れ・pH・費用の数値・② 診断クイズ「生態系と産業」</td><td class="curr">B(1)イ・B(3)ア(発展)</td><td>水質の数値の読み取りや、生態系・産業への配慮はコラム・発展の内容</td></tr>
 <tr class="advanced"><td class="app">B3 栽培暦ビルダー</td><td class="tb">2編2章 2</td><td>② 地域・休業日に合わせた再計算・③ カレンダーの CSV・ICS 書き出し</td><td class="curr">B(2)ア(発展)</td><td>地域や学校の予定に合わせた計画の見直しと、情報の技術を使った管理は発展の内容</td></tr>
 <tr class="advanced"><td class="app">B4 育成日誌＋成長予測</td><td class="tb">2編2章 3・4</td><td>予測(成長予測・「もしも〜なら?」)</td><td class="curr">B(2)イ(発展)</td><td>記録から数値で成長を予測するのは、教科書の基本より先の内容</td></tr>
 <tr class="advanced"><td class="app">B5 植物工場の自動化</td><td class="tb">2編1章 6・3章 2・統合的な問題解決</td><td>④ 全部を自動に(電気代と収量の折り合い)・⑤ スマート農業(データを見て決める)</td><td class="curr">B(3)ア・イ(発展)</td><td>複数の条件を組み合わせた制御の最適化と、IoT・AI を使うスマート農業のデータ活用は、3章「社会の発展と生物育成の技術」の発展の内容</td></tr>
-<tr class="advanced"><td class="app">B6 問題解決ノート</td><td class="tb">2編2章 1・4、3章 1</td><td>③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)</td><td class="curr">B(3)ア(発展)</td><td>生物育成の技術が、品質・収量・費用・安全性・環境の折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、3章の内容を数値で深める発展</td></tr>
 </tbody>
 </table>
 </section>
 <section class="dom">
-<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.8版)</span></h2>
+<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.9版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
 <tr class="basic"><th rowspan="8" class="lv lv-basic">基本編</th><td class="app">C1 エネルギー変換ゲーム</td><td class="tb">3編1章 1・2・3</td><td>ステージ1 懐中電灯・ステージ2 自転車のライト・ステージ3 クレーン・ステージ4 火力発電所・ステージ5 再生可能エネルギー・ステージ6 町の電源・ステージ7 たこ足配線</td><td class="curr">C(1)ア・C(3)イ</td><td>エネルギーの変換と効率、発電方法の特徴、電気機器の安全な使い方は教科書の中心の内容</td></tr>
-<tr class="basic"><td class="app">C2 電気回路ラボ</td><td class="tb">3編1章 4・5</td><td>課題1〜4 豆電球・スイッチ・直列・並列・課題5 モーターを逆に回そう・課題6・7 ヒューズ・ブレーカー・安全体験(たこ足配線・漏電とアース・ショート)</td><td class="curr">C(1)ア・C(2)ア</td><td>電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本</td></tr>
-<tr class="basic"><td class="app">C3 機構ラボ</td><td class="tb">3編1章 6・7・8、2章 3</td><td>回転を伝える・運動を変える・設計課題1〜9(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)</td><td class="curr">C(1)ア・C(2)</td><td>歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本</td></tr>
-<tr class="basic"><td class="app">C4 保守点検ラボ</td><td class="tb">3編1章 9</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり</td><td class="curr">C(1)ア・C(2)イ</td><td>共通部品と保守点検は、どの教科書でも扱う基本</td></tr>
-<tr class="basic"><td class="app">C5 回路設計シート</td><td class="tb">3編2章 2</td><td>① 課題・構想・② 回路図・③ 部品表・手順・④ 評価・課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td class="curr">C(2)ア・イ・C(3)</td><td>目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本</td></tr>
-<tr class="basic"><td class="app">C6 風力発電の羽根ラボ</td><td class="tb">3編1章 2</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td class="curr">C(1)ア・イ</td><td>発電機のしくみ(電磁誘導)と、風力発電のモデルで効率のよい羽根を考えることは、教科書の「発電の仕組みと特徴」の中心(レッツスタート)</td></tr>
-<tr class="basic"><td class="app">C7 直流・交流と送電ラボ</td><td class="tb">3編1章 3</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ</td><td class="curr">C(1)ア</td><td>直流と交流のちがい、変圧と送電・配電のしくみは、教科書の「電気を供給する仕組み」の中心</td></tr>
-<tr class="basic"><td class="app">C8 問題解決ノート</td><td class="tb">3編2章 1・4、3章 1</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td class="curr">C(2)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、製作品を評価して改善・修正を考える流れは、教科書の2章の1と4にある問題解決の基本</td></tr>
-<tr class="advanced"><th rowspan="7" class="lv lv-advanced">発展編</th><td class="app">C1 エネルギー変換ゲーム</td><td class="tb">3編1章 1・2・3</td><td>ステージ8 蓄電池(昼も夜も電気を使いたい)・自由(自由に実験しよう)・💴 発電方法の値段くらべ</td><td class="curr">C(1)ア・C(3)イ(発展)</td><td>蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容</td></tr>
-<tr class="advanced"><td class="app">C2 電気回路ラボ</td><td class="tb">3編1章 4・5</td><td>課題8・9 電流計・電圧計ではかろう・課題10 電池の持ちを比べる・課題11 LEDと抵抗・電気料金</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容</td></tr>
-<tr class="advanced"><td class="app">C3 機構ラボ</td><td class="tb">3編1章 6・7・8、2章 3</td><td>設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td><td class="curr">C(1)ア・C(2)(発展)</td><td>歯数の推理や、トルク・ねじの数値を使った設計は発展の内容</td></tr>
-<tr class="advanced"><td class="app">C5 回路設計シート</td><td class="tb">3編2章 2</td><td>課題 LEDライト・LED常夜灯(抵抗値を決める)・課題 自由設計・④ 評価の実測とのくらべ</td><td class="curr">C(2)イ・C(3)(発展)</td><td>抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容</td></tr>
-<tr class="advanced"><td class="app">C6 風力発電の羽根ラボ</td><td class="tb">3編1章 2</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td><td class="curr">C(1)ア・イ(発展)</td><td>発電方法ごとの変換の流れの整理や、時間による発電量(電力量)の変化と組み合わせの考察は発展の内容</td></tr>
-<tr class="advanced"><td class="app">C7 直流・交流と送電ラボ</td><td class="tb">3編1章 3</td><td>④ 損失の計算(P=VI、損失=I²R)・⑤ 周波数(東日本 50Hz・西日本 60Hz)</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電力と損失の計算や、周波数のちがいと周波数変換所はコラム・発展の内容</td></tr>
-<tr class="advanced"><td class="app">C8 問題解決ノート</td><td class="tb">3編2章 1・4、3章 1</td><td>③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)</td><td class="curr">C(3)ア(発展)</td><td>エネルギー変換の技術が、安全性や環境負荷などの折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、3章の内容を数値で深める発展</td></tr>
+<tr class="basic"><td class="app">C2 風力発電の羽根ラボ</td><td class="tb">3編1章 2</td><td>① 発電機のしくみ・② 羽根を変えて発電量をくらべる・③ いちばん効率のよい羽根をめざす(チャレンジ・ランキング)</td><td class="curr">C(1)ア・イ</td><td>発電機のしくみ(電磁誘導)と、風力発電のモデルで効率のよい羽根を考えることは、教科書の「発電の仕組みと特徴」の中心(レッツスタート)</td></tr>
+<tr class="basic"><td class="app">C3 直流・交流と送電ラボ</td><td class="tb">3編1章 3</td><td>① 直流と交流・② 送電・配電の道すじ・③ 高い電圧で送るわけ・④ 周波数(東日本 50Hz・西日本 60Hz)</td><td class="curr">C(1)ア</td><td>直流と交流のちがい、変圧と送電・配電のしくみ、周波数のちがいは、教科書の「電気を供給する仕組み」の本文</td></tr>
+<tr class="basic"><td class="app">C4 電気回路ラボ</td><td class="tb">3編1章 4・5</td><td>課題1〜4 豆電球・スイッチ・直列・並列・課題5 モーターを逆に回そう・課題6・7 ヒューズ・ブレーカー・安全体験(たこ足配線・漏電とアース・ショート)</td><td class="curr">C(1)ア・C(2)ア</td><td>電気回路のしくみ、電流の向きとモーター、保護装置と安全な使い方は基本</td></tr>
+<tr class="basic"><td class="app">C5 機構ラボ</td><td class="tb">3編1章 6・7・8、2章 3</td><td>機械のつくり・回転を伝える・運動を変える・設計課題1〜9(ゆっくり巻き上げ・羽根を速く回す・引き戸・ベルトで逆回し・自転車のギア・ポンプ・カム・同じ向きで届ける・ワイパー)</td><td class="curr">C(1)ア・C(2)</td><td>歯車・ベルト・リンク・カムなどで運動を伝える・変えるしくみと速度伝達比は基本</td></tr>
+<tr class="basic"><td class="app">C6 保守点検ラボ</td><td class="tb">3編1章 9</td><td>部品図鑑・機械を見る・クイズ・ゆるみ・摩耗・点検表づくり</td><td class="curr">C(1)ア・C(2)イ</td><td>共通部品と保守点検は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><td class="app">C7 回路設計シート</td><td class="tb">3編2章 2</td><td>① 課題・構想・② 回路図・③ 部品表・手順・④ 評価・課題 懐中電灯・2部屋の明かり・安全な扇風機</td><td class="curr">C(2)ア・イ・C(3)</td><td>目的に合った回路を構想・設計し、製作・評価・改善する問題解決は基本</td></tr>
+<tr class="basic"><td class="app">C8 問題解決ノート</td><td class="tb">3編2章 1・4、3章 1</td><td>① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)・振り返り・記録</td><td class="curr">C(2)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、製作品を評価して改善・修正を考える流れは、教科書の2章の1と4にある問題解決の基本</td></tr>
+<tr class="advanced"><th rowspan="6" class="lv lv-advanced">発展編</th><td class="app">C1 エネルギー変換ゲーム</td><td class="tb">3編1章 1・2・3</td><td>ステージ8 蓄電池(昼も夜も電気を使いたい)・自由(自由に実験しよう)・💴 発電方法の値段くらべ</td><td class="curr">C(1)ア・C(3)イ(発展)</td><td>蓄電池による需要と供給の調整や、発電の費用の比較は発展・コラムの内容</td></tr>
+<tr class="advanced"><td class="app">C2 風力発電の羽根ラボ</td><td class="tb">3編1章 2</td><td>④ 発電方法くらべ(変換の流れと特徴)・⑤ 風の強さが変わる日の発電量</td><td class="curr">C(1)ア・イ(発展)</td><td>発電方法ごとの変換の流れの整理や、時間による発電量(電力量)の変化と組み合わせの考察は発展の内容</td></tr>
+<tr class="advanced"><td class="app">C3 直流・交流と送電ラボ</td><td class="tb">3編1章 3</td><td>⑤ 損失の計算(P=VI、損失=I²R)</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電力と損失の計算は、理科とつながる発展の内容</td></tr>
+<tr class="advanced"><td class="app">C4 電気回路ラボ</td><td class="tb">3編1章 4・5</td><td>課題8・9 電流計・電圧計ではかろう・課題10 電池の持ちを比べる・課題11 LEDと抵抗・電気料金</td><td class="curr">C(1)ア(発展・理科2年とのつながり)</td><td>電流・電圧の測定や抵抗の計算、電力量の計算は基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">C5 機構ラボ</td><td class="tb">3編1章 6・7・8、2章 3</td><td>設計課題10〜12(2段歯車で大きく減速・力持ちの巻き上げ機・ねじジャッキ)・ブラックボックス</td><td class="curr">C(1)ア・C(2)(発展)</td><td>歯数の推理や、トルク・ねじの数値を使った設計は発展の内容</td></tr>
+<tr class="advanced"><td class="app">C7 回路設計シート</td><td class="tb">3編2章 2</td><td>課題 LEDライト・LED常夜灯(抵抗値を決める)・課題 自由設計・④ 評価の実測とのくらべ</td><td class="curr">C(2)イ・C(3)(発展)</td><td>抵抗値の計算や、設計値と実測値のちがいの分析は発展の内容</td></tr>
 </tbody>
 </table>
 </section>
 <section class="dom">
-<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第2.1版)</span></h2>
+<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第2.2版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
-<tr class="basic"><th rowspan="10" class="lv lv-basic">基本編</th><td class="app">D1 デジタル化ラボ</td><td class="tb">4編1章 3</td><td>① 画像のデジタル化・② 音のデジタル化・③ 2進数と文字コード・④ データ量の計算ドリル</td><td class="curr">D(1)ア</td><td>情報のデジタル化と情報の量は、どの教科書でも扱う基本</td></tr>
-<tr class="basic"><td class="app">D2 仮想CPUラボ</td><td class="tb">4編1章 2</td><td>① 図解: 5つの装置・② 手計算くらべ</td><td class="curr">D(1)ア・イ</td><td>コンピュータの構成(5つの装置)と、自動で処理するよさは基本</td></tr>
+<tr class="basic"><th rowspan="10" class="lv lv-basic">基本編</th><td class="app">D1 仮想CPUラボ</td><td class="tb">4編1章 2</td><td>① 図解: 5つの装置・② 手計算くらべ</td><td class="curr">D(1)ア・イ</td><td>コンピュータの構成(5つの装置)と、自動で処理するよさは基本</td></tr>
+<tr class="basic"><td class="app">D2 デジタル化ラボ</td><td class="tb">4編1章 3</td><td>① 画像のデジタル化・② 音のデジタル化・③ 2進数と文字コード・④ データ量の計算ドリル</td><td class="curr">D(1)ア</td><td>情報のデジタル化と情報の量は、どの教科書でも扱う基本</td></tr>
 <tr class="basic"><td class="app">D3 ネットワーク通信シミュレータ</td><td class="tb">4編1章 4</td><td>① ネットワークを組み立てる・② Webページが届くまで・③ 回線が切れたら？・④ のぞき見と暗号化</td><td class="curr">D(1)ア</td><td>情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本</td></tr>
-<tr class="basic"><td class="app">D4 情報セキュリティ体験ラボ</td><td class="tb">4編1章 5・6</td><td>① デジタル化と情報量・② パスワード強度ラボ・③ 暗号ラボ・④ フィッシング見分け・⑤ ネットワーク通信の模擬・⑥ SNS投稿の個人情報チェック・⑦ デジタルタトゥー・⑧ 著作権・利用ルールクイズ・⑨ 判断ロールプレイ・⑩ まとめ・行動宣言・理解度チェック</td><td class="curr">D(1)ア・D(4)ア</td><td>情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本</td></tr>
+<tr class="basic"><td class="app">D4 情報セキュリティ体験ラボ</td><td class="tb">4編1章 5・6</td><td>① 情報を守るしくみ・② パスワード強度ラボ・③ 暗号ラボ・④ フィッシング見分け・⑤ SNS投稿の個人情報チェック・⑥ デジタルタトゥー・⑦ 著作権・利用ルールクイズ・⑧ 判断ロールプレイ・⑨ まとめ・行動宣言・理解度チェック</td><td class="curr">D(1)ア・D(4)ア</td><td>情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本</td></tr>
 <tr class="basic"><td class="app">D5 ネット詐欺 追体験ラボ</td><td class="tb">4編1章 6</td><td>① ワンクリック詐欺・② 「当選しました」メール・③ ウイルス付きメール・④ にせのウイルス警告・⑤ にせの通販サイト・⑥ まとめとふりかえり</td><td class="curr">D(1)ア・D(4)ア</td><td>ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本</td></tr>
 <tr class="basic"><td class="app">D6 双方向コンテンツ制作スタジオ</td><td class="tb">4編2章</td><td>作品・エディタ・実行・デバッグ・サーバーのデータ・ふりかえり・記録</td><td class="curr">D(2)ア・イ</td><td>ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容</td></tr>
 <tr class="basic"><td class="app">D7 計測・制御シミュレータ</td><td class="tb">4編3章</td><td>① 街灯・② 自動ドア・③ 信号機・④ 押しボタン式信号機</td><td class="curr">D(3)ア・イ</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容</td></tr>
-<tr class="basic"><td class="app">D8 生成AIのしくみラボ</td><td class="tb">4編4章 2</td><td>① もっともらしいまちがい・② 個人情報が出てしまう？・③ クイズとふりかえり</td><td class="curr">D(4)ア・イ</td><td>生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容</td></tr>
-<tr class="basic"><td class="app">D10 火星探査ロボット・シミュレータ</td><td class="tb">4編3章・統合的な問題解決</td><td>① まっすぐ走って止まる・② 岩の前で止まる・よける・③ 迷路のような谷を探査する・評価・振り返り</td><td class="curr">D(3)ア・イ、統合的な問題解決</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容</td></tr>
-<tr class="basic"><td class="app">D11 問題解決ノート</td><td class="tb">4編2章 2・5、3章 2・5、4章 1</td><td>はじめに・① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・振り返り・記録</td><td class="curr">D(2)イ・D(3)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本</td></tr>
-<tr class="advanced"><th rowspan="9" class="lv lv-advanced">発展編</th><td class="app">D1 デジタル化ラボ</td><td class="tb">4編1章 3</td><td>⑤ 圧縮のしくみ</td><td class="curr">D(1)ア(発展)</td><td>教科書では圧縮があることを知る程度で、しくみをためすのは発展</td></tr>
-<tr class="advanced"><td class="app">D2 仮想CPUラボ</td><td class="tb">4編1章 2</td><td>③ 仮想CPUを動かす・④ 課題</td><td class="curr">D(1)ア(発展)</td><td>レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容</td></tr>
+<tr class="basic"><td class="app">D8 火星探査ロボット・シミュレータ</td><td class="tb">4編3章・統合的な問題解決</td><td>① まっすぐ走って止まる・② 岩の前で止まる・よける・③ 迷路のような谷を探査する・評価・振り返り</td><td class="curr">D(3)ア・イ、統合的な問題解決</td><td>計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容</td></tr>
+<tr class="basic"><td class="app">D9 生成AIのしくみラボ</td><td class="tb">4編4章 2</td><td>① もっともらしいまちがい・② 個人情報が出てしまう？・③ クイズとふりかえり</td><td class="curr">D(4)ア・イ</td><td>生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容</td></tr>
+<tr class="basic"><td class="app">D11 問題解決ノート</td><td class="tb">4編2章 2・5、3章 2・5、4章 1</td><td>はじめに・① 問題の発見(付箋・問題?課題?クイズ・課題の設定)・② 評価、改善・修正(観点ごとの5段階とレーダーチャート)・③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)・振り返り・記録</td><td class="curr">D(2)イ・D(3)イ</td><td>生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本</td></tr>
+<tr class="advanced"><th rowspan="7" class="lv lv-advanced">発展編</th><td class="app">D1 仮想CPUラボ</td><td class="tb">4編1章 2</td><td>③ 仮想CPUを動かす・④ 課題</td><td class="curr">D(1)ア(発展)</td><td>レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容</td></tr>
+<tr class="advanced"><td class="app">D2 デジタル化ラボ</td><td class="tb">4編1章 3</td><td>⑤ 圧縮のしくみ</td><td class="curr">D(1)ア(発展)</td><td>教科書では圧縮があることを知る程度で、しくみをためすのは発展</td></tr>
 <tr class="advanced"><td class="app">D3 ネットワーク通信シミュレータ</td><td class="tb">4編1章 4</td><td>⑤ IPアドレス・ドリル</td><td class="curr">D(1)ア(発展)</td><td>教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展</td></tr>
-<tr class="advanced"><td class="app">D4 情報セキュリティ体験ラボ</td><td class="tb">4編1章 5・6</td><td>⑪ ハッシュ体験</td><td class="curr">D(1)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない</td></tr>
 <tr class="advanced"><td class="app">D7 計測・制御シミュレータ</td><td class="tb">4編3章</td><td>⑤ 自由に作る(仮想マイコン)</td><td class="curr">D(3)イ(発展)</td><td>センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動</td></tr>
-<tr class="advanced"><td class="app">D8 生成AIのしくみラボ</td><td class="tb">4編4章 2</td><td>④ つぎの言葉あて・⑤ 言葉のかけら(トークン)・⑥ ミニ文章AIを動かす・⑦ ノイズをまぜる(学習)・⑧ ノイズから絵をつくる</td><td class="curr">D(1)ア・D(4)イ(発展)</td><td>生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容</td></tr>
-<tr class="advanced"><td class="app">D10 火星探査ロボット・シミュレータ</td><td class="tb">4編3章・統合的な問題解決</td><td>④ 色センサで線をたどる・⑤ 自由なコースで記録に挑戦</td><td class="curr">D(3)イ、統合的な問題解決(発展)</td><td>色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動</td></tr>
-<tr class="advanced"><td class="app">D9 ハッシュ化体験ラボ</td><td class="tb">4編1章 5</td><td>① ハッシュ値を作ってみよう・② 1文字だけ変えると？・③ 手作りハッシュの弱点・④ もとにもどせる？・⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ クイズとふりかえり</td><td class="curr">D(1)ア・D(4)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展</td></tr>
-<tr class="advanced"><td class="app">D11 問題解決ノート</td><td class="tb">4編2章 2・5、3章 2・5、4章 1</td><td>③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)</td><td class="curr">D(4)ア(発展)</td><td>情報の技術が、利便性・セキュリティ・回線への負荷などの折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、4章1「情報の技術の最適化」を数値で深める発展</td></tr>
+<tr class="advanced"><td class="app">D8 火星探査ロボット・シミュレータ</td><td class="tb">4編3章・統合的な問題解決</td><td>④ 色センサで線をたどる・⑤ 自由なコースで記録に挑戦</td><td class="curr">D(3)イ、統合的な問題解決(発展)</td><td>色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動</td></tr>
+<tr class="advanced"><td class="app">D9 生成AIのしくみラボ</td><td class="tb">4編4章 2</td><td>④ つぎの言葉あて・⑤ 言葉のかけら(トークン)・⑥ ミニ文章AIを動かす・⑦ ノイズをまぜる(学習)・⑧ ノイズから絵をつくる</td><td class="curr">D(1)ア・D(4)イ(発展)</td><td>生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容</td></tr>
+<tr class="advanced"><td class="app">D10 ハッシュ化体験ラボ</td><td class="tb">4編1章 5</td><td>① ハッシュ値を作ってみよう・② 1文字だけ変えると？・③ 手作りハッシュの弱点・④ もとにもどせる？・⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ クイズとふりかえり</td><td class="curr">D(1)ア・D(4)ア(発展)</td><td>ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展</td></tr>
 </tbody>
 </table>
 </section>

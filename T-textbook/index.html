@@ -32,7 +32,7 @@
   .c-hen > h2 .c-n { font-size: .65em; font-weight: 400; color: var(--ef-muted); }
   .c-when { margin: 0 0 6px; font-size: .9em; color: var(--ef-muted); }
   .c-ch { margin: 16px 0 6px; font-size: 1.08em; color: var(--c, var(--ef-accent)); }
-  .c-hen-G { --c: #0f766e; } .c-hen-A { --c: #985a26; } .c-hen-B { --c: #2e7d32; } .c-hen-C { --c: #b45309; } .c-hen-D { --c: #1a5fc8; } .c-hen-I { --c: #475569; } .c-hen-Z { --c: #7c4a03; }
+  .c-hen-G { --c: #0f766e; } .c-hen-A { --c: #985a26; } .c-hen-B { --c: #2e7d32; } .c-hen-C { --c: #b45309; } .c-hen-D { --c: #1a5fc8; } .c-hen-I { --c: #475569; } .c-hen-Z { --c: #7c4a03; } .c-hen-X { --c: #6b21a8; }
   .c-sec { scroll-margin-top: 130px; position: relative; background: var(--ef-surface); border: 1px solid var(--ef-line); border-left: 6px solid var(--c, var(--ef-accent)); border-radius: var(--ef-radius); padding: 12px 16px; margin: 0 0 12px; box-shadow: var(--ef-shadow); }
   .c-sec.is-done { background: #f3faf3; }
   .c-sec.is-next { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
@@ -128,12 +128,12 @@
   // 自習モードのとき(?jishu=on・自習用のファイル)は、ひらく教材も自習モードにする
   var Q = EduitFrame.jishu ? '?jishu=on' : '';
   var AREA_APPS = { M: 1, F: 1 };  // 分野ごとに開く教材
-  T.text($('c-jishu'), EduitFrame.jishu ? '自習モードです。\n教材を開くと、右はしに「自習ガイド」が出ます。上から順に進めよう。\n📝 ワークシートも開いて、書きながら進めよう。\nこまったら、自習ガイドの「ヒント」を押そう。' :
+  T.text($('c-jishu'), EduitFrame.jishu ? '自習モードです。上から順に進めよう。\n教材の右はしの「自習ガイド」と、📝 ワークシートを使おう。\nこまったら「ヒント」を押そう。' :
     '先生の説明を聞きながら進めるモードです。ひとりで進めるときは、先生に「自習モード」の開き方を聞こう。');
 
-  var all = [];  // [{ s: 節, card: 要素, hen }]
+  var all = [], extra = [];  // [{ s: 節, card: 要素, hen }]。extra は付録(発展編)の節で、進み具合の数に入れない
   var nav = $('c-nav'), list = $('c-list');
-  var SHORT = { g: 'ガイダンス', a: '1編 材料と加工', b: '2編 生物育成', c: '3編 エネルギー変換', d: '4編 情報', i: '統合的な問題解決', z: '学習を終えて' };  // 上の帯の名前
+  var SHORT = { g: 'ガイダンス', a: '1編 材料と加工', b: '2編 生物育成', c: '3編 エネルギー変換', d: '4編 情報', i: '統合的な問題解決', z: '学習を終えて', x: '付録 発展編' };  // 上の帯の名前
   var navLinks = {};
   COURSE.forEach(function (H, hi) {
     var n = 0;
@@ -162,21 +162,23 @@
           var h = g[2] != null ? g[2] : A.h;
           // M・F は、その分野のタブだけを出して開く(?bunya=a。生徒が分野を行き来して迷わないように)。ワークシートも分野のもの(MA など)
           var area = AREA_APPS[g[0]] && h ? h : '', ws = area ? g[0] + area.toUpperCase() : g[0];
-          var qs = [Q.slice(1), area ? 'bunya=' + area : ''].filter(Boolean).join('&');
+          var qs = [Q.slice(1), area ? 'bunya=' + area : '', A.q || ''].filter(Boolean).join('&');
           var href = BASE + FILES[A.f] + (qs ? '?' + qs : '') + (h ? '#' + h : '');
           go.appendChild(el('a', { class: 'c-open', href: href, target: '_blank', rel: 'noopener' }, [
-            el('span', { class: 'ef-code', text: g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
-          go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
+            el('span', { class: 'ef-code', text: A.tag || g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
+          if (A.ws !== false) go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
         });
         card.appendChild(el('div', { class: 'c-row' }, [go]));
-        var qbox = el('ol', { class: 'c-q' });
-        card.appendChild(el('div', { class: 'c-row' }, [el('span', { class: 'c-row-h', text: 'たしかめの1問' }), qbox]));
+        var qbox = s.q ? el('ol', { class: 'c-q' }) : null;
+        if (qbox) card.appendChild(el('div', { class: 'c-row' }, [el('span', { class: 'c-row-h', text: 'たしかめの1問' }), qbox]));
         card.appendChild(el('div', { class: 'c-foot' }, [el('label', { class: 'c-done' }, [chk, el('span', { text: 'できた' })])]));
         box.appendChild(card);
-        // たしかめの1問(正しい答えは c の1つめ。画面では順をまぜる)
-        if (!S.q[s.id] || typeof S.q[s.id] !== 'object') S.q[s.id] = {};
-        T.quiz(qbox, null, null, [{ t: s.q.t, c: s.q.c, a: 0, x: s.q.x }], function () { return S.q[s.id]; }, { mix: 3 + hi * 31 + si * 7 + s.id.length });
-        all.push({ s: s, card: card, chk: chk, hen: H.id });
+        // たしかめの1問(正しい答えは c の1つめ。画面では順をまぜる)。付録の節には問いがない
+        if (qbox) {
+          if (!S.q[s.id] || typeof S.q[s.id] !== 'object') S.q[s.id] = {};
+          T.quiz(qbox, null, null, [{ t: s.q.t, c: s.q.c, a: 0, x: s.q.x }], function () { return S.q[s.id]; }, { mix: 3 + hi * 31 + si * 7 + s.id.length });
+        }
+        (H.extra ? extra : all).push({ s: s, card: card, chk: chk, hen: H.id });
       });
     });
     list.appendChild(box);
@@ -187,9 +189,9 @@
     var done = all.filter(function (x) { return S.done[x.s.id]; }).length, nx = next();
     $('c-bar').style.width = (done / all.length * 100) + '%';
     T.text($('c-count'), done + ' / ' + all.length + ' 節 できた');
-    all.forEach(function (x) { x.card.classList.toggle('is-done', !!S.done[x.s.id]); x.card.classList.toggle('is-next', x === nx); x.chk.checked = !!S.done[x.s.id]; });
+    all.concat(extra).forEach(function (x) { x.card.classList.toggle('is-done', !!S.done[x.s.id]); x.card.classList.toggle('is-next', x === nx); x.chk.checked = !!S.done[x.s.id]; });
     COURSE.forEach(function (H) {
-      var mine = all.filter(function (x) { return x.hen === H.id; }), d = mine.filter(function (x) { return S.done[x.s.id]; }).length;
+      var mine = all.concat(extra).filter(function (x) { return x.hen === H.id; }), d = mine.filter(function (x) { return S.done[x.s.id]; }).length;
       var L = navLinks[H.id];
       L.n.textContent = ' ' + d + '/' + L.total;
       L.a.classList.toggle('is-all', d === L.total);

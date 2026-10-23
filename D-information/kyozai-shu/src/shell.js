@@ -104,7 +104,7 @@
     return el;
   }
 
-  // 記号の印（D1〜D9。materials.json の code。番号の順 = おすすめの順 = カードの順）
+  // 記号の印（D1〜D11。materials.json の code。番号の順 = おすすめの順 = カードの順）
   const codeEl = (m) => (window.EduitFrame && EduitFrame.code ? EduitFrame.code(m.code) : h("span", { class: "ef-code" }, m.code));
   // メニューのカード（4分野共通の形 EduitFrame.card）。アイコンは教材の SVG を入れる
   function card(m, parts) {
@@ -158,7 +158,7 @@
       "section",
       { class: "note reset", "aria-labelledby": "g-reset" },
       h("h2", { id: "g-reset" }, "はじめからやり直す"),
-      h("p", {}, `次の人にパソコンをわたすときに使います。${DATA.materials.length}つの教材の名前・進み具合・ふりかえり・作ったプログラムや作品を、すべて消します。このメニューの「開いたことがある」の印と、「記録をまとめて書き出す」の組・番号・名前も消えます。ふりがな・文字の大きさなどの表示の設定は残ります。先生用ページで差し替えた問題データも残ります。`),
+      h("p", {}, `${DATA.materials.length}つの教材の記録(名前・進み具合・ふりかえり・作品)を、すべて消します。次の人にパソコンをわたすときに使います。表示の設定と、先生が差し替えた問題は残ります。`),
       h("button", { type: "button", class: "reset-btn ef-btn", id: "reset-all" }, "この端末の記録をすべて消す"),
       h("p", { class: "reset-msg", id: "reset-msg", role: "status" }, resetMsg),
     );
@@ -412,7 +412,7 @@
   // 全リセット: 開いている教材を閉じてから（閉じるときの保存で記録が戻らないように）、各教材の記録を消す
   let resetMsg = "";
   function resetAll() {
-    if (!confirm(`${DATA.materials.length}つの教材の記録（名前・進み具合・ふりかえり・プログラムや作品）を、すべて消します。まとめて書き出す欄の組・番号・名前も消えます。はじめからやり直しますか？（元に戻せません）`)) return;
+    if (!confirm(`${DATA.materials.length}つの教材の記録（名前・進み具合・ふりかえり・作品）を、すべて消します。はじめからやり直しますか？（元に戻せません）`)) return;
     for (const f of frames.values()) f.remove();
     frames.clear();
     place = { inner: {}, back: {} };
@@ -439,7 +439,7 @@
     document.getElementById("reset-all").focus();
   }
 
-  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D2 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
+  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D1 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
   function renderSwitcher(currentId) {
     switcher.replaceChildren(
       ...DATA.materials.map((m) =>
@@ -494,7 +494,7 @@
     else f.addEventListener("load", () => (f.contentWindow.location.hash = hash), { once: true });
   }
 
-  // 上のバーの名前: メニューのとき「D 情報の技術 教材集」、教材のとき「D2 仮想CPUラボ」
+  // 上のバーの名前: メニューのとき「D 情報の技術 教材集」、教材のとき「D1 仮想CPUラボ」
   function setBarTitle(m) {
     if (!m) {
       barTitle.removeAttribute("title");

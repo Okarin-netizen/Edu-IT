@@ -31,6 +31,7 @@
   var BUILD = setOf('b', [[2001, 1, 3], [2002, 2, 4], [2003, 3, 3]]);
   var DRAW = setOf('d', [[3001, 1, 3], [3002, 2, 4], [3003, 3, 3]]);
   var ISO = setOf('i', [[4001, 1, 3], [4002, 2, 3], [4003, 3, 2]]);
+  var CAB = setOf('c', [[6001, 1, 3], [6002, 2, 3]]);
   var LEVEL_NAME = { 1: 'やさしい', 2: 'ふつう', 3: 'むずかしい' };
   var VIEW_NAME = { front: '正面図', top: '平面図', right: '右側面図' };
   var VIEW_DIR = { front: '正面(手前)から', top: '真上から', right: '右から' };
@@ -39,7 +40,7 @@
   var REC_ID = 'drawing-trainer-record';
   var rec = G.newArtifact(APP, '製図トレーナーの記録', emptyData(), 'progress');
   rec.id = REC_ID;
-  function emptyData() { return { name: '', quizSalt: Math.floor(Math.random() * 1e9), quiz: {}, build: {}, draw: {}, iso: {}, terms: { best: null, history: [] }, reflect: { self: {}, learned: '', hard: '', use: '' } }; }
+  function emptyData() { return { name: '', quizSalt: Math.floor(Math.random() * 1e9), quiz: {}, build: {}, draw: {}, iso: {}, cab: {}, terms: { best: null, history: [] }, reflect: { self: {}, learned: '', hard: '', use: '' } }; }
   var saveTimer = null;
   function save() {
     clearTimeout(saveTimer);
@@ -592,6 +593,113 @@
     if (hintLevel) showHint();
   }
 
+  /* ================= 4b. キャビネット図をかく ================= */
+  var cabState = { idx: 0, drawings: {}, hint: {}, guide: true };
+  function renderCab() {
+    var root = G.$('[data-panel="cab"]');
+    root.innerHTML = '';
+    var p = CAB[cabState.idx], s = p.solid, exp = M.cabLines(s), key = p.id, U = M.CAB_U;
+    var status = function (x) { var r = rec.data.cab[x.id]; return r ? (r.ok ? 'ok' : 'ng') : ''; };
+    var go = function (i) { cabState.idx = i; renderCab(); };
+    var nav = problemNav(CAB, status, go, cabState.idx);
+    var result = h('div', { class: 'a4-result', 'aria-live': 'polite' });
+    var hintBox = h('div', { class: 'a4-hintbox', 'aria-live': 'polite' });
+    var board = SK.create({ mode: 'cab', cols: 14, rows: 13, cell: 28, tools: ['v', 'erase'],
+      label: 'キャビネット図をかくボード。矢印キーで点を動かします(E と Z で右上・左下のななめ)。スペースキーで線の始めと終わりを決めます。',
+      onChange: function (d) { cabState.drawings[key] = d; if (!answer || !answer.isOn()) result.innerHTML = ''; },
+      onClearAll: function () { answer.off(); result.innerHTML = ''; setHintLevel(0); } });
+    if (cabState.drawings[key]) board.setDrawn(cabState.drawings[key]);
+    var hintLevel = cabState.hint[key] || 0;
+    var v3wrap = h('div');
+    var home = M.centerOffset(exp, board.box, 'cab');
+    function offset() { return gradeOn(board, exp, home).offset; }
+    var answer = answerToggle(board, function () { board.showAnswer(exp, offset()); },
+      '太い緑の線が正解の図です。答えを見ながらかき直して、答え合わせしましょう。「答えをかくす」で消せます。', result);
+    function setHintLevel(lv) { hintLevel = lv; cabState.hint[key] = lv; showHint(); hintBtn.label(); }
+    var hintBtn = hintButton(function () { return hintLevel; }, setHintLevel);
+    function cabAt(x, y, z) { var q = M.cabPoint(x, y, z); return [q[0] + home[0], q[1] + home[1]]; }
+    /* 基準: 正面の左下の角(●)。右に横、上に高さ、右上45°に奥行き */
+    function showGuide() {
+      if (!cabState.guide) { board.setGuide([]); return; }
+      var c = cabAt(0, 0, 0), R = cabAt(s.w, 0, 0), Up = cabAt(0, 0, s.h), B = cabAt(0, s.d, 0);
+      board.setGuide([
+        gLine(board, c, R, 'a4-g-axis'), gLine(board, c, Up, 'a4-g-axis'), gLine(board, c, B, 'a4-g-axis'),
+        gStart(board, c),
+        gText(board, R, 8, 16, '横 ' + s.w, 'start'),
+        gText(board, Up, -8, 0, '高さ ' + s.h, 'end'),
+        gText(board, B, 8, -6, '奥行き ' + s.d + '(半分の長さ・45°)', 'start'),
+        gText(board, c, 0, 22, 'ここから')
+      ]);
+    }
+    board.el.firstChild.appendChild(guideToggle(cabState, showGuide));
+    function showHint() {
+      hintBox.innerHTML = ''; v3wrap.innerHTML = '';
+      var nodes = [];
+      if (hintLevel >= 1) {
+        var off = offset(), W = s.w, D = s.d, Hh = s.h;
+        var corners = [[0, 0, 0], [W, 0, 0], [W, D, 0], [0, D, 0], [0, 0, Hh], [W, 0, Hh], [W, D, Hh], [0, D, Hh]];
+        var pts = corners.map(function (c) { var q = M.cabPoint(c[0], c[1], c[2]); return board.toXY(q[0] + off[0], q[1] + off[1]); });
+        [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(function (e) {
+          nodes.push(SK.svgEl('line', { class: 'a4-box', x1: pts[e[0]][0], y1: pts[e[0]][1], x2: pts[e[1]][0], y2: pts[e[1]][1] }));
+        });
+        hintBox.appendChild(h('p', null, 'ヒント1: 立体がちょうど入る箱を補助線でかきました。正面は正面図と同じ形です。'));
+      }
+      if (hintLevel >= 2) {
+        var v = V3.widget();
+        v3wrap.appendChild(h('p', { class: 'g-muted' }, 'ヒント2: 立体の見本(回せます)'));
+        v3wrap.appendChild(v.el);
+        v.setSolid(s);
+      }
+      if (hintLevel >= 3) {
+        var g = gradeOn(board, exp, home);
+        if (g.missing.length) {
+          var pk = M.parseKey(g.missing[0].key), a = board.toXY(pk[0], pk[1]), b = board.toXY(pk[2], pk[3]);
+          nodes.push(SK.svgEl('line', { class: 'a4-hint-line', x1: a[0], y1: a[1], x2: b[0], y2: b[1] }));
+          hintBox.appendChild(h('p', null, 'ヒント3: 足りない線を1つ示しました。'));
+        } else hintBox.appendChild(h('p', null, 'ヒント3: 足りない線はありません。余分な線がないか確かめましょう。'));
+      }
+      board.setHint(nodes);
+    }
+    function check() {
+      answer.off(); board.hideAnswer();
+      var g = gradeOn(board, exp, home);
+      board.showFeedback(g);
+      result.innerHTML = '';
+      var r = rec.data.cab[p.id] || { tries: 0 };
+      r.tries++; if (g.ok) r.ok = true; else if (!r.ok) r.ok = false;
+      rec.data.cab[p.id] = r; save();
+      if (g.ok) {
+        result.appendChild(h('p', { class: 'a4-ok' }, '○ 正解です。キャビネット図が正しくかけました。'));
+        if (cabState.idx < CAB.length - 1) result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () { cabState.idx++; renderCab(); } }, '次の問題 ▶'));
+      } else {
+        result.appendChild(h('p', { class: 'a4-ng' }, '× まだちがうところがあります。'));
+        var ul = h('ul', { class: 'a4-check-list' });
+        if (g.missing.length) ul.appendChild(h('li', null, '○ の線が足りません(' + runs(g.missing) + ' か所)'));
+        if (g.extra.length) ul.appendChild(h('li', null, '× の線は余分です。見えない線はかきません(' + runs(g.extra) + ' か所)'));
+        result.appendChild(ul);
+      }
+      nav.replaceWith(nav = problemNav(CAB, status, go, cabState.idx));
+    }
+    root.appendChild(h('div', { class: 'card' },
+      h('h2', null, 'キャビネット図をかく'),
+      h('p', null, '正面は正面図と同じ形でかこう。奥行きは右上45°に、半分の長さでかこう。'),
+      nav));
+    root.appendChild(h('div', { class: 'a4-cols' },
+      h('div', { class: 'card' }, h('h3', null, '問題 ' + (cabState.idx + 1) + ' の三面図'), legendLines(),
+        svgNode(SV.threeView(M.threeViews(s), { cell: 28, guides: true, aria: '問題の三面図' })),
+        h('p', { class: 'a4-guide-note' }, 'このボードでは、正面の1目もりが方眼' + U + 'マスです。奥行きの1目もりは、ななめ1マス(ほぼ半分の長さ)です。'),
+        v3wrap),
+      h('div', { class: 'card' }, h('h3', null, 'キャビネット図をかく'),
+        board.el,
+        h('div', { class: 'g-row' },
+          h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
+          hintBtn.el, answer.el),
+        h('p', { class: 'g-muted a4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線'),
+        hintBox, result)));
+    showGuide();
+    if (hintLevel) showHint();
+  }
+
   /* ================= 5. 線と記号のテスト ================= */
   var termState = null;
   function newTermTest() {
@@ -673,6 +781,7 @@
       ['立体づくり', cnt(d.build, BUILD, function (r) { return r.ok; }) + ' / ' + BUILD.length],
       ['三面図をかく', cnt(d.draw, DRAW, function (r) { return r.front && r.top && r.right; }) + ' / ' + DRAW.length + '(3つの図すべて)'],
       ['等角図をかく', cnt(d.iso, ISO, function (r) { return r.ok; }) + ' / ' + ISO.length],
+      ['キャビネット図をかく', cnt(d.cab, CAB, function (r) { return r.ok; }) + ' / ' + CAB.length],
       ['線と記号のテスト', d.terms.best === null ? 'まだ' : '最高 ' + d.terms.best + ' / 10(' + d.terms.history.length + ' 回)']
     ];
     var nameIn = h('input', { type: 'text', id: 'a4-name', value: d.name || '', maxlength: '40', autocomplete: 'off' });
@@ -714,6 +823,7 @@
     ['read', '三面図を見て、立体の形を思いうかべることができた'],
     ['draw', '第三角法で、正面図・平面図・右側面図を正しい位置にかけた'],
     ['iso', '等角図を、たて・横・おくの3つの向きの線でかけた'],
+    ['cab', 'キャビネット図を、正面はそのまま、奥行きは45°・半分の長さでかけた'],
     ['line', '線の種類(外形線・かくれ線・中心線など)を使い分けられた']
   ];
   var SELF_LEVELS = [['3', 'できた'], ['2', 'だいたいできた'], ['1', 'もう少し']];
@@ -745,7 +855,7 @@
   }
 
   /* ---------- 起動 ---------- */
-  var renderers = { quiz: renderQuiz, build: renderBuild, draw: renderDraw, iso: renderIso, terms: renderTerms, record: renderRecord };
+  var renderers = { quiz: renderQuiz, build: renderBuild, draw: renderDraw, iso: renderIso, cab: renderCab, terms: renderTerms, record: renderRecord };
   var currentTab = null;
   function renderAll() { if (currentTab) renderers[currentTab](); }
   G.store.get(REC_ID).then(function (a) {
@@ -755,5 +865,5 @@
   });
 
   // テスト用に公開
-  window.A4App = { QUIZ: QUIZ, BUILD: BUILD, DRAW: DRAW, ISO: ISO, rec: function () { return rec; } };
+  window.A4App = { QUIZ: QUIZ, BUILD: BUILD, DRAW: DRAW, ISO: ISO, CAB: CAB, rec: function () { return rec; } };
 })();

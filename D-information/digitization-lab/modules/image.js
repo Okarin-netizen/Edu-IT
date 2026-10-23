@@ -218,7 +218,7 @@ export const imageModule = {
         targetBox,
         h("div", { class: "field-row digital-row" }, h("div", {}, grid), h("div", {}, h("div", { class: "hint" }, "お題と今の絵の0と1（1行ずつ）"), cmpTable, h("div", { class: "btn-row" }, check), fb)),
         info,
-        explainCard("ポイント", "白黒の2色なら、1画素は1ビット（0か1）で表せます。8×8＝64画素なら64ビット。画素が増えると、ビット数も同じだけ増えます。<br>8ビットをまとめて1バイトといいます（8ビット ＝ 1バイト）。だから 64ビット ÷ 8 ＝ 8バイトです。"),
+        explainCard("ポイント", "白黒なら1画素は1ビット（0か1）なので、8×8＝64画素で64ビットです。<br>8ビット ＝ 1バイトなので、64ビット ÷ 8 ＝ 8バイトです。"),
       );
       startTarget(TARGETS[0]);
     }
@@ -291,13 +291,13 @@ export const imageModule = {
       };
 
       c.body.append(
-        h("p", {}, "画素の数を減らす（標本化を粗くする）と、どう変わるかな？ 色の段階を減らす（量子化を粗くする）と、どうかな？ 見た目とデータ量をくらべよう。白黒 → グレー → カラーの順に、色の表し方も変えてみよう。"),
+        h("p", {}, "画素の数（標本化）や色の段階（量子化）を減らすと、見た目とデータ量はどう変わるかな。白黒 → グレー → カラーの順に、色の表し方も変えてみよう。"),
         srcButtons,
         fileInput,
         h("div", { class: "field-row digital-row" }, h("div", {}, canvas), h("div", {}, res.el, modeSel.el, h("p", { class: "hint mode-note" }, "注意：「グレー256段階」は1画素8ビット、「カラー8色」は1画素3ビットです。だから、カラー8色に進むとデータ量は減ります。データ量を決めるのは、色の種類ではなく1画素のビット数です。"), info)),
         h("div", { class: "btn-row" }, h("button", { class: "btn small secondary", type: "button", onclick: addCompare }, "＋ この設定をくらべる表に入れる")),
         h("div", { class: "table-wrap" }, h("table", { class: "data compare" }, h("thead", {}, h("tr", {}, h("th", {}, "見た目"), h("th", {}, "画素の数"), h("th", {}, "色"), h("th", {}, "データ量"))), compareBody)),
-        explainCard("わかったこと", "画素の数が多い（解像度が高い）ほど、細かく表せます。色の段階が多い（階調が多い）ほど、なめらかに表せます。どちらもデータ量が増えます。横と縦を2倍にすると、データ量は4倍です。1画素のビット数を2倍にすると、データ量も2倍です。"),
+        explainCard("わかったこと", "画素が多い（解像度が高い）ほど細かく、色の段階が多いほどなめらかになり、データ量も増えます。横と縦を2倍にすると4倍、1画素のビット数を2倍にすると2倍です。"),
         h("p", { class: "hint" }, "※自分の写真は、この画面の中で計算に使うだけです。保存も送信もせず、ほかのページに移ると消えます。人の写真を使うときは、写っている人の許可を取ろう。"),
       );
       setSrc("landscape");

@@ -5,8 +5,8 @@ const path = require("path");
 
 const file = path.join(__dirname, "..", "..", "dist", "情報の技術_体験教材集.html");
 const url = "file://" + file.split(path.sep).map(encodeURIComponent).join("/");
-const IDS = ["digitization-lab", "virtual-cpu", "network-sim", "security-lab", "scam-lab", "interactive-studio", "measure-control-sim", "genai-lab", "hash-lab", "mars-rover", "mondai-note"];
-const NAMES = ["デジタル化ラボ", "仮想CPUラボ", "ネットワーク通信シミュレータ", "情報セキュリティ体験ラボ", "ネット詐欺 追体験ラボ", "双方向コンテンツ制作スタジオ", "計測・制御シミュレータ", "生成AIのしくみラボ", "ハッシュ化体験ラボ", "火星探査ロボット・シミュレータ", "問題解決ノート"];
+const IDS = ["virtual-cpu", "digitization-lab", "network-sim", "security-lab", "scam-lab", "interactive-studio", "measure-control-sim", "mars-rover", "genai-lab", "hash-lab", "mondai-note"];
+const NAMES = ["仮想CPUラボ", "デジタル化ラボ", "ネットワーク通信シミュレータ", "情報セキュリティ体験ラボ", "ネット詐欺 追体験ラボ", "双方向コンテンツ制作スタジオ", "計測・制御シミュレータ", "火星探査ロボット・シミュレータ", "生成AIのしくみラボ", "ハッシュ化体験ラボ", "問題解決ノート"];
 
 let pass = 0;
 let fail = 0;
@@ -40,7 +40,7 @@ const check = (ok, label) => {
   check((await page.locator(".ef-mcard").count()) === 10 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 0, "基本編に教材カードが10枚ある（ハッシュ化体験ラボは発展編だけ）");
   check((await page.locator(".ef-mcard .ef-level-parts").count()) === 10 && /使うところ/.test(await page.locator(".ef-mcard .ef-level-parts").first().innerText()), "カードに「使うところ」（その編で使うページ）が出る");
   await page.click(".ef-level-tab.ef-level-advanced");
-  check((await page.locator(".ef-mcard").count()) === 9 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 1 && (await page.locator('.ef-mcard-go[href="#/scam-lab"]').count()) === 0, "発展編に教材カードが9枚ある");
+  check((await page.locator(".ef-mcard").count()) === 7 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 1 && (await page.locator('.ef-mcard-go[href="#/scam-lab"]').count()) === 0, "発展編に教材カードが7枚ある");
   await page.reload();
   check((await page.locator('.ef-level-advanced[aria-selected="true"]').count()) === 1, "選んだ編は読みこみ直しても残る");
   await page.click(".ef-level-tab.ef-level-basic");
@@ -48,8 +48,8 @@ const check = (ok, label) => {
   check(/技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
   // 記号（D1〜D11）: 上のバーの名前・カード・おすすめの順番
   check((await page.locator("#bar-title").innerText()).replace(/\s+/g, " ").trim() === "D 情報の技術 教材集", "メニューの上のバーの左に「D 情報の技術 教材集」");
-  check((await page.locator(".ef-mcard .ef-code").allInnerTexts()).join(",") === "D1,D2,D3,D4,D5,D6,D7,D10,D11,D8", "基本編のカードは教科書の章ごとに番号順（D10・D11 は2章・3章の区切りで D7 のあと）");
-  check(/おすすめの順番\s*D1 → D2 → D3 → D4 → D5 → D6 → D7 → D8 → D10 → D11/.test(await page.locator(".ef-level-order").innerText()), "基本編の上に「おすすめの順番: D1 → … → D8 → D10 → D11」の1行");
+  check((await page.locator(".ef-mcard .ef-code").allInnerTexts()).join(",") === "D1,D2,D3,D4,D5,D6,D7,D8,D11,D9", "基本編のカードは教科書の章ごとに番号順（D11 は2章・3章の区切りで D8 のあと）");
+  check(/おすすめの順番\s*D1 → D2 → D3 → D4 → D5 → D6 → D7 → D8 → D9 → D11/.test(await page.locator(".ef-level-order").innerText()), "基本編の上に「おすすめの順番: D1 → … → D9 → D11」の1行");
   check(!/おすすめ \d+番|はじめての人は/.test(await page.locator("#menu").innerText()), "「おすすめ N番」「はじめての人は、ここから」は出ない");
   const order = await page.evaluate(() => [...document.querySelectorAll("#menu > *")].map((e) => (e.classList.contains("levels") ? "levels" : e.querySelector("h2")?.id || e.className)));
   check(order.join(",") === "hero,levels,g-export,g-teacher" && (await page.locator(".records #g-reset").count()) === 1, `メニューの下の順は 基本編・発展編 → 記録 → 先生用（${order.join(",")}）`);
@@ -102,66 +102,13 @@ const check = (ok, label) => {
   const stored = await page.evaluate(() => Object.keys(localStorage).join(","));
   check(/seclab|digilab|netsim|vcpu|mcsim|istudio/.test(stored) || stored === "", `localStorage を使える（${stored || "まだ空"}）`);
 
-  // 重なる単元の案内: セキュリティラボ → デジタル化ラボ
+  // 重なる単元の案内(bridges): 2026-10-23 にセキュリティラボの重なる単元(デジタル化・通信の模擬)を倉庫に移したので、今は案内がない
   await page.goto(url + "#/security-lab");
   const sec = page.frameLocator('iframe[data-id="security-lab"]');
   await sec.locator("h1").first().waitFor();
-  await page.locator('iframe[data-id="security-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/digital"));
-  await sec.locator(".kyozai-link").waitFor({ timeout: 5000 });
-  check(/デジタル化ラボ/.test(await sec.locator(".kyozai-link").innerText()), "セキュリティラボ「デジタル化と情報量」にデジタル化ラボへの案内が出る");
-  // SEC-15: 案内はモジュールのさいご（「次へ」の行の前）に、白いボタンで。もどり方も書いてある
-  const linkPos = await sec.locator(".kyozai-link").evaluate((b) => ({
-    beforeNav: Boolean(b.nextElementSibling && b.nextElementSibling.classList.contains("btn-row")),
-    afterSteps: !b.nextElementSibling.nextElementSibling && Boolean(b.previousElementSibling && b.previousElementSibling.querySelector(".reflection")),
-    secondary: b.querySelector("button").classList.contains("secondary"),
-  }));
-  check(linkPos.beforeNav && linkPos.afterSteps && linkPos.secondary, `SEC-15: 案内はふりかえりのあと・「次へ」の前に、控えめなボタンで出る ${JSON.stringify(linkPos)}`);
-  check(/「← 情報セキュリティ体験ラボにもどる」を押すと、このページにもどれます/.test(await sec.locator(".kyozai-link").innerText()) && !/体験版/.test(await sec.locator(".kyozai-link").innerText()), "SEC-15: 案内にもどり方が書いてある（「体験版」ということばは使わない）");
-  await sec.locator(".kyozai-link button").click();
-  await page.waitForFunction(() => location.hash === "#/digitization-lab");
-  check(await page.locator('iframe[data-id="digitization-lab"]').isVisible(), "案内のボタンでデジタル化ラボが開く");
-
-  // セキュリティラボ → ネットワーク通信シミュレータの「のぞき見と暗号化」
-  await page.goto(url + "#/security-lab");
-  await sec.locator("h1").first().waitFor();
-  await page.locator('iframe[data-id="security-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/network"));
-  await sec.locator(".kyozai-link").waitFor({ timeout: 5000 });
-  await sec.locator(".kyozai-link button").click();
-  await page.waitForFunction(() => location.hash === "#/network-sim");
-  const net = page.frameLocator('iframe[data-id="network-sim"]');
-  await net.locator("h1").first().waitFor();
-  await page.waitForTimeout(500);
-  const netHash = await page.locator('iframe[data-id="network-sim"]').evaluate((f) => f.contentWindow.location.hash);
-  check(netHash === "#/spy", `ネットワーク通信シミュレータが「のぞき見と暗号化」で開く（${netHash}）`);
-  check(/のぞき見/.test(await net.locator("h1").first().innerText()), "のぞき見の画面が表示されている");
-  // NW-18: 案内から来たときは、上と下に「← 情報セキュリティ体験ラボにもどる」が出る
-  const backInfo = await page.locator('iframe[data-id="network-sim"]').evaluate((f) => {
-    const v = f.contentDocument.getElementById("view");
-    const t = v.querySelector(".kyozai-back-top"), b = v.querySelector(".kyozai-back-bottom");
-    return { top: Boolean(t) && v.firstElementChild === t && t.innerText.trim(), bottom: Boolean(b) && v.lastElementChild === b && b.innerText.trim() };
-  });
-  check(backInfo.top === "← 情報セキュリティ体験ラボにもどる" && backInfo.bottom === "← 情報セキュリティ体験ラボにもどる", `NW-18: 移った先の上と下に「もどる」が出る ${JSON.stringify(backInfo)}`);
-  await net.locator(".kyozai-back-bottom button").click();
-  await page.waitForFunction(() => location.hash === "#/security-lab", null, { timeout: 5000 }).catch(() => {});
-  const backHash = await page.locator('iframe[data-id="security-lab"]').evaluate((f) => f.contentWindow.location.hash);
-  check((await page.evaluate(() => location.hash)) === "#/security-lab" && backHash === "#/network", `NW-18: 「もどる」で情報セキュリティ体験ラボの同じ単元にもどる（${backHash}）`);
-  check((await net.locator(".kyozai-back").count()) === 0, "NW-18: もどったあとは「もどる」が消える");
-  // メニューから開いたときは出ない
-  await sec.locator(".kyozai-link button").click();
-  await page.waitForFunction(() => location.hash === "#/network-sim");
-  await net.locator(".kyozai-back-top").waitFor({ timeout: 5000 }).catch(() => {});
-  await page.goto(url + "#/");
-  await page.click('.ef-mcard-go[href="#/network-sim"]');
-  await page.waitForTimeout(300);
-  check((await net.locator(".kyozai-back").count()) === 0, "NW-18: メニューから開き直したときは「もどる」は出ない");
-
-  // 案内は教材集の中だけ。セキュリティラボのほかの単元には出ない
-  await page.locator('iframe[data-id="security-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/password"));
-  await page.goto(url + "#/security-lab");
-  await sec.locator("h1").first().waitFor();
   await page.locator('iframe[data-id="security-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/password"));
   await page.waitForTimeout(400);
-  check((await sec.locator(".kyozai-link").count()) === 0, "関係のない単元には案内が出ない");
+  check((await sec.locator(".kyozai-link").count()) === 0, "案内のない単元には案内が出ない");
 
   // SEC-23: 再読みこみしても、教材の中のさいごのページにもどる
   await page.goto(url + "#/security-lab");
@@ -188,7 +135,7 @@ const check = (ok, label) => {
     return fl.evaluate((f) => (f.contentDocument.querySelector("#view .kyozai-next") || {}).innerText || "");
   };
   check(/① ネットワークを組み立てる/.test(await nextText("network-sim", "#/")), "KS-08: ネットワーク通信シミュレータの「はじめに」に「つぎはこれ」が出る");
-  check(/デジタル化と情報量/.test(await nextText("security-lab", "#/")), "KS-08: 情報セキュリティ体験ラボの「はじめに」に「つぎはこれ」が出る");
+  check(/情報を守るしくみ/.test(await nextText("security-lab", "#/")), "KS-08: 情報セキュリティ体験ラボの「はじめに」に「つぎはこれ」が出る");
   check(/ふりかえり・記録 →/.test(await nextText("security-lab", "#/check")), "KS-08: 理解度チェックのつぎは「ふりかえり・記録」");
   check(/つぎの教材「/.test(await nextText("security-lab", "#/records")), "KS-08: つぎの教材の案内は「ふりかえり・記録」のページに出る");
   const dlHome = await nextText("digitization-lab", "#/");
@@ -196,6 +143,7 @@ const check = (ok, label) => {
 
   // 教材の中から記録をファイルに書き出せる
   await page.goto(url + "#/network-sim");
+  const net = page.frameLocator('iframe[data-id="network-sim"]');
   await page.locator('iframe[data-id="network-sim"]').evaluate((f) => (f.contentWindow.location.hash = "#/records"));
   // 書き出す前に組と番号を入れる（どの教材も、空のままでは書き出さない）
   for (const [k, v] of [["cls", "1"], ["num", "2"]]) if (await net.locator(`#stu-${k}`).count()) await net.locator(`#stu-${k}`).fill(v);
@@ -244,15 +192,15 @@ const check = (ok, label) => {
   await dg.locator("h1, h2").first().waitFor();
   await page.locator('iframe[data-id="digitization-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/records"));
   await dg.locator(".kyozai-next button").click({ timeout: 5000 });
-  await page.waitForFunction(() => location.hash === "#/virtual-cpu", null, { timeout: 5000 }).catch(() => {});
-  check((await page.evaluate(() => location.hash)) === "#/virtual-cpu", "教材のさいごで、次の教材を開ける");
+  await page.waitForFunction(() => location.hash === "#/network-sim", null, { timeout: 5000 }).catch(() => {});
+  check((await page.evaluate(() => location.hash)) === "#/network-sim", "教材のさいごで、次の教材を開ける（D2 のつぎは D3）");
 
   // ---- KS-01: 上のバーの「ふりがな」「大きな文字」が11の教材にかかる ----
   await page.goto(url + "#/");
   // KS-09: 生徒向けのカードには学習指導要領の記号を出さず、「先生用」に対応をまとめる
   check(!/D\(\d\)/.test(await page.locator(".grid").first().innerText()) && (await page.locator(".group .curr").count()) === 0, "KS-09: 教材のカードとグループ名に D(1) などの記号が出ない");
   const curr = await page.locator(".note .curriculum").evaluate((e) => { const c = e.cloneNode(true); c.querySelectorAll("rt").forEach((r) => r.remove()); return c.textContent; });
-  check(/D1デジタル化ラボD\(1\)、D2仮想CPUラボD\(1\)、D3ネットワーク通信シミュレータD\(1\)\(2\)、D4情報セキュリティ体験ラボD\(1\)\(4\)、D5ネット詐欺追体験ラボD\(1\)\(4\)、D6双方向コンテンツ制作スタジオD\(2\)、D7計測・制御シミュレータD\(3\)、D8生成AIのしくみラボD\(1\)\(4\)、D9ハッシュ化体験ラボD\(1\)\(4\)、D10火星探査ロボット・シミュレータD\(3\)、D11問題解決ノートD\(2\)\(3\)\(4\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生用」に学習指導要領との対応がある");
+  check(/D1仮想CPUラボD\(1\)、D2デジタル化ラボD\(1\)、D3ネットワーク通信シミュレータD\(1\)\(2\)、D4情報セキュリティ体験ラボD\(1\)\(4\)、D5ネット詐欺追体験ラボD\(1\)\(4\)、D6双方向コンテンツ制作スタジオD\(2\)、D7計測・制御シミュレータD\(3\)、D8火星探査ロボット・シミュレータD\(3\)、D9生成AIのしくみラボD\(1\)\(4\)、D10ハッシュ化体験ラボD\(1\)\(4\)、D11問題解決ノートD\(2\)\(3\)\(4\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生用」に学習指導要領との対応がある");
   check((await page.locator("#tg-ruby").count()) === 1 && (await page.locator("#tg-large").count()) === 1, "上のバーに「ふりがな」「大きな文字」のボタンがある");
   await page.click("#tg-ruby");
   await page.click("#tg-large");
@@ -307,7 +255,7 @@ const check = (ok, label) => {
   }
   await page.setViewportSize({ width: 1366, height: 650 });
   const tabs = (await page.locator(".switcher a").allInnerTexts()).map((t) => t.replace(/\s+/g, " ").trim());
-  check(tabs[1].startsWith("D2 CPU") && tabs.every((t, i) => t.startsWith(`D${i + 1}`)), `切りかえのタブは「D2 CPU」の形（${tabs.slice(0, 3).join(" / ")}）`);
+  check(tabs[0].startsWith("D1 CPU") && tabs.every((t, i) => t.startsWith(`D${i + 1}`)), `切りかえのタブは「D1 CPU」の形（${tabs.slice(0, 3).join(" / ")}）`);
   await page.setViewportSize({ width: 810, height: 1080 });
   await page.click("#switch-btn");
   const names = await page.locator(".switcher a:visible").allInnerTexts();

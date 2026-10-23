@@ -161,7 +161,7 @@ export function renderRecords(view, available, config, rerender, easy = "") {
       h("h2", {}, "ファイルに書き出す（提出用）"),
       h("p", {}, h("strong", {}, `${MSG_HAND_IN}。`), "クラス（組）と出席番号を入れてから、「JSONで書き出す」を押そう。"),
       h("div", { class: "btn-row" }, h("button", { class: "btn", type: "button", onclick: () => doExport("json", jsonMsg) }, "JSONで書き出す"), jsonMsg),
-      explainCard("入っていないもの", "パスワード強度ラボやハッシュ体験で入力した文字は、どこにも保存されません。だから、書き出したファイルにも入りません。", "good"),
+      explainCard("入っていないもの", "パスワード強度ラボで入力した文字は、どこにも保存されません。だから、書き出したファイルにも入りません。", "good"),
       h(
         "div",
         { class: "sub-tools" },

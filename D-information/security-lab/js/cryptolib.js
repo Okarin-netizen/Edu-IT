@@ -1,4 +1,4 @@
-// 暗号ラボ・ハッシュ体験で使う計算（画面に依存しない純粋な関数。tests/ で既知ベクタを検証）
+// 暗号ラボで使う計算(sha256Hex・hexBitDiff は倉庫に移したハッシュ体験が使っていたもの)（画面に依存しない純粋な関数。tests/ で既知ベクタを検証）
 // RSA はしくみを体験するための小さな数で計算する。実際の暗号に使える強さではない。
 
 const A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -128,7 +128,7 @@ export function freqHint(top) {
   const L = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const t = L[top];
   const guess = (v) => `${v}→${t} なら ${(top - L.indexOf(v) + 26) % 26}`;
-  return `暗号文でいちばん多い文字は「${t}」。もとの文でよく出るのは A・I・O です。${guess("A")}、${guess("I")}、${guess("O")} ずらしたのかもしれません。3つとも試してみよう。`;
+  return `暗号文でいちばん多い文字は「${t}」。もとの文でよく出るのは A・I・O なので、${guess("A")}、${guess("I")}、${guess("O")} ずらしたのかも。試してみよう。`;
 }
 
 // 素因数分解チャレンジの答えを判定する（全角の数字も受け付ける。数でないときや 1・n 自身などには、やさしく返す）

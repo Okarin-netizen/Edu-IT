@@ -37,7 +37,7 @@ const ok = (c, m) => {
 
     // 上のバー・メニュー
     await go("#/");
-    ok((await page.textContent(".ef-title")).includes("D10火星探査ロボット・シミュレータ"), "上のバーに記号と名前");
+    ok((await page.textContent(".ef-title")).includes("D8火星探査ロボット・シミュレータ"), "上のバーに記号と名前");
     const navText = (await page.textContent("#chapter-nav")).replace(/\s+/g, "");
     ok(/はじめに.*基本編.*まっすぐ走って止まる.*岩の前で止まる・よける.*迷路のような谷を探査する.*発展編.*色センサで線をたどる.*自由なコースで記録に挑戦.*評価・振り返り.*記録/.test(navText), "メニューの順: はじめに → ①②③ → ④⑤ → 評価・振り返り → 記録");
     ok(await page.$("#chapter-nav[data-ef-autohide]"), "タブの帯に data-ef-autohide");

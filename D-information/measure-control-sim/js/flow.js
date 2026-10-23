@@ -40,7 +40,7 @@ const line = (x1, y1, x2, y2, arrow = false) => `<line class="fc-line" x1="${x1}
 const poly = (pts, arrow = false) => `<polyline class="fc-line" fill="none" points="${pts.map((p) => p.join(",")).join(" ")}"${arrow ? ' marker-end="url(#fc-arrow)"' : ""}/>`;
 const label = (x, y, s, cls = "fc-text", anchor = "middle") => `<text class="${cls}" x="${x}" y="${y}" text-anchor="${anchor}">${esc(s)}</text>`;
 
-// 文の名前を決める関数（火星探査ロボット・シミュレータ（D10）は「前進する」などの名前にするために、ここを入れかえる）
+// 文の名前を決める関数（火星探査ロボット・シミュレータ（D8）は「前進する」などの名前にするために、ここを入れかえる）
 let customLabel = null;
 
 function layoutNode(n, outputs) {

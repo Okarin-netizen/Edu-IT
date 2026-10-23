@@ -28,6 +28,6 @@ test("モジュールの中の選択クイズ: 正解だけがいちばん長い
     const src = readFileSync(new URL(f, dir), "utf8");
     for (const m of src.matchAll(/choices:\s*(\[[^\]]*\]),\s*answer:\s*(\d+)/g)) items.push({ choices: JSON.parse(m[1]), answer: Number(m[2]) });
   }
-  assert.ok(items.length >= 10, `選択クイズ ${items.length} 問`);
+  assert.ok(items.length >= 6, `選択クイズ ${items.length} 問`);
   assertRatio("modules", items);
 });

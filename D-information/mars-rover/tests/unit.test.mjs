@@ -1,4 +1,4 @@
-// 火星探査ロボット・シミュレータ（D10）のテスト: センサ・動き・電池・判定・模範プログラム
+// 火星探査ロボット・シミュレータ（D8）のテスト: センサ・動き・電池・判定・模範プログラム
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { STAGES } from "../js/stages.js";

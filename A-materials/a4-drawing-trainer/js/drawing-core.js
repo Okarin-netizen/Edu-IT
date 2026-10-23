@@ -245,12 +245,58 @@
     return { visible: out.sort(), hidden: [] };
   }
 
+  /* ---------- キャビネット図 ----------
+   * 正面はそのまま(1目もり = 方眼3マス)、奥行きは右上45°に、ななめ1マス(正面の1目もりのほぼ半分)でかく。
+   * 画面の点 (X, Y) は方眼の格子点。Y は下向き。 */
+  var CAB_U = 3, CAB_DIRS = [[1, 0], [0, 1], [1, -1]];
+  function cabPoint(x, y, z) { return [CAB_U * x + y, -CAB_U * z - y]; }
+  /* 画面の点から視線をのばし、最初に見える面の名前を返す。視線の上の点は (x0 - u, 3u, z0 - u)、u が小さいほど手前 */
+  function cabPlaneAt(s, X, Y) {
+    var x0 = X / CAB_U, z0 = -Y / CAB_U;
+    var lo = Math.max(0, x0 - s.w, z0 - s.h), hi = Math.min(s.d / CAB_U, x0, z0);
+    if (!(hi > lo)) return 'bg';
+    var us = [lo, hi], k;
+    for (k = Math.ceil(x0 - hi); k <= x0 - lo; k++) us.push(x0 - k);
+    for (k = Math.ceil(CAB_U * lo); k <= CAB_U * hi; k++) us.push(k / CAB_U);
+    for (k = Math.ceil(z0 - hi); k <= z0 - lo; k++) us.push(z0 - k);
+    us = us.filter(function (u) { return u >= lo && u <= hi; }).sort(function (a, b) { return a - b; });
+    for (var n = 0; n + 1 < us.length; n++) {
+      var u1 = us[n], u2 = us[n + 1];
+      if (u2 - u1 < 1e-9) continue;
+      var um = (u1 + u2) / 2;
+      var cx = Math.floor(x0 - um), cy = Math.floor(CAB_U * um), cz = Math.floor(z0 - um);
+      if (!get(s, cx, cy, cz)) continue;
+      var px = x0 - u1, py = CAB_U * u1, pz = z0 - u1, e = 1e-7;
+      if (Math.abs(px - (cx + 1)) < e) return 'x' + (cx + 1);
+      if (Math.abs(py - cy) < e) return 'y' + cy;
+      if (Math.abs(pz - (cz + 1)) < e) return 'z' + (cz + 1);
+      return '?' + cx + ',' + cy + ',' + cz;
+    }
+    return 'bg';
+  }
+  /* キャビネット図の線(見える線のみ)。線分の両側で見える面がちがえば線になる */
+  function cabLines(s) {
+    var iMax = CAB_U * s.w + s.d, jMin = -CAB_U * s.h - s.d, out = [];
+    for (var i = -1; i <= iMax + 1; i++) {
+      for (var j = jMin - 1; j <= 1; j++) {
+        for (var q = 0; q < 3; q++) {
+          var di = CAB_DIRS[q][0], dj = CAB_DIRS[q][1];
+          var mx = i + di / 2, my = j + dj / 2, L = Math.hypot(di, dj);
+          var nx = -dj / L * 0.11, ny = di / L * 0.11;
+          if (cabPlaneAt(s, mx + nx, my + ny) !== cabPlaneAt(s, mx - nx, my - ny))
+            out.push(segKey(i, j, i + di, j + dj));
+        }
+      }
+    }
+    return { visible: out.sort(), hidden: [] };
+  }
+
   /* ---------- 作図の分解・判定 ---------- */
   var SQ_DIRS = [[1, 0], [0, 1]];
 
   /* 端点 a→b の線を長さ1の線分キーに分ける。許された向きでなければ null */
   function decompose(a, b, mode) {
-    var dirs = mode === 'iso' ? ISO_DIRS : SQ_DIRS;
+    var dirs = mode === 'iso' ? ISO_DIRS : mode === 'cab' ? CAB_DIRS : SQ_DIRS;
     var dx = b[0] - a[0], dy = b[1] - a[1];
     if (dx === 0 && dy === 0) return null;
     for (var q = 0; q < dirs.length; q++) {
@@ -504,6 +550,7 @@
     mirrorLines: mirrorLines, flipLines: flipLines, hasHidden: hasHidden,
     keyBounds: keyBounds, fitsBox: fitsBox, centerOffset: centerOffset,
     isoPoint: isoPoint, isoScreen: isoScreen, isoPlaneAt: isoPlaneAt, isoLines: isoLines,
+    CAB_U: CAB_U, cabPoint: cabPoint, cabPlaneAt: cabPlaneAt, cabLines: cabLines,
     segKey: segKey, parseKey: parseKey, decompose: decompose, grade: grade, mergeSegments: mergeSegments,
     randomSolid: randomSolid, problemSet: problemSet, mutate: mutate, makeQuiz: makeQuiz
   };

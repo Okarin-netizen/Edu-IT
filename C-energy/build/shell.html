@@ -269,21 +269,21 @@ var PROG = {
     var got = ids.reduce(function (m, k) { return m + Math.max(0, Math.min(3, +stars[k] || 0)); }, 0);
     return { n: countIds(ids, stars, function (v) { return +v > 0; }), t: ids.length, main: 'ステージ', end: 'クリア', sub: '★ ' + got + ' / ' + max };
   },
-  C2: function (d) {
-    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('C2');
+  C4: function (d) {
+    var cl = isObj(d.cleared) ? d.cleared : {}, t = appTest('C4');
     var ids = t && t.CHALS ? t.CHALS.map(function (x) { return x.id; }) : ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11'];
     var safe = Object.keys(cl).filter(function (k) { return /^s\d+$/.test(k) && cl[k]; }).length;
     return { n: countIds(ids, cl, truthy), t: ids.length, main: '課題', end: 'クリア', sub: safe ? '安全体験 ' + safe + ' つ' : '' };
   },
-  C3: function (d) {
-    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('C3');
+  C5: function (d) {
+    var tk = isObj(d.tasks) ? d.tasks : {}, t = appTest('C5');
     var ids = t && t.TASKS ? t.TASKS.map(function (x) { return x.id; }) : null;
     var n = ids ? countIds(ids, tk, function (v) { return +v > 0; }) : Object.keys(tk).filter(function (k) { return +tk[k] > 0; }).length;
     var tot = ids ? ids.length : 12;
     return { n: Math.min(n, tot), t: tot, main: '設計課題', end: 'クリア', sub: typeof d.quizBest === 'number' && d.quizBest >= 0 ? 'ブラックボックス 最高 ' + d.quizBest + '問正解' : '' };
   },
-  C4: function (d) {
-    var D = window.EnergyApps && window.EnergyApps.C4data, seen = isObj(d.seenP) ? d.seenP : {};
+  C6: function (d) {
+    var D = window.EnergyApps && window.EnergyApps.C6data, seen = isObj(d.seenP) ? d.seenP : {};
     var ids = D && D.ORDER ? D.ORDER : null, n = ids ? countIds(ids, seen, truthy) : Object.keys(seen).filter(function (k) { return seen[k]; }).length;
     var tot = ids ? ids.length : 17, sub = [];
     if (D && D.MACHINES && isObj(d.found)) {
@@ -294,23 +294,23 @@ var PROG = {
     if (Array.isArray(d.lists) && d.lists.length) sub.push('点検表 ' + d.lists.length + ' まい');
     return { n: Math.min(n, tot), t: tot, main: '部品図鑑', end: '見た', sub: sub.join(' ・ ') };
   },
-  C5: function (d) {
-    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('C5');
+  C7: function (d) {
+    var ds = isObj(d.designs) ? d.designs : {}, t = appTest('C7');
     var tasks = t && t.TASKS ? t.TASKS : null, ids = tasks ? tasks.map(function (x) { return x.id; }) : Object.keys(ds);
     var n = countIds(ids, ds, function (v) { return v && Array.isArray(v.parts) && v.parts.length > 0; }), cur = '';
     if (tasks && d.task) tasks.forEach(function (x) { if (x.id === d.task) cur = 'いまの課題: ' + (x.icon ? x.icon + ' ' : '') + x.title; });
     return tasks ? { n: n, t: ids.length, main: '回路図をかいた課題', end: '', sub: cur } : null;
   },
-  /* C6・C7 は「やったこと」(STEPS)の数。保存の done・mis を読む */
-  C6: function (d) {
-    var t = appTest('C6'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['gen', 'quiz', 'cmp', 'm1', 'm2', 'm3', 'meth', 'day'];
+  /* C2・C3 は「やったこと」(STEPS)の数。保存の done・mis を読む */
+  C2: function (d) {
+    var t = appTest('C2'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['gen', 'quiz', 'cmp', 'm1', 'm2', 'm3', 'meth', 'day'];
     var dn = isObj(d.done) ? d.done : {}, ms = isObj(d.mis) ? d.mis : {};
     var n = ids.filter(function (k) { return /^m\d$/.test(k) ? !!ms[k] : !!dn[k]; }).length;
     var r = Array.isArray(d.rank) && d.rank[0] && isFinite(d.rank[0].p) ? d.rank[0].p : 0;
     return { n: n, t: ids.length, main: 'やったこと', end: '', sub: r > 0 ? 'ランキング1位 ' + (r < 1 ? Math.round(r * 1000) + ' mW' : r.toFixed(2) + ' W') : '' };
   },
-  C7: function (d) {
-    var t = appTest('C7'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['dcac', 'sort', 'route', 'mesh', 'trans', 'line', 'calcq', 'freq'];
+  C3: function (d) {
+    var t = appTest('C3'), ids = t && t.STEPS ? t.STEPS.map(function (x) { return x.id; }) : ['dcac', 'sort', 'route', 'mesh', 'trans', 'line', 'calcq', 'freq'];
     var dn = isObj(d.done) ? d.done : {};
     return { n: countIds(ids, dn, truthy), t: ids.length, main: 'やったこと', end: '', sub: +d.calcBest > 0 ? '計算ドリル 最高 ' + (+d.calcBest) + ' / 5' : '' };
   },
@@ -340,7 +340,7 @@ function makeCard(a, parts) {
   var p = progressOf(a.id), pg = progressHtml(a, p);
   return EduitFrame.card({
     code: a.id, icon: a.icon, title: a.name, desc: a.sub, parts: parts || null,
-    extra: [frag('<div class="ea-card-tg">' + a.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>'), pg ? frag(pg) : null],
+    extra: [pg ? frag(pg) : null],
     openAttrs: { 'data-open': a.id }
   });
 }
@@ -361,7 +361,7 @@ function renderCards() {
   APPS.forEach(function (a) { refs.cards.appendChild(makeCard(a)); });
 }
 if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle($('[data-ref="menu-title"]'));
-// アプリを切りかえるボタン: 記号の印 + 短い名前(「C2 電気回路」)
+// アプリを切りかえるボタン: 記号の印 + 短い名前(「C4 電気回路」)
 refs.chips.innerHTML = APPS.map(function (a) {
   return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +
     '<span class="ef-code">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
@@ -391,8 +391,9 @@ function openApp(id) {
     }
   }
   if (window.EduitFrame && EduitFrame.jishuApp) EduitFrame.jishuApp(id, id + ' ' + byId(id).name);  // 自習モードのとき、そのアプリの自習ガイドを出す(アプリを作ったあと)
-  // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e5)のまま
-  var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + id.slice(1));
+  // 各アプリの外わくの CSS クラスは記号ではない中の名前(.e1〜.e8)。記号を教科書の順に付け直したので番号はちがう(build.py の INNER と同じ)
+  var INNER = { C1: 1, C2: 6, C3: 7, C4: 2, C5: 3, C6: 4, C7: 5, C8: 8 };
+  var r = refs.panes.querySelector('[data-pane="' + id + '"] .e' + INNER[id]);
   if (r && r.focus && !r.contains(document.activeElement)) { try { r.focus({ preventScroll: true }); } catch (e) {} }
 }
 function openHelp(tab) {

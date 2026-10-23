@@ -25,11 +25,11 @@ test("SEC-69: 練習は選んだモジュールだけ、1回に10問まで", () 
   assert.equal(practiceSet(pool, []).length, 0);
 });
 
-test("SEC-69: 事前・事後テストは章の順（デジタル化が第1問）", () => {
+test("SEC-69: 事前・事後テストは章の順（情報を守るしくみが第1問）", () => {
   const qs = json("data/quiz.json").questions;
   const order = CATALOG.map((c) => c.id);
   const core = orderByModules(qs, order).filter((q) => q.core);
-  assert.equal(core[0].module, "digital");
+  assert.equal(core[0].module, "protect");
   const ranks = core.map((q) => order.indexOf(q.module));
   assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
   // 同じモジュールの中の順は変えない
@@ -57,7 +57,7 @@ test("SEC-70: △のときに出す「よりよい答え」がどの問いにも
 
 test("第3段: ふりがな・キャッシュ名", () => {
   assert.equal(json("data/ruby.json").words["枠"], "わく");
-  assert.match(read("sw.js"), /seclab-v10"/);
+  assert.match(read("sw.js"), /seclab-v13"/);
 });
 
 // ---- ブラウザ ----
@@ -88,7 +88,7 @@ function serve() {
 }
 
 const pw = loadPlaywright();
-test("第3段（ブラウザ）: デジタル化の条件・SNSのやり直し・練習・著作権のよりよい答え", { skip: pw ? false : "Playwright がないので省略" }, async () => {
+test("第3段（ブラウザ）: SNSのやり直し・練習・著作権のよりよい答え", { skip: pw ? false : "Playwright がないので省略" }, async () => {
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}/D-information/security-lab/index.html`;
   let browser;
@@ -100,20 +100,6 @@ test("第3段（ブラウザ）: デジタル化の条件・SNSのやり直し�
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     const card = (id) => page.locator("section", { has: page.locator(`#${id}`) });
-
-    // SEC-16
-    await page.goto(`${base}#/digital`);
-    const sound = card("step-digital-sound");
-    await sound.waitFor();
-    assert.match(await sound.innerText(), /両方のスライダーを動かしてみよう/);
-    await page.locator("#dig-rate").fill("2");
-    assert.equal(await page.locator("#step-digital-sound .check").innerText(), "", "1つだけでは、まだ");
-    await page.locator("#dig-depth").fill("2");
-    assert.match(await page.locator("#step-digital-sound .check").innerText(), /できた/);
-    const comp = card("step-digital-compress");
-    assert.match(await comp.innerText(), /「でたらめな点の絵」も押して/);
-    await comp.getByRole("button", { name: "でたらめな点の絵" }).click();
-    assert.match(await page.locator("#step-digital-compress .check").innerText(), /できた/);
 
     // SEC-68
     await page.goto(`${base}#/sns`);
@@ -151,7 +137,7 @@ test("第3段（ブラウザ）: デジタル化の条件・SNSのやり直し�
     await practice.locator("label.check-item", { hasText: "暗号" }).locator("input").check();
     await practice.locator("label.check-item", { hasText: "SNS" }).locator("input").check();
     await practice.locator("label.check-item", { hasText: "フィッシング" }).locator("input").check();
-    await practice.locator("label.check-item", { hasText: "ハッシュ" }).locator("input").check();
+    await practice.locator("label.check-item", { hasText: "著作権" }).locator("input").check();
     await practice.getByRole("button", { name: "はじめる" }).click();
     const n = await page.locator("fieldset.check-q").count();
     assert.ok(n > 0 && n <= 10, `1回に10問まで（${n}問）`);
@@ -167,9 +153,9 @@ test("第3段（ブラウザ）: デジタル化の条件・SNSのやり直し�
     await links.waitFor();
     await links.locator("summary").click();
     assert.equal(await links.locator("a").count(), n, "これまでの結果からも、ステップへ戻れる");
-    // 事前テストは章の順（第1問がデジタル化）
+    // 事前テストは章の順（第1問が情報を守るしくみ）
     await page.locator(".module-card", { has: page.locator(".mc-title", { hasText: /^事前テスト$/ }) }).getByRole("button", { name: "はじめる" }).click();
-    assert.match(await page.locator("fieldset.check-q legend").first().innerText(), /デジタル化と情報量/);
+    assert.match(await page.locator("fieldset.check-q legend").first().innerText(), /情報を守るしくみ/);
 
     // SEC-70
     const { cases } = json("data/copyright.json");

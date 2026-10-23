@@ -48,7 +48,7 @@ test("SEC-52: すべてのモジュールのふりかえりが共通の reflecti
   const app = read("js/app.js");
   assert.match(app, /async function route\(\) \{[\s\S]{0,200}flushReflections\(\)/, "route の最初で保存する");
   assert.match(app, /addEventListener\("pagehide", flushReflections\)/);
-  for (const m of ["sns", "tattoo", "copyright", "roleplay", "declare", "password", "crypto", "hash", "phishing", "network", "digital"]) {
+  for (const m of ["sns", "tattoo", "copyright", "roleplay", "declare", "password", "crypto", "phishing", "protect"]) {
     const src = read(`modules/${m}.js`);
     assert.match(src, /reflectionBox\(ID,/, `${m}.js は共通のふりかえり欄を使う`);
     assert.doesNotMatch(src, /id: `?reflect-/, `${m}.js に自前のふりかえり欄がない`);
