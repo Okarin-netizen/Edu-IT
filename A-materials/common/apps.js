@@ -4,14 +4,14 @@
 (function (root) {
   root.G = root.G || {};
   root.G.APPS = [
-    { id: 'material-navi', icon: '🧱', code: 'A1', dir: 'a1-material-navi/', title: '材料選択ナビ', desc: '使用目的・使用条件から木材・金属・プラスチックを比べて選び、理由を説明する。' },
-    { id: 'wood-lab', icon: '🪵', code: 'A2', dir: 'a2-wood-lab/', title: '木材の繊維・収縮ラボ', desc: '柾目と板目、木表と木裏、乾燥による収縮や反りを操作して確かめる。' },
-    { id: 'structure-lab', icon: '🏗️', code: 'A3', dir: 'a3-structure-lab/', title: '構造強化ラボ', desc: '板の厚み・補強・筋かい・接合を変えて、丈夫な構造の工夫を確かめる。' },
-    { id: 'drawing-trainer', icon: '📐', code: 'A4', dir: 'a4-drawing-trainer/', title: '製図トレーナー', desc: '立体と等角図・第三角法の対応を、クイズと作図練習で身に付ける。' },
-    { id: 'kidori', icon: '🪚', code: 'A5', dir: 'a5-kidori/', title: '木取り・構想シミュレータ', desc: '板から部品を無駄なく取る木取りを試し、製作図と強度の見通しを立てる。' },
-    { id: 'tool-safety', icon: '🦺', code: 'A6', dir: 'a6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の正しい使い方と作業前の安全確認を、手順として確かめる。' },
-    { id: 'solid-maker', icon: '🧊', code: 'A7', dir: 'a7-solid-maker/', title: '第三角法 立体メーカー', desc: '第三角法で三面図をかくと、等角図・キャビネット図・3D の立体にする。図面の印刷・PDF、3Dプリンタ用の STL も作れる。' },
-    { id: 'mondai-note', icon: '📝', code: 'A8', dir: 'a8-mondai-note/', title: '問題解決ノート', desc: '「不便だな」を付箋に集めて課題を決め、作った製作品を観点ごとに評価する。社会の製品で、重みを変えると最適な案が変わることを試す。' }
+    { id: 'material-navi', icon: '🧱', code: 'A1', dir: 'a1-material-navi/', title: '材料選択ナビ', desc: '目的と条件から、木材・金属・プラスチックを選ぶ。' },
+    { id: 'wood-lab', icon: '🪵', code: 'A2', dir: 'a2-wood-lab/', title: '木材の繊維・収縮ラボ', desc: '柾目と板目、乾燥による収縮や反りを確かめる。' },
+    { id: 'structure-lab', icon: '🏗️', code: 'A3', dir: 'a3-structure-lab/', title: '構造強化ラボ', desc: '補強や接合を変えて、丈夫な構造の工夫を調べる。' },
+    { id: 'drawing-trainer', icon: '📐', code: 'A4', dir: 'a4-drawing-trainer/', title: '製図トレーナー', desc: '三面図・等角図・キャビネット図を読み、かく練習。' },
+    { id: 'kidori', icon: '🪚', code: 'A5', dir: 'a5-kidori/', title: '木取り・構想シミュレータ', desc: '木取り・製作図・強度・工程表で、製作の計画を立てる。' },
+    { id: 'tool-safety', icon: '🦺', code: 'A6', dir: 'a6-tool-safety/', title: '工具の使い方・安全トレーナー', desc: '工具の使い方と、作業前の安全確認を学ぶ。' },
+    { id: 'solid-maker', icon: '🧊', code: 'A7', dir: 'a7-solid-maker/', title: '第三角法 立体メーカー', desc: '三面図から、等角図や3Dの立体を作る。' },
+    { id: 'mondai-note', icon: '📝', code: 'A8', dir: 'a8-mondai-note/', title: '問題解決ノート', desc: '問題を見つけて課題を決め、作った物を評価する。' }
   ];
   // 先生用(メニューの下に別に並べる)
   root.G.TEACHER_APPS = [

@@ -371,7 +371,8 @@
     });
     function partsEl(item) {
       if (!item.parts || !item.parts.length) return null;
-      return el('p', { class: 'ef-level-parts' }, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.join('・')]);
+      // カードには長い列を出さない(計画 6章のきまり10)。押すと開く
+      return el('details', { class: 'ef-level-parts' }, [el('summary', null, [el('span', { class: 'ef-level-parts-k', text: '使うところ' }), item.parts.length + 'か所']), el('p', { text: item.parts.join('・') })]);
     }
     function render() {
       var lv = L[cur] || { items: [] };
