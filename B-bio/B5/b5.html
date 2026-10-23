@@ -902,7 +902,7 @@ function chartSVG(el,o){
   (o.hlines||[]).forEach(function(h){var y=Y(h.y);s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+y+'" y2="'+y+'" stroke="'+h.color+'" stroke-width="2" stroke-dasharray="6 4"/>'+(h.label?'<text x="'+(L+pw-4)+'" y="'+(y-4)+'" text-anchor="end" fill="'+h.color+'" font-weight="700">'+esc(h.label)+'</text>':'')});
   (o.series||[]).forEach(function(se){var pts=[];se.vals.forEach(function(v,i){if(v!=null)pts.push((o.bars?L+pw*(i+0.5)/n:X(i)).toFixed(1)+','+Y(v).toFixed(1))});
     if(pts.length)s+='<polyline fill="none" stroke="'+se.color+'" stroke-width="'+(se.w||2.5)+'" stroke-linejoin="round"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' points="'+pts.join(' ')+'"/>'});
-  (o.xl||[]).forEach(function(x){var xx=o.bars?L+pw*(x.i+0.5)/n:X(x.i);s+='<text x="'+xx.toFixed(1)+'" y="'+(H-fs*0.5)+'" text-anchor="middle" fill="#5a6a5a">'+esc(x.t)+'</text>'});
+  (o.xl||[]).forEach(function(x){var xx=o.bars?L+pw*(x.i+0.5)/n:X(x.i),edge=xx>W-fs*1.6;s+='<text x="'+(edge?W-2:xx).toFixed(1)+'" y="'+(H-fs*0.5)+'" text-anchor="'+(edge?'end':'middle')+'" fill="#5a6a5a">'+esc(x.t)+'</text>'});
   if(o.unit)s+='<text x="'+(L+4)+'" y="'+(T+fs)+'" fill="#5a6a5a">'+esc(o.unit)+'</text>';
   return s+'</svg>';
 }
@@ -913,8 +913,8 @@ function dayLabels(nDays,perDay,wx){var a=[],step=nDays>20?7:nDays>10?2:1;for(va
 
 /* ================= 棚のようす(SVG) ================= */
 function shelfSVG(){
-  var s='<svg class="b5-shelf" viewBox="0 0 360 230" role="img" aria-label="教室の棚で育てているリーフレタスのようす">';
-  s+='<rect x="0" y="0" width="360" height="230" fill="#f3efe6"/>';
+  var s='<svg class="b5-shelf" viewBox="0 0 360 240" role="img" aria-label="教室の棚で育てているリーフレタスのようす">';
+  s+='<rect x="0" y="0" width="360" height="240" fill="#f3efe6"/>';
   s+='<rect data-k="sky" x="12" y="22" width="80" height="120" rx="4" fill="#bfe3ff" stroke="#8a7a62" stroke-width="5"/><line x1="52" y1="22" x2="52" y2="142" stroke="#8a7a62" stroke-width="3"/><line x1="12" y1="82" x2="92" y2="82" stroke="#8a7a62" stroke-width="3"/>';
   s+='<text data-k="wx" x="52" y="62" font-size="26" text-anchor="middle">☀️</text>';
   s+='<text data-k="clock" x="52" y="166" font-size="13" text-anchor="middle" fill="#3a4a3a" font-weight="700">1日目 0時</text>';
@@ -930,9 +930,9 @@ function shelfSVG(){
       '<ellipse cx="-7" cy="-16" rx="11" ry="6" transform="rotate(-55 -7 -16)"/><ellipse cx="7" cy="-16" rx="11" ry="6" transform="rotate(55 7 -16)"/><ellipse cx="0" cy="-19" rx="7" ry="10"/></g>';
     s+='<path d="M'+(x-14)+' 176 h28 l-4 24 h-20 z" fill="#c2703d"/>';
   }
-  s+='<text data-k="heat" x="120" y="226" font-size="18" opacity=".15">🔥</text>';
-  s+='<g data-k="cool" opacity=".15"><text class="b5-spin" x="322" y="226" font-size="18">🌀</text></g>';
-  s+='<rect data-k="night" x="0" y="0" width="360" height="230" fill="#0b1630" opacity="0" pointer-events="none"/>';
+  s+='<text data-k="heat" x="118" y="232" font-size="18" opacity=".15">🔥</text>';
+  s+='<g data-k="cool" opacity=".15"><text class="b5-spin" x="318" y="232" font-size="18">🌀</text></g>';
+  s+='<rect data-k="night" x="0" y="0" width="360" height="240" fill="#0b1630" opacity="0" pointer-events="none"/>';
   return s+'</svg>';
 }
 function ioHTML(){
