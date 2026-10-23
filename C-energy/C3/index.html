@@ -211,8 +211,8 @@ var TABS = [
   { id: 'dcac', lg: '① 直流と交流', steps: ['dcac', 'sort'] },
   { id: 'route', lg: '② 送電・配電の道すじ', steps: ['route', 'mesh'] },
   { id: 'why', lg: '③ 高い電圧で送るわけ', steps: ['trans', 'line'] },
-  { id: 'calc', lg: '④ 損失の計算', adv: 1, steps: ['calcq'] },
-  { id: 'freq', lg: '⑤ 周波数 50Hz・60Hz', adv: 1, steps: ['freq'] },
+  { id: 'freq', lg: '④ 周波数 50Hz・60Hz', steps: ['freq'] },
+  { id: 'calc', lg: '⑤ 損失の計算', adv: 1, steps: ['calcq'] },
   { id: 'refl', lg: '✏️ 振り返り', reflect: 1 },
   { id: 'rec', lg: '💾 記録' }
 ];
@@ -220,7 +220,7 @@ var STEPS = [
   { id: 'dcac', name: '① 直流と交流のグラフを両方見た' }, { id: 'sort', name: '① 電池・コンセント分けを全部正解' },
   { id: 'route', name: '② 発電所から家庭までの道すじを完成' }, { id: 'mesh', name: '② 送電線が1本切れても届くことを確かめた' },
   { id: 'trans', name: '③ 変圧器で電圧を上げた・下げた' }, { id: 'line', name: '③ 送電の損失を 1% 以下にした' },
-  { id: 'calcq', name: '④ 損失の計算 5問中4問以上正解' }, { id: 'freq', name: '⑤ 50Hz・60Hz の地図を完成' }
+  { id: 'freq', name: '④ 50Hz・60Hz の地図を完成' }, { id: 'calcq', name: '⑤ 損失の計算 5問中4問以上正解' }
 ];
 function stepDone(id) { return !!S.save.done[id]; }
 function tabDone(t) { return t.steps ? t.steps.every(stepDone) : false; }
@@ -261,10 +261,10 @@ function renderIntro(box) {
     '<div class="e7-card"><span class="e7-kicker">基本編</span><div class="e7-start">' +
     g('dcac', '〰️', '① 直流と交流', '電池とコンセントの電圧の変わり方をグラフで見る') +
     g('route', '🗼', '② 送電・配電の道すじ', '発電所 → 変電所 → 家庭 を組み立てる') +
-    g('why', '🔥', '③ 高い電圧で送るわけ', '変圧器と、送電線の熱による損失') + '</div>' +
+    g('why', '🔥', '③ 高い電圧で送るわけ', '変圧器と、送電線の熱による損失') +
+    g('freq', '🗾', '④ 周波数 50Hz・60Hz', '東日本と西日本で周波数がちがうわけ') + '</div>' +
     '<span class="e7-kicker adv" style="margin-top:10px">発展編</span><div class="e7-start">' +
-    g('calc', '🧮', '④ 損失の計算', '電力 = 電圧 × 電流、損失 = 電流² × 抵抗', 1) +
-    g('freq', '🗾', '⑤ 周波数 50Hz・60Hz', '東日本と西日本で周波数がちがうわけ', 1) + '</div></div>' +
+    g('calc', '🧮', '⑤ 損失の計算', '電力 = 電圧 × 電流、損失 = 電流² × 抵抗', 1) + '</div></div>' +
     '<div class="e7-card tip"><b>⚠️ 注意</b> コンセントの電気(100 V)は、さわると命にかかわります。この画面の回路はシミュレーションです。コンセントや送電線に物をさしこんだり、近づいたりしないでください。</div>';
   box.addEventListener('click', function (ev) { var t = ev.target.closest('[data-go]'); if (t) go(t.getAttribute('data-go')); });
 }
@@ -574,7 +574,7 @@ function renderWhy(box) {
   };
 }
 
-/* ================= ④ 損失の計算(発展) ================= */
+/* ================= ⑤ 損失の計算(発展) ================= */
 function makeQ() {
   var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; }, t = Math.floor(Math.random() * 5);
   if (t === 0) { var dv = pick([['電子レンジ', 1000], ['ドライヤー', 1200], ['電気ケトル', 1300], ['テレビ', 150], ['冷蔵庫', 250]]), V = 100; return { q: dv[0] + '(' + dv[1] + ' W)を 100 V のコンセントで使うと、流れる電流は何 A ですか。', a: dv[1] / V, u: 'A', hint: '電流 = 電力 ÷ 電圧' }; }
@@ -641,7 +641,7 @@ function renderCalc(box) {
   cmp(); drill();
 }
 
-/* ================= ⑤ 周波数(発展) ================= */
+/* ================= ④ 周波数 ================= */
 var AREAS = [
   { id: 'hk', name: '北海道', x: 330, y: 10, w: 80, h: 50, hz: 50 },
   { id: 'th', name: '東北', x: 300, y: 70, w: 70, h: 70, hz: 50, note: '新潟県もふくむ' },
@@ -656,7 +656,7 @@ var AREAS = [
 ];
 function renderFreq(box) {
   var F = S.fq = S.fq || { set: {}, checked: false, t: 0, q: {} };
-  box.innerHTML = '<div class="e7-card adv"><span class="e7-kicker adv">発展編</span><h2>🗾 周波数 50Hz・60Hz</h2><p>交流が1秒間にくり返す回数を<b>' + rb('周波数', 'しゅうはすう') + '</b>といい、単位は<b>Hz(ヘルツ)</b>です。日本では、<b>東日本は 50Hz、西日本は 60Hz</b> の交流が使われています。</p></div>' +
+  box.innerHTML = '<div class="e7-card"><h2>🗾 周波数 50Hz・60Hz</h2><p>交流が1秒間にくり返す回数を<b>' + rb('周波数', 'しゅうはすう') + '</b>といい、単位は<b>Hz(ヘルツ)</b>です。日本では、<b>東日本は 50Hz、西日本は 60Hz</b> の交流が使われています。</p></div>' +
     '<div class="e7-grid"><div class="e7-card"><h2>〰️ 0.1 秒間の波をくらべよう(スローで表示)</h2><svg class="e7-svg" viewBox="0 0 440 200" data-ref="wv" role="img" aria-label="50Hz と 60Hz の波"></svg>' +
     '<div data-ref="cq"></div></div>' +
     '<div class="e7-card"><h2>🗺️ 50Hz と 60Hz の地図を作ろう</h2><p>地方をタップすると「50Hz → 60Hz → ?」と変わります。ぜんぶ決めたら「答え合わせ」。</p><svg class="e7-svg" viewBox="0 0 420 300" data-ref="map" role="img" aria-label="日本の地方の地図(簡単な図)" style="max-width:520px"></svg>' +
@@ -737,7 +737,7 @@ function whoInit() {
 function renderRec(box) {
   var w = whoInit(), s = S.save;
   box.innerHTML = '<div class="e7-grid"><div class="e7-card"><h2>📊 やったこと</h2><ul class="e7-sum">' + STEPS.map(function (st) { return '<li><span class="m">' + (stepDone(st.id) ? '✅' : '⬜') + '</span>' + st.name + '</li>'; }).join('') + '</ul>' +
-    '<p>④ 計算ドリルのいちばん: <b>' + s.calcBest + ' / 5</b></p></div>' +
+    '<p>⑤ 計算ドリルのいちばん: <b>' + s.calcBest + ' / 5</b></p></div>' +
     '<div class="e7-card"><h2>💾 ファイルに保存して提出</h2><div class="e7-two"><div class="e7-field"><label for="e7-cls">組・番号</label><input type="text" id="e7-cls" data-who="cls" maxlength="20" value="' + esc(w.cls) + '" placeholder="例: 2組15番"></div><div class="e7-field"><label for="e7-name">名前</label><input type="text" id="e7-name" data-who="name" maxlength="30" value="' + esc(w.name) + '"></div></div>' +
     '<p>やったこと・振り返りを、1つのファイル(<code>C3-souden-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
     '<button class="e7-btn primary" data-act="save" style="width:100%">💾 ファイルに保存</button>' +

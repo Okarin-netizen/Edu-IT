@@ -270,7 +270,7 @@
       var rk = Array.isArray(d.rank) && isObj(d.rank[0]) ? d.rank[0] : null;
       if (obj.app === 'C2' && rk && rk.watt > 0) R.add('成績', '③ 効率チャレンジ', 'ランキング1位の羽根', str(rk.blade) + '(4 m/s で ' + (rk.watt < 1 ? Math.round(rk.watt * 1000) + ' mW' : (+rk.watt).toFixed(2) + ' W') + ')');
       if (obj.app === 'C2' && +d.featBest > 0) R.add('成績', '④ 発電方法くらべ', '特徴クイズ(最高)', (+d.featBest) + ' / 10');
-      if (obj.app === 'C3' && +d.calcBest > 0) R.add('成績', '④ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
+      if (obj.app === 'C3' && +d.calcBest > 0) R.add('成績', '⑤ 損失の計算', '計算ドリル(最高)', (+d.calcBest) + ' / 5');
       var rf = isObj(d.reflection) ? d.reflection : {};
       C_REFL[obj.app].forEach(function (q) { R.add('ふりかえり', '振り返り', q[1], rf[q[0]]); });
     }

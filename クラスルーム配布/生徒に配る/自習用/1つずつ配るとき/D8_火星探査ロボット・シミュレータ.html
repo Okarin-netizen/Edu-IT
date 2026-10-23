@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head>
+<head><script>window.EDUIT_JISHU = 'on';</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>火星探査ロボット・シミュレータ</title>
@@ -8,7 +8,7 @@
   <!-- 外部への通信を一切しないための制限（同じ場所のファイルだけを使う） -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <meta name="author" content="技術　岡田">
-  <meta name="eduit-app" content="D10 火星探査ロボット・シミュレータ">
+  <meta name="eduit-app" content="D8 火星探査ロボット・シミュレータ">
   <meta name="theme-color" content="#1a5fc8">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48Y2lyY2xlIGN4PSI0OCIgY3k9IjE1IiByPSI3IiBmaWxsPSIjZjA4YzRhIi8+PHBhdGggZD0iTTQgNTAgUTE4IDQwIDMyIDQ2IFQ2MCA0NCBWNjAgSDQgWiIgZmlsbD0iI2U4YTA3MCIvPjxyZWN0IHg9IjE2IiB5PSIzMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjEyIiByeD0iMyIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjE0IiB5PSI0MCIgd2lkdGg9IjM0IiBoZWlnaHQ9IjciIHJ4PSIzLjUiIGZpbGw9IiMyYjMzNDAiLz48Y2lyY2xlIGN4PSIxOSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSI0MyIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48cmVjdCB4PSIzOCIgeT0iMjIiIHdpZHRoPSIzIiBoZWlnaHQ9IjkiIGZpbGw9IiNmZmZmZmYiLz48cmVjdCB4PSIzNCIgeT0iMTgiIHdpZHRoPSIxMiIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjM3IiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjxjaXJjbGUgY3g9IjQzIiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjwvc3ZnPgo=" type="image/svg+xml">
   <!-- 4分野共通の枠（色・ヘッダー・ボタン・フッター・このアプリについて）。1ファイル版では中に入れる -->
@@ -54,7 +54,7 @@
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -216,6 +216,11 @@
 .ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+/* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
+.ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
+.ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
+.ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
+.ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -893,7 +898,7 @@ input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
 
 </style>
   <style>
-/* 火星探査ロボット・シミュレータ（D10）だけの見た目。土台は計測・制御シミュレータ（D7）の css/style.css と同じ */
+/* 火星探査ロボット・シミュレータ（D8）だけの見た目。土台は計測・制御シミュレータ（D7）の css/style.css と同じ */
 
 /* 問題解決の流れ（はじめに） */
 .ps-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -1087,33 +1092,31 @@ textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1.5px solid va
 window.EDUIT_INFO.levels = {
   basic: {
     title: '基本編',
-    lead: '学習指導要領にある内容で、どの教科書にものっている内容です。全員がここを学びます。おすすめの順(記号の番号の順)にならんでいます。授業の進め方に合わせて、どこから始めてもかまいません。',
+    lead: '全員が学ぶ内容です。教科書の順にならんでいます。',
     items: [
-      { id: 'digitization-lab', parts: ['① 画像のデジタル化', '② 音のデジタル化', '③ 2進数と文字コード', '④ データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
       { id: 'virtual-cpu', parts: ['① 図解: 5つの装置', '② 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
+      { id: 'digitization-lab', parts: ['① 画像のデジタル化', '② 音のデジタル化', '③ 2進数と文字コード', '④ データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
       { id: 'network-sim', parts: ['① ネットワークを組み立てる', '② Webページが届くまで', '③ 回線が切れたら？', '④ のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
-      { id: 'security-lab', parts: ['① デジタル化と情報量', '② パスワード強度ラボ', '③ 暗号ラボ', '④ フィッシング見分け', '⑤ ネットワーク通信の模擬', '⑥ SNS投稿の個人情報チェック', '⑦ デジタルタトゥー', '⑧ 著作権・利用ルールクイズ', '⑨ 判断ロールプレイ', '⑩ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'security-lab', parts: ['① パスワード強度ラボ', '② 暗号ラボ', '③ フィッシング見分け', '④ SNS投稿の個人情報チェック', '⑤ デジタルタトゥー', '⑥ 著作権・利用ルールクイズ', '⑦ 判断ロールプレイ', '⑧ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
       { id: 'scam-lab', parts: ['① ワンクリック詐欺', '② 「当選しました」メール', '③ ウイルス付きメール', '④ にせのウイルス警告', '⑤ にせの通販サイト', '⑥ まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
       { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
       { id: 'measure-control-sim', parts: ['① 街灯', '② 自動ドア', '③ 信号機', '④ 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
-      { id: 'genai-lab', parts: ['① もっともらしいまちがい', '② 個人情報が出てしまう？', '③ クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' },
       { id: 'mars-rover', parts: ['① まっすぐ走って止まる', '② 岩の前で止まる・よける', '③ 迷路のような谷を探査する', '評価・振り返り'], curr: 'D(3)ア・イ、統合的な問題解決', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)で問題を解決し、評価・改善する流れは、教科書の統合的な問題解決(火星探査ロボット)と同じ内容' },
-      { id: 'mondai-note', parts: ['はじめに', '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', '振り返り', '記録'], curr: 'D(2)イ・D(3)イ', why: '生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本' }
+      { id: 'genai-lab', parts: ['① もっともらしいまちがい', '② 個人情報が出てしまう？', '③ クイズとふりかえり'], curr: 'D(4)ア・イ', why: '生成AIのまちがい(ハルシネーション)や個人情報に気をつけて使うことは、新しい教科書でも扱う情報モラルの内容' },
+      { id: 'mondai-note', parts: ['はじめに', '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', '③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)', '振り返り', '記録'], curr: 'D(2)イ・D(3)イ', why: '生活や社会の中から問題を見いだして課題を設定し、作ったコンテンツや計測・制御システムを評価して改善・修正を考える流れは、教科書の2章・3章の「2 問題の発見と課題の設定」「5 問題解決の評価、改善・修正」にある問題解決の基本' }
     ]
   },
   advanced: {
-    title: '発展編',
-    lead: '基本編が終わった人や、もっとくわしく調べたい人のための内容です。教科書の「発展」「コラム」にあたる内容や、しくみの中まで入って調べる内容です。先生の指示があったら取り組みましょう。',
+    title: '発展編(付録)',
+    lead: '基本編のあとで、もっと調べたい人が使います。',
     items: [
-      { id: 'digitization-lab', parts: ['⑤ 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
       { id: 'virtual-cpu', parts: ['③ 仮想CPUを動かす', '④ 課題'], curr: 'D(1)ア(発展)', why: 'レジスタや命令を1つずつ動かす機械語に近いプログラミングは、教科書の基本より先の内容' },
+      { id: 'digitization-lab', parts: ['⑤ 圧縮のしくみ'], curr: 'D(1)ア(発展)', why: '教科書では圧縮があることを知る程度で、しくみをためすのは発展' },
       { id: 'network-sim', parts: ['⑤ IPアドレス・ドリル'], curr: 'D(1)ア(発展)', why: '教科書では IP アドレスの名前と役割を知る程度で、くわしい練習は発展' },
-      { id: 'security-lab', parts: ['⑪ ハッシュ体験'], curr: 'D(1)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない' },
       { id: 'measure-control-sim', parts: ['⑤ 自由に作る(仮想マイコン)'], curr: 'D(3)イ(発展)', why: 'センサと出力を自由に組み合わせる設計は、課題を広げる発展の活動' },
-      { id: 'genai-lab', parts: ['④ つぎの言葉あて', '⑤ 言葉のかけら(トークン)', '⑥ ミニ文章AIを動かす', '⑦ ノイズをまぜる(学習)', '⑧ ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
       { id: 'mars-rover', parts: ['④ 色センサで線をたどる', '⑤ 自由なコースで記録に挑戦'], curr: 'D(3)イ、統合的な問題解決(発展)', why: '色センサで線をたどる制御は教科書の「もっと問題解決」、機能・費用・電池のバランスを考えて記録をきそうのは、課題を広げる発展の活動' },
-      { id: 'hash-lab', parts: ['① ハッシュ値を作ってみよう', '② 1文字だけ変えると？', '③ 手作りハッシュの弱点', '④ もとにもどせる？', '⑤ パスワードの守り方', '⑥ 改ざんを見つける', '⑦ クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' },
-      { id: 'mondai-note', parts: ['③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)'], curr: 'D(4)ア(発展)', why: '情報の技術が、利便性・セキュリティ・回線への負荷などの折り合いをつけて最適化されていることを、重みを数値で変えて確かめるのは、4章1「情報の技術の最適化」を数値で深める発展' }
+      { id: 'genai-lab', parts: ['④ つぎの言葉あて', '⑤ 言葉のかけら(トークン)', '⑥ ミニ文章AIを動かす', '⑦ ノイズをまぜる(学習)', '⑧ ノイズから絵をつくる'], curr: 'D(1)ア・D(4)イ(発展)', why: '生成AIが文章や画像を作るしくみの中身は、教科書のコラムより先の内容' },
+      { id: 'hash-lab', parts: ['① ハッシュ値を作ってみよう', '② 1文字だけ変えると？', '③ 手作りハッシュの弱点', '④ もとにもどせる？', '⑤ パスワードの守り方', '⑥ 改ざんを見つける', '⑦ クイズとふりかえり'], curr: 'D(1)ア・D(4)ア(発展)', why: 'ハッシュ関数は教科書の基本の内容には入っていない。パスワードの保存や改ざんの見つけ方は情報セキュリティの発展' }
     ]
   }
 };
@@ -1127,18 +1130,22 @@ window.EDUIT_INFO.textbook = {
     { key: 'solve', ch: '2章・3章', title: '技術による問題解決(つくる)' },
     { key: 'future', ch: '4章', title: '社会の発展と技術(これからの技術)' }
   ],
+  // 基本編のメニューで、区切りのはじめ(first)・おわり(last)に出す M・F へのリンク(shared/eduit-frame.js の linkRow)
+  links: {
+    know: { first: { code: 'M', area: 'd', when: '1章のはじめに' }, last: { code: 'M', area: 'd', when: '1章のおわりに', tab: '(問題解決の工夫を読みとこう)' } }
+  },
   items: {
-    'digitization-lab': { g: 'know', ref: '4編1章 3' },
     'virtual-cpu': { g: 'know', ref: '4編1章 2' },
+    'digitization-lab': { g: 'know', ref: '4編1章 3' },
     'network-sim': { g: 'know', ref: '4編1章 4' },
     'security-lab': { g: 'know', ref: '4編1章 5・6' },
     'scam-lab': { g: 'know', ref: '4編1章 6' },
-    'hash-lab': { g: 'know', ref: '4編1章 5' },
     'interactive-studio': { g: 'solve', ref: '4編2章' },
     'measure-control-sim': { g: 'solve', ref: '4編3章' },
     'mars-rover': { g: 'solve', ref: '4編3章・統合的な問題解決' },
-    'mondai-note': { g: 'solve', ref: '4編2章 2・5、3章 2・5、4章 1' },
-    'genai-lab': { g: 'future', ref: '4編4章 2' }
+    'genai-lab': { g: 'future', ref: '4編4章 2' },
+    'hash-lab': { g: 'know', ref: '4編1章 5' },
+    'mondai-note': { g: 'solve', ref: '4編2章 2・5、3章 2・5、4章 1' }
   }
 };
 
@@ -1147,28 +1154,9 @@ window.EDUIT_INFO.textbook = {
  * where は画面のタブ・ページの名前(levels の parts と同じ番号)にそろえる。教材のタブの名前を変えたら、ここも直す。
  */
 window.EDUIT_INFO.jishu = {
-  lead: '情報の技術は、D1〜D3 でデジタル化・コンピュータ・ネットワークのしくみを知り、D4・D5 で安全な使い方を身につけ、D6・D7・D10 でプログラミングによる問題解決を体験し、D8 で生成AIを、D11 で問題解決の流れをまとめます。',
+  lead: '情報の技術は、D1〜D3 でデジタル化・コンピュータ・ネットワークのしくみを知り、D4・D5 で安全な使い方を身につけ、D6・D7・D8 でプログラミングによる問題解決を体験し、D9 で生成AIを、D11 で問題解決の流れをまとめます。',
   apps: {
     D1: {
-      goal: '画像・音・文字を0と1にするしくみ(標本化・量子化・符号化)がわかる。画像や音のデータ量を計算できる。',
-      time: '90分',
-      steps: [
-        { where: '① 画像のデジタル化', do: 'ステップ1で、お題の0と1から絵を描いて「答え合わせ」をしよう。ステップ2では、「画素の数」と「色の表し方」のスライダーを両方動かそう。データ量の変化を見よう。', hint: '1＝黒、0＝白です。表の「お題」と「今の絵」を、1行ずつくらべてみよう。データ量は「画素の数 × 1画素のビット数」で決まります。', go: '#/image' },
-        { where: '① 画像のデジタル化', do: 'ステップ3で、赤・緑・青のスライダーを動かそう。お題の色を3つ以上作ろう。そのあと「確かめよう」の3問に答えよう。', hint: '黄色は赤と緑を強く、青を0に近くします。全部を強くすると白、全部0で黒になります。', go: '#/image/rgb' },
-        { where: '② 音のデジタル化', do: '2つのスライダーを動かして、波の形を見よう。次に「おすすめ」のボタンで、3つ以上の設定を聞きくらべよう。そして下の問題に答えよう。', hint: 'イヤホンがなくても大丈夫。「残る音の高さ」と「波の形」の図を見くらべれば答えられます。「鈴の音」と「はかる回数がとても少ない」を組み合わせてみよう。', go: '#/sound' },
-        { where: '③ 2進数と文字コード', do: 'ビットカードでお題の数を作り、パズルで4問正解しよう。最後に0と1の暗号を解読しよう。', hint: 'カードは右から1, 2, 4, 8…と2倍ずつです。大きいカードから順に、使えるか考えよう。暗号は8けたずつ10進数にしよう。そして表で文字をさがそう。', go: '#/binary' },
-        { where: '④ データ量の計算ドリル', do: '「いろいろ」を選んで、10問に挑戦しよう。8問以上の正解をめざそう。電卓を使ってもかまいません。', hint: '「計算のコツ・単位の決まりを見る」を開いてみよう。8でわってバイトにしたかな？ ステレオの「× 2」を入れたかな？ 見直そう。', go: '#/drill' },
-        { where: '⑤ 圧縮のしくみ', do: '矢印の絵を、手作業で「白が何個、黒が何個」と数にしよう。そのあと、自動の圧縮で圧縮率をくらべよう。', hint: '同じ色が長く続く絵ほど、小さくなります。色がこまかく変わる絵ではどうなるかな？ くらべてみよう。', go: '#/compress', level: 'advanced' },
-        { where: 'ふりかえり', do: '①〜③のいちばん下に「ふりかえり」があります。なぜデータ量が増えるのか、自分の言葉で書こう。', hint: '「画素」「階調」「標本化」「量子化」の言葉を使おう。「〜だから、データ量が増える」の形で書いてみよう。', reflect: true },
-        { where: 'ふりかえり・記録', do: '組と番号を入れて、「JSONで書き出す（提出用）」を押そう。できたファイルを、先生の言う場所に出そう。', hint: '組と番号を入れないと、書き出せません。読み込んだ写真や録音した声は、ファイルに入りません。', go: '#/records' }
-      ],
-      check: [
-        { q: 'デジタル化の3つの手順のうち、段階の番号を0と1の並び(2進数)にするのはどれ？', choices: ['標本化', '量子化', '符号化'], answer: 2, explain: '一定の間かくで区切るのが、標本化です。決まった段階にあてはめるのが、量子化です。それを0と1にするのが、符号化です。' },
-        { q: '8ビットで表せる数は何通り？', choices: ['256通り', '8通り', '16通り', '64通り'], answer: 0, explain: 'ビットが1つ増えるごとに、表せる数は2倍になります。2を8回かけて、256通り(0〜255)です。' },
-        { q: '音のデジタル化で、量子化ビット数を大きくするとどうなる？', choices: ['音の長さが短くなり、データ量は減る', '波の高さを細かく表せ、データ量は増える', '高い音を記録できなくなる'], answer: 1, explain: '段階の数が多いほど、もとの波に近い形で表せます。そのかわり、1回の記録に使うビット数が増えます。' }
-      ]
-    },
-    D2: {
       goal: 'コンピュータは、入力・記憶・演算・制御・出力の5つの装置(機能)でできている。このことと、処理を自動化するよさがわかる。',
       time: '50分',
       steps: [
@@ -1185,6 +1173,25 @@ window.EDUIT_INFO.jishu = {
         { q: 'CPU(中央処理装置)は、どの2つの装置をまとめたもの？', choices: ['入力装置と出力装置', '制御装置と演算装置', '記憶装置と出力装置'], answer: 1, explain: '制御装置は、命令を読んで指示を出します。演算装置は、計算や大小くらべをします。この2つをまとめてCPUとよびます。' },
         { q: '電源を切ってもファイルが消えない補助記憶装置はどれ？', choices: ['メモリ', 'ディスプレイ', 'SSD'], answer: 2, explain: 'メモリ(主記憶装置)は、電源を切ると消えます。SSDなどの補助記憶装置は、電源を切ってもデータが残ります。' },
         { q: '処理を自動化するとき、人がしなければならないことはどれ？', choices: ['手順を考えてプログラムにすること', '同じ計算を何度もくり返すこと', '計算のまちがいを1つずつ見つけること'], answer: 0, explain: 'コンピュータは、決められた手順を速く正確にくり返します。でも、手順を考えるのは人です。手順がまちがっていると、まちがった答えを速く出してしまいます。' }
+      ]
+    },
+    D2: {
+      goal: '画像・音・文字を0と1にするしくみ(標本化・量子化・符号化)がわかる。画像や音のデータ量を計算できる。',
+      time: '90分',
+      steps: [
+        { where: '① 画像のデジタル化', do: 'ステップ1で、お題の0と1から絵を描いて「答え合わせ」をしよう。ステップ2では、「画素の数」と「色の表し方」のスライダーを両方動かそう。データ量の変化を見よう。', hint: '1＝黒、0＝白です。表の「お題」と「今の絵」を、1行ずつくらべてみよう。データ量は「画素の数 × 1画素のビット数」で決まります。', go: '#/image' },
+        { where: '① 画像のデジタル化', do: 'ステップ3で、赤・緑・青のスライダーを動かそう。お題の色を3つ以上作ろう。そのあと「確かめよう」の3問に答えよう。', hint: '黄色は赤と緑を強く、青を0に近くします。全部を強くすると白、全部0で黒になります。', go: '#/image/rgb' },
+        { where: '② 音のデジタル化', do: '2つのスライダーを動かして、波の形を見よう。次に「おすすめ」のボタンで、3つ以上の設定を聞きくらべよう。そして下の問題に答えよう。', hint: 'イヤホンがなくても大丈夫。「残る音の高さ」と「波の形」の図を見くらべれば答えられます。「鈴の音」と「はかる回数がとても少ない」を組み合わせてみよう。', go: '#/sound' },
+        { where: '③ 2進数と文字コード', do: 'ビットカードでお題の数を作り、パズルで4問正解しよう。最後に0と1の暗号を解読しよう。', hint: 'カードは右から1, 2, 4, 8…と2倍ずつです。大きいカードから順に、使えるか考えよう。暗号は8けたずつ10進数にしよう。そして表で文字をさがそう。', go: '#/binary' },
+        { where: '④ データ量の計算ドリル', do: '「いろいろ」を選んで、10問に挑戦しよう。8問以上の正解をめざそう。電卓を使ってもかまいません。', hint: '「計算のコツ・単位の決まりを見る」を開いてみよう。8でわってバイトにしたかな？ ステレオの「× 2」を入れたかな？ 見直そう。', go: '#/drill' },
+        { where: '⑤ 圧縮のしくみ', do: '矢印の絵を、手作業で「白が何個、黒が何個」と数にしよう。そのあと、自動の圧縮で圧縮率をくらべよう。', hint: '同じ色が長く続く絵ほど、小さくなります。色がこまかく変わる絵ではどうなるかな？ くらべてみよう。', go: '#/compress', level: 'advanced' },
+        { where: 'ふりかえり', do: '①〜③のいちばん下に「ふりかえり」があります。なぜデータ量が増えるのか、自分の言葉で書こう。', hint: '「画素」「階調」「標本化」「量子化」の言葉を使おう。「〜だから、データ量が増える」の形で書いてみよう。', reflect: true },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて、「JSONで書き出す（提出用）」を押そう。できたファイルを、先生の言う場所に出そう。', hint: '組と番号を入れないと、書き出せません。読み込んだ写真や録音した声は、ファイルに入りません。', go: '#/records' }
+      ],
+      check: [
+        { q: 'デジタル化の3つの手順のうち、段階の番号を0と1の並び(2進数)にするのはどれ？', choices: ['標本化', '量子化', '符号化'], answer: 2, explain: '一定の間かくで区切るのが、標本化です。決まった段階にあてはめるのが、量子化です。それを0と1にするのが、符号化です。' },
+        { q: '8ビットで表せる数は何通り？', choices: ['256通り', '8通り', '16通り', '64通り'], answer: 0, explain: 'ビットが1つ増えるごとに、表せる数は2倍になります。2を8回かけて、256通り(0〜255)です。' },
+        { q: '音のデジタル化で、量子化ビット数を大きくするとどうなる？', choices: ['音の長さが短くなり、データ量は減る', '波の高さを細かく表せ、データ量は増える', '高い音を記録できなくなる'], answer: 1, explain: '段階の数が多いほど、もとの波に近い形で表せます。そのかわり、1回の記録に使うビット数が増えます。' }
       ]
     },
     D3: {
@@ -1210,14 +1217,12 @@ window.EDUIT_INFO.jishu = {
       time: '3時間ほど',
       steps: [
         { where: '理解度チェック', do: 'はじめに「事前テスト」を受けて、いまの力を確かめよう。', hint: '答えと解説は、事後テストが終わると見られます。わからない問題があっても大丈夫です。', go: '#/check' },
-        { where: '① デジタル化と情報量', do: 'スライダーを動かして、画質や音質とデータ量の関係を確かめよう。', hint: 'D1 デジタル化ラボをやった人は、思い出しながら短く進めてかまいません。', go: '#/digital' },
-        { where: '② パスワード強度ラボ', do: '練習用の文字を入れよう。長さと文字の種類で、解読時間がどう変わるかくらべよう。', hint: '本物のパスワードは入れないこと。1文字ずつ長くしたときと、記号を足したときの時間を見くらべよう。', go: '#/password' },
-        { where: '③ 暗号ラボ', do: 'シーザー暗号で暗号文を作ろう。総当たりと頻度分析で破ってみよう。', hint: '鍵(ずらす数)の候補は25通りしかないので、全部ためせます。ローマ字の日本語では、A・I・O・U がよく出ます。これを手がかりにしよう。', go: '#/crypto' },
-        { where: '④ フィッシング見分け', do: '怪しいと思うところを押して、「答え合わせ」を押そう。すべての場面に挑戦しよう。⑤ ネットワーク通信の模擬で、HTTP と HTTPS もくらべよう。', hint: '差出人のアドレス、リンク先のアドレス、急がせる言葉を見てみよう。', go: '#/phishing' },
-        { where: '⑥ SNS投稿の個人情報チェック', do: '写真と文章から、場所や学校がわかる手がかりを探そう。⑦ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑦は「▶ 時間を進める」を押そう。見た人が8人以上になってから、消してみよう。', go: '#/sns' },
-        { where: '⑧ 著作権・利用ルールクイズ', do: '場面ごとに、使ってよいか考えて答えよう。⑨ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは、正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
-        { where: '⑩ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで、「この3つで宣言する」を押そう。そのあと、理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は、「復習」で確かめよう。体験したステップにもどれます。', go: '#/declare' },
-        { where: '⑪ ハッシュ体験', do: '1文字だけ変えて、ハッシュ値がどう変わるかを見よう。', hint: '文の長さを変えてみよう。ハッシュ値の長さは同じかな？', go: '#/hash', level: 'advanced' },
+        { where: '① パスワード強度ラボ', do: '練習用の文字を入れよう。長さと文字の種類で、解読時間がどう変わるかくらべよう。', hint: '本物のパスワードは入れないこと。1文字ずつ長くしたときと、記号を足したときの時間を見くらべよう。', go: '#/password' },
+        { where: '② 暗号ラボ', do: 'シーザー暗号で暗号文を作ろう。総当たりと頻度分析で破ってみよう。', hint: '鍵(ずらす数)の候補は25通りしかないので、全部ためせます。ローマ字の日本語では、A・I・O・U がよく出ます。これを手がかりにしよう。', go: '#/crypto' },
+        { where: '③ フィッシング見分け', do: '怪しいと思うところを押して、「答え合わせ」を押そう。すべての場面に挑戦しよう。', hint: '差出人のアドレス、リンク先のアドレス、急がせる言葉を見てみよう。', go: '#/phishing' },
+        { where: '④ SNS投稿の個人情報チェック', do: '写真と文章から、場所や学校がわかる手がかりを探そう。⑤ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑤は「▶ 時間を進める」を押そう。見た人が8人以上になってから、消してみよう。', go: '#/sns' },
+        { where: '⑥ 著作権・利用ルールクイズ', do: '場面ごとに、使ってよいか考えて答えよう。⑦ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは、正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
+        { where: '⑧ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで、「この3つで宣言する」を押そう。そのあと、理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は、「復習」で確かめよう。体験したステップにもどれます。', go: '#/declare' },
         { where: 'ふりかえり', do: '各モジュールのいちばん下に「ふりかえり」があります。なぜその対策で安全になるのか、書こう。', hint: '理由を入れて書こう。「〜だから、〜すると安全になる」の形です。', reflect: true },
         { where: 'ふりかえり・記録', do: 'クラス(組)と出席番号を入れて、「JSONで書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'テストの点も、ファイルに入ります。パスワード強度ラボで入れた文字は入りません。', go: '#/records' }
       ],
@@ -1283,43 +1288,6 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     D8: {
-      goal: '生成AIが、もっともらしいまちがい(ハルシネーション)をするわけを確かめる。個人情報を入れてはいけないわけも、模型のAIで確かめて説明できるようになる。',
-      time: '45分',
-      steps: [
-        { where: 'はじめに', do: '「生成AIが作るまでの3つの手順」を読もう。次に「ステップ① もっともらしいまちがいからはじめよう →」を押そう。', hint: '基本は①〜③です。④〜⑧は発展なので、基本が終わってから取り組みます。', go: '#intro' },
-        { where: '① もっともらしいまちがい', do: 'A で「AIに文を5本つくらせる」を押そう。5本すべてを「本当」「まちがい」で判定しよう。B では、あやしい文をおしてから「答え合わせ」をしよう。', hint: '学習データの8本の文と見くらべてみよう。学習データにない組み合わせの文は、事実かどうかわかりません。教科書や図鑑で確かめよう。数字・年・本の名前に注目しよう。', go: '#halluc' },
-        { where: '② 個人情報が出てしまう？', do: 'Aさんになって入れる情報をえらび、「AIに送る」を押そう。Bさんの「わたしの電話番号は…」などのボタンを押し、何が出るか見よう。③ 送る前チェックの6つの文も判定しよう。', hint: '入れた情報と「入れない」をえらんだ情報で、Bさんへの答えがどう変わるかくらべよう。「入れる情報を変える」で何回でもためせます。', go: '#privacy' },
-        { where: '③ クイズとふりかえり', do: '6問のクイズに答えて、答えのあとの説明も読もう。', hint: 'まちがえたら説明を読んでから「クイズをやり直す」で全問正解をめざそう。わからないときは①②にもどって見直します。', go: '#quiz' },
-        { where: '③ クイズとふりかえり', do: 'クイズの下の「ふりかえり」の3つの問いに、自分の言葉で答えを書こう。', hint: '1つ目の問いは、①で見た「学習データ → 学習 → 生成」の流れを使って書けます。発展の④〜⑧をやった人は、そこでわかったことも書こう。', reflect: true, go: '#quiz' },
-        { where: '④ つぎの言葉あて', do: '発展: ④〜⑧で、文章をつくるAIと画像をつくるAIのしくみを体験しよう。時間が少ないときは ⑥ と ⑧ を中心にしよう。', hint: '「次へ」のボタンで順に進めます。どのステップも「学習データ → 学習 → 生成」のどこを体験しているかを考えよう。', level: 'advanced', go: '#guess' },
-        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押そう。ファイルは先生の言う場所に出そう。', hint: 'ファイルができないときは「記録をコピーする」を押そう。先生に言われた場所にはりつけます。', go: '#records' }
-      ],
-      check: [
-        { q: '生成AIが、本当のことのように見えるまちがいを答えることを何という？', choices: ['ハルシネーション', 'トークン', 'ノイズ'], answer: 0, explain: 'ハルシネーション(もっともらしいまちがい)です。AIは続きやすい言葉のならびを作るので、すらすら読めてもまちがうことがあります。' },
-        { q: 'AIの答えの中で、とくにまちがいが入りやすいのはどこ？', choices: ['あいさつの言葉', '数字・年・人名・本の名前', '文の終わりの「です」「ます」'], answer: 1, explain: '数字・年・人名・本や記事の名前・URL はまちがいやすい所です。もとの情報で確かめます。' },
-        { q: 'AIに「みどり市立さくら中学校2年1組の山田花子です。この作文を直して。」と送りたい。送る前に、どう直すとよい？', choices: ['作文の相談なので、そのまま送ってよい', '名前だけをローマ字にかえて送る', '「中学2年生です。この作文を直して。」にする'], answer: 2, explain: '学校名・クラス・名前がそろうと、だれなのかがわかります。個人が特定されない書き方にします。' }
-      ]
-    },
-    D9: {
-      goal: 'ハッシュ値の性質を確かめる(同じ文なら同じ値・少し変えると全体が変わる・元にもどせない)。パスワードの保存や改ざんの発見に、どう使われているかを説明できるようになる。',
-      time: '80分',
-      steps: [
-        { where: '① ハッシュ値を作ってみよう', do: 'チャレンジ: 「ハッシュ化する」を押して、3つ以上の文をハッシュ化しよう。短い文と、30文字以上の長い文を入れよう。', hint: '「ためしてみる:」のボタンを押すと文が入ります。表の「長さ」の列を見よう。文の長さとハッシュ値の長さの関係を調べよう。', go: '#make' },
-        { where: '② 1文字だけ変えると？', do: '文Bを1文字だけ変えて、ハッシュ値がどれだけ変わるか調べよう。', hint: '「8時」を「9時」にするなど、1文字だけ変えます。黄色の所と「ちがうビット」の数を見てみよう。', go: '#avalanche' },
-        { where: '③ 手作りハッシュの弱点', do: '手作りハッシュで、ちがう文なのに同じ値になる2つの文を見つけよう。', hint: '手作りハッシュは文字の番号の合計を使います。同じ文字を使って、順番だけを入れかえるとどうなるか試してみよう。', go: '#toy' },
-        { where: '④ もとにもどせる？', do: '暗証番号のハッシュ値から、元の3けたの番号を見つけよう。自分で予想したあと、「総当たりをはじめる」でコンピュータにもさがさせよう。', hint: 'ハッシュ値が似ているかどうかはヒントになりません。下の「パスワードが長いと？」では、文字の種類と長さを変えてみよう。時間がどう変わるかを見よう。', go: '#oneway' },
-        { where: '⑤ パスワードの守り方', do: '練習用のアカウントでログインしてみよう。次に、もれた会員表から同じパスワードを使っている2人を見つけよう。', hint: '2人さがしは「ソルトを外す(ハッシュ化だけ)」のときに、ユーザー名をおしてくらべます。見つけたら「ソルトを付けて保存する」に切りかえて、何が変わるか見よう。', go: '#password' },
-        { where: '⑥ 改ざんを見つける', do: '3つのファイルのハッシュ値を計算しよう。公式のハッシュ値とくらべて、「本物」か「書きかえられている」かを判定しよう。', hint: '公式のハッシュ値と1文字でもちがえば、どこかが書きかえられています。最後に「自分で書きかえてみよう」で、空白1つでも変わるか試そう。', go: '#tamper' },
-        { where: '⑦ クイズとふりかえり', do: 'クイズに答えたあと、「ふりかえり」の3つの問いに答えを書こう。', hint: '①〜⑥の「わかったこと」や「パスワードを守るために」の囲みを読み返そう。書きやすくなります。', reflect: true, go: '#quiz' },
-        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押そう。ファイルは先生の言う場所に出そう。', hint: '表の「チャレンジ・記録」の列で、まだのステップがないか確かめよう。ファイルができないときは「記録をコピーする」を使います。', go: '#records' }
-      ],
-      check: [
-        { q: 'SHA-256 のハッシュ値は、どんな文字でできている？', choices: ['ひらがなと漢字', '0〜9 と a〜f の16種類', '0 と 1 の2種類だけ'], answer: 1, explain: 'ハッシュ値は 0〜9 と a〜f の16種類の文字(16進数)で表されています。' },
-        { q: 'ソルトを付けてハッシュ化すると、同じパスワードを使っている2人のハッシュ値はどうなる？', choices: ['ちがう値に見える', 'まったく同じになる', '半分だけ同じになる'], answer: 0, explain: 'ソルトは人ごとにちがいます。だから同じパスワードでも、ハッシュ値はちがって見えます。前もって作った辞書とも一致しなくなります。' },
-        { q: 'サービスごとにちがうパスワードにするとよいのはなぜ？', choices: ['ちがうパスワードにすると、ハッシュ値が短くなるから', 'ちがうパスワードにすると、ログインが速くなるから', '1つのサービスでもれても、ほかのサービスが守られるから'], answer: 2, explain: '同じパスワードを使い回すと、1つもれただけでほかのサービスにも入られてしまいます。' }
-      ]
-    },
-    D10: {
       goal: '距離センサとモーターでロボットを設計する。センサの値で動きを変えるプログラムで、火星の課題を解決する。テストとレーダーチャートで評価して、改善を考えられるようになる。',
       time: '3時間',
       steps: [
@@ -1338,6 +1306,43 @@ window.EDUIT_INFO.jishu = {
         { q: '距離センサを増やすと、どうなる？', choices: ['センサが仕事を分けるので、費用も電池の使い方も減る', '安全に走りやすくなるが、費用と電池の使い方が増える', '速く走れるようになるが、岩にぶつかりやすくなる'], answer: 1, explain: 'センサを増やすと、安全性は上がります。でも費用や電池(環境への配慮)も増えるので、そのバランスを考えます。' }
       ]
     },
+    D9: {
+      goal: '生成AIが、もっともらしいまちがい(ハルシネーション)をするわけを確かめる。個人情報を入れてはいけないわけも、模型のAIで確かめて説明できるようになる。',
+      time: '45分',
+      steps: [
+        { where: 'はじめに', do: '「生成AIが作るまでの3つの手順」を読もう。次に「ステップ① もっともらしいまちがいからはじめよう →」を押そう。', hint: '基本は①〜③です。④〜⑧は発展なので、基本が終わってから取り組みます。', go: '#intro' },
+        { where: '① もっともらしいまちがい', do: 'A で「AIに文を5本つくらせる」を押そう。5本すべてを「本当」「まちがい」で判定しよう。B では、あやしい文をおしてから「答え合わせ」をしよう。', hint: '学習データの8本の文と見くらべてみよう。学習データにない組み合わせの文は、事実かどうかわかりません。教科書や図鑑で確かめよう。数字・年・本の名前に注目しよう。', go: '#halluc' },
+        { where: '② 個人情報が出てしまう？', do: 'Aさんになって入れる情報をえらび、「AIに送る」を押そう。Bさんの「わたしの電話番号は…」などのボタンを押し、何が出るか見よう。③ 送る前チェックの6つの文も判定しよう。', hint: '入れた情報と「入れない」をえらんだ情報で、Bさんへの答えがどう変わるかくらべよう。「入れる情報を変える」で何回でもためせます。', go: '#privacy' },
+        { where: '③ クイズとふりかえり', do: '6問のクイズに答えて、答えのあとの説明も読もう。', hint: 'まちがえたら説明を読んでから「クイズをやり直す」で全問正解をめざそう。わからないときは①②にもどって見直します。', go: '#quiz' },
+        { where: '③ クイズとふりかえり', do: 'クイズの下の「ふりかえり」の3つの問いに、自分の言葉で答えを書こう。', hint: '1つ目の問いは、①で見た「学習データ → 学習 → 生成」の流れを使って書けます。発展の④〜⑧をやった人は、そこでわかったことも書こう。', reflect: true, go: '#quiz' },
+        { where: '④ つぎの言葉あて', do: '発展: ④〜⑧で、文章をつくるAIと画像をつくるAIのしくみを体験しよう。時間が少ないときは ⑥ と ⑧ を中心にしよう。', hint: '「次へ」のボタンで順に進めます。どのステップも「学習データ → 学習 → 生成」のどこを体験しているかを考えよう。', level: 'advanced', go: '#guess' },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押そう。ファイルは先生の言う場所に出そう。', hint: 'ファイルができないときは「記録をコピーする」を押そう。先生に言われた場所にはりつけます。', go: '#records' }
+      ],
+      check: [
+        { q: '生成AIが、本当のことのように見えるまちがいを答えることを何という？', choices: ['ハルシネーション', 'トークン', 'ノイズ'], answer: 0, explain: 'ハルシネーション(もっともらしいまちがい)です。AIは続きやすい言葉のならびを作るので、すらすら読めてもまちがうことがあります。' },
+        { q: 'AIの答えの中で、とくにまちがいが入りやすいのはどこ？', choices: ['あいさつの言葉', '数字・年・人名・本の名前', '文の終わりの「です」「ます」'], answer: 1, explain: '数字・年・人名・本や記事の名前・URL はまちがいやすい所です。もとの情報で確かめます。' },
+        { q: 'AIに「みどり市立さくら中学校2年1組の山田花子です。この作文を直して。」と送りたい。送る前に、どう直すとよい？', choices: ['作文の相談なので、そのまま送ってよい', '名前だけをローマ字にかえて送る', '「中学2年生です。この作文を直して。」にする'], answer: 2, explain: '学校名・クラス・名前がそろうと、だれなのかがわかります。個人が特定されない書き方にします。' }
+      ]
+    },
+    D10: {
+      goal: 'ハッシュ値の性質を確かめる(同じ文なら同じ値・少し変えると全体が変わる・元にもどせない)。パスワードの保存や改ざんの発見に、どう使われているかを説明できるようになる。',
+      time: '80分',
+      steps: [
+        { where: '① ハッシュ値を作ってみよう', do: 'チャレンジ: 「ハッシュ化する」を押して、3つ以上の文をハッシュ化しよう。短い文と、30文字以上の長い文を入れよう。', hint: '「ためしてみる:」のボタンを押すと文が入ります。表の「長さ」の列を見よう。文の長さとハッシュ値の長さの関係を調べよう。', go: '#make' },
+        { where: '② 1文字だけ変えると？', do: '文Bを1文字だけ変えて、ハッシュ値がどれだけ変わるか調べよう。', hint: '「8時」を「9時」にするなど、1文字だけ変えます。黄色の所と「ちがうビット」の数を見てみよう。', go: '#avalanche' },
+        { where: '③ 手作りハッシュの弱点', do: '手作りハッシュで、ちがう文なのに同じ値になる2つの文を見つけよう。', hint: '手作りハッシュは文字の番号の合計を使います。同じ文字を使って、順番だけを入れかえるとどうなるか試してみよう。', go: '#toy' },
+        { where: '④ もとにもどせる？', do: '暗証番号のハッシュ値から、元の3けたの番号を見つけよう。自分で予想したあと、「総当たりをはじめる」でコンピュータにもさがさせよう。', hint: 'ハッシュ値が似ているかどうかはヒントになりません。下の「パスワードが長いと？」では、文字の種類と長さを変えてみよう。時間がどう変わるかを見よう。', go: '#oneway' },
+        { where: '⑤ パスワードの守り方', do: '練習用のアカウントでログインしてみよう。次に、もれた会員表から同じパスワードを使っている2人を見つけよう。', hint: '2人さがしは「ソルトを外す(ハッシュ化だけ)」のときに、ユーザー名をおしてくらべます。見つけたら「ソルトを付けて保存する」に切りかえて、何が変わるか見よう。', go: '#password' },
+        { where: '⑥ 改ざんを見つける', do: '3つのファイルのハッシュ値を計算しよう。公式のハッシュ値とくらべて、「本物」か「書きかえられている」かを判定しよう。', hint: '公式のハッシュ値と1文字でもちがえば、どこかが書きかえられています。最後に「自分で書きかえてみよう」で、空白1つでも変わるか試そう。', go: '#tamper' },
+        { where: '⑦ クイズとふりかえり', do: 'クイズに答えたあと、「ふりかえり」の3つの問いに答えを書こう。', hint: '①〜⑥の「わかったこと」や「パスワードを守るために」の囲みを読み返そう。書きやすくなります。', reflect: true, go: '#quiz' },
+        { where: 'ふりかえり・記録', do: '組と番号を入れて「記録を書き出す(JSON・提出用)」を押そう。ファイルは先生の言う場所に出そう。', hint: '表の「チャレンジ・記録」の列で、まだのステップがないか確かめよう。ファイルができないときは「記録をコピーする」を使います。', go: '#records' }
+      ],
+      check: [
+        { q: 'SHA-256 のハッシュ値は、どんな文字でできている？', choices: ['ひらがなと漢字', '0〜9 と a〜f の16種類', '0 と 1 の2種類だけ'], answer: 1, explain: 'ハッシュ値は 0〜9 と a〜f の16種類の文字(16進数)で表されています。' },
+        { q: 'ソルトを付けてハッシュ化すると、同じパスワードを使っている2人のハッシュ値はどうなる？', choices: ['ちがう値に見える', 'まったく同じになる', '半分だけ同じになる'], answer: 0, explain: 'ソルトは人ごとにちがいます。だから同じパスワードでも、ハッシュ値はちがって見えます。前もって作った辞書とも一致しなくなります。' },
+        { q: 'サービスごとにちがうパスワードにするとよいのはなぜ？', choices: ['ちがうパスワードにすると、ハッシュ値が短くなるから', 'ちがうパスワードにすると、ログインが速くなるから', '1つのサービスでもれても、ほかのサービスが守られるから'], answer: 2, explain: '同じパスワードを使い回すと、1つもれただけでほかのサービスにも入られてしまいます。' }
+      ]
+    },
     D11: {
       goal: '身の回りの「不便だな」から問題を見つけ、課題を決める。作った作品を観点ごとに評価して、改善・修正の方法を考えられるようになる。',
       time: '1〜2時間',
@@ -1345,9 +1350,9 @@ window.EDUIT_INFO.jishu = {
         { where: 'はじめに', do: '「問題と課題のちがい」と「技術の見方・考え方の観点」を読もう。次に「① 問題の発見から始める」を押そう。', hint: '「問題」は、困っていることや願いです。「課題」は、それを解決するために何をどうするかを決めたものです。', go: '#/' },
         { where: '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', do: '「こうだったらいいのに」「不便だな」を付箋に書いて、「＋ 付箋をはる」を押そう。3まい以上はろう。いちばん解決したい付箋に ★ を付けよう。', hint: '思いつかないときは、「ヒント(押すと書く欄に入ります):」の例を押してみよう。家・学校・登下校など、場面を決めて考えると見つけやすくなります。', go: '#/find' },
         { where: '① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', do: '「問題? 課題? クイズ」に答えよう。次に「3. 自分の課題を1つ決めよう」に、困っている人・課題・制約条件を書こう。', hint: '「文の形を入れる」を押すと、課題を書く形が入ります。制約条件には、費用や時間など守らなければならない条件を書きます。', go: '#/find' },
-        { where: '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', do: '作ったコンテンツや計測・制御システムの名前を書こう。「はじめの目標」と「できあがり(評価)」を、観点ごとに1〜5で入れよう。', hint: '作品は、D6・D7・D10 などで作ったものでかまいません。目標より低い観点が、改善点の候補になります。', go: '#/eval' },
+        { where: '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', do: '作ったコンテンツや計測・制御システムの名前を書こう。「はじめの目標」と「できあがり(評価)」を、観点ごとに1〜5で入れよう。', hint: '作品は、D6・D7・D8 などで作ったものでかまいません。目標より低い観点が、改善点の候補になります。', go: '#/eval' },
         { where: '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', do: '「過程の評価」にチェックを入れ、「よかった点」と「改善・修正の方法」を書こう。', hint: 'レーダーチャートの横に「よかった点の候補」「改善点の候補」が出ます。その「書き足す」を押すと、書き始めやすくなります。', go: '#/eval' },
-        { where: '③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)', do: '社会の製品・技術を1つえらぼう。立場や観点の重みを変えて、「いちばんよい案」がどう入れかわるか試そう。', hint: '「チャレンジ」は、すべての案をそれぞれ1位にすることです。制約条件のチェックを入れたり外したりもしてみよう。', level: 'advanced', go: '#/opt' },
+        { where: '③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)', do: '社会の製品・技術を1つえらぼう。立場や観点の重みを変えて、「いちばんよい案」がどう入れかわるか試そう。', hint: '「チャレンジ」は、すべての案をそれぞれ1位にすることです。制約条件のチェックを入れたり外したりもしてみよう。', go: '#/opt' },
         { where: '振り返り', do: '自己評価をえらぼう。次に「分かったこと・できるようになったこと」「これからの問題解決に生かしたいこと」を書こう。', hint: '①で決めた課題と、②の評価を見返してから書こう。', reflect: true, go: '#/refl' },
         { where: '記録', do: '組・番号・名前を入れて「ファイルに書き出す(.json)」を押そう。ファイルは先生の言う場所に出そう。紙で出すときは「🖨 印刷する(問題解決シート)」を使おう。', hint: '「ノートのまとめ」に、まだ「—」の欄がないか確かめてから書き出そう。', go: '#/rec' }
       ],
@@ -1383,7 +1388,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "みどり市": "みどりし",
   "やり直す": "やりなおす",
   "ハッシュ値の性質を確かめる": "ハッシュちのせいしつをたしかめる",
-  "ハッシュ値の長さは同じかな": "ハッシュちのながさはおなじかな",
   "ハッシュ値を作ってみよう": "ハッシュちをつくってみよう",
   "ハッシュ化": "はっしゅか",
   "ビットカードでお題の数を作り": "ビットカードでおだいのかずをつくり",
@@ -1693,7 +1697,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "応募": "おうぼ",
   "応答": "おうとう",
   "思いつか": "おもいつか",
-  "思い出し": "おもいだし",
   "思い出そう": "おもいだそう",
   "思う": "おもう",
   "思っ": "おもっ",
@@ -1701,7 +1704,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "性質": "せいしつ",
   "怪しい": "あやしい",
   "情報": "じょうほう",
-  "情報量": "じょうほうりょう",
   "意味": "いみ",
   "所": "ところ",
   "手": "て",
@@ -1794,7 +1796,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "検索": "けんさく",
   "標本化": "ひょうほんか",
   "模型": "もけい",
-  "模擬": "もぎ",
   "横": "よこ",
   "機器": "きき",
   "機能": "きのう",
@@ -1857,7 +1858,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "用": "よう",
   "画像": "がぞう",
   "画素": "がそ",
-  "画質": "がしつ",
   "画面": "がめん",
   "番号": "ばんごう",
   "番地": "ばんち",
@@ -2096,7 +2096,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "青": "あお",
   "青い": "あおい",
   "音": "おと",
-  "音質": "おんしつ",
   "順": "じゅん",
   "順位": "じゅんい",
   "順番": "じゅんばん",
@@ -2166,7 +2165,7 @@ window.EDUIT_INFO.jishu.ruby = {
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
@@ -2353,6 +2352,19 @@ window.EDUIT_INFO.jishu.ruby = {
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
   var LEVEL_KEYS = ['basic', 'advanced'];
+  // メニューから開く M・F(分野をまたぐ教材)。配るフォルダ(生徒に配る/)では同じフォルダにある。site/build.py がこの行を公開用の名前にする
+  var SIBLINGS = { M: { file: 'M_身の回りの技術さがし.html', name: '身の回りの技術さがし' }, F: { file: 'F_これからの技術ラボ.html', name: 'これからの技術ラボ' } };
+  // textbook.links の1つ: { code: 'M', area: 'a', when: '1章のはじめに', tab: '' }。M・F は ?bunya=a でその分野だけを開く(学習コースと同じ)
+  function linkRow(L) {
+    var S = SIBLINGS[L.code];
+    if (!S) return null;
+    var q = [jishu ? 'jishu=on' : '', L.area ? 'bunya=' + L.area : ''].filter(Boolean).join('&');
+    var href = S.file + (q ? '?' + q : '') + (L.area ? '#' + L.area : '');
+    return el('p', { class: 'ef-level-link' }, [
+      L.when ? el('span', { class: 'ef-level-parts-k', text: L.when }) : null,
+      el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
+    ]);
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -2408,11 +2420,15 @@ window.EDUIT_INFO.jishu.ruby = {
         (groups[gi] = groups[gi] || []).push(c);
       });
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
-      var blocks = [];
+      // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
+      var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
-        if (!groups[i]) return;
+        var L = lk[g.key] || {};
+        if (!groups[i] && !L.first && !L.last) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
-        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.first) blocks.push(linkRow(L.first));
+        if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.last) blocks.push(linkRow(L.last));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -2833,7 +2849,7 @@ window.EDUIT_INFO.jishu.ruby = {
 <body>
   <a class="skip-link" href="#view">本文へ移動</a>
   <header class="app-header ef-header">
-    <a class="brand ef-title" href="#/"><img class="ef-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48Y2lyY2xlIGN4PSI0OCIgY3k9IjE1IiByPSI3IiBmaWxsPSIjZjA4YzRhIi8+PHBhdGggZD0iTTQgNTAgUTE4IDQwIDMyIDQ2IFQ2MCA0NCBWNjAgSDQgWiIgZmlsbD0iI2U4YTA3MCIvPjxyZWN0IHg9IjE2IiB5PSIzMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjEyIiByeD0iMyIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjE0IiB5PSI0MCIgd2lkdGg9IjM0IiBoZWlnaHQ9IjciIHJ4PSIzLjUiIGZpbGw9IiMyYjMzNDAiLz48Y2lyY2xlIGN4PSIxOSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSI0MyIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48cmVjdCB4PSIzOCIgeT0iMjIiIHdpZHRoPSIzIiBoZWlnaHQ9IjkiIGZpbGw9IiNmZmZmZmYiLz48cmVjdCB4PSIzNCIgeT0iMTgiIHdpZHRoPSIxMiIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjM3IiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjxjaXJjbGUgY3g9IjQzIiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjwvc3ZnPgo=" alt="" width="28" height="28"><span class="ef-code">D10</span>火星探査ロボット・シミュレータ</a>
+    <a class="brand ef-title" href="#/"><img class="ef-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxYTVmYzgiLz48Y2lyY2xlIGN4PSI0OCIgY3k9IjE1IiByPSI3IiBmaWxsPSIjZjA4YzRhIi8+PHBhdGggZD0iTTQgNTAgUTE4IDQwIDMyIDQ2IFQ2MCA0NCBWNjAgSDQgWiIgZmlsbD0iI2U4YTA3MCIvPjxyZWN0IHg9IjE2IiB5PSIzMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjEyIiByeD0iMyIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjE0IiB5PSI0MCIgd2lkdGg9IjM0IiBoZWlnaHQ9IjciIHJ4PSIzLjUiIGZpbGw9IiMyYjMzNDAiLz48Y2lyY2xlIGN4PSIxOSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48Y2lyY2xlIGN4PSI0MyIgY3k9IjQzLjUiIHI9IjIiIGZpbGw9IiNmMDhjNGEiLz48cmVjdCB4PSIzOCIgeT0iMjIiIHdpZHRoPSIzIiBoZWlnaHQ9IjkiIGZpbGw9IiNmZmZmZmYiLz48cmVjdCB4PSIzNCIgeT0iMTgiIHdpZHRoPSIxMiIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjM3IiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjxjaXJjbGUgY3g9IjQzIiBjeT0iMjEiIHI9IjEuNiIgZmlsbD0iIzFhNWZjOCIvPjwvc3ZnPgo=" alt="" width="28" height="28"><span class="ef-code">D8</span>火星探査ロボット・シミュレータ</a>
     <div class="ef-tools">
       <div class="display-toggles" id="display-toggles" role="group" aria-label="表示の切りかえ"></div>
     </div>
@@ -3461,7 +3477,7 @@ const line = (x1, y1, x2, y2, arrow = false) => `<line class="fc-line" x1="${x1}
 const poly = (pts, arrow = false) => `<polyline class="fc-line" fill="none" points="${pts.map((p) => p.join(",")).join(" ")}"${arrow ? ' marker-end="url(#fc-arrow)"' : ""}/>`;
 const label = (x, y, s, cls = "fc-text", anchor = "middle") => `<text class="${cls}" x="${x}" y="${y}" text-anchor="${anchor}">${esc(s)}</text>`;
 
-// 文の名前を決める関数（火星探査ロボット・シミュレータ（D10）は「前進する」などの名前にするために、ここを入れかえる）
+// 文の名前を決める関数（火星探査ロボット・シミュレータ（D8）は「前進する」などの名前にするために、ここを入れかえる）
 let customLabel = null;
 
 function layoutNode(n, outputs) {

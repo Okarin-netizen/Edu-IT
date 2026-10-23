@@ -46,7 +46,7 @@
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -208,6 +208,11 @@
 .ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+/* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
+.ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
+.ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
+.ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
+.ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -454,7 +459,7 @@ window.EDUIT_INFO = {
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
@@ -641,6 +646,19 @@ window.EDUIT_INFO = {
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
   var LEVEL_KEYS = ['basic', 'advanced'];
+  // メニューから開く M・F(分野をまたぐ教材)。配るフォルダ(生徒に配る/)では同じフォルダにある。site/build.py がこの行を公開用の名前にする
+  var SIBLINGS = { M: { file: 'M_身の回りの技術さがし.html', name: '身の回りの技術さがし' }, F: { file: 'F_これからの技術ラボ.html', name: 'これからの技術ラボ' } };
+  // textbook.links の1つ: { code: 'M', area: 'a', when: '1章のはじめに', tab: '' }。M・F は ?bunya=a でその分野だけを開く(学習コースと同じ)
+  function linkRow(L) {
+    var S = SIBLINGS[L.code];
+    if (!S) return null;
+    var q = [jishu ? 'jishu=on' : '', L.area ? 'bunya=' + L.area : ''].filter(Boolean).join('&');
+    var href = S.file + (q ? '?' + q : '') + (L.area ? '#' + L.area : '');
+    return el('p', { class: 'ef-level-link' }, [
+      L.when ? el('span', { class: 'ef-level-parts-k', text: L.when }) : null,
+      el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
+    ]);
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -696,11 +714,15 @@ window.EDUIT_INFO = {
         (groups[gi] = groups[gi] || []).push(c);
       });
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
-      var blocks = [];
+      // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
+      var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
-        if (!groups[i]) return;
+        var L = lk[g.key] || {};
+        if (!groups[i] && !L.first && !L.last) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
-        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.first) blocks.push(linkRow(L.first));
+        if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.last) blocks.push(linkRow(L.last));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -1195,7 +1217,7 @@ window.EDUIT_INFO = {
         <tr><td>記録</td><td>―</td><td>組・番号・名前、進み具合、書き出し・印刷・はじめから</td></tr>
       </tbody>
     </table>
-    <p>4編の「これからの情報の技術」は、すでにある D8 生成AIのしくみラボで学びます(F には入れていません)。</p>
+    <p>4編の「これからの情報の技術」は、すでにある D9 生成AIのしくみラボで学びます(F には入れていません)。</p>
     <p><b>学習コースから開くと、M・F はその分野だけ</b>が出ます(たとえば 1編の節からは「はじめに・① 材料と加工・振り返り・記録」の4つのタブ。F の ④ 未来を提案は、統合的な問題解決の節から ④ だけで開きます)。操作に慣れない生徒が、ほかの分野のタブへ行って迷わないようにするためです。M の「どの技術の工夫?」(4分野をまたぐ8問)は、分野だけのときは出ません。記録・自習ガイド・ワークシートも分野ごとに分かれ、書き出したファイルは振り返り一覧で「M 身の回りの技術さがし ① 材料と加工」のように分野ごとに出ます。配った M・F のファイルを直接開いたときは、今までどおり全部の分野が出ます。</p>
     <h3>Z 学習を終えて</h3>
     <table class="eg-table">

@@ -47,7 +47,7 @@
  * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
  *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
  *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D2</span> CPU</button>)。
+ *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
  */
 .ef-header {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -209,6 +209,11 @@
 .ef-level-group { display: flex; align-items: baseline; gap: .5em; margin: 18px 0 10px; padding: 0 0 4px; border-bottom: 1px solid var(--ef-line); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+/* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
+.ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
+.ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
+.ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
+.ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -504,7 +509,7 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 </style>
 <script>
 /* F これからの技術ラボ: 版と更新履歴・自習ガイド(shared/eduit-frame.js が読む)
- * 教科書の 1編〜3編の3章「これからの〇〇の技術」に使う(4編の「これからの情報の技術」は D8 生成AIのしくみラボ)。
+ * 教科書の 1編〜3編の3章「これからの〇〇の技術」に使う(4編の「これからの情報の技術」は D9 生成AIのしくみラボ)。
  * 記号は F(Future)。分野の色はあい色(eduit-frame.css の data-ef-domain="F")。
  * 新しい版を出すときは version・updated を変え、history のいちばん上に足す。
  */
@@ -841,7 +846,7 @@ window.EDUIT_INFO.jishu.ruby = {
  *   { goal: 'ねらい', time: '30分', steps: [{ where: 'タブの名前', do: 'やること', hint: 'ヒント', go: '#/hash' か 'CSSセレクタ', level: 'advanced', reflect: true }],
  *     check: [{ q: '問い', choices: ['…', …], answer: 正解の番号(0から), explain: '解説' }] }
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
- *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C2')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
+ *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
@@ -1028,6 +1033,19 @@ window.EDUIT_INFO.jishu.ruby = {
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
   var LEVEL_KEYS = ['basic', 'advanced'];
+  // メニューから開く M・F(分野をまたぐ教材)。配るフォルダ(生徒に配る/)では同じフォルダにある。site/build.py がこの行を公開用の名前にする
+  var SIBLINGS = { M: { file: 'M_身の回りの技術さがし.html', name: '身の回りの技術さがし' }, F: { file: 'F_これからの技術ラボ.html', name: 'これからの技術ラボ' } };
+  // textbook.links の1つ: { code: 'M', area: 'a', when: '1章のはじめに', tab: '' }。M・F は ?bunya=a でその分野だけを開く(学習コースと同じ)
+  function linkRow(L) {
+    var S = SIBLINGS[L.code];
+    if (!S) return null;
+    var q = [jishu ? 'jishu=on' : '', L.area ? 'bunya=' + L.area : ''].filter(Boolean).join('&');
+    var href = S.file + (q ? '?' + q : '') + (L.area ? '#' + L.area : '');
+    return el('p', { class: 'ef-level-link' }, [
+      L.when ? el('span', { class: 'ef-level-parts-k', text: L.when }) : null,
+      el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
+    ]);
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -1083,11 +1101,15 @@ window.EDUIT_INFO.jishu.ruby = {
         (groups[gi] = groups[gi] || []).push(c);
       });
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
-      var blocks = [];
+      // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
+      var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
-        if (!groups[i]) return;
+        var L = lk[g.key] || {};
+        if (!groups[i] && !L.first && !L.last) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
-        blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.first) blocks.push(linkRow(L.first));
+        if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
+        if (L.last) blocks.push(linkRow(L.last));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -1509,7 +1531,7 @@ window.EDUIT_INFO.jishu.ruby = {
  * 長い言葉が先に当たる(t-core.js)。文を足したら、その漢字の言葉もここに足す。 */
 window.T_RUBY = {
 
-    '上': 'うえ', '願': 'ねが', '進歩': 'しんぽ', '人々': 'ひとびと', '昔': 'むかし', '積み重ね': 'つみかさね', '授業': 'じゅぎょう', '暮': 'く', '熱く': 'あつく', 'たき火': 'たきび', '歩い': 'あるい', '組・番号': 'くみ・ばんごう', '反射板': 'はんしゃばん', '数': 'かず', '部品の数': 'ぶひんのかず',
+    '付録': 'ふろく', '深める': 'ふかめる', '上': 'うえ', '願': 'ねが', '進歩': 'しんぽ', '人々': 'ひとびと', '昔': 'むかし', '積み重ね': 'つみかさね', '授業': 'じゅぎょう', '暮': 'く', '熱く': 'あつく', 'たき火': 'たきび', '歩い': 'あるい', '組・番号': 'くみ・ばんごう', '反射板': 'はんしゃばん', '数': 'かず', '部品の数': 'ぶひんのかず',
     '技術分野': 'ぎじゅつぶんや', '技術': 'ぎじゅつ', '分野': 'ぶんや', '世界': 'せかい', '教科書': 'きょうかしょ', '学習方法': 'がくしゅうほうほう', '学習': 'がくしゅう', '方法': 'ほうほう', '身': 'み', '回': 'まわ',
     '人': 'ひと', '家': 'いえ', '道路': 'どうろ', '電気': 'でんき', '毎日': 'まいにち', '食': 'た', '野菜': 'やさい', '魚': 'さかな', '考': 'かんが', '工夫': 'くふう', '材料': 'ざいりょう',
     '加工': 'かこう', '生物': 'せいぶつ', '育': 'そだ', '情報': 'じょうほう', '使': 'つか', '生活': 'せいかつ', '社会': 'しゃかい', '問題': 'もんだい', '解決': 'かいけつ', '書': 'か', '思': 'おも',
@@ -2002,7 +2024,7 @@ window.T_RUBY = {
           <div class="t-mini" data-area="a e"><h4><span class="t-ic" aria-hidden="true">♻️</span>循環型社会</h4><p>資源をくり返し使い、ごみを少なくする社会。材料と加工の技術が大きくかかわります。</p></div>
           <div class="t-mini" data-area="b e"><h4><span class="t-ic" aria-hidden="true">🌳</span>自然共生社会</h4><p>自然や生き物のめぐみを守りながら利用する社会。生物育成の技術が大きくかかわります。</p></div>
           <div class="t-mini" data-area="c e"><h4><span class="t-ic" aria-hidden="true">🌏</span>脱炭素社会</h4><p>CO2 などを出す量を少なくし、地球温暖化を防ぐ社会。エネルギー変換の技術が大きくかかわります。</p></div>
-          <div class="t-mini" data-area="e"><h4><span class="t-ic" aria-hidden="true">📡</span>超スマート社会</h4><p>情報の技術で人やものがつながる社会。必要なものを、必要なときに届けられる。これからの情報の技術は D8 生成AIのしくみラボで学びます。</p></div>
+          <div class="t-mini" data-area="e"><h4><span class="t-ic" aria-hidden="true">📡</span>超スマート社会</h4><p>情報の技術で人やものがつながる社会。必要なものを、必要なときに届けられる。これからの情報の技術は D9 生成AIのしくみラボで学びます。</p></div>
         </div>
       </div>
       <div class="t-card">
@@ -2026,7 +2048,7 @@ window.T_RUBY = {
       <h2>④ 技術を組み合わせて、未来を提案しよう</h2>
       <p class="t-ref">教科書 1編〜4編の3章(4編は4章)・統合的な問題解決</p>
       <div class="t-card">
-        <p class="t-lead">社会の大きな問題は、ほとんどが1つの技術だけでは解決できません。分野のちがう技術を組み合わせると、よりよい解決策になります。植物工場(B5)も火星探査ロボット(D10)も、その例です。</p>
+        <p class="t-lead">社会の大きな問題は、ほとんどが1つの技術だけでは解決できません。分野のちがう技術を組み合わせると、よりよい解決策になります。植物工場(B5)も火星探査ロボット(D8)も、その例です。</p>
       </div>
       <div class="t-card t-write">
         <h3>1 解決したい社会の問題をえらぼう</h3>
