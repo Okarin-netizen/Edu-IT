@@ -1777,11 +1777,11 @@ function recordHistory(r){
 
 /* ---------- ② 結果・原因さがし ---------- */
 var HINT = {
-  T_low:'温度が低すぎた日(グラフで帯より下)が{n}日ありました。寒いと成長がにぶります。保温・加温(トンネル・温室)をしよう。種まきや植えつけの季節も見直そう。',
-  T_high:'温度が高すぎた日(グラフで帯より上)が{n}日ありました。温室は晴れた日にとても暑くなります。換気や遮光で温度を下げよう。夏に向かない作物もあります。',
-  L_low:'遮光をして、光が足りなくなった日が{n}日ありました。光が弱いと、成長がにぶります。茎ばかりのびる「徒長」もおこりやすくなります。遮光は、暑すぎる日だけにしよう。',
+  T_low:'温度が低すぎた日(グラフで帯より下)が{n}日ありました。寒いと成長がにぶります。保温・加温(トンネル・温室)や、種まきの季節を見直そう。',
+  T_high:'温度が高すぎた日(グラフで帯より上)が{n}日ありました。晴れた日の温室はとても暑くなります。換気や遮光で温度を下げよう。',
+  L_low:'遮光をして、光が足りなくなった日が{n}日ありました。光が弱いと成長がにぶり、茎ばかりのびる「徒長」もおきます。遮光は、暑すぎる日だけにしよう。',
   W_low:'土がかわきすぎた日(グラフで帯より下)が{n}日ありました。水が足りないと作物はしおれます。晴れて暑い日やプランターは土がかわきやすいよ。',
-  W_high:'土の水分が多すぎた日(グラフで帯より上)が{n}日ありました。土がいつもしめっていると、根が呼吸できません。「根ぐされ」の原因になります。水やりは「土の表面がかわいてから、たっぷり」が基本。雨の日は水やりをひかえよう。',
+  W_high:'土の水分が多すぎた日(グラフで帯より上)が{n}日ありました。しめりすぎると根が呼吸できず、「根ぐされ」になります。水やりは「土の表面がかわいてから、たっぷり」が基本です。',
   N_low:'養分(肥料)が足りない日(グラフで帯より下)が{n}日ありました。葉の色がうすくなり、成長がにぶります。育ち具合を見て追肥しよう。',
   N_high:'肥料が多すぎた日(グラフで帯より上)が{n}日ありました。根がいたむ「肥料やけ」や、病害虫がふえる原因になります。ダイズでは、葉ばかりしげって花がつきにくくなります(つるぼけ)。'
 };
@@ -1791,7 +1791,7 @@ function hintsFor(r, a){
   ['T','L','W','N'].forEach(function(k){ ['low','high'].forEach(function(d){ if (a.cnt[k][d] >= 2 && HINT[k + '_' + d]) list.push([a.cnt[k][d], k + '_' + d]); }); });
   list.sort(function(x, y){ return y[0] - x[0]; });
   list.forEach(function(x){ out.push([HINT[x[1]].replace('{n}', x[0]), '']); });
-  if (a.sickDays) out.push(['病気・害虫がついていた日が' + a.sickDays + '日ありました。毎日の見回りで、早く見つけよう。病気の葉を取る・虫を取るなどして防除しよう。薬品を使うときは、使用上の基準と注意を必ず守ります。', '']);
+  if (a.sickDays) out.push(['病気・害虫がついていた日が' + a.sickDays + '日ありました。毎日見回り、病気の葉や虫を早く取ろう(防除)。薬品は、使用上の基準と注意を必ず守ります。', '']);
   if (a.stretchDays >= 1) out.push(['徒長(茎が細くひょろ長くなる)がおきた日が' + a.stretchDays + '日ありました。光の弱い日がつづき、温度や水が十分にあるとおこりやすくなります。', '']);
   if (!out.length) out.push(['操作で変えられる条件には、大きな失敗はありませんでした。天気の番号を変えてみよう。別の季節や環境でもためしてみよう。', '']);
   /* 天気による光の弱さは「情報」として最後に(B1-01) */
@@ -1806,7 +1806,7 @@ function quizHTML(r, a){
   var correct = a.main || 'none';
   var h = '<div class="b1-card"><h2>🔎 原因さがし</h2>';
   if (r.logs.length < 5) return h + '<p>5日以上育てると、原因さがしができます。</p></div>';
-  h += '<p><b>問題:</b>この栽培で、<b>操作で変えられる条件</b>のうち、成長をいちばんさまたげたのはどれだろう? 下のグラフで「ちょうどよい範囲」から外れた日を数えて予想しよう。くもり・雨で光が弱いのは天気のせいです。操作では変えられないよ。</p>';
+  h += '<p><b>問題:</b>この栽培で、<b>操作で変えられる条件</b>のうち、成長をいちばんさまたげたのはどれだろう? 下のグラフで「ちょうどよい範囲」から外れた日を数えよう。(くもり・雨で光が弱いのは天気のせいで、操作では変えられません)</p>';
   h += '<div class="b1-quiz">' + QKEYS.map(function(k){
     var cls = '';
     if (answered) { if (k === correct) cls = ' class="b1-right"'; else if (k === q.ans) cls = ' class="b1-wrong"'; }
@@ -1819,7 +1819,7 @@ function quizHTML(r, a){
   if (a.main) h += 'いちばん影響が大きかったのは「' + causeText(a.main, a.mainDir) + '」ことでした。' + (a.main === 'L' ? '遮光をした日に光が足りなくなっていました。' : '') + '</p>';
   else h += '操作で変えられる条件(温度・遮光・水・養分)は、どれも大きな問題はありませんでした。光が弱い日があったのは、天気(くもり・雨)のせいです。人の操作では変えられません。</p>';
   var mx = Math.max(1, a.loss.T, a.loss.L, a.loss.W, a.loss.N, a.weather);
-  h += '<h3>条件ごとの「成長へのマイナス」</h3><p class="b1-small">ちょうどよい範囲から外れるほど、成長がへります。何日分の成長が失われたかに直した目安です。' + E.MAIN_MIN + '日分より小さければ「大きな問題なし」としています。光の行は、遮光によるマイナスだけです。天気による分は、下の灰色の行です。</p>';
+  h += '<h3>条件ごとの「成長へのマイナス」</h3><p class="b1-small">範囲から外れるほど成長がへります。失われた成長を日数にした目安です(' + E.MAIN_MIN + '日分より小さければ「大きな問題なし」)。光の行は遮光の分だけで、天気の分は下の灰色の行です。</p>';
   ['T','L','W','N'].forEach(function(k){
     h += '<div class="b1-lossbar"><span>' + FI[k] + ' ' + FN[k] + (k === 'L' ? '(遮光)' : '') + '</span><div class="b1-lb"><div style="width:' + (a.loss[k] / mx * 100) + '%"></div></div><span>' + r1(a.loss[k]) + '日分</span></div>';
   });
@@ -1849,7 +1849,7 @@ function renderResult(){
   h += costCard(r);
   var qa = S.game.quiz && S.game.quiz.n === r.logs.length;
   h += '<div class="b1-card b1-story"><h2>📝 結果のまとめ</h2>' + ((qa || r.logs.length < 5) ? storyOf(r).map(function(x){ return '<p>' + esc(x) + '</p>'; }).join('') : '<p class="b1-small">上の「原因さがし」に答えると、結果のまとめ(文章)が出ます。</p>') + '</div>';
-  h += '<div class="b1-card"><h2>📈 グラフで見る</h2><p class="b1-small">緑の帯=ちょうどよい範囲。健康度の×は病気・害虫がいた日。温度の赤い線は操作したあとの温度、灰色の点線は外の気温。光の灰色の点線は、遮光しなかったときの光(天気だけで決まる光)。</p><div class="b1-charts">' +
+  h += '<div class="b1-card"><h2>📈 グラフで見る</h2><p class="b1-small">緑の帯=ちょうどよい範囲。×=病気・害虫がいた日。灰色の点線=外の気温と、遮光しなかったときの光。</p><div class="b1-charts">' +
     ['h','hl','t','l','w','n'].map(function(k){ return '<canvas class="b1-chart" id="b1-rc-' + k + '"></canvas>'; }).join('') + '</div></div>';
   h += '<details class="b1-card"><summary>📋 毎日の記録(ログ)を見る</summary><div class="b1-tablewrap"><table class="b1-log"><thead><tr><th>日</th><th>天気</th><th>温度</th><th>光</th><th>土の水分</th><th>養分</th><th>操作</th><th>草丈</th><th>健康度</th><th>いちばんの問題</th></tr></thead><tbody>' +
     r.logs.map(function(d){
@@ -2306,7 +2306,7 @@ root.addEventListener('click', function(ev){
     case 'rf-copy': rfCopy(); break;
     case 'rf-print': rfPrint(); break;
     case 'wipe':
-      confirmK('B1のデータをすべて消しますか?\n\nこの端末のB1の記録が、すべて消えます。そだてた栽培・これまでの記録・くらべた記録・振り返りが消えます。元にはもどせません。', { ok:'消す', cancel:'やめる', danger:true }, function(){
+      confirmK('B1のデータをすべて消しますか?\n\nこの端末のB1の記録(栽培・くらべた記録・振り返り)が、すべて消えます。元にはもどせません。', { ok:'消す', cancel:'やめる', danger:true }, function(){
         store.wipe(); S.game = null; S.cmp = null; S.cur = Object.assign({}, DEF_ACT); runCache = null; cmpRuns = null;
         S.pick = { crop:'tomato', env:'field', season:'early', seed:1 };
         showTab('start'); toast('データを消しました');
