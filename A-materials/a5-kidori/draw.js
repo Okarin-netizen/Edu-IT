@@ -124,7 +124,7 @@
     var b = bounds(boxes);
     var W = b.W, D = b.D, H = b.H;
     var isoW = (W + D) * COS30, isoH = (W + D) * SIN30 + H;
-    var mL = 70, gap = 80, mT = 40, mB = 100;
+    var mL = 70, gap = 80, mT = opts.title ? 58 : 40, mB = 100; // 題名があるときは「平面図」の文字が題名に重ならないように下げる
     var s = Math.min((cw - mL - gap - 40 - 30) / (W + D + isoW), (ch - mT - gap - mB) / (D + H));
     s = Math.max(0.05, s);
     ch = Math.max(Math.round(mT + gap + mB + (D + H) * s), 300); // 図に合わせて高さを決める
@@ -170,14 +170,14 @@
     var rows = Math.max(1, Math.ceil(parts.length / cols));
     var ctx = G.setupCanvas(canvas, cw, rows * cellH + 10);
     ctx.fillStyle = c.paper; ctx.fillRect(0, 0, cw, rows * cellH + 10);
-    var maxL = parts.reduce(function (m, p) { return Math.max(m, p.l || 0, p.w || 0); }, 1);
-    var s = Math.min((cellW - 90) / maxL, 110 / maxL * 2.2);
+    // 全部の部品を同じ尺度でかく(同じ長さの部品が同じ長さに見えるように)
+    var maxL = parts.reduce(function (m, p) { return Math.max(m, p.l || 0); }, 1);
+    var maxW = parts.reduce(function (m, p) { return Math.max(m, p.w || 0); }, 1);
+    var s = Math.min((cellW - 90) / maxL, 110 / maxW);
     parts.forEach(function (p, i) {
       var cx = (i % cols) * cellW, cy = Math.floor(i / cols) * cellH;
       var L = Math.max(0, p.l || 0), Wd = Math.max(0, p.w || 0);
       var w = Math.max(4, L * s), h = Math.max(4, Wd * s);
-      if (h > 110) { var k = 110 / h; w *= k; h *= k; }
-      if (w > cellW - 90) { var k2 = (cellW - 90) / w; w *= k2; h *= k2; }
       var x = cx + 50, y = cy + 40;
       ctx.fillStyle = c.wood; ctx.fillRect(x, y, w, h);
       ctx.strokeStyle = c.ink; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
@@ -189,9 +189,12 @@
       dim(ctx, x, y + h, x + w, y + h, 'below', fmt(L), c);
       dim(ctx, x, y, x, y + h, 'left', fmt(Wd), c);
       ctx.fillStyle = c.ink; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(p.name + ' ×' + (p.qty || 1), cx + 12, cy + 22);
+      var title = p.name + ' ×' + (p.qty || 1);
+      ctx.fillText(title, cx + 12, cy + 22);
+      // 厚さと木目の向きは名前の右に書く(横に長い部品でも図に重ならないように)
+      var tx = cx + 12 + ctx.measureText(title).width + 10;
       ctx.font = '12px sans-serif'; ctx.fillStyle = c.muted;
-      ctx.fillText('t' + fmt(p.t || 0) + (p.grain ? ' / 木目は長さ方向' : ''), x + Math.min(w, cellW - 150) + 8, y + 12);
+      ctx.fillText('t' + fmt(p.t || 0) + (p.grain ? ' / 木目は長さ方向' : ''), tx, cy + 22);
     });
   }
 
