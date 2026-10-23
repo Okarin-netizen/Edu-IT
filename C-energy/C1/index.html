@@ -244,7 +244,7 @@ var CAT = {
   sun:{kind:'src',name:'太陽の光',icon:'☀️',out:'light',cap:100,cost:2,co2:0,renew:'sun',
     desc:'光エネルギー。くもりの日は少なく、夜は0になる。',tip:'燃料代は0。お金のほとんどはパネルをつくる費用。'},
   bio:{kind:'src',name:'バイオマス',icon:'🪵',out:'chem',cap:60,cost:1,fuel:5,co2:0.1,
-    desc:'木くずなど生物からできた燃料。燃やすとCO₂が出る。でも、それは植物が育つときに吸ったCO₂だ。だから全体では増えにくいと考えられている。',tip:'木くずを集めて運ぶのにお金がかかり、燃料代が高め。'},
+    desc:'木くずなど生物からできた燃料。燃やして出るCO₂は、植物が育つときに吸った分なので、全体では増えにくい。',tip:'木くずを集めて運ぶのにお金がかかり、燃料代が高め。'},
   outlet:{kind:'src',name:'コンセント',icon:'🔌',out:'elec',cap:15,cost:0,co2:0,hard:true,maxOut:2,
     desc:'かべのコンセント。差し込み口は2つ。1か所で合計1500Wまで(定格:安全に使える上限)。'},
 
@@ -298,7 +298,7 @@ var STAGES = [
    parts:{kandenchi:3,bulb:2,led:1},
    effStar:0.3,
    stars:[['明かりがつく',function(m){return m.clear;}],['総合効率 30%以上',function(m){return m.eff>=0.3;}],['乾電池1本だけで',function(m){return m.count.kandenchi<=1;}]],
-   hints:['まずは「乾電池 → 豆電球 → 明かり」とつないでみよう。','豆電球は、電気の90%が熱になってしまう。乾電池1本では足りないね。乾電池を何本か同じ豆電球につなごう。このゲームでは「直列」になり、電気が足されるよ。','LED電球なら少ない電気で明るくできる。乾電池1本でためそう。'],
+   hints:['まずは「乾電池 → 豆電球 → 明かり」とつないでみよう。','豆電球は電気の90%が熱になるので、乾電池1本では足りない。何本か同じ豆電球につなぐと「直列」になり、電気が足されるよ。','LED電球なら少ない電気で明るくできる。乾電池1本でためそう。'],
    quiz:{q:'豆電球よりLED電球の方が、少ない電気で同じ明るさになるのはなぜ?',c:['電気を光に変える割合(効率)が高く、熱になるロスが少ないから','LEDは電気をほとんど使わずに、自分の力で光をつくり出すから','電気を熱に変える割合が高く、その熱で明るく光るしくみだから'],ex:'豆電球は電気の約90%が熱になります。LEDは光に変わる割合が高いので、同じ明るさでも少ない電気ですみます。'}},
  { id:'s2', title:'自転車のライト', learn:'運動 → 電気(発電機)', slots:ONE,
    story:'ペダルをこぐと前のライトが光る自転車。足の運動エネルギーを電気に変えて、明かりをつけよう。',
@@ -506,7 +506,7 @@ function evaluate(stage, board, R) {
     var sname = stage.slots.length > 1 ? '【' + stage.slots[si].name + '】' : '';
     for (var id in s.over) {
       var n = R.byId[id], d = CAT[n.type];
-      if (n.type === 'outlet') m.reasons.push(sname + '「' + outletName(n, board.nodes) + '」で ' + fmtU(s.over[id], u) + ' 使おうとしています。コンセントの定格(安全に使える上限)は1500W。こえるとコードやプラグが発熱し、火災の原因になります。さらに使いすぎると、家のブレーカーが落ちることもあります。');
+      if (n.type === 'outlet') m.reasons.push(sname + '「' + outletName(n, board.nodes) + '」で ' + fmtU(s.over[id], u) + ' 使おうとしています。コンセントの定格(安全に使える上限)は1500Wです。こえると発熱し、火災の原因になります。');
       else m.reasons.push(sname + '「' + d.name + '」に ' + fmtU(s.over[id], u) + ' 流れています。定格1500Wをこえて、発熱・発火の危険があります!');
     }
   });
@@ -1118,7 +1118,7 @@ function showHowto(first) {
     '<div><b>↩ もどす</b><br>まちがえたら「↩ もどす」で1つ前にもどせる。「' + (stage().free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '」で、はじめの状態にもどる。</div>' +
     '<div><b>🎨 エネルギーの形</b><br>' + Object.keys(FORMS).map(function (f) { return pill(f); }).join(' ') + '<br>形が同じ所どうしだけつなげる。</div>' +
     '<div><b>📊 ' + furi('効率') + 'とは?</b><br>部品に入ったエネルギーのうち、目的の形になって出ていく割合。効率40%なら、100入ると40出て、60は熱などになって逃げる。</div>' +
-    '<div><b>💴 費用とは?</b><br>「つくる費用」+「燃料代」。つくる費用は、部品を置くと1回かかる。燃料代は、石炭・天然ガス・ウラン・バイオマスを燃やした量だけかかる。太陽・風・水は燃料代が0。発電方法で値段が変わるよ。</div>' +
+    '<div><b>💴 費用とは?</b><br>「つくる費用(部品を置くと1回)」+「燃料代(燃やした量だけ)」。太陽・風・水は燃料代が0。</div>' +
     '<div><b>🔊 効果音</b><br>右上の 🔇/🔊 で、音を出す・出さないを切りかえる(最初は音なし)。</div>' +
     '</div><p>部品の左右の丸は、入るエネルギー(左)と出るエネルギー(右)の形です。部品を通るたびに一部が熱になって逃げます(♨)。数値は授業用の目安です。</p>' +
     '<div class="acts">' + (first ? '<button class="e1-btn primary" data-act="howtostart">はじめる</button>' : '<button class="e1-btn primary" data-act="close">わかった</button>') + '</div>');
@@ -1179,12 +1179,12 @@ function axes(st, M) {
   var rows = [['🌏 環境', 'CO₂の少なさ', a.env], ['💴 経済', 'つくる費用・燃料代の安さ', a.econ], ['🔌 安定', '天気や時間に左右されにくい', a.stab]];
   var h = '<h3>' + (st.free ? 'この組み合わせの評価' : 'この町の電源の評価') + '</h3>';
   rows.forEach(function (r) { h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#3b82c4"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>'; });
-  return h + '<p style="font-size:calc(16px * var(--ea-fs, 1))">' + furi('どの発電方法にも長所と短所がある。すべてを高くするのはむずかしい。下の「社会からの評価」も見よう。どれを大事にしたか、なぜその組み合わせにしたかを説明できるようにしよう。') +
+  return h + '<p style="font-size:calc(16px * var(--ea-fs, 1))">' + furi('どの発電方法にも長所と短所があり、すべてを高くするのはむずかしい。何を大事にして、なぜその組み合わせにしたかを説明しよう。') +
     '</p><p class="e1-note" style="font-size:calc(14px * var(--ea-fs, 1))">' + furi('点数は授業用の目安です。太陽光や風力は環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
 }
 function social(st, M) {
   var a = axesScores(st, S.board, S.R, M), avg = (a.safe + a.acc) / 2;
-  var h = '<div class="e1-social"><h3>🕵 かくれポイント:社会からの評価</h3><p style="font-size:calc(16px * var(--ea-fs, 1));margin:4px 0 8px">' + furi('じつは、プレイ中には見えない点数がありました。発電所は安全でなければなりません。近くに住む人たちの理解も必要です。それがないと、つくることも続けることもできません。') + '</p>';
+  var h = '<div class="e1-social"><h3>🕵 かくれポイント:社会からの評価</h3><p style="font-size:calc(16px * var(--ea-fs, 1));margin:4px 0 8px">' + furi('じつは、見えない点数がありました。安全と、近くに住む人の理解です。それがないと、発電所はつくることも続けることもできません。') + '</p>';
   [['🛡 安全性', '事故や、処分のむずかしいごみの心配の少なさ', a.safe], ['🏘 住民の理解', '近くに住む人や市民に受け入れられやすいか', a.acc]].forEach(function (r) {
     h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#8e44ad"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>';
   });
@@ -1214,7 +1214,7 @@ function showPrice() {
       '<div class="e1-note" style="font-size:calc(14px * var(--ea-fs, 1));margin:-2px 0 8px">' + furi(p.w) + '</div>';
   });
   h += '<p style="font-size:calc(16px * var(--ea-fs, 1))">' + furi('燃料を使う発電は「燃料代」が毎日かかり、太陽・風・水は「つくる費用」が大部分です。安いだけでなく、CO₂・安定・安全もあわせて考えよう。') + '</p>' +
-    '<p class="e1-note" style="font-size:calc(14px * var(--ea-fs, 1))">※ 概算です。もとは国の発電コスト検証(2021年)です。2020年に発電所を新しく建てた場合の試算(1kWhあたり)を丸めました。燃料の値段や建てる場所、年によって大きく変わります。太陽光・風力の天気による変化をおぎなう費用は入っていません。ゲームの中の費用の数字は、この値段とは別の授業用の目安です。</p>' +
+    '<p class="e1-note" style="font-size:calc(14px * var(--ea-fs, 1))">※ 国の試算(2021年)を丸めた目安です。ゲームの中の費用とは別です。</p>' +
     '<div class="acts"><button class="e1-btn primary" data-act="close">とじる</button></div>';
   modal(h);
 }

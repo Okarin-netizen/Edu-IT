@@ -683,7 +683,7 @@ var CHALS = [
     ex: '電池を<b>直列</b>にすると電圧が大きくなり(3V)明るいが、早くなくなります。<b>並列</b>にすると明るさは1個と同じで、長持ちします。<br>※実際には、古い電池と新しい電池、種類のちがう電池をまぜて使わないこと。',
     quiz: { q: '乾電池2個を直列にしたときの特徴は?', c: ['電圧が大きくなり明るいが、電池は早くなくなる', '明るさは1個のときと同じで、電池が2倍長持ちする', '電圧が打ち消し合って、電流が流れなくなる'], ex: '直列は電圧が2倍、並列は持ちがよくなる、と覚えよう。' } },
   { id: 'c9', title: 'LEDと抵抗', learn: 'LEDには抵抗を直列に', parts: { battery: 2, led: 1, resistor: 1 },
-    intro: '乾電池2個(3V)でLED(<ruby>発光<rt>はっこう</rt></ruby>ダイオード)を光らせよう。LEDは電流が大きすぎる(20mAより大きい)とこわれる。<b>抵抗</b>を直列に入れて、ちょうどよい電流にしよう。LEDには<b>向き</b>もあるよ。<br>抵抗は、はじめは<b>10Ω</b>になっている。計算して、ちょうどよい値をえらぼう。',
+    intro: '乾電池2個(3V)でLED(<ruby>発光<rt>はっこう</rt></ruby>ダイオード)を光らせよう。LEDは20mAより大きい電流でこわれるので、<b>抵抗</b>を直列に入れる(<b>向き</b>もある)。<br>はじめは<b>10Ω</b>。計算して、ちょうどよい値をえらぼう。',
     hints: ['抵抗の値は、抵抗をタップしてえらべる。', '抵抗の値 =(電源の電圧 − LEDの電圧)÷ 電流。20mA = 0.02A(1000mA = 1A)だから、(3 − 1.8)÷ 0.02 = 60Ω。これより大きい値をえらぼう。'],
     goals: function (X) {
       var D = X.of('led'), Rs = X.of('resistor');
@@ -1600,8 +1600,8 @@ function renderTap() {
   p += '<div class="e2-card' + (over1 ? ' warn' : '') + '"><div class="ttl">📊 合計</div>' + kv([['<ruby>消費<rt>しょうひ</rt></ruby>電力の合計', tot + ' W'], ['電流(= 電力 ÷ 100V)', A.toFixed(1) + ' A'], ['テーブルタップの上限', '1500W(15A)'], ['ブレーカーの上限', '2000W(20A)']]) +
     '<div class="e2-gwrap"><div class="e2-gauge"><i style="width:' + Math.min(100, tot / 25) + '%;background:' + (tot > 2000 ? '#d93a3a' : tot > 1500 ? '#f08c00' : '#1a9b5b') + '"></i></div><span class="mk" style="left:60%"></span><span class="mk" style="left:80%;background:#c92a2a"></span></div>' +
     '<div class="e2-gscale"><span style="left:4%">0</span><span style="left:60%">1500W</span><span style="left:80%;color:#c92a2a">2000W</span><span style="left:auto;right:0;transform:none">2500W</span></div></div>';
-  if (dark) p += '<div class="e2-card warn"><div class="ttl">⬇ ブレーカーが落ちた</div>回路に流れる電流が20Aをこえました。だから、ブレーカーが自動で電気を止めました。<b>使いすぎている器具を減らしてから</b>入れなおそう。<div class="e2-row"><button class="e2-btn big primary" data-act="breset">⬆ ブレーカーを入れる</button></div></div>';
-  p += '<div class="e2-card tip"><div class="ttl">💡 知っておこう</div>・電力[W] = 電圧[V] × 電流[A]。家のコンセントは100V。<br>・テーブルタップには上限(<ruby>定格<rt>ていかく</rt></ruby>:安全に使える上限)がある。こえると<b>コードが熱くなり、火災</b>の原因に。<br>・タップにタップをつなぐ「たこ足配線」はさけよう。<br>・プラグのすき間のほこりから火が出ることも(<b>トラッキング<ruby>現象<rt>げんしょう</rt></ruby></b>)。ほこりと湿気で電気が流れて発火する。ときどき掃除しよう。</div>';
+  if (dark) p += '<div class="e2-card warn"><div class="ttl">⬇ ブレーカーが落ちた</div>電流が20Aをこえたので、ブレーカーが電気を止めました。<b>器具を減らしてから</b>入れなおそう。<div class="e2-row"><button class="e2-btn big primary" data-act="breset">⬆ ブレーカーを入れる</button></div></div>';
+  p += '<div class="e2-card tip"><div class="ttl">💡 知っておこう</div>・電力[W] = 電圧[V] × 電流[A]。家のコンセントは100V。<br>・テーブルタップには上限(<ruby>定格<rt>ていかく</rt></ruby>:安全に使える上限)がある。こえると<b>コードが熱くなり、火災</b>の原因に。<br>・タップにタップをつなぐ「たこ足配線」はさけよう。<br>・プラグのほこりと湿気から火が出ることも(<b>トラッキング<ruby>現象<rt>げんしょう</rt></ruby></b>)。ときどき掃除しよう。</div>';
   p += '<div class="e2-card">' + quizHtml('s1', SQUIZ.s1) + '</div>';
   S.el.pside.innerHTML = p;
 }
@@ -1728,7 +1728,7 @@ function renderCost() {
     '<div class="e2-cside">' +
     '<div class="e2-card"><div class="ttl">🧮 計算のしかた</div><b>電力量[Wh]</b> = 電力[W] × 時間[h]<br>1000Wh = <b>1kWh</b>(キロワット時)<br><b>電気料金</b> = 電力量[kWh] × 1kWhあたりの料金<br><div style="margin-top:6px">1kWhあたり <span class="e2-step"><button class="e2-btn" data-act="pdn">−</button><b>' + K.price + '円</b><button class="e2-btn" data-act="pup">+</button></span></div><div class="e2-note">(料金は電力会社や<ruby>契約<rt>けいやく</rt></ruby>(約束した料金のプラン)で変わります。ここでは目安)</div></div>' +
     '<div class="e2-card tip"><div class="ttl">💡 くらべてみよう</div>電球を1日5時間、30日つけると…<br>白熱電球 60W:60×5×30 = 9kWh → <b>' + Math.round(9 * K.price) + '円</b><br>LED電球 8W:8×5×30 = 1.2kWh → <b>' + Math.round(1.2 * K.price) + '円</b><br>同じ明るさでも、LEDは電気代が少なくてすむ。電気を光に変える<b><ruby>効率<rt>こうりつ</rt></ruby></b>(むだなく変えられる割合)がよいからだ。</div>' +
-    '<div class="e2-card"><div class="ttl">🤔 考えよう</div>ドライヤー(1200W)は消費電力が大きいけれど、使う時間が短い。冷蔵庫は40Wでも24時間。1か月の料金はどちらが大きい?表の時間を変えてためそう。</div></div></div>';
+    '<div class="e2-card"><div class="ttl">🤔 考えよう</div>ドライヤー(1200W)は短い時間、冷蔵庫(40W)は24時間。1か月の料金はどちらが大きい?表の時間を変えてためそう。</div></div></div>';
   S.el.page.innerHTML = h;
 }
 function pageAct(a, t) {

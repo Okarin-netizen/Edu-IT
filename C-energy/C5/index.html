@@ -586,7 +586,7 @@ var TASKS = [
     stock: { gear: [10, 15, 20, 30, 40, 60] }, links: ['mesh', 'shaft'], start: { wheels: [W('gear', 20)], links: [] }, best: 2,
     checks: [{ t: '出力が180回/分', f: function (s) { return near(s.outRpm, 180); } }],
     hints: ['大きい歯車で小さい歯車を回すと速くなる。', '入力の歯車をタップすると歯数を変えられる。入力を出力の3倍の歯数にしよう。', 'たとえば 入力30枚 → 出力10枚 なら 10 ÷ 30 = 1/3 で、3倍の速さ。'],
-    learn: '原動(入力)を大きく、従動(出力)を小さくすると増速できる。たとえば 30 → 10 なら、速度伝達比 = 10 ÷ 30 = 1/3。回転速度は3倍。ただし回す力は約1/3に弱くなる。' }),
+    learn: '原動(入力)を大きく、従動(出力)を小さくすると増速できる。30 → 10 なら速度伝達比は1/3で、回転速度は3倍、回す力は約1/3。' }),
   convTask({ id: 'door', mech: 'rack', icon: '🚪', title: '引き戸を動かす', lead: '1回転で100mm',
     story: 'ピニオンを1回転させると、ラック(と戸)が<b>ちょうど100mm</b>動くようにしよう。歯の間隔は5mm。',
     checks: [{ t: '1回転で100mm動く', f: function (c) { return near(M.rackPerTurn(c.z), 100); } }],
@@ -1742,7 +1742,7 @@ function drawQuiz(c) {
 
 /* ---------- 設計課題の一覧 ---------- */
 function renderTasks() {
-  var h = '<h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。やさしい順に並んでいる。少ない部品でできたら ★★★。モーターは1秒に1回転(60回/分)。</p><div class="e3-tgrid">';
+  var h = '<h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。少ない部品でできたら ★★★(モーターは60回/分)。</p><div class="e3-tgrid">';
   TASKS.forEach(function (t, i) {
     var st = S.save.tasks[t.id] || 0;
     h += '<button class="e3-tcard' + (st ? ' done' : '') + '" data-act="task" data-id="' + t.id + '"><span class="no"><span>課題' + (i + 1) + ' ・ ' + (t.kind === 'train' ? '回転を伝える' : '運動を変える') + '</span><span class="star">' + (st ? '★★★'.slice(0, st) : '') + '</span></span>' +
