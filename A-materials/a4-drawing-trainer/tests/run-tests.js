@@ -201,6 +201,29 @@ function silhouetteOK(s, view, lines) {
   console.log('書き順違いの判定: 完了');
 })();
 
+/* ---- 3b) キャビネット図 ---- */
+(function () {
+  var cube = M.fromHeights([[1]]);
+  check(M.mergeSegments(M.cabLines(cube).visible).length === 9, '立方体1個のキャビネット図は9本');
+  var bar = M.fromHeights([[1, 1, 1]]);
+  check(M.mergeSegments(M.cabLines(bar).visible).length === 9, '直方体のキャビネット図は9本');
+  // 正面の面は、正面図の外形線と同じ形(左下の角をそろえると、正面図の線はすべてキャビネット図にある)
+  var r = M.rng(11);
+  for (var n = 0; n < 40; n++) {
+    var s = M.randomSolid(r, 1 + (n % 3)), lines = {};
+    M.cabLines(s).visible.forEach(function (k) { lines[k] = 1; });
+    check(M.decompose([0, 0], [3, -1], 'cab') === null, 'キャビネットで45°以外のななめを拒否');
+    check(M.decompose([0, 0], [2, -2], 'cab').length === 2, 'キャビネットの奥行きの向き');
+    // 書き順違い・位置ずらしで正解
+    var exp = M.cabLines(s), drawn = {};
+    M.mergeSegments(exp.visible).forEach(function (sg) {
+      (r() < 0.5 ? M.decompose([sg[0] + 2, sg[1] + 5], [sg[2] + 2, sg[3] + 5], 'cab') : M.decompose([sg[2] + 2, sg[3] + 5], [sg[0] + 2, sg[1] + 5], 'cab')).forEach(function (k) { drawn[k] = 'v'; });
+    });
+    check(M.grade(exp, drawn).ok, 'キャビネット図の判定 ' + n);
+  }
+  console.log('キャビネット図: 完了');
+})();
+
 /* ---- 3) 等角図 ---- */
 (function () {
   var cube = M.fromHeights([[1]]);

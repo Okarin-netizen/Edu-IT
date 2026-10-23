@@ -48,6 +48,7 @@
       template: null,
       strength: { partId: null, support: 'simple', loadType: 'point', span: null, kg: 10, thick: 3, material2: 'hinoki', ribs: 1, ribW: 15, ribH: 30, measured: '' },
       review: { inspect: {}, self: {}, good: '', improve: '', real: '', viewpoints: {} },
+      plan: { rows: [] },
       hints: { used: 0, log: [] }
     };
   }
@@ -815,7 +816,44 @@
     ctx.fillText('支点間距離 ' + L + ' mm / ' + (mag >= 1.5 ? 'たわみは見やすくするため 約' + G.fmt(mag, 0) + '倍に拡大' : mag < 0.67 ? 'たわみは実際より小さく表示' : 'たわみはほぼ実際の大きさで表示'), 10, ch - 10);
   }
 
-  /* ---------- 5 ふりかえり ---------- */
+  /* ---------- 5 製作工程表 ---------- */
+  function defaultPlan() {
+    var names = P.parts.map(function (p) { return p.name; }).filter(Boolean).join('・');
+    return [
+      { work: '材料を確かめて、けがきをする', tool: 'さしがね・鉛筆' },
+      { work: '部品を切る' + (names ? '(' + names + ')' : ''), tool: '両刃のこぎり' },
+      { work: '部品をけずって、寸法を整える', tool: 'かんな・紙やすり' },
+      { work: '下穴をあける', tool: 'きり・卓上ボール盤' },
+      { work: '組み立てる', tool: 'げんのう・くぎ・木ねじ・接着剤' },
+      { work: '仕上げる(やすりがけ・塗装)', tool: '紙やすり・はけ' }
+    ].map(function (r) { return { work: r.work, tool: r.tool, when: '', done: false }; });
+  }
+  function renderPlan() {
+    if (!P.plan.rows.length) P.plan.rows = defaultPlan();
+    G.$('#plan-title').textContent = '作品: ' + (art.title || '') + '  (' + new Date().toLocaleDateString('ja-JP') + ')';
+    var tb = G.$('#plan-table tbody'); tb.innerHTML = '';
+    P.plan.rows.forEach(function (r, i) {
+      function txt(key, ph) {
+        var inp = G.h('input', { type: 'text', value: r[key] || '', placeholder: ph, maxlength: 60, 'aria-label': (i + 1) + '番目の' + ph });
+        inp.addEventListener('change', function () { r[key] = inp.value; changed(); });
+        return G.h('td', null, inp);
+      }
+      var ck = G.h('input', { type: 'checkbox', checked: !!r.done, 'aria-label': (i + 1) + '番目が終わった' });
+      ck.addEventListener('change', function () { r.done = ck.checked; changed(); });
+      var up = G.h('button', { class: 'btn small', type: 'button', disabled: i === 0, 'aria-label': '上へ' }, '↑');
+      up.addEventListener('click', function () { var t = P.plan.rows[i - 1]; P.plan.rows[i - 1] = r; P.plan.rows[i] = t; changed(); renderPlan(); });
+      var del = G.h('button', { class: 'btn small', type: 'button', 'aria-label': '消す' }, '✕');
+      del.addEventListener('click', function () { P.plan.rows.splice(i, 1); if (!P.plan.rows.length) P.plan.rows.push({ work: '', tool: '', when: '', done: false }); changed(); renderPlan(); });
+      tb.appendChild(G.h('tr', null, G.h('td', { class: 'num' }, String(i + 1)), txt('work', '作業'), txt('tool', '工具'), txt('when', 'いつ'), G.h('td', { class: 'c' }, ck), G.h('td', { class: 'no-print' }, up, ' ', del)));
+    });
+  }
+  G.$('#plan-add').addEventListener('click', function () { P.plan.rows.push({ work: '', tool: '', when: '', done: false }); changed(); renderPlan(); });
+  G.$('#plan-reset').addEventListener('click', function () {
+    G.confirm('今の工程表は、部品表から作った案に置きかわります。', '作り直す').then(function (ok) { if (ok) { P.plan.rows = defaultPlan(); changed(); renderPlan(); } });
+  });
+  G.$('#print-plan').addEventListener('click', printPanel);
+
+  /* ---------- 6 ふりかえり ---------- */
   function renderReview() {
     var R = P.review;
     G.psCycle(G.$('#ps'), ['plan', 'eval', 'improve']);
@@ -867,6 +905,7 @@
     if (currentTab === 'layout') { drawLayout(); renderTray(); renderSel(); renderStats(); }
     else if (currentTab === 'drawing') renderDrawing();
     else if (currentTab === 'strength') { renderStrengthForm(); renderStrength(); }
+    else if (currentTab === 'plan') renderPlan();
     else if (currentTab === 'review') renderReview();
   }
   var tabs = G.tabs(G.$('[data-g-tabs]'), function (name) {

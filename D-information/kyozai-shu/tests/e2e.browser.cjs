@@ -40,7 +40,7 @@ const check = (ok, label) => {
   check((await page.locator(".ef-mcard").count()) === 10 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 0, "基本編に教材カードが10枚ある（ハッシュ化体験ラボは発展編だけ）");
   check((await page.locator(".ef-mcard .ef-level-parts").count()) === 10 && /使うところ/.test(await page.locator(".ef-mcard .ef-level-parts").first().innerText()), "カードに「使うところ」（その編で使うページ）が出る");
   await page.click(".ef-level-tab.ef-level-advanced");
-  check((await page.locator(".ef-mcard").count()) === 8 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 1 && (await page.locator('.ef-mcard-go[href="#/scam-lab"]').count()) === 0, "発展編に教材カードが8枚ある");
+  check((await page.locator(".ef-mcard").count()) === 7 && (await page.locator('.ef-mcard-go[href="#/hash-lab"]').count()) === 1 && (await page.locator('.ef-mcard-go[href="#/scam-lab"]').count()) === 0, "発展編に教材カードが7枚ある");
   await page.reload();
   check((await page.locator('.ef-level-advanced[aria-selected="true"]').count()) === 1, "選んだ編は読みこみ直しても残る");
   await page.click(".ef-level-tab.ef-level-basic");
@@ -135,7 +135,7 @@ const check = (ok, label) => {
     return fl.evaluate((f) => (f.contentDocument.querySelector("#view .kyozai-next") || {}).innerText || "");
   };
   check(/① ネットワークを組み立てる/.test(await nextText("network-sim", "#/")), "KS-08: ネットワーク通信シミュレータの「はじめに」に「つぎはこれ」が出る");
-  check(/パスワード強度ラボ/.test(await nextText("security-lab", "#/")), "KS-08: 情報セキュリティ体験ラボの「はじめに」に「つぎはこれ」が出る");
+  check(/情報を守るしくみ/.test(await nextText("security-lab", "#/")), "KS-08: 情報セキュリティ体験ラボの「はじめに」に「つぎはこれ」が出る");
   check(/ふりかえり・記録 →/.test(await nextText("security-lab", "#/check")), "KS-08: 理解度チェックのつぎは「ふりかえり・記録」");
   check(/つぎの教材「/.test(await nextText("security-lab", "#/records")), "KS-08: つぎの教材の案内は「ふりかえり・記録」のページに出る");
   const dlHome = await nextText("digitization-lab", "#/");

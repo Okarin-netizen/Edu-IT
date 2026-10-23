@@ -221,6 +221,12 @@
 .ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
 .ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
 .ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
+.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: 2px solid var(--ef-accent); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
+.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-bg, #f6f7f5); }
+.ef-level-matome-t { font-weight: 700; }
+.ef-level-matome-d { color: var(--ef-sub, #5e6b64); font-size: .92em; }
+.ef-matome-score { font-weight: 700; }
+.ef-matome-h { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; font-size: 1.05em; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -778,7 +784,7 @@ window.EDUIT_INFO.levels = {
       { id: 'virtual-cpu', parts: ['① 図解: 5つの装置', '② 手計算くらべ'], curr: 'D(1)ア・イ', why: 'コンピュータの構成(5つの装置)と、自動で処理するよさは基本' },
       { id: 'digitization-lab', parts: ['① 画像のデジタル化', '② 音のデジタル化', '③ 2進数と文字コード', '④ データ量の計算ドリル'], curr: 'D(1)ア', why: '情報のデジタル化と情報の量は、どの教科書でも扱う基本' },
       { id: 'network-sim', parts: ['① ネットワークを組み立てる', '② Webページが届くまで', '③ 回線が切れたら？', '④ のぞき見と暗号化'], curr: 'D(1)ア', why: '情報通信ネットワークのしくみ(パケット・サーバ・ルータ)と暗号化は基本' },
-      { id: 'security-lab', parts: ['① パスワード強度ラボ', '② 暗号ラボ', '③ フィッシング見分け', '④ SNS投稿の個人情報チェック', '⑤ デジタルタトゥー', '⑥ 著作権・利用ルールクイズ', '⑦ 判断ロールプレイ', '⑧ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
+      { id: 'security-lab', parts: ['① 情報を守るしくみ', '② パスワード強度ラボ', '③ 暗号ラボ', '④ フィッシング見分け', '⑤ SNS投稿の個人情報チェック', '⑥ デジタルタトゥー', '⑦ 著作権・利用ルールクイズ', '⑧ 判断ロールプレイ', '⑨ まとめ・行動宣言', '理解度チェック'], curr: 'D(1)ア・D(4)ア', why: '情報セキュリティ・情報モラル・知的財産は、どの教科書でも扱う基本' },
       { id: 'scam-lab', parts: ['① ワンクリック詐欺', '② 「当選しました」メール', '③ ウイルス付きメール', '④ にせのウイルス警告', '⑤ にせの通販サイト', '⑥ まとめとふりかえり'], curr: 'D(1)ア・D(4)ア', why: 'ネットの詐欺やウイルスから身を守る情報セキュリティ・情報モラルは基本' },
       { id: 'interactive-studio', parts: ['作品', 'エディタ', '実行', 'デバッグ', 'サーバーのデータ', 'ふりかえり・記録'], curr: 'D(2)ア・イ', why: 'ネットワークを利用した双方向性のあるコンテンツのプログラミングは、学習指導要領で必ず扱う内容' },
       { id: 'measure-control-sim', parts: ['① 街灯', '② 自動ドア', '③ 信号機', '④ 押しボタン式信号機'], curr: 'D(3)ア・イ', why: '計測・制御のプログラミング(センサ・順次・分岐・反復)は、学習指導要領で必ず扱う内容' },
@@ -813,7 +819,8 @@ window.EDUIT_INFO.textbook = {
   ],
   // 基本編のメニューで、区切りのはじめ(first)・おわり(last)に出す M・F へのリンク(shared/eduit-frame.js の linkRow)
   links: {
-    know: { first: { code: 'M', area: 'd', when: '1章のはじめに' }, last: { code: 'M', area: 'd', when: '1章のおわりに', tab: '(問題解決の工夫を読みとこう)' } }
+    know: { first: { code: 'M', area: 'd', when: '1章のはじめに' }, last: { code: 'M', area: 'd', when: '1章のおわりに', tab: '(問題解決の工夫を読みとこう)' } },
+    future: { matome: { when: '4章のさいごに' } }
   },
   items: {
     'virtual-cpu': { g: 'know', ref: '4編1章 2' },
@@ -894,20 +901,22 @@ window.EDUIT_INFO.jishu = {
       ]
     },
     D4: {
-      goal: '情報を守るしくみ(パスワード・暗号化)を説明できる。ネットでの危険への対策や情報モラルも、理由とあわせて説明できる。',
+      goal: '情報を守る3つの見方と、守るしくみ(対策ソフト・パスワード・暗号化など)を説明できる。ネットでの危険への対策や情報モラルも、理由とあわせて説明できる。',
       time: '3時間ほど',
       steps: [
         { where: '理解度チェック', do: 'はじめに「事前テスト」を受けて、いまの力を確かめよう。', hint: '答えと解説は、事後テストが終わると見られます。わからない問題があっても大丈夫です。', go: '#/check' },
-        { where: '① パスワード強度ラボ', do: '練習用の文字を入れよう。長さと文字の種類で、解読時間がどう変わるかくらべよう。', hint: '本物のパスワードは入れないこと。1文字ずつ長くしたときと、記号を足したときの時間を見くらべよう。', go: '#/password' },
-        { where: '② 暗号ラボ', do: 'シーザー暗号で暗号文を作ろう。総当たりと頻度分析で破ってみよう。', hint: '鍵(ずらす数)の候補は25通りしかないので、全部ためせます。ローマ字の日本語では、A・I・O・U がよく出ます。これを手がかりにしよう。', go: '#/crypto' },
-        { where: '③ フィッシング見分け', do: '怪しいと思うところを押して、「答え合わせ」を押そう。すべての場面に挑戦しよう。', hint: '差出人のアドレス、リンク先のアドレス、急がせる言葉を見てみよう。', go: '#/phishing' },
-        { where: '④ SNS投稿の個人情報チェック', do: '写真と文章から、場所や学校がわかる手がかりを探そう。⑤ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑤は「▶ 時間を進める」を押そう。見た人が8人以上になってから、消してみよう。', go: '#/sns' },
-        { where: '⑥ 著作権・利用ルールクイズ', do: '場面ごとに、使ってよいか考えて答えよう。⑦ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは、正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
-        { where: '⑧ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで、「この3つで宣言する」を押そう。そのあと、理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は、「復習」で確かめよう。体験したステップにもどれます。', go: '#/declare' },
+        { where: '① 情報を守るしくみ', do: '守る3つの見方(もれない・こわれない・使える)を読んで、場面の問題に答えよう。守る道具を選ぶ問題にも答えよう。', hint: '対策ソフト・ファイアウォール・フィルタリング・多要素認証が出てきます。', go: '#/protect' },
+        { where: '② パスワード強度ラボ', do: '練習用の文字を入れよう。長さと文字の種類で、解読時間がどう変わるかくらべよう。', hint: '本物のパスワードは入れないこと。1文字ずつ長くしたときと、記号を足したときの時間を見くらべよう。', go: '#/password' },
+        { where: '③ 暗号ラボ', do: 'シーザー暗号で暗号文を作ろう。総当たりと頻度分析で破ってみよう。', hint: '鍵(ずらす数)の候補は25通りしかないので、全部ためせます。ローマ字の日本語では、A・I・O・U がよく出ます。これを手がかりにしよう。', go: '#/crypto' },
+        { where: '④ フィッシング見分け', do: '怪しいと思うところを押して、「答え合わせ」を押そう。すべての場面に挑戦しよう。', hint: '差出人のアドレス、リンク先のアドレス、急がせる言葉を見てみよう。', go: '#/phishing' },
+        { where: '⑤ SNS投稿の個人情報チェック', do: '写真と文章から、場所や学校がわかる手がかりを探そう。⑥ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑥は「▶ 時間を進める」を押そう。見た人が8人以上になってから、消してみよう。', go: '#/sns' },
+        { where: '⑦ 著作権・利用ルールクイズ', do: '場面ごとに、使ってよいか考えて答えよう。⑧ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは、正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
+        { where: '⑨ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで、「この3つで宣言する」を押そう。そのあと、理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は、「復習」で確かめよう。体験したステップにもどれます。', go: '#/declare' },
         { where: 'ふりかえり', do: '各モジュールのいちばん下に「ふりかえり」があります。なぜその対策で安全になるのか、書こう。', hint: '理由を入れて書こう。「〜だから、〜すると安全になる」の形です。', reflect: true },
         { where: 'ふりかえり・記録', do: 'クラス(組)と出席番号を入れて、「JSONで書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'テストの点も、ファイルに入ります。パスワード強度ラボで入れた文字は入りません。', go: '#/records' }
       ],
       check: [
+        { q: 'ネットワークの外からのあやしい通信を止めるしくみは？', choices: ['ファイアウォール', 'フィルタリング', 'パスフレーズ'], answer: 0, explain: '通してよい通信だけを通す「防火かべ」です。' },
         { q: 'パスフレーズ(単語をいくつかランダムに選んでつなげたパスワード)のよいところはどれ？', choices: ['短いので、すぐに入力できる', '長いのに覚えやすく、総当たりで見つけにくい', '記号を入れなくても、どのサービスでも同じものを使える'], answer: 1, explain: 'パスワードは長いほど、組み合わせが増えます。総当たりで解読するのに時間がかかります。サービスごとに別のものにするのは、同じです。' },
         { q: '2段階認証(多要素認証)を使うと、どんなよいことがある？', choices: ['パスワードを人に教えても大丈夫になる', 'パスワードを決めなくてよくなる', 'パスワードが知られても、スマホなどでの確認がないとログインされない'], answer: 2, explain: 'パスワードに加えて、別の方法でも本人か確かめます。だから、パスワードだけ知られても、不正にログインされにくくなります。' },
         { q: 'フィッシングで、だます人がいちばんねらっているものはどれ？', choices: ['パスワードや個人情報', 'パソコンの画面の明るさ', 'メールの文字の大きさ'], answer: 0, explain: '本物そっくりのメールやページで入力させます。そして、パスワードや個人情報、お金をだまし取ろうとします。' }
@@ -1301,6 +1310,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "変化": "へんか",
   "変換": "へんかん",
   "変数": "へんすう",
+  "外": "そと",
   "外し": "はずし",
   "外す": "はずす",
   "多い": "おおい",
@@ -1723,6 +1733,8 @@ window.EDUIT_INFO.jishu.ruby = {
   "送る": "おくる",
   "送ろう": "おくろう",
   "送信": "そうしん",
+  "通し": "とおし",
+  "通す": "とおす",
   "通っ": "とおっ",
   "通り": "とおり",
   "通る": "とおる",
@@ -1740,7 +1752,9 @@ window.EDUIT_INFO.jishu.ruby = {
   "進数": "しんすう",
   "過程": "かてい",
   "道": "みち",
+  "道具": "どうぐ",
   "選び直そう": "えらびなおそう",
+  "選ぶ": "えらぶ",
   "選ぼう": "えらぼう",
   "選ん": "えらん",
   "部分": "ぶぶん",
@@ -1765,6 +1779,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "間": "あいだ",
   "間かく": "かんかく",
   "関係": "かんけい",
+  "防火": "ぼうか",
   "階調": "かいちょう",
   "集まっ": "あつまっ",
   "集計": "しゅうけい",
@@ -2046,6 +2061,99 @@ window.EDUIT_INFO.jishu.ruby = {
       el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
     ]);
   }
+  // 学習のまとめ: 基本編の教材の「たしかめ問題」(EDUIT_INFO.jishu.apps[記号].check)を集めて、編ごとの確かめにする。
+  // textbook.links[章].matome = { when: '3章のさいごに' } で、その章のおわりに行が出る。?matome=1 で開くと、すぐに開く(学習コースから)
+  var MT_STORE = 'eduit.matome.', matomeDlg = null;
+  function matomeQs(codes) {
+    var out = [];
+    codes.forEach(function (c) { var d = jishuData(c); if (d && d.check) d.check.forEach(function (q, i) { out.push({ c: c, i: i, q: q }); }); });
+    return out;
+  }
+  function matomeOpen(codes, names) {
+    var key = MT_STORE + (info.domain || 'x'), st = {};
+    try { st = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { st = {}; }
+    var list = matomeQs(codes), area = (info.domain || '').charAt(0).toUpperCase();
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var score = el('p', { class: 'ef-matome-score', 'aria-live': 'polite' });
+    var body = el('div', { class: 'ef-panel ef-matome' });
+    if (matomeDlg) matomeDlg.parentNode.removeChild(matomeDlg);
+    matomeDlg = el('dialog', { class: 'ef-dialog ef-matome-dlg', 'aria-labelledby': 'ef-matome-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-matome-title', text: (area ? area + ' ' : '') + '学習のまとめ' }), close]), body])
+    ]);
+    close.addEventListener('click', function () { matomeDlg.close(); });
+    function save() { try { localStorage.setItem(key, JSON.stringify(st)); } catch (e) {} }
+    function paintScore() {
+      var ok = list.filter(function (x) { return st[x.c + '.' + x.i] === x.q.answer; }).length;
+      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 🎉 全部できました。' : '');
+    }
+    function qEl(x) {
+      var k = x.c + '.' + x.i, res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = x.q.choices.map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st[k] = j; save(); paint(); paintScore(); });
+        return b;
+      });
+      function paint() {
+        var a = st[k];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === x.q.answer && a === x.q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== x.q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === x.q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === x.q.answer ? '正解!' : 'ちがいます。もう一度考えよう。' }));
+        if (a === x.q.answer && x.q.explain) res.appendChild(el('span', { text: ' ' + x.q.explain }));
+        if (jishuRubyOn()) jishuRuby(res);
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: x.q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var again = el('button', { type: 'button', class: 'ef-btn', text: 'はじめからやり直す' });
+    again.addEventListener('click', function () { st = {}; save(); matomeDlg.close(); matomeOpen(codes, names); });
+    body.appendChild(el('p', { text: '各教材のたしかめ問題です。答えると、すぐに答えが出ます。' }));
+    body.appendChild(score);
+    codes.forEach(function (c) {
+      var qs = list.filter(function (x) { return x.c === c; });
+      if (!qs.length) return;
+      body.appendChild(el('h3', { class: 'ef-matome-h' }, [code(c), names[c] || '']));
+      body.appendChild(el('ol', { class: 'ef-jishu-qs' }, qs.map(qEl)));
+    });
+    body.appendChild(el('p', null, [again]));
+    paintScore();
+    // ふりがなは問題の文だけ(教材の名前は、メニューのふりがなのしくみにまかせる)
+    if (jishuRubyOn()) Array.prototype.forEach.call(body.querySelectorAll('.ef-jishu-qs, p'), function (n) { jishuRuby(n); });
+    matomeDlg.addEventListener('click', function (e) { if (e.target === matomeDlg) matomeDlg.close(); });
+    document.body.appendChild(matomeDlg);
+    if (typeof matomeDlg.showModal === 'function') matomeDlg.showModal(); else matomeDlg.setAttribute('open', '');
+  }
+  // カードの名前(ふりがなの rt は入れない)
+  function plainTitle(c) {
+    var t = c.querySelector('.ef-card-title');
+    if (!t) return '';
+    var x = t.cloneNode(true);
+    Array.prototype.forEach.call(x.querySelectorAll('rt, rp'), function (r) { r.parentNode.removeChild(r); });
+    return x.textContent;
+  }
+  function matomeRow(M, codes, names) {
+    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '📝 学習のまとめ' }),
+      el('span', { class: 'ef-level-matome-d', text: matomeQs(codes).length + '問。基本編の教材のたしかめ問題をまとめて解く' }), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })]);
+    b.addEventListener('click', function () { matomeOpen(codes, names); });
+    return el('div', { class: 'ef-level-link' }, [M.when ? el('span', { class: 'ef-level-parts-k', text: M.when }) : null, b]);
+  }
+  // ?matome=1 は、1つのファイルにまとめた版(メニューが iframe の中)でも見えるように親もさがす。開くのは1回だけ
+  function matomeWanted() {
+    var w = window;
+    for (var i = 0; i < 8; i++) {
+      try {
+        if (/[?&]matome=1(&|$)/.test(w.location.search || '')) { if (w.__efMatomeDone) return false; w.__efMatomeDone = true; return true; }
+      } catch (e) { break; }
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    return false;
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -2081,10 +2189,12 @@ window.EDUIT_INFO.jishu.ruby = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
-      var tb = info.textbook, groups = [];
+      var tb = info.textbook, groups = [], bcodes = [], bnames = {};
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
         if (!c) return;
+        var c0 = opts.code ? opts.code(item) : null;
+        if (c0) { bcodes.push(c0); bnames[c0] = plainTitle(c); }
         var t = tb && tb.items && tb.items[item.id];
         if (t && t.ref) {
           var go = c.querySelector('.ef-mcard-go');
@@ -2103,13 +2213,15 @@ window.EDUIT_INFO.jishu.ruby = {
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
       // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
       var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
+
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
         var L = lk[g.key] || {};
-        if (!groups[i] && !L.first && !L.last) return;
+        if (!groups[i] && !L.first && !L.last && !L.matome) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
         if (L.first) blocks.push(linkRow(L.first));
         if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
         if (L.last) blocks.push(linkRow(L.last));
+        if (L.matome && bcodes.length) blocks.push(matomeRow(L.matome, bcodes, bnames));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -2133,6 +2245,11 @@ window.EDUIT_INFO.jishu.ruby = {
     box.appendChild(tabs);
     box.appendChild(panel);
     render();
+    if (opts.code && matomeWanted()) {
+      var mc = (L.basic && L.basic.items || []).map(opts.code).filter(Boolean), mn = {};
+      Array.prototype.forEach.call(box.querySelectorAll('.ef-mcard[data-code]'), function (c) { mn[c.getAttribute('data-code')] = plainTitle(c); });
+      setTimeout(function () { matomeOpen(mc, mn); }, 0);
+    }
     return { render: render, select: select, current: function () { return cur; } };
   }
 

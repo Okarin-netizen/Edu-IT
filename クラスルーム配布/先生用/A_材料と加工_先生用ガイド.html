@@ -213,6 +213,12 @@
 .ef-level-link a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); text-decoration: none; font-weight: 600; }
 .ef-level-link a:hover, .ef-level-link a:focus-visible { border-color: var(--ef-accent); }
 .ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
+.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: 2px solid var(--ef-accent); border-radius: var(--ef-radius-s, 8px); background: #fff; color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
+.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-bg, #f6f7f5); }
+.ef-level-matome-t { font-weight: 700; }
+.ef-level-matome-d { color: var(--ef-sub, #5e6b64); font-size: .92em; }
+.ef-matome-score { font-weight: 700; }
+.ef-matome-h { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; font-size: 1.05em; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .5em; padding: 0 .5em; font-size: .85em; font-weight: 700;
   color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 999px;
@@ -474,8 +480,8 @@ window.EDUIT_INFO.levels = {
       { id: 'material-navi', parts: ['① 材料カード', '② 条件設定', '③ 比較結果', '④ 理由を書く'], curr: 'A(1)ア・A(2)ア', why: '木材・金属・プラスチックの性質と、目的や条件に合った材料の選び方は教科書の中心の内容' },
       { id: 'wood-lab', parts: ['① 断面ビューア', '② 収縮ラボ', '③ 反りの予測', '④ 強度比較(繊維の向きと強さ)', '⑤ 集成材・合板', 'まとめ・記録'], curr: 'A(1)ア', why: '柾目・板目、木表・木裏、収縮と反り、繊維方向と強さ、木質材料は教科書の基本' },
       { id: 'structure-lab', parts: ['① 梁(はり)', '② 枠と筋かい', '③ 接合'], curr: 'A(1)イ', why: '断面の形・三角形の構造(筋かい)・面構造・接合で丈夫にするしくみは教科書の基本' },
-      { id: 'drawing-trainer', parts: ['① 三面図クイズ', '② 立体づくり', '③ 三面図をかく', '④ 等角図をかく', '⑤ 線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
-      { id: 'kidori', parts: ['① 材料・部品', '② 木取り', '③ 製作図', '④ 強度', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
+      { id: 'drawing-trainer', parts: ['① 三面図クイズ', '② 立体づくり', '③ 三面図をかく', '④ 等角図をかく', '⑤ キャビネット図', '⑥ 線と記号', '記録・ふりかえり'], curr: 'A(2)イ', why: '等角図・キャビネット図・第三角法と線や寸法の記号は、構想や製作図に必要な基本' },
+      { id: 'kidori', parts: ['① 材料・部品', '② 木取り', '③ 製作図', '④ 強度', '⑤ 製作工程表', 'ふりかえり'], curr: 'A(2)ア・イ', why: '構想・部品表・木取り図・製作図から製作の見通しを立てる流れは、問題解決の基本' },
       { id: 'tool-safety', parts: ['① 工具の手順', '② 作業前チェック', '③ 危険を見つける', '④ 手順ならべかえ', '⑤ 実技の評価', '記録'], curr: 'A(2)イ', why: '工具の安全で正しい使い方は、製作の前に全員が身に付ける内容' },
       { id: 'mondai-note', parts: ['① 問題の発見(付箋・問題?課題?クイズ・課題の設定)', '② 評価、改善・修正(観点ごとの5段階とレーダーチャート)', '③ 技術の最適化(観点の重みと制約条件で、いちばんよい案が入れかわる)', '振り返り', '記録'], curr: 'A(2)イ', why: '生活の中から問題を見いだして課題を設定し、製作品を評価して改善・修正を考える流れは、教科書の2章の1と5にある問題解決の基本' }
     ]
@@ -504,7 +510,7 @@ window.EDUIT_INFO.textbook = {
   // 基本編のメニューで、区切りのはじめ(first)・おわり(last)に出す M・F へのリンク(shared/eduit-frame.js の linkRow)
   links: {
     know: { first: { code: 'M', area: 'a', when: '1章のはじめに' }, last: { code: 'M', area: 'a', when: '1章のおわりに', tab: '(問題解決の工夫を読みとこう)' } },
-    future: { first: { code: 'F', area: 'a', when: '3章で' } }
+    future: { first: { code: 'F', area: 'a', when: '3章で' }, matome: { when: '3章のさいごに' } }
   },
   items: {
     'material-navi': { g: 'know', ref: '1編1章 1・2' },
@@ -590,24 +596,27 @@ window.EDUIT_INFO.jishu = {
         { where: '② 立体づくり', do: '三面図を読んで、台のマスを押してブロックを積もう。できたら「答え合わせ」をしよう。', hint: '台の下が正面(手前)です。まず平面図で、ブロックがあるマスを決めよう。次に、正面図と右側面図で高さを決めると進めやすいです。', go: '[role=tab][data-tab="build"]' },
         { where: '③ 三面図をかく', do: '立体を見て、正面図・平面図・右側面図を方眼にかこう。それぞれ「答え合わせ」をしよう。', hint: 'ボードの ● から基準線をかき始めます。見えない部分は「かくれ線」に切りかえてかこう。こまったら「ヒント」を1段階ずつ使ってみよう。', go: '[role=tab][data-tab="draw"]' },
         { where: '④ 等角図をかく', do: '三面図を読んで、立体を等角図でかき、「答え合わせ」をしよう。', hint: '高さは縦、横と奥行きは水平から30°の向きに引きます。ヒント1の「立体がちょうど入る箱」を、先にかこう。そこから、いらない部分をけずるように考えよう。', go: '[role=tab][data-tab="iso"]' },
-        { where: '⑤ 線と記号', do: 'ミニテスト10問にこたえて、8問以上正解をめざそう。', hint: '「もう一度」を押すと問題が入れかわります。まちがえた線や記号は、教科書の製図のページでも確かめよう。', go: '[role=tab][data-tab="terms"]' },
+        { where: '⑤ キャビネット図', do: '三面図を読んで、立体をキャビネット図でかこう。「答え合わせ」をしよう。', hint: '正面は正面図と同じ形です。奥行きは右上45°に、半分の長さでかきます。' },
+        { where: '⑥ 線と記号', do: 'ミニテスト10問にこたえて、8問以上正解をめざそう。', hint: '「もう一度」を押すと問題が入れかわります。まちがえた線や記号は、教科書の製図のページでも確かめよう。', go: '[role=tab][data-tab="terms"]' },
         { where: '記録・ふりかえり', do: 'ふりかえりの自己評価を選び、わかったこと・むずかしかったことを書こう。', hint: '記録の表で、できた練習とまだの練習を見くらべよう。次にやることがはっきりします。', reflect: true, go: '[role=tab][data-tab="record"]' },
         { where: '記録', do: '名前を入れてから、「ファイルに書き出す」で記録を書き出そう。先生の言う場所に出そう。', hint: '記録は自動で保存されています。名前の欄に入れた名前は、書き出すファイルに入ります。' }
       ],
       check: [
+        { q: 'キャビネット図で、奥行きはどうかく?', choices: ['右上45°に、実際の半分の長さ', '水平から30°に、実際の長さ', '真上に、実際の長さ'], answer: 0, explain: '正面はそのままの形でかきます。奥行きは45°に半分の長さです。' },
         { q: '等角図をかくとき、見えない部分の線はどうする?', choices: ['かくれ線(破線)でかく', 'かかない', '外形線(実線)でかく'], answer: 1, explain: '等角図は見える線だけでかきます。かくれ線は三面図で使います。' },
         { q: '第三角法の平面図で、正面図に近い側(図の下側)は、品物のどちら側?', choices: ['正面(手前)', '奥', '右側'], answer: 0, explain: '平面図は正面図の上に置き、下側が品物の正面(手前)になります。' },
         { q: '三面図に合うようにブロックを積むとき、正しい積み方はいくつある?', choices: ['必ず1つだけ', '三面図からは決められない', '1つとは限らない'], answer: 2, explain: '外から見えない部分のブロックの数がちがっても、同じ三面図になることがあります。' }
       ]
     },
     A5: {
-      goal: '部品表・木取り図・製作図・強度の見通しを立てて、製作の計画を考えられるようになる。',
+      goal: '部品表・木取り図・製作図・強度の見通しを立てて、製作工程表で作る順番を決められるようになる。',
       time: '45分',
       steps: [
         { where: '① 材料・部品', do: '「ひな形から部品を作る」で、作るもの(はじめは本立て)を選ぼう。幅・奥行き・高さを決めて、「この寸法で部品表を作る」を押そう。', hint: 'はじめから本立て(400×180×220mm)の部品表が入っています。使う板の長さ・幅・厚さ・枚数も確かめよう。切りしろ(のこぎりで削れる幅)も見よう。', go: '[role=tab][data-tab="parts"]' },
         { where: '② 木取り', do: '「まだ置いていない部品」を、板の上にドラッグしよう。全部の部品を、重ならないように置こう。', hint: '斜線と「!」が出た部品は、重なり・はみ出し・木目の向きに問題があります。部品は R キーで回せます。でも「木目に合わせる」部品は回せません。こまったら「ヒント」を押そう。', go: '[role=tab][data-tab="layout"]' },
         { where: '③ 製作図', do: '組み立て図(等角図・第三角法)と部品図を見よう。部品がどう組み合わさるか確かめよう。', hint: '第三角法では、正面図の上に平面図、右に右側面図が並びます。部品図の寸法が部品表と同じか見くらべてみよう。', go: '[role=tab][data-tab="drawing"]' },
         { where: '④ 強度', do: '「調べる部品」で底板などを選び、荷重を変えてたわみを見よう。「くふうを比べる」で、厚くする・補強材・ほかの材料をくらべよう。', hint: 'まず、作品にのせる物の重さを考えて荷重に入れてみよう。くふうの表で、たわみがいちばん小さくなるものを見つけよう。', go: '[role=tab][data-tab="strength"]' },
+        { where: '⑤ 製作工程表', do: '作業の順番と、いつやるかを書こう。「印刷」で紙にもできます。', hint: '部品表から作った案が出ます。順番や工具は、自分の作品に合わせて直そう。' },
         { where: '② 木取りの歩留まり・材料費', do: '① 材料・部品で、「1枚の値段」を入れよう。② 木取りで部品の置き方を変えて、歩留まりと材料費をくらべよう。', hint: '歩留まりは、使う板の中で部品になる割合です。部品を板のはしに寄せて、使う板の枚数を減らせないか試してみよう。', level: 'advanced' },
         { where: '④ 強度の「発展」', do: '④ 強度の「くわしく見る(発展)」を開いて、計算の数値を確かめよう。', hint: '安全率が3以上なら「○ 余裕あり」です。「使う板」の厚さを変えると、安全率がどう変わるか見てみよう。', level: 'advanced' },
         { where: 'ふりかえり', do: '設計の自己評価をしよう。工夫したところ・直したいところを書こう。技術の見方・考え方の観点を、0〜5で評価しよう。', hint: '先に、「すべての部品を板に置けた」「重なり・はみ出しがない」の印を見よう。○になっているか確かめよう。', reflect: true, go: '[role=tab][data-tab="review"]' },
@@ -727,6 +736,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "何分": "なんぶん",
   "何度": "なんど",
   "余裕": "よゆう",
+  "作っ": "つくっ",
   "作り": "つくり",
   "作る": "つくる",
   "作品": "さくひん",
@@ -798,6 +808,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "加工": "かこう",
   "効果": "こうか",
   "動かそう": "うごかそう",
+  "半分": "はんぶん",
   "半径": "はんけい",
   "単板": "たんばん",
   "印": "しるし",
@@ -815,6 +826,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "取り": "とり",
   "台": "だい",
   "右": "みぎ",
+  "右上": "みぎうえ",
   "右側": "みぎがわ",
   "各": "かく",
   "合い": "あい",
@@ -1071,6 +1083,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "直交": "ちょっこう",
   "直角": "ちょっかく",
   "相互": "そうご",
+  "真上": "まうえ",
   "知ら": "しら",
   "破線": "はせん",
   "確かめ": "たしかめ",
@@ -1098,6 +1111,7 @@ window.EDUIT_INFO.jishu.ruby = {
   "節点": "せってん",
   "精度": "せいど",
   "約": "やく",
+  "紙": "かみ",
   "終わっ": "おわっ",
   "組": "くみ",
   "組み合わさる": "くみあわさる",
@@ -1171,7 +1185,6 @@ window.EDUIT_INFO.jishu.ruby = {
   "解決策": "かいけつさく",
   "言う": "いう",
   "言葉": "ことば",
-  "計画": "けいかく",
   "計算": "けいさん",
   "記号": "きごう",
   "記録": "きろく",
@@ -1504,6 +1517,99 @@ window.EDUIT_INFO.jishu.ruby = {
       el('a', { href: href, target: '_blank', rel: 'noopener' }, [code(L.code), S.name + (L.tab ? ' ' + L.tab : ''), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })])
     ]);
   }
+  // 学習のまとめ: 基本編の教材の「たしかめ問題」(EDUIT_INFO.jishu.apps[記号].check)を集めて、編ごとの確かめにする。
+  // textbook.links[章].matome = { when: '3章のさいごに' } で、その章のおわりに行が出る。?matome=1 で開くと、すぐに開く(学習コースから)
+  var MT_STORE = 'eduit.matome.', matomeDlg = null;
+  function matomeQs(codes) {
+    var out = [];
+    codes.forEach(function (c) { var d = jishuData(c); if (d && d.check) d.check.forEach(function (q, i) { out.push({ c: c, i: i, q: q }); }); });
+    return out;
+  }
+  function matomeOpen(codes, names) {
+    var key = MT_STORE + (info.domain || 'x'), st = {};
+    try { st = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { st = {}; }
+    var list = matomeQs(codes), area = (info.domain || '').charAt(0).toUpperCase();
+    var close = el('button', { type: 'button', class: 'ef-btn', text: '閉じる' });
+    var score = el('p', { class: 'ef-matome-score', 'aria-live': 'polite' });
+    var body = el('div', { class: 'ef-panel ef-matome' });
+    if (matomeDlg) matomeDlg.parentNode.removeChild(matomeDlg);
+    matomeDlg = el('dialog', { class: 'ef-dialog ef-matome-dlg', 'aria-labelledby': 'ef-matome-title' }, [
+      el('div', { class: 'ef-dialog-in' }, [el('div', { class: 'ef-dialog-head' }, [el('h2', { id: 'ef-matome-title', text: (area ? area + ' ' : '') + '学習のまとめ' }), close]), body])
+    ]);
+    close.addEventListener('click', function () { matomeDlg.close(); });
+    function save() { try { localStorage.setItem(key, JSON.stringify(st)); } catch (e) {} }
+    function paintScore() {
+      var ok = list.filter(function (x) { return st[x.c + '.' + x.i] === x.q.answer; }).length;
+      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 🎉 全部できました。' : '');
+    }
+    function qEl(x) {
+      var k = x.c + '.' + x.i, res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
+      var btns = x.q.choices.map(function (t, j) {
+        var b = el('button', { type: 'button', class: 'ef-jishu-choice', text: t });
+        b.addEventListener('click', function () { st[k] = j; save(); paint(); paintScore(); });
+        return b;
+      });
+      function paint() {
+        var a = st[k];
+        btns.forEach(function (b, j) {
+          b.classList.toggle('is-ok', a !== undefined && j === x.q.answer && a === x.q.answer);
+          b.classList.toggle('is-ng', a !== undefined && j === a && a !== x.q.answer);
+          b.setAttribute('aria-pressed', String(a === j));
+        });
+        while (res.firstChild) res.removeChild(res.firstChild);
+        if (a === undefined) return;
+        res.className = 'ef-jishu-res ' + (a === x.q.answer ? 'is-ok' : 'is-ng');
+        res.appendChild(el('strong', { text: a === x.q.answer ? '正解!' : 'ちがいます。もう一度考えよう。' }));
+        if (a === x.q.answer && x.q.explain) res.appendChild(el('span', { text: ' ' + x.q.explain }));
+        if (jishuRubyOn()) jishuRuby(res);
+      }
+      paint();
+      return el('li', { class: 'ef-jishu-q' }, [el('p', { class: 'ef-jishu-qt', text: x.q.q }), el('div', { class: 'ef-jishu-choices' }, btns), res]);
+    }
+    var again = el('button', { type: 'button', class: 'ef-btn', text: 'はじめからやり直す' });
+    again.addEventListener('click', function () { st = {}; save(); matomeDlg.close(); matomeOpen(codes, names); });
+    body.appendChild(el('p', { text: '各教材のたしかめ問題です。答えると、すぐに答えが出ます。' }));
+    body.appendChild(score);
+    codes.forEach(function (c) {
+      var qs = list.filter(function (x) { return x.c === c; });
+      if (!qs.length) return;
+      body.appendChild(el('h3', { class: 'ef-matome-h' }, [code(c), names[c] || '']));
+      body.appendChild(el('ol', { class: 'ef-jishu-qs' }, qs.map(qEl)));
+    });
+    body.appendChild(el('p', null, [again]));
+    paintScore();
+    // ふりがなは問題の文だけ(教材の名前は、メニューのふりがなのしくみにまかせる)
+    if (jishuRubyOn()) Array.prototype.forEach.call(body.querySelectorAll('.ef-jishu-qs, p'), function (n) { jishuRuby(n); });
+    matomeDlg.addEventListener('click', function (e) { if (e.target === matomeDlg) matomeDlg.close(); });
+    document.body.appendChild(matomeDlg);
+    if (typeof matomeDlg.showModal === 'function') matomeDlg.showModal(); else matomeDlg.setAttribute('open', '');
+  }
+  // カードの名前(ふりがなの rt は入れない)
+  function plainTitle(c) {
+    var t = c.querySelector('.ef-card-title');
+    if (!t) return '';
+    var x = t.cloneNode(true);
+    Array.prototype.forEach.call(x.querySelectorAll('rt, rp'), function (r) { r.parentNode.removeChild(r); });
+    return x.textContent;
+  }
+  function matomeRow(M, codes, names) {
+    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '📝 学習のまとめ' }),
+      el('span', { class: 'ef-level-matome-d', text: matomeQs(codes).length + '問。基本編の教材のたしかめ問題をまとめて解く' }), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })]);
+    b.addEventListener('click', function () { matomeOpen(codes, names); });
+    return el('div', { class: 'ef-level-link' }, [M.when ? el('span', { class: 'ef-level-parts-k', text: M.when }) : null, b]);
+  }
+  // ?matome=1 は、1つのファイルにまとめた版(メニューが iframe の中)でも見えるように親もさがす。開くのは1回だけ
+  function matomeWanted() {
+    var w = window;
+    for (var i = 0; i < 8; i++) {
+      try {
+        if (/[?&]matome=1(&|$)/.test(w.location.search || '')) { if (w.__efMatomeDone) return false; w.__efMatomeDone = true; return true; }
+      } catch (e) { break; }
+      if (w === w.parent) break;
+      w = w.parent;
+    }
+    return false;
+  }
   function levels(box, opts) {
     var L = info.levels;
     if (!box || !L) return null;
@@ -1539,10 +1645,12 @@ window.EDUIT_INFO.jishu.ruby = {
       tabEls.forEach(function (t, i) { var on = LEVEL_KEYS[i] === cur; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', uid + '-' + cur);
       var grid = el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') });
-      var tb = info.textbook, groups = [];
+      var tb = info.textbook, groups = [], bcodes = [], bnames = {};
       (lv.items || []).forEach(function (item) {
         var c = opts.card ? opts.card(item, partsEl(item), cur) : null;
         if (!c) return;
+        var c0 = opts.code ? opts.code(item) : null;
+        if (c0) { bcodes.push(c0); bnames[c0] = plainTitle(c); }
         var t = tb && tb.items && tb.items[item.id];
         if (t && t.ref) {
           var go = c.querySelector('.ef-mcard-go');
@@ -1561,13 +1669,15 @@ window.EDUIT_INFO.jishu.ruby = {
       // 教科書の章ごとに見出しで区切る(EDUIT_INFO.textbook)。区切りの中は levels の items の順
       // 基本編では、区切りのはじめ・おわりに M・F へのリンクの行(textbook.links)も出す
       var blocks = [], lk = cur === 'basic' && tb && tb.links || {};
+
       if (tb && tb.groups) tb.groups.forEach(function (g, i) {
         var L = lk[g.key] || {};
-        if (!groups[i] && !L.first && !L.last) return;
+        if (!groups[i] && !L.first && !L.last && !L.matome) return;
         blocks.push(el('h3', { class: 'ef-level-group' }, [g.ch ? el('span', { class: 'ef-level-group-ch', text: g.ch }) : null, g.title]));
         if (L.first) blocks.push(linkRow(L.first));
         if (groups[i]) blocks.push(el('div', { class: 'ef-level-grid ' + (opts.gridClass || '') }, groups[i]));
         if (L.last) blocks.push(linkRow(L.last));
+        if (L.matome && bcodes.length) blocks.push(matomeRow(L.matome, bcodes, bnames));
       });
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       if (jishu && cur === 'basic') panel.appendChild(jishuMenuBox());
@@ -1591,6 +1701,11 @@ window.EDUIT_INFO.jishu.ruby = {
     box.appendChild(tabs);
     box.appendChild(panel);
     render();
+    if (opts.code && matomeWanted()) {
+      var mc = (L.basic && L.basic.items || []).map(opts.code).filter(Boolean), mn = {};
+      Array.prototype.forEach.call(box.querySelectorAll('.ef-mcard[data-code]'), function (c) { mn[c.getAttribute('data-code')] = plainTitle(c); });
+      setTimeout(function () { matomeOpen(mc, mn); }, 0);
+    }
     return { render: render, select: select, current: function () { return cur; } };
   }
 

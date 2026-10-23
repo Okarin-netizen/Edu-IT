@@ -1,5 +1,5 @@
 /* 作図ボード: 格子点にスナップして線を引く(タッチ・ペン・マウス・キーボード)。
- * mode 'square' … 三面図用の方眼。 mode 'iso' … 等角図用の三角格子。
+ * mode 'square' … 三面図用の方眼。 mode 'iso' … 等角図用の三角格子。 mode 'cab' … キャビネット図用の方眼(右上45°の線も引ける)。
  * 描いた線は「長さ1の線分キー → 'v'(外形線)| 'h'(かくれ線)」の表で持つ。
  */
 (function (root) {
@@ -87,7 +87,7 @@
     function commit(a, b) {
       var keys = M.decompose(a, b, mode);
       if (!keys) {
-        if (a[0] !== b[0] || a[1] !== b[1]) say(mode === 'iso' ? '等角図の線は、3つの軸の向き(縦・右上・右下)に引きます。' : '線は縦か横に引きます。');
+        if (a[0] !== b[0] || a[1] !== b[1]) say(mode === 'iso' ? '等角図の線は、3つの軸の向き(縦・右上・右下)に引きます。' : mode === 'cab' ? 'キャビネット図の線は、縦・横と、右上45°の向きに引きます。' : '線は縦か横に引きます。');
         return false;
       }
       snapshot();
@@ -171,6 +171,7 @@
       var step = mode === 'iso' ? { ArrowLeft: [-2, 0], ArrowRight: [2, 0], ArrowUp: [0, -2], ArrowDown: [0, 2] }
         : { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
       if (mode === 'iso') { step.q = [-1, -1]; step.e = [1, -1]; step.z = [-1, 1]; step.c = [1, 1]; }
+      if (mode === 'cab') { step.e = [1, -1]; step.z = [-1, 1]; }
       var k = e.key;
       if (step[k]) {
         e.preventDefault();

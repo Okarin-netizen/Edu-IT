@@ -162,11 +162,11 @@
           var h = g[2] != null ? g[2] : A.h;
           // M・F は、その分野のタブだけを出して開く(?bunya=a。生徒が分野を行き来して迷わないように)。ワークシートも分野のもの(MA など)
           var area = AREA_APPS[g[0]] && h ? h : '', ws = area ? g[0] + area.toUpperCase() : g[0];
-          var qs = [Q.slice(1), area ? 'bunya=' + area : ''].filter(Boolean).join('&');
+          var qs = [Q.slice(1), area ? 'bunya=' + area : '', A.q || ''].filter(Boolean).join('&');
           var href = BASE + FILES[A.f] + (qs ? '?' + qs : '') + (h ? '#' + h : '');
           go.appendChild(el('a', { class: 'c-open', href: href, target: '_blank', rel: 'noopener' }, [
-            el('span', { class: 'ef-code', text: g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
-          go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
+            el('span', { class: 'ef-code', text: A.tag || g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
+          if (A.ws !== false) go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
         });
         card.appendChild(el('div', { class: 'c-row' }, [go]));
         var qbox = s.q ? el('ol', { class: 'c-q' }) : null;

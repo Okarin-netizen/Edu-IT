@@ -25,11 +25,11 @@ test("SEC-69: 練習は選んだモジュールだけ、1回に10問まで", () 
   assert.equal(practiceSet(pool, []).length, 0);
 });
 
-test("SEC-69: 事前・事後テストは章の順（パスワードが第1問）", () => {
+test("SEC-69: 事前・事後テストは章の順（情報を守るしくみが第1問）", () => {
   const qs = json("data/quiz.json").questions;
   const order = CATALOG.map((c) => c.id);
   const core = orderByModules(qs, order).filter((q) => q.core);
-  assert.equal(core[0].module, "password");
+  assert.equal(core[0].module, "protect");
   const ranks = core.map((q) => order.indexOf(q.module));
   assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
   // 同じモジュールの中の順は変えない
@@ -57,7 +57,7 @@ test("SEC-70: △のときに出す「よりよい答え」がどの問いにも
 
 test("第3段: ふりがな・キャッシュ名", () => {
   assert.equal(json("data/ruby.json").words["枠"], "わく");
-  assert.match(read("sw.js"), /seclab-v11"/);
+  assert.match(read("sw.js"), /seclab-v12"/);
 });
 
 // ---- ブラウザ ----
@@ -153,9 +153,9 @@ test("第3段（ブラウザ）: SNSのやり直し・練習・著作権のよ�
     await links.waitFor();
     await links.locator("summary").click();
     assert.equal(await links.locator("a").count(), n, "これまでの結果からも、ステップへ戻れる");
-    // 事前テストは章の順（第1問がパスワード）
+    // 事前テストは章の順（第1問が情報を守るしくみ）
     await page.locator(".module-card", { has: page.locator(".mc-title", { hasText: /^事前テスト$/ }) }).getByRole("button", { name: "はじめる" }).click();
-    assert.match(await page.locator("fieldset.check-q legend").first().innerText(), /パスワード強度ラボ/);
+    assert.match(await page.locator("fieldset.check-q legend").first().innerText(), /情報を守るしくみ/);
 
     // SEC-70
     const { cases } = json("data/copyright.json");
