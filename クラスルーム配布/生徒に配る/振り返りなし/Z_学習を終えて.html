@@ -738,6 +738,7 @@ window.EDUIT_INFO.jishu.ruby = {
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
+ *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
  *
  * 振り返りを隠す設定: EduitFrame.furikaeri(true = 出す / false = 隠す)。隠すときは <html data-ef-furikaeri="off"> になり、
  *   data-ef-reflect の付いた要素(振り返りのタブ・欄・カードの印など)が出なくなる(eduit-frame.css)。決め方(先のものが勝つ):
@@ -1109,6 +1110,8 @@ window.EDUIT_INFO.jishu.ruby = {
         var cs = getComputedStyle(bar), top = parseFloat(cs.top) || 0;
         // 上に固定されている(画面の上にはりついている)ときだけ隠す
         if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+        // 横長の帯だけを隠す。PC の左のメニュー(画面のはばの半分より細い)は、いつも見えるように残す
+        if (bar.offsetWidth < window.innerWidth / 2) return;
         if (bar.getBoundingClientRect().top > top + 1) return;
         bar.style.setProperty('--ef-ah-y', -(top + bar.offsetHeight + 4) + 'px');
         bar.classList.add('ef-ah-hide');
