@@ -92,7 +92,7 @@ function renderHome() {
     );
   });
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "デジタル化ラボ"), h("p", { class: "meta" }, "コンピュータは、画像も音も文字も「0と1」にして扱います。どうやって0と1にするのかな？ データの量（情報量）はどう変わるのかな？ 手を動かして確かめよう。"), h("p", { class: "hint author" }, "作成：技術 岡田")),
+    h("div", { class: "module-head" }, h("h1", {}, "デジタル化ラボ"), h("p", { class: "meta" }, "コンピュータは、画像も音も文字も「0と1」にして扱います。どうやって0と1にするのか、データの量はどう変わるのか、手を動かして確かめよう。"), h("p", { class: "hint author" }, "作成：技術 岡田")),
     h(
       "section",
       { class: "card" },

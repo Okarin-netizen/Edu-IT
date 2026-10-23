@@ -157,7 +157,7 @@ export const faultModule = {
     const canvasWrap = h("div", { class: "net-canvas" }, view.el);
     const missingNow = missingText();
     cards[0].body.append(
-      h("p", {}, "図の", h("strong", {}, "回線（線）"), "を押すと切れ（✂）、", h("strong", {}, "ルータやサーバ"), "を押すと止まります（✕）。もう一度押すと元にもどります。太い線は、いまいちばん近い道です。道が変わると、こわす前の道が点線で残ります。"),
+      h("p", {}, "図の", h("strong", {}, "回線（線）"), "を押すと切れ（✂）、", h("strong", {}, "ルータやサーバ"), "を押すと止まります（✕）。もう一度押すと元にもどります。太い線が、いまいちばん近い道です。"),
       h("p", { class: "hint" }, "パケットを中継するのはルータだけです。パソコン・スマホ・サーバは中継しません。"),
       h("div", { class: "field-row" }, h("div", { class: "field" }, h("label", { for: "fault-from" }, "送る機器"), fromSel), h("div", { class: "field" }, h("label", { for: "fault-to" }, "あて先"), toSel)),
       ...(missingNow ? [missingCard()] : []),
@@ -167,7 +167,7 @@ export const faultModule = {
     );
     cards[1].body.append(
       h("p", {}, "今度は、わざと届かない状態を作ってみよう。どこを切ると届かなくなる？　何か所こわすと届かなくなる？"),
-      explainCard("ポイント", "道が1本しかないところが切れると、回り道がないので届きません。たとえば、家のパソコンと家のルータの間です。大事なところは、道を2本以上にしておきます（<strong>冗長化</strong>）。こわれにくいネットワークの工夫です。"),
+      explainCard("ポイント", "道が1本しかないところが切れると、回り道がないので届きません。大事なところは、道を2本以上にしておきます（<strong>冗長化</strong>）。"),
     );
     cards[2].body.append(h("p", {}, "DNSサーバを止めよう（図のDNSサーバを押す）。そして、名前でWebページを開いてみよう。Webサーバまでの道がつながっていても開ける？"), h("div", { class: "btn-row" }, dnsBtn), dnsResult);
     cards[3].body.append(

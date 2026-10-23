@@ -169,7 +169,7 @@ export const snsModule = {
               type: "button",
               onclick: () => {
                 const ok = infer.every((it, i) => boxes[i].querySelector("input").checked === it.ok);
-                fb.replaceChildren(explainCard(ok ? "そのとおり！" : "答え", "誕生日と年齢。毎朝7時に土手にいること。学校から自転車で15分の範囲に家があること。1つ1つは小さな情報です。でも、ジグソーパズルのように組み合わせると、本人や生活が特定されてしまいます。過去の投稿もさかのぼって見られることを忘れずに。", ok ? "good" : "warn"));
+                fb.replaceChildren(explainCard(ok ? "そのとおり！" : "答え", "誕生日、毎朝7時に土手にいること、家が学校から自転車で15分。小さな情報も、組み合わせると本人が特定されます。過去の投稿も見られます。", ok ? "good" : "warn"));
                 c.done();
               },
             },
