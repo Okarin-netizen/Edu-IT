@@ -579,7 +579,7 @@
     logHint(hintStage);
     if (hintStage === 1) {
       box.appendChild(G.h('div', { class: 'hint-card' }, G.h('strong', null, 'ヒント1: '),
-        '大きい部品から先に置くと、すき間が少なくなります。部品は板の長い方向に並べましょう。のこぎりで端から端までまっすぐ切れる並べ方だと、作業も楽になります。今いちばん大きいのは、点線で囲んだ部品です。'));
+        '大きい部品から先に、板の長い方向に並べよう。端から端までまっすぐ切れる並べ方だと、作業も楽です。今いちばん大きいのは、点線で囲んだ部品です。'));
     } else if (hintStage === 2) {
       var big = largestUnplaced();
       var spot = big && K.findSpot(big, P.placements, instances, P.stock, P.kerf);
