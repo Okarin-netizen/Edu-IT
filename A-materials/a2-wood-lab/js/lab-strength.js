@@ -82,7 +82,7 @@
     var cards = document.getElementById('strengthCards');
     if (!cards.firstChild) {
       cards.innerHTML = TESTS.map(function (t) {
-        return '<div class="card scard" id="sc-' + t.id + '"><div class="sc-title">' + A2.rb(t.name) + '</div><div class="sc-fig"></div><div class="sc-state" aria-live="polite"></div></div>';
+        return '<div class="ef-box scard" id="sc-' + t.id + '"><div class="sc-title">' + A2.rb(t.name) + '</div><div class="sc-fig"></div><div class="sc-state" aria-live="polite"></div></div>';
       }).join('');
     }
     TESTS.forEach(function (t) {
@@ -90,7 +90,7 @@
       var k = load / t.v, broken = load >= t.v && load > 0;
       el.classList.toggle('broken', broken);
       el.querySelector('.sc-fig').innerHTML = svgFor(t, Math.min(1, k), broken);
-      var state = broken ? '<span class="badge ng">✕ こわれた</span>' : load === 0 ? '<span class="badge">{力|ちから}なし</span>' : k > 0.75 ? '<span class="badge warn">△ もう{少|すこ}しで{限界|げんかい}</span>' : '<span class="badge ok">○ たえている</span>';
+      var state = broken ? '<span class="ef-tag is-ng">✕ こわれた</span>' : load === 0 ? '<span class="ef-tag">{力|ちから}なし</span>' : k > 0.75 ? '<span class="ef-tag is-warn">△ もう{少|すこ}しで{限界|げんかい}</span>' : '<span class="ef-tag is-ok">○ たえている</span>';
       A2.setR(el.querySelector('.sc-state'), state + ' <span class="small">{強|つよ}さ ' + t.v + '</span>');
     });
     // 棒グラフ

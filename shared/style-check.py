@@ -9,10 +9,12 @@
             (図の色は、教材の CSS のいちばん上で --fig-… の名前を付けて書けばよい)
   radius    角丸(border-radius が 0 でない。丸い点・つまみの 50% は別)
   shadow    落ちる影(box-shadow・text-shadow・filter: drop-shadow)
+            (ON の印の下線 box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 … は影ではないのでよい)
   font      font-family を書いている(--ef-font・--ef-mono を使う)
-  important !important
+  important !important(display の !important は、隠す・印刷で出す切りかえなのでよい)
   oldvar    --ef- と --fig- 以外の名前の変数を使っている(--ink・--b1-ink など分野ごとの古い名前)
   fontpx    文字の大きさを px で書いている(rem・em なら文字の大きさのボタンで大きくなる)
+            (図の中の字(SVG の text。同じ行に fill・stroke・text-anchor を書いている所)は、図の大きさに合わせるので px でよい)
 
 調べる所: 各分野の .css と、.html の <style> と style="…"。
   shared/eduit-frame.css(設定そのもの)・dist・倉庫・テスト・node_modules は見ない。
@@ -45,6 +47,7 @@ NAMED = re.compile(r'(?<![-\w])(?:white|black|red|green|blue|yellow|orange|gray|
 VAR_DEF = re.compile(r'^\s*--(?:fig|ef)-[\w-]+\s*:')
 VAR_USE = re.compile(r'var\(\s*--([\w-]+)')
 DECL = re.compile(r'([-\w]+)\s*:\s*([^;{}]*)')
+SVG_TEXT = re.compile(r'(?:^|[;{\s])(?:fill|stroke|text-anchor)\s*:')
 OFF = re.compile(r'style-check:\s*off')
 ON = re.compile(r'style-check:\s*on')
 
@@ -55,7 +58,8 @@ def problems(prop, value, line):
     p = prop.lower()
     v = value.strip()
     if '!important' in v:
-        out.append('important')
+        if p != 'display':
+            out.append('important')
         v = v.replace('!important', '').strip()
     if p.startswith('--'):
         # 変数の定義: --fig-… / --ef-… なら色を書いてよい
@@ -67,7 +71,7 @@ def problems(prop, value, line):
     if p.startswith('border') and 'radius' in p:
         if not re.fullmatch(r'(0(px)?\s*)+|50%|inherit|var\(--ef-radius\)', v):
             out.append('radius')
-    if p in ('box-shadow', 'text-shadow') and v not in ('none', '0', 'var(--ef-shadow)'):
+    if p in ('box-shadow', 'text-shadow') and v not in ('none', '0', 'var(--ef-shadow)') and not re.match(r'inset 0 calc\(-1 \* var\(--ef-mark\)\) 0 ', v):
         out.append('shadow')
     if p == 'filter' and 'drop-shadow' in v:
         out.append('shadow')
@@ -75,7 +79,7 @@ def problems(prop, value, line):
         out.append('font')
     if p == 'font' and re.search(r'[a-z]\w*[,"\']|serif|sans', v, re.I) and 'var(--ef-' not in v and v != 'inherit':
         out.append('font')
-    if p in ('font-size', 'font') and re.search(r'\d(\.\d+)?px', v):
+    if p in ('font-size', 'font') and re.search(r'\d(\.\d+)?px', v) and not SVG_TEXT.search(line):
         out.append('fontpx')
     for name in VAR_USE.findall(v):
         if not (name.startswith('ef-') or name.startswith('fig-')):

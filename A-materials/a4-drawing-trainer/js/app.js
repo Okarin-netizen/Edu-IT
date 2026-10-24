@@ -105,7 +105,7 @@
   /* 「答えを見る」ボタン。押すたびに 表示 ⇔ かくす を切りかえる(以前は一度出すと消す方法がなかった) */
   function answerToggle(board, show, msg, result) {
     var on = false;
-    var btn = h('button', { class: 'btn', type: 'button', 'data-act': 'answer', 'aria-pressed': 'false', onclick: function () { set(!on); } }, '答えを見る');
+    var btn = h('button', { class: 'ef-btn', type: 'button', 'data-act': 'answer', 'aria-pressed': 'false', onclick: function () { set(!on); } }, '答えを見る');
     function set(v) {
       on = v;
       if (on) {
@@ -124,7 +124,7 @@
   }
   /* 「ヒント」ボタン。3段階まで出したあとは「ヒントを消す」になる */
   function hintButton(getLevel, setLevel) {
-    var btn = h('button', { class: 'btn', type: 'button', 'data-act': 'hint', onclick: function () {
+    var btn = h('button', { class: 'ef-btn', type: 'button', 'data-act': 'hint', onclick: function () {
       setLevel(getLevel() >= 3 ? 0 : getLevel() + 1); label();
     } });
     function label() {
@@ -142,7 +142,7 @@
       var st = getState(p);
       var sym = st === 'ok' ? '✓' : st === 'ng' ? '×' : '';
       nav.appendChild(h('button', {
-        class: 'btn small a4-nav-btn' + (st ? ' ' + st : ''), type: 'button', 'aria-current': i === cur ? 'true' : null,
+        class: 'ef-btn is-s a4-nav-btn' + (st ? ' ' + st : ''), type: 'button', 'aria-current': i === cur ? 'true' : null,
         'aria-label': '問題 ' + (i + 1) + (st === 'ok' ? '(できた)' : st === 'ng' ? '(まちがえた)' : ''),
         onclick: function () { onPick(i); }
       }, String(i + 1), sym ? h('span', { class: 'a4-nav-sym', 'aria-hidden': 'true' }, sym) : null));
@@ -185,10 +185,10 @@
       [1, 2, 3].map(function (lv) {
         var n = QUIZ[lv].filter(function (x) { return rec.data.quiz[x.id] && rec.data.quiz[x.id].first; }).length;
         var on = lv === quizState.level;
-        return h('button', { class: 'btn a4-level' + (on ? ' primary' : ''), type: 'button', 'aria-pressed': String(on),
+        return h('button', { class: 'ef-btn a4-level', type: 'button', 'aria-pressed': String(on),
           onclick: function () { quizState.level = lv; quizState.idx = 0; renderQuiz(); } },
           on ? h('span', { class: 'a4-level-mark', 'aria-hidden': 'true' }, '✓') : null,
-          LEVEL_NAME[lv] + ' ', h('span', { class: 'badge a4-level-badge' }, n + '/10'));
+          LEVEL_NAME[lv] + ' ', h('span', { class: 'ef-tag a4-level-badge' }, n + '/10'));
       }));
     var nav = problemNav(list, function (x) {
       var r = rec.data.quiz[x.id]; return r ? (r.first ? 'ok' : 'ng') : '';
@@ -218,8 +218,8 @@
         b.classList.toggle('is-wrong', i === chosen && i !== q.answer);
         var tag = G.$('.a4-option-tag', b);
         if (tag) tag.remove();
-        if (i === q.answer) b.appendChild(h('span', { class: 'badge ok a4-option-tag' }, '○ 正解'));
-        else if (i === chosen) b.appendChild(h('span', { class: 'badge ng a4-option-tag' }, '× えらんだ図'));
+        if (i === q.answer) b.appendChild(h('span', { class: 'ef-tag is-ok a4-option-tag' }, '○ 正解'));
+        else if (i === chosen) b.appendChild(h('span', { class: 'ef-tag is-ng a4-option-tag' }, '× えらんだ図'));
       });
     }
     function choose(i) {
@@ -235,10 +235,10 @@
         result.appendChild(h('p', null, KIND_EXPLAIN[q.options[i].kind] || ''));
       }
       result.appendChild(h('div', { class: 'g-row' },
-        h('button', { class: 'btn', type: 'button', onclick: function () { v.setView('front'); } }, '正面から見てみる'),
-        h('button', { class: 'btn', type: 'button', onclick: function () { v.setView('top'); } }, '上から見てみる'),
-        h('button', { class: 'btn', type: 'button', onclick: function () { v.setView('right'); } }, '右から見てみる'),
-        quizState.idx < list.length - 1 ? h('button', { class: 'btn primary', type: 'button', onclick: function () { quizState.idx++; renderQuiz(); } }, '次の問題 ▶') : null));
+        h('button', { class: 'ef-btn', type: 'button', onclick: function () { v.setView('front'); } }, '正面から見てみる'),
+        h('button', { class: 'ef-btn', type: 'button', onclick: function () { v.setView('top'); } }, '上から見てみる'),
+        h('button', { class: 'ef-btn', type: 'button', onclick: function () { v.setView('right'); } }, '右から見てみる'),
+        quizState.idx < list.length - 1 ? h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { quizState.idx++; renderQuiz(); } }, '次の問題 ▶') : null));
       // 結果は選択肢の下に出るので、見える位置までスクロールする
       if (result.scrollIntoView) result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       nav.replaceWith(nav = problemNav(list, function (x) {
@@ -249,7 +249,7 @@
     // はじめに: 第三角法のきまり(クイズの前に、図の置き方を見せる。1問でも答えたら、たたんでおく)
     var exSolid = M.fromHeights([[2, 1], [1, 0]]);
     var anyDone = Object.keys(rec.data.quiz).length > 0;
-    var intro = h('details', { class: 'card a4-intro' },
+    var intro = h('details', { class: 'ef-box a4-intro' },
       h('summary', null, h('strong', null, '第三角法のきまり'), '(はじめに読もう)'),
       h('p', null, '品物を、前・上・右の3つの方向から見た形をかきます。これを三面図といいます。'),
       h('div', { class: 'a4-intro-figs' },
@@ -262,13 +262,13 @@
     if (!anyDone) intro.open = true;
     root.appendChild(h('div', { 'data-ef-lets': 'a22' }));
     root.appendChild(intro);
-    root.appendChild(h('div', { class: 'card' },
+    root.appendChild(h('div', { class: 'ef-box' },
       h('h2', null, '三面図クイズ'),
       h('p', null, '左の立体を第三角法でかいた三面図はどれですか。立体はドラッグや矢印キーで回せます。'),
       levelBar, nav));
     root.appendChild(h('div', { class: 'a4-cols' },
-      h('div', { class: 'card a4-sticky' }, h('h3', null, '問題 ' + (quizState.idx + 1) + '(' + LEVEL_NAME[quizState.level] + ')'), v.el),
-      h('div', { class: 'card' }, h('h3', null, '正しい三面図をえらぶ'), legendLines(), opts, result)));
+      h('div', { class: 'ef-box a4-sticky' }, h('h3', null, '問題 ' + (quizState.idx + 1) + '(' + LEVEL_NAME[quizState.level] + ')'), v.el),
+      h('div', { class: 'ef-box' }, h('h3', null, '正しい三面図をえらぶ'), legendLines(), opts, result)));
     v.setSolid(p.solid);
     if (answered && done.last !== undefined) mark(done.last);
   }
@@ -346,21 +346,21 @@
         function (i) { buildState.idx = i; renderBuild(); }, buildState.idx));
     }
 
-    root.appendChild(h('div', { class: 'card' },
+    root.appendChild(h('div', { class: 'ef-box' },
       h('h2', null, '立体づくり(三面図から立体へ)'),
       h('p', null, '三面図を読んで、台の上にブロックを積みましょう。マスを押すと1個ずつ増えます(右クリック・↓キーで減る)。'),
       nav));
     root.appendChild(h('div', { class: 'a4-cols' },
-      h('div', { class: 'card' }, h('h3', null, '問題 ' + (buildState.idx + 1) + ' の三面図'),
+      h('div', { class: 'ef-box' }, h('h3', null, '問題 ' + (buildState.idx + 1) + ' の三面図'),
         legendLines(),
         svgNode(SV.threeView(target, { cell: 30, guides: true, aria: '問題の三面図' })),
         h('p', { class: 'g-muted' }, '台の大きさ: 横 ' + s.w + ' マス × 奥行き ' + s.d + ' マス。1マスにつき ' + maxH + ' 個まで積めます。')),
-      h('div', { class: 'card' }, h('h3', null, '台の上に積む(上から見た図)'),
+      h('div', { class: 'ef-box' }, h('h3', null, '台の上に積む(上から見た図)'),
         h('div', { class: 'a4-base-wrap' }, h('span', { class: 'a4-base-lbl' }, '奥'), grid, h('span', { class: 'a4-base-lbl' }, '▼ 正面(手前)')),
         countEl, v.el,
         h('div', { class: 'g-row' },
-          h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
-          h('button', { class: 'btn', type: 'button', onclick: function () { buildState.heights[p.id] = null; renderBuild(); } }, 'やり直す')),
+          h('button', { class: 'ef-btn-primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
+          h('button', { class: 'ef-btn', type: 'button', onclick: function () { buildState.heights[p.id] = null; renderBuild(); } }, 'やり直す')),
         result)));
     update();
   }
@@ -383,7 +383,7 @@
     var v = V3.widget();
     var viewTabs = h('div', { class: 'g-row', role: 'group', 'aria-label': 'かく図' },
       M.VIEWS.map(function (vw) {
-        return h('button', { class: 'btn' + (vw === view ? ' primary' : ''), type: 'button', 'data-view': vw, 'aria-pressed': String(vw === view),
+        return h('button', { class: 'ef-btn', type: 'button', 'data-view': vw, 'aria-pressed': String(vw === view),
           onclick: function () { drawState.view = vw; renderDraw(); } }, VIEW_NAME[vw], recP[vw] ? ' ✓' : '');
       }));
     var result = h('div', { class: 'a4-result', 'aria-live': 'polite' });
@@ -457,8 +457,8 @@
         recP[view] = true; save();
         result.appendChild(h('p', { class: 'a4-ok' }, '○ 正解です。' + VIEW_NAME[view] + 'が正しくかけました。'));
         var next = M.VIEWS.filter(function (vw) { return !recP[vw]; })[0];
-        if (next) result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () { drawState.view = next; renderDraw(); } }, VIEW_NAME[next] + 'をかく ▶'));
-        else if (drawState.idx < DRAW.length - 1) result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () { drawState.idx++; drawState.view = 'front'; renderDraw(); } }, '次の問題 ▶'));
+        if (next) result.appendChild(h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { drawState.view = next; renderDraw(); } }, VIEW_NAME[next] + 'をかく ▶'));
+        else if (drawState.idx < DRAW.length - 1) result.appendChild(h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { drawState.idx++; drawState.view = 'front'; renderDraw(); } }, '次の問題 ▶'));
       } else {
         result.appendChild(h('p', { class: 'a4-ng' }, '× まだちがうところがあります。'));
         var ul = h('ul', { class: 'a4-check-list' });
@@ -469,19 +469,19 @@
       }
     }
 
-    root.appendChild(h('div', { class: 'card' },
+    root.appendChild(h('div', { class: 'ef-box' },
       h('h2', null, '三面図をかく'),
       h('p', null, '立体を見て、' + '正面図・平面図・右側面図を方眼にかきましょう。点から点へドラッグすると線が引けます。見えない部分はかくれ線でかきます。'),
       nav));
     root.appendChild(h('div', { class: 'a4-cols' },
-      h('div', { class: 'card' }, h('h3', null, '問題 ' + (drawState.idx + 1) + ' の立体'), v.el,
+      h('div', { class: 'ef-box' }, h('h3', null, '問題 ' + (drawState.idx + 1) + ' の立体'), v.el,
         h('p', { class: 'g-muted' }, '第三角法: 平面図は正面図の上、右側面図は正面図の右に置きます。'),
         h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点から始めます(外形が入る範囲の左下の角)。下の線(基準線)を横に ' + D0.U + ' マス、左の線を縦に ' + D0.V + ' マス引きます。そのあと内側の線をかきます。')),
-      h('div', { class: 'card' },
+      h('div', { class: 'ef-box' },
         h('h3', null, VIEW_NAME[view] + 'をかく(' + VIEW_DIR[view] + '見た図)'), viewTabs,
         board.el,
         h('div', { class: 'g-row' },
-          h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
+          h('button', { class: 'ef-btn-primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
           hintBtn.el, answer.el),
         h('p', { class: 'g-muted a4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線 / △ 線の種類ちがい'),
         hintBox, result)));
@@ -576,7 +576,7 @@
       rec.data.iso[p.id] = r; save();
       if (g.ok) {
         result.appendChild(h('p', { class: 'a4-ok' }, '○ 正解です。等角図が正しくかけました。'));
-        if (isoState.idx < ISO.length - 1) result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () { isoState.idx++; renderIso(); } }, '次の問題 ▶'));
+        if (isoState.idx < ISO.length - 1) result.appendChild(h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { isoState.idx++; renderIso(); } }, '次の問題 ▶'));
       } else {
         result.appendChild(h('p', { class: 'a4-ng' }, '× まだちがうところがあります。'));
         var ul = h('ul', { class: 'a4-check-list' });
@@ -588,20 +588,20 @@
         function (i) { isoState.idx = i; renderIso(); }, isoState.idx));
     }
 
-    root.appendChild(h('div', { class: 'card' },
+    root.appendChild(h('div', { class: 'ef-box' },
       h('h2', null, '等角図をかく'),
       h('p', null, '三面図を読んで、立体を等角図でかきましょう。高さは縦、横と奥行きは右下・右上の向き(水平から30°)に引きます。見える線だけをかきます。'),
       nav));
     root.appendChild(h('div', { class: 'a4-cols' },
-      h('div', { class: 'card' }, h('h3', null, '問題 ' + (isoState.idx + 1) + ' の三面図'), legendLines(),
+      h('div', { class: 'ef-box' }, h('h3', null, '問題 ' + (isoState.idx + 1) + ' の三面図'), legendLines(),
         svgNode(SV.threeView(M.threeViews(s), { cell: 28, guides: true, aria: '問題の三面図' })),
         h('p', { class: 'g-muted' }, '等角図は、右手前の上から見たようにかきます。正面は左下の面、右側面は右下の面になります。'),
         h('p', { class: 'a4-guide-note' }, 'かき始め: ボードの ● の点(立体が入る箱の、手前の下の角)から始めます。水平な基準線から30°上がる線を左右に引きます。左上に横 ' + s.w + '、右上に奥行き ' + s.d + '、真上に高さ ' + s.h + ' をとります。'),
         v3wrap),
-      h('div', { class: 'card' }, h('h3', null, '等角図をかく'),
+      h('div', { class: 'ef-box' }, h('h3', null, '等角図をかく'),
         board.el,
         h('div', { class: 'g-row' },
-          h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
+          h('button', { class: 'ef-btn-primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
           hintBtn.el, answer.el),
         h('p', { class: 'g-muted a4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線'),
         hintBox, result)));
@@ -686,7 +686,7 @@
       rec.data.cab[p.id] = r; save();
       if (g.ok) {
         result.appendChild(h('p', { class: 'a4-ok' }, '○ 正解です。キャビネット図が正しくかけました。'));
-        if (cabState.idx < CAB.length - 1) result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () { cabState.idx++; renderCab(); } }, '次の問題 ▶'));
+        if (cabState.idx < CAB.length - 1) result.appendChild(h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { cabState.idx++; renderCab(); } }, '次の問題 ▶'));
       } else {
         result.appendChild(h('p', { class: 'a4-ng' }, '× まだちがうところがあります。'));
         var ul = h('ul', { class: 'a4-check-list' });
@@ -696,19 +696,19 @@
       }
       nav.replaceWith(nav = problemNav(CAB, status, go, cabState.idx));
     }
-    root.appendChild(h('div', { class: 'card' },
+    root.appendChild(h('div', { class: 'ef-box' },
       h('h2', null, 'キャビネット図をかく'),
       h('p', null, '正面は正面図と同じ形でかこう。奥行きは右上45°に、半分の長さでかこう。'),
       nav));
     root.appendChild(h('div', { class: 'a4-cols' },
-      h('div', { class: 'card' }, h('h3', null, '問題 ' + (cabState.idx + 1) + ' の三面図'), legendLines(),
+      h('div', { class: 'ef-box' }, h('h3', null, '問題 ' + (cabState.idx + 1) + ' の三面図'), legendLines(),
         svgNode(SV.threeView(M.threeViews(s), { cell: 28, guides: true, aria: '問題の三面図' })),
         h('p', { class: 'a4-guide-note' }, 'このボードでは、正面の1目もりが方眼' + U + 'マスです。奥行きの1目もりは、ななめ1マス(ほぼ半分の長さ)です。'),
         v3wrap),
-      h('div', { class: 'card' }, h('h3', null, 'キャビネット図をかく'),
+      h('div', { class: 'ef-box' }, h('h3', null, 'キャビネット図をかく'),
         board.el,
         h('div', { class: 'g-row' },
-          h('button', { class: 'btn primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
+          h('button', { class: 'ef-btn-primary', type: 'button', 'data-act': 'check', onclick: check }, '答え合わせ'),
           hintBtn.el, answer.el),
         h('p', { class: 'g-muted a4-marks' }, '答え合わせの記号: ○ 足りない線 / × 余分な線'),
         hintBox, result)));
@@ -731,21 +731,21 @@
     if (!termState) newTermTest();
     var st = termState;
     var best = rec.data.terms.best;
-    var head = h('div', { class: 'card' }, h('h2', null, '線と記号のミニテスト'),
+    var head = h('div', { class: 'ef-box' }, h('h2', null, '線と記号のミニテスト'),
       h('p', null, '製図で使う線の種類や、寸法の記入のしかた・記号を確かめます。全部で10問です。'),
       best !== null ? h('p', { class: 'g-muted' }, 'これまでの最高: ' + best + ' / 10') : null);
     root.appendChild(head);
     if (st.idx >= st.order.length) {
-      root.appendChild(h('div', { class: 'card' }, h('h3', null, '結果'),
+      root.appendChild(h('div', { class: 'ef-box' }, h('h3', null, '結果'),
         h('p', { class: 'a4-big' }, st.score + ' / 10 問 正解'),
-        h('button', { class: 'btn primary', type: 'button', onclick: function () { newTermTest(); renderTerms(); } }, 'もう一度(問題が入れかわります)')));
+        h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { newTermTest(); renderTerms(); } }, 'もう一度(問題が入れかわります)')));
       return;
     }
     var q = T.BANK[st.order[st.idx]], sh = st.shuffles[st.idx];
     var result = h('div', { class: 'a4-result', 'aria-live': 'polite' });
     var choices = h('div', { class: 'a4-choices', role: 'group', 'aria-label': '答えをえらぶ' });
     sh.forEach(function (ci, k) {
-      choices.appendChild(h('button', { class: 'btn a4-choice', type: 'button', onclick: function () { answer(ci, k); } },
+      choices.appendChild(h('button', { class: 'ef-btn a4-choice', type: 'button', onclick: function () { answer(ci, k); } },
         h('span', { class: 'a4-choice-num', 'aria-hidden': 'true' }, String(k + 1)), q.c[ci]));
     });
     function answer(ci, k) {
@@ -755,13 +755,13 @@
       if (ok) st.score++;
       G.$$('.a4-choice', choices).forEach(function (b, kk) {
         b.disabled = true;
-        if (sh[kk] === q.a) { b.classList.add('is-answer'); b.appendChild(h('span', { class: 'badge ok' }, '○ 正解')); }
-        else if (kk === k) { b.classList.add('is-wrong'); b.appendChild(h('span', { class: 'badge ng' }, '× えらんだ答え')); }
+        if (sh[kk] === q.a) { b.classList.add('is-answer'); b.appendChild(h('span', { class: 'ef-tag is-ok' }, '○ 正解')); }
+        else if (kk === k) { b.classList.add('is-wrong'); b.appendChild(h('span', { class: 'ef-tag is-ng' }, '× えらんだ答え')); }
       });
       result.appendChild(h('p', { class: ok ? 'a4-ok' : 'a4-ng' }, ok ? '○ 正解です。' : '× ちがいます。'));
       result.appendChild(h('p', null, q.e));
       var last = st.idx === st.order.length - 1;
-      result.appendChild(h('button', { class: 'btn primary', type: 'button', onclick: function () {
+      result.appendChild(h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () {
         st.idx++; st.answered = false;
         if (st.idx >= st.order.length) {
           var t = rec.data.terms;
@@ -772,9 +772,9 @@
         }
         renderTerms();
       } }, last ? '結果を見る ▶' : '次の問題 ▶'));
-      var nb = G.$('.a4-result .btn.primary', root); if (nb) nb.focus();
+      var nb = G.$('.a4-result .ef-btn-primary', root); if (nb) nb.focus();
     }
-    root.appendChild(h('div', { class: 'card a4-term' },
+    root.appendChild(h('div', { class: 'ef-box a4-term' },
       h('h3', null, '第 ' + (st.idx + 1) + ' 問(全 10 問)'),
       q.fig ? svgNode(T.FIGS[q.fig]) : null,
       h('p', { class: 'a4-q' }, q.q), choices, result));
@@ -802,18 +802,18 @@
     ];
     var nameIn = h('input', { type: 'text', id: 'a4-name', value: d.name || '', maxlength: '40', autocomplete: 'off' });
     nameIn.addEventListener('change', function () { d.name = nameIn.value.trim(); rec.title = '製図トレーナーの記録' + (d.name ? '(' + d.name + ')' : ''); save(); });
-    root.appendChild(h('div', { class: 'card' }, h('h2', null, '記録'),
+    root.appendChild(h('div', { class: 'ef-box' }, h('h2', null, '記録'),
       h('p', null, '記録はこの端末に自動で保存されます。先生に出すときや、別の端末に移すときは、ファイルに書き出してください。'),
       h('div', { class: 'g-field' }, h('label', { for: 'a4-name' }, '名前(書き出すファイルに入ります)'), nameIn),
       h('div', { class: 'g-table-wrap' }, h('table', { class: 'g-table' },
         h('thead', null, h('tr', null, h('th', null, '練習'), h('th', null, 'できたこと'))),
         h('tbody', null, rows.map(function (r) { return h('tr', null, h('td', null, r[0]), h('td', null, r[1])); })))),
       h('div', { class: 'g-row', style: { marginTop: '.75rem' } },
-        h('button', { class: 'btn primary', type: 'button', 'data-act': 'export', onclick: function () {
+        h('button', { class: 'ef-btn-primary', type: 'button', 'data-act': 'export', onclick: function () {
           var stamp = new Date().toISOString().slice(0, 10);
           G.exportJSON(rec, 'drawing-trainer-' + (d.name || 'record') + '-' + stamp + '.json');
         } }, 'ファイルに書き出す'),
-        h('button', { class: 'btn', type: 'button', onclick: function () {
+        h('button', { class: 'ef-btn', type: 'button', onclick: function () {
           G.pickJSON().then(function (obj) {
             var list = G.normalizeImport(obj, APP);
             if (!list.length) { G.toast('製図トレーナーの記録が見つかりませんでした'); return; }
@@ -825,7 +825,7 @@
             });
           }).catch(function (e) { G.toast(e.message); });
         } }, 'ファイルから読み込む'),
-        h('button', { class: 'btn danger', type: 'button', onclick: function () {
+        h('button', { class: 'ef-btn is-danger', type: 'button', onclick: function () {
           G.confirm('この端末の記録をすべて消します。もとに戻せません。', '消す').then(function (ok) {
             if (!ok) return;
             rec.data = emptyData(); save(); renderAll();
@@ -846,7 +846,7 @@
   function renderReflect() {
     var r = rec.data.reflect || (rec.data.reflect = { self: {}, learned: '', hard: '', use: '' });
     r.self = r.self || {};
-    var card = h('div', { class: 'card a4-reflect', 'data-ef-reflect': '' }, h('h2', null, 'ふりかえり'),
+    var card = h('div', { class: 'ef-box a4-reflect', 'data-ef-reflect': '' }, h('h2', null, 'ふりかえり'),
       h('p', null, '練習をふり返って、自分で評価しよう。書いた内容は記録といっしょに保存・書き出しされます。'));
     var tbl = h('table', { class: 'g-table' },
       h('thead', null, h('tr', null, h('th', null, '自己評価'), SELF_LEVELS.map(function (l) { return h('th', null, l[1]); }))));

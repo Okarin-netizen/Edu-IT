@@ -173,7 +173,7 @@
       name.addEventListener('change', function () { p.name = name.value.trim() || '部品' + (idx + 1); partEdited(); });
       var grain = G.h('input', { type: 'checkbox', checked: p.grain, 'aria-label': p.name + ' を木目に合わせる' });
       grain.addEventListener('change', function () { p.grain = grain.checked; partEdited(); });
-      var del = G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': p.name + ' を削除' }, '削除');
+      var del = G.h('button', { class: 'ef-btn is-s is-danger', type: 'button', 'aria-label': p.name + ' を削除' }, '削除');
       del.addEventListener('click', function () { P.parts.splice(idx, 1); partEdited(); });
       tb.appendChild(G.h('tr', null, G.h('td', null, name), numCell('l', 300, 1, 4000), numCell('w', 100, 1, 2000), numCell('t', P.stock.t, 0.5, 100, 0.5), numCell('qty', 1, 0, 50), G.h('td', { class: 'c' }, grain), G.h('td', null, del)));
     });
@@ -184,7 +184,7 @@
       if (Math.abs((p.t || 0) - P.stock.t) > 0.01) msgs.push('「' + p.name + '」の厚さ(' + p.t + ' mm)が板の厚さ(' + P.stock.t + ' mm)とちがいます。');
     });
     var box = G.$('#parts-msg'); box.innerHTML = '';
-    msgs.forEach(function (m) { box.appendChild(G.h('p', { class: 'g-note' }, m)); });
+    msgs.forEach(function (m) { box.appendChild(G.h('p', { class: 'ef-note is-warn' }, m)); });
     renderSummary();
   }
   function partEdited() {
@@ -260,13 +260,13 @@
     if (G.$('[data-panel="layout"]').hidden) return;
     lay = layoutGeometry();
     var ctx = G.setupCanvas(cv, lay.cw, lay.ch);
-    var ink = G.cssVar('--ink', '#222'), muted = G.cssVar('--muted', '#555'), accent = G.cssVar('--accent', '#1f6feb'), ng = G.cssVar('--ng', '#c62828');
+    var ink = G.cssVar('--ef-text', '#222'), muted = G.cssVar('--ef-muted', '#555'), accent = G.cssVar('--fig-accent', '#1f6feb'), ng = G.cssVar('--ef-ng', '#c62828');
     ctx.clearRect(0, 0, lay.cw, lay.ch);
     var ck = K.check(instances, P.placements, P.stock, P.kerf);
     var st = K.stats(instances, P.placements, P.stock, P.kerf);
     for (var b = 0; b < P.stock.count; b++) {
       var y0 = boardY(b), w = P.stock.l * lay.s;
-      ctx.fillStyle = G.cssVar('--wood-soft', '#f1dfc5');
+      ctx.fillStyle = G.cssVar('--fig-wood-soft', '#f1dfc5');
       ctx.fillRect(LEFT, y0, w, lay.bh);
       // 木目
       ctx.save(); ctx.beginPath(); ctx.rect(LEFT, y0, w, lay.bh); ctx.clip();
@@ -286,7 +286,7 @@
         ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(rx, y0, pb.restL * lay.s, lay.bh);
       }
       ctx.restore();
-      ctx.strokeStyle = G.cssVar('--wood-dark', '#8a5a2b'); ctx.lineWidth = 2; ctx.strokeRect(LEFT, y0, w, lay.bh);
+      ctx.strokeStyle = G.cssVar('--fig-wood-dark', '#8a5a2b'); ctx.lineWidth = 2; ctx.strokeRect(LEFT, y0, w, lay.bh);
       ctx.fillStyle = ink; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       ctx.fillText('板' + (b + 1), 4, y0 + 15);
       ctx.font = '12px sans-serif'; ctx.fillStyle = muted;
@@ -299,7 +299,7 @@
     // 部品
     ck.rects.forEach(function (r) {
       var q = toScreen(r), bad = ck.bad[r.iid], sel = r.iid === selected;
-      ctx.fillStyle = bad ? G.cssVar('--ng-soft', '#ffe7e7') : '#fffdf8';
+      ctx.fillStyle = bad ? G.cssVar('--ef-ng-soft', '#ffe7e7') : '#fffdf8';
       ctx.fillRect(q.x, q.y, q.w, q.h);
       if (bad) {
         ctx.save(); ctx.beginPath(); ctx.rect(q.x, q.y, q.w, q.h); ctx.clip();
@@ -350,7 +350,7 @@
     if (!left.length) { tray.appendChild(G.h('p', { class: 'tray-empty' }, instances.length ? '✓ すべての部品を置きました' : '部品表に部品がありません')); return; }
     var biggest = hintStage >= 1 ? largestUnplaced() : null;
     left.forEach(function (i) {
-      var b = G.h('button', { class: 'btn tray-item' + (biggest && biggest.iid === i.iid ? ' hl' : ''), type: 'button', 'aria-label': i.name + ' ' + i.l + '×' + i.w + '。押すと空いている場所に置きます' },
+      var b = G.h('button', { class: 'ef-btn tray-item' + (biggest && biggest.iid === i.iid ? ' hl' : ''), type: 'button', 'aria-label': i.name + ' ' + i.l + '×' + i.w + '。押すと空いている場所に置きます' },
         G.h('span', null, i.name + (i.qty > 1 ? ' ' + i.no : '')),
         G.h('span', { class: 'd' }, i.l + '×' + i.w + (i.grain ? ' 木目' : '')));
       b.addEventListener('pointerdown', function (e) { startDrag(e, i, true); });
@@ -378,7 +378,7 @@
     var pl = P.placements[inst.iid];
     box.appendChild(G.h('p', null, G.h('strong', null, inst.name + (inst.qty > 1 ? ' ' + inst.no : '')), ' 長さ ' + inst.l + ' × 幅 ' + inst.w + ' mm', inst.grain ? ' (木目に合わせる)' : ''));
     if (!pl) {
-      box.appendChild(G.h('button', { class: 'btn primary', type: 'button', onclick: function () { placeAuto(inst); } }, '空いている場所に置く'));
+      box.appendChild(G.h('button', { class: 'ef-btn-primary', type: 'button', onclick: function () { placeAuto(inst); } }, '空いている場所に置く'));
       return;
     }
     var boardSel = G.h('select', { 'aria-label': '板' });
@@ -398,12 +398,12 @@
       G.h('label', { class: 'g-field' }, G.h('span', null, '左はしから x (mm)'), xi),
       G.h('label', { class: 'g-field' }, G.h('span', null, '上はしから y (mm)'), yi)));
     box.appendChild(G.h('div', { class: 'g-row' },
-      G.h('button', { class: 'btn', type: 'button', onclick: function () { rotateSel(); } }, '90°回す (R)'),
-      G.h('button', { class: 'btn', type: 'button', onclick: function () { unplace(); } }, '板から外す (Delete)'),
-      G.h('button', { class: 'btn', type: 'button', onclick: function () { delete P.placements[inst.iid]; placeAuto(inst); } }, '空いている場所へ')));
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: function () { rotateSel(); } }, '90°回す (R)'),
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: function () { unplace(); } }, '板から外す (Delete)'),
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: function () { delete P.placements[inst.iid]; placeAuto(inst); } }, '空いている場所へ')));
     var ck = K.check(instances, P.placements, P.stock, P.kerf);
     var bad = ck.bad[inst.iid];
-    box.appendChild(bad ? G.h('p', { class: 'badge ng' }, '✕ ' + bad.join('・') + (bad.indexOf('重なり') >= 0 ? '(部品の間は切りしろ ' + P.kerf + ' mm 以上あける)' : '')) : G.h('p', { class: 'badge ok' }, '○ 問題なし'));
+    box.appendChild(bad ? G.h('p', { class: 'ef-tag is-ng' }, '✕ ' + bad.join('・') + (bad.indexOf('重なり') >= 0 ? '(部品の間は切りしろ ' + P.kerf + ' mm 以上あける)' : '')) : G.h('p', { class: 'ef-tag is-ok' }, '○ 問題なし'));
   }
   function round1(v) { return Math.round(v * 10) / 10; }
 
@@ -425,9 +425,9 @@
     box.appendChild(G.h('div', { class: 'g-table-wrap' }, G.h('table', { class: 'g-table' },
       G.h('thead', null, G.h('tr', null, G.h('th', null, '板'), G.h('th', { class: 'num' }, '部品'), G.h('th', { class: 'num' }, '歩留まり'), G.h('th', { class: 'num' }, '右はしの残り'))), tb)));
     var nBad = Object.keys(ck.bad).length;
-    if (nBad) box.appendChild(G.h('p', { class: 'badge ng' }, '✕ 問題のある部品が ' + nBad + ' 個あります(斜線の部品)'));
-    if (st.unplaced) box.appendChild(G.h('p', { class: 'badge warn' }, '△ まだ置いていない部品が ' + st.unplaced + ' 個あります'));
-    if (!nBad && !st.unplaced && st.total) box.appendChild(G.h('p', { class: 'badge ok' }, '○ すべての部品を問題なく置けました'));
+    if (nBad) box.appendChild(G.h('p', { class: 'ef-tag is-ng' }, '✕ 問題のある部品が ' + nBad + ' 個あります(斜線の部品)'));
+    if (st.unplaced) box.appendChild(G.h('p', { class: 'ef-tag is-warn' }, '△ まだ置いていない部品が ' + st.unplaced + ' 個あります'));
+    if (!nBad && !st.unplaced && st.total) box.appendChild(G.h('p', { class: 'ef-tag is-ok' }, '○ すべての部品を問題なく置けました'));
   }
 
   function layoutChanged() {
@@ -587,7 +587,7 @@
         ghost = { iid: big.iid, board: spot.board, x: spot.x, y: spot.y, rot: spot.rot };
         box.appendChild(G.h('div', { class: 'hint-card' }, G.h('strong', null, 'ヒント2: '),
           '「' + big.name + '」は、青い点線の場所に置けます。',
-          G.h('button', { class: 'btn small', type: 'button', onclick: function () { P.placements[big.iid] = spot; selected = big.iid; box.innerHTML = ''; layoutChanged(); } }, 'ここに置く')));
+          G.h('button', { class: 'ef-btn is-s', type: 'button', onclick: function () { P.placements[big.iid] = spot; selected = big.iid; box.innerHTML = ''; layoutChanged(); } }, 'ここに置く')));
       } else {
         box.appendChild(G.h('div', { class: 'hint-card' }, G.h('strong', null, 'ヒント2: '), big ? '今の配置のままでは「' + big.name + '」を置く空きがありません。部品を寄せるか、板を増やしましょう。' : 'すべての部品が置けています。歩留まりを上げられないか、並べ方を変えて比べてみましょう。'));
       }
@@ -600,14 +600,14 @@
         plan.unplaced.length ? ' ただし ' + plan.unplaced.length + ' 個の部品は板より大きくて入りません。' : '',
         ' 案はひとつの例です。木目や節の位置、切る手間も考えて、自分で決めましょう。',
         G.h('div', { class: 'g-row' },
-          G.h('button', { class: 'btn small', type: 'button', onclick: function () {
+          G.h('button', { class: 'ef-btn is-s', type: 'button', onclick: function () {
             G.confirm('今の配置を、コンピュータの案に置きかえます。', '置きかえる').then(function (ok) {
               if (!ok) return;
               if (plan.boardsUsed > P.stock.count) { P.stock.count = plan.boardsUsed; renderStock(); }
               P.placements = plan.placements; box.innerHTML = ''; hintStage = 0; layoutChanged();
             });
           } }, 'この案を使ってみる'),
-          G.h('button', { class: 'btn small ghost', type: 'button', onclick: function () { box.innerHTML = ''; hintStage = 0; ghost = null; drawLayout(); renderTray(); } }, '閉じる'))));
+          G.h('button', { class: 'ef-btn is-s', type: 'button', onclick: function () { box.innerHTML = ''; hintStage = 0; ghost = null; drawLayout(); renderTray(); } }, '閉じる'))));
     }
     G.$('#hint').textContent = hintStage < 3 ? 'ヒント(次: ' + (hintStage + 1) + '/3)' : 'ヒント(3/3)';
     drawLayout(); renderTray();
@@ -635,12 +635,12 @@
       var r = T.build(P.template.type, P.template.W, P.template.D, P.template.H, P.stock.t);
       if (r.ok) {
         D.assembly(acv, r.parts.map(function (p) { return p.box; }), { title: (art.title || T.list[P.template.type].label) + '(' + T.list[P.template.type].label + ')', t: P.stock.t });
-        if (P.template.dirty) msg.appendChild(G.h('p', { class: 'g-note' }, '部品表を手で変えました。そのため組み立て図は、ひな形の寸法のままです(幅 ' + P.template.W + '・奥行き ' + P.template.D + '・高さ ' + P.template.H + ')。'));
-      } else msg.appendChild(G.h('p', { class: 'g-note' }, r.error));
+        if (P.template.dirty) msg.appendChild(G.h('p', { class: 'ef-note is-warn' }, '部品表を手で変えました。そのため組み立て図は、ひな形の寸法のままです(幅 ' + P.template.W + '・奥行き ' + P.template.D + '・高さ ' + P.template.H + ')。'));
+      } else msg.appendChild(G.h('p', { class: 'ef-note is-warn' }, r.error));
       acv.hidden = !r.ok;
     } else {
       acv.hidden = true;
-      msg.appendChild(G.h('p', { class: 'g-note' }, '組み立て図は、「材料・部品」タブのひな形から部品表を作ると自動でかけます。部品図は下にあります。'));
+      msg.appendChild(G.h('p', { class: 'ef-note is-warn' }, '組み立て図は、「材料・部品」タブのひな形から部品表を作ると自動でかけます。部品図は下にあります。'));
     }
     D.partsSheet(G.$('#parts-canvas'), P.parts);
     var jb = G.$('#joints');
@@ -712,9 +712,9 @@
   function renderStrength() {
     var p = strengthPart(), res = G.$('#st-result'), tbl = G.$('#cmp-table');
     res.innerHTML = ''; tbl.innerHTML = '';
-    if (!p) { res.appendChild(G.h('p', { class: 'g-note' }, '部品表に部品がありません。')); return; }
+    if (!p) { res.appendChild(G.h('p', { class: 'ef-note is-warn' }, '部品表に部品がありません。')); return; }
     var vs = calcVariants(p), cur = vs[0].r;
-    if (!cur.ok) { res.appendChild(G.h('p', { class: 'g-note' }, cur.error)); drawBeam(null); return; }
+    if (!cur.ok) { res.appendChild(G.h('p', { class: 'ef-note is-warn' }, cur.error)); drawBeam(null); return; }
     res.appendChild(G.h('div', { class: 'stat-grid' },
       G.h('div', null, G.h('span', { class: 'lab' }, 'たわみ(へこむ量)'), G.h('span', { class: 'stat-big' }, G.fmt(cur.deflection, 2)), ' mm'),
       G.h('div', null, G.h('span', { class: 'lab' }, '強さの余裕'), G.h('span', { class: 'stat-big lvl-' + cur.level.id }, cur.level.mark + ' ' + cur.level.label)),
@@ -723,7 +723,7 @@
       G.h('p', null, '板の中の応力(いちばん大きい所): ' + G.fmt(cur.stress, 2) + ' N/mm²'),
       G.h('p', null, '安全率(強さ ÷ 応力): ' + (isFinite(cur.safety) ? G.fmt(cur.safety, 1) : '—') + '(3以上で「○ 余裕あり」)'),
       G.h('p', { class: 'g-muted' }, '式: ' + formulaText() + '(E: ヤング率 ' + G.fmt(cur.E, 0) + ' N/mm²、I: 断面二次モーメント = 幅×厚さ³÷12 = ' + G.fmt(cur.I, 0) + ' mm⁴)')));
-    cur.warnings.forEach(function (w) { res.appendChild(G.h('p', { class: 'badge ng' }, '! ' + w)); });
+    cur.warnings.forEach(function (w) { res.appendChild(G.h('p', { class: 'ef-tag is-ng' }, '! ' + w)); });
     res.appendChild(G.noteEstimate('計算は、木の性質がどこでも同じと考えた「目安」です。実際の板は、節・木目・含水率で変わります。実験で確かめましょう。' + G.materials.source));
     // 比べる表
     var maxD = vs.reduce(function (m, v) { return v.r.ok ? Math.max(m, v.r.deflection) : m; }, 0) || 1;
@@ -774,7 +774,7 @@
     var ctx = G.setupCanvas(c, cw, ch);
     ctx.clearRect(0, 0, cw, ch);
     if (!r || !r.ok) return;
-    var ink = G.cssVar('--ink', '#222'), accent = G.cssVar('--accent', '#1f6feb'), muted = G.cssVar('--muted', '#555');
+    var ink = G.cssVar('--ef-text', '#222'), accent = G.cssVar('--fig-accent', '#1f6feb'), muted = G.cssVar('--ef-muted', '#555');
     var x0 = 40, x1 = cw - 40, y0 = 80, L = r.L, thick = 14;
     var maxPx = 60;
     var scale = r.deflection > 0 ? Math.min(maxPx / r.deflection, 1e4) : 1;
@@ -791,7 +791,7 @@
     var N = 60, i, x, px, py;
     for (i = 0; i <= N; i++) { x = L * i / N; px = x0 + (x1 - x0) * i / N; py = y0 - thick / 2 + yAt(x); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
     for (i = N; i >= 0; i--) { x = L * i / N; px = x0 + (x1 - x0) * i / N; py = y0 + thick / 2 + yAt(x); ctx.lineTo(px, py); }
-    ctx.closePath(); ctx.fillStyle = G.cssVar('--wood-soft', '#f1dfc5'); ctx.fill(); ctx.strokeStyle = G.cssVar('--wood-dark', '#8a5a2b'); ctx.lineWidth = 2; ctx.stroke();
+    ctx.closePath(); ctx.fillStyle = G.cssVar('--fig-wood-soft', '#f1dfc5'); ctx.fill(); ctx.strokeStyle = G.cssVar('--fig-wood-dark', '#8a5a2b'); ctx.lineWidth = 2; ctx.stroke();
     // 支点
     ctx.fillStyle = ink;
     if (support === 'cantilever') {
@@ -840,9 +840,9 @@
       }
       var ck = G.h('input', { type: 'checkbox', checked: !!r.done, 'aria-label': (i + 1) + '番目が終わった' });
       ck.addEventListener('change', function () { r.done = ck.checked; changed(); });
-      var up = G.h('button', { class: 'btn small', type: 'button', disabled: i === 0, 'aria-label': '上へ' }, '↑');
+      var up = G.h('button', { class: 'ef-btn is-s', type: 'button', disabled: i === 0, 'aria-label': '上へ' }, '↑');
       up.addEventListener('click', function () { var t = P.plan.rows[i - 1]; P.plan.rows[i - 1] = r; P.plan.rows[i] = t; changed(); renderPlan(); });
-      var del = G.h('button', { class: 'btn small', type: 'button', 'aria-label': '消す' }, '✕');
+      var del = G.h('button', { class: 'ef-btn is-s', type: 'button', 'aria-label': '消す' }, '✕');
       del.addEventListener('click', function () { P.plan.rows.splice(i, 1); if (!P.plan.rows.length) P.plan.rows.push({ work: '', tool: '', when: '', done: false }); changed(); renderPlan(); });
       tb.appendChild(G.h('tr', null, G.h('td', { class: 'num' }, String(i + 1)), txt('work', '作業'), txt('tool', '工具'), txt('when', 'いつ'), G.h('td', { class: 'c' }, ck), G.h('td', { class: 'no-print' }, up, ' ', del)));
     });
@@ -867,8 +867,8 @@
     var st = K.stats(instances, P.placements, P.stock, P.kerf), ck = K.check(instances, P.placements, P.stock, P.kerf);
     var sb = G.$('#selfcheck'); sb.innerHTML = '';
     var allPlaced = st.total > 0 && st.unplaced === 0, noBad = ck.ok;
-    sb.appendChild(G.h('p', null, G.h('span', { class: 'badge ' + (allPlaced ? 'ok' : 'warn') }, allPlaced ? '○ すべての部品を板に置けた' : '△ 置いていない部品がある'), ' ',
-      G.h('span', { class: 'badge ' + (noBad ? 'ok' : 'ng') }, noBad ? '○ 重なり・はみ出しがない' : '✕ 重なり・はみ出しがある')));
+    sb.appendChild(G.h('p', null, G.h('span', { class: 'ef-tag ' + (allPlaced ? 'ok' : 'warn') }, allPlaced ? '○ すべての部品を板に置けた' : '△ 置いていない部品がある'), ' ',
+      G.h('span', { class: 'ef-tag ' + (noBad ? 'ok' : 'ng') }, noBad ? '○ 重なり・はみ出しがない' : '✕ 重なり・はみ出しがある')));
     SELF.forEach(function (s) {
       var id = 'self-' + s.id;
       var c = G.h('input', { type: 'checkbox', id: id, checked: !!R.self[s.id] });

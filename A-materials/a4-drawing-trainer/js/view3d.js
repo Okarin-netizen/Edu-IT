@@ -69,12 +69,12 @@
       var s = state.solid;
       if (!s) return;
       var P = projector(s, W, H);
-      var ink = cssVar('--ink', '#1f2328'), muted = cssVar('--muted', '#5b636d');
-      var base = hexToRgb(cssVar('--wood', '#c8955b'));
+      var ink = cssVar('--ef-text', '#1f2328'), muted = cssVar('--ef-muted', '#5b636d');
+      var base = hexToRgb(cssVar('--fig-wood', '#c8955b'));
 
       // 床の格子と「正面」の矢印
       ctx.lineWidth = 1;
-      ctx.strokeStyle = cssVar('--line', '#d0d4d9');
+      ctx.strokeStyle = cssVar('--ef-line', '#d0d4d9');
       var x, y, a, b;
       for (x = 0; x <= s.w; x++) { a = P.p(x, 0, 0); b = P.p(x, s.d, 0); ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke(); }
       for (y = 0; y <= s.d; y++) { a = P.p(0, y, 0); b = P.p(s.w, y, 0); ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke(); }
@@ -165,7 +165,7 @@
     var G = root.G;
     var canvas = G.h('canvas', { class: 'a4-3d' });
     var v = null;
-    function btn(label, fn, title) { return G.h('button', { class: 'btn small', type: 'button', title: title || label, onclick: fn }, label); }
+    function btn(label, fn, title) { return G.h('button', { class: 'ef-btn is-s', type: 'button', title: title || label, onclick: fn }, label); }
     var el = G.h('div', { class: 'a4-3d-wrap' },
       canvas,
       G.h('div', { class: 'g-row a4-3d-tools' },

@@ -108,7 +108,7 @@ app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `struc
 | `G.radar(canvas, {axes, max, series:[{label, values}]})` / `G.radarLegend(labels)` | レーダーチャート。系列ごとに色＋線種＋マーカーで区別 |
 | `G.noteEstimate(text)` | 「目安です」の注意書き要素 |
 | `G.setupCanvas(canvas, w, h)` | 高解像度 Canvas の準備。ctx を返す(座標は CSS ピクセル) |
-| `G.settings.get/set` | 端末内の共通設定(`ruby`, `size`, `contrast`) |
+| `G.prefs('ruby')` | 表示の設定(ふりがな・文字の大きさ・くっきり)を読む。設定は4分野で1つの `EduitFrame.prefs`(localStorage `eduit.prefs`)で、どの教材で変えても全教材に効く。ふりがなを出さないときは `<html class="ruby-off">` |
 
 ### 共通スキーマ artifact
 
@@ -142,9 +142,20 @@ app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `struc
 
 ## スタイル(base.css)
 
-`card` / `btn`(`primary` `danger` `ghost` `small` `link`)/ `g-row` / `g-grid` / `g-cols` / `g-table` / `g-field` / `g-check` / `g-slider` / `badge`(`ok` `ng` `warn`)/ `g-note` / `g-muted` / `sr-only`。
-色は `--ink` `--muted` `--line` `--accent` `--ok` `--ng` `--warn` `--wood` などのトークンを使ってください。
-文字サイズは `rem` で書くと、ヘッダーの文字サイズ切り替えに追従します。
+ボタン・箱・注意・ラベル・表は、4分野共通の部品(`shared/eduit-frame.css`。見本は `shared/ef-mihon.html`)を使います。
+
+| 使うもの | 書き方 |
+|---|---|
+| ボタン | `ef-btn`(小さい `is-s`・消す `is-danger`)、いちばん大事な操作は `ef-btn-primary`(黒でぬる)、押したままの切りかえは `aria-pressed` |
+| 箱 | `ef-box`(はじめの `<h2>` は箱の見出しの大きさになる) |
+| 注意・お知らせ | `ef-note is-warn`(`is-info` `is-ok` `is-ng`)、見出しの字は `ef-note-k` |
+| ラベル | `ef-tag`(`is-ok` `is-ng` `is-warn` `is-accent`) |
+| 中身 | `<main class="ef-main is-wide">`(作業の画面なので画面いっぱい) |
+
+base.css には A だけの並べ方を書きます: `g-row` / `g-grid` / `g-cols` / `g-table` / `g-field` / `g-check` / `g-slider` / `g-muted` / `g-linkbtn`(リンクのようなボタン)/ `sr-only`。
+色・余白・線は `--ef-…`(共通の設定)を使い、図の色だけ各アプリの CSS のいちばん上に `--fig-…` の名前で書きます(A の図に共通の木の色は base.css の `--fig-wood` `--fig-wood-soft` `--fig-wood-dark`、図の補助の線の青は `--fig-accent`)。
+文字の大きさは `rem`・`em` で書くと、上のバーの「文字 中」に合わせて大きくなります(図の中の SVG の字は px でよい)。
+決まりに合っているかは `python3 shared/style-check.py A-materials` で調べます(0件にする)。
 
 ## オフライン
 
@@ -155,9 +166,9 @@ app 名(メニューの並び順 A1→A7): `material-navi` / `wood-lab` / `struc
 ## 画面のデザイン(中学生向け・10インチ Chromebook)
 
 - 基準の画面: 1280×800(1.25倍表示なら 1024×640)と 1024×600。どちらでも横スクロールなし。
-- さわる部分は高さ 44px 以上(`--tap`)。タブは 48px。チェックボックス・ラジオは 24px 以上。スライダーのつまみは 28px。
-- 文字の基本は 17px(ヘッダーの「文字」で 15/20/24px)。サイズは rem で書く。
-- ヘッダーとタブはスクロールしても上に残る(タブは `.g-tablist`)。大きな図は `max-height: calc(100vh - 190px)` くらいにして、1画面に収める。
+- さわる部分は高さ 44px 以上(`--ef-tap`)。タブは 48px。チェックボックス・ラジオは 24px 以上。スライダーのつまみは 28px。
+- 文字の基本は 17px(上のバーの「文字 中」で 15/20/24px。4分野で同じ設定)。サイズは rem で書く。
+- ヘッダーとタブはスクロールしても上に残る(タブは共通の `.ef-apptabs`・`.ef-apptab`)。大きな図は `max-height: calc(100vh - 190px)` くらいにして、1画面に収める。
 - 画面の高さが 680px 以下のときは、共通 CSS が余白を自動でつめる。
 - ルビを自前で付けるアプリは、flex の中で文字がばらけないよう `gap: 0` にするか、1つの要素に包む。
 
@@ -177,3 +188,4 @@ A-materials で `python3 build/build-single.py` を実行すると、各ペー�
 - 2026-10-16(第2.4版 記号と画面の統一): 記号を M1〜M7 から A1〜A7、フォルダを `m1-…/` から `a1-…/` に変えた(app 名・保存キーは同じ。A2 の表示設定だけ `m2.*` → `a2.*`)。
   `apps.js` に `icon` を足し、各アプリのページも `apps.js` を読む。`G.initApp` は上のバーの名前の前に記号(`.ef-code`)を出す。メニューのカードは `EduitFrame.card`、上のバーの名前は `EduitFrame.menuTitle`(「A 材料と加工の技術 教材集」)、右に「先生用」ボタン(下の折りたたみ「先生用」を開いて移る)。
   タブの番号は丸数字(①②③)にし、まとめ・記録・ふりかえりのタブは番号なし(base.css の `.g-tablist [role=tab] .num`)。
+- 2026-10-24(見た目の設定をそろえる 段3): 色の名前を共通の `--ef-*` にし、`--bg` `--panel` `--ink` `--frame` `--accent` などをやめた(図の色は `--fig-*`)。`.btn` `.card` `.g-note` `.badge` を共通の `.ef-btn` `.ef-box` `.ef-note` `.ef-tag` にした。表示の設定(`gijutsu.settings`)をやめ、4分野共通の `EduitFrame.prefs` にした。A1 の単体で動く予備のヘッダー(ルビ・拡大)を消した。

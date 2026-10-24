@@ -199,12 +199,12 @@
     }
     var toolbar = G.h('div', { class: 'g-row a4-tools', role: 'toolbar', 'aria-label': '道具' },
       tools.map(function (t, n) {
-        toolBtns[t] = G.h('button', { class: 'btn small a4-tool', type: 'button', 'data-tool': t, 'aria-pressed': 'false', title: TOOL_LABEL[t] + '(キー ' + (n + 1) + ')',
+        toolBtns[t] = G.h('button', { class: 'ef-btn is-s a4-tool', type: 'button', 'data-tool': t, 'aria-pressed': 'false', title: TOOL_LABEL[t] + '(キー ' + (n + 1) + ')',
           onclick: function () { setTool(t); } }, G.h('span', { 'aria-hidden': 'true', class: 'a4-tool-icon' }, TOOL_ICON[t]), ' ', TOOL_LABEL[t]);
         return toolBtns[t];
       }),
-      G.h('button', { class: 'btn small', type: 'button', onclick: function () { undo(); } }, '↶ もどす'),
-      G.h('button', { class: 'btn small danger', type: 'button', 'data-act': 'clear-all', onclick: function () {
+      G.h('button', { class: 'ef-btn is-s', type: 'button', onclick: function () { undo(); } }, '↶ もどす'),
+      G.h('button', { class: 'ef-btn is-s is-danger', type: 'button', 'data-act': 'clear-all', onclick: function () {
         // 線がなくても、答え・ヒント・答え合わせの表示は消す(以前は線がないと何も消えなかった)
         if (Object.keys(drawn).length) { snapshot(); drawn = {}; changed(); }
         clearFeedback(); hideAnswer(); setHint([]);

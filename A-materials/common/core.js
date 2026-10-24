@@ -11,7 +11,7 @@
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '技術　岡田';
   G.CREDIT_RUBY = '{技術|ぎじゅつ}　{岡田|おかだ}';
-  // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(設定 gijutsu.settings は消さない)
+  // 「このアプリのデータを消す」で一緒に消す localStorage のキーの頭(表示の設定 eduit.prefs は消さない)
   G.LS_PREFIX = {
     'material-navi': ['material-navi.'], 'wood-lab': ['a2.'], 'structure-lab': ['structure-lab.'],
     'drawing-trainer': ['drawing-trainer.'], 'kidori': ['kidori.'], 'tool-safety': ['tool-safety.'], 'solid-maker': ['solid-maker.'], 'mondai-note': ['mondai-note.']
@@ -21,7 +21,7 @@
   G.$ = function (sel, root) { return (root || document).querySelector(sel); };
   G.$$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
-  // G.h('button', {class:'btn', onclick: fn}, 'ラベル', childNode, [配列も可])
+  // G.h('button', {class:'ef-btn', onclick: fn}, 'ラベル', childNode, [配列も可])
   G.h = function (tag, attrs) {
     var el = document.createElement(tag);
     if (attrs) {
@@ -71,32 +71,18 @@
     return Number(n.toFixed(d)).toLocaleString('ja-JP', { maximumFractionDigits: d });
   };
 
-  /* ---------- 設定(ルビ・文字サイズ。全アプリ共通) ---------- */
-  var SKEY = 'gijutsu.settings';
-  G.settings = {
-    all: function () {
-      try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return G.settings._mem || {}; }
-    },
-    get: function (k, def) { var a = G.settings.all(); return a[k] === undefined ? def : a[k]; },
-    set: function (k, v) {
-      var a = G.settings.all(); a[k] = v;
-      try { localStorage.setItem(SKEY, JSON.stringify(a)); } catch (e) { G.settings._mem = a; }
-      G.applySettings();
-    }
-  };
+  /* ---------- 表示の設定(ふりがな・文字の大きさ・くっきり) ----------
+   * 4分野で1つの EduitFrame.prefs(shared/eduit-frame.js)を使う。覚える場所は localStorage 'eduit.prefs'。
+   * 文字の大きさとくっきりは共通の枠が <html> に付ける(--ef-fs・data-ef-kukkiri)。
+   * ふりがなは、ここで <html class="ruby-off"> にする(A のアプリの CSS・JS はこのクラスを見る)。 */
+  G.prefs = function (k) { return window.EduitFrame && window.EduitFrame.prefs ? window.EduitFrame.prefs.get(k) : false; };
   G.applySettings = function () {
-    var root = document.documentElement;
-    // ふりがなは、はじめはなし(4分野で同じ)。ボタンで出す
-    root.classList.toggle('ruby-off', !G.settings.get('ruby', false));
-    root.setAttribute('data-size', G.settings.get('size', 'm'));
-    root.classList.toggle('high-contrast', !!G.settings.get('contrast', false));
-    G.$$('[data-g-setting]').forEach(function (b) {
-      var k = b.getAttribute('data-g-setting');
-      if (k === 'ruby') b.setAttribute('aria-pressed', String(G.settings.get('ruby', false)));
-      if (k === 'contrast') b.setAttribute('aria-pressed', String(!!G.settings.get('contrast', false)));
-      if (k === 'size') { b.setAttribute('data-value', G.settings.get('size', 'm')); if (G._sizeUpd) G._sizeUpd(); }
-    });
+    document.documentElement.classList.toggle('ruby-off', !G.prefs('ruby'));
   };
+  if (window.EduitFrame && window.EduitFrame.prefs) {
+    window.EduitFrame.prefs.use();
+    window.EduitFrame.prefs.on(function (k) { if (k === 'ruby') G.applySettings(); });
+  }
 
   /* ---------- ルビ(総ルビ/なし切替) ----------
    * 読みはデータ側(common/ruby-dict.js の RUBY_DICT、または各アプリが G.ruby.add で追加)に持つ。
@@ -422,7 +408,7 @@
       if (opt.body) form.appendChild(typeof opt.body === 'string' ? G.h('p', null, opt.body) : opt.body);
       var acts = G.h('div', { class: 'g-row g-end' });
       (opt.actions || [{ label: '閉じる', value: 'close', primary: true }]).forEach(function (a) {
-        acts.appendChild(G.h('button', { class: 'btn' + (a.primary ? ' primary' : ''), value: a.value }, a.label));
+        acts.appendChild(G.h('button', { class: a.primary ? 'ef-btn-primary' : 'ef-btn', value: a.value }, a.label));
       });
       form.appendChild(acts);
       dlg.appendChild(form);
@@ -445,10 +431,10 @@
         if (!list.length) body.appendChild(G.h('p', null, 'まだ保存された作品はありません。'));
         list.forEach(function (a) {
           var row = G.h('div', { class: 'g-filerow' },
-            G.h('button', { class: 'btn link', type: 'button', onclick: function () { chosen = a; dlgClose(); } },
+            G.h('button', { class: 'g-linkbtn', type: 'button', onclick: function () { chosen = a; dlgClose(); } },
               a.title || '無題'),
             G.h('span', { class: 'g-muted' }, a.updatedAt ? new Date(a.updatedAt).toLocaleString('ja-JP') : ''),
-            G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
+            G.h('button', { class: 'ef-btn is-s is-danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
               G.confirm('「' + (a.title || '無題') + '」を削除します。もとに戻せません。', '削除する').then(function (ok) {
                 if (ok) G.store.del(a.id).then(function () { row.remove(); });
               });
@@ -499,9 +485,9 @@
         list.forEach(function (a) {
           var info = !app && G.APPS && G.APPS.filter(function (x) { return x.id === a.app; })[0];
           listBox.appendChild(G.h('div', { class: 'g-filerow' },
-            G.h('span', null, info ? G.h('span', { class: 'badge' }, info.code) : null, info ? ' ' : null, a.title || '無題'),
+            G.h('span', null, info ? G.h('span', { class: 'ef-tag' }, info.code) : null, info ? ' ' : null, a.title || '無題'),
             G.h('span', { class: 'g-muted' }, a.updatedAt ? new Date(a.updatedAt).toLocaleString('ja-JP') : ''),
-            G.h('button', { class: 'btn small danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
+            G.h('button', { class: 'ef-btn is-s is-danger', type: 'button', 'aria-label': (a.title || '無題') + ' を削除', onclick: function () {
               G.confirm('「' + (a.title || '無題') + '」を削除します。もとに戻せません。', '削除する').then(function (ok) {
                 if (!ok) return;
                 G.store.del(a.id).then(function () { changed = true; list = list.filter(function (x) { return x !== a; }); G.toast('削除しました'); draw(); });
@@ -512,7 +498,7 @@
       draw();
       body.appendChild(listBox);
       body.appendChild(G.h('div', { class: 'g-row', style: { marginTop: '.75rem' } },
-        G.h('button', { class: 'btn danger', type: 'button', onclick: function () {
+        G.h('button', { class: 'ef-btn is-danger', type: 'button', onclick: function () {
           G.confirm((appTitle ? '「' + appTitle + '」の' : 'すべてのアプリの') + 'データをすべて削除します。とちゅうの作業や記録も消えます。もとに戻せません。', 'すべて削除する').then(function (ok) {
             if (!ok) return;
             G.clearAppData(app).then(function () { changed = true; list = []; G.toast('すべて削除しました'); draw(); });
@@ -539,16 +525,7 @@
     // 4分野共通の枠(shared/eduit-frame.css の .ef-header / .ef-btn)
     header.classList.add('g-header', 'ef-header');
     header.innerHTML = '';
-    // 文字の大きさ: 4分野共通の「文字 中」ボタン(EduitFrame.sizeButton)。押すたびに 小 → 中 → 大 → 特大 → 小
-    var sizeBtn = G.h('button', { class: 'ef-btn ef-size', type: 'button', 'data-g-setting': 'size' });
-    var order = ['s', 'm', 'l', 'xl'];
-    if (window.EduitFrame && window.EduitFrame.sizeButton) {
-      G._sizeUpd = window.EduitFrame.sizeButton(sizeBtn, {
-        steps: [[0, '小'], [1, '中'], [2, '大'], [3, '特大']],
-        get: function () { return Math.max(0, order.indexOf(G.settings.get('size', 'm'))); },
-        set: function (i) { G.settings.set('size', order[i]); }
-      });
-    }
+    // ふりがな・文字の大きさ・くっきりのボタンは、data-ef-pref を付けると共通の枠(EduitFrame.prefs)がボタンにする
     // 道具の並び: ふりがな → 文字の大きさ → くっきり(opt.contrast: false で出さない。メニューは4分野共通の4つだけにする) → 使い方(opt.help) → そのアプリだけのボタン(opt.tools)
     var help = null;
     if (typeof opt.help === 'function') help = G.h('button', { class: 'ef-btn', type: 'button', onclick: opt.help }, '使い方');
@@ -576,17 +553,14 @@
       header.appendChild(sw);
     }
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
-      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
-        G.settings.set('ruby', !G.settings.get('ruby', false));
-      } }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
-      sizeBtn,
-      opt.contrast === false ? null : G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'contrast', 'aria-pressed': 'false', title: '色のコントラストを強くする', onclick: function () {
-        G.settings.set('contrast', !G.settings.get('contrast', false));
-      } }, 'くっきり'),
+      G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-ef-pref': 'ruby', title: 'ふりがなを表示する/しない' }, G.h('span', { 'data-noruby': true }, 'ふりがな')),
+      G.h('button', { class: 'ef-btn ef-size', type: 'button', 'data-ef-pref': 'fs' }),
+      opt.contrast === false ? null : G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-ef-pref': 'kukkiri', title: '色のコントラストを強くする' }, 'くっきり'),
       help,
       opt.tools || null,
       sw ? G.h('span', { 'data-ef-fs': true }) : null,
       sw ? G.h('span', { 'data-ef-about': true }) : null));
+    if (window.EduitFrame && window.EduitFrame.prefs) window.EduitFrame.prefs.mount();
     G.applySettings();
     // 上のバーの「全画面」「ⓘ このアプリについて」(共通の枠がもう動いたあとでも出す)
     if (sw && window.EduitFrame && document.body) window.EduitFrame.mount();
@@ -594,7 +568,7 @@
     G.ruby.add({ '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
     if (!G.$('.g-footer')) {
       var dataBtn = opt.app && opt.app !== 'menu' && opt.data !== false
-        ? G.h('button', { class: 'btn small ghost g-data-btn', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null;
+        ? G.h('button', { class: 'ef-btn is-s g-data-btn', type: 'button', onclick: function () { G.dataDialog(opt.app, opt.title); } }, '保存データの管理(削除)') : null;
       var foot;
       if (window.EduitFrame) {
         // 共通のフッター(作成者・版・安全と個人情報・ライセンス・更新履歴)。保存データの管理ボタンはその右に
@@ -703,7 +677,7 @@
     var axes = cfg.axes, n = axes.length, max = cfg.max || 5;
     var cx = cssW / 2, cy = cssH / 2 + 6, R = Math.min(cssW, cssH) / 2 - 46;
     var css = getComputedStyle(document.documentElement);
-    var ink = css.getPropertyValue('--ink').trim() || '#222', line = css.getPropertyValue('--line').trim() || '#ccc';
+    var ink = css.getPropertyValue('--ef-text').trim() || '#222', line = css.getPropertyValue('--ef-line').trim() || '#ccc';
     function pt(i, v) {
       var a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
       return [cx + Math.cos(a) * R * v / max, cy + Math.sin(a) * R * v / max];
@@ -768,7 +742,7 @@
 
   /* ---------- 共通の注意書き ---------- */
   G.noteEstimate = function (text) {
-    return G.h('p', { class: 'g-note' }, G.h('strong', null, '目安です。'), text || '数値は文献の代表値を丸めたものです。実際の材料は、樹種・製品・含水率などで大きく変わります。実物で確かめましょう。');
+    return G.h('p', { class: 'ef-note is-warn' }, G.h('strong', null, '目安です。'), text || '数値は文献の代表値を丸めたものです。実際の材料は、樹種・製品・含水率などで大きく変わります。実物で確かめましょう。');
   };
 
   /* ---------- Canvas を高解像度で使うための準備 ---------- */

@@ -66,7 +66,7 @@
     el.innerHTML = A2.rb(src);
   };
 
-  A2.isHC = function () { return document.documentElement.classList.contains('high-contrast'); };
+  A2.isHC = function () { return document.documentElement.getAttribute('data-ef-kukkiri') === 'on'; };
   /* ---------- 色(CSS変数から) ---------- */
   var colCache = null;
   A2.col = function (name) {
@@ -109,7 +109,7 @@
       var top = y - size * (A2.rubyOn && segs.some(function (s) { return s.r; }) ? 1.55 : 1.05);
       ctx.fillRect(sx - 4, top, total + 8, y - top + size * 0.35);
     }
-    ctx.fillStyle = o.color || A2.col('ink');
+    ctx.fillStyle = o.color || A2.col('ef-text');
     var cx = sx;
     segs.forEach(function (sg) {
       ctx.font = (o.bold ? 'bold ' : '') + size + 'px ' + A2.FONT;
@@ -141,7 +141,7 @@
     var c = document.createElement('canvas');
     c.width = c.height = 10;
     var g = c.getContext('2d');
-    g.strokeStyle = g.fillStyle = A2.col('pattern-ink');
+    g.strokeStyle = g.fillStyle = A2.col('fig-pattern-ink');
     g.lineWidth = 1;
     if (kind === 'hatch') { g.beginPath(); g.moveTo(0, 10); g.lineTo(10, 0); g.moveTo(-5, 5); g.lineTo(5, -5); g.moveTo(5, 15); g.lineTo(15, 5); g.stroke(); }
     else if (kind === 'dots') { g.beginPath(); g.arc(2.5, 2.5, 0.9, 0, 7); g.arc(7.5, 7.5, 0.9, 0, 7); g.fill(); }

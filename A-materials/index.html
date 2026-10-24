@@ -15,24 +15,19 @@
 <style>
   main.ef-menu { max-width: none; }
   .apps { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: .75rem; }
-  /* メニューのカードは4分野共通の EduitFrame.card(.ef-card.ef-mcard)。題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
+  /* メニューのカードは4分野共通の EduitFrame.ef-box(.ef-card.ef-mcard)。題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
   .ef-mcard .ef-card-title { text-wrap: balance; }
   .ef-mcard .seg { display: inline-block; max-width: 100%; }
   .ef-mcard[aria-disabled="true"] { opacity: .6; }
   .fold { margin: .6rem 0; }
-  .fold > summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .92rem; list-style: none; }
+  .fold > summary { cursor: pointer; min-height: var(--ef-tap); display: flex; align-items: center; gap: .4rem; color: var(--ef-muted); font-size: .92rem; list-style: none; }
   .fold > summary::-webkit-details-marker { display: none; }
   .fold > summary::before { content: "▸"; display: inline-block; width: 1em; text-align: center; }
   .fold[open] > summary::before { content: "▾"; }
-  .fold > summary:hover { color: var(--ink); }
-  .fold.teacher { margin-top: 1.5rem; padding-top: .3rem; border-top: 1px solid var(--line); }
-  .fold.teacher[open] > summary { font-weight: bold; color: var(--ink); }
+  .fold > summary:hover { color: var(--ef-text); }
+  .fold.teacher { margin-top: 1.5rem; padding-top: .3rem; border-top: 1px solid var(--ef-line); }
+  .fold.teacher[open] > summary { font-weight: bold; color: var(--ef-text); }
   #tapps .ef-mcard { min-height: 7rem; }
-  /* 上のバーは4分野で同じ大きさ(名前 18px・ボタンの高さ 40px。スマホは 16px・36px) */
-  #g-header .ef-btn { padding: 0 14px; font-size: 15px; }
-  #g-header .ef-title { font-size: 18px; }
-  #g-header .ef-title .ef-code { margin-right: 8px; }
-  @media (max-width: 640px) { #g-header .ef-btn { padding: 0 10px; font-size: 14px; } #g-header .ef-title { font-size: 16px; } }
   .profile .g-field input { width: 6em; }
   .profile .pf-name input { width: 14em; }
 </style>
@@ -42,7 +37,7 @@
 <main class="ef-menu">
   <!-- 基本編・発展編のタブとカード(4分野共通の形。C エネルギー変換のメニューと同じ並べ方 .ef-mgrid) -->
   <div id="apps"></div>
-  <section class="card" aria-labelledby="data-h">
+  <section class="ef-box" aria-labelledby="data-h">
     <h2 id="data-h">保存したデータ</h2>
     <p>すべてのアプリの作品・記録を、1つのファイルに書き出せます。書き出す前に、組・番号・名前を入れよう。この名前は、各アプリのファイルにも入ります。</p>
     <div class="g-row profile">
@@ -51,20 +46,20 @@
       <label class="g-field pf-name"><span>名前</span><input id="pf-name" type="text" maxlength="30" autocomplete="off"></label>
     </div>
     <div class="g-row">
-      <button class="btn primary" id="exp" type="button">すべてファイルに書き出す</button>
-      <button class="btn" id="imp" type="button">ファイルから読み込む</button>
+      <button class="ef-btn-primary" id="exp" type="button">すべてファイルに書き出す</button>
+      <button class="ef-btn" id="imp" type="button">ファイルから読み込む</button>
       <span class="g-muted" id="count"></span>
     </div>
     <details class="fold" id="data-manage">
       <summary>データの管理(削除)</summary>
       <p class="g-muted">この端末に保存した、すべてのアプリの作品・記録を消します。消したデータはもとに戻せません。先生の指示があるときだけ使いましょう。</p>
-      <p><button class="btn danger" id="del" type="button">データの削除</button></p>
+      <p><button class="ef-btn is-danger" id="del" type="button">データの削除</button></p>
     </details>
   </section>
   <details class="fold teacher" id="teacher">
     <summary>先生用</summary>
     <div class="apps" id="tapps"></div>
-    <p><a class="btn" href="docs/先生用ガイド.html">先生用ガイドを読む</a></p>
+    <p><a class="ef-btn" href="docs/先生用ガイド.html">先生用ガイドを読む</a></p>
   </details>
   <p class="g-muted" id="offline"></p>
 </main>
@@ -99,7 +94,7 @@
   if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle(G.$('#g-header h1'));
   // メニューのカード(4分野共通の形 EduitFrame.card)
   function makeCard(a, parts) {
-    var state = G.h('span', { class: 'state badge' }, '準備中');
+    var state = G.h('span', { class: 'state ef-tag' }, '準備中');
     var card = EduitFrame.card({ code: a.code === '先生用' ? null : a.code, icon: a.icon, title: a.title, desc: a.desc, parts: parts || null, extra: [state], href: a.dir + 'index.html' });
     var t = card.querySelector('.ef-card-title');
     t.textContent = '';

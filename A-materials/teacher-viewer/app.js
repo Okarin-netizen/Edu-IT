@@ -68,7 +68,7 @@
   }
   function openStudent(key) { curStudent = key; tabs.show('detail'); window.scrollTo(0, 0); }
   function nameCell(s) {
-    return h('td', null, h('button', { class: 'btn link tv-stu', type: 'button', 'data-noruby': true, onclick: function () { openStudent(s.key); } }, s.label),
+    return h('td', null, h('button', { class: 'g-linkbtn tv-stu', type: 'button', 'data-noruby': true, onclick: function () { openStudent(s.key); } }, s.label),
       s.fromFile ? h('div', { class: 'g-muted' }, '(ファイル名から)') : null);
   }
 
@@ -145,17 +145,17 @@
     sel.addEventListener('change', function () { curStudent = sel.value; renderDetail(); });
     function step(d) { return function () { curStudent = students[(idx + d + students.length) % students.length].key; renderDetail(); }; }
     root.appendChild(h('div', { class: 'tv-bar' },
-      h('button', { class: 'btn', type: 'button', onclick: step(-1) }, '◀ 前の生徒'),
+      h('button', { class: 'ef-btn', type: 'button', onclick: step(-1) }, '◀ 前の生徒'),
       h('label', { class: 'g-field' }, h('span', null, '生徒'), sel),
-      h('button', { class: 'btn', type: 'button', onclick: step(1) }, '次の生徒 ▶')));
+      h('button', { class: 'ef-btn', type: 'button', onclick: step(1) }, '次の生徒 ▶')));
     root.appendChild(h('p', { class: 'g-muted' }, 'ファイル: ' + s.files.join('、')));
     APPS.forEach(function (ap) {
       var list = artsOf(s, ap.id);
-      var sec = h('section', { class: 'card' }, h('h3', null, ap.code + ' ' + ap.title));
+      var sec = h('section', { class: 'ef-box' }, h('h3', null, ap.code + ' ' + ap.title));
       if (!list.length) sec.appendChild(h('p', { class: 'g-muted' }, 'まだありません'));
       list.forEach(function (a) {
         var sum = TV.summarize(a);
-        var box = h('div', { class: 'card tv-art' }, h('h4', null, a.title || '無題', ' ', h('span', { class: 'g-muted' }, when(a.updatedAt))));
+        var box = h('div', { class: 'ef-box tv-art' }, h('h4', null, a.title || '無題', ' ', h('span', { class: 'g-muted' }, when(a.updatedAt))));
         if (sum.fields.length) box.appendChild(h('dl', { class: 'tv-kv' }, sum.fields.map(function (f) { return [h('dt', null, f[0]), h('dd', null, f[1])]; })));
         sum.texts.forEach(function (t) { box.appendChild(h('div', { class: 'tv-text', 'data-noruby': true }, h('b', null, t[0]), t[1])); });
         if (!sum.fields.length && !sum.texts.length) box.appendChild(h('p', { class: 'g-muted' }, '表示できる内容がありません'));

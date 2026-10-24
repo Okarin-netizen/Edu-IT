@@ -46,17 +46,17 @@
     // 木表・木裏などのラベル
     if (st.piece === 'ita') {
       var top = mapDef(c[0], b.y1), bot = mapDef(c[0], b.y0);
-      A2.text(ctx, '{木表|きおもて}', top[0], top[1] - 12, { size: 15, bold: true, align: 'center', bg: A2.col('label-bg') });
-      A2.text(ctx, '{木裏|きうら}({髄|ずい}の{側|がわ})', bot[0], bot[1] + 28, { size: 15, bold: true, align: 'center', bg: A2.col('label-bg') });
+      A2.text(ctx, '{木表|きおもて}', top[0], top[1] - 12, { size: 15, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
+      A2.text(ctx, '{木裏|きうら}({髄|ずい}の{側|がわ})', bot[0], bot[1] + 28, { size: 15, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
     } else if (st.piece === 'masa') {
       var t2 = mapDef(c[0], b.y1);
-      A2.text(ctx, '{柾目|まさめ}の{面|めん}', t2[0], t2[1] - 12, { size: 15, bold: true, align: 'center', bg: A2.col('label-bg') });
+      A2.text(ctx, '{柾目|まさめ}の{面|めん}', t2[0], t2[1] - 12, { size: 15, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
     } else if (piece.isLog && st.s > 0.05) {
       var ca = piece.phi0 + PI, cp = mapDef(Math.cos(ca) * 1.08, Math.sin(ca) * 1.08);
-      A2.text(ctx, piece.kerf ? '{背割|せわ}りが{開|ひら}く' : '{干割|ひわ}れ', cp[0], cp[1] + (Math.sin(ca) > 0 ? -6 : 20), { size: 15, bold: true, align: 'center', bg: A2.col('label-bg'), color: A2.col('ng') });
+      A2.text(ctx, piece.kerf ? '{背割|せわ}りが{開|ひら}く' : '{干割|ひわ}れ', cp[0], cp[1] + (Math.sin(ca) > 0 ? -6 : 20), { size: 15, bold: true, align: 'center', bg: A2.col('fig-label-bg'), color: A2.col('ef-ng') });
     } else if (piece.isLog && piece.kerf) {
       var kp = mapOrig(0, -1.02);
-      A2.text(ctx, '{背割|せわ}り({切|き}りこみ)', kp[0], kp[1] + 22, { size: 14, bold: true, align: 'center', bg: A2.col('label-bg') });
+      A2.text(ctx, '{背割|せわ}り({切|き}りこみ)', kp[0], kp[1] + 22, { size: 14, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
     }
 
     drawMiniMap(piece);
@@ -68,16 +68,16 @@
   function drawMiniMap(piece) {
     var cx = 62, cy = 62, R = 50;
     ctx.save();
-    ctx.fillStyle = A2.col('panel'); ctx.fillRect(4, 4, 116, 128);
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = A2.col('sapwood'); ctx.fill();
-    ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 0.6;
+    ctx.fillStyle = A2.col('ef-surface'); ctx.fillRect(4, 4, 116, 128);
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = A2.col('fig-sapwood'); ctx.fill();
+    ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 0.6;
     W.rings.forEach(function (r) { ctx.beginPath(); ctx.arc(cx, cy, r * R, 0, 7); ctx.stroke(); });
-    ctx.lineWidth = 1.5; ctx.strokeStyle = A2.col('ink');
+    ctx.lineWidth = 1.5; ctx.strokeStyle = A2.col('ef-text');
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
     if (!piece.isLog) {
       W.pathPts(ctx, piece.poly, function (x, y) { return [cx + x * R, cy - y * R]; }, true);
-      ctx.fillStyle = A2.col('board-fill-strong'); ctx.fill();
-      ctx.lineWidth = 2; ctx.strokeStyle = A2.col('accent'); ctx.stroke();
+      ctx.fillStyle = A2.col('fig-board-fill-strong'); ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = A2.col('fig-accent'); ctx.stroke();
     }
     ctx.restore();
     A2.text(ctx, '{取|と}った{位置|いち}', 14, 128, { size: 12 });
@@ -88,10 +88,10 @@
     var ox = ctx.W - 92, oy = 72, L = 38, a = piece.phi0;
     var rx = Math.cos(a), ry = -Math.sin(a), tx = -ry, ty = rx;
     ctx.save();
-    ctx.fillStyle = A2.col('panel'); ctx.fillRect(ctx.W - 180, 4, 176, 128);
+    ctx.fillStyle = A2.col('ef-surface'); ctx.fillRect(ctx.W - 180, 4, 176, 128);
     function arrow(dx, dy, dash, label) {
       ctx.setLineDash(dash);
-      ctx.strokeStyle = ctx.fillStyle = A2.col('ink'); ctx.lineWidth = 2.5;
+      ctx.strokeStyle = ctx.fillStyle = A2.col('ef-text'); ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.moveTo(ox - dx * L, oy - dy * L); ctx.lineTo(ox + dx * L, oy + dy * L); ctx.stroke();
       ctx.setLineDash([]);
       [1, -1].forEach(function (sg) {
@@ -103,7 +103,7 @@
       // 矢印の先(画面の右か上にある方)に名前を置く
       var sg = (dx > 0.3 || (Math.abs(dx) <= 0.3 && dy < 0)) ? 1 : -1;
       var lx = ox + sg * dx * (L + 30), ly = oy + sg * dy * (L + 14) + 5;
-      A2.text(ctx, label, lx, ly, { size: 12, bold: true, align: 'center', bg: A2.col('label-bg') });
+      A2.text(ctx, label, lx, ly, { size: 12, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
     }
     arrow(rx, ry, [], '{半径|はんけい}');
     arrow(tx, ty, [5, 4], '{接線|せっせん}');

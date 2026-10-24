@@ -205,12 +205,12 @@
       '<div data-ef-lets="a12"></div>' +
       '<h2>' + rb('{材料|ざいりょう}カード') + '</h2>' +
       '<p class="lead">' + rb('材料の特徴をカードで確かめよう。評価は5段階で、●が多いほど、その性質が大きい。') + '<br>' + rb('「電気・熱の通しやすさ」は、●が多いほど通しやすい(よいか悪いかは用途しだい)。') + '</p>' +
-      '<div class="notice"><strong>' + rb('{目安|めやす}') + '</strong> ' + rb(DATA.note) + '</div>' +
+      '<div class="ef-note is-warn"><strong class="ef-note-k">' + rb('{目安|めやす}') + '</strong> ' + rb(DATA.note) + '</div>' +
       '<div class="filters" role="group" aria-label="種類で絞り込み">' +
       catOpts.map(([k, v]) => '<label><input type="radio" name="listcat" value="' + k + '"' + (state.listCat === k ? ' checked' : '') + '> ' + rb(v) + '</label>').join('') +
       '</div>' +
       '<div class="cards">' + mats.map(cardHtml).join('') + '</div>' +
-      '<div class="notice card-note"><strong>' + rb('注意') + '</strong> ' + rb('カードの●と密度・熱の数値は、すべて目安です。実物で確かめよう。') +
+      '<div class="ef-note is-warn card-note"><strong class="ef-note-k">' + rb('注意') + '</strong> ' + rb('カードの●と密度・熱の数値は、すべて目安です。実物で確かめよう。') +
       '<br>' + rb('{出典|しゅってん}: ' + DATA.source) +
       DATA.materials.filter(m => m.source).map(m => '<br>' + rb(m.name + ': ' + m.source)).join('') + '</div>';
     el.querySelectorAll('input[name=listcat]').forEach(r => r.addEventListener('change', () => { state.listCat = r.value; renderList(); }));
@@ -220,7 +220,7 @@
       const lbl = p.key === 'conduct' ? '電気・熱の通しやすさ' : p.label;
       return '<span>' + rb(lbl) + '</span>' + dots(m.ratings[p.key]);
     }).join('');
-    return '<article class="mcard" aria-label="' + esc(plain(m.name)) + '">' +
+    return '<article class="ef-box mcard" aria-label="' + esc(plain(m.name)) + '">' +
       '<header>' + matSvg(m) + '<div><h3>' + rb(m.name) + '</h3><div class="cat">' + rb(DATA.categories[m.category]) + '</div></div></header>' +
       '<ul>' + m.points.map(p => '<li>' + rb(p) + '</li>').join('') + '</ul>' +
       '<div class="bars">' + bars + '</div>' +
@@ -235,10 +235,10 @@
       '<h2>' + rb('{使用目的|しようもくてき}・{使用条件|しようじょうけん}を{決|き}める') + '</h2>' +
       '<p class="lead">' + rb('{作|つく}るものを{選|えら}び、{重|おも}く{見|み}たい{観点|かんてん}ほど{数|かず}を{大|おお}きくしよう(0は{考|かんが}えない)。{順位|じゅんい}はすぐに{変|か}わる。') + '</p>' +
       '<div class="cond-grid">' +
-      '<div class="panel">' +
+      '<div class="ef-box">' +
       '<h3>' + rb('{作|つく}るもの({用途|ようと})') + '</h3>' +
       '<div class="uses" role="group" aria-label="用途">' +
-      DATA.uses.map(u => '<button type="button" data-use="' + u.id + '" aria-pressed="' + (state.useId === u.id) + '">' + rb(u.name) + '</button>').join('') +
+      DATA.uses.map(u => '<button type="button" class="ef-btn" data-use="' + u.id + '" aria-pressed="' + (state.useId === u.id) + '">' + rb(u.name) + '</button>').join('') +
       '</div>' +
       '<p class="hint">' + rb('{用途|ようと}を{選|えら}ぶと{重|おも}みの{例|れい}が{入|はい}る。{自分|じぶん}の{考|かんが}えに{合|あ}わせて{変|か}えてよい。') + '</p>' +
       '<h3>' + rb('{重視|じゅうし}する{観点|かんてん}(0〜5)') + '</h3>' +
@@ -248,8 +248,8 @@
       Object.entries(DATA.categories).map(([k, v]) => '<label><input type="checkbox" data-cat="' + k + '"' + (state.cats[k] ? ' checked' : '') + '> ' + rb(v) + '</label>').join('') +
       '</div>' +
       '</div>' +
-      '<div class="panel live" aria-live="polite"><h3>' + rb('いまの{順位|じゅんい}') + '</h3><div id="live-rank"></div>' +
-      '<p><button type="button" class="primary" id="go-result">' + rb('{比較|ひかく}{結果|けっか}を{見|み}る') + ' →</button></p></div>' +
+      '<div class="ef-box live" aria-live="polite"><h3>' + rb('いまの{順位|じゅんい}') + '</h3><div id="live-rank"></div>' +
+      '<p><button type="button" class="ef-btn-primary" id="go-result">' + rb('{比較|ひかく}{結果|けっか}を{見|み}る') + ' →</button></p></div>' +
       '</div>';
 
     el.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', () => applyUse(b.dataset.use)));
@@ -343,7 +343,7 @@
       '<h2>' + rb('{比較|ひかく}{結果|けっか}') + (useName ? '(' + rb(useName) + ')' : '') + '</h2>' +
       '<div class="formula" aria-label="点数の計算式">' + rb('点数 =(重み×評価 を全部たしたもの)÷(重み×5 を全部たしたもの)× 100') +
       '<br><span class="hint">' + rb('{評価|ひょうか}は1〜5の{目安値|めやすち}。「{通|とお}しにくい{方|ほう}がよい」ときは {評価|ひょうか} = 6 − {通|とお}しやすさ にして{計算|けいさん}する。{満点|まんてん}は100{点|てん}。') + '</span></div>' +
-      '<div class="msg-key"><b>' + rb('{最適|さいてき}な{材料|ざいりょう}は{条件|じょうけん}しだい。') + '</b>' + rb('{重|おも}みを{変|か}えると{順位|じゅんい}が{変|か}わる。{点数|てんすう}が{高|たか}い{材料|ざいりょう}にも{弱|よわ}いところがある(トレードオフ)。') + '</div>' +
+      '<div class="ef-note msg-key"><b>' + rb('{最適|さいてき}な{材料|ざいりょう}は{条件|じょうけん}しだい。') + '</b>' + rb('{重|おも}みを{変|か}えると{順位|じゅんい}が{変|か}わる。{点数|てんすう}が{高|たか}い{材料|ざいりょう}にも{弱|よわ}いところがある(トレードオフ)。') + '</div>' +
       '<div class="result-grid">' +
       '<div><canvas id="radar" width="560" height="560" role="img" aria-label="上位3つの材料のレーダーチャート"></canvas>' +
       '<div class="legend">' + top.map((x, i) => '<span>' + legendSvg(i) + rb(x.m.name) + '(' + rb(STYLES[i].name) + ')</span>').join('') + '</div>' +
@@ -352,9 +352,9 @@
       '</div>' +
       '<h3>' + rb('{全部|ぜんぶ}の{材料|ざいりょう}の{比較表|ひかくひょう}({重|おも}み × {評価|ひょうか})') + '</h3>' +
       tableHtml(r) +
-      '<div class="notice"><strong>' + rb('{目安|めやす}') + '</strong> ' + rb(DATA.note) + '</div>' +
-      '<p class="row-btns"><button type="button" id="back-cond">← ' + rb('{条件|じょうけん}を{変|か}える') + '</button>' +
-      '<button type="button" class="primary" id="go-reflect">' + rb('{理由|りゆう}を{書|か}く') + ' →</button></p>';
+      '<div class="ef-note is-warn"><strong class="ef-note-k">' + rb('{目安|めやす}') + '</strong> ' + rb(DATA.note) + '</div>' +
+      '<p class="row-btns"><button type="button" class="ef-btn" id="back-cond">← ' + rb('{条件|じょうけん}を{変|か}える') + '</button>' +
+      '<button type="button" class="ef-btn-primary" id="go-reflect">' + rb('{理由|りゆう}を{書|か}く') + ' →</button></p>';
     drawRadar($('#radar'), top);
     $('#back-cond').addEventListener('click', () => show('cond', true));
     $('#go-reflect').addEventListener('click', () => show('reflect', true));
@@ -384,7 +384,7 @@
         : '<p class="hint">' + rb('{重視|じゅうし}した{観点|かんてん}では1{位|い}の' + a.name + 'を{上回|うわまわ}るものはない。') + '</p>';
     }
     const calc = x.s.parts.filter(p => p.w).map(p => p.w + '×' + p.v).join(' + ');
-    return '<div class="panel">' +
+    return '<div class="ef-box">' +
       '<h3><span class="rank r' + (i + 1) + '">' + (i + 1) + rb('{位|い}') + '</span>' + rb(x.m.name) + ' <span>' + x.s.total.toFixed(1) + rb('{点|てん}') + '</span></h3>' +
       '<div class="tradeoff"><ul>' +
       (pros.length ? '<li class="pro">' + rb('よいところ: ') + pros.map(rb).join('、') + '</li>' : '') +
@@ -400,7 +400,7 @@
       ' <small class="cat">' + rb(DATA.categories[x.m.category]) + '</small></td>' +
       '<td class="score"><span class="sbar" style="width:' + (x.s.total * 0.6).toFixed(0) + 'px"></span>' + x.s.total.toFixed(1) + '</td>' +
       x.s.parts.map(p => '<td' + (p.w ? '' : ' class="zero"') + '>' + p.v + (p.w ? ' <small>(' + p.p + ')</small>' : '') + '</td>').join('') + '</tr>').join('');
-    return '<div class="table-wrap"><table><caption class="hint">' + rb('{各|かく}{欄|らん}は {評価|ひょうか}({重|おも}み×{評価|ひょうか})') + '</caption><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
+    return '<div class="table-wrap"><table class="ef-table"><caption class="hint">' + rb('{各|かく}{欄|らん}は {評価|ひょうか}({重|おも}み×{評価|ひょうか})') + '</caption><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
   }
 
   // レーダーチャート(Canvas 自作)
@@ -487,7 +487,7 @@
       '<p class="lead">' + rb('{点数|てんすう}が1{位|い}の{材料|ざいりょう}を{選|えら}ばなくてもよい。{条件|じょうけん}と{材料|ざいりょう}の{性質|せいしつ}を{結|むす}びつけて、{自分|じぶん}の{言葉|ことば}で{説明|せつめい}しよう。') + '</p>' +
       '<div class="snapshot">' + rb('いまの{条件|じょうけん}: ') + (useName ? rb(useName) + ' / ' : '') + esc(snap || '(重みなし)') +
       (r.length ? ' / ' + rb('1{位|い}: ') + rb(r[0].m.name) : '') + '</div>' +
-      '<form id="sheet" class="panel" autocomplete="off">' +
+      '<form id="sheet" class="ef-box" autocomplete="off">' +
       '<div class="form-row"><label for="f-product">' + rb('{作|つく}るもの') + '</label><input type="text" id="f-product" value="' + esc(sh.product) + '"></div>' +
       '<div class="form-row"><label for="f-chosen">' + rb('{選|えら}んだ{材料|ざいりょう}') + '</label><select id="f-chosen">' + opts(sh.chosen) + '</select></div>' +
       '<div class="form-row"><label for="f-chosen-r">' + rb('{選|えら}んだ{理由|りゆう}') + '</label>' +
@@ -499,14 +499,14 @@
       '<textarea id="f-rejected-r">' + esc(sh.rejectedReason) + '</textarea></div>' +
       '<div class="form-row"><label for="f-notice">' + rb('{重|おも}みを{変|か}えて{気|き}づいたこと') + '</label>' +
       '<textarea id="f-notice">' + esc(sh.notice) + '</textarea></div>' +
-      '<div class="row-btns"><button type="submit" class="primary">' + rb('{保存|ほぞん}する') + '</button>' +
-      '<button type="button" id="sheet-new">' + rb('{新|あたら}しく{書|か}く') + '</button>' +
-      '<button type="button" id="sheet-print">' + rb('{印刷|いんさつ}') + '</button></div>' +
+      '<div class="row-btns"><button type="submit" class="ef-btn-primary">' + rb('{保存|ほぞん}する') + '</button>' +
+      '<button type="button" class="ef-btn" id="sheet-new">' + rb('{新|あたら}しく{書|か}く') + '</button>' +
+      '<button type="button" class="ef-btn" id="sheet-print">' + rb('{印刷|いんさつ}') + '</button></div>' +
       '</form>' +
       '<h3>' + rb('{保存|ほぞん}したワークシート') + '</h3>' +
       '<ul class="saved" id="saved"></ul>' +
-      '<div class="row-btns"><button type="button" id="exp">' + rb('ファイルに{書|か}き{出|だ}す') + '</button>' +
-      '<label class="btnlike"><button type="button" id="imp">' + rb('ファイルから{読|よ}み{込|こ}む') + '</button><input type="file" id="imp-file" accept="application/json,.json" hidden></label></div>';
+      '<div class="row-btns"><button type="button" class="ef-btn" id="exp">' + rb('ファイルに{書|か}き{出|だ}す') + '</button>' +
+      '<label class="btnlike"><button type="button" class="ef-btn" id="imp">' + rb('ファイルから{読|よ}み{込|こ}む') + '</button><input type="file" id="imp-file" accept="application/json,.json" hidden></label></div>';
 
     const bind = (id, key) => $(id).addEventListener('input', e => { state.sheet[key] = e.target.value; });
     bind('#f-product', 'product'); bind('#f-chosen', 'chosen'); bind('#f-chosen-r', 'chosenReason');
@@ -569,8 +569,8 @@
     try { list = await Store.allArtifacts(); } catch (e) { /* 保存が使えない環境 */ }
     if (!list.length) { ul.innerHTML = '<li>' + rb('まだありません') + '</li>'; return; }
     ul.innerHTML = list.map(a => '<li><span>' + esc(a.title) + ' <small class="cat">' + esc((a.updatedAt || '').slice(0, 16).replace('T', ' ')) + '</small></span>' +
-      '<span class="row-btns" style="margin:0"><button type="button" data-open="' + esc(a.id) + '">' + rb('{開|ひら}く') + '</button>' +
-      '<button type="button" data-del="' + esc(a.id) + '">' + rb('{削除|さくじょ}') + '</button></span></li>').join('');
+      '<span class="row-btns" style="margin:0"><button type="button" class="ef-btn" data-open="' + esc(a.id) + '">' + rb('{開|ひら}く') + '</button>' +
+      '<button type="button" class="ef-btn is-danger" data-del="' + esc(a.id) + '">' + rb('{削除|さくじょ}') + '</button></span></li>').join('');
     ul.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openArtifact(list.find(a => a.id === b.dataset.open))));
     ul.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
       const a = list.find(x => x.id === b.dataset.del);
@@ -643,25 +643,6 @@
       if (c.cats) for (const k of Object.keys(state.cats)) if (typeof c.cats[k] === 'boolean') state.cats[k] = c.cats[k];
       if (!Object.values(state.cats).some(Boolean)) state.cats = { wood: true, metal: true, plastic: true };
     }
-    if (window.G && G.initApp) return; // ルビ・文字サイズは共通ヘッダーが管理
-    if (LS.get('ruby') === false) setRuby(false);
-    const zoom = LS.get('zoom');
-    if (zoom) setZoom(zoom);
-  }
-
-  // ---------- ルビ・拡大 ----------
-  function setRuby(on) {
-    document.body.classList.toggle('no-ruby', !on);
-    const b = $('#btn-ruby');
-    b.setAttribute('aria-pressed', String(on));
-    b.textContent = on ? 'ルビ あり' : 'ルビ なし';
-  }
-  const ZOOMS = [1, 1.25, 1.5];
-  function setZoom(z) {
-    if (!ZOOMS.includes(z)) z = 1;
-    document.documentElement.style.setProperty('--zoom', z);
-    $('#btn-zoom').textContent = '文字 ' + Math.round(z * 100) + '%';
-    if (state.view === 'result') renderResult();
   }
 
   // ---------- タブ ----------
@@ -705,19 +686,7 @@
       document.body.classList.add('with-common');
       try { G.initApp({ app: APP_ID, title: '材料選択ナビ', files: FILES }); } catch (e) { document.body.classList.remove('with-common'); }
     }
-    $('#app-title').innerHTML = rb('{材料|ざいりょう}{選択|せんたく}ナビ');
     setupTabs();
-    $('#btn-ruby').addEventListener('click', () => {
-      const on = document.body.classList.contains('no-ruby');
-      setRuby(on);
-      LS.set('ruby', on);
-    });
-    $('#btn-zoom').addEventListener('click', () => {
-      const cur = parseFloat(document.documentElement.style.getPropertyValue('--zoom')) || 1;
-      const z = ZOOMS[(ZOOMS.indexOf(cur) + 1) % ZOOMS.length];
-      setZoom(z);
-      LS.set('zoom', z);
-    });
     try { restore(); } catch (e) { /* 保存が使えなくても動く */ }
     show('list');
     if (!common) registerOffline();

@@ -126,14 +126,13 @@
     var root = document.querySelector('[data-g-tabs]');
     if (hasG && G.tabs) G.tabs(root, onTab); else fallbackTabs(root);
 
-    // ふりがな・くっきり・文字サイズの切りかえ(html の class / 属性)を見て描き直す
-    var lastKey = '';
+    // ふりがな・くっきり・文字の大きさの切りかえ(<html> の class・data-ef-kukkiri・style の --ef-fs)を見て描き直す
+    var keyOf = function () { var r = document.documentElement; return r.className + '|' + r.getAttribute('data-ef-kukkiri') + '|' + r.style.getPropertyValue('--ef-fs'); };
+    var lastKey = keyOf();
     new MutationObserver(function () {
-      var r = document.documentElement;
-      var key = r.className + '|' + r.getAttribute('data-size');
+      var key = keyOf();
       if (key !== lastKey) { lastKey = key; refreshAll(); }
-    }).observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-size'] });
-    lastKey = document.documentElement.className + '|' + document.documentElement.getAttribute('data-size');
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-ef-kukkiri'] });
 
     var rs = null;
     window.addEventListener('resize', function () { clearTimeout(rs); rs = setTimeout(function () { if (current && A2.labs[current] && A2.labs[current].refresh) A2.labs[current].refresh(); }, 150); });

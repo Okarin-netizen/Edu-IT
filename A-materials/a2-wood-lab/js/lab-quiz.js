@@ -67,7 +67,7 @@
     CHOICES.forEach(function (c) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'btn choice';
+      b.className = 'ef-btn choice';
       b.setAttribute('data-choice', c.id);
       b.innerHTML = '<svg viewBox="0 0 60 36" aria-hidden="true" class="ico">' + c.svg + '</svg><span>' + A2.rb(c.label) + '</span>';
       b.addEventListener('click', function () { answer(c.id); });
@@ -140,7 +140,7 @@
     function mapDef(x, y) { var p = dfm(x, y); return [CX + (p[0] - dc[0]) * S * flip, CY - (p[1] - dc[1]) * S * flip]; }
 
     // 机(基準の水平線)
-    ctx.save(); ctx.strokeStyle = A2.col('line'); ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+    ctx.save(); ctx.strokeStyle = A2.col('ef-line'); ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(20, CY); ctx.lineTo(Wd - 20, CY); ctx.stroke(); ctx.restore();
 
     if (st.s > 0.001) W.drawGhost(ctx, q.poly, mapOrig, true);
@@ -153,10 +153,10 @@
       upName = st.faceUp === 'omote' ? '{木表|きおもて}' : '{木裏|きうら}';
       downName = st.faceUp === 'omote' ? '{木裏|きうら}' : '{木表|きおもて}';
     } else { upName = '{柾目|まさめ}の{面|めん}'; downName = '{柾目|まさめ}の{面|めん}'; }
-    A2.text(ctx, '{上|うえ}:' + upName, CX, Math.min(topY, CY - q.t / 2 * S) - 20, { size: 16, bold: true, align: 'center', bg: A2.col('label-bg') });
-    A2.text(ctx, '{下|した}:' + downName, CX, Math.max(botY, CY + q.t / 2 * S) + 34, { size: 16, bold: true, align: 'center', bg: A2.col('label-bg') });
+    A2.text(ctx, '{上|うえ}:' + upName, CX, Math.min(topY, CY - q.t / 2 * S) - 20, { size: 16, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
+    A2.text(ctx, '{下|した}:' + downName, CX, Math.max(botY, CY + q.t / 2 * S) + 34, { size: 16, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
     A2.text(ctx, '{木口|こぐち}({板|いた}のはしの{断面|だんめん})', 16, 28, { size: 13 });
-    if (st.s > 0.001) A2.text(ctx, '{点線|てんせん}:{乾燥|かんそう}{前|まえ} / {反|そ}りは' + EX + '{倍|ばい}に{強調|きょうちょう}', 16, Hd - 14, { size: 12, color: A2.col('muted') });
+    if (st.s > 0.001) A2.text(ctx, '{点線|てんせん}:{乾燥|かんそう}{前|まえ} / {反|そ}りは' + EX + '{倍|ばい}に{強調|きょうちょう}', 16, Hd - 14, { size: 12, color: A2.col('ef-muted') });
 
     if (st.hint) drawHint(flip);
     if (st.answered && st.s > 0.99) drawWhy(mapDef, flip);
@@ -168,15 +168,15 @@
     ctx.save();
     ctx.translate(cx, cy);
     if (flip < 0) ctx.rotate(PI);
-    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.fillStyle = A2.col('sapwood'); ctx.fill();
-    ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.fillStyle = A2.col('fig-sapwood'); ctx.fill();
+    ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 0.6;
     W.rings.forEach(function (r) { ctx.beginPath(); ctx.arc(0, 0, r * R, 0, 7); ctx.stroke(); });
-    ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.stroke();
-    ctx.fillStyle = A2.col('pith'); ctx.beginPath(); ctx.arc(0, 0, 3, 0, 7); ctx.fill();
-    ctx.fillStyle = A2.col('board-fill-strong'); ctx.strokeStyle = A2.col('accent'); ctx.lineWidth = 2;
+    ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.stroke();
+    ctx.fillStyle = A2.col('fig-pith'); ctx.beginPath(); ctx.arc(0, 0, 3, 0, 7); ctx.fill();
+    ctx.fillStyle = A2.col('fig-board-fill-strong'); ctx.strokeStyle = A2.col('fig-accent'); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.rect((q.cx - q.w / 2) * R, -(q.cy + q.t / 2) * R, q.w * R, q.t * R); ctx.fill(); ctx.stroke();
     ctx.restore();
-    A2.text(ctx, '{髄|ずい}', cx + 6, cy + 4, { size: 11, bg: A2.col('label-bg') });
+    A2.text(ctx, '{髄|ずい}', cx + 6, cy + 4, { size: 11, bg: A2.col('fig-label-bg') });
   }
 
   /** 理由の図:板の中の年輪1本を太線で示し、乾燥前(点線)と乾燥後をくらべる */
@@ -197,10 +197,10 @@
       W.pathPts(ctx, pts, map, false); ctx.stroke(); ctx.restore();
     }
     var CX = ctx.W / 2;
-    line(mapDef, A2.col('label-bg'), 8, []);
-    line(mapDef, A2.col('ng'), 4.5, []);
+    line(mapDef, A2.col('fig-label-bg'), 8, []);
+    line(mapDef, A2.col('ef-ng'), 4.5, []);
     ctx.save();
-    ctx.fillStyle = ctx.strokeStyle = A2.col('ng');
+    ctx.fillStyle = ctx.strokeStyle = A2.col('ef-ng');
     if (q.type === 'ita') {
       // 年輪の両はしに「縮む向き」の矢印(弓のつるのように短くなろうとする)
       [[0, 1], [pts.length - 1, -1]].forEach(function (e) {
@@ -223,7 +223,7 @@
     var msg = q.type === 'ita'
       ? '{赤|あか}い{年輪|ねんりん}が{短|みじか}くなろうとして、{両|りょう}はしを{木表|きおもて}{側|がわ}へ{引|ひ}く'
       : '{年輪|ねんりん}の{向|む}きは{上|うえ}と{下|した}の{面|めん}で{同|おな}じ';
-    A2.text(ctx, msg, CX, 66, { size: 14, bold: true, align: 'center', color: A2.col('ng'), bg: A2.col('label-bg') });
+    A2.text(ctx, msg, CX, 66, { size: 14, bold: true, align: 'center', color: A2.col('ef-ng'), bg: A2.col('fig-label-bg') });
   }
 
   A2.labs.quiz = {
