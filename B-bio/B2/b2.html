@@ -9,66 +9,62 @@
 <script>EDUIT_INFO.app = { name: 'B2 動物飼育・水産ミニシミュレータ' };</script>
 <script src="../../shared/eduit-frame.js"></script>
 <style>
+:root {
+  /* 図の色: 記録グラフの線(JS の drawChart と同じ値) */
+  --fig-health: #2e7d32;
+  --fig-dirt: #9a6a1a;
+  --fig-growth: #6a4fa3;
+}
 body{margin:0;background:var(--ef-bg)}
 #b2app{
   /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
-  --b2-bg:var(--ef-bg);--b2-card:var(--ef-surface);--b2-ink:var(--ef-text);--b2-sub:var(--ef-muted);--b2-line:#cfdccc;
-  --b2-main:var(--ef-accent);--b2-main-d:#1b5e20;--b2-soft:#e8f5e9;--b2-ok:#2e7d32;--b2-warn:#a86400;--b2-bad:#b23b3b;
-  --b2-fs:18px;--b2-headh:120px;--b2-barh:0px;
+  --app-headh:120px;--app-barh:0px;
   font-family:var(--ef-font);
-  font-size:var(--b2-fs);line-height:1.65;color:var(--b2-ink);background:var(--b2-bg);
+  font-size:1rem;line-height:1.65;color:var(--ef-text);background:var(--ef-bg);
   min-height:100vh;-webkit-text-size-adjust:100%;
 }
 #b2app *{box-sizing:border-box}
-#b2app.b2-noruby rt{display:none}
-#b2app rt{font-size:.55em;color:var(--b2-sub)}
+#b2app rt{font-size:.55em;color:var(--ef-muted)}
 #b2app h1,#b2app h2,#b2app h3{line-height:1.4;margin:.3em 0 .5em}
 #b2app h1{font-size:1.3em}
-#b2app h2{font-size:1.2em;color:var(--b2-main-d)}
+#b2app h2{font-size:1.2em;color:var(--ef-accent)}
 #b2app h3{font-size:1.05em}
 #b2app p{margin:.4em 0}
 :where(#b2app button,#b2app select,#b2app input,#b2app textarea){font:inherit;color:inherit}
 #b2app button{cursor:pointer;touch-action:manipulation}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
-#b2app .b2-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:none}
+#b2app .b2-head{position:sticky;top:0;z-index:20;background:var(--ef-surface);color:var(--ef-text);padding:0;box-shadow:none}
 #b2app .b2-head-row{flex-wrap:wrap}
-#b2app .b2-title{flex:1 1 auto;min-width:200px;margin:0;font-size:18px;line-height:1.3}
+#b2app .b2-title{flex:1 1 auto;min-width:200px;margin:0;font-size:1.05rem;line-height:1.3}
 #b2app .b2-title small{margin-left:.4em}
 @media (max-height:800px){#b2app .b2-title small{display:none}}
-#b2app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
-#b2app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
 #b2app .b2-tools button{min-height:44px;min-width:48px}
 #b2app .b2-tools button:disabled{opacity:.4;cursor:not-allowed}
 /* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする(K3) */
 html.kz-embed #b2app .b2-head-row{display:none}
 html.kz-embed #b2app .b2-head{padding-top:6px}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
-#b2app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b2app main{padding-bottom:80px}  /* はばと左右の余白は .ef-main.is-wide */
 #b2app section[hidden]{display:none!important}
-#b2app section,#b2app .b2-card,#b2app #b2-qexp{scroll-margin-top:calc(var(--b2-headh) + var(--b2-barh) + 8px)}
-#b2app .b2-card{background:var(--b2-card);border:1px solid var(--b2-line);border-radius:0;padding:14px 16px;margin-bottom:14px}
-#b2app .b2-note{background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:10px 14px;margin:10px 0}
-#b2app .b2-btn{display:inline-block;text-align:center;vertical-align:middle;min-height:48px;line-height:1.5;padding:8px 18px;border-radius:0;border:2px solid var(--b2-main);background:#fff;color:var(--b2-main-d);font-weight:700}
-#b2app .b2-btn.b2-pri{background:var(--b2-main);color:#fff}
-#b2app .b2-btn.b2-pri rt{color:#e8f5e9}
-#b2app .b2-btn:disabled{opacity:.45;cursor:not-allowed}
-#b2app .b2-btn:active:not(:disabled){transform:translateY(1px)}
+#b2app section,#b2app .ef-box,#b2app #b2-qexp{scroll-margin-top:calc(var(--app-headh) + var(--app-barh) + 8px)}
+/* 箱は .ef-box、注意は .ef-note、ボタンは .ef-btn / .ef-btn-primary(shared/eduit-frame.css)。ここは置き場所だけ */
+#b2app .ef-box{margin-bottom:14px}
 #b2app .b2-btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-#b2app :focus-visible{outline:3px solid #f0a020;outline-offset:2px}
+#b2app :focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 /* 対象選択 */
 #b2app .b2-species{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-#b2app .b2-sp{background:#fff;border:2px solid var(--b2-line);border-radius:0;padding:10px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:200px}
-#b2app .b2-sp:hover{border-color:var(--b2-main)}
-#b2app .b2-sp.b2-cur{border-color:var(--b2-main);box-shadow:0 0 0 3px var(--b2-soft)}
+#b2app .b2-sp{background:var(--ef-surface);border:2px solid var(--ef-line);border-radius:0;padding:10px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:200px}
+#b2app .b2-sp:hover{border-color:var(--ef-accent)}
+#b2app .b2-sp.b2-cur{border-color:var(--ef-ink);font-weight:700;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 #b2app .b2-sp svg{width:100%;height:96px}
 #b2app .b2-sp b{font-size:1.1em}
-#b2app .b2-sp span{font-size:.85em;color:var(--b2-sub)}
-#b2app .b2-tag{display:inline-block;font-size:.75em;padding:1px 8px;border-radius:0;background:var(--b2-soft);color:var(--b2-main-d);font-weight:700}
-#b2app .b2-sp .b2-tag{align-self:flex-start;color:var(--b2-main-d);font-size:.75em}
-#b2app .b2-sp .b2-done{align-self:flex-start;font-size:.8em;color:#7a5a00;font-weight:700}
+#b2app .b2-sp span{font-size:.85em;color:var(--ef-muted)}
+#b2app .b2-tag{display:inline-block;font-size:.75em;padding:1px 8px;border-radius:0;background:var(--ef-accent-soft);color:var(--ef-accent);font-weight:700}
+#b2app .b2-sp .b2-tag{align-self:flex-start;color:var(--ef-accent);font-size:.75em}
+#b2app .b2-sp .b2-done{align-self:flex-start;font-size:.8em;color:var(--ef-warn);font-weight:700}
 /* シミュレーション */
 #b2app .b2-simbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:10px}
-#b2app #b2-simbar{position:sticky;top:var(--b2-headh);z-index:15;background:var(--b2-bg);margin:-14px -14px 10px;padding:10px 14px;border-bottom:1px solid var(--b2-line)}
+#b2app #b2-simbar{position:sticky;top:var(--app-headh);z-index:15;background:var(--ef-bg);margin:-14px -14px 10px;padding:10px 14px;border-bottom:1px solid var(--ef-line)}
 /* 上の帯がスクロールで隠れたら、日数の帯も画面の上まで上げる(帯の下に空きができないように) */
 #b2app #b2-simbar{transition:top .2s ease}
 #b2app .b2-head.ef-ah-hide~main #b2-simbar{top:0}
@@ -78,12 +74,12 @@ html.kz-embed #b2app .b2-head{padding-top:6px}
   #b2app #b2-simbar{gap:6px 8px;padding:6px 12px}
   #b2app #b2-simbar .b2-day{font-size:1em}
   #b2app #b2-simbar .b2-daybar{flex:1 1 calc(100% - 10em);min-width:80px}
-  #b2app #b2-simbar .b2-btn{flex:1 1 auto;white-space:nowrap;padding:6px 10px;min-height:44px}
+  #b2app #b2-simbar .ef-btn,#b2app #b2-simbar .ef-btn-primary{flex:1 1 auto;white-space:nowrap;padding:6px 10px;min-height:44px}
   #b2app #b2-simbar .b2-costchip{font-size:.8em;padding:2px 10px}
 }
 #b2app .b2-day{font-size:1.15em;font-weight:700}
-#b2app .b2-daybar{flex:1 1 160px;height:12px;background:#dfe8dc;border-radius:0;overflow:hidden;min-width:120px}
-#b2app .b2-daybar i{display:block;height:100%;background:var(--b2-main)}
+#b2app .b2-daybar{flex:1 1 160px;height:12px;background:var(--ef-surface-2);border:var(--ef-bw) solid var(--ef-line);border-radius:0;overflow:hidden;min-width:120px}
+#b2app .b2-daybar i{display:block;height:100%;background:var(--ef-accent)}
 #b2app .b2-simgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"vis set" "met set";gap:0 14px;align-items:start}
 #b2app .b2-g-vis{grid-area:vis}#b2app .b2-g-met{grid-area:met}#b2app .b2-g-set{grid-area:set}
 @media (max-width:900px){#b2app .b2-simgrid{grid-template-columns:1fr;grid-template-rows:none;grid-template-areas:"vis" "set" "met"}}
@@ -91,106 +87,106 @@ html.kz-embed #b2app .b2-head{padding-top:6px}
 #b2app .b2-meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
 @media (max-width:520px){#b2app .b2-meters{grid-template-columns:1fr}}
 #b2app.b2-big .b2-meters{grid-template-columns:1fr}
-#b2app .b2-meter{border:1px solid var(--b2-line);border-radius:0;padding:6px 10px;background:#fbfdfa}
+#b2app .b2-meter{border:1px solid var(--ef-line);border-radius:0;padding:6px 10px;background:var(--ef-surface)}
 #b2app .b2-meter.b2-chg{animation:b2chg 1.2s ease-out}
-@keyframes b2chg{0%{background:#fff3c4;box-shadow:0 0 0 3px #f0c040}100%{background:#fbfdfa;box-shadow:none}}
+@keyframes b2chg{0%{background:var(--ef-warn-soft)}100%{background:var(--ef-surface)}}
 #b2app .b2-meter-top{display:flex;flex-direction:column;gap:0;font-size:.88em}
 #b2app .b2-meter-top b{font-size:1.05em}
-#b2app .b2-bar{height:10px;border-radius:0;background:#e3ebe1;overflow:hidden;margin-top:3px}
+#b2app .b2-bar{height:10px;border-radius:0;background:var(--ef-surface-2);overflow:hidden;margin-top:3px}
 #b2app .b2-bar i{display:block;height:100%}
 #b2app .b2-lv{font-size:.78em;font-weight:700;padding:0 6px;border-radius:0;white-space:nowrap}
-#b2app .b2-lv.ok{color:var(--b2-ok);background:#e3f4e5}
-#b2app .b2-lv.warn{color:var(--b2-warn);background:#fdf0dc}
-#b2app .b2-lv.bad{color:var(--b2-bad);background:#fbe5e5}
+#b2app .b2-lv.ok{color:var(--ef-ok);background:var(--ef-accent-soft)}
+#b2app .b2-lv.warn{color:var(--ef-warn);background:var(--ef-warn-soft)}
+#b2app .b2-lv.bad{color:var(--ef-ng);background:var(--ef-ng-soft)}
 #b2app .b2-look{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
-#b2app .b2-look div{background:var(--b2-soft);border-radius:0;padding:6px 8px;text-align:center;font-size:.9em}
+#b2app .b2-look div{background:var(--ef-accent-soft);border-radius:0;padding:6px 8px;text-align:center;font-size:.9em}
 #b2app .b2-look div b{display:block;font-size:1.05em}
 #b2app .b2-signs{margin:8px 0 0;padding-left:1.2em}
 #b2app .b2-signs li{margin:2px 0}
 #b2app .b2-ctl{margin-bottom:12px}
 #b2app .b2-ctl-label{display:block;font-weight:700;margin-bottom:4px;overflow:hidden}
-#b2app .b2-ctl-label small{float:right;font-weight:400;color:var(--b2-sub);font-size:.8em;margin-left:8px}
+#b2app .b2-ctl-label small{float:right;font-weight:400;color:var(--ef-muted);font-size:.8em;margin-left:8px}
 #b2app .b2-seg{display:flex;flex-wrap:wrap;gap:4px}
-#b2app .b2-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--b2-line);background:#fff;border-radius:0;padding:4px 6px;font-size:.88em;line-height:1.25}
-#b2app .b2-seg button[aria-pressed="true"]{border-color:var(--b2-main);background:var(--b2-main);color:#fff;font-weight:700}
-#b2app .b2-seg button[aria-pressed="true"] rt{color:#e8f5e9}
+#b2app .b2-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--ef-line);background:var(--ef-surface);border-radius:0;padding:4px 6px;font-size:.88em;line-height:1.25}
+#b2app .b2-seg button[aria-pressed="true"]{border-color:var(--ef-ink);font-weight:700;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 #b2app .b2-range{display:flex;align-items:center;gap:6px}
-#b2app .b2-range input[type=range]{flex:1;min-width:0;height:44px;accent-color:var(--b2-main)}
-#b2app .b2-range button{width:48px;height:48px;border-radius:10px;border:2px solid var(--b2-line);background:#fff;font-size:1.3em;font-weight:700;flex:none}
+#b2app .b2-range input[type=range]{flex:1;min-width:0;height:44px;accent-color:var(--ef-accent)}
+#b2app .b2-range button{width:48px;height:48px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);font-size:1.3em;font-weight:700;flex:none}
 #b2app .b2-range output{min-width:4.2em;text-align:right;font-weight:700;font-size:1.05em}
 #b2app .b2-act{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #b2app .b2-msg{padding:10px 14px;border-radius:0;margin:8px 0;border:1px solid}
-#b2app .b2-msg.info{background:#eef7ee;border-color:#b9d8bb}
-#b2app .b2-msg.warn{background:#fff6e5;border-color:#efcf8b}
+#b2app .b2-msg.info{background:var(--ef-accent-soft);border-color:var(--ef-accent)}
+#b2app .b2-msg.warn{background:var(--ef-warn-soft);border-color:var(--ef-warn)}
 #b2app .b2-log{max-height:300px;overflow:auto;margin:0;padding:0;list-style:none;font-size:.9em}
-#b2app .b2-log li{padding:4px 2px;border-bottom:1px dashed var(--b2-line)}
-#b2app .b2-log li b{color:var(--b2-main-d);margin-right:6px}
-#b2app .b2-log li.b2-sum{color:var(--b2-sub)}
+#b2app .b2-log li{padding:4px 2px;border-bottom:1px dashed var(--ef-line)}
+#b2app .b2-log li b{color:var(--ef-accent);margin-right:6px}
+#b2app .b2-log li.b2-sum{color:var(--ef-muted)}
 #b2app canvas{width:100%;height:220px;display:block}
-#b2app .b2-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;color:var(--b2-sub)}
+#b2app .b2-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;color:var(--ef-muted)}
 #b2app .b2-legend span::before{content:"";display:inline-block;width:26px;height:0;border-top:3px solid currentColor;vertical-align:middle;margin-right:4px}
-#b2app .b2-legend .l1{color:#2e7d32}#b2app .b2-legend .l2{color:#9a6a1a}#b2app .b2-legend .l2::before{border-top-style:dashed}
-#b2app .b2-legend .l3{color:#6a4fa3}#b2app .b2-legend .l3::before{border-top-style:dotted;border-top-width:4px}
-#b2app .b2-result{border:3px solid var(--b2-main);background:#f3faf3}
-#b2app .b2-stars{font-size:1.6em;letter-spacing:4px;color:#d39b00}
-#b2app .b2-cause{background:#fff6e5;border:1px solid #efcf8b;border-radius:0;padding:8px 14px;margin:8px 0}
-#b2app .b2-small{font-size:.85em;color:var(--b2-sub)}
+#b2app .b2-legend .l1{color:var(--fig-health)}#b2app .b2-legend .l2{color:var(--fig-dirt)}#b2app .b2-legend .l2::before{border-top-style:dashed}
+#b2app .b2-legend .l3{color:var(--fig-growth)}#b2app .b2-legend .l3::before{border-top-style:dotted;border-top-width:4px}
+#b2app .b2-result{border:3px solid var(--ef-accent);background:var(--ef-accent-soft)}
+#b2app .b2-stars .b2-star-off{color:var(--ef-line)}
+#b2app .b2-stars{font-size:1.6em;letter-spacing:4px;color:var(--ef-warn)}
+#b2app .b2-cause{background:var(--ef-warn-soft);border:1px solid var(--ef-warn);border-radius:0;padding:8px 14px;margin:8px 0}
+#b2app .ef-small{font-size:.85em;color:var(--ef-muted)}
 #b2app .b2-cause ol{margin:4px 0;padding-left:1.4em}
-#b2app .b2-costchip{display:inline-flex;flex-wrap:wrap;gap:2px 8px;align-items:center;background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:4px 12px;font-size:.9em;font-weight:700}
+#b2app .b2-costchip{display:inline-flex;flex-wrap:wrap;gap:2px 8px;align-items:center;background:var(--ef-warn-soft);border:1px solid var(--ef-warn);border-radius:0;padding:4px 12px;font-size:.9em;font-weight:700}
 #b2app .b2-costtop{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-#b2app .b2-costtop div{flex:1 1 200px;background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:8px 12px}
+#b2app .b2-costtop div{flex:1 1 200px;background:var(--ef-warn-soft);border:1px solid var(--ef-warn);border-radius:0;padding:8px 12px}
 #b2app .b2-costtop b{font-size:1.25em}
 #b2app .b2-tablewrap{overflow-x:auto}
 #b2app table.b2-costtbl{border-collapse:collapse;width:100%;font-size:.92em;margin:6px 0}
-#b2app table.b2-costtbl th,#b2app table.b2-costtbl td{border:1px solid var(--b2-line);padding:4px 8px;text-align:right}
+#b2app table.b2-costtbl th,#b2app table.b2-costtbl td{border:1px solid var(--ef-line);padding:4px 8px;text-align:right}
 #b2app table.b2-costtbl th:first-child,#b2app table.b2-costtbl td:first-child{text-align:left}
-#b2app table.b2-costtbl thead th{background:var(--b2-soft)}
-#b2app table.b2-costtbl tr.b2-tot td{font-weight:700;background:#fbfdfa}
-#b2app .b2-story{background:#fff;border:2px solid var(--b2-main);border-radius:0;padding:10px 16px;margin:10px 0}
+#b2app table.b2-costtbl thead th{background:var(--ef-accent-soft)}
+#b2app table.b2-costtbl tr.b2-tot td{font-weight:700;background:var(--ef-surface)}
+#b2app .b2-story{background:var(--ef-surface);border:2px solid var(--ef-accent);border-radius:0;padding:10px 16px;margin:10px 0}
 #b2app .b2-story p{margin:.4em 0;line-height:1.8}
-#b2app .b2-costmsg{background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:8px 14px;margin:8px 0}
+#b2app .b2-costmsg{background:var(--ef-warn-soft);border:1px solid var(--ef-warn);border-radius:0;padding:8px 14px;margin:8px 0}
 /* クイズ */
 #b2app .b2-qcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 #b2app .b2-qcat>div{display:flex;flex-direction:column;gap:6px}
-#b2app .b2-qcat button.b2-qbtn{min-height:90px;border-radius:0;border:2px solid var(--b2-line);background:#fff;text-align:left;padding:10px 14px;flex:1}
+#b2app .b2-qcat button.b2-qbtn{min-height:90px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);text-align:left;padding:10px 14px;flex:1}
 #b2app .b2-qcat button b{display:block;font-size:1.05em}
-#b2app .b2-qcat button span{font-size:.85em;color:var(--b2-sub)}
+#b2app .b2-qcat button span{font-size:.85em;color:var(--ef-muted)}
 #b2app .b2-qscene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
 @media (max-width:760px){#b2app .b2-qscene{grid-template-columns:1fr}}
 #b2app .b2-choices{display:grid;gap:8px;margin-top:10px}
-#b2app .b2-choices button{min-height:56px;text-align:left;padding:8px 14px;border-radius:0;border:2px solid var(--b2-line);background:#fff}
-#b2app .b2-choices button.b2-right{border-color:var(--b2-ok);background:#e9f6ea}
-#b2app .b2-choices button.b2-wrong{border-color:var(--b2-bad);background:#fbeaea}
+#b2app .b2-choices button{min-height:56px;text-align:left;padding:8px 14px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface)}
+#b2app .b2-choices button.b2-right{border-color:var(--ef-ok);background:var(--ef-accent-soft)}
+#b2app .b2-choices button.b2-wrong{border-color:var(--ef-ng);background:var(--ef-ng-soft)}
 #b2app .b2-choices button:disabled{cursor:default;opacity:1}
-#b2app .b2-explain{margin-top:10px;padding:10px 14px;border-radius:0;background:#eef7ee;border:1px solid #b9d8bb}
+#b2app .b2-explain{margin-top:10px;padding:10px 14px;border-radius:0;background:var(--ef-accent-soft);border:1px solid var(--ef-accent)}
 #b2app .b2-miss li{margin-bottom:8px}
 #b2app .b2-miss details{margin:4px 0}
 /* 計画書・振り返り */
 #b2app label.b2-f{display:block;font-weight:700;margin:10px 0 4px}
-#b2app label.b2-f small{font-weight:400;color:var(--b2-sub)}
-#b2app input[type=text],#b2app select,#b2app textarea{width:100%;min-height:48px;border:2px solid var(--b2-line);border-radius:0;padding:8px 10px;background:#fff}
+#b2app label.b2-f small{font-weight:400;color:var(--ef-muted)}
+#b2app input[type=text],#b2app select,#b2app textarea{width:100%;min-height:48px;border:2px solid var(--ef-line);border-radius:0;padding:8px 10px;background:var(--ef-surface)}
 #b2app textarea{min-height:110px;resize:vertical;line-height:1.6}
 #b2app .b2-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 #b2app .b2-who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px}
 @media (max-width:520px){#b2app .b2-who{grid-template-columns:1fr 1fr}#b2app .b2-who>div:last-child{grid-column:1/-1}}
 #b2app table.b2-week{border-collapse:collapse;width:100%;text-align:center;font-size:.92em}
-#b2app table.b2-week th,#b2app table.b2-week td{border:1px solid var(--b2-line);padding:2px}
-#b2app table.b2-week th{background:var(--b2-soft)}
+#b2app table.b2-week th,#b2app table.b2-week td{border:1px solid var(--ef-line);padding:2px}
+#b2app table.b2-week th{background:var(--ef-accent-soft)}
 #b2app .b2-chk{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;cursor:pointer}
-#b2app .b2-chk input{width:26px;height:26px;accent-color:var(--b2-main)}
+#b2app .b2-chk input{width:26px;height:26px;accent-color:var(--ef-accent)}
 #b2app .b2-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 12px}
 #b2app .b2-checks label{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
-#b2app .b2-checks input{width:26px;height:26px;flex:none;accent-color:var(--b2-main)}
+#b2app .b2-checks input{width:26px;height:26px;flex:none;accent-color:var(--ef-accent)}
 #b2app .b2-eval{display:grid;gap:8px}
-#b2app .b2-eval-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--b2-line);padding-bottom:8px}
+#b2app .b2-eval-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--ef-line);padding-bottom:8px}
 @media (max-width:700px){#b2app .b2-eval-row{grid-template-columns:1fr}}
-#b2app .b2-saved{font-size:.85em;color:var(--b2-ok);min-height:1.4em}
+#b2app .b2-saved{font-size:.85em;color:var(--ef-ok);min-height:1.4em}
 #b2app .b2-pval{display:none}
-#b2app .b2-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f3320;color:#fff;padding:10px 18px;border-radius:0;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
+#b2app .b2-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
 #b2app .b2-toast.show{opacity:1}
-#b2app details{border:1px solid var(--b2-line);border-radius:0;padding:8px 12px;background:#fff;margin:8px 0}
+#b2app details{border:1px solid var(--ef-line);border-radius:0;padding:8px 12px;background:var(--ef-surface);margin:8px 0}
 #b2app summary{font-weight:700;cursor:pointer;min-height:48px;display:list-item;padding:10px 0;box-sizing:border-box}
-#b2app .b2-summary-box{background:#f5f9f4;border-radius:0;padding:8px 12px;font-size:.92em}
+#b2app .b2-summary-box{background:var(--ef-surface-2);border-radius:0;padding:8px 12px;font-size:.92em}
 /* アニメーション(やさしく) */
 #b2app .b2-swim{animation:b2swim 3s ease-in-out infinite}
 #b2app .b2-bob{animation:b2bob 2.4s ease-in-out infinite}
@@ -204,12 +200,12 @@ html.kz-embed #b2app .b2-head{padding-top:6px}
   #b2app .b2-head,#b2app .b2-btns,#b2app .b2-noprint,#b2app .b2-toast{display:none!important}
   #b2app #b2-simbar{position:static}
   #b2app main{padding:0}
-  #b2app .b2-card{break-inside:auto;border-color:#999}
+  #b2app .ef-box{break-inside:auto}
   #b2app h2,#b2app label.b2-f{break-after:avoid}
   #b2app input[type=text],#b2app select{display:none!important}
-  #b2app .b2-pval{display:block;border:1px solid #999;border-radius:0;padding:4px 8px;min-height:2em;white-space:pre-wrap;word-break:break-word}
-  #b2app .b2-pval.b2-empty{color:#666}
-  #b2app .b2-seg button[aria-pressed="true"]{outline:3px solid #000;outline-offset:-3px}
+  #b2app .b2-pval{display:block;border:1px solid var(--ef-muted);border-radius:0;padding:4px 8px;min-height:2em;white-space:pre-wrap;word-break:break-word}
+  #b2app .b2-pval.b2-empty{color:var(--ef-muted)}
+  #b2app .b2-seg button[aria-pressed="true"]{outline:3px solid var(--ef-focus);outline-offset:-3px}
   #b2app .b2-meter.b2-chg{animation:none}
 }
 
@@ -225,8 +221,9 @@ html.kz-embed #b2app .b2-head{padding-top:0}
       <a class="ef-btn ef-back" href="../dist/生物育成教材集.html" title="教材集のメニューを開く">◀ メニュー</a>
       <h1 class="b2-title ef-title"><span class="ef-code">B2</span> <span class="ef-title-name">動物飼育・水産ミニシミュレータ</span></h1>
       <div class="b2-tools ef-tools">
-        <button type="button" class="ef-btn ef-toggle" id="b2-ruby" aria-pressed="true" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" class="ef-btn ef-size" id="b2-size">文字</button>
+        <button type="button" data-ef-pref="ruby" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" data-ef-pref="fs"></button>
+        <button type="button" data-ef-pref="kukkiri"></button>
       </div>
     </div>
     <nav class="b2-nav ef-apptabs" role="tablist" aria-label="画面の切りかえ">
@@ -237,7 +234,7 @@ html.kz-embed #b2app .b2-head{padding-top:0}
       <button type="button" class="ef-apptab" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
     </nav>
   </header>
-  <main>
+  <main class="ef-main is-wide">
     <section id="b2-sec-home" data-sec="home"></section>
     <section id="b2-sec-sim" data-sec="sim" hidden></section>
     <section id="b2-sec-quiz" data-sec="quiz" hidden></section>
@@ -248,17 +245,18 @@ html.kz-embed #b2app .b2-head{padding-top:0}
 </div>
 <!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
 <style>
-.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+/* 色・字・線は共通の --ef-…(shared/eduit-frame.css)。「消す」などの確認は .kzd-danger で赤 */
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
-.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
-.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
-.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:0;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
-.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
-.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
-.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
-@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+  font-family:var(--ef-font);-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:var(--ef-surface);color:var(--ef-text);border:var(--ef-bw) solid var(--ef-ink);border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:1.05rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:var(--ef-bw) solid var(--ef-line);background:var(--ef-surface);}
+.kzd-btns button{box-sizing:border-box;min-height:var(--ef-tap);min-width:120px;padding:0 20px;border-radius:0;border:var(--ef-bw) solid var(--ef-ink);background:var(--ef-surface);color:var(--ef-text);font:inherit;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:var(--ef-ink);color:var(--ef-on-ink);}
+.kzd-btns .kzd-ok.kzd-danger{background:var(--ef-ng);border-color:var(--ef-ng);}
+.kzd-btns button:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:.95rem;}.kzd-btns{padding:8px 16px 10px;}}
 @media print{.kzd-back{display:none !important;}}
 </style>
 <script>
@@ -307,137 +305,24 @@ html.kz-embed #b2app .b2-head{padding-top:0}
 })();
 </script>
 <!--
-  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  kz-embed : 教材集(メニュー)の iframe の中なら <html class="kz-embed"> を付ける(K3)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
-          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
-
-  保存キー(localStorage):
-    hub_ruby  '1' = ふりがなあり / '0' = なし
-    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
-
-  API (グローバルは window.kzPrefs だけ):
-    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
-                               キーが無い(まだ一度も設定していない)ときは null。
-                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
-    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
-                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
-                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
-    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
-                               (storage イベント / postMessage)のときに呼ばれる。
-                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
-    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
-    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
-    kzPrefs.bind(rubyBtn, decBtn, incBtn)
-                             → K2 の3つのボタンをつなぐ(どれか null 可)。
-                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
-    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
-                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
-    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
-
-  教材側の使い方の例:
-    var p = kzPrefs.get();
-    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
-    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
-    apply(ruby, fs);
-    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
-    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。ES5。
+  CSS の html.kz-embed … で、教材の見出し(メニューの上のバーと同じボタン)を隠す。
+  site/build.py が「embed = window.self !== window.top;」を書きかえるので、この書き方を変えない。
+  ふりがな・文字の大きさは全教材で共通の EduitFrame.prefs(shared/eduit-frame.js)を使う。
 -->
-<script data-kz-prefs>
+<script data-kz-embed>
 (function(){
-  if (window.kzPrefs) return;
-  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
-  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
-  var fns = [], last = '';
-  var embed = false;
+  var embed;
   try { embed = window.self !== window.top; } catch (e) { embed = true; }
-  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
-
-  function clampFs(n){
-    n = Number(n);
-    if (!isFinite(n)) return DEF;
-    n = Math.round(n / STEP) * STEP;
-    return n < MIN ? MIN : (n > MAX ? MAX : n);
-  }
-  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
-  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
-  function get(){
-    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
-    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
-    if (o.ruby === null) o.ruby = false;  /* ふりがなは、はじめはなし(4分野で同じ) */
-    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
-    return o;
-  }
-  function notify(p){
-    var key = String(p.ruby) + '|' + String(p.fs);
-    if (key === last) return;
-    last = key;
-    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
-  }
-  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
-  function broadcast(p, except){
-    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
-    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
-    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
-  }
-  function set(o){
-    o = o || {};
-    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
-    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    broadcast(p, null);
-    return p;
-  }
-  function on(fn){
-    if (typeof fn === 'function') fns.push(fn);
-    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
-  }
-  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
-  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
-  function bind(rb, dec, inc){
-    function upd(){
-      var c = cur();
-      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
-      if (dec) dec.disabled = c.fs <= MIN;
-      if (inc) inc.disabled = c.fs >= MAX;
-    }
-    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
-    if (dec) dec.addEventListener('click', function(){ bump(-1); });
-    if (inc) inc.addEventListener('click', function(){ bump(1); });
-    on(upd); upd();
-    return upd;
-  }
-
-  window.addEventListener('storage', function(e){
-    if (e.key !== KR && e.key !== KF && e.key !== null) return;
-    notify(get());
-  });
-  window.addEventListener('message', function(e){
-    var d = e.data;
-    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
-    var q = d.kzPrefs;
-    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
-    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
-    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
-  });
-
-  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
-  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
-    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+  if (embed) document.documentElement.classList.add('kz-embed');
 })();
 </script>
 <!--
   kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-embed の後)に、このファイルの <style> と <script> を貼る。
           2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
 
   API (グローバルは window.kzRuby だけ):
@@ -457,7 +342,7 @@ html.kz-embed #b2app .b2-head{padding-top:0}
                          文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
     kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
 
-  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  ふりがなの表示・非表示は、全教材で共通の EduitFrame.prefs がする(<html data-ef-ruby="off"> のとき rt を隠す)。kzRuby は付けるだけ。
   辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
 -->
 <style data-kz-ruby>
@@ -600,8 +485,8 @@ ruby.kzr{ruby-position:over;}
 .kz-ptext{display:none}
 @media print{
   textarea{display:none !important}
-  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
-  .kz-ptext.kz-empty{color:#666}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid var(--ef-muted);border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:var(--ef-text);background:var(--ef-surface)}
+  .kz-ptext.kz-empty{color:var(--ef-muted)}
 }
 </style>
 <script data-kz-print>
@@ -1189,31 +1074,18 @@ var settings=store.get('settings',null);
 if(!isObj(settings))settings={};
 /* タブの名前は [data-sec="…"] の検索に使うので、英字だけのものにかぎる(読みこんだファイルの変な値で起動できなくならないように) */
 function tabName(v,def){return typeof v==='string'&&/^[a-z]+$/.test(v)?v:def}
-settings={ruby:settings.ruby!==false,fs:kzPrefs.clampFs(settings.fs||18),tab:tabName(settings.tab,'home')};
-(function(){ // 共通設定(hub_ruby / hub_fs)がまだないときは、B2 の古い設定を引きつぐ
-  var p=kzPrefs.get(),o={};
-  if(p.ruby===null&&settings.ruby===false)o.ruby=false;
-  if(p.fs===null&&settings.fs!==18)o.fs=settings.fs;
-  if(o.ruby!==undefined||o.fs!==undefined)kzPrefs.set(o);
-})();
+settings={tab:tabName(settings.tab,'home')};
 function measure(){
-  var hd=$('#b2-head');if(hd)root.style.setProperty('--b2-headh',hd.offsetHeight+'px');
-  var sb=$('#b2-simbar');root.style.setProperty('--b2-barh',(sb&&sb.offsetParent!==null?sb.offsetHeight:0)+'px');
+  var hd=$('#b2-head');if(hd)root.style.setProperty('--app-headh',hd.offsetHeight+'px');
+  var sb=$('#b2-simbar');root.style.setProperty('--app-barh',(sb&&sb.offsetParent!==null?sb.offsetHeight:0)+'px');
 }
+/* ふりがな・文字の大きさは全教材で共通の EduitFrame.prefs(上のバーのボタンは data-ef-pref)。変わったら大きさをはかり直す */
 function applySettings(){
-  var p=kzPrefs.get();
-  settings.ruby=p.ruby!==null?p.ruby:settings.ruby;
-  settings.fs=p.fs!==null?p.fs:settings.fs;
-  root.classList.toggle('b2-noruby',!settings.ruby);
-  root.classList.toggle('b2-big',settings.fs>=22);
-  root.style.setProperty('--b2-fs',settings.fs+'px');
-  store.set('settings',settings);
+  root.classList.toggle('b2-big',EduitFrame.prefs.get('fs')>=20);
   measure();drawChart();
 }
-kzPrefs.bind($('#b2-ruby'));
-/* 文字の大きさ: 4分野共通の「文字 中」ボタン */
-kzPrefs.on(EduitFrame.sizeButton($('#b2-size'),{steps:[[16, '小'], [18, '中'], [22, '大'], [26, '特大']],get:function(){return kzPrefs.get().fs||kzPrefs.FS_DEFAULT},set:function(v){kzPrefs.set({fs:v})}}));
-kzPrefs.on(function(){applySettings()});
+EduitFrame.prefs.mount();
+EduitFrame.prefs.on(function(){applySettings()});
 window.addEventListener('resize',function(){clearTimeout(measure._t);measure._t=setTimeout(function(){measure();drawChart()},150)});
 /* 振り返りを隠す設定(先生用): 振り返りのタブは開かない */
 var FK_OFF=!!(window.EduitFrame&&EduitFrame.furikaeri===false);
@@ -1238,17 +1110,17 @@ function starStr(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(n)}
 function renderHome(){
   var el=$('#b2-sec-home'),h='',arch=run?run.archive:{};
   h+='<div data-ef-lets="b14"></div><div data-ef-lets="b15"></div>';
-  h+='<div class="b2-card"><h1>生き物を育てる技術を体験しよう</h1>';
+  h+='<div class="ef-box"><h1>生き物を育てる技術を体験しよう</h1>';
   h+='<p>条件を変えながら30日間育て、<b>生き物の様子から状態を読み取ろう</b>。世話の<b>お金と手間(コスト)</b>も計算されるので、健康とのバランスも考えよう。合わない環境が続くと、生き物は<b>死んでしまう</b>こともあります。</p>';
-  h+='<div class="b2-note">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
+  h+='<div class="ef-note is-warn">🐟 これは練習用のシミュレーションです。本物の生き物には一つ一つ命があります。ここで学んだことは、実際の飼育や観察のときに生かしましょう。</div>';
   h+='<h2>育てる生き物を選ぼう</h2><div class="b2-species">';
   Object.keys(SP).forEach(function(k){var sp=SP[k],a=arch[k];
     h+='<button type="button" class="b2-sp'+(run&&run.sp===k?' b2-cur':'')+'" data-sp="'+k+'">'+iconSVG(k)+'<b>'+sp.name+'</b><span class="b2-tag">'+(sp.kind==='water'?'水産生物':'陸の動物')+'</span>'+
       (a?'<span class="b2-done">'+(a.dead?'前回は死んでしまった':'30日の記録あり '+starStr(a.star))+'</span>':'')+'<span>'+sp.info+'</span></button>';});
   h+='</div>';
-  if(run)h+='<p class="b2-msg info">いま <b>'+SP[run.sp].name+'</b> を育てています('+run.day+'日目'+(run.dead?'・死んでしまいました':run.done?'・30日やり終えました':'')+')。<button type="button" class="b2-btn b2-pri" id="b2-go-sim" style="margin-left:8px">'+(run.done?'結果を見る':'続きから育てる')+'</button></p>';
+  if(run)h+='<p class="b2-msg info">いま <b>'+SP[run.sp].name+'</b> を育てています('+run.day+'日目'+(run.dead?'・死んでしまいました':run.done?'・30日やり終えました':'')+')。<button type="button" class="ef-btn-primary" id="b2-go-sim" style="margin-left:8px">'+(run.done?'結果を見る':'続きから育てる')+'</button></p>';
   h+='</div>';
-  h+='<div class="b2-card"><h2>使い方</h2>';
+  h+='<div class="ef-box"><h2>使い方</h2>';
   h+='<details open><summary>学習の流れ(約2〜3時間)</summary><ol>'+
     '<li><b>はじめに</b>:育てる生き物を選ぶ。</li>'+
     '<li><b>飼育シミュレーション</b>:温度・えさ・水替えなどを決めて「1日すすめる」。最初の環境には、見直したほうがよい所があります。うまくいかないときは「ヒント」。</li>'+
@@ -1263,9 +1135,9 @@ function renderHome(){
     '<li>メダカの卵を「別の容器に移す」と「移さない」で、稚魚の数をくらべる。</li>'+
     '<li>水替えやそうじの回数を減らすと、コスト(お金と手間)はへるか。健康度はどうなるか。</li></ul></details>';
   h+='<details><summary>保存とデータ</summary><p>入力したことは、このタブレットのブラウザに自動で保存されます(インターネットは使いません)。別の端末に移すときや、先生に提出するときは、下のボタンでファイルに書き出してください。</p>'+
-    '<div class="b2-btns"><button type="button" class="b2-btn" id="b2-exp-all">すべてのデータを書き出す(.json)</button>'+
-    '<label class="b2-btn" for="b2-imp-all" style="cursor:pointer">データを読み込む</label><input type="file" id="b2-imp-all" accept=".json,application/json" hidden>'+
-    '<button type="button" class="b2-btn" id="b2-clear-all">すべて消す</button></div></details>';
+    '<div class="b2-btns"><button type="button" class="ef-btn" id="b2-exp-all">すべてのデータを書き出す(.json)</button>'+
+    '<label class="ef-btn" for="b2-imp-all" style="cursor:pointer">データを読み込む</label><input type="file" id="b2-imp-all" accept=".json,application/json" hidden>'+
+    '<button type="button" class="ef-btn" id="b2-clear-all">すべて消す</button></div></details>';
   h+='</div>';
   el.innerHTML=h;rb(el);
   $$('.b2-sp',el).forEach(function(b){b.addEventListener('click',function(){chooseSpecies(b.dataset.sp)})});
@@ -1309,17 +1181,17 @@ function rangeCtl(name,min,max,step,val,unit,label){
 }
 function renderSim(){
   var el=$('#b2-sec-sim');
-  if(!run){el.innerHTML='<div class="b2-card"><p>まだ育てる生き物が選ばれていません。</p><button type="button" class="b2-btn b2-pri" id="b2-to-home">「はじめに」で生き物を選ぶ</button></div>';$('#b2-to-home',el).addEventListener('click',function(){showTab('home')});simBuiltFor=null;rb(el);return}
+  if(!run){el.innerHTML='<div class="ef-box"><p>まだ育てる生き物が選ばれていません。</p><button type="button" class="ef-btn-primary" id="b2-to-home">「はじめに」で生き物を選ぶ</button></div>';$('#b2-to-home',el).addEventListener('click',function(){showTab('home')});simBuiltFor=null;rb(el);return}
   var sp=SP[run.sp],s=run.set,h='';
   h+='<div class="b2-simbar" id="b2-simbar"><span class="b2-day" id="b2-day"></span><div class="b2-daybar" aria-hidden="true"><i id="b2-daybar"></i></div>'+
-     '<button type="button" class="b2-btn b2-pri" id="b2-step1">1日すすめる</button><button type="button" class="b2-btn" id="b2-step7">7日すすめる</button>'+
-     '<button type="button" class="b2-btn" id="b2-hint">💡 ヒント</button><span class="b2-costchip" id="b2-costchip"></span></div>';
+     '<button type="button" class="ef-btn-primary" id="b2-step1">1日すすめる</button><button type="button" class="ef-btn" id="b2-step7">7日すすめる</button>'+
+     '<button type="button" class="ef-btn" id="b2-hint">💡 ヒント</button><span class="b2-costchip" id="b2-costchip"></span></div>';
   h+='<div id="b2-result"></div><div id="b2-hintbox"></div>';
   h+='<div class="b2-simgrid">';
-  h+='<div class="b2-card b2-g-vis"><h2>'+sp.name+'の様子</h2><div id="b2-vis"></div>';
+  h+='<div class="ef-box b2-g-vis"><h2>'+sp.name+'の様子</h2><div id="b2-vis"></div>';
   h+='<h3 style="margin-top:10px">観察してみよう</h3><div class="b2-look" id="b2-look"></div><ul class="b2-signs" id="b2-signs"></ul></div>';
-  h+='<div class="b2-card b2-g-met"><h2>はかってみよう</h2><div class="b2-meters" id="b2-meters"></div></div>';
-  h+='<div class="b2-card b2-g-set"><h2>環境と世話の設定</h2><p style="font-size:.88em;color:var(--b2-sub)">設定は「1日すすめる」を押したときから毎日続きます。目安:'+sp.rule+'。</p>';
+  h+='<div class="ef-box b2-g-met"><h2>はかってみよう</h2><div class="b2-meters" id="b2-meters"></div></div>';
+  h+='<div class="ef-box b2-g-set"><h2>環境と世話の設定</h2><p style="font-size:.88em;color:var(--ef-muted)">設定は「1日すすめる」を押したときから毎日続きます。目安:'+sp.rule+'。</p>';
   if(sp.kind==='water'){
     h+='<div class="b2-ctl"><div class="b2-ctl-label">水温<small>ヒーター・置き場所で調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/1日2〜3℃ずつ/'+AMB+'℃からはなれるほど電気代がかかる</small></div>'+rangeCtl('temp',4,34,1,s.temp,'℃','水温')+'</div>';
     h+='<div class="b2-ctl"><div class="b2-ctl-label">えさの量<small>'+sp.feedNote+'</small></div>'+seg('feed',FEED_LABEL.map(function(t,i){return [i,t]}),s.feed)+'</div>';
@@ -1328,8 +1200,8 @@ function renderSim(){
     h+='<div class="b2-ctl"><div class="b2-ctl-label">数(飼育密度)<small>'+sp.tankL+'Lの水そう'+(run.lost?'/死んだ分はふやせません':'')+'</small></div>'+rangeCtl('n',1,run.lost?s.n:sp.maxN,1,s.n,'匹','数')+'</div>';
     h+='<div class="b2-ctl"><div class="b2-ctl-label">水替えの習慣<small>くみ置きの水で、1回に3分の1ずつ/1回 約'+yenStr(COST[run.sp].water)+'・'+(run.sp==='kingyo'?30:20)+'分</small></div>'+seg('routine',[['none','しない'],['w2','2週に1回'],['w1','週1回'],['d3','3日に1回']],s.routine)+'</div>';
     if(sp.eggs)h+='<div class="b2-ctl"><div class="b2-ctl-label">産んだ卵を<small>メダカは卵を食べてしまうことがある</small></div>'+seg('move',[[0,'そのままにする'],[1,'別の容器に移す']],s.move)+'</div>';
-    h+='<div class="b2-ctl"><div class="b2-ctl-label">pH調整剤<small>今の水に少しだけ入れる</small></div><div class="b2-act"><button type="button" class="b2-btn" data-act="phm">酸性側へ(−0.2)</button><button type="button" class="b2-btn" data-act="php">アルカリ性側へ(＋0.2)</button></div></div>';
-    h+='<div class="b2-ctl"><div class="b2-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b2-act"><button type="button" class="b2-btn" data-act="w13">くみ置きの水で3分の1かえる</button><button type="button" class="b2-btn" data-act="wall">水を全部かえる</button></div></div>';
+    h+='<div class="b2-ctl"><div class="b2-ctl-label">pH調整剤<small>今の水に少しだけ入れる</small></div><div class="b2-act"><button type="button" class="ef-btn" data-act="phm">酸性側へ(−0.2)</button><button type="button" class="ef-btn" data-act="php">アルカリ性側へ(＋0.2)</button></div></div>';
+    h+='<div class="b2-ctl"><div class="b2-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b2-act"><button type="button" class="ef-btn" data-act="w13">くみ置きの水で3分の1かえる</button><button type="button" class="ef-btn" data-act="wall">水を全部かえる</button></div></div>';
   }else{
     var bird=run.sp!=='rabbit';
     h+='<div class="b2-ctl"><div class="b2-ctl-label">室温<small>保温・換気・日よけで調節/目安 '+sp.temp.min+'〜'+sp.temp.max+'℃/'+AMB+'℃からはなれるほど電気代がかかる</small></div>'+rangeCtl('temp',0,36,1,s.temp,'℃','室温')+'</div>';
@@ -1339,13 +1211,13 @@ function renderSim(){
     h+='<div class="b2-ctl"><div class="b2-ctl-label">床のそうじ<small>フンや汚れた床材をとりかえる/1回 約'+yenStr(COST[run.sp].bed)+'・15分</small></div>'+seg('clean',[['daily','毎日'],['3d','3日に1回'],['weekly','週1回'],['none','しない']],s.clean)+'</div>';
     h+='<div class="b2-ctl"><div class="b2-ctl-label">運動<small>'+(bird?'広い場所で歩かせる':'ケージの外で遊ばせる')+'/少し10分・たっぷり30分(1日)</small></div>'+seg('ex',[[0,'なし'],[1,'少し'],[2,'たっぷり']],s.ex)+'</div>';
     h+='<div class="b2-ctl"><div class="b2-ctl-label">数(飼育密度)'+(run.lost?'<small>死んだ分はふやせません</small>':'')+'</div>'+rangeCtl('n',1,run.lost?s.n:sp.maxN,1,s.n,bird?'羽':'匹','数')+'</div>';
-    h+='<div class="b2-ctl"><div class="b2-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b2-act"><button type="button" class="b2-btn" data-act="water">水をとりかえる</button><button type="button" class="b2-btn" data-act="clean">床をそうじする</button></div></div>';
+    h+='<div class="b2-ctl"><div class="b2-ctl-label">今すぐする<small>1日1回まで</small></div><div class="b2-act"><button type="button" class="ef-btn" data-act="water">水をとりかえる</button><button type="button" class="ef-btn" data-act="clean">床をそうじする</button></div></div>';
   }
   h+='</div></div>';
-  h+='<div class="b2-card" id="b2-cost"></div>';
-  h+='<div class="b2-card"><h2>記録グラフ</h2><div class="b2-legend"><span class="l1">健康度</span><span class="l2">'+(sp.kind==='water'?'水の汚れ':'床の汚れ')+'</span><span class="l3">'+(sp.adult?'体重の良さ':'成長')+'(%)</span></div><canvas id="b2-chart" height="220" aria-label="健康度と汚れと成長のグラフ" role="img"></canvas></div>';
-  h+='<div class="b2-card"><h2>飼育日誌</h2><ul class="b2-log" id="b2-log"></ul>'+
-     '<div class="b2-btns" style="margin-top:12px"><button type="button" class="b2-btn" id="b2-reset">最初からやり直す</button></div></div>';
+  h+='<div class="ef-box" id="b2-cost"></div>';
+  h+='<div class="ef-box"><h2>記録グラフ</h2><div class="b2-legend"><span class="l1">健康度</span><span class="l2">'+(sp.kind==='water'?'水の汚れ':'床の汚れ')+'</span><span class="l3">'+(sp.adult?'体重の良さ':'成長')+'(%)</span></div><canvas id="b2-chart" height="220" aria-label="健康度と汚れと成長のグラフ" role="img"></canvas></div>';
+  h+='<div class="ef-box"><h2>飼育日誌</h2><ul class="b2-log" id="b2-log"></ul>'+
+     '<div class="b2-btns" style="margin-top:12px"><button type="button" class="ef-btn" id="b2-reset">最初からやり直す</button></div></div>';
   el.innerHTML=h;simBuiltFor=run.sp;updateSim._prev=null;
   bindSim(el);updateSim();
 }
@@ -1452,9 +1324,9 @@ function updateSim(flash){
 function costHTML(cp){
   var sp=SP[run.sp],c=run.cost||freshCost(),d=run.day,h='';
   h+='<h2>💰 コスト(お金と手間)</h2>';
-  h+='<p style="font-size:.88em;color:var(--b2-sub)">生き物を育てるには、えさ代や電気代などの<b>お金</b>がかかります。世話をする<b>時間(手間)</b>もかかります。世話の回数や量を変えると、コストも変わります。</p>';
-  h+='<div class="b2-costtop"><div>今の世話を続けると(1日あたり)<br><b>約'+yenStr(cp.yen)+'</b>・'+minStr(cp.min)+'<br><span class="b2-small">30日なら 約'+yenStr(cp.yen*30)+'・'+minStr(cp.min*30)+'</span></div>';
-  h+='<div>これまでの合計('+d+'日間)<br><b>'+yenStr(c.yen)+'</b>・'+minStr(c.min)+'<br><span class="b2-small">1'+(sp.kind==='water'||run.sp==='rabbit'?'匹':'羽')+'あたり 約'+yenStr(c.yen/Math.max(1,run.set.n))+'</span></div></div>';
+  h+='<p style="font-size:.88em;color:var(--ef-muted)">生き物を育てるには、えさ代や電気代などの<b>お金</b>がかかります。世話をする<b>時間(手間)</b>もかかります。世話の回数や量を変えると、コストも変わります。</p>';
+  h+='<div class="b2-costtop"><div>今の世話を続けると(1日あたり)<br><b>約'+yenStr(cp.yen)+'</b>・'+minStr(cp.min)+'<br><span class="ef-small">30日なら 約'+yenStr(cp.yen*30)+'・'+minStr(cp.min*30)+'</span></div>';
+  h+='<div>これまでの合計('+d+'日間)<br><b>'+yenStr(c.yen)+'</b>・'+minStr(c.min)+'<br><span class="ef-small">1'+(sp.kind==='water'||run.sp==='rabbit'?'匹':'羽')+'あたり 約'+yenStr(c.yen/Math.max(1,run.set.n))+'</span></div></div>';
   h+='<div class="b2-tablewrap"><table class="b2-costtbl"><thead><tr><th>項目</th><th>1日の見込み</th><th>これまでの合計</th></tr></thead><tbody>';
   CK.forEach(function(k){
     if(sp.kind==='water'&&(k==='clean'||k==='ex'))return;
@@ -1468,7 +1340,7 @@ function costHTML(cp){
   if(COST[run.sp].eggVal)notes.push('とれた卵の価値(お店で買うとしたら 1個 約'+COST[run.sp].eggVal+'円):約'+yenStr(c.eggVal));
   if(cp.y.elec>=5)notes.push('温度を'+AMB+'℃から大きく変えているので、電気代が多めです');
   if(notes.length)h+='<ul class="b2-signs">'+notes.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>';
-  h+='<p class="b2-small">金額は学習用のおおよその目安です。まわりの温度を'+AMB+'℃として、ヒーター・冷房などの電気代を計算しています。水そう・小屋・道具の代金は入れていません。</p>';
+  h+='<p class="ef-small">金額は学習用のおおよその目安です。まわりの温度を'+AMB+'℃として、ヒーター・冷房などの電気代を計算しています。水そう・小屋・道具の代金は入れていません。</p>';
   return h;
 }
 function showHint(){
@@ -1536,7 +1408,7 @@ function costJudge(r){
 }
 function resultHTML(){
   var r=summary(run),sp=r.sp,star=r.star,h='';
-  h+='<div class="b2-card b2-result"><h2>'+(r.dead?'飼育の結果('+r.deadDay+'日目に死んでしまいました)':'30日間の飼育の結果')+'</h2>'+(r.dead?'<div class="b2-msg warn">🕊 世話の条件が合わない状態が続き、'+sp.name+'が死んでしまいました。下の「おもな原因」を読もう。グラフで健康度が下がり始めた日を確かめ、どうすれば防げたかを考えよう。</div>':'')+'<div class="b2-stars" aria-label="星'+star+'つ">'+'★★★'.slice(0,star)+'<span style="color:#ccc">'+'★★★'.slice(star)+'</span></div>';
+  h+='<div class="ef-box b2-result"><h2>'+(r.dead?'飼育の結果('+r.deadDay+'日目に死んでしまいました)':'30日間の飼育の結果')+'</h2>'+(r.dead?'<div class="b2-msg warn">🕊 世話の条件が合わない状態が続き、'+sp.name+'が死んでしまいました。下の「おもな原因」を読もう。グラフで健康度が下がり始めた日を確かめ、どうすれば防げたかを考えよう。</div>':'')+'<div class="b2-stars" aria-label="星'+star+'つ">'+'★★★'.slice(0,star)+'<span class="b2-star-off">'+'★★★'.slice(star)+'</span></div>';
   if(!r.dead&&r.lost)h+='<p class="b2-msg warn">30日のあいだに '+r.lost+unitOf(run.sp)+'が死んでしまいました(残り '+r.n+unitOf(run.sp)+')。</p>';
   h+='<ul><li>健康度の平均:<b>'+Math.round(r.avg)+'</b>(最後の日 '+Math.round(r.final)+'・いちばん低い日 '+Math.round(r.min)+')</li>';
   h+='<li>'+sp.size.label+':'+sp.size.start+sp.size.unit+' → <b>'+(sp.size.dec?r.size.toFixed(sp.size.dec):Math.round(r.size))+sp.size.unit+'</b></li>';
@@ -1548,17 +1420,17 @@ function resultHTML(){
   h+=costJudge(r);
   if(r.causes.length)h+='<div class="b2-cause"><b>'+(r.dead||r.lost?'命を落とすことにつながったおもな原因':'健康度を下げたおもな原因')+'</b><ol>'+r.causes.map(function(k){return '<li><b>'+HINT_S[k]+'</b>'+(r.penDays[k]?'('+(r.dead?r.deadDay:30)+'日のうち '+r.penDays[k]+'日)':'')+':'+HINT[k]+'</li>'}).join('')+'</ol></div>';
   else h+='<div class="b2-msg info">健康度を大きく下げた原因はありませんでした。</div>';
-  h+='<p class="b2-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
+  h+='<p class="ef-small">★3:平均85以上・最後の日80以上・いちばん低い日60以上/★2:平均60以上・最後の日45以上</p>';
   if(!r.dead)h+='<p>'+(star===3?'生き物に合った環境を保てました。どの条件が大切だったかを振り返ろう。':star===2?'おおむね育てられましたが、弱った時期がありました。上の原因と、健康度が下がった日に何があったかを、グラフと日誌で確かめよう。':'うまくいかない時期が長く続きました。本物の生き物なら、命を落としていたかもしれません。グラフで健康度が下がり始めた日を探し、その原因を考えてみよう。')+'</p>';
   h+='<div class="b2-story"><h3>📝 結果のまとめ</h3>'+storyOf(run).map(function(x){return '<p>'+x+'</p>'}).join('')+'</div>';
-  h+='<div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-to-refl" data-ef-reflect>振り返りを書く</button><button type="button" class="b2-btn" id="b2-to-plan">飼育計画書をつくる</button><button type="button" class="b2-btn" id="b2-again">条件を変えてもう一度</button></div></div>';
+  h+='<div class="b2-btns"><button type="button" class="ef-btn-primary" id="b2-to-refl" data-ef-reflect>振り返りを書く</button><button type="button" class="ef-btn" id="b2-to-plan">飼育計画書をつくる</button><button type="button" class="ef-btn" id="b2-again">条件を変えてもう一度</button></div></div>';
   return h;
 }
 function drawChart(){
   var cv=$('#b2-chart');if(!cv||!run||cv.offsetParent===null)return;
   var dpr=window.devicePixelRatio||1,w=cv.clientWidth,hh=cv.clientHeight||220;
   cv.width=w*dpr;cv.height=hh*dpr;var c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,hh);
-  var fpx=Math.round((settings.fs||18)*0.75);
+  var fpx=Math.round(EduitFrame.prefs.get('fs')*0.8);
   c.font=fpx+'px sans-serif';
   var L=Math.ceil(c.measureText('100').width)+10,Rr=20,T=10,B=fpx+12,pw=w-L-Rr,ph=hh-T-B;
   c.fillStyle='#4d5e4f';c.strokeStyle='#dbe4d8';c.lineWidth=1;c.textAlign='right';
@@ -1652,10 +1524,10 @@ function validQuiz(q){ // 途中の記録の形を確かめる
   return q;
 }
 function renderQuizMenu(){
-  var el=$('#b2-sec-quiz'),qd=quizStore(),now=validQuiz(qd._now),h='<div class="b2-card"><h1>診断クイズ</h1><p>生き物の「様子」をよく見て、原因と対策を考えよう。答えると解説が出ます。</p><div class="b2-qcat">';
+  var el=$('#b2-sec-quiz'),qd=quizStore(),now=validQuiz(qd._now),h='<div class="ef-box"><h1>診断クイズ</h1><p>生き物の「様子」をよく見て、原因と対策を考えよう。答えると解説が出ます。</p><div class="b2-qcat">';
   Object.keys(QUIZ).forEach(function(k){var Q=QUIZ[k],best=isObj(qd[k])?qd[k]:null;
     h+='<div><button type="button" class="b2-qbtn" data-q="'+k+'"><b>'+Q.title+'</b><span>'+Q.desc+'(全'+Q.qs.length+'問)</span><br><span>'+(best?'これまでの最高:'+best.best+' / '+Q.qs.length+' 問正解':'まだ挑戦していません')+'</span></button>';
-    if(now&&now.cat===k)h+='<button type="button" class="b2-btn b2-pri" data-resume="'+k+'">続きから('+(now.i+1)+'問目)</button>';
+    if(now&&now.cat===k)h+='<button type="button" class="ef-btn-primary" data-resume="'+k+'">続きから('+(now.i+1)+'問目)</button>';
     h+='</div>';});
   h+='</div></div>';el.innerHTML=h;rb(el);
   $$('[data-q]',el).forEach(function(b){b.addEventListener('click',function(){startQuiz(b.dataset.q)})});
@@ -1667,7 +1539,7 @@ function startQuiz(cat){
 function renderQuestion(){
   var el=$('#b2-sec-quiz'),Q=QUIZ[quiz.cat],qi=quiz.order[quiz.i],q=Q.qs[qi],h='';
   if(!quiz.opt){quiz.opt=shuffle(q.c.map(function(_,i){return i}));quiz.ans=null;saveQuizNow();}
-  h+='<div class="b2-card"><div class="b2-simbar"><b>'+Q.title+'</b><span>'+(quiz.i+1)+' / '+Q.qs.length+' 問目</span><span>正解 '+quiz.score+'</span><button type="button" class="b2-btn" id="b2-qback">やめる(続きはあとで)</button></div>';
+  h+='<div class="ef-box"><div class="b2-simbar"><b>'+Q.title+'</b><span>'+(quiz.i+1)+' / '+Q.qs.length+' 問目</span><span>正解 '+quiz.score+'</span><button type="button" class="ef-btn" id="b2-qback">やめる(続きはあとで)</button></div>';
   if(q.v){var v=q.v,sp=SP[v.sp],full={sp:v.sp,n:v.n,dirt:v.dirt,air:v.air||0,plants:v.plants||0,left:v.left||0,temp:v.temp,water:v.water==null?80:v.water,fry:v.fry||0,vivid:v.vivid,sizeRate:.6,speed:v.speed,pose:v.pose||'mid',hot:!!v.hot,cold:!!v.cold,aria:q.look.join('。')};
     h+='<div class="b2-qscene"><div>'+visSVG(full)+'</div><div><h3>'+sp.name+'の様子</h3><ul class="b2-signs">'+q.look.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div></div>';}
   h+='<h2 style="margin-top:10px">'+q.q+'</h2><div class="b2-choices">'+quiz.opt.map(function(i,k){return '<button type="button" data-i="'+i+'">'+'ABCD'[k]+'. '+q.c[i]+'</button>'}).join('')+'</div><div id="b2-qexp"></div></div>';
@@ -1677,7 +1549,7 @@ function renderQuestion(){
     var ok=chosen===q.a;
     $$('.b2-choices button',el).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a){x.classList.add('b2-right');x.insertAdjacentHTML('beforeend',' ○ 正解')}else if(+x.dataset.i===chosen){x.classList.add('b2-wrong');x.insertAdjacentHTML('beforeend',' ×')}});
     var ex=$('#b2-qexp',el);
-    ex.innerHTML='<div class="b2-explain"><b>'+(ok?'○ 正解!':'× ざんねん')+'</b><br>'+q.e+'</div><div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-qnext">'+(quiz.i+1<Q.qs.length?'次の問題へ':'結果を見る')+'</button></div>';
+    ex.innerHTML='<div class="b2-explain"><b>'+(ok?'○ 正解!':'× ざんねん')+'</b><br>'+q.e+'</div><div class="b2-btns"><button type="button" class="ef-btn-primary" id="b2-qnext">'+(quiz.i+1<Q.qs.length?'次の問題へ':'結果を見る')+'</button></div>';
     rb(el);
     $('#b2-qnext',el).addEventListener('click',function(){quiz.i++;quiz.opt=null;quiz.ans=null;if(quiz.i<Q.qs.length){saveQuizNow();renderQuestion();window.scrollTo(0,0)}else quizEnd()});
     try{$('#b2-qnext',el).focus({preventScroll:true})}catch(e){}
@@ -1694,10 +1566,10 @@ function renderQuestion(){
 function quizEnd(){
   var el=$('#b2-sec-quiz'),Q=QUIZ[quiz.cat],qd=quizStore(),prev=isObj(qd[quiz.cat])?qd[quiz.cat]:{best:0,tries:0};
   qd[quiz.cat]={best:Math.max(prev.best||0,quiz.score),last:quiz.score,tries:(prev.tries||0)+1,date:today()};delete qd._now;store.set('quiz',qd);
-  var h='<div class="b2-card b2-result"><h2>'+Q.title+' の結果</h2><p style="font-size:1.3em"><b>'+quiz.score+' / '+Q.qs.length+'</b> 問正解</p>';
+  var h='<div class="ef-box b2-result"><h2>'+Q.title+' の結果</h2><p style="font-size:1.3em"><b>'+quiz.score+' / '+Q.qs.length+'</b> 問正解</p>';
   if(quiz.miss.length){h+='<h3>まちがえた問題の確認</h3><ul class="b2-miss">'+quiz.miss.map(function(i){var q=Q.qs[i];return '<li><b>'+q.q+'</b><br>答え:'+q.c[q.a]+'<details><summary>解説を読む</summary><p>'+q.e+'</p></details></li>'}).join('')+'</ul>'}
   else h+='<p>全問正解です!</p>';
-  h+='<div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-qagain">もう一度</button><button type="button" class="b2-btn" id="b2-qmenu">ほかのクイズへ</button></div></div>';
+  h+='<div class="b2-btns"><button type="button" class="ef-btn-primary" id="b2-qagain">もう一度</button><button type="button" class="ef-btn" id="b2-qmenu">ほかのクイズへ</button></div></div>';
   el.innerHTML=h;rb(el);window.scrollTo(0,0);
   var cat=quiz.cat;quiz=null;
   $('#b2-qagain',el).addEventListener('click',function(){startQuiz(cat)});
@@ -1752,29 +1624,29 @@ function simPlanValues(){
 }
 function renderPlan(){
   var p=getPlan(),el=$('#b2-sec-plan'),h='';
-  h+='<div class="b2-card"><h1>飼育計画書</h1><p>実際に飼育(または観察)するときの計画を立てよう。入力すると自動で保存されます。</p>'+whoHTML('b2-pl');
-  h+='<div class="b2-btns b2-noprint"><button type="button" class="b2-btn" id="b2-pl-sim">シミュレーションの設定を書きこむ</button><button type="button" class="b2-btn" id="b2-pl-txt">テキストで書き出す(.txt)</button><button type="button" class="b2-btn" id="b2-pl-print">印刷する</button></div><div class="b2-saved b2-noprint" id="b2-pl-saved">'+savedLabel(p.saved)+'</div></div>';
-  h+='<div class="b2-card"><h2>1 飼う生き物と場所</h2><div class="b2-row">';
+  h+='<div class="ef-box"><h1>飼育計画書</h1><p>実際に飼育(または観察)するときの計画を立てよう。入力すると自動で保存されます。</p>'+whoHTML('b2-pl');
+  h+='<div class="b2-btns b2-noprint"><button type="button" class="ef-btn" id="b2-pl-sim">シミュレーションの設定を書きこむ</button><button type="button" class="ef-btn" id="b2-pl-txt">テキストで書き出す(.txt)</button><button type="button" class="ef-btn" id="b2-pl-print">印刷する</button></div><div class="b2-saved b2-noprint" id="b2-pl-saved">'+savedLabel(p.saved)+'</div></div>';
+  h+='<div class="ef-box"><h2>1 飼う生き物と場所</h2><div class="b2-row">';
   h+='<div><label class="b2-f" for="b2-pl-sp">飼う生き物</label><select id="b2-pl-sp" data-p="sp"><option value="">えらぶ</option>'+Object.keys(SP).map(function(k){return '<option value="'+k+'"'+(p.sp===k?' selected':'')+'>'+SP[k].name+'</option>'}).join('')+'<option value="other"'+(p.sp==='other'?' selected':'')+'>その他</option></select></div>';
   h+='<div><label class="b2-f" for="b2-pl-other">その他の場合の名前</label><input type="text" id="b2-pl-other" data-p="other" value="'+esc(p.other)+'"></div>';
   h+='<div><label class="b2-f" for="b2-pl-num">数</label><input type="text" id="b2-pl-num" data-p="num" value="'+esc(p.num)+'" placeholder="例:10匹"></div></div><div class="b2-row">';
   h+='<div><label class="b2-f" for="b2-pl-place">飼う場所</label><input type="text" id="b2-pl-place" data-p="place" value="'+esc(p.place)+'" placeholder="例:理科室のまど際(直射日光が当たらない)"></div>';
   h+='<div><label class="b2-f" for="b2-pl-size">容器・飼育スペースの大きさ</label><input type="text" id="b2-pl-size" data-p="size" value="'+esc(p.size)+'" placeholder="例:30Lの水そう"></div></div></div>';
-  h+='<div class="b2-card"><h2>2 えさやりの計画</h2><div class="b2-row"><div><label class="b2-f" for="b2-pl-food">えさの種類</label><input type="text" id="b2-pl-food" data-p="food" value="'+esc(p.food)+'" placeholder="例:メダカ用の粉えさ"></div>';
+  h+='<div class="ef-box"><h2>2 えさやりの計画</h2><div class="b2-row"><div><label class="b2-f" for="b2-pl-food">えさの種類</label><input type="text" id="b2-pl-food" data-p="food" value="'+esc(p.food)+'" placeholder="例:メダカ用の粉えさ"></div>';
   h+='<div><label class="b2-f" for="b2-pl-amount">1回の量</label><input type="text" id="b2-pl-amount" data-p="amount" value="'+esc(p.amount)+'" placeholder="例:2〜3分で食べきる量"></div></div>';
   h+='<p style="margin-top:10px;font-weight:700">えさをあげる日と時間(チェックしよう)</p><table class="b2-week"><tr><th></th>'+DAYS.map(function(d){return '<th>'+d+'</th>'}).join('')+'</tr>';
   ['朝','昼','夕'].forEach(function(t){h+='<tr><th>'+t+'</th>'+DAYS.map(function(d){var k=d+t;return '<td><label class="b2-chk"><input type="checkbox" data-feed="'+k+'"'+(p.feed[k]?' checked':'')+' aria-label="'+d+'曜日 '+t+'"></label></td>'}).join('')+'</tr>'});
   h+='</table></div>';
-  h+='<div class="b2-card"><h2>3 水替え・そうじの計画</h2><label class="b2-f" for="b2-pl-water">どのくらいの間隔で?</label><select id="b2-pl-water" data-p="water">'+['','毎日','2〜3日に1回','週1回','2週に1回'].map(function(o){return '<option'+(p.water===o?' selected':'')+' value="'+o+'">'+(o||'えらぶ')+'</option>'}).join('')+'</select>';
+  h+='<div class="ef-box"><h2>3 水替え・そうじの計画</h2><label class="b2-f" for="b2-pl-water">どのくらいの間隔で?</label><select id="b2-pl-water" data-p="water">'+['','毎日','2〜3日に1回','週1回','2週に1回'].map(function(o){return '<option'+(p.water===o?' selected':'')+' value="'+o+'">'+(o||'えらぶ')+'</option>'}).join('')+'</select>';
   h+='<label class="b2-f" for="b2-pl-waterHow">やり方・気をつけること</label><textarea id="b2-pl-waterHow" data-p="waterHow" placeholder="例:くみ置きした水で、3分の1ずつかえる。水温を合わせる。">'+esc(p.waterHow)+'</textarea></div>';
-  h+='<div class="b2-card"><h2>4 毎日の観察ポイント</h2><div class="b2-checks">'+OBS.map(function(o,i){return '<label><input type="checkbox" data-obs="'+i+'"'+(p.obs[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div>';
+  h+='<div class="ef-box"><h2>4 毎日の観察ポイント</h2><div class="b2-checks">'+OBS.map(function(o,i){return '<label><input type="checkbox" data-obs="'+i+'"'+(p.obs[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div>';
   h+='<label class="b2-f" for="b2-pl-obsOther">その他に観察すること</label><input type="text" id="b2-pl-obsOther" data-p="obsOther" value="'+esc(p.obsOther)+'"></div>';
-  h+='<div class="b2-card"><h2>5 衛生と安全</h2><div class="b2-checks">'+HYG.map(function(o,i){return '<label><input type="checkbox" data-hyg="'+i+'"'+(p.hyg[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div></div>';
-  h+='<div class="b2-card"><h2>6 休日・長期休みの世話</h2><textarea data-p="holiday" aria-label="休日・長期休みの世話" placeholder="例:土日は自動給餌器を使う。夏休みは当番を決める。">'+esc(p.holiday)+'</textarea></div>';
-  h+='<div class="b2-card"><h2>7 費用と手間の見つもり</h2><div class="b2-row"><div><label class="b2-f" for="b2-pl-costMonth">1か月にかかるお金</label><input type="text" id="b2-pl-costMonth" data-p="costMonth" value="'+esc(p.costMonth)+'" placeholder="例:約600円(えさ代・電気代など)"></div>';
+  h+='<div class="ef-box"><h2>5 衛生と安全</h2><div class="b2-checks">'+HYG.map(function(o,i){return '<label><input type="checkbox" data-hyg="'+i+'"'+(p.hyg[i]?' checked':'')+'><span>'+o+'</span></label>'}).join('')+'</div></div>';
+  h+='<div class="ef-box"><h2>6 休日・長期休みの世話</h2><textarea data-p="holiday" aria-label="休日・長期休みの世話" placeholder="例:土日は自動給餌器を使う。夏休みは当番を決める。">'+esc(p.holiday)+'</textarea></div>';
+  h+='<div class="ef-box"><h2>7 費用と手間の見つもり</h2><div class="b2-row"><div><label class="b2-f" for="b2-pl-costMonth">1か月にかかるお金</label><input type="text" id="b2-pl-costMonth" data-p="costMonth" value="'+esc(p.costMonth)+'" placeholder="例:約600円(えさ代・電気代など)"></div>';
   h+='<div><label class="b2-f" for="b2-pl-timeWeek">1週間の世話の時間</label><input type="text" id="b2-pl-timeWeek" data-p="timeWeek" value="'+esc(p.timeWeek)+'" placeholder="例:約1時間30分"></div></div>';
   h+='<label class="b2-f" for="b2-pl-costIdea">健康を保ちながら、お金や手間をへらすくふう</label><textarea id="b2-pl-costIdea" data-p="costIdea" placeholder="例:えさは食べきる量にして、むだをなくす。水替えは週1回にして、当番で分担する。">'+esc(p.costIdea)+'</textarea></div>';
-  h+='<div class="b2-card"><h2>8 命と生態系への配慮</h2><textarea data-p="future" aria-label="命と生態系への配慮" placeholder="例:最後まで責任をもって飼う。飼えなくなったら、川には放さず、飼ってくれる人をさがす。">'+esc(p.future)+'</textarea></div>';
+  h+='<div class="ef-box"><h2>8 命と生態系への配慮</h2><textarea data-p="future" aria-label="命と生態系への配慮" placeholder="例:最後まで責任をもって飼う。飼えなくなったら、川には放さず、飼ってくれる人をさがす。">'+esc(p.future)+'</textarea></div>';
   el.innerHTML=h;rb(el);printSync(el);
   function save(){p.date=today();p.saved=nowStamp();var ok=store.set('plan',p);$('#b2-pl-saved',el).textContent=ok?savedLabel(p.saved):'保存できませんでした';}
   bindWho(el,function(){$('#b2-pl-saved',el).textContent=savedLabel(getRefl().saved)});
@@ -1822,14 +1694,14 @@ var EV=[
 var EVL=['◎ よくできた','○ できた','△ もう少し'];
 function renderRefl(){
   var d=getRefl(),el=$('#b2-sec-refl'),h='';
-  h+='<div class="b2-card"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>'+whoHTML('b2-r')+'</div>';
-  h+='<div class="b2-card"><h2>学習の記録(自動)</h2><div class="b2-summary-box" id="b2-r-auto">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
-  h+='<div class="b2-card"><h2>ふり返りを書こう</h2>';
+  h+='<div class="ef-box"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>'+whoHTML('b2-r')+'</div>';
+  h+='<div class="ef-box"><h2>学習の記録(自動)</h2><div class="b2-summary-box" id="b2-r-auto">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
+  h+='<div class="ef-box"><h2>ふり返りを書こう</h2>';
   RQ.forEach(function(q,i){h+='<label class="b2-f" for="b2-r-'+q.k+'">'+(i+1)+'. '+q.t+'</label><textarea id="b2-r-'+q.k+'" data-r="'+q.k+'" placeholder="'+esc(q.ph)+'">'+esc(d[q.k]||'')+'</textarea>'});
-  h+='</div><div class="b2-card"><h2>自己評価</h2><div class="b2-eval">';
+  h+='</div><div class="ef-box"><h2>自己評価</h2><div class="b2-eval">';
   EV.forEach(function(e){h+='<div class="b2-eval-row"><div>'+e.t+'</div><div class="b2-seg" data-ev="'+e.k+'" role="group" aria-label="'+esc(e.t)+'">'+EVL.map(function(l,i){return '<button type="button" data-v="'+i+'" aria-pressed="'+(d.ev[e.k]===i?'true':'false')+'">'+l+'</button>'}).join('')+'</div></div>'});
   h+='</div></div>';
-  h+='<div class="b2-card b2-noprint"><div class="b2-btns"><button type="button" class="b2-btn b2-pri" id="b2-r-txt">テキストで書き出す(.txt)</button><button type="button" class="b2-btn" id="b2-r-copy">コピーする</button><button type="button" class="b2-btn" id="b2-r-print">印刷する</button><button type="button" class="b2-btn" id="b2-r-json">データで書き出す(.json)</button></div><div class="b2-saved" id="b2-r-saved">'+savedLabel(d.saved)+'</div></div>';
+  h+='<div class="ef-box b2-noprint"><div class="b2-btns"><button type="button" class="ef-btn-primary" id="b2-r-txt">テキストで書き出す(.txt)</button><button type="button" class="ef-btn" id="b2-r-copy">コピーする</button><button type="button" class="ef-btn" id="b2-r-print">印刷する</button><button type="button" class="ef-btn" id="b2-r-json">データで書き出す(.json)</button></div><div class="b2-saved" id="b2-r-saved">'+savedLabel(d.saved)+'</div></div>';
   el.innerHTML=h;rb(el);printSync(el);
   function save(){var ok=saveRefl();$('#b2-r-saved',el).textContent=ok?savedLabel(d.saved):'保存できませんでした'}
   bindWho(el,function(){$('#b2-r-saved',el).textContent=savedLabel(d.saved)});

@@ -12,7 +12,8 @@
             (ON の印の下線 box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 … は影ではないのでよい)
   font      font-family を書いている(--ef-font・--ef-mono を使う)
   important !important(display の !important は、隠す・印刷で出す切りかえなのでよい)
-  oldvar    --ef- と --fig- 以外の名前の変数を使っている(--ink・--b1-ink など分野ごとの古い名前)
+  oldvar    --ef-・--fig-・--app- 以外の名前の変数を使っている(--ink・--b1-ink など分野ごとの古い名前)
+            (--app-… は、JS がはかった高さなど教材の中だけの寸法。色は入れない)
   fontpx    文字の大きさを px で書いている(rem・em なら文字の大きさのボタンで大きくなる)
             (図の中の字(SVG の text。同じ行に fill・stroke・text-anchor を書いている所)は、図の大きさに合わせるので px でよい)
 
@@ -82,7 +83,7 @@ def problems(prop, value, line):
     if p in ('font-size', 'font') and re.search(r'\d(\.\d+)?px', v) and not SVG_TEXT.search(line):
         out.append('fontpx')
     for name in VAR_USE.findall(v):
-        if not (name.startswith('ef-') or name.startswith('fig-')):
+        if not name.startswith(('ef-', 'fig-', 'app-')):
             out.append('oldvar')
             break
     return out

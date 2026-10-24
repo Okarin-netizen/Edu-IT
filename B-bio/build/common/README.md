@@ -1,26 +1,27 @@
 # 共通部品(B1〜B6・メニュー用)
 
-各教材の **kzConfirm の `<script>` のすぐ後ろ** に、下のファイルの中身をそのまま貼る(順番: kz-prefs → kz-ruby → kz-print)。
+各教材の **kzConfirm の `<script>` のすぐ後ろ** に、下のファイルの中身をそのまま貼る(順番: kz-embed → kz-ruby → kz-print)。
 どれも ES5・外部通信なし・file:// で動く。2回入れても害はない。くわしい API は各ファイルの先頭のコメントにある。
 
 | ファイル | グローバル | すること |
 |---|---|---|
-| kz-prefs.html | `kzPrefs` | ふりがな・文字の大きさの共通設定(K1)。`hub_ruby`('1'/'0')・`hub_fs`(14〜26、2きざみ、初期18)。`get()` `set({ruby,fs})` `on(fn)` `clampFs(n)` `bump(±1)` `bind(rubyBtn,decBtn,incBtn)` `embed`。iframe の中なら `<html class="kz-embed">` を付ける。ほかの画面の変更は storage イベント(予備に postMessage)で届く |
+| kz-embed.html | — | 教材集(メニュー)の iframe の中なら `<html class="kz-embed">` を付ける(K3)。site/build.py が中の `embed = window.self !== window.top;` を書きかえるので、この書き方を変えない |
 | kz-ruby.html | `kzRuby` | 用語辞書(301語)で自動ルビ(K8)。`kzRuby(root, {skip})` は描画のたびによんでよい(二重にならない)。`kzRuby.str(html)` は文字列版、`kzRuby.plain(html)` はテキスト書き出し用にルビとタグを取る。`kzRuby.add([[語,よみ]])` で教材だけの語を追加 |
 | kz-print.html | `kzPrintText` | 印刷で textarea の文章を切らない(K5)。描画のあとに `kzPrintText(root)`、JS で値を変えたら `kzPrintText.sync()` |
 | kz-ruby-dict.json | — | 辞書と同じ内容。B1 は自分の RUBY の読みをこれにそろえる(「分げつ」は `[['分','ぶん'],'げつ']`) |
 | dict-src.txt / build-dict.js | — | 辞書の元。`node build-dict.js` で json と kz-ruby.html の辞書を作り直す |
 
-## 設定の使い方(K1)
-- 起動時: `p=kzPrefs.get()`。`p.ruby`/`p.fs` が null のときだけ、その教材の古い設定(b1_ruby / b2_settings / b3_state_v1.set / b4_store.settings)を使う。
-- 切りかえたら `kzPrefs.set(...)`(古い設定にも書いてよい)。`kzPrefs.on(apply)` でほかの画面の変更を反映する。
-- 文字の大きさは px の整数(14〜26)。B4 の「big」は 22 として読みかえる。
+## 表示の設定(ふりがな・文字の大きさ・くっきり)
+- 4分野で共通の `EduitFrame.prefs`(shared/eduit-frame.js)を使う。覚える場所は `localStorage['eduit.prefs']` の1つで、どの教材で変えても全教材に効く(2026-10 段4 で kzPrefs・hub_ruby・hub_fs をやめた)。
+- 見出しのボタンは `<button type="button" data-ef-pref="ruby">ふりがな</button>`・`data-ef-pref="fs"`・`data-ef-pref="kukkiri"` を置いて `EduitFrame.prefs.mount()` を呼ぶだけ。ON の形・文字の大きさ(小・中・大・特大 = 15・17・20・24px)は共通。
+- ふりがなを隠す(`<html data-ef-ruby="off">` で rt を消す)と `<html>` の字の大きさは eduit-frame がする。教材の字は rem・em で書く。
+- 大きさが変わったときにグラフをかき直すなどは `EduitFrame.prefs.on(function (key, value) {…})`。
 
-## K2 見出しのボタン(単体で開いたとき)
-- 見出し(タイトル)の右に、この順で3つ:「ふりがな」「A−」「A＋」。文字は全角の「−」「＋」。
-- どれも高さ・幅 44px 以上、角丸、同じ形。
-- 「ふりがな」は `aria-pressed="true|false"`。オンのときは **白い塗り**(文字は濃い緑)、オフは枠だけ。
-- 「A−」は 14px で、「A＋」は 26px で `disabled`(うすく表示)。`kzPrefs.bind()` を使うと自動でこうなる。
+## 見た目(段4 でそろえた)
+- 色は共通の `--ef-…`、図の色は教材の `<style>` のいちばん上の `:root` に `--fig-…` で書く。JS がはかった高さなどは `--app-…`。
+- 箱は `.ef-box`、注意は `.ef-note.is-warn / .is-ok / .is-ng / .is-info`、ラベルは `.ef-tag`、ボタンは `.ef-btn`(小さいのは `.is-s`、消すのは `.is-danger`)、いちばん大事な操作は `.ef-btn-primary`(黒)。
+- 切りかえの ON はぬらずに、下に分野の色の線(`box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)`)。
+- `python3 shared/style-check.py B-bio` が 0 件であること。
 
 ## K3 メニューの中(`html.kz-embed`)
 - 教材の大きな見出し行と、ふりがな・A−・A＋ のボタンを隠す(メニューの上の帯に同じボタンがある)。
@@ -28,13 +29,10 @@
 - タブの帯はそのまま、いちばん上に来る。
 
 ## K4 タブの見た目
-- タブの帯の背景 `#1b5e20`。選ばれていないタブは、背景なし(透明)・文字 `#e3f1e4`・太字。
-- 選ばれているタブは、背景 = ページの地色 `#f4f7f1`、文字 `#1b5e20`、上の角を 12px の角丸。
-- タブの高さ 52px 以上。
-- B1〜B3 は、学ぶ中身のタブに「① そだてる」のように丸数字＋名前(基本編のタブ → 発展編のタブの順。「はじめに」「振り返り」は番号なしで、振り返りはいつも最後)。B4 は絵文字アイコン＋名前(番号なし)。
-- 文字を大きくしても、タブは折り返すか短い名前にする。横スクロールでかくさない。
+- 4分野共通の `.ef-apptabs`・`.ef-apptab`(字＋下線)。B1〜B3 は学ぶ中身のタブに「① そだてる」のように丸数字＋名前。
 
 ## K6 確認ダイアログ
+- 見た目(`.kzd-…`)は B1〜B6・メニューに同じものが入っている。色・字は共通の `--ef-…`。直すときは7か所とも同じに直す。
 - 消える操作はすべて `kzConfirm(文, {ok:'消す', danger:true})`。文に「何が消えるか」を書く。confirm/alert/prompt は使わない。
 
 ## K7 振り返りの形

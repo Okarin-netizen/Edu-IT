@@ -15,54 +15,50 @@ html,body{margin:0;padding:0;height:100%;}
 body{background:var(--ef-bg);}
 #hub{
   /* 共通の枠(eduit-frame.css)の色にそろえる */
-  --bg:var(--ef-bg); --card:var(--ef-surface); --ink:var(--ef-text); --sub:var(--ef-muted); --line:var(--ef-line);
-  --pri:var(--ef-accent); --pri-d:#1b5e20; --pri-l:var(--ef-accent-soft); --warn:#a85b00; --warn-l:#fff4e0; --bad:#b3261e; --bad-l:#fdeceb;
-  --bar:56px;
+  --app-bar:56px;
   font-family:var(--ef-font);
-  font-size:18px; line-height:1.65; color:var(--ink); background:var(--bg);
-  min-height:100%; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.15);
+  font-size:1rem; line-height:1.65; color:var(--ef-text); background:var(--ef-bg);
+  min-height:100%; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:transparent;
 }
 #hub *{box-sizing:border-box;}
-#hub button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;}
+:where(#hub button){font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;}  /* :where で強さを0にし、共通の部品の字の形・色に負けるようにする */
 #hub :focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
-#hub rt{font-size:.5em;color:var(--sub);}
-#hub.noruby rt{display:none;}
-#hub .bar rt{color:var(--sub);}
+#hub rt{font-size:.5em;color:var(--ef-muted);}
+#hub .bar rt{color:var(--ef-muted);}
 /* top bar(共通の枠 .ef-header: 白地・下に分野の色の線) */
-#hub .bar{position:fixed;top:0;left:0;right:0;height:var(--bar);z-index:50;flex-wrap:nowrap;gap:8px;
+#hub .bar{position:fixed;top:0;left:0;right:0;height:var(--app-bar);z-index:50;flex-wrap:nowrap;gap:8px;
   padding:0 10px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));
   box-shadow:none;}
-#hub .bar .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text);min-height:40px;}
+/* 上のバーの字の大きさ・ボタンの高さは共通の .ef-header・.ef-appbar(shared/eduit-frame.css)のまま */
 #hub .bar .ef-btn:disabled{opacity:.4;cursor:default;}
 #hub .bar .home[aria-current="page"]{display:none;}
-/* 教材を開いたとき(.in-app)は4分野共通の .ef-appbar(shared/eduit-frame.css)の形。B1〜B6 の切りかえ(.ef-switch)・全画面・ⓘ は教材のときだけ、使い方・先生用はメニューのときだけ */
-#hub:not(.in-app) .bar .sw,#hub:not(.in-app) .bar .inapp,#hub.in-app .bar .use,#hub.in-app .bar .tch{display:none;}
+/* 教材を開いたとき(.in-app)は4分野共通の .ef-appbar(shared/eduit-frame.css)の形。B1〜B6 の切りかえ(.ef-switch)・全画面・ⓘ・くっきり は教材のときだけ(メニューの見出しは A と同じ)、使い方・先生用はメニューのときだけ */
+#hub:not(.in-app) .bar .sw,#hub:not(.in-app) .bar .inapp,#hub:not(.in-app) .bar [data-ef-pref="kukkiri"],#hub.in-app .bar .use,#hub.in-app .bar .tch{display:none;}
 #hub.in-app .bar{padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right));}
 #hub.in-app .bar .ef-btn{min-height:42px;padding:0 12px;}
-#hub.in-app .bar .ttl{flex:none;font-size:17px;}
+#hub.in-app .bar .ttl{flex:none;}
 @media (min-width:641px) and (max-width:1440px){#hub.in-app .bar .ttl{display:none;}}
-#hub .bar .ttl{display:block;flex:1 1 auto;min-width:0;margin:0;font-size:18px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#hub .bar .ttl{display:block;flex:1 1 auto;min-width:0;margin:0;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #hub .bar .ttl .ef-code{margin-right:6px;}
 #hub .bar .ef-tools{flex:0 0 auto;flex-wrap:nowrap;}
 #hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
 #hub .bar .pf .ef-btn{min-width:48px;padding:0 14px;}
 #hub.in-app .bar .pf .ef-btn{padding:0 12px;}
-#hub .bar{font-size:17px;line-height:1.4;}
-#hub .page{padding:calc(var(--bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
+#hub .page{padding:calc(var(--app-bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
 /* メニューはほかの分野と同じく、はばいっぱいに使う(左右の余白 32px。カードの並べ方は共通の .ef-mgrid) */
-#hub #pg-menu{max-width:none;padding:calc(var(--bar) + 6px) 32px 40px;}
+#hub #pg-menu{max-width:none;padding:calc(var(--app-bar) + 6px) 32px 40px;}
 @media (max-width:900px){#hub #pg-menu{padding-left:16px;padding-right:16px;}}
 @media (max-width:640px){#hub #pg-menu{padding-left:12px;padding-right:12px;}}
 #hub .store-row:not(:has(.bad)){display:none;}
 #hub .page[hidden]{display:none;}
-#hub h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
-#hub h2{font-size:1.3em;margin:.3em 0 .4em;color:var(--pri-d);line-height:1.5;}
+#hub .page h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
+#hub h2{font-size:1.3em;margin:.3em 0 .4em;color:var(--ef-accent);line-height:1.5;}
 #hub h3{font-size:1.1em;margin:.2em 0 .5em;line-height:1.5;}
 #hub h4{margin:.1em 0 .3em;font-size:1em;}
 #hub p{margin:.3em 0 .7em;}
-#hub .lead{color:var(--sub);}
-#hub .status{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:0;border:2px solid var(--pri);background:var(--pri-l);font-weight:700;font-size:.9em;}
-#hub .status.bad{border-color:var(--bad);background:var(--bad-l);color:var(--bad);}
+#hub .lead{color:var(--ef-muted);}
+#hub .status{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:0;border:2px solid var(--ef-accent);background:var(--ef-accent-soft);font-weight:700;font-size:.9em;}
+#hub .status.bad{border-color:var(--ef-ng);background:var(--ef-ng-soft);color:var(--ef-ng);}
 #hub .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 #hub .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:14px 0 18px;}
 @media (max-width:700px){#hub .grid{grid-template-columns:1fr;}}
@@ -70,48 +66,45 @@ body{background:var(--ef-bg);}
 #hub .ef-mcard .ef-card-tag{margin:0 0 2px;}
 #hub .ef-mcard .ef-card-title{margin:0;}
 #hub .ef-mcard .ef-mcard-desc{margin:.2em 0;}
-#hub .ef-mcard .ef-mcard-go{min-height:52px;padding:0 26px;font-weight:700;font-size:1em;}
-#hub .chip{display:inline-block;padding:2px 10px;border-radius:0;border:1.5px solid var(--line);background:#fafcf9;}
-#hub .chip.done{border-color:var(--pri);background:var(--pri-l);color:var(--pri-d);font-weight:700;}
-#hub .chip.todo{border-color:var(--warn);background:var(--warn-l);color:#6b3a00;font-weight:700;}
-#hub .chip.part{border-color:#1565c0;background:#e8f0fb;color:#0d3c78;font-weight:700;}
-/* ふつうのボタン: 共通の枠 .ef-btn と同じ形(白地・丸い枠)。文字の大きさは「文字 中」のボタンに合わせる */
-#hub .btn{min-height:48px;padding:0 18px;border-radius:0;border:1px solid var(--ef-line);background:var(--ef-surface);color:var(--ef-text);font-weight:700;}
-#hub .btn:hover{border-color:var(--ef-accent);}
-#hub .btn.danger{border-color:var(--bad);color:var(--bad);}
-#hub details.teacher,#hub details.rec{margin-top:16px;background:var(--card);border:2px solid var(--line);border-radius:0;padding:6px 16px;scroll-margin-top:calc(var(--bar) + 10px);}
+#hub .chip{display:inline-block;padding:2px 10px;border-radius:0;border:1.5px solid var(--ef-line);background:var(--ef-surface);}
+#hub .chip.done{border-color:var(--ef-accent);background:var(--ef-accent-soft);color:var(--ef-accent);font-weight:700;}
+#hub .chip.todo{border-color:var(--ef-warn);background:var(--ef-warn-soft);color:var(--ef-warn);font-weight:700;}
+#hub .chip.part{border-color:var(--ef-info);background:var(--ef-info-soft);color:var(--ef-info);font-weight:700;}
+/* ページの中のボタンは共通の .ef-btn。上のバーより大きく、字の大きさは「文字 中」のボタンに合わせる */
+#hub .page .ef-btn{min-height:var(--ef-tap);font-size:.94rem;}
+#hub details.teacher,#hub details.rec{margin-top:16px;background:var(--ef-surface);border:2px solid var(--ef-line);border-radius:0;padding:6px 16px;scroll-margin-top:calc(var(--app-bar) + 10px);}
 #hub details.teacher summary,#hub details.rec summary{min-height:44px;display:flex;align-items:center;font-weight:700;cursor:pointer;}
-#hub .small{font-size:.85em;color:var(--sub);}
+#hub .small{font-size:.85em;color:var(--ef-muted);}
 /* 生徒用の使い方のページ(先生用ガイドは下の .eg) */
-#hub .gsec{background:var(--card);border:2px solid var(--line);border-radius:0;padding:12px 18px;margin:0 0 14px;}
+#hub .gsec{background:var(--ef-surface);border:2px solid var(--ef-line);border-radius:0;padding:12px 18px;margin:0 0 14px;}
 #hub .gtable{width:100%;border-collapse:collapse;margin:.3em 0 .6em;font-size:.95em;}
-#hub .gtable th,#hub .gtable td{border:1.5px solid var(--line);padding:6px 10px;vertical-align:top;text-align:left;}
-#hub .gtable th{background:var(--pri-l);}
-#hub .tip{background:var(--warn-l);border-left:6px solid var(--warn);padding:8px 12px;border-radius:0;}
+#hub .gtable th,#hub .gtable td{border:1.5px solid var(--ef-line);padding:6px 10px;vertical-align:top;text-align:left;}
+#hub .gtable th{background:var(--ef-accent-soft);}
+#hub .tip{background:var(--ef-warn-soft);border-left:6px solid var(--ef-warn);padding:8px 12px;border-radius:0;}
 #hub .gsteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 @media (max-width:700px){#hub .gsteps{grid-template-columns:1fr;}}
-#hub .gstep{border:1.5px solid var(--line);border-radius:0;padding:8px 12px;background:#fafcf9;}
+#hub .gstep{border:1.5px solid var(--ef-line);border-radius:0;padding:8px 12px;background:var(--ef-surface);}
 #hub .gstep ol{margin:.2em 0;padding-left:1.4em;}
 #hub ol li,#hub ul li{margin:.2em 0;}
 #hub .faq dt{font-weight:700;margin-top:.5em;}
 #hub .faq dd{margin:.1em 0 .4em 1.2em;}
 #hub .gtools{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px;}
 /* material frames */
-#hub .frame{position:fixed;left:0;right:0;bottom:0;top:var(--bar);width:100%;height:calc(100% - var(--bar));border:0;background:#fff;z-index:10;}
+#hub .frame{position:fixed;left:0;right:0;bottom:0;top:var(--app-bar);width:100%;height:calc(100% - var(--app-bar));border:0;background:var(--ef-bg);z-index:10;}
 #hub .frame:focus{outline:none;}
 #hub .frame[hidden]{display:none;}
-#hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:0;z-index:60;max-width:90vw;}
+#hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;z-index:60;max-width:90vw;}
 #hub .toast[hidden]{display:none;}
 @media (max-width:900px){#hub .bar{gap:6px;}}
 /* スマホ: 上のバーを2行にする(1行目 = ◀ と名前、2行目 = 道具と、教材を開いているときは B1〜B6)。入りきらないときは2行目だけ横にスクロール */
 @media (max-width:640px){
-  #hub{--bar:88px;}
+  #hub{--app-bar:88px;}
   #hub .bar{flex-wrap:wrap;align-content:center;row-gap:4px;column-gap:6px;padding-top:4px;padding-bottom:4px;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}
-  #hub .bar .ttl{flex:1 1 0;font-size:16px;}
+  #hub .bar .ttl{flex:1 1 0;}
   #hub:not(.in-app) .bar .ef-tools{flex:1 1 100%;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:none;justify-content:flex-end;}
   #hub.in-app .bar .ttl{flex:1 1 calc(100% - 140px);}
   #hub .bar .pf{gap:4px;}
-  #hub .bar .ef-btn,#hub .bar .pf .ef-btn,#hub.in-app .bar .ef-btn{min-height:36px;min-width:0;padding:0 10px;font-size:14px;}
+  #hub .bar .ef-btn,#hub .bar .pf .ef-btn,#hub.in-app .bar .ef-btn{min-height:36px;min-width:0;padding:0 10px;}
   #hub .bar .ef-swchip{min-height:36px;}
 }
 @media print{
@@ -125,7 +118,7 @@ body{background:var(--ef-bg);}
 <style>
 /* 先生用ガイドをメニューの中で見るときの調整(文字の大きさは「文字 中」のボタンに合わせる。目次から飛んだ見出しが上のバーに隠れないように) */
 #hub .eg{font-size:1em;padding:0 0 20px;}
-#hub .eg-sec{scroll-margin-top:calc(var(--bar) + 10px);}
+#hub .eg-sec{scroll-margin-top:calc(var(--app-bar) + 10px);}
 #hub .eg-toc li{margin:0;}
 @media print{#hub .eg{padding:0;}}
 </style>
@@ -147,8 +140,9 @@ body{background:var(--ef-bg);}
     </nav>
     <div class="ef-tools">
       <div class="pf" role="group" aria-label="ふりがなと文字の大きさ(教材集ぜんぶで同じ)">
-        <button type="button" class="ef-btn ef-toggle" id="hub-pf-ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
-        <button type="button" class="ef-btn ef-size" id="hub-pf-size">文字</button>
+        <button type="button" data-ef-pref="ruby" title="ふりがなを出す・消す">ふりがな</button>
+        <button type="button" data-ef-pref="fs"></button>
+        <button type="button" data-ef-pref="kukkiri"></button>
       </div>
       <button type="button" class="ef-btn use" data-go="student" title="この教材集の使い方">使い方</button>
       <button type="button" class="ef-btn tch" id="hub-to-teacher" title="メニューの下の先生用のところへ">先生用</button>
@@ -166,9 +160,9 @@ body{background:var(--ef-bg);}
     <details class="rec noprint" id="hub-rec">
       <summary>💾 記録(書き出し・データの管理)</summary>
       <div class="row" style="margin:6px 0 10px">
-        <button class="btn" type="button" id="hub-export">💾 6教材の記録をまとめて書き出す</button>
-        <button class="btn" type="button" id="hub-import">📂 書き出したファイルを読みこむ</button>
-        <button class="btn danger" type="button" id="hub-wipe">🗑 この端末の記録をすべて消す</button>
+        <button class="ef-btn" type="button" id="hub-export">💾 6教材の記録をまとめて書き出す</button>
+        <button class="ef-btn" type="button" id="hub-import">📂 書き出したファイルを読みこむ</button>
+        <button class="ef-btn is-danger" type="button" id="hub-wipe">🗑 この端末の記録をすべて消す</button>
         <input type="file" id="hub-file" accept=".json,application/json" hidden>
       </div>
       <p class="small">まとめた書き出しには、B4 の写真は入りません。写真つきの書き出しは、B4 の「❓使い方」タブからできます。「すべて消す」は、共用の端末を次の人に渡すときに使います。</p>
@@ -176,14 +170,14 @@ body{background:var(--ef-bg);}
     <details class="teacher noprint" id="hub-teacher">
       <summary>👩‍🏫 先生用(ガイド)</summary>
       <div class="row" style="margin:6px 0 10px">
-        <button class="btn" type="button" data-go="teacher">先生用ガイドを見る</button>
+        <button class="ef-btn" type="button" data-go="teacher">先生用ガイドを見る</button>
       </div>
     </details>
     <p class="small" style="margin-top:16px">この教材集はインターネットを使いません。入力した内容は、この端末のブラウザの中だけに保存されます。</p>
   </main>
 
   <main class="page" id="pg-student" hidden>
-    <div class="gtools"><button class="btn" type="button" data-go="menu">◀ メニューへ</button><button class="btn" type="button" data-print>🖨 印刷</button></div>
+    <div class="gtools"><button class="ef-btn" type="button" data-go="menu">◀ メニューへ</button><button class="ef-btn" type="button" data-print>🖨 印刷</button></div>
     <h2>📖 この<ruby>教材集<rt>きょうざいしゅう</rt></ruby>の使い方</h2>
 <p class="lead">「<ruby>生物育成<rt>せいぶついくせい</rt></ruby>の<ruby>技術<rt>ぎじゅつ</rt></ruby>」を学ぶための、6つのデジタル教材です。インターネットにつながっていなくても使えます。</p>
 
@@ -294,7 +288,7 @@ body{background:var(--ef-bg);}
   </main>
 
   <main class="page" id="pg-teacher" hidden>
-    <div class="gtools"><button class="btn" type="button" data-go="menu">◀ メニューへ</button><button class="btn" type="button" data-print>🖨 印刷</button></div>
+    <div class="gtools"><button class="ef-btn" type="button" data-go="menu">◀ メニューへ</button><button class="ef-btn" type="button" data-print>🖨 印刷</button></div>
     <div class="eg">
     <!-- 先生用ガイド: docs/先生用ガイド.html の中身を rebuild.js が入れる -->
     </div>
@@ -306,17 +300,18 @@ body{background:var(--ef-bg);}
 </div>
 <!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
 <style>
-.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+/* 色・字・線は共通の --ef-…(shared/eduit-frame.css)。「消す」などの確認は .kzd-danger で赤 */
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
-.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
-.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
-.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:0;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
-.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
-.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
-.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
-@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+  font-family:var(--ef-font);-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:var(--ef-surface);color:var(--ef-text);border:var(--ef-bw) solid var(--ef-ink);border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:1.05rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:var(--ef-bw) solid var(--ef-line);background:var(--ef-surface);}
+.kzd-btns button{box-sizing:border-box;min-height:var(--ef-tap);min-width:120px;padding:0 20px;border-radius:0;border:var(--ef-bw) solid var(--ef-ink);background:var(--ef-surface);color:var(--ef-text);font:inherit;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:var(--ef-ink);color:var(--ef-on-ink);}
+.kzd-btns .kzd-ok.kzd-danger{background:var(--ef-ng);border-color:var(--ef-ng);}
+.kzd-btns button:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:.95rem;}.kzd-btns{padding:8px 16px 10px;}}
 @media print{.kzd-back{display:none !important;}}
 </style>
 <script data-kz>
@@ -365,137 +360,24 @@ body{background:var(--ef-bg);}
 })();
 </script>
 <!--
-  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  kz-embed : 教材集(メニュー)の iframe の中なら <html class="kz-embed"> を付ける(K3)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
-          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
-
-  保存キー(localStorage):
-    hub_ruby  '1' = ふりがなあり / '0' = なし
-    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
-
-  API (グローバルは window.kzPrefs だけ):
-    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
-                               キーが無い(まだ一度も設定していない)ときは null。
-                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
-    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
-                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
-                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
-    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
-                               (storage イベント / postMessage)のときに呼ばれる。
-                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
-    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
-    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
-    kzPrefs.bind(rubyBtn, decBtn, incBtn)
-                             → K2 の3つのボタンをつなぐ(どれか null 可)。
-                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
-    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
-                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
-    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
-
-  教材側の使い方の例:
-    var p = kzPrefs.get();
-    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
-    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
-    apply(ruby, fs);
-    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
-    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。ES5。
+  CSS の html.kz-embed … で、教材の見出し(メニューの上のバーと同じボタン)を隠す。
+  site/build.py が「embed = window.self !== window.top;」を書きかえるので、この書き方を変えない。
+  ふりがな・文字の大きさは全教材で共通の EduitFrame.prefs(shared/eduit-frame.js)を使う。
 -->
-<script data-kz-prefs>
+<script data-kz-embed>
 (function(){
-  if (window.kzPrefs) return;
-  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
-  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
-  var fns = [], last = '';
-  var embed = false;
+  var embed;
   try { embed = window.self !== window.top; } catch (e) { embed = true; }
-  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
-
-  function clampFs(n){
-    n = Number(n);
-    if (!isFinite(n)) return DEF;
-    n = Math.round(n / STEP) * STEP;
-    return n < MIN ? MIN : (n > MAX ? MAX : n);
-  }
-  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
-  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
-  function get(){
-    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
-    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
-    if (o.ruby === null) o.ruby = false;  /* ふりがなは、はじめはなし(4分野で同じ) */
-    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
-    return o;
-  }
-  function notify(p){
-    var key = String(p.ruby) + '|' + String(p.fs);
-    if (key === last) return;
-    last = key;
-    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
-  }
-  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
-  function broadcast(p, except){
-    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
-    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
-    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
-  }
-  function set(o){
-    o = o || {};
-    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
-    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    broadcast(p, null);
-    return p;
-  }
-  function on(fn){
-    if (typeof fn === 'function') fns.push(fn);
-    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
-  }
-  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
-  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
-  function bind(rb, dec, inc){
-    function upd(){
-      var c = cur();
-      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
-      if (dec) dec.disabled = c.fs <= MIN;
-      if (inc) inc.disabled = c.fs >= MAX;
-    }
-    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
-    if (dec) dec.addEventListener('click', function(){ bump(-1); });
-    if (inc) inc.addEventListener('click', function(){ bump(1); });
-    on(upd); upd();
-    return upd;
-  }
-
-  window.addEventListener('storage', function(e){
-    if (e.key !== KR && e.key !== KF && e.key !== null) return;
-    notify(get());
-  });
-  window.addEventListener('message', function(e){
-    var d = e.data;
-    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
-    var q = d.kzPrefs;
-    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
-    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
-    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
-  });
-
-  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
-  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
-    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+  if (embed) document.documentElement.classList.add('kz-embed');
 })();
 </script>
 <!--
   kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-embed の後)に、このファイルの <style> と <script> を貼る。
           2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
 
   API (グローバルは window.kzRuby だけ):
@@ -515,7 +397,7 @@ body{background:var(--ef-bg);}
                          文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
     kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
 
-  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  ふりがなの表示・非表示は、全教材で共通の EduitFrame.prefs がする(<html data-ef-ruby="off"> のとき rt を隠す)。kzRuby は付けるだけ。
   辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
 -->
 <style data-kz-ruby>
@@ -659,17 +541,8 @@ else { st.textContent = '⚠️ このひらき方では記録が保存されま
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e) { return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); return true; } catch(e) { return false; } }
 
-/* ---------- ふりがな・文字の大きさ(教材集ぜんぶで共通: hub_ruby / hub_fs) ---------- */
-function applyPrefs(){
-  var p = kzPrefs.get();
-  hub.classList.toggle('noruby', p.ruby === false);
-  hub.style.fontSize = (p.fs || kzPrefs.FS_DEFAULT) + 'px';
-}
-kzPrefs.bind($('#hub-pf-ruby'));
-/* 文字の大きさ: 4分野共通の「文字 中」ボタン(押すたびに 小 → 中 → 大 → 特大 → 小) */
-kzPrefs.on(EduitFrame.sizeButton($('#hub-pf-size'), { steps: [[16, '小'], [18, '中'], [22, '大'], [26, '特大']], get: function(){ return kzPrefs.get().fs || kzPrefs.FS_DEFAULT; }, set: function(v){ kzPrefs.set({fs: v}); } }));
-kzPrefs.on(applyPrefs);
-applyPrefs();
+/* ---------- ふりがな・文字の大きさ(全教材で共通の EduitFrame.prefs。上のバーのボタンは data-ef-pref) ---------- */
+EduitFrame.prefs.mount();
 function addRuby(el){ if (el && window.kzRuby) { try { kzRuby(el); } catch(e) {} } }
 
 /* ---------- 振り返りを書いたか ---------- */
@@ -852,7 +725,7 @@ $('#hub-file').addEventListener('change', function(e){
     reloadFrames();
     ourKeys().forEach(function(k){ try { localStorage.removeItem(k); } catch(err) {} });
     var n = 0; Object.keys(o.data).forEach(function(k){ if (/^(b[1-6]_|hub_)/.test(k) && typeof o.data[k] === 'string' && lsSet(k, o.data[k])) n++; });
-    renderCards(); kzPrefs.set({}); applyPrefs();
+    renderCards();
     toast('読みこみました(' + n + '件)');
     });
   };
@@ -864,7 +737,7 @@ $('#hub-wipe').addEventListener('click', function(){
   .then(function(ok){ return ok && kzConfirm('本当に消しますか?(書き出しをしていない記録はなくなります)', {ok:'消す', danger:true}); })
   .then(function(ok){ if (!ok) return;
   reloadFrames();
-  ourKeys().forEach(function(k){ if (k !== 'hub_ruby' && k !== 'hub_fs') try { localStorage.removeItem(k); } catch(err) {} });
+  ourKeys().forEach(function(k){ try { localStorage.removeItem(k); } catch(err) {} });
   try { indexedDB.deleteDatabase('b4_photos'); } catch(err) {}
   renderCards();
   toast('すべて消しました');
