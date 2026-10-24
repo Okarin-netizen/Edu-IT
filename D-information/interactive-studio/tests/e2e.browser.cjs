@@ -451,11 +451,11 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) process
   ok(rec.works.every(w => w.title !== '3問クイズ') && rec.works.some(w => w.usesServer === true && w.serverCommands.includes('server.save')), 'records JSON has usesServer and no untouched samples');
   const [cd] = await Promise.all([q.waitForEvent('download'), q.click('button:has-text("CSVで書き出す")')]);
   ok(fs.readFileSync(await cd.path(), 'utf8').includes('"サーバーとのやりとり"'), 'records CSV has server column');
-  // IS-16: 大きな文字（開き直しても残る）
-  await q.click('.display-toggles [data-kz-label="大きな文字"]');
-  ok(await q.evaluate(() => document.documentElement.classList.contains('large-text') && getComputedStyle(document.documentElement).fontSize === '20px'), 'IS-16 large text on');
+  // IS-16: 文字の大きさ（全教材で共通の「文字 中」。中 → 大。開き直しても残る）
+  await q.click('.display-toggles [data-ef-pref="fs"]');
+  ok(await q.evaluate(() => getComputedStyle(document.documentElement).fontSize === '20px'), 'IS-16 large text on');
   await q.reload();
-  ok(await q.evaluate(() => document.documentElement.classList.contains('large-text')) && (await q.getAttribute('.display-toggles [data-kz-label="大きな文字"]', 'aria-pressed')) === 'true', 'IS-16 large text remembered');
+  ok(await q.evaluate(() => getComputedStyle(document.documentElement).fontSize === '20px') && (await q.textContent('.display-toggles [data-ef-pref="fs"]')).includes('大'), 'IS-16 large text remembered');
   await q.click('#chapter-nav a[href="#/editor"]');
   ok(await q.evaluate(() => document.documentElement.scrollWidth) <= 1366, 'IS-16 no overflow with large text');
   await c2.close();

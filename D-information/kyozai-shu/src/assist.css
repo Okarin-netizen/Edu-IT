@@ -1,15 +1,13 @@
 /* 教材集の中で開いたときだけ足す見やすさの調整（元の教材ファイルは変えない）
    落ち着いた配色はそのままに、入力欄・進み具合のバー・いま開いているページの印を見分けやすくする。
-   --kz-line は背景との差が 3:1 以上になる線の色（WCAG 1.4.11 の目安） */
-:root { --kz-line: #8c8a82; }
+   線は共通の --ef-ink(背景との差が 3:1 以上。WCAG 1.4.11 の目安) */
 
-input[type="text"], input[type="number"], input[type="search"], input:not([type]), textarea, select { border-color: var(--kz-line); }
-.bar { border-color: var(--kz-line); }
-.chapter-nav .num { border-color: var(--kz-line); }
-.display-toggles .toggle:not([aria-pressed="true"]) { border-color: var(--kz-line); }
+input[type="text"], input[type="number"], input[type="search"], input:not([type]), textarea, select { border-color: var(--ef-ink); }
+.bar { border-color: var(--ef-ink); }
+.chapter-nav .num { border-color: var(--ef-ink); }
 
 /* いま開いているページ: 色の薄い背景だけでなく、青い線でも示す */
-.main-nav a[aria-current="page"], .top-nav a[aria-current="page"], .tabs .tab[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--ef-accent); }
+.main-nav a[aria-current="page"], .top-nav a[aria-current="page"], .tabs .tab[aria-current="page"] { box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
 
 /* つぎはこれ（guide.js） */
 .kyozai-next {
@@ -22,12 +20,9 @@ input[type="text"], input[type="number"], input[type="search"], input:not([type]
 .kyozai-next .btn { text-decoration: none; display: inline-flex; align-items: center; }
 @media print { .kyozai-next { display: none; } }
 
-/* 教材集の上のバーの「ふりがな」「大きな文字」（display.js）
-   教材にもともとある同じボタンは、教材集のボタンが代わりに押すので、教材集の中ではかくす */
+/* ふりがな・文字の大きさは全教材で共通の設定(EduitFrame.prefs)。教材集の上のバーのボタンで変えるので、
+   教材の上のバーにある同じボタン(data-ef-pref)は、教材集の中ではかくす(display.js が印を付ける) */
 [data-kz-driven], .display-toggles[data-kz-empty] { display: none !important; }
-/* 「大きな文字」のボタンを持たない教材でも、文字を大きくする（ボタンを持つ教材は、教材の決まりのほうが先） */
-html:where(.large-text) { font-size: 20px; }
-@media (max-width: 860px) { html:where(.large-text) { font-size: 18px; } }
 /* ふりがな（ruby.js） */
 ruby.kz-ruby { ruby-position: over; ruby-align: center; }
 ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color: inherit; opacity: 0.85; user-select: none; -webkit-user-select: none; }

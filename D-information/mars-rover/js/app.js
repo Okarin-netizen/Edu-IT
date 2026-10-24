@@ -930,18 +930,12 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる)
 function setupToggles() {
-  const box = document.getElementById("display-toggles");
-  const apply = () => document.documentElement.classList.toggle("large-text", Boolean(store.pref("largeText")));
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    store.setPref("largeText", !store.pref("largeText"));
-    b.setAttribute("aria-pressed", store.pref("largeText") ? "true" : "false");
-    apply();
-    window.dispatchEvent(new Event("resize"));
-  });
-  box.replaceChildren(b);
-  apply();
+  if (!globalThis.EduitFrame) return;
+  document.getElementById("display-toggles").replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
+  // 字の大きさが変わったら、図の大きさを測り直す
+  globalThis.EduitFrame?.prefs.on((key) => key === "fs" && window.dispatchEvent(new Event("resize")));
 }
 
 function setupTeacherKeys() {
@@ -963,7 +957,7 @@ function start() {
   setupToggles();
   setupTeacherKeys();
   const header = document.querySelector(".app-header");
-  const setHeaderH = () => document.documentElement.style.setProperty("--header-h", `${header?.offsetHeight || 0}px`);
+  const setHeaderH = () => document.documentElement.style.setProperty("--app-header-h", `${header?.offsetHeight || 0}px`);
   setHeaderH();
   if (header && "ResizeObserver" in window) new ResizeObserver(setHeaderH).observe(header);
   window.addEventListener("hashchange", route);

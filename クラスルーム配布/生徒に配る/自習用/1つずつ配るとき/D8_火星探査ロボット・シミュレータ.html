@@ -478,7 +478,7 @@ html[data-ef-prefs][data-ef-ruby="off"] rt { display: none; }  /* ふりがな �
 .ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
 .ef-level-group { display: flex; align-items: baseline; gap: .7em; margin: 24px 0 0; padding: 0 0 6px; border-bottom: var(--ef-bw-strong) solid var(--ef-ink); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
-.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-group-ch { flex: none; white-space: nowrap; font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 /* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
 .ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
 .ef-level-link a { display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; color: var(--ef-text); text-decoration: none; font-weight: 600; }
@@ -706,7 +706,191 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 }
 
 </style>
-  <!-- 計測・制御シミュレータ（D7）と同じ見た目（ブロック・ボタン・カード）を使う -->
+  <!-- 計測・制御シミュレータ（D7）と同じ見た目（ブロック・ボタン・カード）を使う。D の教材で同じ部品は d-common.css -->
+  <style id="d-common-css">
+/* D 情報の技術: D1 仮想CPU・D2 デジタル化・D3 ネットワーク・D4 セキュリティ・D6 スタジオ・D7 計測制御・D8 火星探査 で同じ中身の部品。
+   各教材の css/style.css の前に読む(1ファイル版では build/eduit-inline.mjs が中に入れる)。
+   色・字・線は共通の設定(shared/eduit-frame.css の --ef-…)だけを使う。部品の形は共通の部品と同じにしてある:
+     .btn = .ef-btn-primary(黒でぬる)・.btn.secondary = .ef-btn(白地に黒の線)・.btn.small = .is-s
+     .card = .ef-box ・ .explain(.warn .good .bad) = .ef-note(.is-warn .is-ok .is-ng) ・ .status = .ef-tag
+   (各教材の JS がこの名前で HTML を作っているので、名前は変えずに見た目だけをそろえる) */
+:root {
+  color-scheme: light;
+  /* 図・グラフの線の色(教材の説明の色と合わせるので変えない) */
+  --fig-series-1: #2a78d6;
+  --fig-series-2: #eb6834;
+  --fig-series-3: #1baf7a;
+  --fig-series-4: #eda100;
+  --fig-series-5: #8a5cc2;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; } /* .btn などに display を付けても、hidden の部品は出さない */
+/* 字の大きさ: 共通の設定(EduitFrame.prefs)を使う。<html data-ef-prefs> のとき eduit-frame.css が html の字を --ef-fs(15・17・20・24px)にする */
+html { font-size: 100%; }
+body {
+  margin: 0;
+  background: var(--ef-bg);
+  color: var(--ef-text);
+  font-family: var(--ef-font);
+  line-height: var(--ef-lh);
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 { line-height: var(--ef-lh-tight); margin: 0 0 0.5em; }
+h1 { font-size: var(--ef-fs-h1); }
+h2 { font-size: var(--ef-fs-h2); }
+h3 { font-size: var(--ef-fs-h3); }
+p { margin: 0 0 0.8em; }
+a { color: var(--ef-accent); }
+code, .mono { font-family: var(--ef-mono); }
+:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--ef-surface); padding: 8px 12px; z-index: 10; }
+.skip-link:focus { left: 8px; }
+
+/* 教材の名前のバー(共通の .ef-header) */
+.app-header {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink);
+  position: sticky; top: 0; z-index: 5;
+}
+.app-header .brand { text-decoration: none; color: var(--ef-text); display: flex; align-items: center; gap: 8px; line-height: 1.3; }
+.app-header .brand img { width: 28px; height: 28px; }
+.app-header .spacer { flex: 1; }
+.app-header .ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.overall-progress { display: flex; align-items: center; gap: 8px; font-size: var(--ef-fs-s); color: var(--ef-muted); }
+.overall-progress .bar { width: 120px; }
+
+/* ページの切りかえの帯(.chapter-nav)の形は d-frame.css */
+.chapter-nav ol { list-style: none; margin: 0; padding: 0; }
+.chapter-nav .nav-group { display: none; }
+main { min-width: 0; }
+
+.app-footer { text-align: center; color: var(--ef-muted); margin-top: 24px; }
+.app-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: var(--ef-fs-s); }
+.app-footer .ef-footer { margin: 0; }
+
+/* 箱(.ef-box と同じ) */
+.card {
+  background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line);
+  padding: 20px 22px; margin-bottom: 18px;
+}
+.card > :last-child { margin-bottom: 0; }
+
+/* 説明・注意の箱(.ef-note と同じ) */
+.explain {
+  border-left: var(--ef-mark) solid var(--ef-info); background: var(--ef-info-soft);
+  padding: 12px 16px; margin: 14px 0;
+}
+.explain .explain-label { font-weight: 700; font-size: var(--ef-fs-s); color: var(--ef-info); display: block; margin-bottom: 2px; }
+.explain.warn { border-color: var(--ef-warn); background: var(--ef-warn-soft); }
+.explain.warn .explain-label { color: var(--ef-warn); }
+.explain.good { border-color: var(--ef-ok); background: var(--ef-ok-soft); }
+.explain.good .explain-label { color: var(--ef-ok); }
+.explain.bad { border-color: var(--ef-ng); background: var(--ef-ng-soft); }
+.explain.bad .explain-label { color: var(--ef-ng); }
+.explain > :last-child { margin-bottom: 0; }
+
+/* ボタン: .btn は黒でぬる(.ef-btn-primary)、.btn.secondary は白地に黒の線(.ef-btn) */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--ef-tap); padding: 0 18px;
+  border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-ink); color: var(--ef-on-ink);
+  font: inherit; font-size: .94rem; font-weight: 700; line-height: 1.3; cursor: pointer;
+}
+.btn:hover { background: var(--ef-ink-hover); }
+.btn.secondary { background: var(--ef-surface); color: var(--ef-text); }
+.btn.secondary:hover { background: var(--ef-surface-2); }
+.btn.secondary[aria-pressed="true"] { box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+.btn.small { min-height: var(--ef-tap-s); padding: 0 12px; font-size: var(--ef-fs-s); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+
+/* 入力欄 */
+label { font-weight: 700; font-size: .92rem; }
+input[type="text"], input[type="number"], textarea, select {
+  max-width: 100%; width: 100%; min-height: var(--ef-tap);
+  font: inherit; color: var(--ef-text); background: var(--ef-surface);
+  border: var(--ef-bw) solid var(--ef-ink); padding: 8px 10px;
+}
+textarea { min-height: 90px; resize: vertical; }
+.field { margin: 10px 0; display: grid; gap: 4px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.hint { font-size: var(--ef-fs-s); color: var(--ef-muted); font-weight: 400; }
+
+/* 進み具合のバー(.ef-progress-bar と同じ) */
+.bar { height: 10px; background: var(--ef-surface); overflow: hidden; border: var(--ef-bw) solid var(--ef-ink); }
+.bar > span { display: block; height: 100%; background: var(--ef-accent); }
+
+/* 結果の箱・大きな数字・状態のラベル(.ef-tag と同じ) */
+.result-box { border: var(--ef-bw) solid var(--ef-line); padding: 14px 16px; margin: 12px 0; background: var(--ef-surface-2); }
+.big-number { font-size: 1.8rem; font-weight: 700; line-height: 1.3; }
+.status {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+  border: var(--ef-bw) solid var(--ef-line); background: var(--ef-surface); font-weight: 700; font-size: .9rem;
+}
+.status.good { border-color: var(--ef-ok); color: var(--ef-ok); }
+.status.warn { border-color: var(--ef-warn); color: var(--ef-warn); }
+.status.bad { border-color: var(--ef-ng); color: var(--ef-ng); }
+
+/* 選ぶ問題(.ef-choice と同じ) */
+.choice-list { display: grid; gap: 8px; margin: 10px 0; padding: 0; list-style: none; }
+.choice-list button {
+  width: 100%; min-height: var(--ef-tap); padding: 10px 14px; text-align: left; cursor: pointer;
+  font: inherit; color: var(--ef-text); background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-ink);
+}
+.choice-list button:hover { background: var(--ef-surface-2); }
+.choice-list button.correct { border-color: var(--ef-ok); background: var(--ef-ok-soft); }
+.choice-list button.wrong { border-color: var(--ef-ng); background: var(--ef-ng-soft); }
+
+/* 表(.ef-table と同じ線と見出し) */
+table.data { border-collapse: collapse; width: 100%; font-size: .9rem; }
+table.data th, table.data td { border-bottom: var(--ef-bw) solid var(--ef-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.data th { background: var(--ef-surface-2); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+
+/* はじめのページのカード */
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.module-card {
+  display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ef-text);
+  background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); padding: 16px;
+}
+a.module-card:hover { border-color: var(--ef-ink); }
+.module-card .mc-num { font-size: .8rem; color: var(--ef-muted); }
+.module-card .mc-title { font-weight: 700; font-size: 1.05rem; }
+.module-card .mc-desc { font-size: var(--ef-fs-s); color: var(--ef-muted); flex: 1; }
+.module-card.soon { opacity: 0.6; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-ink); color: var(--ef-on-ink);
+  padding: 10px 18px; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* スライダー(指で動かしやすい大きさ) */
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 40px; margin: 0; padding: 0; background: transparent; cursor: pointer; accent-color: var(--ef-accent); }
+input[type="range"]::-webkit-slider-runnable-track { height: 8px; background: var(--ef-surface-2); border: var(--ef-bw) solid var(--ef-ink); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -11px; border-radius: 50%;
+  background: var(--ef-accent); border: 3px solid var(--ef-surface);
+}
+input[type="range"]::-moz-range-track { height: 8px; background: var(--ef-surface-2); border: var(--ef-bw) solid var(--ef-ink); }
+input[type="range"]::-moz-range-progress { height: 8px; background: var(--ef-accent); }
+input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--ef-accent); border: 3px solid var(--ef-surface); }
+input[type="range"]:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
+.step-title .badge { font-size: .8rem; }
+
+@media (max-width: 640px) {
+  .app-header { position: static; padding: 8px 12px; gap: 8px; }
+  .app-header .brand { flex: 0 0 auto; white-space: nowrap; max-width: 100%; overflow: hidden; }
+  main h1, .hero h1 { font-size: 1.35rem; }
+}
+
+</style>
   <style>
 /* 計測・制御シミュレータ。5教材で同じ部品は ../d-common.css、ここはこの教材だけの部品と図 */
 
@@ -1100,11 +1284,13 @@ textarea.code, .gutter { height: clamp(240px, calc(100vh - 200px), 460px); }
 .chapter-nav ol { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 18px; overflow: visible; padding: 0; margin: 0; }
 .chapter-nav li { flex: none; }
 .chapter-nav .nav-group { display: none; }
+/* style-check: off(タブの字は共通の .ef-apptab と同じ 15px。字の大きさの設定では変えない) */
 .chapter-nav a, .chapter-nav span.disabled {
   display: inline-flex; align-items: center; gap: 0; min-height: 44px; padding: 0 12px; box-sizing: border-box;
   border: 0; border-bottom: var(--ef-mark) solid transparent; border-radius: 0; background: none; color: var(--ef-muted);
   font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; text-decoration: none; box-shadow: none;
 }
+/* style-check: on */
 .chapter-nav span.disabled { font-weight: 400; }
 .chapter-nav a:hover { background: none; color: var(--ef-text); border-bottom-color: var(--ef-line); }
 .chapter-nav a[aria-current="page"], .chapter-nav a[aria-current="page"]:hover {
@@ -1131,17 +1317,38 @@ textarea.code, .gutter { height: clamp(240px, calc(100vh - 200px), 460px); }
 </style>
   <style>
 /* 火星探査ロボット・シミュレータ（D8）だけの見た目。土台は計測・制御シミュレータ（D7）の css/style.css と同じ */
+:root {
+  /* 図の色(shared/tools/fig-colors.py でまとめた) */
+  --fig-rb-body: #e9edf3;
+  --fig-rb-body-line: #3a4556;
+  --fig-rb-wheel: #333a44;
+  --fig-rb-front: #3a4556;
+  --fig-rb-dist: #1a5fc8;
+  --fig-rb-beam-line: #1a5fc8;
+  --fig-rb-color: #1baf7a;
+  --fig-rb-color-line: #1b1b1a;
+  --fig-blk-drive-line: #0f8c8c;
+  --fig-blk-drive: #def4f3;
+  --fig-blk-motor-line: #2a78d6;
+  --fig-blk-motor: #e6f0fc;
+  --fig-blk-var-line: #d0453a;
+  --fig-blk-var: #fde9e7;
+  --fig-world: #f3d9bd;
+  --fig-rd-grid-line: #c9c6bc;
+  --fig-outer-line: #8c8a82;
+  --fig-rd-axis-line: #c9c6bc;
+}
 
 /* 問題解決の流れ（はじめに） */
 .ps-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.ps-flow li { display: flex; gap: 12px; align-items: flex-start; background: var(--surface-2); border-radius: 0; padding: 10px 12px; }
-.ps-num { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-grid; place-items: center; font-weight: 700; }
+.ps-flow li { display: flex; gap: 12px; align-items: flex-start; background: var(--ef-surface-2); border-radius: 0; padding: 10px 12px; }
+.ps-num { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--ef-accent); color: var(--ef-accent-ink); display: inline-grid; place-items: center; font-weight: 700; }
 .ps-flow strong { display: block; }
 .ps-desc { display: block; font-size: 0.92rem; }
-.ps-where { display: block; font-size: 0.85rem; color: var(--text-secondary); }
-.ps-tag { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 0; padding: 1px 10px; margin-right: 8px; vertical-align: middle; white-space: nowrap; }
+.ps-where { display: block; font-size: 0.85rem; color: var(--ef-muted); }
+.ps-tag { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--ef-accent); background: var(--ef-accent-soft); border-radius: 0; padding: 1px 10px; margin-right: 8px; vertical-align: middle; white-space: nowrap; }
 .block-label { font-weight: 700; display: block; margin-top: 10px; }
-textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 0; background: var(--surface-1); color: var(--text-primary); min-height: 4.5em; }
+textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1.5px solid var(--ef-line); border-radius: 0; background: var(--ef-surface); color: var(--ef-text); min-height: 4.5em; }
 
 /* ロボットの設計 */
 .design-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 18px; align-items: start; }
@@ -1149,55 +1356,55 @@ textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1.5px solid va
 .design-label { display: block; font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .ef-btn.chip { min-height: 40px; padding: 0 14px; font-weight: 700; }
-.ef-btn.chip.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ef-btn.chip.is-on { font-weight: 700; } /* 下線は共通の .ef-btn.is-on */
 .ef-btn.chip:disabled { opacity: 0.4; cursor: not-allowed; }
-.radio-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 0; padding: 6px 12px; min-height: 40px; cursor: pointer; background: var(--surface-1); font-size: 0.92rem; }
-.radio-chip:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
-.radio-chip input { margin: 0; accent-color: var(--accent); }
+.radio-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--ef-line); border-radius: 0; padding: 6px 12px; min-height: 40px; cursor: pointer; background: var(--ef-surface); font-size: 0.92rem; }
+.radio-chip:has(input:checked) { font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+.radio-chip input { margin: 0; accent-color: var(--ef-accent); }
 .design-facts { margin: 4px 0 0; padding-left: 1.2em; font-size: 0.92rem; }
 .design-facts .hint { margin-left: 4px; }
 .robot-fig { margin: 0; text-align: center; }
 .robot-fig svg { display: block; margin: 0 auto; }
 .robot-fig figcaption { max-width: 170px; margin: 2px auto 0; line-height: 1.4; }
-.rb-body { fill: #e9edf3; stroke: #3a4556; stroke-width: 2; }
-.rb-wheel { fill: #333a44; }
-.rb-front { fill: #3a4556; }
-.rb-dist { fill: #1a5fc8; }
-.rb-beam { stroke: #1a5fc8; stroke-width: 2; stroke-dasharray: 3 3; }
-.rb-color { fill: #1baf7a; stroke: #1b1b1a; stroke-width: 1.2; }
+.rb-body { fill: var(--fig-rb-body); stroke: var(--fig-rb-body-line); stroke-width: 2; }
+.rb-wheel { fill: var(--fig-rb-wheel); }
+.rb-front { fill: var(--fig-rb-front); }
+.rb-dist { fill: var(--fig-rb-dist); }
+.rb-beam { stroke: var(--fig-rb-beam-line); stroke-width: 2; stroke-dasharray: 3 3; }
+.rb-color { fill: var(--fig-rb-color); stroke: var(--fig-rb-color-line); stroke-width: 1.2; }
 @media (max-width: 640px) { .design-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* ブロック: 動きのブロックの色（教科書のブロックと同じように、動きは青緑） */
 .blk-pgroup { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 5px; width: 100%; }
 .blk-pgroup + .blk-pgroup { margin-top: 4px; }
-.blk-pgroup-title { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); min-width: 6.5em; }
-.blk-drive, .blk-add-drive { border-color: #0f8c8c; background: #def4f3; }
-.blk-motor, .blk-add-motor { border-color: #2a78d6; background: #e6f0fc; }
-.blk-var, .blk-add-var { border-color: #d0453a; background: #fde9e7; }
+.blk-pgroup-title { font-size: 0.75rem; font-weight: 700; color: var(--ef-muted); min-width: 6.5em; }
+.blk-drive, .blk-add-drive { border-color: var(--fig-blk-drive-line); background: var(--fig-blk-drive); }
+.blk-motor, .blk-add-motor { border-color: var(--fig-blk-motor-line); background: var(--fig-blk-motor); }
+.blk-var, .blk-add-var { border-color: var(--fig-blk-var-line); background: var(--fig-blk-var); }
 .blk-drive .blk-word.strong { font-size: 1.05rem; }
 @media (max-width: 640px) { .blk-pgroup-title { min-width: 100%; } }
 
 /* 火星のフィールド */
 .field-canvas { display: block; width: 100%; touch-action: manipulation; }
-.world { line-height: 0; background: #f3d9bd; }
+.world { line-height: 0; background: var(--fig-world); }
 .meters { display: grid; gap: 4px; margin: 8px 0 2px; font-size: 0.9rem; }
 .meter { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .meter-label { font-weight: 700; min-width: 4.5em; }
-.meter-val { font-family: var(--mono); font-weight: 700; }
-.meter-val.muted { color: var(--text-muted); font-weight: 400; }
+.meter-val { font-family: var(--ef-mono); font-weight: 700; }
+.meter-val.muted { color: var(--ef-muted); font-weight: 400; }
 .battery-bar { flex: 1 1 120px; max-width: 220px; height: 12px; }
-.battery-bar > span { display: block; height: 100%; background: var(--good); }
-.battery-bar.low > span { background: var(--bad); }
-.sim-state.good { background: var(--good-soft); color: var(--good); }
-.sim-state.bad { background: var(--bad-soft); color: var(--bad); }
-.sim-state.run { background: var(--accent-soft); color: var(--accent); }
+.battery-bar > span { display: block; height: 100%; background: var(--ef-ok); }
+.battery-bar.low > span { background: var(--ef-ng); }
+.sim-state.good { background: var(--ef-ok-soft); color: var(--ef-ok); }
+.sim-state.bad { background: var(--ef-ng-soft); color: var(--ef-ng); }
+.sim-state.run { background: var(--ef-accent-soft); color: var(--ef-accent); }
 .outcome:empty { display: none; }
 .outcome .explain { margin: 6px 0; }
 .log-details summary { font-weight: 700; font-size: 0.95rem; cursor: pointer; min-height: 32px; }
-.log-list li { padding: 3px 8px; border-bottom: 1px solid var(--border); }
-.log-good { background: var(--good-soft); color: var(--good); font-weight: 700; }
-.log-out { color: var(--text-primary); }
-.log-info { color: var(--text-secondary); }
+.log-list li { padding: 3px 8px; border-bottom: 1px solid var(--ef-line); }
+.log-good { background: var(--ef-ok-soft); color: var(--ef-ok); font-weight: 700; }
+.log-out { color: var(--ef-text); }
+.log-info { color: var(--ef-muted); }
 
 /* ⑤ のランキング */
 .ranking td, .ranking th { white-space: nowrap; }
@@ -1206,20 +1413,20 @@ textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1.5px solid va
 /* 評価（レーダーチャート） */
 .eval-grid { display: grid; grid-template-columns: minmax(260px, 420px) minmax(0, 1fr); gap: 12px 24px; align-items: start; }
 .radar { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
-.rd-grid { fill: none; stroke: #c9c6bc; stroke-width: 1; }
-.rd-grid.outer { stroke: #8c8a82; stroke-width: 1.5; }
-.rd-axis { stroke: #c9c6bc; stroke-width: 1; }
-.rd-label { font-size: 14px; font-weight: 700; fill: #1b1b1a; font-family: var(--font); }
-.rd-num { font-size: 10px; fill: #6d6c67; font-family: var(--font); }
+.rd-grid { fill: none; stroke: var(--fig-rd-grid-line); stroke-width: 1; }
+.rd-grid.outer { stroke: var(--fig-outer-line); stroke-width: 1.5; }
+.rd-axis { stroke: var(--fig-rd-axis-line); stroke-width: 1; }
+.rd-label { font-size: 14px; font-weight: 700; fill: var(--ef-text); font-family: var(--ef-font); }
+.rd-num { font-size: 10px; fill: var(--ef-muted); font-family: var(--ef-font); }
 .eval-sliders { display: grid; gap: 10px; }
-.eval-set { border: 1px solid var(--border); border-radius: 0; padding: 4px 12px 8px; margin: 0; }
+.eval-set { border: 1px solid var(--ef-line); border-radius: 0; padding: 4px 12px 8px; margin: 0; }
 .eval-set legend { font-weight: 700; padding: 0 6px; display: flex; align-items: center; gap: 6px; }
-.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 0; }
 .eval-row { margin: 2px 0; grid-template-columns: 9em minmax(0, 1fr); align-items: center; }
-.eval-row output { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.eval-row output { font-family: var(--ef-mono); font-weight: 700; color: var(--ef-accent); }
 .axis-notes { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; font-size: 0.9rem; margin: 12px 0 0; }
 .axis-notes dt { font-weight: 700; }
-.axis-notes dd { margin: 0; color: var(--text-secondary); }
+.axis-notes dd { margin: 0; color: var(--ef-muted); }
 @media (max-width: 760px) { .eval-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) {
   .axis-notes { grid-template-columns: minmax(0, 1fr); }
@@ -2394,7 +2601,7 @@ window.EDUIT_INFO.jishu.ruby = {
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  * 表示の設定(全教材で1つ): EduitFrame.prefs。上のバーのボタンに data-ef-pref="ruby" / "fs" / "kukkiri" を付けると、
  *   ふりがな・「文字 中」(小・中・大・特大)・くっきりのボタンになる。ボタンのない教材は EduitFrame.prefs.use()。
- *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。くわしくは下の「表示の設定」。
+ *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。JS でバーを作る教材は prefs.button('fs') でボタンを受け取る。くわしくは下の「表示の設定」。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
@@ -2969,27 +3176,36 @@ window.EDUIT_INFO.jishu.ruby = {
     });
     prefSizeUpdates.forEach(function (u) { u(); });
   }
+  function prefsMountOne(b) {
+    var k = b.getAttribute('data-ef-pref');
+    b.setAttribute('data-ef-pref-done', '');
+    if (k === 'fs') {
+      prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
+    } else if (k === 'ruby' || k === 'kukkiri') {
+      b.classList.add('ef-btn', 'ef-toggle');
+      b.type = 'button';
+      if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
+      b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
+    }
+  }
   function prefsMount() {
     var btns = document.querySelectorAll('[data-ef-pref]:not([data-ef-pref-done])');
     if (!btns.length) return;
     prefsUse();
-    Array.prototype.forEach.call(btns, function (b) {
-      var k = b.getAttribute('data-ef-pref');
-      b.setAttribute('data-ef-pref-done', '');
-      if (k === 'fs') {
-        prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
-      } else if (k === 'ruby' || k === 'kukkiri') {
-        b.classList.add('ef-btn', 'ef-toggle');
-        b.type = 'button';
-        if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
-        b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
-      }
-    });
+    Array.prototype.forEach.call(btns, prefsMountOne);
     prefsPaintButtons();
+  }
+  // JS で上のバーを作る教材用: EduitFrame.prefs.button('fs' | 'ruby' | 'kukkiri') で、もうボタンになったものを返す(置く場所は教材が決める)
+  function prefsButton(k) {
+    var b = el('button', { class: 'ef-btn', 'data-ef-pref': k });
+    prefsUse();
+    prefsMountOne(b);
+    if (k !== 'fs') b.setAttribute('aria-pressed', prefState[k] ? 'true' : 'false');
+    return b;
   }
   prefsApply();
   var prefs = {
-    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount,
+    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount, button: prefsButton,
     on: function (fn) { prefListeners.push(fn); }
   };
 
@@ -7120,18 +7336,12 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる)
 function setupToggles() {
-  const box = document.getElementById("display-toggles");
-  const apply = () => document.documentElement.classList.toggle("large-text", Boolean(store.pref("largeText")));
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    store.setPref("largeText", !store.pref("largeText"));
-    b.setAttribute("aria-pressed", store.pref("largeText") ? "true" : "false");
-    apply();
-    window.dispatchEvent(new Event("resize"));
-  });
-  box.replaceChildren(b);
-  apply();
+  if (!globalThis.EduitFrame) return;
+  document.getElementById("display-toggles").replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
+  // 字の大きさが変わったら、図の大きさを測り直す
+  globalThis.EduitFrame?.prefs.on((key) => key === "fs" && window.dispatchEvent(new Event("resize")));
 }
 
 function setupTeacherKeys() {
@@ -7153,7 +7363,7 @@ function start() {
   setupToggles();
   setupTeacherKeys();
   const header = document.querySelector(".app-header");
-  const setHeaderH = () => document.documentElement.style.setProperty("--header-h", `${header?.offsetHeight || 0}px`);
+  const setHeaderH = () => document.documentElement.style.setProperty("--app-header-h", `${header?.offsetHeight || 0}px`);
   setHeaderH();
   if (header && "ResizeObserver" in window) new ResizeObserver(setHeaderH).observe(header);
   window.addEventListener("hashchange", route);

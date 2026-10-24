@@ -478,7 +478,7 @@ html[data-ef-prefs][data-ef-ruby="off"] rt { display: none; }  /* ふりがな �
 .ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
 .ef-level-group { display: flex; align-items: baseline; gap: .7em; margin: 24px 0 0; padding: 0 0 6px; border-bottom: var(--ef-bw-strong) solid var(--ef-ink); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
-.ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
+.ef-level-group-ch { flex: none; white-space: nowrap; font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 /* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
 .ef-level-link { margin: 6px 0 12px; line-height: 1.6; }
 .ef-level-link a { display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; color: var(--ef-text); text-decoration: none; font-weight: 600; }
@@ -975,9 +975,6 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 </style>
   <style>
 /* D11 問題解決ノート: D のアダプタの見た目(上のバー・タブ・保存の表示)。ノートの中身の見た目は shared/mondai-note/mondai-note.css */
-html { font-size: 17px; }
-html.large-text { font-size: 20px; }
-@media (max-width: 700px) { html.large-text { font-size: 18px; } }
 body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.7; -webkit-text-size-adjust: 100%; }
 *, *::before, *::after { box-sizing: border-box; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -987,13 +984,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand { text-decoration: none; color: inherit; }
 .display-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
 /* タブの帯(下へ読み進めると上へ隠れる: data-ef-autohide) */
-.mnd-tabs { position: sticky; top: var(--mnd-head, 60px); z-index: 5; }  /* 見た目は .ef-apptabs */
+.mnd-tabs { position: sticky; top: var(--app-head-h, 60px); z-index: 5; }  /* 見た目は .ef-apptabs */
 .mnd-main { display: block; max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; outline: none; }
 .mnd-main > section[hidden] { display: none !important; }
 .mnd-saved { color: var(--ef-muted); font-size: .85em; margin: .3em 0; }
 .app-footer { text-align: center; font-size: .85rem; color: var(--ef-muted); padding: 24px 16px 40px; }
 .app-note { margin: 0 0 8px; }
-.mnd-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-text); color: #fff; padding: 10px 18px; border-radius: 0; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.mnd-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ef-text); color: var(--ef-on-ink); padding: 10px 18px; border-radius: 0; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); width: max-content; opacity: 0; transition: opacity .2s; pointer-events: none; }
 .mnd-toast.show { opacity: 1; }
 @media (max-width: 640px) {
   .mnd-main { padding: 10px 8px 40px; }
@@ -1023,11 +1020,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chapter-nav ol { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 18px; overflow: visible; padding: 0; margin: 0; }
 .chapter-nav li { flex: none; }
 .chapter-nav .nav-group { display: none; }
+/* style-check: off(タブの字は共通の .ef-apptab と同じ 15px。字の大きさの設定では変えない) */
 .chapter-nav a, .chapter-nav span.disabled {
   display: inline-flex; align-items: center; gap: 0; min-height: 44px; padding: 0 12px; box-sizing: border-box;
   border: 0; border-bottom: var(--ef-mark) solid transparent; border-radius: 0; background: none; color: var(--ef-muted);
   font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; text-decoration: none; box-shadow: none;
 }
+/* style-check: on */
 .chapter-nav span.disabled { font-weight: 400; }
 .chapter-nav a:hover { background: none; color: var(--ef-text); border-bottom-color: var(--ef-line); }
 .chapter-nav a[aria-current="page"], .chapter-nav a[aria-current="page"]:hover {
@@ -2218,7 +2217,7 @@ window.EDUIT_INFO.jishu.ruby = {
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  * 表示の設定(全教材で1つ): EduitFrame.prefs。上のバーのボタンに data-ef-pref="ruby" / "fs" / "kukkiri" を付けると、
  *   ふりがな・「文字 中」(小・中・大・特大)・くっきりのボタンになる。ボタンのない教材は EduitFrame.prefs.use()。
- *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。くわしくは下の「表示の設定」。
+ *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。JS でバーを作る教材は prefs.button('fs') でボタンを受け取る。くわしくは下の「表示の設定」。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
@@ -2793,27 +2792,36 @@ window.EDUIT_INFO.jishu.ruby = {
     });
     prefSizeUpdates.forEach(function (u) { u(); });
   }
+  function prefsMountOne(b) {
+    var k = b.getAttribute('data-ef-pref');
+    b.setAttribute('data-ef-pref-done', '');
+    if (k === 'fs') {
+      prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
+    } else if (k === 'ruby' || k === 'kukkiri') {
+      b.classList.add('ef-btn', 'ef-toggle');
+      b.type = 'button';
+      if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
+      b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
+    }
+  }
   function prefsMount() {
     var btns = document.querySelectorAll('[data-ef-pref]:not([data-ef-pref-done])');
     if (!btns.length) return;
     prefsUse();
-    Array.prototype.forEach.call(btns, function (b) {
-      var k = b.getAttribute('data-ef-pref');
-      b.setAttribute('data-ef-pref-done', '');
-      if (k === 'fs') {
-        prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
-      } else if (k === 'ruby' || k === 'kukkiri') {
-        b.classList.add('ef-btn', 'ef-toggle');
-        b.type = 'button';
-        if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
-        b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
-      }
-    });
+    Array.prototype.forEach.call(btns, prefsMountOne);
     prefsPaintButtons();
+  }
+  // JS で上のバーを作る教材用: EduitFrame.prefs.button('fs' | 'ruby' | 'kukkiri') で、もうボタンになったものを返す(置く場所は教材が決める)
+  function prefsButton(k) {
+    var b = el('button', { class: 'ef-btn', 'data-ef-pref': k });
+    prefsUse();
+    prefsMountOne(b);
+    if (k !== 'fs') b.setAttribute('aria-pressed', prefState[k] ? 'true' : 'false');
+    return b;
   }
   prefsApply();
   var prefs = {
-    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount,
+    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount, button: prefsButton,
     on: function (fn) { prefListeners.push(fn); }
   };
 
@@ -4639,8 +4647,7 @@ window.EDUIT_INFO.jishu.ruby = {
     w.appendChild(btn('この端末のノートを消す', function () {
       if (!window.confirm('この端末の問題解決ノートをすべて消します。もとにもどせません。提出がまだなら、先に「ファイルに書き出す」でファイルにしておこう。消しますか?')) return;
       try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
-      var keep = { largeText: saved.largeText };
-      saved = keep;
+      saved = {};
       note.setData(MN.defaults(DOMAIN));
       persist();
       toast('消しました');
@@ -4677,29 +4684,11 @@ window.EDUIT_INFO.jishu.ruby = {
   }
   window.addEventListener('hashchange', function () { show(tabOf(location.hash)); });
 
-  // ---- 文字の大きさ(4分野共通の「文字 中/大」ボタン。教材集の中では教材集のボタンがこれを押す) ----
-  (function setupToggles() {
-    var box = $('#display-toggles');
-    var on = !!saved.largeText;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'ef-btn ef-size';
-    b.setAttribute('data-kz-label', '大きな文字');
-    b.setAttribute('aria-label', '文字の大きさ(大きな文字)');
-    b.appendChild(document.createTextNode('文字 '));
-    var v = document.createElement('span');
-    v.className = 'ef-size-v';
-    b.appendChild(v);
-    function apply() {
-      b.setAttribute('aria-pressed', String(on));
-      document.documentElement.classList.toggle('large-text', on);
-    }
-    b.addEventListener('click', function () { on = !on; saved.largeText = on; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ } apply(); });
-    apply();
-    box.appendChild(b);
-  })();
+  // ---- 文字の大きさ(全教材で共通の設定 EduitFrame.prefs。小・中・大・特大) ----
+  if (window.EduitFrame) $('#display-toggles').appendChild(EduitFrame.prefs.button('fs'));
+  window.EduitFrame && EduitFrame.prefs.on(function (key) { if (key === 'fs') headH(); });
   // タブの帯を上のバーのすぐ下に止める(上のバーの高さはスマホで2行になる)
-  function headH() { var hd = $('.app-header'); if (hd) document.documentElement.style.setProperty('--mnd-head', hd.offsetHeight + 'px'); }
+  function headH() { var hd = $('.app-header'); if (hd) document.documentElement.style.setProperty('--app-head-h', hd.offsetHeight + 'px'); }
   window.addEventListener('resize', headH);
   headH();
 

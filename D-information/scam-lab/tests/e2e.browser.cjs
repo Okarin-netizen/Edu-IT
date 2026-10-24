@@ -150,7 +150,7 @@ const check = (ok, label) => {
   await p.click("text=ふりがな");
 
   // はじめからやり直す
-  await p.click('[data-kz-label="大きな文字"]');
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 20)); // 文字「大」(全教材で共通の設定)
   await go("records");
   await p.click("text=この端末の記録をすべて消す");
   check((await p.locator(".reset-confirm").count()) === 1, "消す前に画面の中で確かめる");
@@ -163,8 +163,8 @@ const check = (ok, label) => {
   check((await p.inputValue("#rec-cls")) === "" && (await p.locator(".chapter-nav li.done").count()) === 0, "組・番号・クリアの ✓ が消える");
   await go("matome");
   check((await p.inputValue("#refl-r1")) === "", "ふりかえりが消える");
-  check(await p.evaluate(() => document.documentElement.classList.contains("big-text")), "文字の大きさの設定は残る");
-  await p.click('[data-kz-label="大きな文字"]');
+  check((await p.evaluate(() => getComputedStyle(document.documentElement).fontSize)) === "20px", "文字の大きさの設定は残る");
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 17));
 
   // スマホ幅・タブレット縦ではみ出さない
   for (const [w, hgt] of [[390, 800], [810, 1080]]) {
@@ -183,13 +183,13 @@ const check = (ok, label) => {
   if (await p.locator("text=体験をはじめる").count()) await p.click("text=体験をはじめる");
   const pos = await p.evaluate(() => ["situation", "device"].map((c) => document.querySelector("." + c).getBoundingClientRect().top));
   check(pos[0] < pos[1], "スマホ幅で「いまの状況」がスマホの画面より上");
-  await p.click('[data-kz-label="大きな文字"]');
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 24)); // 文字「特大」
   for (const id of ["oneclick", "support", "shop"]) {
     await go(id);
     const sw = await p.evaluate(() => document.documentElement.scrollWidth);
-    check(sw <= 390, `大きな文字でもスマホ幅で ${id} がはみ出さない (${sw})`);
+    check(sw <= 390, `文字「特大」でもスマホ幅で ${id} がはみ出さない (${sw})`);
   }
-  await p.click('[data-kz-label="大きな文字"]');
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 17));
 
   check(errors.length === 0, "エラーが出ない" + (errors.length ? ": " + errors.join(" / ") : ""));
   check(external.length === 0, "外部への通信が0件" + (external.length ? ": " + external.join(" ") : ""));

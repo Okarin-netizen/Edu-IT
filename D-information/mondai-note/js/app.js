@@ -108,8 +108,7 @@
     w.appendChild(btn('この端末のノートを消す', function () {
       if (!window.confirm('この端末の問題解決ノートをすべて消します。もとにもどせません。提出がまだなら、先に「ファイルに書き出す」でファイルにしておこう。消しますか?')) return;
       try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
-      var keep = { largeText: saved.largeText };
-      saved = keep;
+      saved = {};
       note.setData(MN.defaults(DOMAIN));
       persist();
       toast('消しました');
@@ -146,29 +145,11 @@
   }
   window.addEventListener('hashchange', function () { show(tabOf(location.hash)); });
 
-  // ---- 文字の大きさ(4分野共通の「文字 中/大」ボタン。教材集の中では教材集のボタンがこれを押す) ----
-  (function setupToggles() {
-    var box = $('#display-toggles');
-    var on = !!saved.largeText;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'ef-btn ef-size';
-    b.setAttribute('data-kz-label', '大きな文字');
-    b.setAttribute('aria-label', '文字の大きさ(大きな文字)');
-    b.appendChild(document.createTextNode('文字 '));
-    var v = document.createElement('span');
-    v.className = 'ef-size-v';
-    b.appendChild(v);
-    function apply() {
-      b.setAttribute('aria-pressed', String(on));
-      document.documentElement.classList.toggle('large-text', on);
-    }
-    b.addEventListener('click', function () { on = !on; saved.largeText = on; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても続ける */ } apply(); });
-    apply();
-    box.appendChild(b);
-  })();
+  // ---- 文字の大きさ(全教材で共通の設定 EduitFrame.prefs。小・中・大・特大) ----
+  if (window.EduitFrame) $('#display-toggles').appendChild(EduitFrame.prefs.button('fs'));
+  window.EduitFrame && EduitFrame.prefs.on(function (key) { if (key === 'fs') headH(); });
   // タブの帯を上のバーのすぐ下に止める(上のバーの高さはスマホで2行になる)
-  function headH() { var hd = $('.app-header'); if (hd) document.documentElement.style.setProperty('--mnd-head', hd.offsetHeight + 'px'); }
+  function headH() { var hd = $('.app-header'); if (hd) document.documentElement.style.setProperty('--app-head-h', hd.offsetHeight + 'px'); }
   window.addEventListener('resize', headH);
   headH();
 

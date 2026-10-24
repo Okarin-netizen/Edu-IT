@@ -75,39 +75,29 @@ function renderOverall() {
 }
 
 // 表示の切りかえ。押しても画面は作り直さない（やりかけの入力・選んだもの・場所はそのまま: SEC-11）。
-// ボタン: #display-toggles button[data-pref="ruby" | "easy" | "largeText"]、今の状態は aria-pressed(文字の大きさは「文字 中/大」の .ef-size)。
-// 教材集などの外側からは、このボタンを click() すれば切りかわる（状態は localStorage "seclab.prefs" に残る）。
+// ふりがな・文字の大きさは全教材で共通の設定(EduitFrame.prefs。ボタンは [data-ef-pref="ruby" | "fs"])。
+// やさしい日本語のまとめはこの教材だけの切りかえ: #display-toggles button[data-pref="easy"]（状態は localStorage "seclab.prefs"）。
 async function renderToggles() {
-  const items = [
-    ["ruby", "ふりがな"],
-    ["largeText", "大きな文字"],
-    ["easy", "やさしい日本語のまとめ"],
-  ];
-  const buttons = await Promise.all(
-    items.map(async ([key, label]) => {
-      const on = Boolean(await pref(key));
-      // ふりがな・やさしい日本語は ✓ の付く切りかえ(.ef-toggle)、文字の大きさは4分野共通の「文字 中/大」ボタン(.ef-size)
-      const b =
-        key === "largeText"
-          ? h("button", { type: "button", class: "ef-btn ef-size", "data-pref": key, "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": on ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }))
-          : h("button", { type: "button", class: "toggle ef-btn ef-toggle", "data-pref": key, "aria-pressed": on ? "true" : "false" }, label);
-      b.addEventListener("click", () => setDisplay(key, b.getAttribute("aria-pressed") !== "true"));
-      return b;
-    }),
-  );
-  toggles.replaceChildren(...buttons);
+  const ef = globalThis.EduitFrame;
+  const easy = h("button", { type: "button", class: "toggle ef-btn ef-toggle", "data-pref": "easy", "aria-pressed": (await pref("easy")) ? "true" : "false" }, "やさしい日本語のまとめ");
+  easy.addEventListener("click", () => setDisplay("easy", easy.getAttribute("aria-pressed") !== "true"));
+  toggles.replaceChildren(...(ef ? [ef.prefs.button("ruby"), ef.prefs.button("fs")] : []), easy);
 }
+globalThis.EduitFrame?.prefs.on(async (key, value) => {
+  if (key !== "ruby") return;
+  await setRubyEnabled(view, value);
+  showCurrentInNav();
+});
+const rubyOn = () => Boolean(globalThis.EduitFrame?.prefs.get("ruby"));
 
 async function setDisplay(key, on) {
   setPref(key, on);
   toggles.querySelector(`[data-pref="${key}"]`)?.setAttribute("aria-pressed", on ? "true" : "false");
   await applyDisplay();
-  if (key === "ruby") await setRubyEnabled(view, on);
   showCurrentInNav();
 }
 
 async function applyDisplay() {
-  document.documentElement.classList.toggle("large-text", Boolean(await pref("largeText")));
   document.documentElement.classList.toggle("easy-mode", Boolean(await pref("easy")));
 }
 
@@ -199,7 +189,7 @@ async function reloadConfig() {
   available = availableModules(config);
   await applyDisplay();
   await renderToggles();
-  await setRubyEnabled(view, Boolean(await pref("ruby")));
+  await setRubyEnabled(view, rubyOn());
   await route();
 }
 

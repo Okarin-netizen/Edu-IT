@@ -126,8 +126,8 @@ const check = (ok, label) => {
   check((await p.locator(".quiz-opts .choice.right").count()) >= 1, "読みこみ直してもクイズの答えが残る");
 
   // ほかの教材と同じ枠: 上のバーの道具の順番・ページの移動
-  const tools = await p.locator("#display-toggles button").evaluateAll((bs) => bs.map((b) => b.getAttribute("data-kz-label") || b.textContent.trim()));
-  check(tools.join(",") === "ふりがな,大きな文字", `上のバーの道具の順番 (${tools.join(",")})`);
+  const tools = await p.locator("#display-toggles button").evaluateAll((bs) => bs.map((b) => b.getAttribute("data-ef-pref")));
+  check(tools.join(",") === "ruby,fs", `上のバーの道具の順番 (${tools.join(",")})`);
   // 基本編(①〜③)のあとに発展編(④〜⑧)。クイズ(③)のつぎは ④ つぎの言葉あて、さいごの ⑧ のつぎが「ふりかえり・記録」
   check((await p.locator(".pager a", { hasText: "つぎの言葉あて" }).count()) === 1, "クイズ(③)のつぎは ④ つぎの言葉あて");
   check(/はじめに[\s\S]*もっともらしいまちがい[\s\S]*個人情報[\s\S]*クイズとふりかえり[\s\S]*つぎの言葉あて/.test(await p.locator(".chapter-nav").innerText()), "左のメニューは ① もっともらしいまちがい から");
@@ -135,7 +135,7 @@ const check = (ok, label) => {
   check((await p.locator(".pager a", { hasText: "ふりかえり・記録" }).count()) === 1, "⑧ ノイズから絵をつくる のつぎは「ふりかえり・記録」");
 
   // はじめから(データリセット)
-  await p.click('[data-kz-label="大きな文字"]');
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 20)); // 文字「大」(全教材で共通の設定)
   await go("records");
   await p.click("text=この端末の記録をすべて消す");
   check((await p.locator(".reset-confirm").count()) === 1, "消す前に画面の中で確かめる");
@@ -150,11 +150,11 @@ const check = (ok, label) => {
   await go("quiz");
   check((await p.locator(".quiz-opts .choice.right, .quiz-opts .choice.wrong").count()) === 0, "クイズの答えが消える");
   check((await p.inputValue("#refl-r1")) === "", "ふりかえりが消える");
-  check(await p.evaluate(() => document.documentElement.classList.contains("big-text")), "文字の大きさの設定は残る");
+  check((await p.evaluate(() => getComputedStyle(document.documentElement).fontSize)) === "20px", "文字の大きさの設定は残る");
   await p.reload();
   await p.waitForTimeout(200);
   check((await p.locator(".quiz-opts .choice.right, .quiz-opts .choice.wrong").count()) === 0, "読みこみ直しても消えたまま");
-  await p.click('[data-kz-label="大きな文字"]');
+  await p.evaluate(() => EduitFrame.prefs.set("fs", 17));
 
   // GL-22: タブレット縦で、メニューの8ステップが全部見える
   await p.setViewportSize({ width: 810, height: 1080 });

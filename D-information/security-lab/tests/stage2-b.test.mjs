@@ -233,7 +233,7 @@ test("第2段（ブラウザ）: 切りかえ・テスト・記録・先生用�
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     const startMode = (name) => page.locator(".module-card", { has: page.locator(".mc-title", { hasText: new RegExp(`^${name}$`) }) }).getByRole("button", { name: "はじめる" }).click();
-    const toggle = (key) => page.locator(`#display-toggles button[data-pref="${key}"]`);
+    const toggle = (key) => page.locator(`#display-toggles button[data-pref="${key}"], #display-toggles button[data-ef-pref="${key}"]`);
 
     // SEC-11: 作業の途中で3つの切りかえを押しても、選んだものと書きかけの文が残る
     await page.goto(`${base}#/sns`);
@@ -243,10 +243,13 @@ test("第2段（ブラウザ）: 切りかえ・テスト・記録・先生用�
     const ta = page.locator("#reflect-sns");
     await ta.fill("書きかけの文");
     const y = await page.evaluate(() => window.scrollY);
-    for (const k of ["ruby", "easy", "largeText"]) {
+    for (const k of ["ruby", "easy"]) {
       await toggle(k).click();
       assert.equal(await toggle(k).getAttribute("aria-pressed"), "true");
     }
+    // 文字の大きさは全教材で共通の「文字 中」(中 → 大)
+    await toggle("fs").click();
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize), "20px");
     assert.equal(await fixCard.locator("label.check-item").first().locator("input").isChecked(), true, "選んだものが残る");
     assert.equal(await ta.inputValue(), "書きかけの文");
     const y2 = await page.evaluate(() => window.scrollY);
@@ -261,7 +264,7 @@ test("第2段（ブラウザ）: 切りかえ・テスト・記録・先生用�
     assert.equal(await page.locator("#view ruby").count(), 0);
     assert.match(await fixCard.innerText(), /「毎日この時間」を消し、投稿は家に帰ってから時間をずらしてする/);
     await toggle("easy").click();
-    await toggle("largeText").click();
+    for (let i = 0; i < 3; i++) await toggle("fs").click(); // 大 → 特大 → 小 → 中
 
     // SEC-22: 章ナビは画面の中に収まり、下の「ふりかえり・記録」までスクロールで届く
     const navBox = await page.locator("#chapter-nav").boundingBox();

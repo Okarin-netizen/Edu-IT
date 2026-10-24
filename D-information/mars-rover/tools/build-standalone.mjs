@@ -45,7 +45,7 @@ html = html
   .replace(/<link rel="stylesheet" href="css\/rover\.css">/, () => style("css/rover.css"))
   .replace(/src="icons\/icon.svg"/g, `src="${icon}"`)
   .replace(/<script type="module" src="js\/app.js"><\/script>/, () => `<script>\n"use strict";\n${safe(chunks.join("\n\n"))}\n</script>`);
-if (/<link rel="stylesheet" href="(?!\.\.\/\.\.\/shared|\.\.\/d-frame)/.test(html) || /<script type="module"/.test(html)) throw new Error("中に入れられなかったファイルがあります");
+if (/<link rel="stylesheet" href="(?!\.\.\/\.\.\/shared|\.\.\/d-frame|\.\.\/d-common)/.test(html) || /<script type="module"/.test(html)) throw new Error("中に入れられなかったファイルがあります");
 
 // 4分野共通の枠と、版・更新履歴を中に入れる
 html = inlineEduitFrame(html);

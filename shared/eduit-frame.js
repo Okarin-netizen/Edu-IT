@@ -36,7 +36,7 @@
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
  * 表示の設定(全教材で1つ): EduitFrame.prefs。上のバーのボタンに data-ef-pref="ruby" / "fs" / "kukkiri" を付けると、
  *   ふりがな・「文字 中」(小・中・大・特大)・くっきりのボタンになる。ボタンのない教材は EduitFrame.prefs.use()。
- *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。くわしくは下の「表示の設定」。
+ *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。JS でバーを作る教材は prefs.button('fs') でボタンを受け取る。くわしくは下の「表示の設定」。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
@@ -611,27 +611,36 @@
     });
     prefSizeUpdates.forEach(function (u) { u(); });
   }
+  function prefsMountOne(b) {
+    var k = b.getAttribute('data-ef-pref');
+    b.setAttribute('data-ef-pref-done', '');
+    if (k === 'fs') {
+      prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
+    } else if (k === 'ruby' || k === 'kukkiri') {
+      b.classList.add('ef-btn', 'ef-toggle');
+      b.type = 'button';
+      if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
+      b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
+    }
+  }
   function prefsMount() {
     var btns = document.querySelectorAll('[data-ef-pref]:not([data-ef-pref-done])');
     if (!btns.length) return;
     prefsUse();
-    Array.prototype.forEach.call(btns, function (b) {
-      var k = b.getAttribute('data-ef-pref');
-      b.setAttribute('data-ef-pref-done', '');
-      if (k === 'fs') {
-        prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
-      } else if (k === 'ruby' || k === 'kukkiri') {
-        b.classList.add('ef-btn', 'ef-toggle');
-        b.type = 'button';
-        if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
-        b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
-      }
-    });
+    Array.prototype.forEach.call(btns, prefsMountOne);
     prefsPaintButtons();
+  }
+  // JS で上のバーを作る教材用: EduitFrame.prefs.button('fs' | 'ruby' | 'kukkiri') で、もうボタンになったものを返す(置く場所は教材が決める)
+  function prefsButton(k) {
+    var b = el('button', { class: 'ef-btn', 'data-ef-pref': k });
+    prefsUse();
+    prefsMountOne(b);
+    if (k !== 'fs') b.setAttribute('aria-pressed', prefState[k] ? 'true' : 'false');
+    return b;
   }
   prefsApply();
   var prefs = {
-    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount,
+    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount, button: prefsButton,
     on: function (fn) { prefListeners.push(fn); }
   };
 

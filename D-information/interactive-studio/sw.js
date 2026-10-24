@@ -1,10 +1,11 @@
 // オフラインで使えるように、スタジオのファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "istudio-v10";
+const CACHE = "istudio-v11";
 const FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "icons/icon.svg",
+  "../d-common.css",
   "css/style.css",
   "../eduit-info.js",
   "../../shared/eduit-frame.css",

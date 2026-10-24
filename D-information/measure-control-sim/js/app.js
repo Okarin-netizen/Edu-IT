@@ -1098,18 +1098,10 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる)
 function setupToggles() {
-  const box = document.getElementById("display-toggles");
-  const apply = () => document.documentElement.classList.toggle("large-text", Boolean(store.pref("largeText")));
-  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": store.pref("largeText") ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    store.setPref("largeText", !store.pref("largeText"));
-    b.setAttribute("aria-pressed", store.pref("largeText") ? "true" : "false");
-    apply();
-  });
-  box.replaceChildren(b);
-  apply();
+  if (!globalThis.EduitFrame) return;
+  document.getElementById("display-toggles").replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
 }
 
 async function start() {

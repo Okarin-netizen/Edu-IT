@@ -11,38 +11,15 @@
   const switcher = document.getElementById("switcher");
   const frames = new Map();
 
-  // 上のバーの「ふりがな」「大きな文字」（KS-01）: すべての教材とこのメニューにかかる。
+  // 上のバーの「ふりがな」「文字」「くっきり」（KS-01）: 全教材で共通の設定（EduitFrame.prefs。localStorage 'eduit.prefs'）。
+  // ボタンは shell.html の data-ef-pref。iframe の中の教材には storage のしらせで伝わる（src/display.js）。
   // 表示の設定なので「はじめからやり直す」でも消さない（resetKeys に入れない）
-  const PREFS_KEY = "kyozai.prefs.v1";
-  let prefs = { ruby: false, largeText: false };
-  try {
-    const v = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
-    if (v && typeof v === "object") prefs = { ruby: Boolean(v.ruby), largeText: Boolean(v.largeText) };
-  } catch {}
-  const tgRuby = document.getElementById("tg-ruby");
-  const tgLarge = document.getElementById("tg-large");
+  const efPrefs = window.EduitFrame.prefs;
   const shellRuby = kyozaiRuby(document, DATA.rubyWords || {}, [".shell-header", "#stage"]);
   function applyPrefs() {
-    tgRuby.setAttribute("aria-pressed", String(prefs.ruby));
-    tgLarge.setAttribute("aria-pressed", String(prefs.largeText));
-    document.documentElement.classList.toggle("large-text", prefs.largeText && document.body.classList.contains("home-mode"));
-    shellRuby.set(prefs.ruby, document.body);
-    for (const f of frames.values()) applyPrefsTo(f);
+    shellRuby.set(efPrefs.get("ruby"), document.body);
   }
-  function applyPrefsTo(f) {
-    try {
-      f.contentWindow?.kyozaiDisplay?.set(prefs);
-    } catch {}
-  }
-  function togglePref(key) {
-    prefs = { ...prefs, [key]: !prefs[key] };
-    try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-    } catch {}
-    applyPrefs();
-  }
-  tgRuby.addEventListener("click", () => togglePref("ruby"));
-  tgLarge.addEventListener("click", () => togglePref("largeText"));
+  efPrefs.on((key) => key === "ruby" && applyPrefs());
 
   // 開いたことのある教材と、さいごに開いた教材（このパソコンのブラウザの中だけに保存）
   const SEEN_KEY = "kyozai.seen.v1";
@@ -416,17 +393,8 @@
       sessionStorage.removeItem(PLACE_KEY);
     } catch {}
     try {
-      for (const k of DATA.resetKeys || []) {
-        // 表示の設定（ふりがな・大きな文字）だけは残す（各ラボの「はじめからやり直す」と同じ）
-        const keep = (DATA.resetKeep || {})[k];
-        const old = keep ? readKey(k) : undefined;
-        localStorage.removeItem(k);
-        if (isObj(old)) {
-          const rest = {};
-          for (const f of keep) if (f in old) rest[f] = old[f];
-          if (Object.keys(rest).length) localStorage.setItem(k, JSON.stringify(rest));
-        }
-      }
+      // 表示の設定（ふりがな・文字の大きさ。全教材で共通の eduit.prefs）は resetKeys に入れていないので残る
+      for (const k of DATA.resetKeys || []) localStorage.removeItem(k);
     } catch {}
     seen = { opened: [], last: null };
     resetMsg = "記録をすべて消しました。はじめから使えます。";
@@ -451,7 +419,7 @@
   }
   // 上のバーの高さ（スマホでは2行になる）を、教材を出す場所の高さの計算に使う
   const header = document.getElementById("shell-header");
-  const setBarH = () => document.documentElement.style.setProperty("--bar-h", `${header.offsetHeight}px`);
+  const setBarH = () => document.documentElement.style.setProperty("--app-bar-h", `${header.offsetHeight}px`);
   if (window.ResizeObserver) new ResizeObserver(setBarH).observe(header);
   window.addEventListener("resize", setBarH);
 
@@ -532,7 +500,6 @@
     const m = byId.get(id);
     document.body.classList.toggle("home-mode", !m);
     document.body.classList.toggle("app-mode", Boolean(m));
-    document.documentElement.classList.toggle("large-text", prefs.largeText && !m);
     header.classList.toggle("ef-appbar", Boolean(m));
     barTitle.classList.toggle("ef-apptitle", Boolean(m));
     if (!m) {
@@ -591,7 +558,6 @@
       if (e.target.tagName !== "IFRAME") return;
       const f = e.target;
       f.dataset.loaded = "1";
-      applyPrefsTo(f);
       applyBackTo(f);
       // 教材の中でページが変わるたびに、その場所を覚える（SEC-23）
       try {

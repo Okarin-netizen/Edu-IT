@@ -19,9 +19,9 @@ const view = document.getElementById("view");
 const PREF_KEY = "istudio.prefs.v1";
 const prefs = (() => {
   try {
-    return { editorMode: "both", debugView: "code", speed: "run", delay: 500, largeText: false, ...JSON.parse(localStorage.getItem(PREF_KEY) || "{}") };
+    return { editorMode: "both", debugView: "code", speed: "run", delay: 500, ...JSON.parse(localStorage.getItem(PREF_KEY) || "{}") };
   } catch {
-    return { editorMode: "both", debugView: "code", speed: "run", delay: 500, largeText: false };
+    return { editorMode: "both", debugView: "code", speed: "run", delay: 500 };
   }
 })();
 const savePrefs = () => {
@@ -32,20 +32,10 @@ const savePrefs = () => {
   }
 };
 
-// 「大きな文字」の切りかえ（ほかの教材と同じ。IS-16）。設定は istudio.prefs.v1 に入れる
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる。IS-16)
 function renderToggles() {
-  document.documentElement.classList.toggle("large-text", Boolean(prefs.largeText));
   const box = document.getElementById("display-toggles");
-  if (!box) return;
-  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": prefs.largeText ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    prefs.largeText = !prefs.largeText;
-    savePrefs();
-    renderToggles();
-    box.querySelector("button")?.focus();
-  });
-  box.replaceChildren(b);
+  if (box && globalThis.EduitFrame) box.replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
 }
 
 // ---- 部品（エディタのパレットと、実行タブの「部品の配置」で共用） ----
@@ -1418,7 +1408,7 @@ function viewRecords() {
     const text = ta.value.trim();
     if (text.length < 5) {
       note.textContent = "もう少し書いてみよう（5文字以上）";
-      note.style.color = "var(--warn)";
+      note.style.color = "var(--ef-warn)";
       return;
     }
     savePlan(reflectId, { reflect: text });

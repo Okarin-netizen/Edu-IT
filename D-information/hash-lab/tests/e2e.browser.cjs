@@ -154,8 +154,8 @@ const check = (ok, label) => {
   await p.waitForTimeout(150);
   check((await p.locator("#rec-name").inputValue()) === "山田花子", "読みこみ直しても名前が残る");
 
-  // ふりがな・大きな文字
-  await p.click("button.toggle:has-text('ふりがな')");
+  // ふりがな(全教材で共通の設定)
+  await p.click('#display-toggles [data-ef-pref="ruby"]');
   check((await p.locator("#view ruby").count()) > 0, "ふりがなが付く");
 
   // はじめからやり直す
@@ -165,7 +165,7 @@ const check = (ok, label) => {
   await p.waitForTimeout(150);
   const after = await p.evaluate(() => JSON.parse(localStorage.getItem("eduit-hash-lab") || "{}"));
   check(!after.missions && !after.refl && !after.student, "記録・チャレンジ・ふりかえり・名前が消える");
-  check(after.furigana === true, "ふりがなの設定は残る");
+  check(await p.evaluate(() => JSON.parse(localStorage.getItem("eduit.prefs") || "{}").ruby === true), "ふりがなの設定は残る(全教材で共通の eduit.prefs)");
   check((await p.locator("#rec-name").inputValue()) === "", "名前の欄が空になる");
   await go("quiz");
   check((await p.locator(".choice:disabled").count()) === 0, "クイズの答えも消える");
