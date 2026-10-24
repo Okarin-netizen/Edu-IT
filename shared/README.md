@@ -113,7 +113,7 @@
 
 見た目を直すときは、直す前と後に次の2つを使う。
 
-- **点検** `python3 shared/style-check.py`(`--sum` でファイルごとの数、`--only color,radius` で種類をしぼる、フォルダを書けばそこだけ、`--strict` で1件でもあれば終了コード 1)。
+- **点検** `python3 shared/style-check.py`(`--sum` でファイルごとの数、`--only color,radius` で種類をしぼる、フォルダを書けばそこだけ、`--strict` で1件でもあれば終了コード 1)。`クラスルーム配布/まとめる.py`(と `shared/tools/build-all.py`)の最後に `--strict` で必ず走り、1件でもあれば止まる。
   色・文字・余白・線の値は `eduit-frame.css` のいちばん上にだけ書き、教材は `--ef-…` の名前と共通の部品を使う、という決まりに合わない所を出す。
   図の色は、教材の CSS のいちばん上で `--fig-…` の名前を付けて書けば出ない。本物に似せた画面など決まりの外にしたい所は `/* style-check: off */` 〜 `/* style-check: on */` ではさむ。
   出さないもの: 図の中の SVG の字の px(同じ行に `fill`・`stroke`・`text-anchor` がある所)、ON の印の下線(`box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 …`)、`display` の `!important`(隠す・印刷で出す切りかえ)。

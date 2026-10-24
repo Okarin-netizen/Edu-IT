@@ -6,8 +6,8 @@
 順番:
   1. B(node B-bio/build/rebuild.js)・C(python3 C-energy/build/build.py)
   2. D の各教材(npm run build と同じ tools/build-standalone.mjs)→ D の教材集(kyozai-shu/tools/build.mjs)
-  3. クラスルーム配布/まとめる.py(G・A・T・先生用の道具・ワークシートもこの中で作り直す)
-  4. 見た目の点検(shared/style-check.py)の件数を出す
+  3. クラスルーム配布/まとめる.py(G・A・T・先生用の道具・ワークシートもこの中で作り直す。
+     最後に見た目の点検 shared/style-check.py --strict を走らせ、1件でもあれば止まる)
 
 1つの分野だけを直したときは、その分野の作り直しのコマンド(README.md の表)と まとめる.py だけでよい。
 """
@@ -31,6 +31,5 @@ run([sys.executable, 'C-energy/build/build.py'])
 for lab in D_LABS:
     run(['node', 'tools/build-standalone.mjs'], cwd=D / lab)
 run(['node', 'tools/build.mjs'], cwd=D / 'kyozai-shu')
-run([sys.executable, 'クラスルーム配布/まとめる.py'])
-out = subprocess.run([sys.executable, 'shared/style-check.py', '--sum'], cwd=ROOT, capture_output=True, text=True).stdout
-print('見た目の点検:', out.strip().splitlines()[-1])
+run([sys.executable, 'クラスルーム配布/まとめる.py'])  # 見た目の点検もこの中(1件でもあれば止まる)
+print('見た目の点検: 0 件')
