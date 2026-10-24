@@ -329,6 +329,17 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 }
 @media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
 
+/* まず考えよう(各節の導入の問い。shared/eduit-frame.js の LETS) */
+.ef-lets { margin: 0 0 12px; padding: 10px 16px 10px 14px; background: var(--ef-accent-soft); border-left: 6px solid var(--ef-accent); border-radius: 10px; color: inherit; line-height: 1.6; font-size: 1.05em; }
+.ef-lets-k { margin: 0; font-size: .85em; font-weight: bold; color: var(--ef-accent); letter-spacing: .05em; }
+.ef-lets-k::before { content: "💭 "; }
+.ef-lets-q { margin: 2px 0 0; font-weight: bold; font-size: 1.1em; }
+.ef-lets .ef-lets-hint { margin: 4px 0 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+/* 教材ごとの details・summary の見た目(白い箱など)を受けつがない */
+.ef-lets .ef-lets-hint > summary { display: list-item; min-height: 0; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: var(--ef-accent); font-size: .9em; font-weight: normal; width: max-content; }
+.ef-lets-hint p { margin: 4px 0 0; }
+@media print { .ef-lets-hint { display: none; } }
+
 </style>
 <script>
 /* 先生用の道具(4分野共通) の版・更新履歴
@@ -426,6 +437,11 @@ window.EDUIT_INFO = {
  *   go は「この場所へ」ボタンの行き先(# で始まれば location.hash、それ以外はその要素を click)。level: 'advanced' は「発展」にまとめ、reflect: true は振り返りを隠す設定のとき出さない。
  *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
+ *
+ * まず考えよう(教科書の各節の「レッツスタート」にあたる導入): 下の LETS に、学習コース(T-textbook/course-data.js)の節の id ごとに
+ *   { q: '問い', hint: 'ヒント' } を書く。文は教科書を写さず、この教材のために書いたもの(1文40字くらい)。
+ *   教材の画面では、そのタブのいちばん上に <div data-ef-lets="a12"></div> を置くだけで、カードが入る(JS で後から作る画面でもよい)。
+ *   学習コースは EduitFrame.lets(id) でデータを、EduitFrame.letsCard(id) でカードを取る。
  *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
@@ -1200,9 +1216,98 @@ window.EDUIT_INFO = {
     });
   });
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+
+  // ---- まず考えよう(各節の導入の問い。id は学習コースの節の id) ----
+  var LETS = {
+    a11: { q: '身の回りの物を3つ選ぼう。それぞれ何の材料でできているかな?', hint: '机・はし・ペットボトルなど。木・金属・プラスチックのどれかな。' },
+    a12: { q: '木・金属・プラスチックは、家や学校のどこに使われているかな?', hint: 'いすの脚、窓のわく、筆箱など。なぜその材料なのかも考えよう。' },
+    a13: { q: '同じ紙でも、折ったり形を変えたりすると強くなるのはなぜだろう?', hint: '段ボールや、三角形の骨組みを思い出そう。' },
+    a14: { q: '飲み物の容器には、どんな工夫があるかな? よく見てさがそう。', hint: '形・材料・ふたのつくりなどに注目しよう。' },
+    a21: { q: '教室の机やいすで「こうだったらいいのに」と思うことは?', hint: '物を置く場所、すわり心地、片づけやすさなど。' },
+    a22: { q: '作りたい物で、いちばん大事にしたいことは何かな?', hint: '大きさ・じょうぶさ・使いやすさなど。図にかく前に1つ決めよう。' },
+    a23: { q: '材料や工具をむだなく用意するには、何を決めておくとよいかな?', hint: '部品の大きさと数、切る順番、使う工具など。' },
+    a24: { q: 'のこぎりやげんのうを使うとき、気をつけることを思い出そう。', hint: '手の位置、まわりの人、服装など。' },
+    a25: { q: '作った物で、はじめの「困った」は解決できたかな?', hint: 'できたこと・できなかったことを1つずつ考えよう。' },
+    a31: { q: '自分の作品とお店の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    a32: { q: '木や金属をむだなく使うには、どんな技術があるとよいかな?', hint: 'リサイクルや、長く使える工夫など。' },
+    b11: { q: '冬なのに、夏の野菜がお店にならぶのはなぜだろう?', hint: 'どこで、どうやって育てているかを考えよう。' },
+    b12: { q: '畑の土を黒いシートでおおうと、作物に何がよいのだろう?', hint: '土の温度・水分・雑草のことを考えよう。' },
+    b13: { q: 'キャベツが虫に食べられないようにするには、どんな世話が必要かな?', hint: '見回り、ネットをかける、間引きなど。' },
+    b14: { q: '牛乳をたくさん出す牛は、どうやって生まれてきたのだろう?', hint: '育て方や、親えらびのくり返しを考えよう。' },
+    b15: { q: '魚を「とる」だけでなく「育てる」のはなぜだろう?', hint: 'とれる量の変化や、食べる人の数を考えよう。' },
+    b16: { q: '畑の野菜と、工場の中で育てる野菜は、何がちがうかな?', hint: '光・水・温度・費用のちがいを考えよう。' },
+    b21: { q: '食べ物や環境のために、育てる技術で解決したいことは?', hint: '食べ物のむだ、水不足、育てる人がへることなど。' },
+    b22: { q: '作物を育てる計画で、いちばん大事にしたいことは何かな?', hint: 'とれる量・費用・手間・安全など。順位をつけてみよう。' },
+    b23: { q: 'ミニトマトの葉がしおれていたら、原因は何だと思う?', hint: '水・暑さ・根・病気・虫など、いくつも考えよう。' },
+    b24: { q: '育てた結果を、どんな見方でふり返るとよいかな?', hint: 'できばえ、とれた量、かかった費用、安全など。' },
+    b31: { q: '自分の育て方と農家の育て方は、何がにていて何がちがうかな?', hint: '育てる量や、費用・手間を考えよう。' },
+    b32: { q: 'これからの農業や漁業に、どんな技術があるとよいかな?', hint: '人手が少なくても育てられる工夫など。' },
+    c11: { q: '扇風機・電灯・テレビは、電気を何に変えて使っているかな?', hint: '光・熱・音・動き。1つの機器でいくつも変えていることもある。' },
+    c12: { q: '風車の羽根の形や枚数を変えると、できる電気は変わるかな?', hint: '予想を立ててから確かめよう。' },
+    c13: { q: 'コンセントの電気と乾電池の電気は、どこがちがうのかな?', hint: '電圧の大きさや、どこから来ているかを考えよう。' },
+    c14: { q: '扇風機の風の強さを変えられるのは、どんなしくみかな?', hint: 'スイッチと、電気の流れる量に注目しよう。' },
+    c15: { q: '電気の事故には、どんなものがあるかな? 原因も考えよう。', hint: 'たこ足配線、ぬれた手、こわれたコードなど。' },
+    c16: { q: '扇風機の中で、羽根を回しているのは何だろう?', hint: 'モーターから羽根まで、力がどう伝わるかを考えよう。' },
+    c17: { q: '自転車のペダルを1回こぐと、後ろの車輪は何回回るかな?', hint: '前と後ろの歯車の大きさ(歯の数)をくらべよう。' },
+    c18: { q: '回る動きを、ほかの動きに変えている物をさがそう。', hint: 'ワイパー、ミシン、ポンプなど。まっすぐ・ゆれる動きに変わる。' },
+    c19: { q: 'ねじの大きさが製品ごとにばらばらだったら、何が困るかな?', hint: '部品の交換や修理のときを考えよう。' },
+    c110: { q: '新しい家電には、前の物よりどんな工夫があるかな?', hint: '省エネ、安全、使いやすさに注目しよう。' },
+    c21: { q: '電気や機械で「あったらいいな」と思う物は何かな?', hint: '家や学校の明かり、温度、動く物など。' },
+    c22: { q: '作りたい回路には、どんな部品が必要かな?', hint: '電源・スイッチ・明かりやモーター・安全のための部品。' },
+    c23: { q: 'どんな動きをする模型を作りたいかな?', hint: '回る、行ったり来たりする、持ち上げる など。身近な物から考えよう。' },
+    c24: { q: '作った物は、使う人にとって安全で便利だったかな?', hint: 'はたらき・使いやすさ・安全・環境への影響で考えよう。' },
+    c31: { q: '自分の作品と会社の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    c32: { q: 'エネルギーをむだにしない技術には、どんなものがあるとよいかな?', hint: '電気をつくる・送る・使う、それぞれで考えよう。' },
+    d11: { q: 'タブレットやスマホを、ふだん何のために使っているかな?', hint: '調べもの、連絡、写真、勉強など。' },
+    d12: { q: 'タブレットに文字や命令を入れる方法は、いくつあるかな?', hint: 'キーボード、タッチ、声、カメラなど。' },
+    d13: { q: '針の時計と数字の時計は、時刻の表し方がどうちがうかな?', hint: '針はなめらかに動く。数字はとびとびに変わる。' },
+    d14: { q: 'Webページを見るとき、そのページはどこから来ているのだろう?', hint: '画面の上のアドレス(URL)を見てみよう。' },
+    d15: { q: '大事な情報を守るには、どんな方法があるかな? 3つあげよう。', hint: 'パスワード、カギをかける、写しを取っておく など。' },
+    d16: { q: 'ネットを使っていて、「こまった」と思ったことはあるかな?', hint: '知らない人からの連絡、写真ののせ方など。' },
+    d17: { q: '情報の技術で、生活のどこが便利になったかな?', hint: '買い物、連絡、地図、学校の勉強など。' },
+    d21: { q: 'ネットで、相手とやりとりしながら使うものには何があるかな?', hint: 'アンケート、チャット、ゲーム、予約など。' },
+    d22: { q: 'よく使うアプリで「こうだったらいいのに」と思うことは?', hint: '入力しにくい、見つけにくい、知らせてほしい など。' },
+    d23: { q: '作るコンテンツには、どんなボタンや表示が必要かな?', hint: '使う人が何を入れて、何が返ってくるかを考えよう。' },
+    d24: { q: '画面の流れを図にかこう。何を入れて、何が出るかな?', hint: '入力 → 処理 → 出力の順に考えよう。' },
+    d25: { q: 'できたコンテンツに、考えた機能は全部そろったかな?', hint: '友だちに使ってもらい、感想を聞こう。' },
+    d31: { q: '人が操作しなくても、自動で動く物をさがそう。', hint: '自動ドア、エアコン、街灯、信号など。' },
+    d32: { q: '自動で動く物は、何を「はかって」動きを決めているかな?', hint: '明るさ、温度、人がいるかどうか など。' },
+    d33: { q: '自動で動くしくみを作るには、どんな部品が必要かな?', hint: 'センサ・コンピュータ・動かす部品の3つで考えよう。' },
+    d34: { q: 'センサの値でどう動かすかを、先に言葉で書いてみよう。', hint: '「もし〜なら〜する」の形で書こう。' },
+    d35: { q: '作ったしくみは、考えたとおりに動いたかな?', hint: 'うまくいかなかった場面を1つえらび、直し方を考えよう。' },
+    d41: { q: '自分の作品の工夫を、社会の製品とくらべてみよう。', hint: '使いやすさ・安全・費用など。' },
+    d42: { q: 'これからの社会に、どんな情報の技術があるとよいかな?', hint: 'AI、自動運転、遠くの人とのやりとりなど。よい点と心配な点も。' }
+  };
+  function letsCard(id) {
+    var d = LETS[id];
+    if (!d) return null;
+    return el('section', { class: 'ef-lets', 'aria-label': 'まず考えよう' }, [
+      el('p', { class: 'ef-lets-k', text: 'まず考えよう' }),
+      el('p', { class: 'ef-lets-q', text: d.q }),
+      d.hint ? el('details', { class: 'ef-lets-hint' }, [el('summary', { text: 'ヒント' }), el('p', { text: d.hint })]) : null
+    ]);
+  }
+  // data-ef-lets の置き場所にカードを入れる(あとから作られた画面にも入れる)
+  function fillLets() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-lets]:not([data-ef-lets-done])'), function (box) {
+      box.setAttribute('data-ef-lets-done', '');
+      var c = letsCard(box.getAttribute('data-ef-lets'));
+      if (c) box.appendChild(c);
+    });
+  }
+  var letsTimer = 0;
+  function watchLets() {
+    fillLets();
+    if (!window.MutationObserver) return;
+    new MutationObserver(function () {
+      if (letsTimer) return;
+      letsTimer = setTimeout(function () { letsTimer = 0; fillLets(); }, 0);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
-  function start() { mount(); if (!jishuSet) jishuMount(); }
+  function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 
@@ -1244,7 +1349,7 @@ window.EDUIT_INFO = {
 </ul>
 </div>
 <section class="dom">
-<h2>A 材料と加工の技術<span class="file">配るファイル: A_材料と加工_統一版.html(第2.9版)</span></h2>
+<h2>A 材料と加工の技術<span class="file">配るファイル: A_材料と加工_統一版.html(第2.10版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
@@ -1263,7 +1368,7 @@ window.EDUIT_INFO = {
 </table>
 </section>
 <section class="dom">
-<h2>B 生物育成の技術<span class="file">配るファイル: B_生物育成_統一版.html(第1.9版)</span></h2>
+<h2>B 生物育成の技術<span class="file">配るファイル: B_生物育成_統一版.html(第1.10版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
@@ -1282,7 +1387,7 @@ window.EDUIT_INFO = {
 </table>
 </section>
 <section class="dom">
-<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.9版)</span></h2>
+<h2>C エネルギー変換の技術<span class="file">配るファイル: C_エネルギー変換_統一版.html(第1.10版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>
@@ -1304,7 +1409,7 @@ window.EDUIT_INFO = {
 </table>
 </section>
 <section class="dom">
-<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第2.2版)</span></h2>
+<h2>D 情報の技術<span class="file">配るファイル: D_情報の技術_統一版.html(第2.3版)</span></h2>
 <table>
 <thead><tr><th>編</th><th>教材</th><th>教科書</th><th>使うところ(生徒の画面のタブ・ページ)</th><th>学習指導要領</th><th>分けた理由</th></tr></thead>
 <tbody>

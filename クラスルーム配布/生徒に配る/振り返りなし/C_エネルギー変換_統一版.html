@@ -330,6 +330,17 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
     border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); }
 }
 @media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
+
+/* まず考えよう(各節の導入の問い。shared/eduit-frame.js の LETS) */
+.ef-lets { margin: 0 0 12px; padding: 10px 16px 10px 14px; background: var(--ef-accent-soft); border-left: 6px solid var(--ef-accent); border-radius: 10px; color: inherit; line-height: 1.6; font-size: 1.05em; }
+.ef-lets-k { margin: 0; font-size: .85em; font-weight: bold; color: var(--ef-accent); letter-spacing: .05em; }
+.ef-lets-k::before { content: "💭 "; }
+.ef-lets-q { margin: 2px 0 0; font-weight: bold; font-size: 1.1em; }
+.ef-lets .ef-lets-hint { margin: 4px 0 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+/* 教材ごとの details・summary の見た目(白い箱など)を受けつがない */
+.ef-lets .ef-lets-hint > summary { display: list-item; min-height: 0; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: var(--ef-accent); font-size: .9em; font-weight: normal; width: max-content; }
+.ef-lets-hint p { margin: 4px 0 0; }
+@media print { .ef-lets-hint { display: none; } }
 </style>
 <script>
 /* エネルギー変換の技術 教材集(C1〜C8)の版・更新履歴など。
@@ -341,8 +352,8 @@ window.EDUIT_INFO = {
   domain: 'C',
   domainName: 'エネルギー変換の技術',
   suite: 'エネルギー変換の技術 教材集',
-  version: '1.9',
-  updated: '2026-10-23',
+  version: '1.10',
+  updated: '2026-10-24',
   safety: [
     'C4 電気回路ラボ・C7 回路設計シートの回路はシミュレーションです。家のコンセントや配線で同じことを試さないでください。実際の配線・通電・はんだづけは、必ず先生の指導のもとで行います。',
     'C5・C6 で学んだ点検や手入れを本物の機械・工具で行うときは、先生の指示にしたがい、電源を切ってから行います。',
@@ -350,6 +361,7 @@ window.EDUIT_INFO = {
     'C2 で本物の扇風機と羽根の模型を使うときは、回っている羽根に指や顔を近づけないでください。C3 の回路はシミュレーションです。コンセントや送電線に物をさしこんだり、近づいたりしないでください。'
   ],
   history: [
+    { version: '1.10', date: '2026-10-24', items: ['教材の入り口に、教科書の節ごとの「まず考えよう」の問いを出した(C4・C5・C6・C7・C8)', 'C1・C4〜C7 で、はじめて開いたときに「使い方」の窓を出さないようにした(「? 使い方」でいつでも見られる)', 'C7 の窓が下までスクロールした状態で開く不具合を直した。画面のはばがせまいとき、上のバーの教材名を短くした'] },
     { version: '1.9', date: '2026-10-23', items: ['記号を教科書の順に付け直した(C2 風力・C3 送電・C4 電気回路・C5 機構・C6 保守点検・C7 回路設計)。保存の名前とファイルの中の記号も変わった', 'C5 のはじめに「🔍 機械のつくり」を足した。C3 の「④ 周波数」と C8 の「③ 技術の最適化」を基本編にした', 'メニューの3章のさいごに「学習のまとめ」を足した。カードを「名前・1行の説明・教科書の節」にし、説明の文を短くした(1か所3文まで)'] },
     { version: '1.8', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)', 'C1・C2 に「💾 記録」(やったこと・振り返り・組・番号・名前を JSON ファイルにして提出)を足した。C3 の設計図と C4 の点検表に「✏️ 振り返り」を足した(保存するファイルに入る)'] },
     { version: '1.7', date: '2026-10-18', items: [
@@ -474,7 +486,7 @@ window.EDUIT_INFO.jishu = {
       goal: '部品をつないで、エネルギーの形が変わるようすをたどる。効率・CO₂・費用をくらべる。目的に合った組み合わせを考えられるようになる。',
       time: '45分',
       steps: [
-        { where: '❓ 使い方', do: '最初に出る「使い方」を読んで、「はじめる」を押そう。順番は、部品を選ぶ → 置く → つなぐ → 「⚡ スイッチON(ためす)」。', hint: '「❓ 使い方」でいつでも見直せます。部品の左右の丸は、エネルギーの形です。同じ色どうしだけつなげます。', go: '.e1-top [data-act="howto"]' },
+        { where: '❓ 使い方', do: '最初に出るステージの説明を読んで、「はじめる」を押そう。操作は「❓ 使い方」で見られる。順番は、部品を選ぶ → 置く → つなぐ → 「⚡ スイッチON(ためす)」。', hint: '「❓ 使い方」でいつでも見直せます。部品の左右の丸は、エネルギーの形です。同じ色どうしだけつなげます。', go: '.e1-top [data-act="howto"]' },
         { where: 'ステージ1〜3(懐中電灯・自転車のライト・クレーン)', do: 'まず★1つ(明かりがつく・荷物が上がる)をめざそう。クリアしたら「ふりかえり」の問題に答えよう。できたら★3つにも挑戦しよう。', hint: '★の条件は「🎯 目標」、つなぐ順番は「💡 ヒント」で確かめよう。スイッチONのあと、足りない理由が上に出ます。効率の★は、熱になるロスが少ない部品を選ぶと取りやすいです。', go: '.e1-top [data-act="stages"]' },
         { where: 'ステージ4・5(火力発電所・再生可能エネルギー)', do: '燃料からはじめて家まで電気を届けよう。ステージ5では CO₂ を出さない発電だけで届けよう。', hint: '燃料が足りないときは、いくつか置いて同じボイラーにつなごう。サンキー図で、どこで熱になって逃げるかを見よう。くもりの日は光が40%なので、ほかの発電と組み合わせよう。' },
         { where: 'ステージ6 町の電源を決めよう', do: '「晴れの昼」「くもりの昼」「夜」を切りかえてみよう。どの時間も、家と工場に電気が届く組み合わせをつくろう。答えは1つではありません。', hint: 'まず、天気に左右されない発電を1つつくろう。足りない時間を確かめてから、ほかの発電で足そう。費用は「💴 発電方法の値段くらべ」も参考になります。' },
@@ -1250,6 +1262,11 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
  *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
+ * まず考えよう(教科書の各節の「レッツスタート」にあたる導入): 下の LETS に、学習コース(T-textbook/course-data.js)の節の id ごとに
+ *   { q: '問い', hint: 'ヒント' } を書く。文は教科書を写さず、この教材のために書いたもの(1文40字くらい)。
+ *   教材の画面では、そのタブのいちばん上に <div data-ef-lets="a12"></div> を置くだけで、カードが入る(JS で後から作る画面でもよい)。
+ *   学習コースは EduitFrame.lets(id) でデータを、EduitFrame.letsCard(id) でカードを取る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -2023,9 +2040,98 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
     });
   });
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+
+  // ---- まず考えよう(各節の導入の問い。id は学習コースの節の id) ----
+  var LETS = {
+    a11: { q: '身の回りの物を3つ選ぼう。それぞれ何の材料でできているかな?', hint: '机・はし・ペットボトルなど。木・金属・プラスチックのどれかな。' },
+    a12: { q: '木・金属・プラスチックは、家や学校のどこに使われているかな?', hint: 'いすの脚、窓のわく、筆箱など。なぜその材料なのかも考えよう。' },
+    a13: { q: '同じ紙でも、折ったり形を変えたりすると強くなるのはなぜだろう?', hint: '段ボールや、三角形の骨組みを思い出そう。' },
+    a14: { q: '飲み物の容器には、どんな工夫があるかな? よく見てさがそう。', hint: '形・材料・ふたのつくりなどに注目しよう。' },
+    a21: { q: '教室の机やいすで「こうだったらいいのに」と思うことは?', hint: '物を置く場所、すわり心地、片づけやすさなど。' },
+    a22: { q: '作りたい物で、いちばん大事にしたいことは何かな?', hint: '大きさ・じょうぶさ・使いやすさなど。図にかく前に1つ決めよう。' },
+    a23: { q: '材料や工具をむだなく用意するには、何を決めておくとよいかな?', hint: '部品の大きさと数、切る順番、使う工具など。' },
+    a24: { q: 'のこぎりやげんのうを使うとき、気をつけることを思い出そう。', hint: '手の位置、まわりの人、服装など。' },
+    a25: { q: '作った物で、はじめの「困った」は解決できたかな?', hint: 'できたこと・できなかったことを1つずつ考えよう。' },
+    a31: { q: '自分の作品とお店の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    a32: { q: '木や金属をむだなく使うには、どんな技術があるとよいかな?', hint: 'リサイクルや、長く使える工夫など。' },
+    b11: { q: '冬なのに、夏の野菜がお店にならぶのはなぜだろう?', hint: 'どこで、どうやって育てているかを考えよう。' },
+    b12: { q: '畑の土を黒いシートでおおうと、作物に何がよいのだろう?', hint: '土の温度・水分・雑草のことを考えよう。' },
+    b13: { q: 'キャベツが虫に食べられないようにするには、どんな世話が必要かな?', hint: '見回り、ネットをかける、間引きなど。' },
+    b14: { q: '牛乳をたくさん出す牛は、どうやって生まれてきたのだろう?', hint: '育て方や、親えらびのくり返しを考えよう。' },
+    b15: { q: '魚を「とる」だけでなく「育てる」のはなぜだろう?', hint: 'とれる量の変化や、食べる人の数を考えよう。' },
+    b16: { q: '畑の野菜と、工場の中で育てる野菜は、何がちがうかな?', hint: '光・水・温度・費用のちがいを考えよう。' },
+    b21: { q: '食べ物や環境のために、育てる技術で解決したいことは?', hint: '食べ物のむだ、水不足、育てる人がへることなど。' },
+    b22: { q: '作物を育てる計画で、いちばん大事にしたいことは何かな?', hint: 'とれる量・費用・手間・安全など。順位をつけてみよう。' },
+    b23: { q: 'ミニトマトの葉がしおれていたら、原因は何だと思う?', hint: '水・暑さ・根・病気・虫など、いくつも考えよう。' },
+    b24: { q: '育てた結果を、どんな見方でふり返るとよいかな?', hint: 'できばえ、とれた量、かかった費用、安全など。' },
+    b31: { q: '自分の育て方と農家の育て方は、何がにていて何がちがうかな?', hint: '育てる量や、費用・手間を考えよう。' },
+    b32: { q: 'これからの農業や漁業に、どんな技術があるとよいかな?', hint: '人手が少なくても育てられる工夫など。' },
+    c11: { q: '扇風機・電灯・テレビは、電気を何に変えて使っているかな?', hint: '光・熱・音・動き。1つの機器でいくつも変えていることもある。' },
+    c12: { q: '風車の羽根の形や枚数を変えると、できる電気は変わるかな?', hint: '予想を立ててから確かめよう。' },
+    c13: { q: 'コンセントの電気と乾電池の電気は、どこがちがうのかな?', hint: '電圧の大きさや、どこから来ているかを考えよう。' },
+    c14: { q: '扇風機の風の強さを変えられるのは、どんなしくみかな?', hint: 'スイッチと、電気の流れる量に注目しよう。' },
+    c15: { q: '電気の事故には、どんなものがあるかな? 原因も考えよう。', hint: 'たこ足配線、ぬれた手、こわれたコードなど。' },
+    c16: { q: '扇風機の中で、羽根を回しているのは何だろう?', hint: 'モーターから羽根まで、力がどう伝わるかを考えよう。' },
+    c17: { q: '自転車のペダルを1回こぐと、後ろの車輪は何回回るかな?', hint: '前と後ろの歯車の大きさ(歯の数)をくらべよう。' },
+    c18: { q: '回る動きを、ほかの動きに変えている物をさがそう。', hint: 'ワイパー、ミシン、ポンプなど。まっすぐ・ゆれる動きに変わる。' },
+    c19: { q: 'ねじの大きさが製品ごとにばらばらだったら、何が困るかな?', hint: '部品の交換や修理のときを考えよう。' },
+    c110: { q: '新しい家電には、前の物よりどんな工夫があるかな?', hint: '省エネ、安全、使いやすさに注目しよう。' },
+    c21: { q: '電気や機械で「あったらいいな」と思う物は何かな?', hint: '家や学校の明かり、温度、動く物など。' },
+    c22: { q: '作りたい回路には、どんな部品が必要かな?', hint: '電源・スイッチ・明かりやモーター・安全のための部品。' },
+    c23: { q: 'どんな動きをする模型を作りたいかな?', hint: '回る、行ったり来たりする、持ち上げる など。身近な物から考えよう。' },
+    c24: { q: '作った物は、使う人にとって安全で便利だったかな?', hint: 'はたらき・使いやすさ・安全・環境への影響で考えよう。' },
+    c31: { q: '自分の作品と会社の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    c32: { q: 'エネルギーをむだにしない技術には、どんなものがあるとよいかな?', hint: '電気をつくる・送る・使う、それぞれで考えよう。' },
+    d11: { q: 'タブレットやスマホを、ふだん何のために使っているかな?', hint: '調べもの、連絡、写真、勉強など。' },
+    d12: { q: 'タブレットに文字や命令を入れる方法は、いくつあるかな?', hint: 'キーボード、タッチ、声、カメラなど。' },
+    d13: { q: '針の時計と数字の時計は、時刻の表し方がどうちがうかな?', hint: '針はなめらかに動く。数字はとびとびに変わる。' },
+    d14: { q: 'Webページを見るとき、そのページはどこから来ているのだろう?', hint: '画面の上のアドレス(URL)を見てみよう。' },
+    d15: { q: '大事な情報を守るには、どんな方法があるかな? 3つあげよう。', hint: 'パスワード、カギをかける、写しを取っておく など。' },
+    d16: { q: 'ネットを使っていて、「こまった」と思ったことはあるかな?', hint: '知らない人からの連絡、写真ののせ方など。' },
+    d17: { q: '情報の技術で、生活のどこが便利になったかな?', hint: '買い物、連絡、地図、学校の勉強など。' },
+    d21: { q: 'ネットで、相手とやりとりしながら使うものには何があるかな?', hint: 'アンケート、チャット、ゲーム、予約など。' },
+    d22: { q: 'よく使うアプリで「こうだったらいいのに」と思うことは?', hint: '入力しにくい、見つけにくい、知らせてほしい など。' },
+    d23: { q: '作るコンテンツには、どんなボタンや表示が必要かな?', hint: '使う人が何を入れて、何が返ってくるかを考えよう。' },
+    d24: { q: '画面の流れを図にかこう。何を入れて、何が出るかな?', hint: '入力 → 処理 → 出力の順に考えよう。' },
+    d25: { q: 'できたコンテンツに、考えた機能は全部そろったかな?', hint: '友だちに使ってもらい、感想を聞こう。' },
+    d31: { q: '人が操作しなくても、自動で動く物をさがそう。', hint: '自動ドア、エアコン、街灯、信号など。' },
+    d32: { q: '自動で動く物は、何を「はかって」動きを決めているかな?', hint: '明るさ、温度、人がいるかどうか など。' },
+    d33: { q: '自動で動くしくみを作るには、どんな部品が必要かな?', hint: 'センサ・コンピュータ・動かす部品の3つで考えよう。' },
+    d34: { q: 'センサの値でどう動かすかを、先に言葉で書いてみよう。', hint: '「もし〜なら〜する」の形で書こう。' },
+    d35: { q: '作ったしくみは、考えたとおりに動いたかな?', hint: 'うまくいかなかった場面を1つえらび、直し方を考えよう。' },
+    d41: { q: '自分の作品の工夫を、社会の製品とくらべてみよう。', hint: '使いやすさ・安全・費用など。' },
+    d42: { q: 'これからの社会に、どんな情報の技術があるとよいかな?', hint: 'AI、自動運転、遠くの人とのやりとりなど。よい点と心配な点も。' }
+  };
+  function letsCard(id) {
+    var d = LETS[id];
+    if (!d) return null;
+    return el('section', { class: 'ef-lets', 'aria-label': 'まず考えよう' }, [
+      el('p', { class: 'ef-lets-k', text: 'まず考えよう' }),
+      el('p', { class: 'ef-lets-q', text: d.q }),
+      d.hint ? el('details', { class: 'ef-lets-hint' }, [el('summary', { text: 'ヒント' }), el('p', { text: d.hint })]) : null
+    ]);
+  }
+  // data-ef-lets の置き場所にカードを入れる(あとから作られた画面にも入れる)
+  function fillLets() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-lets]:not([data-ef-lets-done])'), function (box) {
+      box.setAttribute('data-ef-lets-done', '');
+      var c = letsCard(box.getAttribute('data-ef-lets'));
+      if (c) box.appendChild(c);
+    });
+  }
+  var letsTimer = 0;
+  function watchLets() {
+    fillLets();
+    if (!window.MutationObserver) return;
+    new MutationObserver(function () {
+      if (letsTimer) return;
+      letsTimer = setTimeout(function () { letsTimer = 0; fillLets(); }, 0);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
-  function start() { mount(); if (!jishuSet) jishuMount(); }
+  function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
@@ -3723,6 +3829,8 @@ body{overflow:hidden}
   .ea-hbody{padding:6px 16px 40px}
   .ea-help .bar{padding:8px 12px}
 }
+/* 1440px 以下(11インチの Chromebook など)では C1〜C8 が1行に入りきらず、C6 から先が切れて見えない。アプリ名(下の道具の帯にも出る)を消し、開いていないアプリは記号だけにする */
+@media (max-width:1440px){ .ea-apptitle{display:none} .ea-chip:not(.cur) .sn{display:none} }
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
 /* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
@@ -3811,7 +3919,7 @@ body{overflow:hidden}
 <h3>はじめかた</h3>
 <ol>
 <li>メニューで、学びたいアプリのカードをタップします。はじめは「おすすめの順番」(C1 → C4 → … → C8)のとおりに進めましょう。「おすすめの順番」は、「基本編」のタブの上にあります。「発展編」のタブは、先生の指示があったら取り組みます。</li>
-<li>はじめて開いたアプリでは、そのアプリの使い方が出ます。読んだら「はじめる」をタップ。</li>
+<li>アプリを開くと、すぐに課題やステージを選べます。操作がわからないときは、上の右側の <b>❓ 使い方</b> を押しましょう。</li>
 <li>上の <b>◀ メニュー</b> をタップすると、いつでもメニューにもどれます。右の <b>C1 エネルギー</b>・<b>C4 電気回路</b> などのボタンで、ほかのアプリへ直接移れます。縦向きでは、記号だけになります。</li>
 <li>どのアプリも、上の右側の <b>❓ 使い方</b> で、説明をもう一度見られます。読んだら「わかった」。</li>
 <li>メニューのカードには、<b>進み具合</b>(クリアしたステージや課題の数)が出ます。カードのどこをタップしても、アプリが開きます(「ひらく ▶」)。</li>
@@ -3890,6 +3998,7 @@ body{overflow:hidden}
 
 <h3 id="t-tangen">3. 単元での使い方</h3>
 <ul>
+<li><b>まず考えよう</b>: 教科書の節の入り口(レッツスタートにあたる所)に、身近な問いを1つ出しています(C4 課題1・安全体験、C5 組み立て・変換・設計課題、C6 部品図鑑、C7 課題、C8 評価)。ヒントは押すと開きます。問いの文は教材オリジナルです。学習コース(T)の各節にも同じ問いが出ます。授業のはじめに、近くの人と話し合わせてから操作に入ると使いやすいです。</li>
 <li>導入で C1(エネルギー変換と効率)→ 電気の学習で C4 → 機械の学習で C5 → 保守点検で C6 → 製作の設計・評価で C7、の順を想定しています。記号の番号は教科書の順(番号の順 = おすすめの順)で、C2 は 3編1章2「発電の仕組みと特徴」、C3 は 3編1章3「電気を供給する仕組み」にあたります(第1.9版で教科書の順に付け直しました)。</li>
 <li><b>C2 風力発電の羽根ラボ</b>(3編1章2):レッツスタート「風力発電のモデルを作りましょう」と合わせて使います。① で発電機のしくみ(コイルと磁石・電磁誘導)を確かめ、② で羽根の枚数・かたむき・長さ・形を<b>1つずつ変えて</b>回転数・電圧・電流・電力・回り始める風をくらべ、③ の3つのチャレンジとランキングで「より効率の良い羽根」をめざします。実物のモデルづくりの前の予想や、作ったあとのふり返りに使えます。発展の ④ では火力・水力・太陽光・風力・燃料電池の<b>変換の流れと特徴</b>を、⑤ では風の強さが変わる日の1日の電力量をくらべ、蓄電池やほかの発電方法との組み合わせを考えます。</li>
 <li><b>C3 直流・交流と送電ラボ</b>(3編1章3):レッツスタート「コンセントと電池のちがい」と合わせて使います。① で電池(直流)とコンセント(交流)の電圧の変わり方をグラフと LED 2つの回路で見て、身の回りの製品を電源で分けます。② で発電所 → 超高圧変電所 → 一次変電所 → 配電用変電所 → 柱上変圧器 → 家庭の道すじを組み立て、送電と配電の境目や、網の目のような送電線を確かめます。③ で変圧器の巻き数と電圧、送る電圧を上げると電流と送電線の損失(熱)が減ることを、町の家の明かりの数で確かめます。④ は東日本 50Hz・西日本 60Hz と周波数変換所です(教科書の本文にあるので基本編)。発展の ⑤ は P=VI と 損失=I²R の計算ドリルです。</li>
@@ -3948,6 +4057,12 @@ body{overflow:hidden}
 </dl>
 
 <h3 id="t-rireki">7. 更新履歴</h3>
+<h4>まず考えよう(2026-10-24・第1.10版)</h4>
+<ul>
+<li>教科書の節の入り口に「まず考えよう」の問いとヒントを出した(C4・C5・C6・C7・C8。「3. 単元での使い方」)。</li>
+<li>C1・C4〜C7 で、はじめて開いたときに「使い方」の窓を出さないようにした。いつでも「❓ 使い方」で見られる。C1 はステージの説明から始まる。</li>
+<li>C7 の窓が下までスクロールした状態で開く不具合を直した。画面のはばがせまいとき(1440px 以下)、上のバーの教材名を短くして、C8 まで見えるようにした。</li>
+</ul>
 <h4>教科書の順に見直し(2026-10-23・第1.9版)</h4>
 <ul>
 <li>記号を教科書の順に付け直した: C2 風力発電の羽根ラボ・C3 直流・交流と送電ラボ・C4 電気回路ラボ・C5 機構ラボ・C6 保守点検ラボ・C7 回路設計シート(もとの C6・C7・C2・C3・C4・C5)。保存の名前とファイルの中の記号も変わった。</li>
@@ -5348,7 +5463,7 @@ function mount(root) {
   var first = S.save.last == null;
   var last = S.save.last >= 0 && S.save.last < STAGES.length && S.save.last % 1 === 0 ? S.save.last : 0;   // こわれた記録(文字・小数)で STAGES[NaN] にならないように
   openStage(last, false);
-  if (first) showHowto(true); // 初回だけ「使い方」→「はじめる」で目標の画面へ
+  if (first) showIntroModal(); // 初回は、ステージ1の目標の画面から(使い方はそこの「使い方を見る」で開ける)
 }
 
 NS.C1 = {
@@ -7690,7 +7805,8 @@ function modal(html) {
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function showIntro() {
   var ch = chal(); if (!ch) return;
-  var h = '<h2>課題' + (CHALS.indexOf(ch) + 1) + ':' + esc(ch.title) + '</h2><p>' + ch.intro + '</p><h3>🎯 めあて</h3><ul>';
+  // 課題1 のはじめに「まず考えよう」を出す(shared/eduit-frame.js の LETS)
+  var h = (CHALS.indexOf(ch) === 0 ? '<div data-ef-lets="c14"></div>' : '') + '<h2>課題' + (CHALS.indexOf(ch) + 1) + ':' + esc(ch.title) + '</h2><p>' + ch.intro + '</p><h3>🎯 めあて</h3><ul>';
   S.goals.forEach(function (g) { h += '<li>' + g.t + '</li>'; });
   h += '</ul><div class="acts"><button class="e2-btn primary" data-act="close">はじめる</button></div>';
   modal(h);
@@ -7731,7 +7847,7 @@ function answerQuiz(btn) {
   } else { beep('err'); box.querySelector('[data-ref=qex]').innerHTML = '<div class="e2-reason">ちがうよ。説明をもう一度読んで、ほかの答えをえらぼう。</div>'; }
 }
 function showChals() {
-  var h = '<h2>📋 課題をえらぶ</h2><p style="margin:0 0 8px">進み具合:<b>' + nCleared() + ' / ' + CHALS.length + '</b> クリア(上から順にやるのがおすすめ)</p><div class="e2-stgrid">';
+  var h = '<div data-ef-lets="c14"></div><h2>📋 課題をえらぶ</h2><p style="margin:0 0 8px">進み具合:<b>' + nCleared() + ' / ' + CHALS.length + '</b> クリア(上から順にやるのがおすすめ)</p><div class="e2-stgrid">';
   CHALS.forEach(function (c, i) {
     var done = S.save.cleared[c.id];
     h += '<button class="e2-stcard' + (S.mode === c.id ? ' cur' : '') + (done ? ' done' : '') + '" data-act="go" data-id="' + c.id + '"><div class="no">課題 ' + (i + 1) + (done ? ' ✅' : '') + '</div><div class="t">' + esc(c.title) + '</div><div class="l">' + esc(c.learn) + '</div></button>';
@@ -8063,7 +8179,7 @@ function houseState() { if (!S.house) S.house = { on: [], trip: false }; return 
 function leakState() { if (!S.leak) S.leak = { fault: false, earth: false, elcb: false, trip: false, touch: false, shock: 0, cut: false }; return S.leak; }
 function renderSafety() {
   var tabs = [['tap', '🔌 たこ足配線'], ['leak', '⚡ 漏電とアース'], ['short', '🔥 ショート']];
-  var h = '<div class="e2-subtabs">' + tabs.map(function (t) { return '<button class="e2-btn' + (S.stab === t[0] ? ' on' : '') + '" data-act="stab" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+  var h = '<div data-ef-lets="c15"></div><div class="e2-subtabs">' + tabs.map(function (t) { return '<button class="e2-btn' + (S.stab === t[0] ? ' on' : '') + '" data-act="stab" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
     '<div class="e2-caution">⚠ これはシミュレーションです。家のコンセントや配線で実験しないこと。実際の配線・通電は、必ず先生の指導のもとで行いましょう。</div>' +
     '<div class="e2-pbody"><div class="e2-scene" data-ref="scene"></div><div class="e2-pside" data-ref="pside"></div></div>';
   var keepScroll = S.el.pside ? S.el.pside.scrollTop : 0;
@@ -8280,7 +8396,8 @@ function mount(root) {
   var v = S.save.view;
   openMode(S.mode); closeModal();
   if (v === 'safety' || v === 'cost') openView(v);
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
 }
 
 NS.C4 = {
@@ -8789,7 +8906,8 @@ function buildShell() {
       '<div class="e3-center"><div class="e3-msg" data-ref="msg" role="status" aria-live="polite"></div>' +
       '<div class="e3-bar" data-ref="bar"></div>' +
       '<div class="e3-cvbox" data-ref="box"><canvas class="e3-cv" data-ref="cv" tabindex="0" aria-label="機構のようす"></canvas><div class="e3-hint" data-ref="hint"></div></div></div>' +
-      '<div class="e3-side" data-ref="side"></div></div>';
+      // 右の欄のいちばん上に「まず考えよう」(回転を伝える・運動を変える。課題のときは出さない)。下の欄は renderSide が書きかえる
+      '<div class="e3-side">' + (S.task ? '' : v === 'build' ? '<div data-ef-lets="c17"></div>' : v === 'conv' ? '<div data-ef-lets="c18"></div>' : '') + '<div data-ref="side"></div></div></div>';
   S.root.innerHTML = top + main;
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
@@ -9853,7 +9971,7 @@ function drawQuiz(c) {
 
 /* ---------- 設計課題の一覧 ---------- */
 function renderTasks() {
-  var h = '<h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。少ない部品でできたら ★★★(モーターは60回/分)。</p><div class="e3-tgrid">';
+  var h = '<div data-ef-lets="c23"></div><h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。少ない部品でできたら ★★★(モーターは60回/分)。</p><div class="e3-tgrid">';
   TASKS.forEach(function (t, i) {
     var st = S.save.tasks[t.id] || 0;
     h += '<button class="e3-tcard' + (st ? ' done' : '') + '" data-act="task" data-id="' + t.id + '"><span class="no"><span>課題' + (i + 1) + ' ・ ' + (t.kind === 'train' ? '回転を伝える' : '運動を変える') + '</span><span class="star">' + (st ? '★★★'.slice(0, st) : '') + '</span></span>' +
@@ -10267,7 +10385,8 @@ function mount(root) {
   root.addEventListener('pointerdown', function () { S.kbd = false; }, true);
   var v = ['build', 'conv', 'quiz', 'tasks'].indexOf(S.save.view) >= 0 ? S.save.view : 'parts';
   openView(v);
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 
@@ -11040,7 +11159,7 @@ function renderBook() {
       '<span class="nm' + (hasKanji(p.name) && p.yomi ? ' e4-noruby' : '') + '">' + esc(p.name) + '</span>' + (hasKanji(p.name) && p.yomi ? '<span class="yo e4-noruby">' + esc(p.yomi) + '</span>' : '') +
       '<span class="ct e4-cat-' + p.cat + '">' + esc(catName(p.cat)) + '</span><span class="rl">' + esc(p.short || p.role) + '</span></button>';
   }).join('');
-  setBody('<div class="e4-page"><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
+  setBody('<div class="e4-page"><div data-ef-lets="c19"></div><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
     '<div class="e4-chips">' + chips + '</div></div>' +
     '<p style="margin:0 0 12px;color:#5f6670">機械は、ねじ・軸・軸受・歯車・ばねなどの組み合わせでできています。これらは「どの機械にも使われる部品(共通部品)」です。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
     '<div class="e4-pgrid">' + cards + '</div></div>');
@@ -12062,7 +12181,8 @@ function mount(root) {
     if (g && (ev.key === 'Enter' || ev.key === ' ')) { tapHot(g.getAttribute('data-h')); ev.preventDefault(); }
   });
   openView(S.save.view || 'book');
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 
@@ -13018,7 +13138,7 @@ function renderSide() {
 /* --- 課題・構想 --- */
 function renderBrief() {
   var t = task(), d = D(), n = d.notes, seen = {};
-  var h = '<div class="e5-col" style="width:44%;flex:none"><h2>① 課題をえらぶ</h2><div class="e5-tasks">';
+  var h = '<div class="e5-col" style="width:44%;flex:none"><div data-ef-lets="c22"></div><h2>① 課題をえらぶ</h2><div class="e5-tasks">';
   TASKS.forEach(function (x) {
     var dd = S.save.designs[x.id], prog = '';
     if (dd && dd.parts.length) {
@@ -13230,7 +13350,9 @@ function modal(html) {
   ov.innerHTML = '<div class="e5-modal" role="dialog" aria-modal="true">' + html + '</div>';
   ov.addEventListener('click', function (e) { if (e.target === ov) closeModal(); });
   S.root.appendChild(ov); S.ov = ov;
-  var b = ov.querySelector('.acts .e5-btn.primary') || ov.querySelector('.e5-btn'); if (b) b.focus();
+  // ボタンにフォーカスすると窓が下までスクロールして、はじめの説明が見えなくなるので、スクロールさせない
+  var b = ov.querySelector('.acts .e5-btn.primary') || ov.querySelector('.e5-btn'); if (b) b.focus({ preventScroll: true });
+  var m = ov.querySelector('.e5-modal'); if (m) m.scrollTop = 0;
 }
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function optSvg(kind) {
@@ -13489,7 +13611,8 @@ function mount(root) {
   }
   bindInput(); build();
   if (S.view === 'edit') say(D().parts.length ? '前の回路図のつづきだよ。' + (isPortrait() ? '下' : '右') + 'の自動チェックと条件を見ながら直そう。' : (isPortrait() ? '上' : '左') + 'の記号をえらんで、点と点の間をタップしよう。');
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
 }
 
 NS.C7 = {
@@ -14407,6 +14530,9 @@ if (auto && !auto.getAttribute('data-manual')) mount(auto);
     var evRadar = null, evHints = null, evRows = {};
     function renderEval() {
       var el = P.eval; if (!el) return; el.innerHTML = '';
+      // 「まず考えよう」(shared/eduit-frame.js の LETS。分野ごとの節: A 1編2章5・B 2編2章4・C 3編2章4・D 4編2章5)
+      var letsId = { A: 'a25', B: 'b24', C: 'c24', D: 'd25' }[D.domain];
+      if (letsId) el.appendChild(h('div', { 'data-ef-lets': letsId }));
       var E = D.ev;
       var modeBtns = [['res', 'できあがり(評価)'], ['tgt', 'はじめの目標']].map(function (m) {
         return h('button', { type: 'button', class: 'mn-seg-b', 'aria-pressed': String(E.mode === m[0]), onclick: function () { E.mode = m[0]; changed(); renderEval(); } },
