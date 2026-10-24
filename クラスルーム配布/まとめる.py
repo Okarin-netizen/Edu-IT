@@ -184,3 +184,12 @@ copy(ws_src / "ワークシートの答え.html", teacher / "全分野_ワーク
 for d in (student, teacher):
     for p in sorted(d.rglob("*.html")):
         print(f"{p.relative_to(here)}  ({p.stat().st_size // 1024} KB)")
+
+# ---- 見た目の点検(shared/style-check.py --strict) ----
+# 教材の CSS が「枠の決まり」(色・線・字は shared/eduit-frame.css の --ef-…)に合っているか。1件でもあれば止める
+# 直し方は shared/README.md の「見た目の点検と撮影」
+chk = subprocess.run([sys.executable, str(repo / "shared/style-check.py"), "--strict"], capture_output=True, text=True)
+if chk.returncode:
+    print(chk.stdout, file=sys.stderr)
+    raise SystemExit("見た目の点検で、決まりに合わない所がありました(上の一覧)。直してから、もう一度実行してください")
+print("見た目の点検: 0 件")

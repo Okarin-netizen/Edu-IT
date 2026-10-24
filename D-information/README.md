@@ -31,6 +31,8 @@ D-information/
 ├─ mars-rover/           D8 火星探査ロボット・シミュレータ（D7 の js を共有）
 ├─ mondai-note/          D11 問題解決ノート（中身は4分野共通の ../shared/mondai-note/）
 ├─ eduit-info.js         情報の技術の版・更新履歴（4分野共通の枠が読む）
+├─ d-common.css          D の教材で同じ中身の部品（.btn・.card・.explain など。D1〜D4・D6〜D8 が読む）
+├─ d-frame.css           D の11教材で同じ枠（ページの切りかえの帯など）
 ├─ dist/                 配布用の完成ファイル
 ├─ docs/                 先生用の文書
 ├─ build/                作る道具（eduit-inline.mjs：共通の枠を1ファイル版に入れる）
@@ -38,6 +40,8 @@ D-information/
 ```
 
 各教材のフォルダには `index.html`・`js/`・`css/`・`tests/`・`tools/` と、1ファイル版の `dist/`（教材集を作るときの材料）があります。
+
+見た目は4分野共通の `../shared/eduit-frame.css`（色・線・字の大きさは `--ef-…`）と、D で同じ `d-common.css`・`d-frame.css` を使います。教材の `css/style.css` には、その教材だけの部分と図の色（`--fig-…`）だけを書きます。ふりがな・文字の大きさは全教材で共通の `EduitFrame.prefs`（localStorage `eduit.prefs`）です。直したら `python3 shared/style-check.py D-information` が 0 件かを見ます。
 
 ## 記号と番号
 
