@@ -29,7 +29,7 @@ T-textbook/
 └─ dist/
 ```
 
-- 保存: コース `eduit.course.v1`(できた・たしかめの答え)、M `eduit.m.v1`・F `eduit.f.v1`・Z `eduit.z.v1`、表示の設定 `eduit.t.prefs`。
+- 保存: コース `eduit.course.v1`(できた・たしかめの答え)、M `eduit.m.v1`・F `eduit.f.v1`・Z `eduit.z.v1`、表示の設定(ふりがな・文字の大きさ)は全教材で同じ `eduit.prefs`(EduitFrame.prefs)。見た目は G と同じ `common/t-core.css`。
   Z は ガイダンス(`eduit.g.v1`)で書いた「3年間の目標」も読んで出す(同じ端末・同じ場所で開いたとき)。
 - 書き出し: `{ schema: 'eduit-textbook/1', app: 'M'|'F'|'Z', student, score, data }`。振り返り一覧(`teacher-tools/furikaeri-ichiran/parse.js` の `parseT`)で読める。
 - 自習ガイドは各教材の `eduit-info.js` の `jishu.apps.M` など。「この場所へ」は `[data-tab="a"]` などのタブをクリックする。タブの名前を変えたら `where` も直す。

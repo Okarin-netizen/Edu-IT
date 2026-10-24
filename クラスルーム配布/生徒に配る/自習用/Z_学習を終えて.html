@@ -100,15 +100,16 @@
   --ef-tap-bar: 40px;         /* メニューの上のバーのボタン */
   --ef-read-w: 1040px;        /* 読む画面の中身のはば(.ef-main)。作業の画面(.ef-main.is-wide)は画面いっぱい */
 }
-:root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
-:root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
-:root[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
-:root[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
-:root[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
-:root[data-ef-domain="T"] { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }  /* 教科書の順に進む学習コース(T-textbook/): 灰青 */
-:root[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
-:root[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
-:root[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
+/* 分野の色: <html data-ef-domain="A"> でページ全体、ほかの要素に付けるとその中だけ(サイトの入り口のカードなど) */
+[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
+[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
+[data-ef-domain="C"] { --ef-accent: #b45309; --ef-accent-soft: #fbeedd; }  /* エネルギー変換: だいだい */
+[data-ef-domain="D"] { --ef-accent: #1a5fc8; --ef-accent-soft: #e6eefb; }  /* 情報: 青 */
+[data-ef-domain="G"] { --ef-accent: #0f766e; --ef-accent-soft: #e0f2ef; }  /* 技術分野のガイダンス(4分野の前): 青緑 */
+[data-ef-domain="T"] { --ef-accent: #475569; --ef-accent-soft: #eef1f5; }  /* 教科書の順に進む学習コース(T-textbook/): 灰青 */
+[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
+[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
+[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
 /* くっきり(EduitFrame.prefs の kukkiri): 字と線を濃くする */
 :root[data-ef-kukkiri="on"] { --ef-text: #000000; --ef-muted: #222222; --ef-line: #555555; --ef-surface-2: #ffffff; }
 
@@ -700,156 +701,165 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 
 </style>
 <style>
-/* 教科書順コースと M・F・Z の共通の見た目(もとは G-guidance/index.html の <style>。クラスの頭を g- から t- に変えたもの)
- * build.py がページの中に入れる。 */
+/* G 技術分野のガイダンス・教科書順コース・M・F・Z の共通の見た目(G と T で1つのファイル。クラスの頭は t-)
+ * build.py(G-guidance/・T-textbook/)がページの中に入れる。
+ * 色・線・字の大きさは shared/eduit-frame.css の --ef-… を使う。字は rem・em(上のバーの「文字」で全部が大きくなる)。
+ * 見た目は共通の部品に合わせている: .t-card = .ef-box、.t-key = .ef-note、.t-btn = .ef-btn、.t-btn.t-pri = .ef-btn-primary、.t-choice = .ef-choice。
+ *   クラスの名前は JS が使うので残す。 */
+:root {
+  --fig-area-a: #985a26;     /* 4つの分野の色(eduit-frame.css の data-ef-domain と同じ) */
+  --fig-area-b: #2e7d32;
+  --fig-area-c: #b45309;
+  --fig-area-d: #1a5fc8;
+  --fig-bar-track: #ebe8e1;  /* 自転車の設計の棒グラフの地 */
+}
   body { margin: 0; background: var(--ef-bg); }
-  #tapp { --t-fs: 1; font-family: var(--ef-font); font-size: calc(17px * var(--t-fs)); line-height: 1.75; color: var(--ef-text); }
+  #tapp { font-family: var(--ef-font); font-size: 1rem; line-height: var(--ef-lh); color: var(--ef-text); }
   #tapp *, #tapp *::before, #tapp *::after { box-sizing: border-box; }
-  #tapp.t-noruby rt { display: none; }
-  #tapp rt { font-size: .5em; color: var(--ef-muted); }
+  #tapp rt, .ef-howto rt { font-size: .5em; color: var(--ef-muted); }
   :where(#tapp button, #tapp input, #tapp textarea, #tapp select) { font: inherit; color: inherit; }
-  #tapp .ef-header .ef-btn { font-size: 15px; }
   /* 上のバーとタブの帯(下へ読むと隠れ、上へもどすと出る) */
   .t-top { position: sticky; top: 0; z-index: 30; background: var(--ef-surface); box-shadow: none; }
   /* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線。.t-tabs は JS がタブを探すための名前) */
-  main.t-main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 60px; }
+  main.t-main { max-width: var(--ef-read-w); margin: 0 auto; padding: 16px 16px 60px; }
   .t-sec[hidden] { display: none !important; }
-  .t-sec > h2 { margin: 4px 0 2px; font-size: 1.45em; line-height: 1.4; color: var(--ef-accent); }
-  .t-ref { margin: 0 0 12px; font-size: .82em; color: var(--ef-muted); }
-  .t-card { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: 0; padding: 14px 18px; margin: 0 0 14px; box-shadow: var(--ef-shadow); }
-  .t-card > h3 { margin: 0 0 8px; font-size: 1.15em; line-height: 1.45; }
+  .t-sec > h2 { margin: 4px 0 6px; padding-bottom: var(--ef-sp-1); border-bottom: var(--ef-bw-strong) solid var(--ef-ink); font-size: var(--ef-fs-h1); line-height: var(--ef-lh-tight); color: var(--ef-text); }
+  .t-ref { margin: 0 0 12px; font-size: var(--ef-fs-s); color: var(--ef-muted); }
+  .t-card { background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); border-radius: 0; padding: var(--ef-sp-4); margin: 0 0 var(--ef-sp-4); box-shadow: none; }
+  .t-card > h3 { margin: 0 0 8px; font-size: var(--ef-fs-h3); line-height: var(--ef-lh-tight); }
   .t-card p { margin: .35em 0; }
-  .t-act > h3::before { content: "やってみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: var(--ef-accent); color: #fff; font-size: .78em; vertical-align: 2px; }
-  .t-write > h3::before { content: "書いてみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: #8a5a00; color: #fff; font-size: .78em; vertical-align: 2px; }
+  .t-act > h3::before { content: "やってみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: var(--ef-accent); color: var(--ef-accent-ink); font-size: .78em; vertical-align: 2px; }
+  .t-write > h3::before { content: "書いてみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: var(--ef-warn); color: var(--ef-on-ink); font-size: .78em; vertical-align: 2px; }
   .t-lead { font-size: 1.05em; }
-  .t-key { background: var(--ef-accent-soft); border-left: 5px solid var(--ef-accent); border-radius: 0; padding: 10px 14px; margin: 10px 0; }
-  .t-key b { color: var(--ef-accent); }
+  .t-key { background: var(--ef-surface); border-left: var(--ef-mark) solid var(--ef-accent); border-radius: 0; padding: var(--ef-sp-2) var(--ef-sp-3); margin: var(--ef-sp-3) 0; }
+  .t-key b { color: var(--ef-text); }
   .t-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   .t-mini { border: 1px solid var(--ef-line); border-radius: 0; padding: 10px 12px; background: var(--ef-surface-2); }
   .t-mini h4 { margin: 0 0 4px; font-size: 1.02em; }
   .t-mini p { margin: 0; font-size: .95em; }
   .t-ic { font-size: 1.6em; line-height: 1; margin-right: .2em; vertical-align: -3px; }
-  .t-btn { display: inline-block; text-align: center; line-height: 1.5; min-height: 44px; padding: 8px 16px; border-radius: 0;
-    border: 2px solid var(--ef-accent); background: #fff; color: var(--ef-accent); font-weight: 700; cursor: pointer; }
-  .t-btn:hover { background: var(--ef-accent-soft); }
-  .t-btn.t-pri { background: var(--ef-accent); color: #fff; }
+  .t-btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: var(--ef-lh-tight); min-height: var(--ef-tap); padding: var(--ef-sp-2) 16px; border-radius: 0;
+    border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); color: var(--ef-text); font-weight: 600; font-size: .94rem; cursor: pointer; text-decoration: none; }
+  .t-btn:hover { background: var(--ef-surface-2); }
+  .t-btn.t-pri { background: var(--ef-ink); color: var(--ef-on-ink); font-size: 1rem; font-weight: 700; }
+  .t-btn.t-pri:hover { background: var(--ef-ink-hover); }
   .t-btn:focus-visible, .t-choice:focus-visible, .t-ord-item:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
   .t-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-  .t-score { font-weight: 700; color: var(--ef-accent); }
+  .t-score { font-weight: 700; color: var(--ef-text); }
   /* 書く欄 */
   .t-field { display: block; margin: 8px 0; }
-  .t-field > span { display: block; font-weight: 600; font-size: .95em; }
-  .t-field input, .t-field textarea { width: 100%; border: 1.5px solid #9a968c; border-radius: 0; padding: 6px 10px; background: #fff; line-height: 1.6; }
-  .t-field textarea { min-height: 4.2em; resize: vertical; }
-  .t-field input:focus, .t-field textarea:focus { outline: none; border-color: var(--ef-accent); box-shadow: 0 0 0 3px var(--ef-accent-soft); }
+  .t-field > span { display: block; font-weight: 700; font-size: var(--ef-fs-s); }
+  .t-field input, .t-field textarea { width: 100%; min-height: var(--ef-tap); border: var(--ef-bw) solid var(--ef-ink); border-radius: 0; padding: var(--ef-sp-2) var(--ef-sp-3); background: var(--ef-surface); line-height: var(--ef-lh-tight); }
+  .t-field textarea { min-height: 4.2em; line-height: var(--ef-lh); resize: vertical; }
+  .t-field input:focus-visible, .t-field textarea:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
   .t-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   /* 選ぶクイズ */
   .t-quiz { list-style: none; margin: 0; padding: 0; counter-reset: q; }
   .t-q { padding: 10px 0; border-top: 1px dashed var(--ef-line); counter-increment: q; }
   .t-q:first-child { border-top: 0; }
   .t-q-text { margin: 0 0 6px; }
-  .t-q-text::before { content: counter(q) ". "; font-weight: 700; color: var(--ef-accent); }
+  .t-q-text::before { content: counter(q) ". "; font-weight: 700; }
   .t-choices { display: flex; flex-wrap: wrap; gap: 6px; }
-  .t-choice { min-height: 42px; padding: 4px 14px; border: 1.5px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; }
-  .t-choice:hover { border-color: var(--ef-accent); }
-  .t-choice.is-ok { background: #e3f3e5; border-color: #2e7d32; color: #1b5e20; font-weight: 700; }
-  .t-choice.is-ng { background: #fbeaea; border-color: #b23b3b; color: #8c1d1d; }
-  .t-choice.is-ok::before { content: "○ "; }
-  .t-choice.is-ng::before { content: "× "; }
-  .t-explain { margin: 6px 0 0; padding: 6px 10px; border-radius: 0; background: var(--ef-surface-2); font-size: .93em; }
+  .t-choice { min-height: var(--ef-tap); padding: var(--ef-sp-1) 14px; border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); line-height: var(--ef-lh-tight); cursor: pointer; }
+  .t-choice:hover { border-color: var(--ef-ink); }
+  .t-choice.is-ok { background: var(--ef-ok-soft); border-color: var(--ef-ok); font-weight: 700; }
+  .t-choice.is-ng { background: var(--ef-ng-soft); border-color: var(--ef-ng); }
+  .t-choice.is-ok::before { content: "○ "; color: var(--ef-ok); }
+  .t-choice.is-ng::before { content: "× "; color: var(--ef-ng); }
+  .t-explain { margin: 6px 0 0; padding: var(--ef-sp-2) var(--ef-sp-3); border-left: var(--ef-mark) solid var(--ef-line); border-radius: 0; background: var(--ef-surface-2); font-size: .94em; }
   .t-explain[hidden] { display: none; }
   /* ならべる */
-  .t-ord { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: 0; background: var(--ef-surface-2); }
+  .t-ord { margin: 10px 0; padding: var(--ef-sp-3); border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface-2); }
   .t-ord h4 { margin: 0 0 6px; font-size: 1.05em; }
   .t-ord-items { display: flex; flex-wrap: wrap; gap: 8px; }
-  .t-ord-item { position: relative; min-height: 48px; padding: 6px 14px 6px 40px; border: 1.5px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; text-align: left; }
-  .t-ord-item .t-ord-n { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; border: 1.5px dashed #9a968c;
-    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
-  .t-ord-item.is-picked { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
-  .t-ord-item.is-picked .t-ord-n { border: 0; background: var(--ef-accent); color: #fff; }
-  .t-ord-item.is-ok { border-color: #2e7d32; background: #e3f3e5; }
-  .t-ord-item.is-ok .t-ord-n { background: #2e7d32; }
-  .t-ord-item.is-ng { border-color: #b23b3b; background: #fbeaea; }
-  .t-ord-item.is-ng .t-ord-n { background: #b23b3b; }
+  .t-ord-item { position: relative; min-height: 48px; padding: 6px 14px 6px 40px; border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); cursor: pointer; text-align: left; }
+  .t-ord-item .t-ord-n { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; border: var(--ef-bw) dashed var(--ef-muted);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .88rem; }
+  .t-ord-item.is-picked { border-color: var(--ef-ink); background: var(--ef-surface-2); }
+  .t-ord-item.is-picked .t-ord-n { border: 0; background: var(--ef-ink); color: var(--ef-on-ink); }
+  .t-ord-item.is-ok { border-color: var(--ef-ok); background: var(--ef-ok-soft); }
+  .t-ord-item.is-ok .t-ord-n { background: var(--ef-ok); }
+  .t-ord-item.is-ng { border-color: var(--ef-ng); background: var(--ef-ng-soft); }
+  .t-ord-item.is-ng .t-ord-n { background: var(--ef-ng); }
   .t-ord-msg { margin: 8px 0 0; font-size: .95em; }
   .t-arrow { color: var(--ef-muted); font-size: .9em; }
   /* 発想のしかた */
-  .t-idea { border-top: 5px solid var(--ef-accent); }
+  .t-idea { border-left: var(--ef-mark) solid var(--ef-accent); }
   /* 問題と課題の図 */
   .t-gap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; text-align: center; margin: 10px 0; }
-  .t-gap > div { padding: 10px; border-radius: 0; border: 2px solid var(--ef-line); background: #fff; }
-  .t-gap .t-now { border-color: #b23b3b; }
-  .t-gap .t-goal { border-color: #2e7d32; }
-  .t-gap .t-mid { border: 0; background: transparent; font-weight: 700; color: #8c1d1d; }
+  .t-gap > div { padding: 10px; border-radius: 0; border: var(--ef-bw-strong) solid var(--ef-line); background: var(--ef-surface); }
+  .t-gap .t-now { border-color: var(--ef-ng); }
+  .t-gap .t-goal { border-color: var(--ef-ok); }
+  .t-gap .t-mid { border: 0; background: transparent; font-weight: 700; color: var(--ef-ng); }
   .t-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 8px 0; padding: 0; list-style: none; }
-  .t-flow li { padding: 4px 10px; border-radius: 0; background: var(--ef-accent-soft); font-weight: 600; }
+  .t-flow li { padding: 4px 10px; border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); font-weight: 600; }
   .t-flow li + li::before { content: "→"; margin-right: 6px; color: var(--ef-muted); font-weight: 400; }
   /* 自転車の設計 */
   .t-design { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   .t-opt { margin: 0 0 10px; border: 0; padding: 0; }
   .t-opt legend { font-weight: 700; margin-bottom: 4px; padding: 0; }
   .t-choice.t-pick[aria-pressed="true"]::before { content: "✓ "; }
-  .t-choice.t-pick[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; font-weight: 700; }
+  .t-choice.t-pick[aria-pressed="true"] { border-color: var(--ef-ink); font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
   .t-bars { margin: 0; padding: 0; list-style: none; }
   .t-bar { display: grid; grid-template-columns: 8.5em 1fr 2.2em; gap: 8px; align-items: center; margin: 6px 0; }
-  .t-bar-track { display: block; height: 22px; border-radius: 0; background: #ebe8e1; overflow: hidden; }
+  .t-bar-track { display: block; height: 22px; border-radius: 0; background: var(--fig-bar-track); overflow: hidden; }
   .t-bar-fill { display: block; height: 100%; border-radius: 0; background: var(--ef-accent); transition: width .3s; }
   .t-bar-v { font-weight: 700; text-align: right; }
-  .t-bar.is-want .t-bar-label::after { content: " ★"; color: #c77700; }
+  .t-bar.is-want .t-bar-label::after { content: " ★"; color: var(--ef-warn); }
   .t-bike-msg { margin-top: 8px; }
   /* 4つの分野 */
   .t-areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .t-area { border-radius: 0; border: 1px solid var(--ef-line); border-top: 6px solid var(--c); background: #fff; padding: 12px 14px; }
-  .t-area h4 { margin: 0 0 4px; font-size: 1.1em; color: var(--c); }
+  .t-area { border-radius: 0; border: var(--ef-bw) solid var(--ef-line); border-top: var(--ef-mark) solid var(--fig-c); background: var(--ef-surface); padding: 12px 14px; }
+  .t-area h4 { margin: 0 0 4px; font-size: 1.1em; color: var(--fig-c); }
   .t-area p { margin: .25em 0; font-size: .95em; }
-  .t-area .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .55em; border-radius: 0; border: 1.5px solid var(--c); color: var(--c); font-size: .85em; font-weight: 700; }
-  .t-area-A { --c: #985a26; } .t-area-B { --c: #2e7d32; } .t-area-C { --c: #b45309; } .t-area-D { --c: #1a5fc8; }
+  .t-area .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .55em; border-radius: 0; border: var(--ef-bw) solid var(--fig-c); color: var(--fig-c); font-size: var(--ef-fs-s); font-weight: 700; }
+  .t-area-A { --fig-c: var(--fig-area-a); } .t-area-B { --fig-c: var(--fig-area-b); } .t-area-C { --fig-c: var(--fig-area-c); } .t-area-D { --fig-c: var(--fig-area-d); }
   /* 振り返り */
   .t-self { width: 100%; border-collapse: collapse; }
   .t-self th, .t-self td { border: 1px solid var(--ef-line); padding: 6px 8px; }
-  .t-self thead th { background: var(--ef-surface-2); font-weight: 600; font-size: .9em; }
+  .t-self thead th { background: var(--ef-surface-2); font-weight: 700; font-size: var(--ef-fs-s); }
   .t-self tbody th { text-align: left; font-weight: 400; }
   .t-self td { text-align: center; width: 5.5em; }
   .t-self label { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 40px; border-radius: 0; cursor: pointer; }
   .t-self input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .t-self label:has(input:checked) { background: var(--ef-accent); color: #fff; font-weight: 700; }
+  .t-self label:has(input:checked) { font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); background: var(--ef-surface-2); }
   .t-self label:has(input:focus-visible) { outline: 3px solid var(--ef-focus); }
   /* 記録 */
   .t-who { display: grid; grid-template-columns: 6em 6em 1fr; gap: 8px; max-width: 560px; }
   .t-prog { list-style: none; margin: 6px 0; padding: 0; }
   .t-prog li { padding: 4px 0; border-bottom: 1px dashed var(--ef-line); }
-  .t-prog .ok { color: #2e7d32; font-weight: 700; }
+  .t-prog .ok { color: var(--ef-ok); font-weight: 700; }
   .t-prog .no { color: var(--ef-muted); }
   .t-toc { margin: 6px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; }
-  .t-toc button { width: 100%; text-align: left; min-height: 46px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; }
-  .t-toc button:hover { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
-  .t-toc b { color: var(--ef-accent); margin-right: .4em; }
+  .t-toc button { width: 100%; text-align: left; min-height: var(--ef-tap); padding: 6px 12px; border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); cursor: pointer; }
+  .t-toc button:hover { border-color: var(--ef-ink); background: var(--ef-surface-2); }
+  .t-toc b { margin-right: .4em; }
   .t-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .6em; border-radius: 0; border: 1.5px solid var(--ef-accent); color: var(--ef-accent); font-size: .85em; font-weight: 700; }
+  .t-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .5em; border-radius: 0; border: var(--ef-bw) solid var(--ef-accent); color: var(--ef-accent); font-size: var(--ef-fs-s); font-weight: 700; }
   /* 製品の工夫の話(問題 → 工夫) */
   .t-case { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start; margin: 8px 0; padding: 10px 14px; border-radius: 0; background: var(--ef-surface-2); border: 1px solid var(--ef-line); }
-  .t-case dt { font-weight: 700; color: var(--ef-accent); white-space: nowrap; }
+  .t-case dt { font-weight: 700; white-space: nowrap; }
   .t-case dd { margin: 0; }
   /* 技術のカード */
   .t-techs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .t-tech { border: 1px solid var(--ef-line); border-top: 5px solid var(--ef-accent); border-radius: 0; padding: 10px 12px; background: #fff; }
+  .t-tech { border: var(--ef-bw) solid var(--ef-line); border-top: var(--ef-mark) solid var(--ef-accent); border-radius: 0; padding: 10px 12px; background: var(--ef-surface); }
   .t-tech h4 { margin: 0 0 4px; font-size: 1.05em; }
   .t-tech p { margin: .2em 0; font-size: .95em; }
-  .t-tech .t-plus::before { content: "よいところ: "; font-weight: 700; color: #2e7d32; }
-  .t-tech .t-minus::before { content: "心配なところ: "; font-weight: 700; color: #b23b3b; }
+  .t-tech .t-plus::before { content: "よいところ: "; font-weight: 700; color: var(--ef-ok); }
+  .t-tech .t-minus::before { content: "心配なところ: "; font-weight: 700; color: var(--ef-ng); }
   /* 4つの視点を 1〜5 でつける */
   .t-rates { margin: 8px 0; padding: 0; list-style: none; }
   .t-rate { display: grid; grid-template-columns: 8.5em 1fr; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px dashed var(--ef-line); }
   .t-rate:first-child { border-top: 0; }
   .t-rate-v { display: flex; flex-wrap: wrap; gap: 6px; }
   .t-rate-v .t-choice { min-width: 44px; padding: 4px 10px; }
-  .t-rate-v .t-choice[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; font-weight: 700; }
-  .t-scale { font-size: .85em; color: var(--ef-muted); }
+  .t-rate-v .t-choice[aria-pressed="true"] { border-color: var(--ef-ink); font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+  .t-scale { font-size: var(--ef-fs-s); color: var(--ef-muted); }
   /* いくつでもえらんで答え合わせ(Z ② など) */
   .t-multi { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .t-multi .t-choice[aria-pressed="true"] { background: var(--ef-accent-soft); border-color: var(--ef-accent); font-weight: 700; }
+  .t-multi .t-choice[aria-pressed="true"] { border-color: var(--ef-ink); font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
   .t-multi .t-choice[aria-pressed="true"]::before { content: "✓ "; }
-  .t-memo { margin: 6px 0; padding: 8px 12px; border-radius: 0; background: #fff8e6; border: 1px solid #e7cf8f; }
+  .t-memo { margin: 6px 0; padding: var(--ef-sp-2) var(--ef-sp-3); border-radius: 0; background: var(--ef-warn-soft); border: 0; border-left: var(--ef-mark) solid var(--ef-warn); }
   .t-memo[hidden] { display: none; }
   @media (max-width: 640px) {
     .t-rate { grid-template-columns: 1fr; gap: 2px; }
@@ -2315,7 +2325,7 @@ window.T_RUBY = {
  *   var T = TCore.init({ key: 'eduit.m.v1', blank: function () { return {…}; } });
  *   … T.quiz(…)・T.picker(…)・T.self(…) で中身を作り …
  *   T.start({ status: function (S) { return { intro: true, … }; }, prog: [[タブ, 名前, 点数の関数], …], exp: { code, title, file, score } });
- * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
+ * ページの形: <div id="tapp"> の中に、上のバー(.t-top: ふりがな [data-ef-pref=ruby]・文字 [data-ef-pref=fs]・使い方 #t-howto)、
  *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
  *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
  * 分野ごとに開く(教科書順コースから ?bunya=a のように開く): data-area="a" の部分は、その分野のときと全部のときだけ出す。
@@ -2324,7 +2334,6 @@ window.T_RUBY = {
  */
 (function () {
   'use strict';
-  var PREF = 'eduit.t.prefs';  // ふりがな・文字の大きさ(コースと M・F・Z で同じ)
 
   function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
   // 保存していた中身を blank() に重ねる。形のちがう値(配列のはずが文字など)は入れない(こわれた保存で止まらないように)
@@ -2412,30 +2421,9 @@ window.T_RUBY = {
     function text(node, s) { node.textContent = s; ruby(node); }
 
     // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
-    var FS_STEPS = [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']];
-    var prefs = { ruby: false, fs: 1 };
-    try {
-      var pr = JSON.parse(localStorage.getItem(PREF) || 'null');
-      if (pr) {
-        prefs.ruby = !!pr.ruby;
-        var fs = +pr.fs;  // 段の範囲の外(こわれた値)は「中」にもどす
-        prefs.fs = fs >= FS_STEPS[0][0] && fs <= FS_STEPS[FS_STEPS.length - 1][0] ? fs : 1;
-      }
-    } catch (e) {}
-    function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
-    function applyPrefs() {
-      root.classList.toggle('t-noruby', !prefs.ruby);
-      $('t-ruby').setAttribute('aria-pressed', String(prefs.ruby));
-      root.style.setProperty('--t-fs', prefs.fs);
-    }
-    $('t-ruby').addEventListener('click', function () { prefs.ruby = !prefs.ruby; savePrefs(); applyPrefs(); });
-    EduitFrame.sizeButton($('t-size'), {
-      steps: FS_STEPS,
-      get: function () { return prefs.fs; },
-      set: function (v) { prefs.fs = v; savePrefs(); applyPrefs(); }
-    });
+    // 上のバーの data-ef-pref のボタンを EduitFrame がボタンにする(全教材で同じ設定 EduitFrame.prefs)。ふりがなは付けておき、オフのときは CSS でかくす
     if (opts.howto) $('t-howto').addEventListener('click', function () {
-      EduitFrame.howto(opts.howto, { onOpen: function (box) { if (prefs.ruby) ruby(box); } });
+      EduitFrame.howto(opts.howto, { onOpen: function (box) { ruby(box); } });
     });
 
     // ---------- 書く欄(data-k)は自動で保存 ----------
@@ -2626,7 +2614,6 @@ window.T_RUBY = {
         location.reload();
       });
       fields();
-      applyPrefs();
       ruby(root);
       marks();
       var first = location.hash.slice(1);
@@ -2638,7 +2625,7 @@ window.T_RUBY = {
     return {
       S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
       quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
-      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs, area: AREA
+      select: select, onShow: onShow, onSave: onSave, start: start, area: AREA
     };
   }
 
@@ -2648,13 +2635,13 @@ window.T_RUBY = {
 </script>
 </head>
 <body class="ef-page">
-<div id="tapp" class="t-noruby">
+<div id="tapp">
   <div class="t-top" data-ef-autohide>
     <header class="ef-header">
       <h1 class="ef-title"><span class="ef-code">Z</span> <span class="ef-title-name">学習を終えて</span></h1>
       <div class="ef-tools">
-        <button type="button" class="ef-btn ef-toggle" id="t-ruby" aria-pressed="false" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" class="ef-btn ef-size" id="t-size"></button>
+        <button type="button" data-ef-pref="ruby" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" data-ef-pref="fs"></button>
         <button type="button" class="ef-btn" id="t-howto">使い方</button>
         <span data-ef-fs></span>
         <span data-ef-about></span>

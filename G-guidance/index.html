@@ -9,162 +9,23 @@
 <script src="eduit-info.js"></script>
 <script>EDUIT_INFO.app = { name: 'G 技術分野のガイダンス' };</script>
 <script src="../shared/eduit-frame.js"></script>
-<style>
-  body { margin: 0; background: var(--ef-bg); }
-  #gapp { --g-fs: 1; font-family: var(--ef-font); font-size: calc(17px * var(--g-fs)); line-height: 1.75; color: var(--ef-text); }
-  #gapp *, #gapp *::before, #gapp *::after { box-sizing: border-box; }
-  #gapp.g-noruby rt { display: none; }
-  #gapp rt, .ef-howto rt { font-size: .5em; color: var(--ef-muted); }
-  .g-noruby-doc .ef-howto rt { display: none; }
-  :where(#gapp button, #gapp input, #gapp textarea, #gapp select) { font: inherit; color: inherit; }
-  #gapp .ef-header .ef-btn { font-size: 15px; }
-  /* 上のバーとタブの帯(下へ読むと隠れ、上へもどすと出る) */
-  .g-top { position: sticky; top: 0; z-index: 30; background: var(--ef-surface); box-shadow: none; }
-  /* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線。.g-tabs は JS がタブを探すための名前) */
-  main.g-main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 60px; }
-  .g-sec[hidden] { display: none !important; }
-  .g-sec > h2 { margin: 4px 0 2px; font-size: 1.45em; line-height: 1.4; color: var(--ef-accent); }
-  .g-ref { margin: 0 0 12px; font-size: .82em; color: var(--ef-muted); }
-  .g-card { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: 0; padding: 14px 18px; margin: 0 0 14px; box-shadow: var(--ef-shadow); }
-  .g-card > h3 { margin: 0 0 8px; font-size: 1.15em; line-height: 1.45; }
-  .g-card p { margin: .35em 0; }
-  .g-act > h3::before { content: "やってみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: var(--ef-accent); color: #fff; font-size: .78em; vertical-align: 2px; }
-  .g-write > h3::before { content: "書いてみよう"; display: inline-block; margin-right: .6em; padding: 0 .55em; border-radius: 0; background: #8a5a00; color: #fff; font-size: .78em; vertical-align: 2px; }
-  .g-lead { font-size: 1.05em; }
-  .g-key { background: var(--ef-accent-soft); border-left: 5px solid var(--ef-accent); border-radius: 0; padding: 10px 14px; margin: 10px 0; }
-  .g-key b { color: var(--ef-accent); }
-  .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .g-mini { border: 1px solid var(--ef-line); border-radius: 0; padding: 10px 12px; background: var(--ef-surface-2); }
-  .g-mini h4 { margin: 0 0 4px; font-size: 1.02em; }
-  .g-mini p { margin: 0; font-size: .95em; }
-  .g-ic { font-size: 1.6em; line-height: 1; margin-right: .2em; vertical-align: -3px; }
-  .g-btn { display: inline-block; text-align: center; line-height: 1.5; min-height: 44px; padding: 8px 16px; border-radius: 0;
-    border: 2px solid var(--ef-accent); background: #fff; color: var(--ef-accent); font-weight: 700; cursor: pointer; }
-  .g-btn:hover { background: var(--ef-accent-soft); }
-  .g-btn.g-pri { background: var(--ef-accent); color: #fff; }
-  .g-btn:focus-visible, .g-choice:focus-visible, .g-ord-item:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
-  .g-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-  .g-score { font-weight: 700; color: var(--ef-accent); }
-  /* 書く欄 */
-  .g-field { display: block; margin: 8px 0; }
-  .g-field > span { display: block; font-weight: 600; font-size: .95em; }
-  .g-field input, .g-field textarea { width: 100%; border: 1.5px solid #9a968c; border-radius: 0; padding: 6px 10px; background: #fff; line-height: 1.6; }
-  .g-field textarea { min-height: 4.2em; resize: vertical; }
-  .g-field input:focus, .g-field textarea:focus { outline: none; border-color: var(--ef-accent); box-shadow: 0 0 0 3px var(--ef-accent-soft); }
-  .g-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  /* 選ぶクイズ */
-  .g-quiz { list-style: none; margin: 0; padding: 0; counter-reset: q; }
-  .g-q { padding: 10px 0; border-top: 1px dashed var(--ef-line); counter-increment: q; }
-  .g-q:first-child { border-top: 0; }
-  .g-q-text { margin: 0 0 6px; }
-  .g-q-text::before { content: counter(q) ". "; font-weight: 700; color: var(--ef-accent); }
-  .g-choices { display: flex; flex-wrap: wrap; gap: 6px; }
-  .g-choice { min-height: 42px; padding: 4px 14px; border: 1.5px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; }
-  .g-choice:hover { border-color: var(--ef-accent); }
-  .g-choice.is-ok { background: #e3f3e5; border-color: #2e7d32; color: #1b5e20; font-weight: 700; }
-  .g-choice.is-ng { background: #fbeaea; border-color: #b23b3b; color: #8c1d1d; }
-  .g-choice.is-ok::before { content: "○ "; }
-  .g-choice.is-ng::before { content: "× "; }
-  .g-explain { margin: 6px 0 0; padding: 6px 10px; border-radius: 0; background: var(--ef-surface-2); font-size: .93em; }
-  .g-explain[hidden] { display: none; }
-  /* ならべる */
-  .g-ord { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: 0; background: var(--ef-surface-2); }
-  .g-ord h4 { margin: 0 0 6px; font-size: 1.05em; }
-  .g-ord-items { display: flex; flex-wrap: wrap; gap: 8px; }
-  .g-ord-item { position: relative; min-height: 48px; padding: 6px 14px 6px 40px; border: 1.5px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; text-align: left; }
-  .g-ord-item .g-ord-n { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; border: 1.5px dashed #9a968c;
-    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
-  .g-ord-item.is-picked { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
-  .g-ord-item.is-picked .g-ord-n { border: 0; background: var(--ef-accent); color: #fff; }
-  .g-ord-item.is-ok { border-color: #2e7d32; background: #e3f3e5; }
-  .g-ord-item.is-ok .g-ord-n { background: #2e7d32; }
-  .g-ord-item.is-ng { border-color: #b23b3b; background: #fbeaea; }
-  .g-ord-item.is-ng .g-ord-n { background: #b23b3b; }
-  .g-ord-msg { margin: 8px 0 0; font-size: .95em; }
-  .g-arrow { color: var(--ef-muted); font-size: .9em; }
-  /* 発想のしかた */
-  .g-idea { border-top: 5px solid var(--ef-accent); }
-  /* 問題と課題の図 */
-  .g-gap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; text-align: center; margin: 10px 0; }
-  .g-gap > div { padding: 10px; border-radius: 0; border: 2px solid var(--ef-line); background: #fff; }
-  .g-gap .g-now { border-color: #b23b3b; }
-  .g-gap .g-goal { border-color: #2e7d32; }
-  .g-gap .g-mid { border: 0; background: transparent; font-weight: 700; color: #8c1d1d; }
-  .g-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 8px 0; padding: 0; list-style: none; }
-  .g-flow li { padding: 4px 10px; border-radius: 0; background: var(--ef-accent-soft); font-weight: 600; }
-  .g-flow li + li::before { content: "→"; margin-right: 6px; color: var(--ef-muted); font-weight: 400; }
-  /* 自転車の設計 */
-  .g-design { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-  .g-opt { margin: 0 0 10px; border: 0; padding: 0; }
-  .g-opt legend { font-weight: 700; margin-bottom: 4px; padding: 0; }
-  .g-choice.g-pick[aria-pressed="true"]::before { content: "✓ "; }
-  .g-choice.g-pick[aria-pressed="true"] { background: var(--ef-accent); border-color: var(--ef-accent); color: #fff; font-weight: 700; }
-  .g-bars { margin: 0; padding: 0; list-style: none; }
-  .g-bar { display: grid; grid-template-columns: 8.5em 1fr 2.2em; gap: 8px; align-items: center; margin: 6px 0; }
-  .g-bar-track { display: block; height: 22px; border-radius: 0; background: #ebe8e1; overflow: hidden; }
-  .g-bar-fill { display: block; height: 100%; border-radius: 0; background: var(--ef-accent); transition: width .3s; }
-  .g-bar-v { font-weight: 700; text-align: right; }
-  .g-bar.is-want .g-bar-label::after { content: " ★"; color: #c77700; }
-  .g-bike-msg { margin-top: 8px; }
-  /* 4つの分野 */
-  .g-areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .g-area { border-radius: 0; border: 1px solid var(--ef-line); border-top: 6px solid var(--c); background: #fff; padding: 12px 14px; }
-  .g-area h4 { margin: 0 0 4px; font-size: 1.1em; color: var(--c); }
-  .g-area p { margin: .25em 0; font-size: .95em; }
-  .g-area .g-tag { display: inline-block; margin: 2px 4px 0 0; padding: 0 .55em; border-radius: 0; border: 1.5px solid var(--c); color: var(--c); font-size: .85em; font-weight: 700; }
-  .g-area-A { --c: #985a26; } .g-area-B { --c: #2e7d32; } .g-area-C { --c: #b45309; } .g-area-D { --c: #1a5fc8; }
-  /* 振り返り */
-  .g-self { width: 100%; border-collapse: collapse; }
-  .g-self th, .g-self td { border: 1px solid var(--ef-line); padding: 6px 8px; }
-  .g-self thead th { background: var(--ef-surface-2); font-weight: 600; font-size: .9em; }
-  .g-self tbody th { text-align: left; font-weight: 400; }
-  .g-self td { text-align: center; width: 5.5em; }
-  .g-self label { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 40px; border-radius: 0; cursor: pointer; }
-  .g-self input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .g-self label:has(input:checked) { background: var(--ef-accent); color: #fff; font-weight: 700; }
-  .g-self label:has(input:focus-visible) { outline: 3px solid var(--ef-focus); }
-  /* 記録 */
-  .g-who { display: grid; grid-template-columns: 6em 6em 1fr; gap: 8px; max-width: 560px; }
-  .g-prog { list-style: none; margin: 6px 0; padding: 0; }
-  .g-prog li { padding: 4px 0; border-bottom: 1px dashed var(--ef-line); }
-  .g-prog .ok { color: #2e7d32; font-weight: 700; }
-  .g-prog .no { color: var(--ef-muted); }
-  .g-toc { margin: 6px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; }
-  .g-toc button { width: 100%; text-align: left; min-height: 46px; padding: 6px 12px; border: 1px solid var(--ef-line); border-radius: 0; background: #fff; cursor: pointer; }
-  .g-toc button:hover { border-color: var(--ef-accent); background: var(--ef-accent-soft); }
-  .g-toc b { color: var(--ef-accent); margin-right: .4em; }
-  .g-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  @media (max-width: 640px) {
-    main.g-main { padding: 10px 10px 60px; }
-    .g-card { padding: 12px; }
-    .g-row3, .g-design { grid-template-columns: 1fr; }
-    .g-gap { grid-template-columns: 1fr; }
-    .g-who { grid-template-columns: 1fr 1fr; }
-    .g-who .g-field:last-child { grid-column: 1 / -1; }
-    .g-bar { grid-template-columns: 7em 1fr 2em; }
-    .g-self td { width: 3.4em; padding: 4px 2px; }
-  }
-  @media print {
-    .g-top, .g-btns, [data-ef-footer] { display: none !important; }
-    .g-sec[hidden] { display: block !important; }
-    .g-card { box-shadow: none; break-inside: avoid; }
-  }
-</style>
+<!-- 見た目は教科書順コース・M・F・Z と同じ1つのファイル(クラスの頭は t-) -->
+<link rel="stylesheet" href="../T-textbook/common/t-core.css">
 </head>
 <body class="ef-page">
-<div id="gapp" class="g-noruby">
-  <div class="g-top" data-ef-autohide>
+<div id="tapp">
+  <div class="t-top" data-ef-autohide>
     <header class="ef-header">
       <h1 class="ef-title"><span class="ef-code">G</span> <span class="ef-title-name">技術分野のガイダンス</span></h1>
       <div class="ef-tools">
-        <button type="button" class="ef-btn ef-toggle" id="g-ruby" aria-pressed="false" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" class="ef-btn ef-size" id="g-size"></button>
-        <button type="button" class="ef-btn" id="g-howto">使い方</button>
+        <button type="button" data-ef-pref="ruby" title="ふりがなの表示・非表示">ふりがな</button>
+        <button type="button" data-ef-pref="fs"></button>
+        <button type="button" class="ef-btn" id="t-howto">使い方</button>
         <span data-ef-fs></span>
         <span data-ef-about></span>
       </div>
     </header>
-    <nav class="g-tabs ef-apptabs" role="tablist" aria-label="ガイダンスのページ">
+    <nav class="t-tabs ef-apptabs" role="tablist" aria-label="ガイダンスのページ">
       <button type="button" class="ef-apptab" role="tab" data-tab="intro">はじめに</button>
       <button type="button" class="ef-apptab" role="tab" data-tab="t1">① 工夫・創造</button>
       <button type="button" class="ef-apptab" role="tab" data-tab="t2">② 歩みと未来</button>
@@ -176,28 +37,28 @@
     </nav>
   </div>
 
-  <main class="g-main">
+  <main class="t-main">
     <!-- ===== はじめに ===== -->
-    <section class="g-sec" id="g-intro" data-sec="intro" role="tabpanel">
+    <section class="t-sec" id="t-intro" data-sec="intro" role="tabpanel">
       <h2>ようこそ 技術の世界へ</h2>
-      <p class="g-ref">教科書「技術分野のガイダンス」・技術分野の学習方法</p>
-      <div class="g-card">
+      <p class="t-ref">教科書「技術分野のガイダンス」・技術分野の学習方法</p>
+      <div class="t-card">
         <h3>技術って何だろう?</h3>
-        <p class="g-lead">家・電気・スマートフォン・野菜や魚。まわりの物は、だれかの「こまった」「こうしたい」から生まれました。人が考え、工夫して生みだしてきたものです。</p>
-        <div class="g-key"><b>技術</b>とは、<b>生活や社会の問題を解決する</b>ための工夫や方法のことです。材料を加工する、生物を育てる、エネルギーや情報を使う、などの方法があります。</div>
+        <p class="t-lead">家・電気・スマートフォン・野菜や魚。まわりの物は、だれかの「こまった」「こうしたい」から生まれました。人が考え、工夫して生みだしてきたものです。</p>
+        <div class="t-key"><b>技術</b>とは、<b>生活や社会の問題を解決する</b>ための工夫や方法のことです。材料を加工する、生物を育てる、エネルギーや情報を使う、などの方法があります。</div>
       </div>
-      <div class="g-card g-write">
+      <div class="t-card t-write">
         <h3>身の回りの「技術」を3つ書こう</h3>
         <p>いま思いつく「これは技術だ」と思うものを書きます。正解はありません。ガイダンスの最後に、もう一度見直します。</p>
-        <div class="g-row3">
-          <label class="g-field"><span>1つめ</span><input type="text" data-k="first.0" placeholder="例: 冷蔵庫"></label>
-          <label class="g-field"><span>2つめ</span><input type="text" data-k="first.1"></label>
-          <label class="g-field"><span>3つめ</span><input type="text" data-k="first.2"></label>
+        <div class="t-row3">
+          <label class="t-field"><span>1つめ</span><input type="text" data-k="first.0" placeholder="例: 冷蔵庫"></label>
+          <label class="t-field"><span>2つめ</span><input type="text" data-k="first.1"></label>
+          <label class="t-field"><span>3つめ</span><input type="text" data-k="first.2"></label>
         </div>
       </div>
-      <div class="g-card">
+      <div class="t-card">
         <h3>このガイダンスで学ぶこと</h3>
-        <ol class="g-toc">
+        <ol class="t-toc">
           <li><button type="button" data-goto="t1"><b>①</b>製品にこめられた工夫と創造 ― 発想のしかたを知る</button></li>
           <li><button type="button" data-goto="t2"><b>②</b>夢をかなえてきた技術の歩み ― 昔から今、そして未来へ</button></li>
           <li><button type="button" data-goto="t3"><b>③</b>技術の見方・考え方 ― 4つの視点で、折り合いをつける</button></li>
@@ -205,219 +66,219 @@
           <li><button type="button" data-goto="t5"><b>⑤</b>3年間で学ぶ4つの分野 ― 学習の見通しを持つ</button></li>
         </ol>
       </div>
-      <div class="g-card">
+      <div class="t-card">
         <h3>技術分野の学び方</h3>
-        <div class="g-grid">
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🎯</span>目標をつかむ</h4><p>教科書の節の初めにある【目標】と【学習課題】を読みます。何ができるようになればよいかを確かめます。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🔍</span>調べる・試す</h4><p>実験・観察・体験の教材で、しくみを自分で確かめます。フィールドワークやインタビューも使います。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">💬</span>話し合う</h4><p>考えたことを伝え合い、友だちの考えとくらべて、よりよい考えにします。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">📝</span>まとめる</h4><p>【まとめよう】で、分かったことを自分の言葉でまとめます。次の学習や生活に生かします。</p></div>
+        <div class="t-grid">
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🎯</span>目標をつかむ</h4><p>教科書の節の初めにある【目標】と【学習課題】を読みます。何ができるようになればよいかを確かめます。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🔍</span>調べる・試す</h4><p>実験・観察・体験の教材で、しくみを自分で確かめます。フィールドワークやインタビューも使います。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">💬</span>話し合う</h4><p>考えたことを伝え合い、友だちの考えとくらべて、よりよい考えにします。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">📝</span>まとめる</h4><p>【まとめよう】で、分かったことを自分の言葉でまとめます。次の学習や生活に生かします。</p></div>
         </div>
       </div>
-      <div class="g-card">
+      <div class="t-card">
         <h3>作業を楽しく安全に進めよう</h3>
-        <div class="g-grid">
-          <div class="g-mini"><h4>1 安全な環境</h4><p>作業する場所を整理・整頓し、通路に物を置かない。換気や明るさにも気を配る。</p></div>
-          <div class="g-mini"><h4>2 安全な行動</h4><p>先生の説明をよく聞き、決められた手順を守る。ふざけたり走ったりしない。</p></div>
-          <div class="g-mini"><h4>3 安全な作業</h4><p>作業に合った服装をし、保護めがねを使う。工具や機械は正しく使う。</p></div>
+        <div class="t-grid">
+          <div class="t-mini"><h4>1 安全な環境</h4><p>作業する場所を整理・整頓し、通路に物を置かない。換気や明るさにも気を配る。</p></div>
+          <div class="t-mini"><h4>2 安全な行動</h4><p>先生の説明をよく聞き、決められた手順を守る。ふざけたり走ったりしない。</p></div>
+          <div class="t-mini"><h4>3 安全な作業</h4><p>作業に合った服装をし、保護めがねを使う。工具や機械は正しく使う。</p></div>
         </div>
         <p>コンピュータは、正しい姿勢で使い、ときどき目を休めます。パスワードは人に教えません。知らない人に個人情報を送りません。</p>
       </div>
     </section>
 
     <!-- ===== ① 工夫・創造 ===== -->
-    <section class="g-sec" id="g-t1" data-sec="t1" role="tabpanel" hidden>
+    <section class="t-sec" id="t-t1" data-sec="t1" role="tabpanel" hidden>
       <h2>① 製品にこめられた工夫と創造</h2>
-      <p class="g-ref">教科書 ガイダンス 1</p>
-      <div class="g-card">
-        <p class="g-lead">製品には、「もっと使いやすく」という作った人の思いと、問題を解決する工夫があります。新しいアイデアは、次のような発想から生まれます。</p>
-        <div class="g-grid">
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🔁</span>アイデアの転用</h4><p>ほかの場面のしくみやアイデアを借りて、別の場面に生かす。</p></div>
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🙃</span>逆転の発想</h4><p>ふつうとは反対に考える。「失敗」や「欠点」に見えるものを、役に立つ性質として使う。</p></div>
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🏠</span>身の回りのヒント</h4><p>生活の中の「不便だな」「こまったな」に気づく。それをなくす方法を考える。</p></div>
-          <div class="g-mini g-idea"><h4><span class="g-ic" aria-hidden="true">🌿</span>自然からの発想</h4><p>生き物の体のつくりや、自然のしくみをまねて製品に生かす。</p></div>
+      <p class="t-ref">教科書 ガイダンス 1</p>
+      <div class="t-card">
+        <p class="t-lead">製品には、「もっと使いやすく」という作った人の思いと、問題を解決する工夫があります。新しいアイデアは、次のような発想から生まれます。</p>
+        <div class="t-grid">
+          <div class="t-mini t-idea"><h4><span class="t-ic" aria-hidden="true">🔁</span>アイデアの転用</h4><p>ほかの場面のしくみやアイデアを借りて、別の場面に生かす。</p></div>
+          <div class="t-mini t-idea"><h4><span class="t-ic" aria-hidden="true">🙃</span>逆転の発想</h4><p>ふつうとは反対に考える。「失敗」や「欠点」に見えるものを、役に立つ性質として使う。</p></div>
+          <div class="t-mini t-idea"><h4><span class="t-ic" aria-hidden="true">🏠</span>身の回りのヒント</h4><p>生活の中の「不便だな」「こまったな」に気づく。それをなくす方法を考える。</p></div>
+          <div class="t-mini t-idea"><h4><span class="t-ic" aria-hidden="true">🌿</span>自然からの発想</h4><p>生き物の体のつくりや、自然のしくみをまねて製品に生かす。</p></div>
         </div>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>発想のしかたクイズ</h3>
-        <p>それぞれの製品は、どの発想から生まれたでしょう。えらぶと、すぐに答えが分かります。 <span class="g-score" id="g-q1-score"></span></p>
-        <ol class="g-quiz" id="g-q1"></ol>
+        <p>それぞれの製品は、どの発想から生まれたでしょう。えらぶと、すぐに答えが分かります。 <span class="t-score" id="t-q1-score"></span></p>
+        <ol class="t-quiz" id="t-q1"></ol>
       </div>
-      <div class="g-card g-write">
+      <div class="t-card t-write">
         <h3>身の回りの製品の工夫を見つけよう</h3>
         <p>筆箱・水筒・かさ・くつ・文房具など、手もとにある製品を1つえらびます。「もしこの工夫がなかったら、何がこまる?」と考えると見つけやすくなります。</p>
-        <label class="g-field"><span>えらんだ製品</span><input type="text" data-k="t1.product" placeholder="例: 水筒"></label>
-        <label class="g-field"><span>どんな問題を解決している?</span><textarea data-k="t1.problem" placeholder="例: 飲み物がすぐにぬるくなってしまう"></textarea></label>
-        <label class="g-field"><span>どんな工夫がある?</span><textarea data-k="t1.idea" placeholder="例: 2重のかべの間を真空にして、熱が伝わりにくくしている"></textarea></label>
+        <label class="t-field"><span>えらんだ製品</span><input type="text" data-k="t1.product" placeholder="例: 水筒"></label>
+        <label class="t-field"><span>どんな問題を解決している?</span><textarea data-k="t1.problem" placeholder="例: 飲み物がすぐにぬるくなってしまう"></textarea></label>
+        <label class="t-field"><span>どんな工夫がある?</span><textarea data-k="t1.idea" placeholder="例: 2重のかべの間を真空にして、熱が伝わりにくくしている"></textarea></label>
       </div>
     </section>
 
     <!-- ===== ② 歩みと未来 ===== -->
-    <section class="g-sec" id="g-t2" data-sec="t2" role="tabpanel" hidden>
+    <section class="t-sec" id="t-t2" data-sec="t2" role="tabpanel" hidden>
       <h2>② 夢をかなえてきた技術の歩み</h2>
-      <p class="g-ref">教科書 ガイダンス 2</p>
-      <div class="g-card">
-        <p class="g-lead">技術は、「夜も明るくしたい」「遠くの人と話したい」などの願いにこたえて進歩してきました。今の技術は、昔の人が積み重ねてきた工夫の上にあります。</p>
+      <p class="t-ref">教科書 ガイダンス 2</p>
+      <div class="t-card">
+        <p class="t-lead">技術は、「夜も明るくしたい」「遠くの人と話したい」などの願いにこたえて進歩してきました。今の技術は、昔の人が積み重ねてきた工夫の上にあります。</p>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>技術の歩みを古い順にならべよう</h3>
         <p>古いと思うものから順に押します。押した順に番号が付きます。4つそろうと答え合わせをします。</p>
-        <div id="g-ord-hist"></div>
+        <div id="t-ord-hist"></div>
       </div>
-      <div class="g-card g-write">
+      <div class="t-card t-write">
         <h3>これからの技術で、どんな夢をかなえたい?</h3>
         <p>気になる未来の技術を、いくつでもえらびましょう。</p>
-        <div class="g-choices" id="g-future"></div>
-        <label class="g-field"><span>技術でかなえたい夢(だれの、何がよくなる?)</span><textarea data-k="t2.dream" placeholder="例: 自動運転のバスがあれば、運転できないお年寄りも、行きたいところへ行ける"></textarea></label>
+        <div class="t-choices" id="t-future"></div>
+        <label class="t-field"><span>技術でかなえたい夢(だれの、何がよくなる?)</span><textarea data-k="t2.dream" placeholder="例: 自動運転のバスがあれば、運転できないお年寄りも、行きたいところへ行ける"></textarea></label>
       </div>
     </section>
 
     <!-- ===== ③ 見方・考え方 ===== -->
-    <section class="g-sec" id="g-t3" data-sec="t3" role="tabpanel" hidden>
+    <section class="t-sec" id="t-t3" data-sec="t3" role="tabpanel" hidden>
       <h2>③ 技術の見方・考え方</h2>
-      <p class="g-ref">教科書 ガイダンス 3</p>
-      <div class="g-card">
-        <p class="g-lead">技術分野では、製品やしくみを次の<b>4つの視点</b>から見て考えます。これを「技術の見方・考え方」といいます。</p>
-        <div class="g-grid">
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🙋</span>社会からの要求</h4><p>使う人や社会が求めていること。便利さ・使いやすさ・性能など。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🦺</span>安全性</h4><p>けがや事故が起きないか。こわれたときやまちがえて使ったときも安全か。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">🌏</span>環境への負荷</h4><p>資源やエネルギーをむだに使わないか。CO2やごみを出しすぎないか。</p></div>
-          <div class="g-mini"><h4><span class="g-ic" aria-hidden="true">💴</span>経済性</h4><p>つくるとき・使うとき・すてるときにかかるお金。</p></div>
+      <p class="t-ref">教科書 ガイダンス 3</p>
+      <div class="t-card">
+        <p class="t-lead">技術分野では、製品やしくみを次の<b>4つの視点</b>から見て考えます。これを「技術の見方・考え方」といいます。</p>
+        <div class="t-grid">
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🙋</span>社会からの要求</h4><p>使う人や社会が求めていること。便利さ・使いやすさ・性能など。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🦺</span>安全性</h4><p>けがや事故が起きないか。こわれたときやまちがえて使ったときも安全か。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">🌏</span>環境への負荷</h4><p>資源やエネルギーをむだに使わないか。CO2やごみを出しすぎないか。</p></div>
+          <div class="t-mini"><h4><span class="t-ic" aria-hidden="true">💴</span>経済性</h4><p>つくるとき・使うとき・すてるときにかかるお金。</p></div>
         </div>
-        <div class="g-key">例: <b>LED電球</b>は、白熱電球と同じ明るさでも使う電気が少ないです(環境への負荷)。熱くなりにくく(安全性)、長持ちします。でも、1個の値段は高めです(経済性)。ある視点をよくすると、別の視点が悪くなることがあります。この関係を<b>トレードオフ</b>といいます。全部の視点をいちばんにするのはむずかしいです。作る人は、視点どうしの<b>折り合い</b>をつけて、いちばんよい答えをさがします(<b>最適化</b>)。</div>
+        <div class="t-key">例: <b>LED電球</b>は、白熱電球と同じ明るさでも使う電気が少ないです(環境への負荷)。熱くなりにくく(安全性)、長持ちします。でも、1個の値段は高めです(経済性)。ある視点をよくすると、別の視点が悪くなることがあります。この関係を<b>トレードオフ</b>といいます。全部の視点をいちばんにするのはむずかしいです。作る人は、視点どうしの<b>折り合い</b>をつけて、いちばんよい答えをさがします(<b>最適化</b>)。</div>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>4つの視点で仕分けよう</h3>
-        <p>文は、どの視点のことでしょう。 <span class="g-score" id="g-q3-score"></span></p>
-        <ol class="g-quiz" id="g-q3"></ol>
+        <p>文は、どの視点のことでしょう。 <span class="t-score" id="t-q3-score"></span></p>
+        <ol class="t-quiz" id="t-q3"></ol>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>自転車を設計して、折り合いをつけよう</h3>
         <p>まず、使う人を1人えらびます。★は、その人がとくに大事にしたい視点です。次に部品を組み合わせて、4つの視点のバランスを見ましょう。</p>
-        <div class="g-design">
+        <div class="t-design">
           <div>
-            <fieldset class="g-opt"><legend>使う人</legend><div class="g-choices" id="g-bike-user"></div></fieldset>
-            <fieldset class="g-opt"><legend>フレームの材料</legend><div class="g-choices" id="g-bike-frame"></div></fieldset>
-            <fieldset class="g-opt"><legend>動力</legend><div class="g-choices" id="g-bike-power"></div></fieldset>
-            <fieldset class="g-opt"><legend>ライト</legend><div class="g-choices" id="g-bike-light"></div></fieldset>
+            <fieldset class="t-opt"><legend>使う人</legend><div class="t-choices" id="t-bike-user"></div></fieldset>
+            <fieldset class="t-opt"><legend>フレームの材料</legend><div class="t-choices" id="t-bike-frame"></div></fieldset>
+            <fieldset class="t-opt"><legend>動力</legend><div class="t-choices" id="t-bike-power"></div></fieldset>
+            <fieldset class="t-opt"><legend>ライト</legend><div class="t-choices" id="t-bike-light"></div></fieldset>
           </div>
           <div>
-            <ul class="g-bars" id="g-bike-bars" aria-live="polite"></ul>
-            <p class="g-bike-msg" id="g-bike-msg"></p>
+            <ul class="t-bars" id="t-bike-bars" aria-live="polite"></ul>
+            <p class="t-bike-msg" id="t-bike-msg"></p>
           </div>
         </div>
-        <label class="g-field"><span>使う人のために、何を選んだ? どの視点を大事にした? そのかわりに、何をがまんした?</span><textarea data-k="t3.why" placeholder="例: 坂の多い町のお年寄りのために、楽に走れる電動アシストにした。そのかわり値段は高くなった"></textarea></label>
+        <label class="t-field"><span>使う人のために、何を選んだ? どの視点を大事にした? そのかわりに、何をがまんした?</span><textarea data-k="t3.why" placeholder="例: 坂の多い町のお年寄りのために、楽に走れる電動アシストにした。そのかわり値段は高くなった"></textarea></label>
       </div>
     </section>
 
     <!-- ===== ④ 問題解決 ===== -->
-    <section class="g-sec" id="g-t4" data-sec="t4" role="tabpanel" hidden>
+    <section class="t-sec" id="t-t4" data-sec="t4" role="tabpanel" hidden>
       <h2>④ 技術で問題を解決するには</h2>
-      <p class="g-ref">教科書 ガイダンス 4</p>
-      <div class="g-card">
-        <p class="g-lead">技術の授業では、作品をつくったり、作物を育てたりします。その中で、身の回りや社会の問題を解決する力をつけます。はじめの一歩は、問題を見つけて、課題を決めることです。</p>
-        <div class="g-gap" aria-label="問題と課題の図">
-          <div class="g-now"><b>現状</b><br>今のようす</div>
-          <div class="g-mid">← ずれ(ギャップ) →<br>これが「問題」</div>
-          <div class="g-goal"><b>目標</b><br>こうありたい姿</div>
+      <p class="t-ref">教科書 ガイダンス 4</p>
+      <div class="t-card">
+        <p class="t-lead">技術の授業では、作品をつくったり、作物を育てたりします。その中で、身の回りや社会の問題を解決する力をつけます。はじめの一歩は、問題を見つけて、課題を決めることです。</p>
+        <div class="t-gap" aria-label="問題と課題の図">
+          <div class="t-now"><b>現状</b><br>今のようす</div>
+          <div class="t-mid">← ずれ(ギャップ) →<br>これが「問題」</div>
+          <div class="t-goal"><b>目標</b><br>こうありたい姿</div>
         </div>
-        <div class="g-key"><b>問題</b>: 現状と目標(理想)のずれ。「不便だな」「こまったな」と感じること。<br><b>課題</b>: そのずれをうめるために、取り組むこと。「〜を〜する方法を考える」のように書けます。</div>
-        <div class="g-grid">
-          <div class="g-mini"><h4>ニーズの探究</h4><p>使う人(ユーザ)が何をこまっていて、何を求めているかを考える。</p></div>
-          <div class="g-mini"><h4>シーズの探究</h4><p>新しい技術や材料を使って、どんな問題を解決できるかを考える。</p></div>
-          <div class="g-mini"><h4>知的財産の活用・創造</h4><p>新しいアイデアは、特許権・意匠権・商標権・著作権などで守られる。人のアイデアを大切にし、自分のアイデアも生かす。</p></div>
+        <div class="t-key"><b>問題</b>: 現状と目標(理想)のずれ。「不便だな」「こまったな」と感じること。<br><b>課題</b>: そのずれをうめるために、取り組むこと。「〜を〜する方法を考える」のように書けます。</div>
+        <div class="t-grid">
+          <div class="t-mini"><h4>ニーズの探究</h4><p>使う人(ユーザ)が何をこまっていて、何を求めているかを考える。</p></div>
+          <div class="t-mini"><h4>シーズの探究</h4><p>新しい技術や材料を使って、どんな問題を解決できるかを考える。</p></div>
+          <div class="t-mini"><h4>知的財産の活用・創造</h4><p>新しいアイデアは、特許権・意匠権・商標権・著作権などで守られる。人のアイデアを大切にし、自分のアイデアも生かす。</p></div>
         </div>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>問題? 課題?</h3>
-        <p>「問題」と「課題」のどちらでしょう。 <span class="g-score" id="g-q4-score"></span></p>
-        <ol class="g-quiz" id="g-q4"></ol>
+        <p>「問題」と「課題」のどちらでしょう。 <span class="t-score" id="t-q4-score"></span></p>
+        <ol class="t-quiz" id="t-q4"></ol>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>問題解決の流れをならべよう</h3>
         <p>技術分野の問題解決は、いつも同じ流れで進めます。はじめにすることから順に押しましょう。</p>
-        <div id="g-ord-flow"></div>
+        <div id="t-ord-flow"></div>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>ニーズ? シーズ?</h3>
-        <p>使う人の求めから考えたものはニーズ、技術から考えたものはシーズです。どちらでしょう。 <span class="g-score" id="g-q4b-score"></span></p>
-        <ol class="g-quiz" id="g-q4b"></ol>
+        <p>使う人の求めから考えたものはニーズ、技術から考えたものはシーズです。どちらでしょう。 <span class="t-score" id="t-q4b-score"></span></p>
+        <ol class="t-quiz" id="t-q4b"></ol>
       </div>
-      <div class="g-card g-write">
+      <div class="t-card t-write">
         <h3>自分の身の回りの問題を見つけよう</h3>
-        <label class="g-field"><span>問題(こまっていること・不便なこと)</span><textarea data-k="t4.problem" placeholder="例: 教室のかさ立てがいっぱいで、かさがたおれてしまう"></textarea></label>
-        <label class="g-field"><span>課題(解決するために取り組むこと)</span><textarea data-k="t4.kadai" placeholder="例: たくさん入って、たおれにくいかさ立ての形を考える"></textarea></label>
+        <label class="t-field"><span>問題(こまっていること・不便なこと)</span><textarea data-k="t4.problem" placeholder="例: 教室のかさ立てがいっぱいで、かさがたおれてしまう"></textarea></label>
+        <label class="t-field"><span>課題(解決するために取り組むこと)</span><textarea data-k="t4.kadai" placeholder="例: たくさん入って、たおれにくいかさ立ての形を考える"></textarea></label>
       </div>
     </section>
 
     <!-- ===== ⑤ 4つの分野 ===== -->
-    <section class="g-sec" id="g-t5" data-sec="t5" role="tabpanel" hidden>
+    <section class="t-sec" id="t-t5" data-sec="t5" role="tabpanel" hidden>
       <h2>⑤ 3年間で学ぶ4つの分野</h2>
-      <p class="g-ref">教科書 ガイダンス 5</p>
-      <div class="g-card">
-        <p class="g-lead">技術分野では、3年間で次の4つの技術について学びます。それぞれの技術で、どんな社会をめざすのかも考えます。</p>
-        <div class="g-areas">
-          <div class="g-area g-area-A"><h4>A 材料と加工の技術</h4><p>木材・金属・プラスチックの性質を知ります。じょうぶな構造を考え、製図をかいて、作品をつくります。</p><p><span class="g-tag">循環型社会</span></p></div>
-          <div class="g-area g-area-B"><h4>B 生物育成の技術</h4><p>作物や動物・魚が育つ環境を整えるしくみを知ります。計画を立てて作物を育てます。</p><p><span class="g-tag">自然共生社会</span></p></div>
-          <div class="g-area g-area-C"><h4>C エネルギー変換の技術</h4><p>電気をつくる・送るしくみ、電気回路、動きを伝える機構を知ります。それを使って製品を設計します。</p><p><span class="g-tag">脱炭素社会</span><span class="g-tag">省エネルギー</span></p></div>
-          <div class="g-area g-area-D"><h4>D 情報の技術</h4><p>コンピュータやネットワークのしくみを知り、プログラミングで問題を解決します。</p><p><span class="g-tag">超スマート社会</span><span class="g-tag">プログラミング</span></p></div>
+      <p class="t-ref">教科書 ガイダンス 5</p>
+      <div class="t-card">
+        <p class="t-lead">技術分野では、3年間で次の4つの技術について学びます。それぞれの技術で、どんな社会をめざすのかも考えます。</p>
+        <div class="t-areas">
+          <div class="t-area t-area-A"><h4>A 材料と加工の技術</h4><p>木材・金属・プラスチックの性質を知ります。じょうぶな構造を考え、製図をかいて、作品をつくります。</p><p><span class="t-tag">循環型社会</span></p></div>
+          <div class="t-area t-area-B"><h4>B 生物育成の技術</h4><p>作物や動物・魚が育つ環境を整えるしくみを知ります。計画を立てて作物を育てます。</p><p><span class="t-tag">自然共生社会</span></p></div>
+          <div class="t-area t-area-C"><h4>C エネルギー変換の技術</h4><p>電気をつくる・送るしくみ、電気回路、動きを伝える機構を知ります。それを使って製品を設計します。</p><p><span class="t-tag">脱炭素社会</span><span class="t-tag">省エネルギー</span></p></div>
+          <div class="t-area t-area-D"><h4>D 情報の技術</h4><p>コンピュータやネットワークのしくみを知り、プログラミングで問題を解決します。</p><p><span class="t-tag">超スマート社会</span><span class="t-tag">プログラミング</span></p></div>
         </div>
         <p>最後に、4つの技術を組み合わせた<b>統合的な問題解決</b>にも取り組みます。植物工場や火星探査ロボットなどです。</p>
-        <div class="g-key">技術分野で身につける力:<br><b>知識・技能</b>: しくみが分かり、使える。<br><b>思考力・判断力・表現力</b>: 問題を見つけ、解決策を考えて伝える。<br><b>学びに向かう力</b>: 暮らしや社会を、未来までもっとよくしようとする。</div>
+        <div class="t-key">技術分野で身につける力:<br><b>知識・技能</b>: しくみが分かり、使える。<br><b>思考力・判断力・表現力</b>: 問題を見つけ、解決策を考えて伝える。<br><b>学びに向かう力</b>: 暮らしや社会を、未来までもっとよくしようとする。</div>
       </div>
-      <div class="g-card g-act">
+      <div class="t-card t-act">
         <h3>どの分野の技術?</h3>
-        <p>A〜D のどの分野で学ぶ技術でしょう。 <span class="g-score" id="g-q5-score"></span></p>
-        <ol class="g-quiz" id="g-q5"></ol>
+        <p>A〜D のどの分野で学ぶ技術でしょう。 <span class="t-score" id="t-q5-score"></span></p>
+        <ol class="t-quiz" id="t-q5"></ol>
       </div>
-      <div class="g-card g-write">
+      <div class="t-card t-write">
         <h3>3年間の目標を立てよう</h3>
         <p>いちばん楽しみな分野をえらびましょう。</p>
-        <div class="g-choices" id="g-fav"></div>
-        <label class="g-field"><span>技術分野の学習でがんばりたいこと(その分野が楽しみな理由も)</span><textarea data-k="t5.goal" placeholder="例: プログラミングでロボットを動かしてみたいので、情報の技術をがんばりたい"></textarea></label>
+        <div class="t-choices" id="t-fav"></div>
+        <label class="t-field"><span>技術分野の学習でがんばりたいこと(その分野が楽しみな理由も)</span><textarea data-k="t5.goal" placeholder="例: プログラミングでロボットを動かしてみたいので、情報の技術をがんばりたい"></textarea></label>
       </div>
     </section>
 
     <!-- ===== 振り返り ===== -->
-    <section class="g-sec" id="g-refl" data-sec="refl" role="tabpanel" data-ef-reflect hidden>
+    <section class="t-sec" id="t-refl" data-sec="refl" role="tabpanel" data-ef-reflect hidden>
       <h2>振り返り</h2>
-      <p class="g-ref">ガイダンスで学んだことを振り返ります</p>
-      <div class="g-card">
+      <p class="t-ref">ガイダンスで学んだことを振り返ります</p>
+      <div class="t-card">
         <h3>自己評価</h3>
-        <table class="g-self">
+        <table class="t-self">
           <thead><tr><th scope="col">ふりかえる項目</th><th scope="col">できた</th><th scope="col">だいたい</th><th scope="col">もう少し</th></tr></thead>
-          <tbody id="g-self"></tbody>
+          <tbody id="t-self"></tbody>
         </table>
       </div>
-      <div class="g-card">
+      <div class="t-card">
         <h3>自分の言葉で書こう</h3>
-        <p id="g-first-view"></p>
-        <label class="g-field"><span>技術とは何か(はじめに書いたことと、考えが変わったところはある?)</span><textarea data-k="refl.learned"></textarea></label>
-        <label class="g-field"><span>これからの技術分野の学習でがんばりたいこと</span><textarea data-k="refl.next"></textarea></label>
+        <p id="t-first-view"></p>
+        <label class="t-field"><span>技術とは何か(はじめに書いたことと、考えが変わったところはある?)</span><textarea data-k="refl.learned"></textarea></label>
+        <label class="t-field"><span>これからの技術分野の学習でがんばりたいこと</span><textarea data-k="refl.next"></textarea></label>
       </div>
     </section>
 
     <!-- ===== 記録 ===== -->
-    <section class="g-sec" id="g-rec" data-sec="rec" role="tabpanel" hidden>
+    <section class="t-sec" id="t-rec" data-sec="rec" role="tabpanel" hidden>
       <h2>記録</h2>
-      <p class="g-ref">書いたこと・答えは、この端末のブラウザの中に自動で保存されています</p>
-      <div class="g-card">
+      <p class="t-ref">書いたこと・答えは、この端末のブラウザの中に自動で保存されています</p>
+      <div class="t-card">
         <h3>組・番号・名前</h3>
-        <div class="g-who">
-          <label class="g-field"><span data-noruby>組</span><input type="text" data-k="who.cls" inputmode="numeric"></label>
-          <label class="g-field"><span>番号</span><input type="text" data-k="who.no" inputmode="numeric"></label>
-          <label class="g-field"><span>名前</span><input type="text" data-k="who.name"></label>
+        <div class="t-who">
+          <label class="t-field"><span data-noruby>組</span><input type="text" data-k="who.cls" inputmode="numeric"></label>
+          <label class="t-field"><span>番号</span><input type="text" data-k="who.no" inputmode="numeric"></label>
+          <label class="t-field"><span>名前</span><input type="text" data-k="who.name"></label>
         </div>
       </div>
-      <div class="g-card">
+      <div class="t-card">
         <h3>進み具合</h3>
-        <ul class="g-prog" id="g-prog"></ul>
-        <div class="g-btns">
-          <button type="button" class="g-btn g-pri" id="g-export">記録を書き出す(ファイル)</button>
-          <button type="button" class="g-btn" id="g-print">印刷する</button>
-          <button type="button" class="g-btn" id="g-reset">はじめから(記録を消す)</button>
+        <ul class="t-prog" id="t-prog"></ul>
+        <div class="t-btns">
+          <button type="button" class="t-btn t-pri" id="t-export">記録を書き出す(ファイル)</button>
+          <button type="button" class="t-btn" id="t-print">印刷する</button>
+          <button type="button" class="t-btn" id="t-reset">はじめから(記録を消す)</button>
         </div>
-        <p id="g-export-msg" aria-live="polite"></p>
+        <p id="t-export-msg" aria-live="polite"></p>
         <p>書き出したファイルは、先生の指示どおりに出します。先生は「振り返り一覧」で、クラス全員の振り返りをまとめて見られます。</p>
       </div>
     </section>
@@ -428,9 +289,9 @@
 <script>
 (function () {
   'use strict';
-  var KEY = 'eduit.g.v1', PREF = 'eduit.g.prefs';
+  var KEY = 'eduit.g.v1';
   var $ = function (id) { return document.getElementById(id); };
-  var root = $('gapp');
+  var root = $('tapp');
 
   // ---------- 保存 ----------
   function blank() {
@@ -537,30 +398,8 @@
   }
 
   // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
-  var FS_STEPS = [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']];  // 文字の大きさの段(倍率)
-  var prefs = { ruby: false, fs: 1 };
-  try {
-    var pr = JSON.parse(localStorage.getItem(PREF) || 'null');
-    if (pr) {
-      prefs.ruby = !!pr.ruby;
-      var fs = +pr.fs;  // 段の範囲の外(こわれた値)は「中」にもどす
-      prefs.fs = fs >= FS_STEPS[0][0] && fs <= FS_STEPS[FS_STEPS.length - 1][0] ? fs : 1;
-    }
-  } catch (e) {}
-  function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
-  function applyPrefs() {
-    root.classList.toggle('g-noruby', !prefs.ruby);
-    document.documentElement.classList.toggle('g-noruby-doc', !prefs.ruby);  // 使い方のダイアログ(#gapp の外)のふりがな
-    $('g-ruby').setAttribute('aria-pressed', String(prefs.ruby));
-    root.style.setProperty('--g-fs', prefs.fs);
-  }
-  $('g-ruby').addEventListener('click', function () { prefs.ruby = !prefs.ruby; savePrefs(); applyPrefs(); });
-  EduitFrame.sizeButton($('g-size'), {
-    steps: FS_STEPS,
-    get: function () { return prefs.fs; },
-    set: function (v) { prefs.fs = v; savePrefs(); applyPrefs(); }
-  });
-  $('g-howto').addEventListener('click', function () {
+  // 上のバーの data-ef-pref のボタンを EduitFrame がボタンにする(全教材で同じ設定 EduitFrame.prefs)。ふりがなは付けておき、オフのときは CSS でかくす
+  $('t-howto').addEventListener('click', function () {
     EduitFrame.howto('<h3>このガイダンスの進め方</h3><ol>' +
       '<li>上のタブを「はじめに」から順に開きます。① 〜 ⑤ が教科書の「技術分野のガイダンス」1〜5 にあたります。</li>' +
       '<li>「やってみよう」はクイズやならべかえです。えらぶと、すぐに答えと説明が出ます。何度でもやり直せます。</li>' +
@@ -571,8 +410,8 @@
   });
 
   // ---------- タブ ----------
-  var TABS = Array.prototype.slice.call(document.querySelectorAll('.g-tabs [data-tab]'));
-  var SECS = Array.prototype.slice.call(document.querySelectorAll('.g-sec'));
+  var TABS = Array.prototype.slice.call(document.querySelectorAll('.t-tabs [data-tab]'));
+  var SECS = Array.prototype.slice.call(document.querySelectorAll('.t-sec'));
   function visibleTabs() { return TABS.filter(function (t) { return EduitFrame.furikaeri || !t.hasAttribute('data-ef-reflect'); }); }
   function select(name, scroll) {
     if (!EduitFrame.furikaeri && name === 'refl') name = 'rec';
@@ -587,7 +426,7 @@
     try { localStorage.setItem(KEY + '.tab', name); } catch (e) {}
   }
   TABS.forEach(function (t, i) {
-    t.setAttribute('aria-controls', 'g-' + t.getAttribute('data-tab'));
+    t.setAttribute('aria-controls', 't-' + t.getAttribute('data-tab'));
     t.addEventListener('click', function () { select(t.getAttribute('data-tab'), true); });
     t.addEventListener('keydown', function (e) {
       var v = visibleTabs(), j = v.indexOf(t);
@@ -621,9 +460,9 @@
       ruby(score);
     }
     items.forEach(function (it, i) {
-      var ex = el('p', { class: 'g-explain', hidden: '' });
+      var ex = el('p', { class: 't-explain', hidden: '' });
       var btns = (it.c || choices).map(function (c, j) {
-        var b = el('button', { type: 'button', class: 'g-choice', text: c });
+        var b = el('button', { type: 'button', class: 't-choice', text: c });
         b.addEventListener('click', function () { store()[i] = j; save(); paint(); paintScore(); });
         return b;
       });
@@ -640,7 +479,7 @@
           ruby(ex);
         } else ex.hidden = true;
       }
-      box.appendChild(el('li', { class: 'g-q' }, [el('p', { class: 'g-q-text', text: it.t }), el('div', { class: 'g-choices' }, btns), ex]));
+      box.appendChild(el('li', { class: 't-q' }, [el('p', { class: 't-q-text', text: it.t }), el('div', { class: 't-choices' }, btns), ex]));
       paint();
     });
     paintScore();
@@ -658,12 +497,12 @@
     return a;
   }
   function orderer(box, set, store, seed) {
-    var wrap = el('div', { class: 'g-ord' }), list = el('div', { class: 'g-ord-items' }), msg = el('p', { class: 'g-ord-msg', 'aria-live': 'polite' });
-    var reset = el('button', { type: 'button', class: 'g-btn', text: 'やり直す' });
+    var wrap = el('div', { class: 't-ord' }), list = el('div', { class: 't-ord-items' }), msg = el('p', { class: 't-ord-msg', 'aria-live': 'polite' });
+    var reset = el('button', { type: 'button', class: 't-btn', text: 'やり直す' });
     var mix = seeded(set.items.length, seed);
     var btns = mix.map(function (idx) {
-      var n = el('span', { class: 'g-ord-n', 'aria-hidden': 'true' });
-      var b = el('button', { type: 'button', class: 'g-ord-item' }, [n, set.items[idx]]);
+      var n = el('span', { class: 't-ord-n', 'aria-hidden': 'true' });
+      var b = el('button', { type: 'button', class: 't-ord-item' }, [n, set.items[idx]]);
       b.addEventListener('click', function () {
         var seq = store()[set.id] || [];
         if (seq.length >= set.items.length || seq.indexOf(idx) >= 0) return;
@@ -692,7 +531,7 @@
     wrap.appendChild(list);
     btns.forEach(function (o) { list.appendChild(o.b); });
     wrap.appendChild(msg);
-    wrap.appendChild(el('div', { class: 'g-btns' }, [reset]));
+    wrap.appendChild(el('div', { class: 't-btns' }, [reset]));
     box.appendChild(wrap);
     paint();
   }
@@ -703,7 +542,7 @@
   function picker(boxId, options, get, set, multi) {
     var box = $(boxId);
     var bs = options.map(function (o) {
-      var b = el('button', { type: 'button', class: 'g-choice g-pick', text: o.label || o });
+      var b = el('button', { type: 'button', class: 't-choice t-pick', text: o.label || o });
       b.addEventListener('click', function () { set(o.id || o); save(); paint(); });
       box.appendChild(b);
       return { b: b, id: o.id || o };
@@ -726,7 +565,7 @@
     { t: '新幹線の先頭の形: トンネルに入るときの大きな音をへらしたい。そこで、カワセミのくちばしの形をまねた。カワセミは、水にとびこんでも水しぶきが少ない。', a: 3, x: '鳥の体の形をまねています。自然からの発想です。' },
     { t: '回転ずし: すし屋のいそがしさをへらしたい。そこで、ビール工場でびんを運ぶベルトコンベアを、すしを運ぶのに使った。', a: 0, x: '工場の機械のしくみを、すし屋という別の場面に生かした、アイデアの転用です。' }
   ];
-  quiz('g-q1', 'g-q1-score', IDEAS, Q1, function () { return S.t1.q; });
+  quiz('t-q1', 't-q1-score', IDEAS, Q1, function () { return S.t1.q; });
 
   // ---------- ② 歩みと未来 ----------
   var HIST = [
@@ -735,10 +574,10 @@
     { id: 'farm', title: '🌾 農業の技術', items: ['人の手で耕す', '牛や馬で耕す', 'トラクターで耕す', '自動運転のトラクター・ドローン'], msg: '少ない人数・少ない力で、広い畑を世話できるようになってきました。' },
     { id: 'house', title: '🏯 住まいの技術', items: ['たて穴住居', '木造の五重塔', '鉄とコンクリートのビル', '高さ634mの電波塔'], msg: '材料や構造の工夫で、地震や風に強くなってきました。高く大きな建物もつくれるようになりました。' }
   ];
-  var hb = $('g-ord-hist');
+  var hb = $('t-ord-hist');
   HIST.forEach(function (s, i) { orderer(hb, s, function () { return S.t2.ord; }, 7 + i * 13); });
   var FUTURE = ['自動運転', 'ロボット', '人工知能(AI)', '宇宙開発', '再生可能エネルギー', '植物工場・スマート農業', 'メタバース・仮想空間', '新しい材料'];
-  picker('g-future', FUTURE, function () { return S.t2.future; }, function (v) {
+  picker('t-future', FUTURE, function () { return S.t2.future; }, function (v) {
     var a = S.t2.future, i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v);
   }, true);
 
@@ -754,7 +593,7 @@
     { t: '自転車: 使い終わったら、フレームの金属をとかして、また材料にする。', a: 2, x: '資源をくり返し使うことは、環境への負荷をへらす視点です。' },
     { t: '自転車: たくさんの人が買えるように、部品の数をへらして値段をおさえる。', a: 3, x: '値段をおさえるのは、経済性の視点です。' }
   ];
-  quiz('g-q3', 'g-q3-score', VIEWS, Q3, function () { return S.t3.q; });
+  quiz('t-q3', 't-q3-score', VIEWS, Q3, function () { return S.t3.q; });
 
   // 自転車の設計: 部品ごとの、4つの視点(要求・安全・環境・経済)の点(1〜5の目安)
   var USERS = [
@@ -768,23 +607,23 @@
     power: [{ id: 'human', label: '人の力だけ', s: [2, 4, 5, 5] }, { id: 'assist', label: '電動アシスト', s: [5, 3, 3, 1] }],
     light: [{ id: 'battery', label: '電池のライト', s: [3, 2, 2, 4] }, { id: 'dynamo', label: '自動でつくライト(発電)', s: [4, 5, 4, 3] }]
   };
-  var paintUser = picker('g-bike-user', USERS, function () { return S.t3.user; }, function (v) { S.t3.user = v; });
+  var paintUser = picker('t-bike-user', USERS, function () { return S.t3.user; }, function (v) { S.t3.user = v; });
   var painters = {};
   ['frame', 'power', 'light'].forEach(function (k) {
-    painters[k] = picker('g-bike-' + k, PARTS[k], function () { return S.t3[k]; }, function (v) { S.t3[k] = v; });
+    painters[k] = picker('t-bike-' + k, PARTS[k], function () { return S.t3[k]; }, function (v) { S.t3[k] = v; });
   });
   function bike() {
-    var bars = $('g-bike-bars'), msg = $('g-bike-msg');
+    var bars = $('t-bike-bars'), msg = $('t-bike-msg');
     var u = USERS.filter(function (x) { return x.id === S.t3.user; })[0];
     var sel = ['frame', 'power', 'light'].map(function (k) { return PARTS[k].filter(function (p) { return p.id === S.t3[k]; })[0]; });
     bars.innerHTML = '';
     var full = sel.every(Boolean);
     var vals = VIEWS.map(function (v, i) { return full ? Math.round(sel.reduce(function (a, p) { return a + p.s[i]; }, 0) / 3 * 10) / 10 : 0; });
     VIEWS.forEach(function (v, i) {
-      bars.appendChild(el('li', { class: 'g-bar' + (u && u.want.indexOf(i) >= 0 ? ' is-want' : '') }, [
-        el('span', { class: 'g-bar-label', text: v }),
-        el('span', { class: 'g-bar-track' }, [el('span', { class: 'g-bar-fill', style: 'width:' + (vals[i] / 5 * 100) + '%' })]),
-        el('span', { class: 'g-bar-v', text: full ? String(vals[i]) : '-' })
+      bars.appendChild(el('li', { class: 't-bar' + (u && u.want.indexOf(i) >= 0 ? ' is-want' : '') }, [
+        el('span', { class: 't-bar-label', text: v }),
+        el('span', { class: 't-bar-track' }, [el('span', { class: 't-bar-fill', style: 'width:' + (vals[i] / 5 * 100) + '%' })]),
+        el('span', { class: 't-bar-v', text: full ? String(vals[i]) : '-' })
       ]));
     });
     if (!u) msg.textContent = '使う人をえらびましょう。';
@@ -802,7 +641,7 @@
     }
     ruby(bars); ruby(msg);
   }
-  ['g-bike-user', 'g-bike-frame', 'g-bike-power', 'g-bike-light'].forEach(function (id) { $(id).addEventListener('click', function () { setTimeout(bike, 0); }); });
+  ['t-bike-user', 't-bike-frame', 't-bike-power', 't-bike-light'].forEach(function (id) { $(id).addEventListener('click', function () { setTimeout(bike, 0); }); });
   bike();
 
   // ---------- ④ 問題解決 ----------
@@ -814,17 +653,17 @@
     { t: '夏休みのあいだ、花だんの花がかれてしまう。', a: 0, x: '今のこまったようすなので問題です。' },
     { t: '土のかわきをセンサで調べて、自動で水やりするしくみをつくる。', a: 1, x: '解決のために取り組むことなので課題です。' }
   ];
-  quiz('g-q4', 'g-q4-score', ['問題', '課題'], Q4, function () { return S.t4.q; });
+  quiz('t-q4', 't-q4-score', ['問題', '課題'], Q4, function () { return S.t4.q; });
   var FLOW = [{ id: 'flow', title: '🔄 問題解決の流れ', items: ['問題の発見', '課題の設定', '設計・計画', '製作・制作・育成', '成果の評価', '改善・修正'],
     msg: 'この流れで進め、評価して見つかった新しい問題は、また次の問題解決につなげます。4つの分野で、いつもこの流れを使います。' }];
-  orderer($('g-ord-flow'), FLOW[0], function () { return S.t4.ord; }, 31);
+  orderer($('t-ord-flow'), FLOW[0], function () { return S.t4.ord; }, 31);
   var Q4B = [
     { t: '「重い荷物を楽に運びたい」という声から、車輪の付いた台車を考えた。', a: 0, x: '使う人の求めから考えたのでニーズです。' },
     { t: '小さくて安いセンサが作れるようになったので、それを使ってできることを考えた。', a: 1, x: '新しい技術から考えたのでシーズです。' },
     { t: '「手がふさがっていても、ドアを開けたい」という声から、自動ドアを考えた。', a: 0, x: '使う人の求めから考えたのでニーズです。' },
     { t: '青く光るLEDが発明されたので、赤・緑と組み合わせて白い照明を考えた。', a: 1, x: '新しい技術から考えたのでシーズです。' }
   ];
-  quiz('g-q4b', 'g-q4b-score', ['ニーズ', 'シーズ'], Q4B, function () { return S.t4.qb; });
+  quiz('t-q4b', 't-q4b-score', ['ニーズ', 'シーズ'], Q4B, function () { return S.t4.qb; });
 
   // ---------- ⑤ 4つの分野 ----------
   var AREAS = ['A 材料と加工', 'B 生物育成', 'C エネルギー変換', 'D 情報'];
@@ -838,8 +677,8 @@
     { t: '自転車のペダルの動きを、歯車とチェーンで車輪に伝える。', a: 2, x: '動きを伝える機構は、C エネルギー変換の技術です。' },
     { t: 'メッセージが、インターネットを通って相手にとどくしくみを調べる。', a: 3, x: 'ネットワークのしくみは、D 情報の技術です。' }
   ];
-  quiz('g-q5', 'g-q5-score', AREAS, Q5, function () { return S.t5.q; });
-  picker('g-fav', AREAS, function () { return S.t5.fav; }, function (v) { S.t5.fav = v; });
+  quiz('t-q5', 't-q5-score', AREAS, Q5, function () { return S.t5.q; });
+  picker('t-fav', AREAS, function () { return S.t5.fav; }, function (v) { S.t5.fav = v; });
 
   // ---------- 振り返り ----------
   var SELF = [
@@ -849,19 +688,19 @@
     ['plan', '4つの分野で何を学ぶかが分かり、3年間の目標を持てた']
   ];
   var LV = [['3', 'できた'], ['2', 'だいたい'], ['1', 'もう少し']];
-  var selfBody = $('g-self');
+  var selfBody = $('t-self');
   SELF.forEach(function (s) {
     var tr = el('tr', null, [el('th', { scope: 'row', text: s[1] })]);
     LV.forEach(function (l) {
-      var inp = el('input', { type: 'radio', name: 'g-self-' + s[0], value: l[0] });
+      var inp = el('input', { type: 'radio', name: 't-self-' + s[0], value: l[0] });
       inp.checked = S.refl.self[s[0]] === l[0];
       inp.addEventListener('change', function () { if (inp.checked) { S.refl.self[s[0]] = l[0]; save(); } });
-      tr.appendChild(el('td', null, [el('label', null, [inp, el('span', { text: l[0] === '3' ? '◎' : l[0] === '2' ? '○' : '△' }), el('span', { class: 'g-sr', text: l[1] })])]));
+      tr.appendChild(el('td', null, [el('label', null, [inp, el('span', { text: l[0] === '3' ? '◎' : l[0] === '2' ? '○' : '△' }), el('span', { class: 't-sr', text: l[1] })])]));
     });
     selfBody.appendChild(tr);
   });
   function firstView() {
-    var f = S.first.filter(Boolean), p = $('g-first-view');
+    var f = S.first.filter(Boolean), p = $('t-first-view');
     p.textContent = f.length ? 'はじめに書いた「身の回りの技術」: ' + f.join('・') : '';
     ruby(p);
   }
@@ -894,7 +733,7 @@
     ['refl', '振り返り']
   ];
   function progress() {
-    var st = status(), ul = $('g-prog');
+    var st = status(), ul = $('t-prog');
     ul.innerHTML = '';
     PROG.forEach(function (p) {
       if (p[0] === 'refl' && !EduitFrame.furikaeri) return;
@@ -916,7 +755,7 @@
       data: EduitFrame.furikaeri ? S : Object.assign({}, S, { refl: { self: {}, learned: '', next: '' } })
     };
   }
-  $('g-export').addEventListener('click', function () {
+  $('t-export').addEventListener('click', function () {
     // ファイル名に使えない文字(/ : * など)は組・番号・名前から除く
     var safe = function (v) { return String(v || '').replace(/[\\/:*?"<>|\s]/g, ''); };
     var who = [safe(S.who.cls), safe(S.who.no)].filter(Boolean).join('-');
@@ -928,22 +767,21 @@
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-      $('g-export-msg').textContent = '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生の指示があれば入れてから、もう一度書き出してください)');
-      ruby($('g-export-msg'));
+      $('t-export-msg').textContent = '「' + name + '」を作りました。' + (S.who.name || S.who.no ? '' : '(組・番号・名前が空です。先生の指示があれば入れてから、もう一度書き出してください)');
+      ruby($('t-export-msg'));
     } catch (e) {
-      $('g-export-msg').textContent = 'ファイルを作れませんでした。先生に聞いてください。';
-      ruby($('g-export-msg'));
+      $('t-export-msg').textContent = 'ファイルを作れませんでした。先生に聞いてください。';
+      ruby($('t-export-msg'));
     }
   });
-  $('g-print').addEventListener('click', function () { window.print(); });
-  $('g-reset').addEventListener('click', function () {
+  $('t-print').addEventListener('click', function () { window.print(); });
+  $('t-reset').addEventListener('click', function () {
     if (!confirm('このガイダンスで書いたこと・答えを全部消して、はじめからにします。よいですか?')) return;
     try { localStorage.removeItem(KEY); localStorage.removeItem(KEY + '.tab'); } catch (e) {}
     location.reload();
   });
 
   // ---------- はじめ ----------
-  applyPrefs();
   ruby(root);
   marks();
   var start = location.hash.slice(1);
