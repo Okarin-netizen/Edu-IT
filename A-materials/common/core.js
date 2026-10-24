@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   var G = (window.G = window.G || {});
-  G.version = '2.10.0';  // A-materials/eduit-info.js の version と合わせる
+  G.version = '2.11.0';  // A-materials/eduit-info.js の version と合わせる
   // 作成者の表示は共通の枠(shared/eduit-frame.js)のフッターが受け持つ。ここは枠がないときの予備
   G.CREDIT = '技術　岡田';
   G.CREDIT_RUBY = '{技術|ぎじゅつ}　{岡田|おかだ}';
@@ -560,6 +560,20 @@
       code ? G.h('span', { class: 'ef-code', 'data-noruby': true }, code) : null,
       code ? ' ' : null, opt.title || document.title);
     header.appendChild(title);
+    // アプリの上のバーは4分野共通の形(C エネルギー変換と同じ): 名前は .ef-apptitle、A1〜A8 の切りかえ(.ef-switch)、右に 全画面・ⓘ
+    var sw = null;
+    if (opt.home !== false && code && /^A\d/.test(code)) {
+      header.classList.add('ef-appbar');
+      title.classList.add('ef-apptitle');
+      var base = (opt.home || '../index.html').replace(/index\.html$/, '');
+      sw = G.h('nav', { class: 'ef-switch', 'aria-label': 'アプリを切りかえる' });
+      (G.APPS || []).forEach(function (a) {
+        var cur = a.code === code;
+        sw.appendChild(G.h('a', { class: 'ef-swchip', href: base + a.dir + 'index.html', title: a.code + ' ' + a.title, 'aria-current': cur ? 'page' : null },
+          G.h('span', { class: 'ef-code', 'data-noruby': true }, a.code), G.h('span', { class: 'ef-sw-n' }, a.short || a.title)));
+      });
+      header.appendChild(sw);
+    }
     header.appendChild(G.h('div', { class: 'ef-tools g-header-tools' },
       G.h('button', { class: 'ef-btn ef-toggle', type: 'button', 'data-g-setting': 'ruby', 'aria-pressed': 'true', title: 'ふりがなを表示する/しない', onclick: function () {
         G.settings.set('ruby', !G.settings.get('ruby', false));
@@ -569,8 +583,12 @@
         G.settings.set('contrast', !G.settings.get('contrast', false));
       } }, 'くっきり'),
       help,
-      opt.tools || null));
+      opt.tools || null,
+      sw ? G.h('span', { 'data-ef-fs': true }) : null,
+      sw ? G.h('span', { 'data-ef-about': true }) : null));
     G.applySettings();
+    // 上のバーの「全画面」「ⓘ このアプリについて」(共通の枠がもう動いたあとでも出す)
+    if (sw && window.EduitFrame && document.body) window.EduitFrame.mount();
     // 作成者の読みがな(フッターと「このアプリについて」で使う)
     G.ruby.add({ '岡田': 'おかだ', '作成': 'さくせい', '個人情報': 'こじんじょうほう' });
     if (!G.$('.g-footer')) {

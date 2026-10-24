@@ -5,7 +5,8 @@
  *   <script src="…/shared/eduit-frame.js"></script>
  * 置き場所(どれか):
  *   - <div data-ef-footer></div> があればそこにフッターを出す
- *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(data-ef-footer がなければフッターは出さない)
+ *   - <span data-ef-fs></span> があればそこに「🖥️ 全画面」ボタンを出す(いちばん外のページごと全画面。できない端末では出さない)
  *   - どちらもなければ <body> の最後にフッターを足す
  *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
  * EDUIT_INFO = {
@@ -218,8 +219,43 @@
   }
 
   function aboutButton(cls) {
-    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', 'aria-label': 'このアプリについて(作った人・安全と個人情報・ライセンス・更新履歴)' },
+      ['ⓘ', el('span', { class: 't', text: ' このアプリについて' })]);
     b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  // 全画面(C エネルギー変換の「🖥️ 全画面」と同じ)。枠(生徒用サイト・1ファイル版のメニュー)の中で開いたときは、いちばん外のページごと全画面にする
+  function fsDoc() {
+    var d = document;
+    try { for (var w = window; w !== w.parent; w = w.parent) { var pd = w.parent.document; if (!pd) break; d = pd; } } catch (e) {}
+    return d;
+  }
+  function fsButton() {
+    var D = fsDoc(), W = D.defaultView || window;
+    var b = el('button', { type: 'button', class: 'ef-btn ef-fs-btn' });
+    var keyMq = W.matchMedia ? W.matchMedia('(display-mode: fullscreen)') : null;
+    function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+    function isKeyFull() { return !isFull() && !!(keyMq && keyMq.matches); }
+    function upd() {
+      var on = isFull() || isKeyFull();
+      b.hidden = !(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+      b.textContent = '🖥️';
+      b.appendChild(el('span', { class: 't', text: on ? ' 全画面をやめる' : ' 全画面' }));
+      b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面にする');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    b.addEventListener('click', function () {
+      var r = D.documentElement;
+      try {
+        if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+        else if (isKeyFull()) window.alert('キーで全画面にしたときは、同じキー(F11 など)でもどせます');
+        else { var p = (r.requestFullscreen || r.webkitRequestFullscreen).call(r); if (p && p.catch) p.catch(function () {}); }
+      } catch (e) {}
+    });
+    D.addEventListener('fullscreenchange', upd);
+    D.addEventListener('webkitfullscreenchange', upd);
+    if (keyMq) { if (keyMq.addEventListener) keyMq.addEventListener('change', upd); else if (keyMq.addListener) keyMq.addListener(upd); }
+    upd();
     return b;
   }
   function footer() {
@@ -235,9 +271,10 @@
     if (app.footer === false) return;
     var slot = document.querySelector('[data-ef-footer]');
     var about = document.querySelector('[data-ef-about]');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-fs]'), function (f) { if (!f.querySelector('button')) f.appendChild(fsButton()); });
+    if (about && !about.querySelector('button')) about.appendChild(aboutButton());
     if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
-    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
-    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+    else if (!about && !document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
@@ -920,7 +957,7 @@
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
   function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

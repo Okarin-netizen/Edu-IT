@@ -44,7 +44,7 @@ const check = (ok, label) => {
   await page.reload();
   check((await page.locator('.ef-level-advanced[aria-selected="true"]').count()) === 1, "選んだ編は読みこみ直しても残る");
   await page.click(".ef-level-tab.ef-level-basic");
-  check(/技術[ 　]岡田/.test(await page.locator(".hero").innerText()), "トップページに作成者の表示がある");
+  check(/技術[ 　]岡田/.test(await page.locator(".shell-footer").innerText()), "トップページに作成者の表示がある（下のフッター）");
   check(/技術[ 　]岡田/.test(await page.locator("footer").innerText()), "フッターに作成者の表示がある");
   // 記号（D1〜D11）: 上のバーの名前・カード・おすすめの順番
   check((await page.locator("#bar-title").innerText()).replace(/\s+/g, " ").trim() === "D 情報の技術 教材集", "メニューの上のバーの左に「D 情報の技術 教材集」");
@@ -66,8 +66,10 @@ const check = (ok, label) => {
     const text = await frame.locator("body").innerText();
     check(text.length > 200 && /技術[ 　]岡田/.test(text), `${id}: 開いて中身と作成者が表示される`);
     check(await page.locator(`iframe[data-id="${id}"]`).isVisible(), `${id}: 表示中`);
-    const bar = (await page.locator("#bar-title").innerText()).replace(/\s+/g, " ").trim();
-    check(bar === `D${IDS.indexOf(id) + 1} ${NAMES[IDS.indexOf(id)]}` && (await page.locator("#back-link").isVisible()), `${id}: 上のバーに「◀ メニュー」と「${bar}」`);
+    // 名前は上のバーの切りかえ（開いている教材は「D1 CPU」）に出る。はばが広いとき（1441px 以上）は「D1 仮想CPUラボ」も出る
+    const bar = await page.locator("#bar-title").getAttribute("title");
+    const cur = (await page.locator('.switcher a[aria-current="page"]').innerText()).replace(/\s+/g, " ").trim();
+    check(bar === `D${IDS.indexOf(id) + 1} ${NAMES[IDS.indexOf(id)]}` && cur.startsWith(`D${IDS.indexOf(id) + 1} `) && (await page.locator("#back-link").isVisible()), `${id}: 上のバーに「◀ メニュー」と「${cur}」（${bar}）`);
     await page.click("#back-link");
     const back = await page.locator("#menu").waitFor({ timeout: 3000 }).then(() => true, () => false);
     check(back && !(await page.locator(`iframe[data-id="${id}"]`).isVisible()), `${id}: メニューに戻れる`);
@@ -198,7 +200,7 @@ const check = (ok, label) => {
   // ---- KS-01: 上のバーの「ふりがな」「大きな文字」が11の教材にかかる ----
   await page.goto(url + "#/");
   // KS-09: 生徒向けのカードには学習指導要領の記号を出さず、「先生用」に対応をまとめる
-  check(!/D\(\d\)/.test(await page.locator(".grid").first().innerText()) && (await page.locator(".group .curr").count()) === 0, "KS-09: 教材のカードとグループ名に D(1) などの記号が出ない");
+  check(!/D\(\d\)/.test(await page.locator(".ef-mgrid").first().innerText()) && (await page.locator(".group .curr").count()) === 0, "KS-09: 教材のカードとグループ名に D(1) などの記号が出ない");
   const curr = await page.locator(".note .curriculum").evaluate((e) => { const c = e.cloneNode(true); c.querySelectorAll("rt").forEach((r) => r.remove()); return c.textContent; });
   check(/D1仮想CPUラボD\(1\)、D2デジタル化ラボD\(1\)、D3ネットワーク通信シミュレータD\(1\)\(2\)、D4情報セキュリティ体験ラボD\(1\)\(4\)、D5ネット詐欺追体験ラボD\(1\)\(4\)、D6双方向コンテンツ制作スタジオD\(2\)、D7計測・制御シミュレータD\(3\)、D8火星探査ロボット・シミュレータD\(3\)、D9生成AIのしくみラボD\(1\)\(4\)、D10ハッシュ化体験ラボD\(1\)\(4\)、D11問題解決ノートD\(2\)\(3\)\(4\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生用」に学習指導要領との対応がある");
   check((await page.locator("#tg-ruby").count()) === 1 && (await page.locator("#tg-large").count()) === 1, "上のバーに「ふりがな」「大きな文字」のボタンがある");
@@ -238,31 +240,29 @@ const check = (ok, label) => {
   await page.click("#tg-ruby");
   check(await page.evaluate(() => JSON.parse(localStorage.getItem("kyozai.prefs.v1") || "{}").ruby === true), "ふりがなの設定が保存される（kyozai.prefs.v1）");
 
-  // ---- KS-03 / KS-04: 細い上のバーと、名前の見える教材の切りかえ ----
-  check((await page.locator(".shell-header").evaluate((e) => e.getBoundingClientRect().height)) <= 41, "教材集の上のバーは 40px 以下");
-  await page.setViewportSize({ width: 1366, height: 650 });
-  check((await page.locator(".switcher a .short:visible").count()) === 11, "ノートPCの幅では、切りかえに記号と短い名前が出る");
-  // 11の切りかえが、1366px・1280px で上のバーからはみ出さず、2段にならない
+  // ---- 上のバー: 4分野共通のアプリの上のバー（.ef-appbar。C エネルギー変換と同じ形）と D1〜D11 の切りかえ ----
+  check((await page.locator(".shell-header").evaluate((e) => e.getBoundingClientRect().height)) <= 56, "教材を開いたときの上のバーは C と同じ高さ（56px 以下）");
+  check((await page.locator(".shell-header.ef-appbar [data-ef-fs], .shell-header.ef-appbar [data-ef-about] button").count()) >= 2, "上のバーに「全画面」「ⓘ このアプリについて」がある");
+  // 11の切りかえが、1366px・1280px で上のバーからはみ出さず、2段にならない。開いている教材だけ短い名前も出る
   for (const w of [1366, 1280]) {
     await page.setViewportSize({ width: w, height: 650 });
     const fit = await page.evaluate(() => {
-      const bar = document.querySelector(".shell-header"), links = [...document.querySelectorAll(".switcher a")];
+      const bar = document.querySelector(".shell-header"), nav = document.querySelector(".switcher"), links = [...nav.querySelectorAll("a")];
       const tops = new Set(links.map((a) => Math.round(a.getBoundingClientRect().top)));
-      const right = Math.max(...links.map((a) => a.getBoundingClientRect().right));
-      return { rows: tops.size, right: Math.round(right), width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth, barScroll: bar.scrollWidth - bar.clientWidth };
+      const named = links.filter((a) => a.querySelector(".ef-sw-n").offsetParent).map((a) => a.getAttribute("aria-current"));
+      return { rows: tops.size, navScroll: nav.scrollWidth - nav.clientWidth, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, barScroll: bar.scrollWidth - bar.clientWidth, named };
     });
-    check(fit.rows === 1 && fit.right <= fit.width && fit.scroll <= fit.width && fit.barScroll <= 0, `${w}px: 11の切りかえが1段で、横にはみ出さない（${JSON.stringify(fit)}）`);
+    check(fit.rows === 1 && fit.navScroll <= 0 && fit.scroll <= 0 && fit.barScroll <= 0 && fit.named.length === 1 && fit.named[0] === "page", `${w}px: 11の切りかえが1段で、横にはみ出さない（${JSON.stringify(fit)}）`);
   }
   await page.setViewportSize({ width: 1366, height: 650 });
   const tabs = (await page.locator(".switcher a").allInnerTexts()).map((t) => t.replace(/\s+/g, " ").trim());
-  check(tabs[0].startsWith("D1 CPU") && tabs.every((t, i) => t.startsWith(`D${i + 1}`)), `切りかえのタブは「D1 CPU」の形（${tabs.slice(0, 3).join(" / ")}）`);
+  check(tabs.length === 11 && tabs.every((t, i) => t.startsWith(`D${i + 1}`)), `切りかえは D1〜D11 の記号（${tabs.slice(0, 3).join(" / ")}）`);
+  check(await page.locator(".switcher a").evaluateAll((as, names) => as.every((a, i) => a.getAttribute("aria-label").includes(names[i])), NAMES), "切りかえには教材の名前が読み上げ用に付く");
   await page.setViewportSize({ width: 810, height: 1080 });
-  await page.click("#switch-btn");
-  const names = await page.locator(".switcher a:visible").allInnerTexts();
-  check(names.length === 11 && names.every((t, i) => t.includes(NAMES[i])), "タブレット縦では「教材をかえる」で教材の名前の一覧が出る");
-  await page.locator(".switcher a", { hasText: "ネットワーク通信シミュレータ" }).click();
-  await page.waitForFunction(() => location.hash === "#/network-sim");
-  check(!(await page.locator(".switcher a").first().isVisible()), "一覧から選ぶと教材が開き、一覧は閉じる");
+  await page.locator(".switcher a", { hasText: "D3" }).click();
+  await page.waitForFunction(() => location.hash === "#/network-sim" && document.querySelector('.switcher a[aria-current="page"]')?.getAttribute("href") === "#/network-sim");
+  const curName = (await page.locator('.switcher a[aria-current="page"]').innerText()).replace(/\s+/g, " ").trim();
+  check(curName === "D3 ネットワーク", `タブレット縦でも記号を押すと教材が開き、開いた教材は名前も出る（${curName}）`);
   // ---- KS-02: タブレット縦でも、左のメニューのいまのページと「ふりかえり・記録」が見える ----
   await page.goto(url + "#/security-lab");
   await page.locator('iframe[data-id="security-lab"]').evaluate((f) => (f.contentWindow.location.hash = "#/copyright"));

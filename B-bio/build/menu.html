@@ -37,17 +37,27 @@ body{background:var(--ef-bg);}
 #hub .bar .ef-btn:disabled{opacity:.4;cursor:default;}
 #hub .bar .home{color:var(--ef-accent);}
 #hub .bar .home[aria-current="page"]{display:none;}
+/* 教材を開いたとき(.in-app)は4分野共通の .ef-appbar(shared/eduit-frame.css)の形。B1〜B6 の切りかえ(.ef-switch)・全画面・ⓘ は教材のときだけ、使い方・先生用はメニューのときだけ */
+#hub:not(.in-app) .bar .sw,#hub:not(.in-app) .bar .inapp,#hub.in-app .bar .use,#hub.in-app .bar .tch{display:none;}
+#hub.in-app .bar{padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right));}
+#hub.in-app .bar .ef-btn{min-height:42px;padding:0 12px;}
+#hub .bar .sw .ef-swchip{font-size:15px;}
+#hub .bar .ef-swchip[aria-current="page"]{background:var(--ef-accent-soft);color:var(--ef-text);}
+#hub.in-app .bar .ttl{flex:none;font-size:17px;}
+@media (min-width:641px) and (max-width:1440px){#hub.in-app .bar .ttl{display:none;}}
 #hub .bar .ttl{display:block;flex:1 1 auto;min-width:0;margin:0;font-size:18px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #hub .bar .ttl .ef-code{margin-right:6px;}
 #hub .bar .ef-tools{flex:0 0 auto;flex-wrap:nowrap;}
-#hub .bar .sw,#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
-#hub .bar .sw .ef-btn{min-width:52px;padding:0 10px;}
+#hub .bar .pf{display:flex;gap:6px;flex:0 0 auto;}
 #hub .bar .pf .ef-btn{min-width:48px;padding:0 14px;}
+#hub.in-app .bar .pf .ef-btn{padding:0 12px;}
 #hub .bar{font-size:17px;line-height:1.4;}
-#hub .bar .sep{flex:0 0 1px;align-self:stretch;margin:10px 2px;background:var(--ef-line);}
-/* メニュー・使い方・先生用ガイドの画面では、上のバーは4分野共通の「ふりがな・文字・使い方・先生用」だけ。B1〜B6 の切りかえは教材を開いたときだけ出す */
-#hub:not(.in-app) .bar .sw,#hub:not(.in-app) .bar .sep{display:none;}
 #hub .page{padding:calc(var(--bar) + 14px) 16px 40px;max-width:1100px;margin:0 auto;}
+/* メニューはほかの分野と同じく、はばいっぱいに使う(左右の余白 32px。カードの並べ方は共通の .ef-mgrid) */
+#hub #pg-menu{max-width:none;padding:calc(var(--bar) + 6px) 32px 40px;}
+@media (max-width:900px){#hub #pg-menu{padding-left:16px;padding-right:16px;}}
+@media (max-width:640px){#hub #pg-menu{padding-left:12px;padding-right:12px;}}
+#hub .store-row:not(:has(.bad)){display:none;}
 #hub .page[hidden]{display:none;}
 #hub h1{font-size:1.45em;margin:.2em 0 .2em;line-height:1.5;}
 #hub h2{font-size:1.3em;margin:.3em 0 .4em;color:var(--pri-d);line-height:1.5;}
@@ -96,19 +106,18 @@ body{background:var(--ef-bg);}
 #hub .frame[hidden]{display:none;}
 #hub .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2a1b;color:#fff;padding:10px 18px;border-radius:12px;z-index:60;max-width:90vw;}
 #hub .toast[hidden]{display:none;}
-@media (max-width:900px){#hub .bar .lbl{display:none;} #hub .bar{gap:6px;}}
+@media (max-width:900px){#hub .bar{gap:6px;}}
 /* スマホ: 上のバーを2行にする(1行目 = ◀ と名前、2行目 = 道具と、教材を開いているときは B1〜B6)。入りきらないときは2行目だけ横にスクロール */
 @media (max-width:640px){
   #hub{--bar:88px;}
   #hub .bar{flex-wrap:wrap;align-content:center;row-gap:4px;column-gap:6px;padding-top:4px;padding-bottom:4px;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}
   #hub .bar .ttl{flex:1 1 0;font-size:16px;}
-  #hub .bar .ef-tools{flex:1 1 100%;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:none;}
-  #hub.in-app .bar .sep,#hub.in-app .bar .use{display:none;}
-  #hub:not(.in-app) .bar .ef-tools{justify-content:flex-end;}
-  #hub .bar .sw,#hub .bar .pf{gap:4px;}
-  #hub .bar .ef-btn,#hub .bar .sw .ef-btn,#hub .bar .pf .ef-btn{min-height:36px;min-width:0;padding:0 10px;font-size:14px;}
+  #hub:not(.in-app) .bar .ef-tools{flex:1 1 100%;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:none;justify-content:flex-end;}
+  #hub.in-app .bar .ttl{flex:1 1 calc(100% - 140px);}
+  #hub .bar .pf{gap:4px;}
+  #hub .bar .ef-btn,#hub .bar .pf .ef-btn,#hub.in-app .bar .ef-btn{min-height:36px;min-width:0;padding:0 10px;font-size:14px;}
+  #hub .bar .ef-swchip{min-height:36px;}
 }
-@media (max-width:420px){#hub.in-app .bar .tch{display:none;}}
 @media print{
   #hub .bar,#hub .gtools,#hub .noprint{display:none !important;}
   #hub .page{padding:0;}
@@ -127,9 +136,19 @@ body{background:var(--ef-bg);}
 </head>
 <body>
 <div id="hub">
+  <!-- 上のバー: メニューでは「[B] 生物育成の技術 教材集」と ふりがな・文字・使い方・先生用(4分野共通)。
+       教材を開くと4分野共通のアプリの上のバー(.ef-appbar。C エネルギー変換と同じ形): ◀ メニュー・B1〜B6 の切りかえ・ふりがな・文字・全画面・ⓘ -->
   <header class="bar ef-header">
-    <button class="ef-btn ef-back home" type="button" data-go="menu" aria-current="page" aria-label="メニュー" title="メニューにもどる">◀<span class="lbl"> メニュー</span></button>
+    <button class="ef-btn ef-back home" type="button" data-go="menu" aria-current="page" aria-label="メニュー" title="メニューにもどる">◀ メニュー</button>
     <h1 class="ttl ef-title" id="hub-ttl">生物育成の技術 教材集</h1>
+    <nav class="sw ef-switch" aria-label="教材を切りかえる">
+      <button type="button" class="ef-swchip" data-go="b1" title="B1 育成環境コントローラ体験"><span class="ef-code">B1</span><span class="ef-sw-n">環境</span></button>
+      <button type="button" class="ef-swchip" data-go="b2" title="B2 動物飼育・水産ミニシミュレータ"><span class="ef-code">B2</span><span class="ef-sw-n">飼育</span></button>
+      <button type="button" class="ef-swchip" data-go="b3" title="B3 栽培暦ビルダー"><span class="ef-code">B3</span><span class="ef-sw-n">栽培暦</span></button>
+      <button type="button" class="ef-swchip" data-go="b4" title="B4 育成日誌＋成長予測"><span class="ef-code">B4</span><span class="ef-sw-n">日誌</span></button>
+      <button type="button" class="ef-swchip" data-go="b5" title="B5 植物工場の自動化"><span class="ef-code">B5</span><span class="ef-sw-n">工場</span></button>
+      <button type="button" class="ef-swchip" data-go="b6" title="B6 問題解決ノート"><span class="ef-code">B6</span><span class="ef-sw-n">ノート</span></button>
+    </nav>
     <div class="ef-tools">
       <div class="pf" role="group" aria-label="ふりがなと文字の大きさ(教材集ぜんぶで同じ)">
         <button type="button" class="ef-btn ef-toggle" id="hub-pf-ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
@@ -137,20 +156,14 @@ body{background:var(--ef-bg);}
       </div>
       <button type="button" class="ef-btn use" data-go="student" title="この教材集の使い方">使い方</button>
       <button type="button" class="ef-btn tch" id="hub-to-teacher" title="メニューの下の先生用のところへ">先生用</button>
-      <span class="sep" aria-hidden="true"></span>
-      <nav class="sw" aria-label="教材を切りかえる">
-        <button type="button" class="ef-btn" data-go="b1" title="B1 育成環境コントローラ体験"><span class="ef-code">B1</span><span class="lbl"> 環境</span></button>
-        <button type="button" class="ef-btn" data-go="b2" title="B2 動物飼育・水産ミニシミュレータ"><span class="ef-code">B2</span><span class="lbl"> 飼育</span></button>
-        <button type="button" class="ef-btn" data-go="b3" title="B3 栽培暦ビルダー"><span class="ef-code">B3</span><span class="lbl"> 栽培暦</span></button>
-        <button type="button" class="ef-btn" data-go="b4" title="B4 育成日誌＋成長予測"><span class="ef-code">B4</span><span class="lbl"> 日誌</span></button>
-        <button type="button" class="ef-btn" data-go="b5" title="B5 植物工場の自動化"><span class="ef-code">B5</span><span class="lbl"> 工場</span></button>
-        <button type="button" class="ef-btn" data-go="b6" title="B6 問題解決ノート"><span class="ef-code">B6</span><span class="lbl"> ノート</span></button>
-      </nav>
+      <span class="inapp" data-ef-fs></span>
+      <span class="inapp" data-ef-about></span>
     </div>
   </header>
 
   <main class="page" id="pg-menu">
-    <div class="row">
+    <!-- 保存できないときだけ出す(できるときは出さない。ほかの分野のメニューと同じ) -->
+    <div class="row store-row">
       <span class="status" id="hub-store">確認中…</span>
     </div>
     <div id="hub-cards"></div>
@@ -268,7 +281,7 @@ body{background:var(--ef-bg);}
 <li>いつも<b>同じタブレット・同じ方法</b>でこのファイルをひらこう。</li>
 <li>シークレットモード(プライベートブラウズ)では保存されません。</li>
 <li>ブラウザの「<ruby>閲覧履歴<rt>えつらんりれき</rt></ruby>・データを消す」をすると、記録も消えます。</li>
-<li>メニューの上に「✅ このタブレットに保存できます」と出ていればだいじょうぶ。「⚠️」が出ていたら先生に知らせよう。</li>
+<li>メニューの上に「⚠️ このひらき方では記録が保存されません」が出ていたら、先生に知らせよう(何も出ていなければだいじょうぶ)。</li>
 </ul>
 </section>
 
@@ -729,7 +742,7 @@ function renderCards(){
   if (levelTabs) { levelTabs.render(); return; }
   if (window.EduitFrame && EduitFrame.levels && window.EDUIT_INFO && EDUIT_INFO.levels) {
     levelTabs = EduitFrame.levels($('#hub-cards'), {
-      gridClass: 'grid',
+      gridClass: 'ef-mgrid',
       card: function(item, parts){ return APPS[item.id] ? makeCard(item.id, reflParts(parts)) : null; },
       code: function(item){ return APPS[item.id] ? APPS[item.id].code : ''; },
       onRender: function(panel){ addRuby(panel); }
@@ -764,6 +777,9 @@ function show(id, push){
   if (!isPage(id)) id = 'menu';
   current = id;
   hub.classList.toggle('in-app', !!APPS[id]);
+  /* 教材を開いたときの上のバーは4分野共通の .ef-appbar(名前は .ef-apptitle: はばが広いときとスマホだけ出す) */
+  $('.bar').classList.toggle('ef-appbar', !!APPS[id]);
+  $('#hub-ttl').classList.toggle('ef-apptitle', !!APPS[id]);
   ['menu','student','teacher'].forEach(function(p){ $('#pg-' + p).hidden = (p !== id); });
   Object.keys(frames).forEach(function(k){ frames[k].hidden = (k !== id); });
   if (APPS[id]) {
