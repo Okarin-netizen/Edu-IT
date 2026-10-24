@@ -6,7 +6,7 @@
  * 置き場所(どれか):
  *   - <div data-ef-footer></div> があればそこにフッターを出す
  *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(data-ef-footer がなければフッターは出さない)
- *   - <span data-ef-fs></span> があればそこに「🖥️ 全画面」ボタンを出す(いちばん外のページごと全画面。できない端末では出さない)
+ *   - <span data-ef-fs></span> があればそこに「全画面」ボタンを出す(いちばん外のページごと全画面。できない端末では出さない)
  *   - どちらもなければ <body> の最後にフッターを足す
  *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
  * EDUIT_INFO = {
@@ -20,7 +20,7 @@
  *   levels: { basic: {...}, advanced: {...} }   基本編・発展編の分け方(メニューが EduitFrame.levels で使う)
  * }
  *
- * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', icon: '🪵', title: '…', desc: '…', parts: 「使うところ」の要素,
+ * メニューのカード(4分野共通の形): EduitFrame.card({ code: 'A1', title: '…', desc: '…', parts: 「使うところ」の要素,
  *   extra: [分野ごとの追加の要素…], href: 'ひらく先' か onOpen: function () {…}, openAttrs: { 'data-go': 'b1' } })
  *   → <article class="ef-card ef-mcard">。記号・アイコン・名前・説明・使うところ・追加の欄・「ひらく ▶」の順。カードのどこを押しても開く。
  * メニューの上のバー(4分野で同じ): 左に EduitFrame.menuTitle の「[A] 材料と加工の技術 教材集」、右に「ふりがな」「文字 中」「使い方」「先生用」の4つだけ。
@@ -224,7 +224,7 @@
     b.addEventListener('click', function () { open(0); });
     return b;
   }
-  // 全画面(C エネルギー変換の「🖥️ 全画面」と同じ)。枠(生徒用サイト・1ファイル版のメニュー)の中で開いたときは、いちばん外のページごと全画面にする
+  // 全画面(C エネルギー変換の「全画面」と同じ)。枠(生徒用サイト・1ファイル版のメニュー)の中で開いたときは、いちばん外のページごと全画面にする
   function fsDoc() {
     var d = document;
     try { for (var w = window; w !== w.parent; w = w.parent) { var pd = w.parent.document; if (!pd) break; d = pd; } } catch (e) {}
@@ -239,8 +239,8 @@
     function upd() {
       var on = isFull() || isKeyFull();
       b.hidden = !(D.fullscreenEnabled || D.webkitFullscreenEnabled);
-      b.textContent = '🖥️';
-      b.appendChild(el('span', { class: 't', text: on ? ' 全画面をやめる' : ' 全画面' }));
+      b.textContent = '';
+      b.appendChild(el('span', { class: 't', text: on ? '全画面をやめる' : '全画面' }));
       b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面にする');
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
@@ -315,7 +315,7 @@
     function save() { try { localStorage.setItem(key, JSON.stringify(st)); } catch (e) {} }
     function paintScore() {
       var ok = list.filter(function (x) { return st[x.c + '.' + x.i] === x.q.answer; }).length;
-      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 🎉 全部できました。' : '');
+      score.textContent = '正解 ' + ok + ' / ' + list.length + (ok === list.length ? ' 全部できました。' : '');
     }
     function qEl(x) {
       var k = x.c + '.' + x.i, res = el('p', { class: 'ef-jishu-res', 'aria-live': 'polite' });
@@ -368,7 +368,7 @@
     return x.textContent;
   }
   function matomeRow(M, codes, names) {
-    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '📝 学習のまとめ' }),
+    var b = el('button', { type: 'button', class: 'ef-level-matome' }, [el('span', { class: 'ef-level-matome-t', text: '学習のまとめ' }),
       el('span', { class: 'ef-level-matome-d', text: matomeQs(codes).length + '問。基本編の教材のたしかめ問題をまとめて解く' }), el('span', { class: 'ef-level-link-go', text: ' ひらく ▶' })]);
     b.addEventListener('click', function () { matomeOpen(codes, names); });
     return el('div', { class: 'ef-level-link' }, [M.when ? el('span', { class: 'ef-level-parts-k', text: M.when }) : null, b]);
@@ -506,7 +506,6 @@
     var extra = (o.extra || []).filter(Boolean);
     var c = el('article', { class: 'ef-card ef-mcard' }, [
       el('div', { class: 'ef-mcard-hd' }, [
-        o.icon ? el('span', { class: 'ef-mcard-ic', 'aria-hidden': 'true', text: o.icon }) : null,
         el('div', { class: 'ef-mcard-ht' }, [
           o.code ? el('p', { class: 'ef-card-tag' }, [code(o.code)]) : null,
           el('h3', { class: 'ef-card-title', text: o.title || '' })
@@ -956,6 +955,62 @@
       letsTimer = setTimeout(function () { letsTimer = 0; fillLets(); }, 0);
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
+
+  // ---- 字だけの表示(見た目 案1「教科書の目次」) ----
+  // ボタン・見出し・説明の文についた絵文字をとる。字の記号にできるもの(✅ → ✓ など)は字の記号にする。
+  // 絵文字だけの部分は、2つ外までの要素に字があれば(「💾<span>記録</span>」など)とり、なければ(部品の絵・盤面の絵など)そのまま。絵として残したい所には data-ef-emoji を付ける。
+  var VS_TEXT = '\uFE0E';  // 字の形で出す(色の絵にしない)しるし
+  // 絵文字だけの所でも字の記号にするもの: ✅✔→✓ ☑ ⭕→○ ❌✖❎→× ⬜→□ ⚠ ➡⬅⬆⬇→矢印 ▶ ◀
+  var EMOJI_TO_TEXT = {
+    '\u2705': '\u2713', '\u2714': '\u2713', '\u2611': '\u2611' + VS_TEXT, '\u2B55': '\u25CB', '\u274C': '\u00D7', '\u2716': '\u00D7', '\u274E': '\u00D7',
+    '\u2B1C': '\u25A1', '\u26A0': '\u26A0' + VS_TEXT, '\u27A1': '\u2192', '\u2B05': '\u2190', '\u2B06': '\u2191', '\u2B07': '\u2193', '\u25B6': '\u25B6' + VS_TEXT, '\u25C0': '\u25C0' + VS_TEXT
+  };
+  var EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u2600-\u27BF\u2B00-\u2BFF\u231A-\u23FF\u2190-\u21FF\u25A0-\u25FF](?:\uFE0F|\uFE0E|[\u{1F3FB}-\u{1F3FF}])?(?:\u200D[\u{1F000}-\u{1FAFF}\u2600-\u27BF]\uFE0F?)*/gu;
+  var KEEP_RE = /^[\u2190-\u21FF\u25A0-\u25FF\u2605\u2606\u2713\u2717\u2715\u270E\u2661\u2610]$/;  // 矢印・■□○△・★☆・✓✗✕・✎・♡・☐ はもとから字の記号なので残す
+  var LETTER_RE = /[0-9A-Za-z\u3040-\u30FF\u3400-\u9FFF\uFF10-\uFF5A]/;
+  var CUT = '\u0000';
+  // t の中か、t をすぐに包む要素(ボタン・見出しなど)に字があれば、絵文字は飾りなのでとる
+  function plainText(t, around) {
+    var deco = LETTER_RE.test(t) || !!(around && LETTER_RE.test(around));
+    var r = t.replace(EMOJI_RE, function (m) {
+      var b = m.replace(/[\uFE0E\uFE0F\u200D]|[\u{1F3FB}-\u{1F3FF}]/gu, '');
+      if (EMOJI_TO_TEXT[b] != null) return EMOJI_TO_TEXT[b];
+      if (KEEP_RE.test(b) || !deco) return m;
+      return CUT;
+    });
+    if (r.indexOf(CUT) < 0) return r;
+    return r.replace(/\u0000[ \u3000]?/g, '').replace(/[ \u3000]\u0000/g, '');
+  }
+  // 絵文字だけの所のまわりの字: 2つ外の要素まで見る(「<button><span class="ic">💾</span>記録</button>」など)
+  function around(p) {
+    for (var k = 0; k < 2 && p; k++, p = p.parentElement) if (LETTER_RE.test(p.textContent)) return p.textContent;
+    return '';
+  }
+  var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, CODE: 1, PRE: 1, IFRAME: 1 };
+  function plainNode(n) {
+    if (n.nodeType === 3) {
+      var p = n.parentNode;
+      if (!p || SKIP_TAGS[p.nodeName] || (p.closest && p.closest('svg, [data-ef-emoji], [contenteditable]'))) return;
+      var t = plainText(n.nodeValue, LETTER_RE.test(n.nodeValue) ? '' : around(p));
+      if (t !== n.nodeValue) n.nodeValue = t;
+      return;
+    }
+    if (n.nodeType !== 1 || SKIP_TAGS[n.nodeName]) return;
+    var w = document.createTreeWalker(n, 4), x, list = [];
+    while ((x = w.nextNode())) list.push(x);
+    list.forEach(plainNode);
+  }
+  function watchPlain() {
+    if (!window.MutationObserver) return;
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) {
+        if (m.type === 'characterData') plainNode(m.target);
+        else Array.prototype.forEach.call(m.addedNodes, plainNode);
+      });
+    }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+    plainNode(document.documentElement);
+  }
+  watchPlain();  // 読みこみの途中から見はる(はじめに絵文字が一瞬出ないように)
 
   window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない

@@ -32,14 +32,14 @@ body{overflow:hidden}
  * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
 .ea-noruby rt,.ea-noruby rp{display:none}
 .ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
-.ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
+.ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--ef-ink);border-radius:0;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
-.ea-btn:hover:not([disabled]){border-color:var(--accent)}
+.ea-btn:hover:not([disabled]){background:var(--ef-surface-2)}
 .ea-btn:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
-.ea-btn.danger{background:#fde2e2;border-color:#f3b7b7;color:#a61e1e}
-.ea-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
-.ea-back{color:var(--accent);background:var(--ef-accent-soft);border-color:transparent;font-weight:bold}
+.ea-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
+.ea-btn.primary{background:var(--ef-ink);border-color:var(--ef-ink);color:#fff;font-weight:bold}
+.ea-back{color:var(--ink);background:none;border-color:transparent;font-weight:bold}
 
 /* --- トップ画面 --- */
 .ea-home{overflow:auto;background:var(--ef-bg)}
@@ -49,36 +49,35 @@ body{overflow:hidden}
 .ea-hd .ef-btn{min-height:40px}
 .ea-hd .ef-sub{font-size:14px}
 .ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
-/* カードは共通の EduitFrame.card(.ef-mcard)。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる */
-.ea-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:6px 32px 24px}
-.ea-cards>.ef-mcard{grid-column:span 2;min-height:236px;touch-action:manipulation}
-.ea-cards>.ef-mcard:hover{border-color:var(--accent)}
-.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2){grid-column:2 / span 2}
-.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:3 / span 2}
+/* カードは共通の EduitFrame.card(.ef-mcard)。教科書の目次のように1行ずつ上から順にならべる */
+.ea-cards{display:flex;flex-direction:column;padding:0 0 24px;border-top:1px solid var(--line)}
+.ea-cards>.ef-mcard{touch-action:manipulation}
 .ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
-.ef-levels[data-ref="cards"]{padding:6px 32px 0}
-.ef-levels .ea-cards{padding:6px 0 24px}
+.ef-levels[data-ref="cards"]{max-width:1040px;margin:0 auto;padding:6px 32px 0}
+.ef-level-group+.ea-cards{border-top:0}
+.ef-levels .ea-cards{padding:0 0 24px}
 .ea-cards .ef-mcard-desc{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.5}
 .ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
 .ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
-.ea-card-tg span{font-size:calc(13px * var(--ea-fs, 1));background:var(--ef-surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--sub)}
+.ea-card-tg span{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
+.ea-card-tg span+span::before{content:"・"}
 .ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
 .ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
-.ea-pg .bar{height:8px;border-radius:999px;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-pg .bar i{display:block;height:100%;border-radius:999px}
+.ea-pg .bar{height:6px;max-width:16em;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.ea-pg .bar i{display:block;height:100%}
 .ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
 .ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
-.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:var(--ef-surface);color:var(--ink);border-bottom:3px solid var(--accent)}
+.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:var(--ef-surface);color:var(--ink);border-bottom:1px solid var(--ef-ink)}
 .ea-bar .ea-btn{min-height:42px;font-size:15px;padding:0 12px}
 .ea-btn[hidden]{display:none}
 .ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .ea-chips::-webkit-scrollbar{display:none}
-.ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:10px 10px 0 0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
+.ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
 .ea-chip:hover{color:var(--ink)}
-.ea-chip.cur{background:var(--ef-accent-soft);color:var(--ink);font-weight:bold}
+.ea-chip.cur{color:var(--ink);font-weight:bold;border-bottom-color:var(--accent)}
 .ea-chip .ef-code{font-size:13px;min-width:0}
 .ea-apptitle{margin:0 6px 0 4px;font-size:17px;white-space:nowrap;flex:none}
 .ea-apptitle .ef-code{margin-right:6px}
@@ -90,31 +89,30 @@ body{overflow:hidden}
 
 /* --- 使い方 --- */
 .ea-help{background:var(--ef-bg)}
-.ea-help .bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:6px 20px;border-bottom:3px solid var(--accent);background:var(--ef-surface)}
+.ea-help .bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:6px 20px;border-bottom:1px solid var(--ef-ink);background:var(--ef-surface)}
 .ea-help .bar h2{margin:0;font-size:20px;flex:1;white-space:nowrap}
 .ea-tabs{display:flex;gap:6px;flex-wrap:wrap}
-.ea-tabs .ea-btn.on{background:var(--accent);border-color:var(--accent);color:var(--ef-accent-ink);font-weight:bold}
+.ea-tabs .ea-btn.on{box-shadow:inset 0 -4px 0 var(--accent);font-weight:bold}
 .ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:calc(16.5px * var(--ea-fs, 1));-webkit-overflow-scrolling:touch}
-.ea-hbody h3{font-size:calc(19px * var(--ea-fs, 1));margin:22px 0 6px;padding-left:10px;border-left:5px solid var(--accent)}
+.ea-hbody h3{font-size:calc(19px * var(--ea-fs, 1));margin:22px 0 6px;padding-left:10px;border-left:4px solid var(--accent)}
 .ea-hbody li{margin:3px 0}
-.ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;border-radius:5px;font-size:.92em}
+.ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;font-size:.92em}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ea-hcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.ea-hcard{background:#fff;border:0;border-top:1px solid var(--ef-ink);padding:10px 2px}
 .ea-hcard h4{margin:0 0 4px;font-size:calc(17px * var(--ea-fs, 1));display:flex;align-items:center;gap:8px}
 .ea-hcard p{margin:4px 0;font-size:calc(15px * var(--ea-fs, 1));line-height:1.6}
-.ea-hic{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
-.ea-tip{color:#5b4a00;background:#fff6d6;border-radius:8px;padding:4px 8px}
+.ea-hic{display:none}
+.ea-tip{color:#5b4a00;border-left:4px solid #e0b400;padding:2px 8px}
 .ea-tbl{border-collapse:collapse;background:#fff}
 .ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:calc(15px * var(--ea-fs, 1));vertical-align:top}
 .ea-tbl th{background:var(--ef-surface-2)}
 .ea-tools{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .ea-note{color:var(--sub);font-size:calc(14px * var(--ea-fs, 1))}
-.ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;display:none}
+.ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;font-size:15px;z-index:99;display:none}
 
 @media (max-width:900px){
-  .ea-cards{gap:12px;padding:6px 16px 20px}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
-  .ef-levels .ea-cards{padding:6px 0 20px}
+  .ef-levels .ea-cards{padding:0 0 20px}
   .ea-foot{padding:0 16px 20px}
   .ea-chip{padding:0 8px}
   .ea-hbody{padding:6px 16px 40px}
@@ -125,9 +123,7 @@ body{overflow:hidden}
 @media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
 /* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
-  .ea-cards{grid-template-columns:minmax(0,1fr)!important}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto!important;min-height:0!important}
-  .ef-levels[data-ref="cards"]{padding:6px 12px 0}
+  .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ea-hd{padding:6px 10px}
   .ea-hd .ef-title{font-size:16px}
   .ea-hd .ef-btn{min-height:36px;padding:0 10px;font-size:14px}
@@ -147,11 +143,8 @@ body{overflow:hidden}
 @media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
 @media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
-  .ea-cards{grid-template-columns:repeat(2,1fr)}
-  .ea-cards>.ef-mcard,.ea-cards>.ef-mcard:nth-child(3n+1):nth-last-child(2),.ea-cards>.ef-mcard:nth-child(3n+1):last-child{grid-column:auto}
   .ea-hgrid{grid-template-columns:1fr}
 }
-@media (max-height:720px){ .ea-cards>.ef-mcard{min-height:200px} }
 @media print{
   html,body{height:auto;overflow:visible}
   .ea{height:auto;display:block}
@@ -189,7 +182,7 @@ body{overflow:hidden}
       <div class="ea-bar-tools">
         <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
-        <button class="ea-btn ef-btn" data-ea="fs" hidden>🖥️ 全画面</button>
+        <button class="ea-btn ef-btn" data-ea="fs" hidden>全画面</button>
         <span data-ref="about"></span>
       </div>
     </div>

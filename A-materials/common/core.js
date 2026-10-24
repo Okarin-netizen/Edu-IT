@@ -154,6 +154,7 @@
     }
     function processText(node) {
       var text = node.nodeValue;
+      if (!node.parentNode) return;  // すでにふりがなの span に入れかえた文字(絵文字をとったときの知らせがあとから来る)
       if (!text || (!KANJI.test(text) && text.indexOf('{') < 0)) return;
       if (skipped(node)) return;
       if (!re) build();
