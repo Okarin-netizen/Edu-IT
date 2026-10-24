@@ -15,22 +15,14 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e7 *{box-sizing:border-box}
-.e7 button{font:inherit;touch-action:manipulation;color:inherit}
+:where(.e7 button){font:inherit;touch-action:manipulation;color:inherit}
 .e7 input,.e7 textarea{font:inherit}
 .e7 ruby rt{font-size:.55em;font-weight:normal}
-.e7-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブ)。.e7-tabs・.e7-tab は JS が探すための名前。ここには置き方だけを書く */
+.e7-top{position:sticky;top:0;z-index:5;flex:none}
+.e7-tabs{display:contents}
+.e7-tab .ck{color:var(--ef-ok);margin-left:3px}
 .e7-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
-.e7-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
-.e7-tabs::-webkit-scrollbar{display:none}
-.e7-tab{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1))}
-.e7-tab:hover{border-color:var(--ef-accent,#b45309)}
-.e7-tab.on{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-.e7-tab.adv{border-style:dashed}
-.e7-tab.adv.on{border-style:solid}
-.e7-tab .ck{color:#1a9b5b;margin-left:3px}
-.e7-tab.on .ck{color:#fff}
-.e7-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e7-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e7-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e7-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .e7-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
@@ -137,12 +129,11 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   .e7-meth{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media (max-width:760px){
-  .e7-top h1 .lg{display:none}
+
   .e7-grid3,.e7-start,.e7-two{grid-template-columns:minmax(0,1fr)}
   .e7-days{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:640px){
-  .e7-top{padding:0 6px}
   .e7-body{padding:10px 10px 40px}
   .e7-card{padding:10px}
   .e7-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -229,7 +220,7 @@ function renderTabs() {
   var nav = S.el.tabs; if (!nav) return;
   nav.innerHTML = TABS.map(function (t) {
     var on = S.tab === t.id;
-    return '<button class="e7-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
+    return '<button class="e7-tab ef-apptab' + (t.adv ? ' is-advanced' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
   }).join('');
 }
 function go(tab) {
@@ -770,7 +761,7 @@ function renderBody() {
 function mount(root) {
   S.root = root; root.classList.add('e7');
   S.save = loadSave();
-  root.innerHTML = '<div class="e7-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>🔌 <span class="lg">直流・交流と送電ラボ</span></h1>') + '<nav class="e7-tabs" data-ref="tabs" aria-label="C3 のページ"></nav>' + efSlot() + '</div>' +
+  root.innerHTML = '<div class="e7-top ef-apptabs" data-ef-autohide>' + (NS.embedded ? '' : '<h1>直流・交流と送電ラボ</h1>') + '<nav class="e7-tabs" data-ref="tabs" aria-label="C3 のページ"></nav>' + efSlot() + '</div>' +
     '<div class="e7-body" data-ref="body"></div><div class="e7-toast" data-ref="toast" role="status"></div>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();

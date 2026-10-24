@@ -16,21 +16,16 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e5 *{box-sizing:border-box}
-.e5 button{font:inherit;touch-action:manipulation}
+:where(.e5 button){font:inherit;touch-action:manipulation}
 .e5 input,.e5 textarea,.e5 select{font:inherit;user-select:text;-webkit-user-select:text}
-.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
-.e5-top .sh{display:none}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e5-top{flex:none}
 .e5-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e5-stitle{flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
+.e5-stitle{align-self:center;flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
 .e5-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e5-btn:active{transform:translateY(1px)}
 .e5-btn:disabled{opacity:.4;cursor:default}
-.e5-top .e5-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 11px;white-space:nowrap}
-.e5-top .e5-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e5-top .e5-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e5-top h1{color:var(--ef-text,#1f2328)}
-.e5-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e5-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e5-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e5-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .e5-btn.good{background:#fff;border-color:#0d6b3a;color:#0d6b3a}
@@ -200,15 +195,9 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 }
 @media (max-width:1100px){
   .e5-pal{width:172px}.e5-side{width:262px}
-  .e5-top .e5-btn{padding:0 8px;font-size:calc(15px * var(--ea-fs, 1))}
-  .e5-top h1{font-size:calc(15px * var(--ea-fs, 1))}
 }
 @media (max-width:900px){
   .e5-stitle{display:none}
-  .e5-top{gap:4px;padding:0 6px}
-  .e5-top .lg{display:none}
-  .e5-top .sh{display:inline}
-  .e5-top .e5-btn{padding:0 8px;font-size:calc(15px * var(--ea-fs, 1))}
   .e5-page{flex-direction:column;overflow-y:auto}
   .e5-col{overflow:visible;flex:none!important;width:auto!important}
   .e5-sticky{position:static}
@@ -1232,13 +1221,16 @@ function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mo
 function topHtml() {
   var v = S.view, a = A(), ng = a.nNG, wn = a.nWarn;
   var badge = ng ? '<span class="e5-badge">' + ng + '</span>' : (wn ? '<span class="e5-badge y">' + wn + '</span>' : (a.hasSrc && D().parts.length ? '<span class="e5-badge g">✓</span>' : ''));
-  function tab(k, ic, lg, sh, extra) { return '<button class="e5-btn' + (v === k ? ' on' : '') + '" data-act="v" data-v="' + k + '"' + (v === k ? ' aria-current="page"' : '') + '>' + ic + ' <span class="lg">' + lg + '</span><span class="sh">' + sh + '</span>' + (extra || '') + '</button>'; }
-  return '<div class="e5-top"><h1>📐 <span class="lg">回路設計シート</span></h1>' +
-    tab('brief', '📝', '① 課題・構想', '①課題') + tab('edit', '✏️', '② 回路図', '②回路図', badge) + tab('bom', '📦', '③ 部品表・手順', '③部品表') + tab('eval', '📏', '④ 評価', '④評価') +
-    '<div class="e5-stitle">' + task().icon + ' ' + esc(task().title) + '</div>' +
-    '<button class="e5-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e5-btn" data-act="print">🖨️ 印刷</button>' +
-    '<button class="e5-btn" data-act="file">💾 保存</button>' + efSlot() + '</div>';
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、まん中に課題の名前、右に道具(.ef-apptabs-tools)
+  function tab(k, label, extra) { return '<button class="ef-apptab" data-act="v" data-v="' + k + '"' + (v === k ? ' aria-current="page"' : '') + '>' + label + (extra || '') + '</button>'; }
+  return '<div class="e5-top ef-apptabs">' + (NS.embedded ? '' : '<h1>回路設計シート</h1>') +
+    tab('brief', '① 課題・構想') + tab('edit', '② 回路図', badge) + tab('bom', '③ 部品表・手順') + tab('eval', '④ 評価') +
+    '<div class="e5-stitle">' + esc(task().title) + '</div>' +
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s" data-act="print">印刷</button>' +
+      '<button class="ef-btn is-s" data-act="file">保存</button>' + efSlot() +
+    '</div></div>';
 }
 function build() {
   closeModal();

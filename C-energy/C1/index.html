@@ -16,22 +16,18 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e1 *{box-sizing:border-box}
-.e1 button{font:inherit;touch-action:manipulation}
+:where(.e1 button){font:inherit;touch-action:manipulation}
 .e1 rt{font-size:.55em;font-weight:normal}
-.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(右に道具)。ここには置き方だけを書く */
+.e1-top{flex:none;align-items:center;min-height:52px}
 .e1-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e1-stitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
+.e1-stitle{align-self:center;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
 .e1-stitle .t{font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e1-stitle .l{font-size:calc(13px * var(--ea-fs, 1));opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e1-btn:active{transform:translateY(1px)}
 .e1-btn:disabled{opacity:.45;cursor:default;transform:none}
-.e1-top .e1-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;white-space:nowrap;padding:0 12px;flex:none}
-.e1-top .e1-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e1-top .e1-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e1-top h1{color:var(--ef-text,#1f2328)}
-.e1-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e1-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e1-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e1-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .e1-btn.go{background:var(--accent);color:#fff;font-size:calc(21px * var(--ea-fs, 1));min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
@@ -192,11 +188,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   .e1-modal{padding:16px 18px 0}
   .e1-axis{grid-template-columns:minmax(0,230px) 1fr 40px}
 }
-/* せまい画面(スマホの縦など): 上のバーのボタンは絵文字だけにして、はみ出さないようにする */
 @media (max-width:700px){
-  .e1-top{gap:4px;padding:0 6px}
-  .e1-top .lg{display:none}
-  .e1-top .e1-btn{padding:0 8px;min-width:44px}
   .e1-two{grid-template-columns:1fr}
   .e1-modal .acts .e1-btn{min-width:0;flex:1 1 40%}
 }
@@ -760,16 +752,18 @@ function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   S.root.innerHTML =
-    '<div class="e1-top">' +
-      '<h1>⚡ エネルギー変換ゲーム</h1>' +
-      '<button class="e1-btn" data-act="stages" aria-label="ステージ">☰<span class="lg"> ステージ</span></button>' +
+    // 2段目の帯 = 共通の帯(.ef-apptabs)。タブはなく、左にいまのステージの名前、右に道具(.ef-apptabs-tools)
+    '<div class="e1-top ef-apptabs">' + (NS.embedded ? '' : '<h1>エネルギー変換ゲーム</h1>') +
       '<div class="e1-stitle" data-ref="stitle"></div>' +
-      '<button class="e1-btn" data-act="howto" aria-label="使い方">❓<span class="lg"> 使い方</span></button>' +
-      '<button class="e1-btn" data-act="intro" aria-label="目標">🎯<span class="lg"> 目標</span></button>' +
-      '<button class="e1-btn" data-act="hint" aria-label="ヒント">💡<span class="lg"> ヒント</span></button>' +
-      '<button class="e1-btn" data-act="rec" aria-label="記録">💾<span class="lg"> 記録</span></button>' +
-      '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
-      efSlot() +
+      '<div class="ef-apptabs-tools">' +
+        '<button class="ef-btn is-s" data-act="stages">ステージ</button>' +
+        '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+        '<button class="ef-btn is-s" data-act="intro">目標</button>' +
+        '<button class="ef-btn is-s" data-act="hint">ヒント</button>' +
+        '<button class="ef-btn is-s" data-act="rec">記録</button>' +
+        '<button class="ef-btn is-s ef-toggle" data-act="sound" data-ref="sound" aria-pressed="false" aria-label="効果音">音</button>' +
+        efSlot() +
+      '</div>' +
     '</div>' +
     '<div class="e1-main">' +
       '<div class="e1-palwrap"><div class="e1-pal" data-ref="pal"></div><div class="e1-palmore" data-ref="palmore" aria-hidden="true"></div></div>' +
@@ -786,8 +780,7 @@ function stageLabel(i) { return STAGES[i].free ? '自由' : 'ステージ' + (i 
 function renderTop() {
   var st = stage();
   S.el.stitle.innerHTML = '<span class="t">' + stageLabel(S.si) + ':' + esc(st.title) + '</span><span class="l">' + esc(st.learn) + '</span>';
-  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
-  S.el.sound.setAttribute('aria-label', S.save.sound ? '効果音:オン' : '効果音:オフ');
+  S.el.sound.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false');
 }
 function renderMsg() { var m = S.el.msg; m.innerHTML = '<span>' + esc(S.msg) + '</span>'; m.className = 'e1-msg' + (S.msgCls ? ' ' + S.msgCls : ''); }
 function renderPal() {

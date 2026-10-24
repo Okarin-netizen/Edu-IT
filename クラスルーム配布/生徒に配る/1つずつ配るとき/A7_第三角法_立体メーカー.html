@@ -551,6 +551,7 @@ html[data-ef-prefs] { font-size: var(--ef-fs); }
 }
 .ef-apptab[aria-selected="true"] rt, .ef-apptab[aria-current] rt, .ef-apptab.is-on rt { color: inherit; }
 .ef-apptab.is-advanced { color: var(--ef-advanced); }  /* 発展のタブ(字だけむらさき。開いたときの下線は分野の色) */
+.ef-apptab.is-done::after { content: " ✓"; }        /* 書き終えたページ */
 /* タブの帯の右はしの道具(使い方・記録・音 など) */
 .ef-apptabs-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 0; }
 
@@ -790,7 +791,7 @@ rt { font-size: .5em; line-height: 1; color: var(--muted); font-weight: normal; 
 /* ON のときは分野の色で塗り、✓ も付ける(色だけに頼らない。4分野共通の .ef-toggle) */
 .ef-btn[aria-pressed="true"] rt, .ef-btn.is-on rt { color: inherit; opacity: .9; }
 @media (max-width: 900px) { .g-header .ef-btn { padding: 0 8px; font-size: 14px; } .g-header .ef-title { font-size: 16px; } }
-/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブはこの下(.g-tablist のあと) */
+/* スマホ: 上のバーは名前の行と道具の行に分け、上に固定しない(画面を広く使う)。タブはこの下(.ef-apptabs のあと) */
 @media (max-width: 640px) {
   .g-header { position: static; }
   .g-header.ef-header { flex-wrap: wrap; padding: 4px 8px; row-gap: 4px; }
@@ -824,80 +825,17 @@ textarea { min-height: 5.5em; }
 .btn.link { border: none; background: none; color: var(--accent); text-decoration: underline; padding: 0 .2rem; min-height: var(--tap); }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; transform: none; }
 
-/* タブ(大きめのボタン形。スクロールしても上に残る) */
-/* 4分野共通のタブの帯(.ef-apptabs と同じ形: 白い帯・下に分野の色の線・丸いボタン。C エネルギー変換と同じ)。
- * 帯は main の中にあるので、白地と線は border-image で画面のはしまでのばす(はみ出した分でスクロールはしない) */
-.g-tablist {
-  display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
-  position: sticky; top: calc(var(--hdr-h) + 3px); z-index: 20;
-  padding: 6px 0 9px; margin: -.6rem 0 .6rem;
-  border-image: linear-gradient(to top, var(--ef-accent) 3px, var(--ef-surface, #fff) 3px) fill 0 / 0 / 0 100vmax;
+/* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線)。A では帯が main の中にあるので、
+ * 上のバーのすぐ下に固定し、白地と下の線を画面のはしまでのばす(border-image。はみ出した分でスクロールはしない) */
+.ef-apptabs {
+  position: sticky; top: calc(var(--hdr-h) + 3px); z-index: 20;  /* 上のバーの高さ(.g-header の min-height と同じ) */
+  margin: -.6rem 0 .6rem; padding: 0; border-bottom: 0;
+  border-image: linear-gradient(to top, var(--ef-ink) var(--ef-bw), var(--ef-surface) var(--ef-bw)) fill 0 / 0 / 0 100vmax;
 }
-.g-tablist [role=tab] {
-  font: inherit; font-size: .94rem; font-weight: bold; line-height: 1.3; cursor: pointer; min-height: 44px; padding: 0 12px;
-  border: 1px solid var(--ef-line, var(--line)); border-radius: 0; background: var(--ef-surface, #fff); color: var(--ink);
-  display: inline-flex; align-items: center; gap: 0; touch-action: manipulation; white-space: nowrap;
-}
-.g-tablist [role=tab]:hover { border-color: var(--ef-accent); }
-.g-tablist [role=tab][aria-selected="true"] { background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent); }
-/* タブの番号は丸数字(①②③…)をそのまま書く(4分野共通)。はじめに・まとめ・記録・ふりかえりのタブには番号を付けない */
-.g-tablist [role=tab] .num { display: inline-block; margin-right: .3em; font-weight: bold; }
-@media (max-width: 1100px) { .g-tablist [role=tab] { padding: 0 10px; font-size: .9rem; } }
-/* スマホ: タブは折り返さず1行にして横にスクロール(タブの名前も折り返さない)。下へ読み進めると隠れ、上へ戻すと出る(data-ef-autohide) */
-@media (max-width: 640px) {
-  .g-tablist { top: 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .g-tablist::-webkit-scrollbar { display: none; }
-  .g-tablist [role=tab] { flex: none; min-height: 44px; white-space: nowrap; }
-}
-
-/* カード・レイアウト */
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 0; padding: .8rem 1rem; box-shadow: var(--shadow); margin-bottom: .65rem; }
-.card > h2:first-child, .card > h3:first-child { margin-top: 0; }
-h2 { font-size: 1.18rem; margin: .5em 0 .35em; }
-h3 { font-size: 1.04rem; margin: .5em 0 .3em; }
-.card > h2:first-child { padding-left: .55rem; border-left: 5px solid var(--wood); }
-.g-row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
-.g-end { justify-content: flex-end; }
-.g-grid { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.g-cols { display: grid; gap: .65rem; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
-@media (max-width: 760px) { .g-cols { grid-template-columns: minmax(0, 1fr); } }
-.g-muted { color: var(--muted); font-size: .9rem; }
-.g-note { background: var(--warn-soft); border-left: 5px solid var(--warn); padding: .4rem .75rem; border-radius: 0; font-size: .92rem; margin: .5rem 0; }
-.g-ok { color: var(--ok); } .g-ng { color: var(--ng); }
-.badge { display: inline-block; padding: .05em .65em; border-radius: 0; font-size: .85rem; border: 1px solid var(--line); background: var(--panel-2); }
-.badge.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
-.badge.ng { background: var(--ng-soft); border-color: var(--ng); color: var(--ng); }
-.badge.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; contain: paint; }
-
-/* フォーム */
-label { cursor: pointer; }
-input, select, textarea { font: inherit; color: var(--ink); background: var(--panel); border: 1.5px solid var(--line); border-radius: 0; padding: .25rem .55rem; }
-input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-input[type=number] { width: 6em; }
-input[type=checkbox], input[type=radio] { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex: none; }
-textarea { width: 100%; line-height: 1.6; }
-.g-field { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .45rem; min-width: 0; max-width: 100%; }
-.g-field input, .g-field select { min-width: 0; max-width: 100%; box-sizing: border-box; }
-.g-field > span:first-child, .g-field > label:first-child { font-size: .9rem; color: var(--muted); }
-input[aria-invalid="true"] { border-color: var(--ng); background: var(--ng-soft); }
-.g-check { display: flex; align-items: center; gap: .6rem; min-height: var(--tap); padding: .1rem 0; }
-.g-check input { width: 26px; height: 26px; margin: 0; }
-.g-slider { display: grid; grid-template-columns: 7em 1fr 2.2em; align-items: center; gap: .5rem; min-height: var(--tap); }
-.g-slider input[type=range] { min-width: 0; width: 100%; }
-/* display を指定したクラスより hidden 属性を優先する */
-[hidden] { display: none !important; }
-
-/* スライダー(指でつまみやすい大きさ) */
-input[type=range] {
-  -webkit-appearance: none; appearance: none; background: transparent; height: var(--tap); min-width: 8rem; cursor: pointer; padding: 0; border: none; touch-action: none;
-}
-input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 0; background: var(--line); }
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%;
-  background: var(--accent); border: 3px solid #fff; box-shadow: none;
-}
-input[type=range]::-moz-range-track { height: 8px; border-radius: 0; background: var(--line); }
+/* タブの番号は丸数字(①②③…)をそのまま書く。はじめに・まとめ・記録・ふりかえりのタブには番号を付けない */
+.ef-apptab .num { margin-right: .3em; }
+/* スマホ: 上のバーは固定しないので、タブの帯はいちばん上に固定する(下へ読み進めると隠れ、上へ戻すと出る。data-ef-autohide) */
+@media (max-width: 640px) { .ef-apptabs { top: 0; } }
 input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: none; }
 input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
@@ -906,8 +844,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offse
   :root { --hdr-h: 48px; }
   main, .g-main { padding-top: .4rem; }
   .card { padding: .6rem .85rem; margin-bottom: .5rem; }
-  .g-tablist { padding: 4px 0 7px; margin-top: -.4rem; margin-bottom: .4rem; }
-  .g-tablist [role=tab] { min-height: 44px; }
+  .ef-apptabs { margin-top: -.4rem; margin-bottom: .4rem; }
   h2 { font-size: 1.1rem; }
 }
 
@@ -942,7 +879,7 @@ table.g-table { border-collapse: collapse; width: 100%; background: var(--panel)
 
 /* 印刷 */
 @media print {
-  .g-header, .g-tablist, .no-print { display: none !important; }
+  .g-header, .no-print { display: none !important; }
   body { background: #fff; }
   .card { box-shadow: none; break-inside: avoid; }
   [data-panel][hidden].print-all { display: block !important; }
@@ -3063,11 +3000,11 @@ window.EDUIT_INFO.jishu.ruby = {
   </div>
 
   <div data-g-tabs>
-    <div class="g-tablist" role="tablist" aria-label="作業の段階">
-      <button role="tab" data-tab="draw" type="button"><span class="num">①</span>三面図をかく</button>
-      <button role="tab" data-tab="view" type="button"><span class="num">②</span>立体を見る</button>
-      <button role="tab" data-tab="sheet" type="button"><span class="num">③</span>図面・印刷</button>
-      <button role="tab" data-tab="review" type="button" data-ef-reflect>ふりかえり</button>
+    <div class="ef-apptabs" role="tablist" aria-label="作業の段階">
+      <button class="ef-apptab" role="tab" data-tab="draw" type="button"><span class="num">①</span>三面図をかく</button>
+      <button class="ef-apptab" role="tab" data-tab="view" type="button"><span class="num">②</span>立体を見る</button>
+      <button class="ef-apptab" role="tab" data-tab="sheet" type="button"><span class="num">③</span>図面・印刷</button>
+      <button class="ef-apptab" role="tab" data-tab="review" type="button" data-ef-reflect>ふりかえり</button>
     </div>
 
     <!-- 1 三面図をかく -->
@@ -4821,7 +4758,7 @@ if (window.G && window.G.ruby) window.G.ruby.add(window.RUBY_DICT);
     // (リンクの付けかえは build-single.py が各ページに入れるスクリプトが行う)
     var start = function () {
       // タブの帯は、下へ読み進めると隠れ、上へ戻すと出る(shared/eduit-frame.js)
-      Array.prototype.forEach.call(document.querySelectorAll('.g-tablist'), function (t) { t.setAttribute('data-ef-autohide', ''); });
+      Array.prototype.forEach.call(document.querySelectorAll('.ef-apptabs'), function (t) { t.setAttribute('data-ef-autohide', ''); });
       G.ruby.apply(document.body);
       G.ruby.observe();
     };

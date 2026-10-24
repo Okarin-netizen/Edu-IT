@@ -27,7 +27,7 @@ body{margin:0;background:var(--ef-bg)}
 #b2app h2{font-size:1.2em;color:var(--b2-main-d)}
 #b2app h3{font-size:1.05em}
 #b2app p{margin:.4em 0}
-#b2app button,#b2app select,#b2app input,#b2app textarea{font:inherit;color:inherit}
+:where(#b2app button,#b2app select,#b2app input,#b2app textarea){font:inherit;color:inherit}
 #b2app button{cursor:pointer;touch-action:manipulation}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
 #b2app .b2-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:none}
@@ -42,14 +42,7 @@ body{margin:0;background:var(--ef-bg)}
 /* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする(K3) */
 html.kz-embed #b2app .b2-head-row{display:none}
 html.kz-embed #b2app .b2-head{padding-top:6px}
-html.kz-embed #b2app .b2-nav{margin-top:0}
-#b2app .b2-nav{display:flex;gap:4px;margin-top:8px;padding:0 14px}
-#b2app .b2-nav button{flex:1 1 0;min-width:0;background:transparent;border:0;color:#fff;padding:8px 8px;min-height:52px;border-radius:0;font-weight:700;font-size:min(.92em,20px);line-height:1.3;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
-#b2app .b2-nav button[data-tab="sim"]{flex-grow:1.7}
-#b2app .b2-nav button[aria-selected="true"]{background:var(--b2-bg);color:var(--b2-main-d)}
-#b2app .b2-nav rt{color:inherit;opacity:.85}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
-@media (max-width:640px){#b2app .b2-nav{overflow-x:auto;scrollbar-width:none;padding:0 8px}#b2app .b2-nav::-webkit-scrollbar{display:none}#b2app .b2-nav button{flex:0 0 auto;white-space:nowrap;min-height:48px;padding:6px 10px}#b2app .b2-nav wbr{display:none}}
 #b2app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
 #b2app section[hidden]{display:none!important}
 #b2app section,#b2app .b2-card,#b2app #b2-qexp{scroll-margin-top:calc(var(--b2-headh) + var(--b2-barh) + 8px)}
@@ -221,17 +214,8 @@ html.kz-embed #b2app .b2-nav{margin-top:0}
 }
 
 /* タブの帯は4分野共通の形(C エネルギー変換と同じ: 白い帯・下に分野の色の線・丸いボタン。shared/eduit-frame.css の .ef-apptabs と同じ見た目) */
-#b2app .b2-nav{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:6px 10px;margin-top:0;background:var(--ef-surface);border-bottom:1px solid var(--ef-ink,#222);overflow:visible}
-#b2app .b2-nav button{flex:none;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--ef-line);border-radius:0;background:var(--ef-surface);color:var(--ef-text);font-weight:700;font-size:.84em;line-height:1.3;white-space:nowrap;word-break:normal;overflow-wrap:normal;cursor:pointer}
-#b2app .b2-nav button:hover{border-color:var(--ef-accent);background:var(--ef-surface)}
-#b2app .b2-nav button rt{color:inherit;opacity:.85}
-#b2app .b2-nav button[aria-selected="true"],#b2app .b2-nav button[aria-selected="true"]:hover{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-#b2app .b2-nav button[aria-selected="true"] rt{color:inherit}
-@media (max-width:640px){#b2app .b2-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:6px 8px}#b2app .b2-nav::-webkit-scrollbar{display:none}#b2app .b2-nav button{min-height:44px;padding:0 10px}}
 #b2app .b2-head{background:var(--ef-surface);color:var(--ef-text);box-shadow:none}
 html.kz-embed #b2app .b2-head{padding-top:0}
-#b2app .b2-nav wbr{display:none}
-#b2app .b2-nav button[data-tab="sim"]{flex-grow:0}
 </style>
 </head>
 <body>
@@ -245,12 +229,12 @@ html.kz-embed #b2app .b2-head{padding-top:0}
         <button type="button" class="ef-btn ef-size" id="b2-size">文字</button>
       </div>
     </div>
-    <nav class="b2-nav" role="tablist" aria-label="画面の切りかえ">
-      <button type="button" role="tab" data-tab="home">はじめに</button>
-      <button type="button" role="tab" data-tab="sim">① 飼育<wbr>シミュレーション</button>
-      <button type="button" role="tab" data-tab="quiz">② 診断<wbr>クイズ</button>
-      <button type="button" role="tab" data-tab="plan">③ 飼育<wbr>計画書</button>
-      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
+    <nav class="b2-nav ef-apptabs" role="tablist" aria-label="画面の切りかえ">
+      <button type="button" class="ef-apptab" role="tab" data-tab="home">はじめに</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="sim">① 飼育シミュレーション</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="quiz">② 診断クイズ</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="plan">③ 飼育計画書</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
     </nav>
   </header>
   <main>

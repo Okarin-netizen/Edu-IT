@@ -16,21 +16,15 @@ html,body{margin:0;height:100%;background:#f2f1ec;}
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#f2f1ec;-webkit-tap-highlight-color:transparent;}
 .e4 *{box-sizing:border-box}
-.e4 button{font:inherit;touch-action:manipulation}
-.e4-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222);white-space:nowrap}
+:where(.e4 button){font:inherit;touch-action:manipulation}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e4-top{flex:none}
 .e4-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e4-top .sp{flex:1}
 .e4-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e4-btn:active{transform:translateY(1px)}
 .e4-btn:disabled{opacity:.4;cursor:default}
 .e4-btn:focus-visible,.e4-cv:focus-visible,.e4-hot:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e4-top .e4-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 12px;min-height:44px;white-space:nowrap}
-.e4-top .e4-sh{display:none}
-.e4-top .e4-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e4-top .e4-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e4-top h1{color:var(--ef-text,#1f2328)}
-.e4-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e4-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e4-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e4-btn.blue{background:#e3eefc;color:#1450a8;border-color:#9cc3ff}
 .e4-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
@@ -180,9 +174,8 @@ html,body{margin:0;height:100%;background:#f2f1ec;}
 .e4-cgrid{display:block}
 .e4-pcard .nt{font-size:calc(15px * var(--ea-fs, 1));line-height:1.5}
 .e4-ic svg{width:100%;height:100%;display:block}
-@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:calc(16px * var(--ea-fs, 1))}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}.e4-top .e4-btn{padding:0 9px;font-size:calc(15px * var(--ea-fs, 1))}}
+@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:calc(16px * var(--ea-fs, 1))}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}}
 @media (max-width:900px){
-  .e4-top{gap:4px;padding:0 6px}.e4-top h1{font-size:calc(15px * var(--ea-fs, 1));margin-right:2px}.e4-top .e4-lg{display:none}.e4-top .e4-sh{display:inline}.e4-top .e4-btn{padding:0 8px}
   .e4-main{flex-direction:column}
   .e4-side{width:auto;flex:none;max-height:44%;border-left:0;border-top:2px solid var(--line)}
   .e4-mcenter{flex:none}.e4-mcenter .e4-mbox{flex:none;aspect-ratio:1000/640}
@@ -1220,11 +1213,13 @@ var VIEWS = [
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
-  var top = '<div class="e4-top"><h1 class="e4-noruby">🔧 保守点検ラボ</h1>' +
-    VIEWS.map(function (v) { return '<button class="e4-btn' + (S.view === v.id ? ' on' : '') + '" data-act="view" data-v="' + v.id + '"' + (S.view === v.id ? ' aria-current="page"' : '') + ' aria-label="' + v.label + '">' + v.ic + ' <span class="e4-lg">' + v.label + '</span><span class="e4-sh">' + v.sh + '</span></button>'; }).join('') +
-    '<div class="sp"></div>' +
-    '<button class="e4-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e4-btn" data-act="sound" aria-label="効果音 ' + (S.save.sound ? 'オン' : 'オフ') + '">' + (S.save.sound ? '🔊' : '🔇') + '</button>' + efSlot() + '</div>';
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、右に道具(.ef-apptabs-tools)
+  var top = '<div class="e4-top ef-apptabs">' + (NS.embedded ? '' : '<h1 class="e4-noruby">保守点検ラボ</h1>') +
+    VIEWS.map(function (v) { return '<button class="ef-apptab" data-act="view" data-v="' + v.id + '"' + (S.view === v.id ? ' aria-current="page"' : '') + '>' + v.label + '</button>'; }).join('') +
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s ef-toggle" data-act="sound" aria-pressed="' + (S.save.sound ? 'true' : 'false') + '" aria-label="効果音">音</button>' + efSlot() +
+    '</div></div>';
   S.root.innerHTML = top + '<div class="e4-main" data-ref="body"></div><div class="e4-printarea" data-ref="print"></div>';
   refs();
   efMount();
@@ -2162,7 +2157,7 @@ function onClick(ev) {
     case 'noop': return;
     case 'view': beep('tap'); openView(t.getAttribute('data-v')); return;   // クイズの途中はタブを移っても残す
     case 'howto': showHowto(); return;
-    case 'sound': S.save.sound = !S.save.sound; persist(); t.textContent = S.save.sound ? '🔊' : '🔇'; t.setAttribute('aria-label', '効果音 ' + (S.save.sound ? 'オン' : 'オフ')); beep('tap'); return;
+    case 'sound': S.save.sound = !S.save.sound; persist(); t.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false'); beep('tap'); return;
     case 'close': closeModal(); return;
     /* 図鑑 */
     case 'cat': S.cat = t.getAttribute('data-v'); beep('tap'); renderBook(); return;

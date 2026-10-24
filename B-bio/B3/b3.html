@@ -22,7 +22,9 @@
 #b3-app *,#b3-app *::before,#b3-app *::after{box-sizing:inherit}
 #b3-app.b3-noruby rt{display:none}
 #b3-app rt{font-size:.55em}
-#b3-app button,#b3-app input,#b3-app select,#b3-app textarea{font:inherit;color:inherit}
+:where(#b3-app button,#b3-app input,#b3-app select,#b3-app textarea){font:inherit;color:inherit}
+/* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線)。.b3-tabs は JS がタブを探すための名前。ここには置き場所だけを書く */
+#b3-app .b3-tabs{position:sticky;top:0;z-index:5}
 #b3-app button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #b3-app :focus-visible{outline:3px solid #1565c0;outline-offset:2px}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
@@ -33,13 +35,8 @@
 #b3-app .b3-tools button:disabled{opacity:.4;cursor:not-allowed}
 html.kz-embed #b3-app .b3-head{display:none}
 /* タブ(K4) */
-#b3-app .b3-tabs{display:flex;gap:4px;padding:6px 6px 0;background:var(--ef-accent);position:sticky;top:0;z-index:5}
-#b3-app .b3-tabs button{flex:1 1 0;min-width:0;min-height:52px;border:0;border-radius:0;background:transparent;color:#fff;padding:.25em .4em;font-weight:bold;white-space:normal;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
-#b3-app .b3-tabs button:hover{background:rgba(255,255,255,.12)}
-#b3-app .b3-tabs button[aria-selected="true"]{background:var(--b3-bg);color:var(--b3-main-d)}
 #b3-app.b3-big .b3-tabs .b3-tl{display:none}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
-@media (max-width:640px){#b3-app .b3-tabs{overflow-x:auto;scrollbar-width:none}#b3-app .b3-tabs::-webkit-scrollbar{display:none}#b3-app .b3-tabs button{flex:0 0 auto;white-space:nowrap;min-height:48px;padding:.25em .7em}#b3-app .b3-tabs br{display:none}}
 #b3-app .b3-tbl td:nth-child(3),#b3-app .b3-tbl td:nth-child(4){white-space:nowrap}
 #b3-app main{padding:1em;max-width:1200px;margin:0 auto}
 #b3-app h2{font-size:1.2em;margin:.2em 0 .5em;color:var(--b3-main-d)}
@@ -202,14 +199,6 @@ html.kz-embed #b3-app .b3-head{display:none}
 }
 
 /* タブの帯は4分野共通の形(C エネルギー変換と同じ: 白い帯・下に分野の色の線・丸いボタン。shared/eduit-frame.css の .ef-apptabs と同じ見た目) */
-#b3-app .b3-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:6px 10px;margin-top:0;background:var(--ef-surface);border-bottom:1px solid var(--ef-ink,#222);overflow:visible}
-#b3-app .b3-tabs button{flex:none;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--ef-line);border-radius:0;background:var(--ef-surface);color:var(--ef-text);font-weight:700;font-size:.84em;line-height:1.3;white-space:nowrap;word-break:normal;overflow-wrap:normal;cursor:pointer}
-#b3-app .b3-tabs button:hover{border-color:var(--ef-accent);background:var(--ef-surface)}
-#b3-app .b3-tabs button rt{color:inherit;opacity:.85}
-#b3-app .b3-tabs button[aria-selected="true"],#b3-app .b3-tabs button[aria-selected="true"]:hover{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-#b3-app .b3-tabs button[aria-selected="true"] rt{color:inherit}
-@media (max-width:640px){#b3-app .b3-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:6px 8px}#b3-app .b3-tabs::-webkit-scrollbar{display:none}#b3-app .b3-tabs button{min-height:44px;padding:0 10px}}
-#b3-app .b3-tabs br{display:none}
 </style>
 </head>
 <body style="margin:0">
@@ -222,12 +211,12 @@ html.kz-embed #b3-app .b3-head{display:none}
       <button type="button" class="ef-btn ef-size" id="b3-size">文字</button>
     </div>
   </header>
-  <nav class="b3-tabs" role="tablist" data-ef-autohide aria-label="ページ">
-    <button type="button" role="tab" data-act="tab" data-t="crop">① 作物<span class="b3-tl">をえらぶ</span></button>
-    <button type="button" role="tab" data-act="tab" data-t="plan">② 計画<span class="b3-tl">をつくる</span></button>
-    <button type="button" role="tab" data-act="tab" data-t="cal">③ カレンダー</button>
-    <button type="button" role="tab" data-act="tab" data-t="eval">④ 記録<span class="b3-tl">と評価</span></button>
-    <button type="button" role="tab" data-act="tab" data-t="refl" data-ef-reflect>振り返り</button>
+  <nav class="b3-tabs ef-apptabs" role="tablist" data-ef-autohide aria-label="ページ">
+    <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="crop">① 作物<span class="b3-tl">をえらぶ</span></button>
+    <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="plan">② 計画<span class="b3-tl">をつくる</span></button>
+    <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="cal">③ カレンダー</button>
+    <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="eval">④ 記録<span class="b3-tl">と評価</span></button>
+    <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="refl" data-ef-reflect>振り返り</button>
   </nav>
   <main id="b3-main" role="tabpanel"></main>
   <input type="file" id="b3-file" accept=".json,application/json" class="b3-hidden">
