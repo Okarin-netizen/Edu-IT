@@ -37,12 +37,12 @@
     var left = [iso(x0, y1, z0), iso(x1, y1, z0), iso(x1, y1, z1), iso(x0, y1, z1)];
     ctx.save();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = A2.col('ink');
-    poly(top); ctx.fillStyle = shade ? A2.col('veneer-b') : A2.col('veneer-a'); ctx.fill(); ctx.stroke();
-    poly(right); ctx.fillStyle = A2.col('veneer-side'); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = A2.col('ef-text');
+    poly(top); ctx.fillStyle = shade ? A2.col('fig-veneer-b') : A2.col('fig-veneer-a'); ctx.fill(); ctx.stroke();
+    poly(right); ctx.fillStyle = A2.col('fig-veneer-side'); ctx.fill(); ctx.stroke();
     poly(left); ctx.fillStyle = A2.col('veneer-side2'); ctx.fill(); ctx.stroke();
     // 上面の木目
-    ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 1.2;
+    ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 1.2;
     var i, n = 7, a, b;
     ctx.beginPath();
     for (i = 1; i < n; i++) {
@@ -53,7 +53,7 @@
     ctx.stroke();
     // 側面:木口なら点、板目なら線
     if (h * ISO.k > 4) {
-      ctx.fillStyle = ctx.strokeStyle = A2.col('latewood');
+      ctx.fillStyle = ctx.strokeStyle = A2.col('fig-latewood');
       var endRight = grain === 'x', endLeft = grain === 'y';
       [[endRight, function (u, v) { return iso(x1, y0 + d * u, z0 + h * v); }], [endLeft, function (u, v) { return iso(x0 + w * u, y1, z0 + h * v); }]].forEach(function (f) {
         if (f[0]) { for (var j = 1; j < 10; j++) { var p = f[1](j / 10, 0.5); ctx.beginPath(); ctx.arc(p[0], p[1], 0.9, 0, 7); ctx.fill(); } }
@@ -61,19 +61,19 @@
       });
     }
     if (glue) {
-      ctx.strokeStyle = A2.col('glue'); ctx.lineWidth = 2.5; ctx.setLineDash([4, 3]);
+      ctx.strokeStyle = A2.col('fig-glue'); ctx.lineWidth = 2.5; ctx.setLineDash([4, 3]);
       poly(top); ctx.stroke(); ctx.setLineDash([]);
     }
     ctx.restore();
   }
   function arrowDown(x, y1, y2) {
-    ctx.save(); ctx.strokeStyle = ctx.fillStyle = A2.col('ink'); ctx.lineWidth = 3;
+    ctx.save(); ctx.strokeStyle = ctx.fillStyle = A2.col('ef-text'); ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y2 - 10); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x, y2); ctx.lineTo(x - 7, y2 - 12); ctx.lineTo(x + 7, y2 - 12); ctx.fill();
     ctx.restore();
   }
   function heatWaves(x0, x1, y, t) {
-    ctx.save(); ctx.strokeStyle = A2.col('ng'); ctx.lineWidth = 2;
+    ctx.save(); ctx.strokeStyle = A2.col('ef-ng'); ctx.lineWidth = 2;
     for (var x = x0; x <= x1; x += 40) {
       ctx.beginPath();
       for (var k = 0; k <= 20; k++) { var yy = y - k * 1.5, xx = x + Math.sin(k * 0.6 + t * 12) * 4; if (k) ctx.lineTo(xx, yy); else ctx.moveTo(xx, yy); }
@@ -89,25 +89,25 @@
       // ロータリーレース(横から見た図)
       var cx = 190, cy = 210, r = 120 - 50 * t, rot = t * PI * 6;
       ctx.save();
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fillStyle = A2.col('sapwood'); ctx.fill();
-      ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fillStyle = A2.col('fig-sapwood'); ctx.fill();
+      ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 1;
       A2.wood.rings.forEach(function (rr) { if (rr * 120 < r) { ctx.beginPath(); ctx.arc(cx, cy, rr * 120, 0, 7); ctx.stroke(); } });
-      ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+      ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(rot) * r, cy + Math.sin(rot) * r); ctx.stroke();
-      ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 7); ctx.fillStyle = A2.col('ink'); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 7); ctx.fillStyle = A2.col('ef-text'); ctx.fill();
       // 回転の向き
       ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, r + 16, -PI * 0.9, -PI * 0.55); ctx.stroke();
       var ea = -PI * 0.55, ex = cx + Math.cos(ea) * (r + 16), ey = cy + Math.sin(ea) * (r + 16);
       ctx.beginPath(); ctx.moveTo(ex + 8, ey + 2); ctx.lineTo(ex - 6, ey - 6); ctx.lineTo(ex - 4, ey + 8); ctx.fill();
       // 刃物
       var kx = cx + r, ky = cy - 4;
-      ctx.fillStyle = A2.col('metal'); ctx.beginPath(); ctx.moveTo(kx + 2, ky); ctx.lineTo(kx + 60, ky - 40); ctx.lineTo(kx + 70, ky - 26); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = A2.col('fig-metal'); ctx.beginPath(); ctx.moveTo(kx + 2, ky); ctx.lineTo(kx + 60, ky - 40); ctx.lineTo(kx + 70, ky - 26); ctx.closePath(); ctx.fill(); ctx.stroke();
       // 単板
       var len = 50 + 300 * t;
-      ctx.fillStyle = A2.col('veneer-a'); ctx.fillRect(kx, cy - 2, Math.min(len, 600 - kx - 10), 6); ctx.strokeRect(kx, cy - 2, Math.min(len, 600 - kx - 10), 6);
+      ctx.fillStyle = A2.col('fig-veneer-a'); ctx.fillRect(kx, cy - 2, Math.min(len, 600 - kx - 10), 6); ctx.strokeRect(kx, cy - 2, Math.min(len, 600 - kx - 10), 6);
       ctx.restore();
-      A2.text(ctx, '{刃物|はもの}', kx + 50, ky - 46, { size: 14, bold: true, bg: A2.col('label-bg') });
-      A2.text(ctx, '{単板|たんばん}', Math.min(kx + 60, 520), cy + 30, { size: 14, bold: true, bg: A2.col('label-bg') });
+      A2.text(ctx, '{刃物|はもの}', kx + 50, ky - 46, { size: 14, bold: true, bg: A2.col('fig-label-bg') });
+      A2.text(ctx, '{単板|たんばん}', Math.min(kx + 60, 520), cy + 30, { size: 14, bold: true, bg: A2.col('fig-label-bg') });
       return;
     }
     if (step === 1) {
@@ -116,10 +116,10 @@
       // 切りそろえの線
       var cxp = A2.lerp(-LW / 2 + 8, LW / 2 - 8, t);
       var a = iso(cxp, -LD / 2 - 20, 80), b = iso(cxp, LD / 2 + 20, 0);
-      ctx.save(); ctx.setLineDash([6, 4]); ctx.strokeStyle = A2.col('ng'); ctx.lineWidth = 2.5;
+      ctx.save(); ctx.setLineDash([6, 4]); ctx.strokeStyle = A2.col('ef-ng'); ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.restore();
       heatWaves(130, 470, 380, t);
-      A2.text(ctx, '{乾燥|かんそう}', 480, 392, { size: 14, bold: true, color: A2.col('ng'), bg: A2.col('label-bg') });
+      A2.text(ctx, '{乾燥|かんそう}', 480, 392, { size: 14, bold: true, color: A2.col('ef-ng'), bg: A2.col('fig-label-bg') });
       return;
     }
     ISO.ox = 300; ISO.oy = 235; ISO.k = 1.35;
@@ -144,18 +144,18 @@
         var p = iso(0, 0, topZ + 10); arrowDown(p[0], p[1] - 80, p[1] - 6);
         ctx.restore();
         heatWaves(170, 430, 390, t);
-        A2.text(ctx, '{熱|ねつ}と{圧力|あつりょく}', 380, 60, { size: 15, bold: true, bg: A2.col('label-bg') });
+        A2.text(ctx, '{熱|ねつ}と{圧力|あつりょく}', 380, 60, { size: 15, bold: true, bg: A2.col('fig-label-bg') });
       } else {
         legendGrain(true);
         var q = iso(LW / 2, LD / 2, 0);
-        A2.text(ctx, '{合板|ごうはん}(5{枚|まい}の{単板|たんばん})', q[0] - 60, q[1] + 40, { size: 16, bold: true, bg: A2.col('label-bg') });
+        A2.text(ctx, '{合板|ごうはん}(5{枚|まい}の{単板|たんばん})', q[0] - 60, q[1] + 40, { size: 16, bold: true, bg: A2.col('fig-label-bg') });
       }
     }
   }
   function legendGrain(cross) {
     var x = 20, y = 30;
-    A2.text(ctx, '{上面|じょうめん}の{線|せん}={繊維|せんい}{方向|ほうこう}', x, y, { size: 13, bg: A2.col('label-bg') });
-    A2.text(ctx, cross ? '1{枚|まい}ごとに{直角|ちょっかく}' : 'すべて{同|おな}じ{向|む}き', x, y + 24, { size: 13, bold: true, bg: A2.col('label-bg') });
+    A2.text(ctx, '{上面|じょうめん}の{線|せん}={繊維|せんい}{方向|ほうこう}', x, y, { size: 13, bg: A2.col('fig-label-bg') });
+    A2.text(ctx, cross ? '1{枚|まい}ごとに{直角|ちょっかく}' : 'すべて{同|おな}じ{向|む}き', x, y + 24, { size: 13, bold: true, bg: A2.col('fig-label-bg') });
   }
 
   /* ---------- 集成材 ---------- */
@@ -164,18 +164,18 @@
       // 丸太を横から見て、のこぎりでひく
       var x0 = 60, x1 = 540, y0 = 120, y1 = 300;
       ctx.save();
-      ctx.fillStyle = A2.col('sapwood'); ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
-      ctx.fillStyle = A2.col('bark'); ctx.fillRect(x0, y0 - 10, x1 - x0, 10); ctx.fillRect(x0, y1, x1 - x0, 10);
-      ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 1;
+      ctx.fillStyle = A2.col('fig-sapwood'); ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.fillStyle = A2.col('fig-bark'); ctx.fillRect(x0, y0 - 10, x1 - x0, 10); ctx.fillRect(x0, y1, x1 - x0, 10);
+      ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 1;
       for (var g = 1; g < 12; g++) { var yy = y0 + g * 15; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.bezierCurveTo(200, yy - 4, 400, yy + 4, x1, yy); ctx.stroke(); }
       var cut = x0 + (x1 - x0) * t;
-      ctx.strokeStyle = A2.col('ng'); ctx.lineWidth = 2.5;
+      ctx.strokeStyle = A2.col('ef-ng'); ctx.lineWidth = 2.5;
       for (var k = 1; k < 5; k++) { var ly = y0 + k * 36; ctx.beginPath(); ctx.moveTo(x0, ly); ctx.lineTo(cut, ly); ctx.stroke(); }
       // のこ
-      ctx.fillStyle = A2.col('metal'); ctx.beginPath(); ctx.arc(cut, y0 + 90, 26, 0, 7); ctx.fill(); ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = A2.col('fig-metal'); ctx.beginPath(); ctx.arc(cut, y0 + 90, 26, 0, 7); ctx.fill(); ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 1.5; ctx.stroke();
       for (var a = 0; a < 12; a++) { var an = a / 12 * 2 * PI + t * 20; ctx.beginPath(); ctx.moveTo(cut + Math.cos(an) * 26, y0 + 90 + Math.sin(an) * 26); ctx.lineTo(cut + Math.cos(an + 0.2) * 32, y0 + 90 + Math.sin(an + 0.2) * 32); ctx.stroke(); }
       ctx.restore();
-      A2.text(ctx, 'ひき{板|いた}(ラミナ)', x1 - 140, y1 + 40, { size: 14, bold: true, bg: A2.col('label-bg') });
+      A2.text(ctx, 'ひき{板|いた}(ラミナ)', x1 - 140, y1 + 40, { size: 14, bold: true, bg: A2.col('fig-label-bg') });
       return;
     }
     if (step === 1) {
@@ -185,22 +185,22 @@
       var fade = A2.clamp(1 - t / 0.4, 0, 1);
       ctx.save();
       function plank(x, w) {
-        ctx.fillStyle = A2.col('sapwood'); ctx.fillRect(x, by, w, bh);
-        ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 1;
+        ctx.fillStyle = A2.col('fig-sapwood'); ctx.fillRect(x, by, w, bh);
+        ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 1;
         for (var i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(x, by + i * 10); ctx.lineTo(x + w, by + i * 10); ctx.stroke(); }
-        ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 1.5; ctx.strokeRect(x, by, w, bh);
+        ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 1.5; ctx.strokeRect(x, by, w, bh);
       }
       plank(bx, cutA - bx);
       plank(cutB - close, bx + bw - cutB);
       if (fade > 0) {
         ctx.globalAlpha = fade; plank(cutA, cutB - cutA);
-        ctx.fillStyle = A2.col('knot'); ctx.beginPath(); ctx.ellipse((cutA + cutB) / 2, by + 20, 14, 10, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = A2.col('fig-knot'); ctx.beginPath(); ctx.ellipse((cutA + cutB) / 2, by + 20, 14, 10, 0, 0, 7); ctx.fill();
         ctx.globalAlpha = 1;
       }
-      ctx.strokeStyle = A2.col('ng'); ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
+      ctx.strokeStyle = A2.col('ef-ng'); ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
       if (t < 0.5) { [cutA, cutB].forEach(function (x) { ctx.beginPath(); ctx.moveTo(x, by - 20); ctx.lineTo(x, by + bh + 20); ctx.stroke(); }); }
       ctx.restore();
-      if (t < 0.5) A2.text(ctx, '{節|ふし}', (cutA + cutB) / 2, by - 28, { size: 14, bold: true, align: 'center', bg: A2.col('label-bg') });
+      if (t < 0.5) A2.text(ctx, '{節|ふし}', (cutA + cutB) / 2, by - 28, { size: 14, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
       heatWaves(120, 480, 380, t);
       return;
     }
@@ -223,14 +223,14 @@
           ctx.lineTo(far, y + h);
         }
         ctx.closePath();
-        ctx.fillStyle = A2.col(dir < 0 ? 'veneer-a' : 'veneer-b'); ctx.fill();
-        ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.strokeStyle = A2.col('latewood'); ctx.lineWidth = 1;
+        ctx.fillStyle = A2.col(dir < 0 ? 'fig-veneer-a' : 'fig-veneer-b'); ctx.fill();
+        ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = A2.col('fig-latewood'); ctx.lineWidth = 1;
         for (i = 1; i < 4; i++) { var gy = y + i * h / 4; ctx.beginPath(); ctx.moveTo(dir < 0 ? far : edge + TW + 4, gy); ctx.lineTo(dir < 0 ? edge - 4 : far, gy); ctx.stroke(); }
       }
       side(-1); side(1);
       ctx.restore();
-      A2.text(ctx, 'フィンガージョイント', mid, y - 24, { size: 15, bold: true, align: 'center', bg: A2.col('label-bg') });
+      A2.text(ctx, 'フィンガージョイント', mid, y - 24, { size: 15, bold: true, align: 'center', bg: A2.col('fig-label-bg') });
       return;
     }
     ISO.ox = 300; ISO.oy = 250; ISO.k = 1.25;
@@ -247,7 +247,7 @@
     for (var m = 0; m < N; m++) slab(-LW / 2, -LD / 2, m * H, LW, LD, H, 'x', m % 2, false);
     legendGrain(false);
     var q = iso(LW / 2, LD / 2, 0);
-    A2.text(ctx, '{集成材|しゅうせいざい}', q[0] - 40, q[1] + 40, { size: 16, bold: true, bg: A2.col('label-bg') });
+    A2.text(ctx, '{集成材|しゅうせいざい}', q[0] - 40, q[1] + 40, { size: 16, bold: true, bg: A2.col('fig-label-bg') });
   }
 
   function draw() {
@@ -255,13 +255,13 @@
     ctx.clearRect(0, 0, ctx.W, ctx.H);
     if (st.kind === 'ply') plyStep(st.step, st.t); else gluStep(st.step, st.t);
     var s = STEPS[st.kind][st.step];
-    A2.text(ctx, (st.step + 1) + '. ' + s.title, ctx.W - 12, ctx.H - 12, { size: 15, bold: true, align: 'right', bg: A2.col('label-bg') });
+    A2.text(ctx, (st.step + 1) + '. ' + s.title, ctx.W - 12, ctx.H - 12, { size: 15, bold: true, align: 'right', bg: A2.col('fig-label-bg') });
   }
 
   function renderSteps() {
     var ol = document.getElementById('makeSteps');
     ol.innerHTML = STEPS[st.kind].map(function (s, i) {
-      return '<li' + (i === st.step ? ' class="on" aria-current="step"' : '') + '><button type="button" class="btn step-btn" data-step="' + i + '"><span class="step-title">' + A2.rb(s.title) + '</span><span class="step-go" aria-hidden="true">▶</span></button><div class="small">' + A2.rb(s.text) + '</div></li>';
+      return '<li' + (i === st.step ? ' class="on" aria-current="step"' : '') + '><button type="button" class="ef-btn step-btn" data-step="' + i + '"><span class="step-title">' + A2.rb(s.title) + '</span><span class="step-go" aria-hidden="true">▶</span></button><div class="small">' + A2.rb(s.text) + '</div></li>';
     }).join('');
     var s = STEPS[st.kind][st.step];
     A2.setR('makeStep', (st.step + 1) + '. ' + s.title + ':' + s.text);
@@ -296,12 +296,12 @@
     var L = 250, B = 170, ox = 30, oy = 50;
     var Lw = L * (1 - m.ey * s * EXG), Bw = B * (1 - m.ex * s * EXG);
     c.save();
-    c.setLineDash([6, 5]); c.strokeStyle = A2.col('ghost'); c.lineWidth = 1.5; c.strokeRect(ox, oy, L, B); c.setLineDash([]);
+    c.setLineDash([6, 5]); c.strokeStyle = A2.col('fig-ghost'); c.lineWidth = 1.5; c.strokeRect(ox, oy, L, B); c.setLineDash([]);
     var x0 = ox + (L - Lw) / 2, y0 = oy + (B - Bw) / 2;
-    c.fillStyle = A2.col('veneer-a'); c.fillRect(x0, y0, Lw, Bw);
-    c.strokeStyle = A2.col('latewood'); c.lineWidth = 1.2;
+    c.fillStyle = A2.col('fig-veneer-a'); c.fillRect(x0, y0, Lw, Bw);
+    c.strokeStyle = A2.col('fig-latewood'); c.lineWidth = 1.2;
     for (var i = 1; i < 10; i++) { var yy = y0 + Bw * i / 10; c.beginPath(); c.moveTo(x0 + 3, yy); c.bezierCurveTo(x0 + Lw * 0.3, yy - 3, x0 + Lw * 0.6, yy + 3, x0 + Lw - 3, yy); c.stroke(); }
-    c.strokeStyle = A2.col('ink'); c.lineWidth = 2; c.strokeRect(x0, y0, Lw, Bw);
+    c.strokeStyle = A2.col('ef-text'); c.lineWidth = 2; c.strokeRect(x0, y0, Lw, Bw);
     c.restore();
     A2.text(c, '{上|うえ}から{見|み}た{図|ず}', ox, 26, { size: 13, bold: true });
     A2.text(c, '←{繊維|せんい}{方向|ほうこう}→', ox + L / 2, oy + B + 30, { size: 12, align: 'center' });
@@ -320,14 +320,14 @@
       c.lineTo(bx + bw, top + th - cup);
       c.quadraticCurveTo(bx + bw / 2, top + th + cup, bx, top + th - cup);
       c.closePath();
-      c.fillStyle = A2.col(k % 2 ? 'veneer-b' : 'veneer-a'); c.fill();
-      c.strokeStyle = A2.col('ink'); c.lineWidth = 1.2; c.stroke();
+      c.fillStyle = A2.col(k % 2 ? 'fig-veneer-b' : 'fig-veneer-a'); c.fill();
+      c.strokeStyle = A2.col('ef-text'); c.lineWidth = 1.2; c.stroke();
       // この層の繊維の向き(木口に見えるのは点=繊維が手前向き、線=横向き)
-      c.fillStyle = c.strokeStyle = A2.col('latewood');
+      c.fillStyle = c.strokeStyle = A2.col('fig-latewood');
       if (m.layers[k] === 'x') { for (var d = 1; d < 14; d++) { var xx = bx + bw * d / 14; c.beginPath(); c.arc(xx, top + th / 2 + cup * (1 - Math.pow((xx - bx - bw / 2) / (bw / 2), 2)) * 1 - cup * 0, 1.1, 0, 7); c.fill(); } }
       else { c.lineWidth = 1; c.beginPath(); c.moveTo(bx + 4, top + th / 2); c.quadraticCurveTo(bx + bw / 2, top + th / 2 + 2 * cup, bx + bw - 4, top + th / 2); c.stroke(); }
     }
-    c.save(); c.setLineDash([6, 5]); c.strokeStyle = A2.col('ghost'); c.lineWidth = 1.5;
+    c.save(); c.setLineDash([6, 5]); c.strokeStyle = A2.col('fig-ghost'); c.lineWidth = 1.5;
     c.strokeRect(ex0, ey0, EW, n * th); c.restore();
     A2.text(c, '{点|てん}:{繊維|せんい}が{手前|てまえ}{向|む}き  {線|せん}:{横|よこ}{向|む}き', ex0, ey0 + n * th + 50, { size: 12 });
 

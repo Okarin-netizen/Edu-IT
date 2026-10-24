@@ -56,7 +56,7 @@
         grid.appendChild(h('li', null, h('button', { type: 'button', class: 'a6-toolcard', onclick: function () { open(t.id); } },
           svgNode(F.draw(t.icon, '', '0 0 320 180')),
           h('span', { class: 'a6-toolname' }, t.name),
-          h('span', { class: 'badge' }, t.kind),
+          h('span', { class: 'ef-tag' }, t.kind),
           h('span', { class: 'a6-toolsum' }, t.summary))));
       });
       root.appendChild(grid);
@@ -82,8 +82,8 @@
       if (step === t.steps.length - 1) markRead(t);
       clear(root);
       root.appendChild(h('div', { class: 'g-row' },
-        h('button', { type: 'button', class: 'btn', onclick: list }, '◀ 工具の一覧'),
-        h('h2', { tabindex: '-1', class: 'a6-h' }, t.name, h('span', { class: 'badge' }, t.kind))));
+        h('button', { type: 'button', class: 'ef-btn', onclick: list }, '◀ 工具の一覧'),
+        h('h2', { tabindex: '-1', class: 'a6-h' }, t.name, h('span', { class: 'ef-tag' }, t.kind))));
       // 手順の目次
       var nav = h('ol', { class: 'a6-stepnav', 'aria-label': '手順の一覧' });
       t.steps.forEach(function (x, i) {
@@ -94,7 +94,7 @@
       });
       root.appendChild(nav);
       // 手順カード
-      var card = h('article', { class: 'card a6-stepcard', 'aria-live': 'polite' },
+      var card = h('article', { class: 'ef-box a6-stepcard', 'aria-live': 'polite' },
         h('div', { class: 'a6-stepfig' }, svgNode(F.draw(st.fig, t.name + ' 手順' + (step + 1) + ' ' + st.title))),
         h('div', { class: 'a6-steptext' },
           h('p', { class: 'a6-stepcount' }, '手順 ' + (step + 1) + ' / ' + t.steps.length),
@@ -103,10 +103,10 @@
           h('p', { class: 'a6-caution' }, h('strong', null, '⚠ 注意 '), st.caution)));
       root.appendChild(card);
       root.appendChild(h('div', { class: 'g-row a6-stepbtns' },
-        h('button', { type: 'button', class: 'btn', disabled: step === 0, onclick: function () { step--; render(); } }, '◀ 前の手順'),
+        h('button', { type: 'button', class: 'ef-btn', disabled: step === 0, onclick: function () { step--; render(); } }, '◀ 前の手順'),
         step < t.steps.length - 1
-          ? h('button', { type: 'button', class: 'btn primary', onclick: function () { step++; render(); } }, '次の手順 ▶')
-          : h('button', { type: 'button', class: 'btn primary', onclick: function () { quiz.start(t.id); tabs.show('quiz'); } }, 'ならべかえで確かめる ▶')));
+          ? h('button', { type: 'button', class: 'ef-btn-primary', onclick: function () { step++; render(); } }, '次の手順 ▶')
+          : h('button', { type: 'button', class: 'ef-btn-primary', onclick: function () { quiz.start(t.id); tabs.show('quiz'); } }, 'ならべかえで確かめる ▶')));
     }
 
     root.addEventListener('keydown', function (e) {
@@ -141,7 +141,7 @@
       clear(root);
       var n = D.checklist.filter(function (it) { return checked[it.id]; }).length;
       var all = L.checklistDone(D.checklist, checked);
-      var box = h('div', { class: 'card' });
+      var box = h('div', { class: 'ef-box' });
       box.appendChild(h('h2', null, '作業開始チェックリスト'));
       box.appendChild(h('p', null, '作業を始める前に、1つずつ自分の目で確かめてからチェックしよう。すべて確かめるまで「完了」は押せません。'));
       box.appendChild(h('p', { class: 'g-muted' }, '工作室で作業する日に使います。教室の外で自習するときは、チェックは付けません。各項目の説明を読んで、「なぜ必要か」を確かめておこう。'));
@@ -162,14 +162,14 @@
             h('span', { class: 'g-muted a6-hint' }, it.hint))));
       });
       if (doneAt) {
-        root.appendChild(h('div', { class: 'card a6-done', role: 'status' },
+        root.appendChild(h('div', { class: 'ef-box a6-done', role: 'status' },
           h('p', null, h('strong', null, '✔ 完了 '), when(doneAt) + ' にすべて確かめました。先生の合図で作業を始めよう。'),
-          h('button', { type: 'button', class: 'btn', onclick: function () { checked = {}; doneAt = null; persist(); render(); } }, 'もう一度チェックする')));
+          h('button', { type: 'button', class: 'ef-btn', onclick: function () { checked = {}; doneAt = null; persist(); render(); } }, 'もう一度チェックする')));
       } else {
         box.appendChild(h('div', { class: 'g-row a6-checkbtns' },
-          h('button', { type: 'button', class: 'btn primary', disabled: !all, 'aria-describedby': 'chk-left', onclick: complete }, '完了'),
+          h('button', { type: 'button', class: 'ef-btn-primary', disabled: !all, 'aria-describedby': 'chk-left', onclick: complete }, '完了'),
           h('span', { id: 'chk-left', class: 'g-muted' }, all ? 'すべて確かめました。' : 'あと ' + (D.checklist.length - n) + ' こ'),
-          n ? h('button', { type: 'button', class: 'btn ghost', onclick: function () { checked = {}; persist(); render(); } }, 'チェックを外す') : null));
+          n ? h('button', { type: 'button', class: 'ef-btn', onclick: function () { checked = {}; persist(); render(); } }, 'チェックを外す') : null));
       }
       root.insertBefore(box, root.firstChild);
     }
@@ -200,7 +200,7 @@
     function list() {
       cur = null;
       clear(root);
-      var card = h('div', { class: 'card' },
+      var card = h('div', { class: 'ef-box' },
         h('h2', null, '危険を見つけよう(危険予知トレーニング)'),
         h('p', null, '作業の場面の絵から、けがや事故につながりそうなところを見つけて、タップしよう。'));
       root.appendChild(card);
@@ -270,7 +270,7 @@
       var ol = h('ol', { class: 'a6-taplist' });
       taps.forEach(function (t, i) {
         ol.appendChild(h('li', null, '印 ' + (i + 1) + ' ',
-          result ? null : h('button', { type: 'button', class: 'btn small', 'aria-label': '印 ' + (i + 1) + ' を消す', onclick: function () { taps.splice(i, 1); drawMarks(); renderTapList(); } }, '消す')));
+          result ? null : h('button', { type: 'button', class: 'ef-btn is-s', 'aria-label': '印 ' + (i + 1) + ' を消す', onclick: function () { taps.splice(i, 1); drawMarks(); renderTapList(); } }, '消す')));
       });
       box.appendChild(ol);
     }
@@ -278,9 +278,9 @@
     function render() {
       clear(root);
       root.appendChild(h('div', { class: 'g-row a6-back' },
-        h('button', { type: 'button', class: 'btn', onclick: list }, '◀ 場面の一覧')));
+        h('button', { type: 'button', class: 'ef-btn', onclick: list }, '◀ 場面の一覧')));
       var wrap = h('div', { class: 'a6-kyt' });
-      var figBox = h('div', { class: 'card a6-scenebox' }, h('h2', null, cur.title), h('p', null, cur.intro));
+      var figBox = h('div', { class: 'ef-box a6-scenebox' }, h('h2', null, cur.title), h('p', null, cur.intro));
       svg = svgNode(F.scene(cur.scene, cur.title + 'の場面。危険だと思うところに印をつける'));
       svg.setAttribute('tabindex', '0');
       svg.setAttribute('aria-describedby', 'kyt-help');
@@ -305,13 +305,13 @@
         'タップすると印がつき、もう一度タップすると消えます。キーボードでは矢印キーで十字を動かし、Enter で印をつけます。'));
       wrap.appendChild(figBox);
 
-      var side = h('div', { class: 'card a6-kytside' });
+      var side = h('div', { class: 'ef-box a6-kytside' });
       side.appendChild(h('h3', null, '自分がつけた印'));
       side.appendChild(h('div', { id: 'kyt-taps', 'aria-live': 'polite' }));
       if (!result) {
         side.appendChild(h('div', { class: 'g-row' },
-          h('button', { type: 'button', class: 'btn primary', onclick: judge }, '答え合わせ'),
-          h('button', { type: 'button', class: 'btn ghost', onclick: function () { taps = []; drawMarks(); renderTapList(); } }, '印を全部消す')));
+          h('button', { type: 'button', class: 'ef-btn-primary', onclick: judge }, '答え合わせ'),
+          h('button', { type: 'button', class: 'ef-btn', onclick: function () { taps = []; drawMarks(); renderTapList(); } }, '印を全部消す')));
       } else {
         side.appendChild(resultView());
       }
@@ -342,13 +342,13 @@
         var ok = result.found.indexOf(hz.id) >= 0;
         ul.appendChild(h('li', { class: ok ? 'found' : 'missed' },
           h('span', { class: 'a6-haztag' }, String.fromCharCode(65 + i)),
-          h('span', { class: 'badge ' + (ok ? 'ok' : 'ng') }, ok ? '✔ 見つけた' : '✖ 見のがし'),
+          h('span', { class: 'ef-tag ' + (ok ? 'ok' : 'ng') }, ok ? '✔ 見つけた' : '✖ 見のがし'),
           ' ', h('strong', null, hz.label),
           h('span', { class: 'a6-explain' }, hz.explain)));
       });
       box.appendChild(ul);
       box.appendChild(h('p', { class: 'g-muted' }, '絵の中の実線の丸は見つけた危険、点線の丸は見のがした危険です。'));
-      box.appendChild(h('button', { type: 'button', class: 'btn', onclick: function () { open(cur.id); } }, 'もう一度やる'));
+      box.appendChild(h('button', { type: 'button', class: 'ef-btn', onclick: function () { open(cur.id); } }, 'もう一度やる'));
       return box;
     }
 
@@ -372,7 +372,7 @@
 
     function render() {
       clear(root);
-      var card = h('div', { class: 'card' }, h('h2', null, '手順ならべかえクイズ'));
+      var card = h('div', { class: 'ef-box' }, h('h2', null, '手順ならべかえクイズ'));
       root.appendChild(card);
       var sel = h('select', { id: 'quiz-tool', onchange: function () { start(sel.value); } },
         D.tools.map(function (t) { return h('option', { value: t.id, selected: t.id === cur.id ? true : null }, t.name); }));
@@ -385,20 +385,20 @@
           h('span', { class: 'a6-orderno' }, String(i + 1)),
           h('span', { class: 'a6-ordertext' }, cur.quiz[v]),
           result
-            ? h('span', { class: 'badge ' + (pos ? 'ok' : 'ng') }, pos ? '○ 正しい' : '× 正しくは ' + (v + 1) + ' 番目')
+            ? h('span', { class: 'ef-tag ' + (pos ? 'ok' : 'ng') }, pos ? '○ 正しい' : '× 正しくは ' + (v + 1) + ' 番目')
             : h('span', { class: 'a6-orderbtns' },
-              h('button', { type: 'button', class: 'btn small', 'data-i': i, 'data-d': -1, disabled: i === 0, 'aria-label': (i + 1) + '番目を上へ', onclick: mv }, '↑'),
-              h('button', { type: 'button', class: 'btn small', 'data-i': i, 'data-d': 1, disabled: i === order.length - 1, 'aria-label': (i + 1) + '番目を下へ', onclick: mv }, '↓'))));
+              h('button', { type: 'button', class: 'ef-btn is-s', 'data-i': i, 'data-d': -1, disabled: i === 0, 'aria-label': (i + 1) + '番目を上へ', onclick: mv }, '↑'),
+              h('button', { type: 'button', class: 'ef-btn is-s', 'data-i': i, 'data-d': 1, disabled: i === order.length - 1, 'aria-label': (i + 1) + '番目を下へ', onclick: mv }, '↓'))));
       });
       card.appendChild(ol);
       if (!result) {
-        card.appendChild(h('button', { type: 'button', class: 'btn primary', onclick: judge }, '答え合わせ'));
+        card.appendChild(h('button', { type: 'button', class: 'ef-btn-primary', onclick: judge }, '答え合わせ'));
       } else {
         card.appendChild(h('p', { class: 'a6-score', role: 'status' },
           result.allCorrect ? h('strong', { class: 'g-ok' }, '◎ 全部正しい順番です。') : h('strong', null, result.correctCount + ' / ' + order.length + ' こ 正しい位置')));
         card.appendChild(h('div', { class: 'g-row' },
-          h('button', { type: 'button', class: 'btn primary', onclick: function () { start(cur.id); } }, 'もう一度'),
-          h('button', { type: 'button', class: 'btn', onclick: function () { tools.open(cur.id); tabs.show('tools'); } }, '手順カードで確かめる')));
+          h('button', { type: 'button', class: 'ef-btn-primary', onclick: function () { start(cur.id); } }, 'もう一度'),
+          h('button', { type: 'button', class: 'ef-btn', onclick: function () { tools.open(cur.id); tabs.show('tools'); } }, '手順カードで確かめる')));
       }
     }
 
@@ -437,7 +437,7 @@
 
     function render() {
       clear(root);
-      var card = h('div', { class: 'card' },
+      var card = h('div', { class: 'ef-box' },
         h('h2', null, '実技の評価(自己評価・相互評価)'),
         h('p', null, '実際に工具を使ったあとに、姿勢・安全・精度の3つの観点でふり返ろう。'),
         h('p', { class: 'g-muted' }, 'まだ実技をしていないときは、保存しません。観点ごとの A・B・C の説明を読もう。実技で何に気をつけるかを確かめておこう。'));
@@ -470,7 +470,7 @@
         h('textarea', { id: 'r-comment', maxlength: 400, oninput: function (e) { form.comment = e.target.value; } }, form.comment)));
       var ok = L.rubricComplete(D.rubric.criteria, form.scores);
       card.appendChild(h('div', { class: 'g-row' },
-        h('button', { type: 'button', class: 'btn primary', disabled: !ok, onclick: submit }, '保存する'),
+        h('button', { type: 'button', class: 'ef-btn-primary', disabled: !ok, onclick: submit }, '保存する'),
         h('span', { class: 'g-muted' }, ok ? '' : '3つの観点すべてを選ぶと保存できます。')));
       root.appendChild(card);
     }
@@ -515,15 +515,15 @@
     function refresh() {
       return G.store.list(APP).then(function (list) {
         list = list.filter(function (a) { return KIND[a.kind]; });
-        var card = h('div', { class: 'card' },
+        var card = h('div', { class: 'ef-box' },
           h('h2', null, '記録'),
           h('p', null, '記録はこの端末の中だけに保存されます。先生に提出するときや別の端末に移すときは「ファイルに書き出す」を使います。'));
         clear(root).appendChild(card);
         card.appendChild(h('div', { class: 'g-row' },
-          h('button', { type: 'button', class: 'btn', disabled: !list.length, onclick: function () {
+          h('button', { type: 'button', class: 'ef-btn', disabled: !list.length, onclick: function () {
             G.exportJSON({ schema: 'gijutsu-bundle/1', app: APP, exportedAt: new Date().toISOString(), artifacts: list }, 'tool-safety-' + today() + '.json');
           } }, 'ファイルに書き出す'),
-          h('button', { type: 'button', class: 'btn', onclick: importJSON }, 'ファイルから読み込む')));
+          h('button', { type: 'button', class: 'ef-btn', onclick: importJSON }, 'ファイルから読み込む')));
         if (!list.length) { card.appendChild(h('p', { class: 'g-muted' }, 'まだ記録はありません。')); return; }
         var wrap = h('div', { class: 'g-table-wrap' });
         var tb = h('tbody');
@@ -533,7 +533,7 @@
             h('td', null, KIND[a.kind]),
             h('td', null, a.title, a.kind === 'rubric' && a.data.comment ? h('div', { class: 'g-muted' }, a.data.comment) : null),
             h('td', null, summary(a)),
-            h('td', null, h('button', { type: 'button', class: 'btn small danger', 'aria-label': a.title + ' を削除', onclick: function () {
+            h('td', null, h('button', { type: 'button', class: 'ef-btn is-s is-danger', 'aria-label': a.title + ' を削除', onclick: function () {
               G.confirm('「' + a.title + '」を削除します。もとに戻せません。', '削除する').then(function (ok) { if (ok) G.store.del(a.id).then(refresh); });
             } }, '削除'))));
         });

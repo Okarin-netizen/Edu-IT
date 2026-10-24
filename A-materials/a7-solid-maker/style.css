@@ -1,4 +1,10 @@
 /* 第三角法 立体メーカー(A7) */
+:root {
+  /* 図の色(三面図のマス・立体の面) */
+  --fig-a7-top: #b9874f;   /* 平面図でぬったマス */
+  --fig-a7-side: #d6a670;  /* 右側面図でぬったマス */
+  --fig-a7-grid: #c9c3b6;  /* 方眼 */
+}
 .grow { flex: 1 1 14rem; }
 .align-end { align-items: flex-end; }
 .space-between { justify-content: space-between; }
@@ -16,53 +22,49 @@ input.narrow { width: 4.5em; }
 @media (max-width: 700px) { .a7-draw { grid-template-columns: minmax(0, 1fr); } }
 .a7-tools { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: .45rem 0 .3rem; }
 .a7-tool {
-  font: inherit; font-size: .92rem; cursor: pointer; min-height: var(--tap); min-width: var(--tap); padding: .2rem .55rem;
-  display: inline-flex; align-items: center; gap: .3rem; border: 1.5px solid var(--line); border-radius: 0;
-  background: var(--panel); color: var(--wood-dark); touch-action: manipulation;
+  font: inherit; font-size: .92rem; cursor: pointer; min-height: var(--ef-tap); min-width: var(--ef-tap); padding: .2rem .55rem;
+  display: inline-flex; align-items: center; gap: .3rem; border: var(--ef-bw) solid var(--ef-ink);
+  background: var(--ef-surface); color: var(--fig-wood-dark); touch-action: manipulation;
 }
-.a7-tool span { color: var(--ink); }
+.a7-tool span { color: var(--ef-text); }
 .a7-tool-sep { margin-left: .4rem; }
-.a7-tool:hover { border-color: var(--frame); }
-.a7-tool[aria-checked="true"] { border: 3px solid var(--frame); background: var(--frame-soft); font-weight: bold; }
-.a7-tool[aria-checked="true"]::after { content: "✓"; color: var(--frame); font-weight: bold; }
+.a7-tool:hover { background: var(--ef-surface-2); }
+.a7-tool[aria-checked="true"] { font-weight: bold; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+.a7-tool[aria-checked="true"]::after { content: "✓"; color: var(--ef-accent); font-weight: bold; }
 .a7-editor-wrap { width: 100%; overflow: auto; }
 .a7-editor { display: block; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
-.a7-editor .a7-bg { fill: #fff; }
-.a7-editor .a7-band { fill: var(--accent-soft); }
-.a7-editor .a7-fill { fill: var(--wood); }
-.a7-editor .a7-top .a7-fill { fill: #b9874f; }
-.a7-editor .a7-side .a7-fill { fill: #d6a670; }
-.a7-editor .a7-grid { stroke: #c9c3b6; stroke-width: 1; fill: none; }
-.a7-editor .a7-border { stroke: var(--ink); stroke-width: 2; fill: none; }
-.a7-editor .a7-miter { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 6 4; }
-.a7-editor .a7-mis { fill: none; stroke: var(--ng); stroke-width: 3; stroke-dasharray: 5 3; }
-.a7-editor .a7-mis-t { fill: var(--ng); font-weight: bold; font-size: 15px; text-anchor: middle; }
-.a7-editor .a7-cursor { fill: none; stroke: var(--focus); stroke-width: 3; }
+.a7-editor .a7-bg { fill: var(--ef-surface); }
+.a7-editor .a7-band { fill: var(--fig-accent-soft); }
+.a7-editor .a7-fill { fill: var(--fig-wood); }
+.a7-editor .a7-top .a7-fill { fill: var(--fig-a7-top); }
+.a7-editor .a7-side .a7-fill { fill: var(--fig-a7-side); }
+.a7-editor .a7-grid { stroke: var(--fig-a7-grid); stroke-width: 1; fill: none; }
+.a7-editor .a7-border { stroke: var(--ef-text); stroke-width: 2; fill: none; }
+.a7-editor .a7-miter { stroke: var(--ef-muted); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.a7-editor .a7-mis { fill: none; stroke: var(--ef-ng); stroke-width: 3; stroke-dasharray: 5 3; }
+.a7-editor .a7-mis-t { fill: var(--ef-ng); font-weight: bold; font-size: 15px; text-anchor: middle; }
+.a7-editor .a7-cursor { fill: none; stroke: var(--ef-focus); stroke-width: 3; }
 .a7-editor .a7-hit { fill: transparent; cursor: pointer; }
-.a7-editor .a7-name { font-size: 15px; font-weight: bold; fill: var(--ink); }
-.a7-editor .a7-rt { font-size: 9.5px; fill: var(--muted); text-anchor: middle; }
+.a7-editor .a7-name { font-size: 15px; font-weight: bold; fill: var(--ef-text); }
+.a7-editor .a7-rt { font-size: 9.5px; fill: var(--ef-muted); text-anchor: middle; }
 .ruby-off .a7-editor .a7-rt { display: none; }
-.a7-editor .a7-axis { font-size: 12.5px; fill: var(--muted); }
+.a7-editor .a7-axis { font-size: 12.5px; fill: var(--ef-muted); }
 .a7-editor .a7-view:focus { outline: none; }
-.a7-editor .a7-view:focus-visible .a7-border { stroke: var(--focus); stroke-width: 3; }
-.a7-preview-wrap canvas { display: block; width: 100%; border: 1px solid var(--line); border-radius: 0; }
-.a7-warn { background: var(--ng-soft); border-left: 5px solid var(--ng); padding: .4rem .75rem; border-radius: 0; font-size: .92rem; margin: .5rem 0; }
-.a7-ok { background: var(--ok-soft); border-left: 5px solid var(--ok); padding: .4rem .75rem; border-radius: 0; font-size: .92rem; margin: .5rem 0; color: var(--ok); font-weight: bold; }
-.a7-panel .card h2 { margin-bottom: .3rem; }
+.a7-editor .a7-view:focus-visible .a7-border { stroke: var(--ef-focus); stroke-width: 3; }
+.a7-preview-wrap canvas { display: block; width: 100%; border: var(--ef-bw) solid var(--ef-line); }
+.a7-panel .ef-box h2 { margin-bottom: .3rem; }
 .a7-panel .g-field input[type=number] { width: 5em; }
 
 /* 2 立体を見る */
-.a7-seg { display: inline-flex; flex-wrap: wrap; gap: 0; border: 1.5px solid var(--frame); border-radius: 0; overflow: hidden; }
+.a7-seg { display: inline-flex; flex-wrap: wrap; gap: 0; border: var(--ef-bw) solid var(--ef-ink); overflow: hidden; }  /* 共通の .ef-seg と同じ形(えらぶのは aria-checked) */
 .a7-seg button {
-  font: inherit; font-size: .98rem; min-height: 48px; padding: .2rem 1rem; border: 0; border-right: 1px solid var(--line);
-  background: var(--panel); color: var(--ink); cursor: pointer; touch-action: manipulation;
+  font: inherit; font-size: .94rem; min-height: var(--ef-tap); padding: 0 14px; border: 0; border-right: var(--ef-bw) solid var(--ef-line);
+  background: var(--ef-surface); color: var(--ef-text); cursor: pointer; touch-action: manipulation;
 }
 .a7-seg button:last-child { border-right: 0; }
-.a7-seg button[aria-checked="true"] { background: var(--frame); color: var(--ef-accent-ink, #fff); font-weight: bold; }
-.a7-seg button[aria-checked="true"]::before { content: "✓ "; }
-.a7-seg button[aria-checked="true"] rt { color: inherit; opacity: .9; }
+.a7-seg button[aria-checked="true"] { font-weight: bold; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
 .a7-view-wrap { margin: .5rem 0 .3rem; }
-.a7-view-wrap canvas { display: block; width: 100%; border: 1px solid var(--line); border-radius: 0; touch-action: none; }
+.a7-view-wrap canvas { display: block; width: 100%; border: var(--ef-bw) solid var(--ef-line); touch-action: none; }
 #cam-btns { margin-bottom: .2rem; }
 
 /* 3 図面・印刷 */
@@ -72,11 +74,11 @@ input.narrow { width: 4.5em; }
 .a7-sheet-form input[type=text] { width: 100%; }
 .a7-sheet-form input.narrow { width: 4.5em; }
 .a7-sheet-btns { margin: .5rem 0 .2rem; }
-.a7-sheet-box { background: #fff; border: 1px solid var(--line); border-radius: 0; padding: 4px; }
+.a7-sheet-box { background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); padding: var(--ef-sp-1); }
 .a7-sheet-box svg { display: block; width: 100%; height: auto; }
 
 /* 4 ふりかえり */
-.a7-self { border: 1px solid var(--line); border-radius: 0; margin: 0 0 .45rem; padding: .2rem .7rem .3rem; }
+.a7-self { border: var(--ef-bw) solid var(--ef-line); margin: 0 0 .45rem; padding: .2rem .7rem .3rem; }
 .a7-self legend { font-size: .95rem; padding: 0 .3rem; }
 .a7-self .g-check { display: inline-flex; margin-right: 1rem; }
 
@@ -85,7 +87,7 @@ input.narrow { width: 4.5em; }
 @media print {
   @page { size: A4 landscape; margin: 0; }
   body.a7-printing > *:not(#print-area) { display: none !important; }
-  body.a7-printing { background: #fff; margin: 0; }
+  body.a7-printing { background: var(--ef-surface); margin: 0; }
   body.a7-printing #print-area { display: block; width: 296mm; height: 208mm; overflow: hidden; }
   body.a7-printing #print-area svg { display: block; width: 296mm; height: 208mm; }
 }

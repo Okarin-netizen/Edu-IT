@@ -49,11 +49,11 @@
 
   function recordTools() {
     return G.h('span', { class: 'g-row' },
-      G.h('button', { class: 'btn', type: 'button', onclick: function () {
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: function () {
         save().then(function () { G.exportJSON(withStudent(), '問題解決ノート_' + (String(note.data.student.name || '').trim() || today()) + '.json'); });
       } }, 'ファイルに書き出す'),
-      G.h('button', { class: 'btn', type: 'button', onclick: importFile }, 'ファイルから読み込む'),
-      G.h('button', { class: 'btn', type: 'button', onclick: function () {
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: importFile }, 'ファイルから読み込む'),
+      G.h('button', { class: 'ef-btn', type: 'button', onclick: function () {
         G.confirm('新しいノートを作ります。今のノートは保存されていて、ファイルに書き出しておけば、あとで読み込めます。', '新しく作る').then(function (ok) {
           if (!ok) return;
           save().then(function () { open(fresh()); tabs.show('find'); });
@@ -96,7 +96,7 @@
       G.h('li', null, '製作品ができたら「② 評価、改善・修正」で、観点ごとに5段階で評価します。レーダーチャートを見て、よかった点と改善点を書きます。'),
       G.h('li', null, '「③ 技術の最適化」では、社会の製品をえらびます。観点の重みを変えて、「いちばんよい案」が入れかわるのを試します。'),
       G.h('li', null, G.furikaeriOff() ? '最後に「記録」で「ファイルに書き出す」か「印刷する」で提出します。' : '最後に「振り返り」を書きます。「記録」で「ファイルに書き出す」か「印刷する」で提出します。')),
-      G.h('p', { class: 'g-note' }, 'ノートはこの端末の中に自動で保存されます。印刷すると、問題解決シートとして紙に出せます。書いていない欄は線だけになります。')) });
+      G.h('p', { class: 'ef-note is-warn' }, 'ノートはこの端末の中に自動で保存されます。印刷すると、問題解決シートとして紙に出せます。書いていない欄は線だけになります。')) });
   }
 
   tabs = G.tabs(G.$('[data-g-tabs]'), function (name) {

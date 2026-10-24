@@ -126,14 +126,14 @@
 
     // 地の色:樹皮 → 辺材 → 心材
     pathPts(ctx, piePoly(1.0, phi0, 160), map, true);
-    ctx.fillStyle = A2.col('bark'); ctx.fill();
+    ctx.fillStyle = A2.col('fig-bark'); ctx.fill();
     if (o.layers !== false) { ctx.fillStyle = A2.pattern(ctx, 'cross'); ctx.globalAlpha = 0.5; ctx.fill(); ctx.globalAlpha = 1; }
     pathPts(ctx, piePoly(W.BARK, phi0, 160), map, true);
-    ctx.fillStyle = A2.col('sapwood'); ctx.fill();
+    ctx.fillStyle = A2.col('fig-sapwood'); ctx.fill();
     if (o.layers !== false) {
       ctx.fillStyle = A2.pattern(ctx, 'dots'); ctx.fill();
       pathPts(ctx, piePoly(W.HEART, phi0, 160), map, true);
-      ctx.fillStyle = A2.col('heartwood'); ctx.fill();
+      ctx.fillStyle = A2.col('fig-heartwood'); ctx.fill();
       ctx.fillStyle = A2.pattern(ctx, 'hatch'); ctx.globalAlpha = 0.55; ctx.fill(); ctx.globalAlpha = 1;
     }
 
@@ -145,30 +145,30 @@
         // 晩材の帯(太い線)
         var band = width * 0.28;
         ctx.lineWidth = Math.max(1.6, band * px);
-        ctx.strokeStyle = A2.col('latewood');
+        ctx.strokeStyle = A2.col('fig-latewood');
         pathPts(ctx, ringLine(r - band / 2, phi0, 180), map, false);
         ctx.stroke();
         // 早材の境目(細い線)
         ctx.lineWidth = 0.7;
-        ctx.strokeStyle = A2.col('earlyline');
+        ctx.strokeStyle = A2.col('fig-earlyline');
         pathPts(ctx, ringLine(prev + width * 0.08, phi0, 180), map, false);
         ctx.stroke();
       } else {
         ctx.lineWidth = 1.3;
-        ctx.strokeStyle = A2.col('latewood');
+        ctx.strokeStyle = A2.col('fig-latewood');
         pathPts(ctx, ringLine(r, phi0, 180), map, false);
         ctx.stroke();
       }
     }
     // 髄
     var pc = map(0, 0);
-    ctx.fillStyle = A2.col('pith');
+    ctx.fillStyle = A2.col('fig-pith');
     ctx.beginPath(); ctx.arc(pc[0], pc[1], Math.max(2.5, W.PITH * px * 0.8), 0, 7); ctx.fill();
     // 背割り
     if (piece.kerf && o.s < 0.02) {
       var a1 = map(Math.cos(phi0 + Math.PI) * 0.12, Math.sin(phi0 + Math.PI) * 0.12);
       var a2 = map(Math.cos(phi0 + Math.PI) * 1.02, Math.sin(phi0 + Math.PI) * 1.02);
-      ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 3;
+      ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); ctx.stroke();
     }
     ctx.restore();
@@ -177,7 +177,7 @@
     if (o.outline !== false) {
       ctx.save();
       ctx.lineJoin = 'round';
-      ctx.strokeStyle = o.outlineColor || A2.col('ink');
+      ctx.strokeStyle = o.outlineColor || A2.col('ef-text');
       ctx.lineWidth = o.outlineWidth || 2;
       if (piece.isLog) {
         // 割れの縁は乾燥が進んでいるときだけ線を引く
@@ -200,7 +200,7 @@
   W.drawGhost = function (ctx, poly, map, close) {
     ctx.save();
     ctx.setLineDash([6, 5]);
-    ctx.strokeStyle = A2.col('ghost');
+    ctx.strokeStyle = A2.col('fig-ghost');
     ctx.lineWidth = 1.6;
     pathPts(ctx, poly, map, close !== false);
     ctx.stroke();
@@ -226,9 +226,9 @@
     var th = board.rot * Math.PI / 180;
     var ax = Math.cos(th), ay = Math.sin(th), nx = -ay, ny = ax;
     var fx = board.cx + nx * face * board.t / 2, fy = board.cy + ny * face * board.t / 2;
-    var cSapE = hexToRgb(A2.col('sapwood')), cSapL = hexToRgb(A2.col('sap-late'));
-    var cHeaE = hexToRgb(A2.col('heartwood')), cHeaL = hexToRgb(A2.col('latewood'));
-    var cBark = hexToRgb(A2.col('bark'));
+    var cSapE = hexToRgb(A2.col('fig-sapwood')), cSapL = hexToRgb(A2.col('fig-sap-late'));
+    var cHeaE = hexToRgb(A2.col('fig-heartwood')), cHeaL = hexToRgb(A2.col('fig-latewood'));
+    var cBark = hexToRgb(A2.col('fig-bark'));
     var fib = [];
     for (var j = 0; j < PH; j++) fib.push(Math.sin(j * 12.9898) * 43758.5453 % 1);
     for (j = 0; j < PH; j++) {

@@ -10,6 +10,7 @@
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
 | `eduit-frame.js`  | 自習モードの「自習ガイド」(下の「自習モード」)、フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
 | `style-check.py` | 見た目の点検の道具。教材の CSS に、決まりにない色の値・角丸・影・フォントの指定・`!important`・古い色の名前・px の文字の大きさがないかを、ファイル名と行番号つきで出す(下の「見た目の点検と撮影」) |
+| `tools/fig-colors.py` | 図の色をまとめる道具。教材の CSS で図(SVG・絵)の色を直に書いている所に `--fig-…` の名前を付けて、CSS のいちばん上にまとめる(下の「見た目の点検と撮影」) |
 | `tools/shots.js` | 撮影の道具。生徒に配る統一版のメニューと全教材を、PC とスマホのはばで撮る(下の「見た目の点検と撮影」) |
 | `mondai-note/` | 4分野で同じ教材「問題解決ノート」の本体(`mondai-note.js` 画面と計算・`mondai-note-data.js` 分野ごとの例と観点・`mondai-note.css` 見た目・`mondai-note.test.js` テスト)。下の「問題解決ノート」 |
 
@@ -115,6 +116,8 @@
 - **点検** `python3 shared/style-check.py`(`--sum` でファイルごとの数、`--only color,radius` で種類をしぼる、フォルダを書けばそこだけ、`--strict` で1件でもあれば終了コード 1)。
   色・文字・余白・線の値は `eduit-frame.css` のいちばん上にだけ書き、教材は `--ef-…` の名前と共通の部品を使う、という決まりに合わない所を出す。
   図の色は、教材の CSS のいちばん上で `--fig-…` の名前を付けて書けば出ない。本物に似せた画面など決まりの外にしたい所は `/* style-check: off */` 〜 `/* style-check: on */` ではさむ。
+  出さないもの: 図の中の SVG の字の px(同じ行に `fill`・`stroke`・`text-anchor` がある所)、ON の印の下線(`box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 …`)、`display` の `!important`(隠す・印刷で出す切りかえ)。
+- **図の色をまとめる** `python3 shared/tools/fig-colors.py <CSS ファイル> [--from 行番号] [--dry]`。図の部分(`--from` の行から下)の色の直書きを `var(--fig-…)` にし、名前と色を CSS のいちばん上の `:root` に足す。名前はセレクタの最後のクラス名から付く(`.f-cap` の fill → `--fig-cap`、stroke → `--fig-cap-line`)。画面の部品の色(ボタン・箱など)は図ではないので、共通の `--ef-…` に手で直す。
 - **撮影** `node shared/tools/shots.js <出す先のフォルダ> [A B C D G T M F Z] [--pc|--sp]`。
   `クラスルーム配布/生徒に配る/` の統一版を開き、メニューと全教材(開いた画面と、2つ目のタブの画面)を PC(1280×800)とスマホ(390×844)で撮る。
   スマホでページ全体が横にはみ出している教材があれば、そのはば(px)を出す。先に各分野の作り直しのコマンドで配布用のファイルを作っておく。

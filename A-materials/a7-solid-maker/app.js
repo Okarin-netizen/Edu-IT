@@ -395,7 +395,7 @@
     if (solid.empty) emptyNote(ctx, w, h);
   }
   function emptyNote(ctx, w, h) {
-    ctx.fillStyle = G.cssVar('--muted', '#666');
+    ctx.fillStyle = G.cssVar('--ef-muted', '#666');
     ctx.font = '15px ' + getComputedStyle(document.body).fontFamily;
     ctx.textAlign = 'center';
     ctx.fillText('3つの図にマスをぬると、ここに立体が出ます', w / 2, h / 2);
@@ -405,16 +405,16 @@
     box.innerHTML = '';
     var ev = emptyViews();
     if (ev.length) {
-      box.appendChild(G.h('p', { class: 'g-note' }, ev.length === 3 ? '3つの図にマスをぬると、立体ができます。どの図からかいてもかまいません。'
+      box.appendChild(G.h('p', { class: 'ef-note is-warn' }, ev.length === 3 ? '3つの図にマスをぬると、立体ができます。どの図からかいてもかまいません。'
         : 'つぎは' + ev.map(function (k) { return '「' + VIEW_NAME[k] + '」'; }).join('と') + 'をかきましょう。3つそろうと立体ができます。'));
     } else if (solid.empty) {
-      box.appendChild(G.h('p', { class: 'a7-warn' }, G.h('strong', null, '! まだ立体になりません。'), ' 3つの図で、ぬったマスの位置がそろっていません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。'));
+      box.appendChild(G.h('p', { class: 'ef-note is-ng' }, G.h('strong', null, '! まだ立体になりません。'), ' 3つの図で、ぬったマスの位置がそろっていません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。'));
     } else if (mis.count) {
       var where = ['front', 'top', 'side'].filter(function (k) { return mis[k].length; }).map(function (k) { return VIEW_NAME[k] + ' ' + mis[k].length + ' こ'; }).join('・');
-      box.appendChild(G.h('p', { class: 'a7-warn' }, G.h('strong', null, '! 合わないマスがあります(' + where + ')。'),
+      box.appendChild(G.h('p', { class: 'ef-note is-ng' }, G.h('strong', null, '! 合わないマスがあります(' + where + ')。'),
         ' 赤い点線のマスは、ほかの図と位置がそろっていないので立体になりません。同じ列(幅)・同じ段(高さ)・同じ奥行きの位置をくらべてみましょう。かいている途中なら、3つともかき終えてから確かめましょう。'));
     } else {
-      box.appendChild(G.h('p', { class: 'a7-ok' }, '✓ 3つの図の位置がそろっています。'));
+      box.appendChild(G.h('p', { class: 'ef-note is-ok' }, '✓ 3つの図の位置がそろっています。'));
     }
     var c = cellMM(), mn = solid.min, mx = solid.max;
     G.$('#info').textContent = solid.empty ? '' :
@@ -433,7 +433,7 @@
     var s = Math.min((w - 2 * pad) / ((b.x1 - b.x0) || 1), (h - 2 * pad) / ((b.y1 - b.y0) || 1));
     s = Math.min(s, opt.maxScale || 90);
     var ox = (w - (b.x1 - b.x0) * s) / 2 - b.x0 * s, oy = (h + (b.y1 - b.y0) * s) / 2 + b.y0 * s;
-    var ink = G.cssVar('--ink', '#222');
+    var ink = G.cssVar('--ef-text', '#222');
     ctx.lineCap = 'round';
     if (showHidden) {
       ctx.strokeStyle = ink; ctx.lineWidth = 1.2; ctx.setLineDash([6, 4]); ctx.lineCap = 'butt';
@@ -460,7 +460,7 @@
     var rad = V.len(V.sub(mx, mn)) / 2 || 1, s = Math.min(w, h) * 0.44 / rad;
     function P2(p) { var q = V.sub(p, ctr); return [w / 2 + V.dot(q, c.right) * s, h / 2 - V.dot(q, c.up) * s]; }
     var light = V.norm(V.add(V.add(V.mul(c.toward, 0.7), V.mul(c.up, 0.6)), V.mul(c.right, -0.25)));
-    var base = hexRgb(G.cssVar('--wood', '#c8955b'));
+    var base = hexRgb(G.cssVar('--fig-wood', '#c8955b'));
     var list = solid.faces.filter(function (f) { return V.dot(f.n, c.toward) > 1e-6; }).map(function (f) {
       var cen = [0, 0, 0];
       f.pts.forEach(function (p) { cen = V.add(cen, p); });
@@ -526,7 +526,7 @@
     note.innerHTML = '';
     note.appendChild(G.h('p', { class: 'g-muted' }, NOTES[mode]));
     if (mode !== '3d' && hid) note.appendChild(G.h('p', { class: 'g-muted' }, '太い実線 = 見える線(外形線)、細い破線 = かくれ線(見えない線)'));
-    if (misCount()) note.appendChild(G.h('p', { class: 'a7-warn' }, '! 三面図に合わないマスがあります(「三面図をかく」で赤い点線のマス)。'));
+    if (misCount()) note.appendChild(G.h('p', { class: 'ef-note is-ng' }, '! 三面図に合わないマスがあります(「三面図をかく」で赤い点線のマス)。'));
   }
   function bindView() {
     G.$$('.a7-seg [data-mode]').forEach(function (b) {
@@ -600,10 +600,10 @@
     G.$('#sheet-box').innerHTML = lastSheet.svg;
     var msg = G.$('#sheet-msg');
     msg.innerHTML = '';
-    if (solid.empty) msg.appendChild(G.h('p', { class: 'g-note' }, 'まだ立体になっていません。「三面図をかく」で図をかきましょう。'));
+    if (solid.empty) msg.appendChild(G.h('p', { class: 'ef-note is-warn' }, 'まだ立体になっていません。「三面図をかく」で図をかきましょう。'));
     else {
       msg.appendChild(G.h('p', { class: 'g-muted' }, '尺度 ' + SS.scaleLabel(lastSheet.scale) + '(' + (lastSheet.scale === 1 ? '実物と同じ大きさ' : lastSheet.scale > 1 ? '実物の ' + lastSheet.scale + ' 倍' : '実物の 1/' + Math.round(1 / lastSheet.scale)) + ')でかいています。'));
-      if (misCount()) msg.appendChild(G.h('p', { class: 'a7-warn' }, '! 三面図に合わないマスがあります。図面は、立体になった部分からかいています。'));
+      if (misCount()) msg.appendChild(G.h('p', { class: 'ef-note is-ng' }, '! 三面図に合わないマスがあります。図面は、立体になった部分からかいています。'));
     }
   }
   function bindSheet() {
@@ -694,7 +694,7 @@
         G.h('li', null, '「立体を見る」で、等角図・キャビネット図・3D に切りかえます。3D はドラッグで回せます。'),
         G.h('li', null, '「図面・印刷」で、寸法と表題欄の入った A4 の図面を作れます。印刷や、PDF で保存ができます。STL で保存すると、3Dプリンタで使えます。'),
         G.h('li', null, G.furikaeriOff() ? '最後に「ファイルに書き出す」で提出します。' : '最後に「ふりかえり」を書き、「ファイルに書き出す」で提出します。')),
-      G.h('p', { class: 'g-note' }, '三面図に見えている形から、いちばん大きな立体を作ります。見えない部分のくぼみなど、形が1つに決まらないこともあります。そのときは、かくれ線も使って考えよう。'));
+      G.h('p', { class: 'ef-note is-warn' }, '三面図に見えている形から、いちばん大きな立体を作ります。見えない部分のくぼみなど、形が1つに決まらないこともあります。そのときは、かくれ線も使って考えよう。'));
     G.modal({ title: '使い方', body: body });
   }
 

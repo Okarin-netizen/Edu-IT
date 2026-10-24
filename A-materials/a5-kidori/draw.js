@@ -8,7 +8,7 @@
   var COS30 = Math.cos(Math.PI / 6), SIN30 = 0.5;
 
   function colors() {
-    return { ink: G.cssVar('--ink', '#222'), muted: G.cssVar('--muted', '#555'), dim: G.cssVar('--accent', '#1f6feb'), paper: '#ffffff', wood: G.cssVar('--wood-soft', '#f1dfc5') };
+    return { ink: G.cssVar('--ef-text', '#222'), muted: G.cssVar('--ef-muted', '#555'), dim: G.cssVar('--fig-accent', '#1f6feb'), paper: '#ffffff', wood: G.cssVar('--fig-wood-soft', '#f1dfc5') };
   }
 
   function bounds(boxes) {

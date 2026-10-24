@@ -39,9 +39,9 @@
     var poly = W.rectPoly(b.cx, b.cy, b.w, b.t, st.rot * Math.PI / 180, 4);
     ctx.save();
     W.pathPts(ctx, poly, map, true);
-    ctx.fillStyle = A2.col('board-fill'); ctx.fill();
+    ctx.fillStyle = A2.col('fig-board-fill'); ctx.fill();
     ctx.setLineDash([7, 4]);
-    ctx.lineWidth = 3; ctx.strokeStyle = A2.col('accent'); ctx.stroke();
+    ctx.lineWidth = 3; ctx.strokeStyle = A2.col('fig-accent'); ctx.stroke();
     ctx.restore();
 
     // 木表・木裏のラベル
@@ -49,7 +49,7 @@
     function faceLabel(sideSign, text) {
       var off = (b.t / 2 + 0.07) * sideSign;
       var p = map(b.cx + a.nx * off, b.cy + a.ny * off);
-      A2.text(ctx, text, p[0], p[1] + 5, { size: 14, bold: true, align: 'center', bg: A2.col('label-bg'), color: A2.col('accent') });
+      A2.text(ctx, text, p[0], p[1] + 5, { size: 14, bold: true, align: 'center', bg: A2.col('fig-label-bg'), color: A2.col('fig-accent') });
     }
     if (!info.hasPith) {
       faceLabel(sgn, '{木表|きおもて}');
@@ -67,10 +67,10 @@
         var ang = Math.PI * (1.08 + i * 0.075);
         var p = map(Math.cos(ang) * it[0], Math.sin(ang) * it[0]);
         var ly = 300 + i * 52, lx = 10;
-        ctx.strokeStyle = A2.col('ink'); ctx.lineWidth = 1;
+        ctx.strokeStyle = A2.col('ef-text'); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(lx + 56, ly - 5); ctx.lineTo(p[0], p[1]); ctx.stroke();
-        ctx.beginPath(); ctx.arc(p[0], p[1], 2.5, 0, 7); ctx.fillStyle = A2.col('ink'); ctx.fill();
-        A2.text(ctx, it[1], lx, ly, { size: 14, bold: true, bg: A2.col('label-bg') });
+        ctx.beginPath(); ctx.arc(p[0], p[1], 2.5, 0, 7); ctx.fillStyle = A2.col('ef-text'); ctx.fill();
+        A2.text(ctx, it[1], lx, ly, { size: 14, bold: true, bg: A2.col('fig-label-bg') });
       });
     }
 
@@ -93,11 +93,11 @@
     var x0 = 12, y0 = 40, w = fctx.W - 24, h = 140;
     var face = info.hasPith ? 1 : info.omoteSign;
     W.renderFace(fctx, x0, y0, w, h, b, face);
-    fctx.strokeStyle = A2.col('ink'); fctx.lineWidth = 1.5; fctx.strokeRect(x0, y0, w, h);
+    fctx.strokeStyle = A2.col('ef-text'); fctx.lineWidth = 1.5; fctx.strokeRect(x0, y0, w, h);
     A2.text(fctx, info.hasPith ? '{板|いた}の{面|めん}' : '{木表|きおもて}の{面|めん}', x0, 24, { size: 14, bold: true });
     // 繊維方向の矢印
     var ay = y0 + h + 22;
-    fctx.strokeStyle = A2.col('ink'); fctx.fillStyle = A2.col('ink'); fctx.lineWidth = 2;
+    fctx.strokeStyle = A2.col('ef-text'); fctx.fillStyle = A2.col('ef-text'); fctx.lineWidth = 2;
     fctx.beginPath(); fctx.moveTo(x0 + 150, ay - 5); fctx.lineTo(x0 + w - 10, ay - 5); fctx.stroke();
     fctx.beginPath(); fctx.moveTo(x0 + w - 4, ay - 5); fctx.lineTo(x0 + w - 16, ay - 11); fctx.lineTo(x0 + w - 16, ay + 1); fctx.fill();
     A2.text(fctx, '{繊維|せんい}{方向|ほうこう}({木|き}の{長|なが}さの{向|む}き)', x0, ay, { size: 13 });

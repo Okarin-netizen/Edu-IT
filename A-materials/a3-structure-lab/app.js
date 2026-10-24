@@ -211,11 +211,11 @@
       if (!c.r || !c.r.ok) return;
       var p = pts(c.r);
       if (c.style === 'before') {
-        svg('polyline', { points: p.map(function (q) { return q.join(','); }).join(' '), fill: 'none', stroke: 'var(--before)', 'stroke-width': 3, 'stroke-dasharray': '9 6' }, el);
+        svg('polyline', { points: p.map(function (q) { return q.join(','); }).join(' '), fill: 'none', stroke: 'var(--fig-before)', 'stroke-width': 3, 'stroke-dasharray': '9 6' }, el);
       } else {
         var top = p.map(function (q) { return q[0] + ',' + (q[1] - thick / 2); });
         var bot = p.slice().reverse().map(function (q) { return q[0] + ',' + (q[1] + thick / 2); });
-        svg('polygon', { points: top.concat(bot).join(' '), fill: 'var(--beam)', stroke: 'var(--beam-line)', 'stroke-width': 2 }, el);
+        svg('polygon', { points: top.concat(bot).join(' '), fill: 'var(--fig-beam)', stroke: 'var(--fig-beam-line)', 'stroke-width': 2 }, el);
         var tip = cant ? p[p.length - 1] : p[30];
         if (c.r.deflection > 0) {
           txt(el, tip[0] + (cant ? -80 : 14), tip[1] + thick / 2 + 20, 'たわみ ' + fmtSig(c.r.deflection) + ' mm', { 'font-weight': 'bold' });
@@ -231,17 +231,17 @@
     function yAt(x) { return now ? yb + Math.min(now.deflection * Beam.shape((x - x0) / scale, L, now.support, now.loadType) * scale * mag, 120) : yb; }
     function arrow(x, len) {
       var y = yAt(x) - thick / 2 - 2;
-      svg('line', { x1: x, y1: y - len, x2: x, y2: y - 6, stroke: 'var(--load)', 'stroke-width': 3 }, el);
-      svg('path', { d: 'M' + x + ' ' + y + ' l-6 -10 h12 z', fill: 'var(--load)' }, el);
+      svg('line', { x1: x, y1: y - len, x2: x, y2: y - 6, stroke: 'var(--fig-load)', 'stroke-width': 3 }, el);
+      svg('path', { d: 'M' + x + ' ' + y + ' l-6 -10 h12 z', fill: 'var(--fig-load)' }, el);
     }
     if (opts.loadKg > 0) {
       if (opts.loadType === 'uniform') {
         for (var i = 0; i <= 10; i++) arrow(x0 + span * i / 10, 26);
-        txt(el, x0 + span / 2 - 20, yb - 52, fmt(opts.loadKg, 1) + ' kg', { fill: 'var(--load)', 'font-weight': 'bold' });
+        txt(el, x0 + span / 2 - 20, yb - 52, fmt(opts.loadKg, 1) + ' kg', { fill: 'var(--fig-load)', 'font-weight': 'bold' });
       } else {
         var ax = cant ? x1 : x0 + span / 2;
         arrow(ax, 44);
-        txt(el, ax + (cant ? -60 : 8), yb - 52, fmt(opts.loadKg, 1) + ' kg', { fill: 'var(--load)', 'font-weight': 'bold' });
+        txt(el, ax + (cant ? -60 : 8), yb - 52, fmt(opts.loadKg, 1) + ' kg', { fill: 'var(--fig-load)', 'font-weight': 'bold' });
       }
     }
     // 支点間の距離
@@ -268,7 +268,7 @@
       } else if ((b.shape === 'channel' && i === 2) || (b.shape === 'box' && i === 3)) x = b.b - r.w;
       else x = 0;
       svg('rect', { x: ox + x * s, y: oy - (r.y + r.h) * s, width: Math.max(r.w * s, 1), height: Math.max(r.h * s, 1),
-        fill: 'var(--beam)', stroke: 'var(--beam-line)', 'stroke-width': 1 }, el);
+        fill: 'var(--fig-beam)', stroke: 'var(--fig-beam-line)', 'stroke-width': 1 }, el);
     });
     // 図心の線
     svg('line', { x1: 4, y1: oy - sec.yc * s, x2: 156, y2: oy - sec.yc * s, stroke: 'currentColor', 'stroke-dasharray': '3 3', 'stroke-opacity': .6 }, el);
@@ -512,7 +512,7 @@
     var N = { bl: P(d.nodes.bl), br: P(d.nodes.br), tl: P(d.nodes.tl), tr: P(d.nodes.tr) };
     var defs = svg('defs', {}, el);
     var pat = svg('pattern', { id: 'fhatch', width: 10, height: 10, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
-    svg('line', { x1: 0, y1: 0, x2: 0, y2: 10, stroke: 'var(--beam-line)', 'stroke-width': 2 }, pat);
+    svg('line', { x1: 0, y1: 0, x2: 0, y2: 10, stroke: 'var(--fig-beam-line)', 'stroke-width': 2 }, pat);
     // 地面
     svg('rect', { x: 20, y: FY + 8, width: 380, height: 14, fill: 'none', stroke: 'currentColor' }, el);
     svg('line', { x1: 20, y1: FY + 8, x2: 400, y2: FY + 8, stroke: 'currentColor', 'stroke-width': 2 }, el);
@@ -525,27 +525,27 @@
       [['tl', 'tr', 'bl'], ['tr', 'tl', 'br']].forEach(function (c) {
         var o = N[c[0]], a = N[c[1]], b = N[c[2]];
         function along(p, q, len) { var dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy); return [p[0] + dx * len / L, p[1] + dy * len / L]; }
-        svg('polygon', { points: [o, along(o, a, 55), along(o, b, 55)].join(' '), fill: 'var(--beam)', stroke: 'var(--beam-line)', 'stroke-width': 2 }, el);
+        svg('polygon', { points: [o, along(o, a, 55), along(o, b, 55)].join(' '), fill: 'var(--fig-beam)', stroke: 'var(--fig-beam-line)', 'stroke-width': 2 }, el);
       });
     }
     function member(a, b, w, color, dash) {
-      svg('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: color || 'var(--beam-line)', 'stroke-width': w || 12, 'stroke-linecap': 'round', 'stroke-dasharray': dash || '' }, el);
+      svg('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: color || 'var(--fig-beam-line)', 'stroke-width': w || 12, 'stroke-linecap': 'round', 'stroke-dasharray': dash || '' }, el);
     }
     member(N.bl, N.br); member(N.bl, N.tl); member(N.br, N.tr);
     // 筋かい
     if (mode === 'brace' || mode === 'cross') {
-      member(N.bl, N.tr, 8, 'var(--brace)');
-      if (mode === 'cross') member(N.br, N.tl, 8, 'var(--brace)', '14 6');
+      member(N.bl, N.tr, 8, 'var(--fig-brace)');
+      if (mode === 'cross') member(N.br, N.tl, 8, 'var(--fig-brace)', '14 6');
       if (d.brace) {
         var mx = (N.bl[0] + N.tr[0]) / 2, my = (N.bl[1] + N.tr[1]) / 2;
-        txt(el, mx + 10, my + 24, d.brace === 'tension' ? '← ひっぱられる →' : '→ おされる ←', { fill: 'var(--brace)', 'font-weight': 'bold' });
+        txt(el, mx + 10, my + 24, d.brace === 'tension' ? '← ひっぱられる →' : '→ おされる ←', { fill: 'var(--fig-brace)', 'font-weight': 'bold' });
       }
     }
     // 上の横材(ドラッグできる)
     var g = svg('g', { class: 'handle', tabindex: 0, role: 'slider', 'aria-label': '上の横材をおす量', 'aria-valuemin': -140, 'aria-valuemax': 140,
       'aria-valuenow': Math.round(push), 'aria-valuetext': 'おす量 ' + Math.round(push) + '、かたむき ' + fmt(Math.abs(d.angleDeg), 0) + '度' }, el);
     svg('line', { class: 'focus-ring', x1: N.tl[0], y1: N.tl[1], x2: N.tr[0], y2: N.tr[1], stroke: 'transparent', 'stroke-width': 22, 'stroke-linecap': 'round' }, g);
-    svg('line', { x1: N.tl[0], y1: N.tl[1], x2: N.tr[0], y2: N.tr[1], stroke: 'var(--beam-line)', 'stroke-width': 12, 'stroke-linecap': 'round' }, g);
+    svg('line', { x1: N.tl[0], y1: N.tl[1], x2: N.tr[0], y2: N.tr[1], stroke: 'var(--fig-beam-line)', 'stroke-width': 12, 'stroke-linecap': 'round' }, g);
     svg('line', { x1: N.tl[0] - 10, y1: N.tl[1] - 20, x2: N.tr[0] + 10, y2: N.tr[1] - 20, stroke: 'transparent', 'stroke-width': 50 }, g);
     txt(g, (N.tl[0] + N.tr[0]) / 2 - 48, N.tl[1] - 16, '⇔ ここをおす', { 'font-size': 13 });
     g.addEventListener('keydown', function (e) {
@@ -555,12 +555,12 @@
       e.preventDefault(); setPush(push + k);
     });
     // 節点(ピン)
-    ['bl', 'br', 'tl', 'tr'].forEach(function (k) { svg('circle', { cx: N[k][0], cy: N[k][1], r: 6, fill: 'var(--panel, #fff)', stroke: 'currentColor', 'stroke-width': 2 }, el); });
+    ['bl', 'br', 'tl', 'tr'].forEach(function (k) { svg('circle', { cx: N[k][0], cy: N[k][1], r: 6, fill: 'var(--ef-surface, #fff)', stroke: 'currentColor', 'stroke-width': 2 }, el); });
     // おす力の矢印
     if (Math.abs(push) > 2) {
       var y = N.tl[1], sx = push > 0 ? N.tl[0] - 20 : N.tr[0] + 20, len = Math.min(70, Math.abs(push) * 0.6 + 15), dir = push > 0 ? 1 : -1;
-      svg('line', { x1: sx - dir * len, y1: y, x2: sx - dir * 6, y2: y, stroke: 'var(--load)', 'stroke-width': 4 }, el);
-      svg('path', { d: 'M' + sx + ' ' + y + ' l' + (-dir * 12) + ' -7 v14 z', fill: 'var(--load)' }, el);
+      svg('line', { x1: sx - dir * len, y1: y, x2: sx - dir * 6, y2: y, stroke: 'var(--fig-load)', 'stroke-width': 4 }, el);
+      svg('path', { d: 'M' + sx + ' ' + y + ' l' + (-dir * 12) + ' -7 v14 z', fill: 'var(--fig-load)' }, el);
     }
     var ang = fmt(Math.abs(d.angleDeg), 0);
     var msg = {
@@ -579,8 +579,8 @@
   function jointIcon(id) {
     var s = document.createElementNS(SVGNS, 'svg');
     s.setAttribute('viewBox', '0 0 64 48'); s.setAttribute('aria-hidden', 'true');
-    function r(x, y, w, hh) { svg('rect', { x: x, y: y, width: w, height: hh, fill: 'var(--beam)', stroke: 'var(--beam-line)' }, s); }
-    if (id === 'tenon') { r(4, 26, 56, 16); svg('rect', { x: 26, y: 26, width: 12, height: 8, fill: 'var(--bg)', stroke: 'var(--beam-line)' }, s); r(24, 4, 16, 16); r(28, 20, 8, 12); }
+    function r(x, y, w, hh) { svg('rect', { x: x, y: y, width: w, height: hh, fill: 'var(--fig-beam)', stroke: 'var(--fig-beam-line)' }, s); }
+    if (id === 'tenon') { r(4, 26, 56, 16); svg('rect', { x: 26, y: 26, width: 12, height: 8, fill: 'var(--ef-bg)', stroke: 'var(--fig-beam-line)' }, s); r(24, 4, 16, 16); r(28, 20, 8, 12); }
     else if (id === 'metal') { r(4, 30, 56, 12); r(4, 4, 12, 26); svg('path', { d: 'M18 12 v16 h16', fill: 'none', stroke: 'currentColor', 'stroke-width': 4 }, s); }
     else if (id === 'glue') { r(4, 8, 56, 14); r(4, 26, 56, 14); svg('line', { x1: 4, y1: 24, x2: 60, y2: 24, stroke: 'currentColor', 'stroke-width': 3, 'stroke-dasharray': '3 2' }, s); }
     else {
@@ -596,7 +596,7 @@
     JOINTS.forEach(function (j) {
       var meter = h('span', { class: 'meter', 'aria-hidden': 'true' });
       for (var i = 1; i <= 5; i++) meter.appendChild(h('i', { class: i <= j.tight ? 'on' : '' }));
-      box.appendChild(h('article', { class: 'card joint-card' },
+      box.appendChild(h('article', { class: 'ef-box joint-card' },
         h('h3', null, jointIcon(j.id), j.name),
         h('p', null, 'ゆるみにくさ ', meter, ' ', h('strong', null, j.tight + '/5 ' + TIGHT[j.tight])),
         h('dl', null,
@@ -618,7 +618,7 @@
       if (a) { done++; if (ok) right++; }
       var opts = h('div', { class: 'quiz-opts', role: 'group', 'aria-label': '問' + (i + 1) + 'の答え' });
       JOINTS.forEach(function (j) {
-        opts.appendChild(h('button', { class: 'btn', type: 'button', 'aria-pressed': String(a === j.id), onclick: function () {
+        opts.appendChild(h('button', { class: 'ef-btn', type: 'button', 'aria-pressed': String(a === j.id), onclick: function () {
           S.quiz.answers[i] = j.id; renderQuiz(); save();
           var b = $$('#joint-quiz .quiz-opts')[i].querySelector('[aria-pressed="true"]'); if (b) b.focus();
         } }, j.name));
@@ -628,7 +628,7 @@
         a ? h('p', { class: 'quiz-fb ' + (ok ? 'ok' : 'ng'), role: 'status' }, (ok ? '○ 正解! ' : '✕ もう一度考えよう。') + (ok ? q.why : '')) : null));
     });
     box.appendChild(h('p', null, h('strong', null, JOINT_QUIZ.length + '問中 ' + right + '問 正解'), done < JOINT_QUIZ.length ? '(のこり ' + (JOINT_QUIZ.length - done) + '問)' : ''));
-    box.appendChild(h('button', { class: 'btn small', type: 'button', onclick: function () { S.quiz.answers = {}; renderQuiz(); save(); } }, 'クイズをやり直す'));
+    box.appendChild(h('button', { class: 'ef-btn is-s', type: 'button', onclick: function () { S.quiz.answers = {}; renderQuiz(); save(); } }, 'クイズをやり直す'));
   }
 
   /* ---------- 4 設計課題 ---------- */
@@ -636,7 +636,7 @@
     G.psCycle($('#ps-cycle'), ['plan', 'eval', 'improve']);
     var lt = $('#level-tabs');
     Challenge.LEVELS.forEach(function (lv, i) {
-      lt.appendChild(h('button', { class: 'btn', type: 'button', 'data-level': lv.id, onclick: function () { S.challenge.level = lv.id; renderChallenge(); save(); } }, '課題' + (i + 1)));
+      lt.appendChild(h('button', { class: 'ef-btn', type: 'button', 'data-level': lv.id, onclick: function () { S.challenge.level = lv.id; renderChallenge(); save(); } }, '課題' + (i + 1)));
     });
     Challenge.MATERIALS.forEach(function (id) { $('#c-material').appendChild(h('option', { value: id }, matName(id))); });
     Challenge.THICKNESS.forEach(function (t) { $('#c-t').appendChild(h('option', { value: t }, t + ' mm')); });
@@ -714,7 +714,7 @@
     });
     var tries = rows.length, best = bestStars(lv.id);
     if (tries >= 3 && best < 3) {
-      out.appendChild(h('p', { class: 'g-note' }, best === 0
+      out.appendChild(h('p', { class: 'ef-note is-warn' }, best === 0
         ? 'ヒント:たわみが大きいときは、厚みを増やすと効果が大きい。厚み2倍でたわみは1/8になる。'
         : 'ヒント:薄い板に細いリブを付けて「高さ」を出してみよう。板を厚くするより、軽くて曲がりにくくなることがある。'));
     }
