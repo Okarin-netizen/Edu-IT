@@ -5376,17 +5376,17 @@ function createView(canvas) {
       ctx.stroke();
     }
     // ゴール（基地・旗）
-    if (field.goal) drawGoal(field.goal, sim.goalReached, sim.targets.every((t) => t.done));
-    // 調査地点・サンプル
-    for (const t of sim.targets) {
-      if (t.mode === "near") continue;
-      drawTarget(t);
-    }
+    if (field.goal) drawGoal(field.goal, sim.goalReached, sim.targets.every((t) => t.done), field.start);
     // 障害物
     for (const o of field.obstacles) {
       if (o.type === "wall") drawWall(o);
       else if (o.type === "crater") drawCrater(o);
       else drawRock(o);
+    }
+    // 調査地点・サンプル（名前が壁にかくれないように、障害物のあとにかく）
+    for (const t of sim.targets) {
+      if (t.mode === "near") continue;
+      drawTarget(t);
     }
     // 岩の調査の印
     for (const t of sim.targets) {
@@ -5514,7 +5514,7 @@ function createView(canvas) {
     label(t.done ? "✓" : t.label || "", t.x, t.y - t.r - 5, t.done ? C.done : C.target);
   }
 
-  function drawGoal(g, reached, ready) {
+  function drawGoal(g, reached, ready, start) {
     ctx.fillStyle = reached ? "rgba(31, 122, 58, 0.22)" : "rgba(31, 122, 58, 0.10)";
     ctx.strokeStyle = C.goal;
     ctx.lineWidth = 2;
@@ -5535,7 +5535,9 @@ function createView(canvas) {
     ctx.lineTo(fx, fy - 4);
     ctx.closePath();
     ctx.fill();
-    label(reached ? "✓ " + (g.label || "ゴール") : g.label || "ゴール", fx, g.y + g.h - 6 > fy + 26 ? fy + 28 : g.y - 5, C.goal);
+    // ロボットが基地から出発するときは、名前がロボットにかくれないように枠の上に書く
+    const startIn = start && start.x > g.x && start.x < g.x + g.w && start.y > g.y && start.y < g.y + g.h;
+    label(reached ? "✓ " + (g.label || "ゴール") : g.label || "ゴール", fx, !startIn && g.y + g.h - 6 > fy + 26 ? fy + 28 : g.y - 5, C.goal);
   }
 
   function drawBeam(sim, s) {

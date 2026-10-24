@@ -272,7 +272,7 @@ const sandbox = {
   ${Array.from({ length: 8 }, (_, i) => `<rect x="${162 + i * 21}" y="176" width="8" height="10" fill="#d8b24a"/>`).join("")}
   <rect x="160" y="16" width="160" height="40" rx="6" fill="#1b2a1b" stroke="#0e3d29" stroke-width="2"/>
   <text x="240" y="43" font-size="18" fill="#9cff9c" text-anchor="middle" font-family="monospace">${esc(out.表示 ?? "")}</text>
-  ${label(240, 70, "表示")}
+  <text x="150" y="41" font-size="13" fill="#1d2a3a" text-anchor="end">表示</text>
   <circle cx="70" cy="60" r="18" fill="${out.LED ? "#ff4d3a" : "#5a2b27"}" stroke="#2b1210" stroke-width="2"/>
   ${out.LED ? `<circle cx="70" cy="60" r="28" fill="#ff4d3a" opacity="0.25"/>` : ""}
   ${label(70, 96, "LED")}
@@ -285,8 +285,8 @@ const sandbox = {
   <line x1="400" y1="190" x2="${r1(ax)}" y2="${r1(ay)}" stroke="#eb6834" stroke-width="8" stroke-linecap="round"/>
   ${label(400, 228, `サーボ ${out.サーボ}°`)}
   <g font-size="13" fill="#1d2a3a">
-    <text x="150" y="214">明るさ ${sensors.明るさ}　温度 ${sensors.温度}℃　距離 ${sensors.距離}cm</text>
-    <text x="150" y="232">ボタン ${sensors.ボタン ? "オン" : "オフ"}　人感 ${sensors.人感 ? "オン" : "オフ"}</text>
+    <text x="24" y="226">明るさ ${sensors.明るさ}　温度 ${sensors.温度}℃　距離 ${sensors.距離}cm</text>
+    <text x="24" y="244">ボタン ${sensors.ボタン ? "オン" : "オフ"}　人感 ${sensors.人感 ? "オン" : "オフ"}</text>
   </g>
 </svg>`;
   },

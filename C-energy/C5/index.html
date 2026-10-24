@@ -1209,8 +1209,21 @@ function drawTrain(c, T, A, o) {
       text(c, rpmText(w.rpm), big.x, big.y + big.r + 22, 15, '#22302a');
     });
     var p0 = P[0], pn = P[P.length - 1];
-    pill(c, '⚡ モーター(入力)', p0.x, Math.max(16, p0.y - p0.r - 40), { bg: '#2b7a4b', color: '#fff', size: 14 });
-    if (P.length > 1) pill(c, '🎯 出力', pn.x, Math.max(16, pn.y - pn.r - 40), { bg: '#c2410c', color: '#fff', size: 14 });
+    // ラベルが となりの大きい歯車や回る向きの矢印に重ならない高さにする
+    var tagY = function (p, label) {
+      c.font = 'bold 14px "BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif';
+      var hw = c.measureText(label).width / 2 + 6, y = p.y - p.r - 40, x = S.cw > hw * 2 + 4 ? clamp(p.x, hw + 2, S.cw - hw - 2) : p.x;
+      P.forEach(function (q) { if (Math.abs(q.x - x) < q.r + 16 + hw) y = Math.min(y, q.y - q.r - 34); });
+      return { x: x, y: Math.max(16, y), hw: hw };
+    };
+    var tIn = tagY(p0, '⚡ モーター(入力)');
+    pill(c, '⚡ モーター(入力)', p0.x, tIn.y, { bg: '#2b7a4b', color: '#fff', size: 14 });
+    if (P.length > 1) {
+      var tOut = tagY(pn, '🎯 出力');
+      // 入力と出力が同じ軸のときは、札をとなりにならべる
+      if (Math.abs(tOut.y - tIn.y) < 24 && Math.abs(tOut.x - tIn.x) < tIn.hw + tOut.hw) { tOut.x = tIn.x + tIn.hw + tOut.hw + 4; tOut.y = tIn.y; }
+      pill(c, '🎯 出力', tOut.x, tOut.y, { bg: '#c2410c', color: '#fff', size: 14 });
+    }
   }
   S.trainP = P;
   return P;
@@ -1344,8 +1357,11 @@ function drawConv(c) {
     c.fillStyle = '#5b7083'; c.fillRect(cx - 5 * sc, rodTop, 10 * sc, tipY - rodTop - 6 * sc);
     c.beginPath(); c.moveTo(cx - 5 * sc, tipY - 6 * sc); c.lineTo(cx + 5 * sc, tipY - 6 * sc); c.lineTo(cx, tipY); c.closePath(); c.fill();
     c.fillStyle = '#e76f51'; c.fillRect(cx - 22 * sc, rodTop - 14 * sc, 44 * sc, 14 * sc);
-    text(c, '従動節', cx + 22 * sc + 4, rodTop + 12 * sc, 14, '#22302a', 'left');
-    text(c, '(じゅうどうせつ)', cx + 22 * sc + 4, rodTop + 12 * sc + 17, 13, '#5e6b64', 'left', false);
+    // 右のグラフにかかるときは、棒の左に書く
+    c.font = '13px sans-serif';
+    var flL = cx + 22 * sc + 4 + c.measureText('(じゅうどうせつ)').width > gx0 + 12, flX = flL ? cx - 22 * sc - 4 : cx + 22 * sc + 4, flA = flL ? 'right' : 'left';
+    text(c, '従動節', flX, rodTop + 12 * sc, 14, '#22302a', flA);
+    text(c, '(じゅうどうせつ)', flX, rodTop + 12 * sc + 17, 13, '#5e6b64', flA, false);
     // 高さの目印
     var yb = cy - sk.min * sc, yt = cy - sk.max * sc;
     c.setLineDash([4, 4]); c.strokeStyle = '#7a867e'; c.lineWidth = 1;
@@ -1479,8 +1495,9 @@ function drawConv(c) {
     if (!S.screwTried) pill(c, '👆 緑のハンドルを、指でぐるっと回そう', S.cw / 2, 66, { size: 15, color: COL_IN });
     // 目盛り
     var by2 = ty(29);
-    for (var mm2 = 0; mm2 <= 60; mm2 += 1) { c.beginPath(); c.moveTo(tx(mm2), by2); c.lineTo(tx(mm2), by2 - (mm2 % 10 ? (mm2 % 5 ? 5 : 9) : 14)); c.strokeStyle = '#8a958e'; c.lineWidth = 1; c.stroke(); if (!(mm2 % 10)) text(c, mm2 + '', tx(mm2), by2 + 11, 13, '#5e6b64', 'center', false); }
-    text(c, 'mm', tx(60) + 18, by2 + 11, 13, '#5e6b64');
+    // 0 はナットのはじめの位置(左はし)。針はナットの左はしを指す
+    for (var mm2 = 0; mm2 <= 50; mm2 += 1) { c.beginPath(); c.moveTo(tx(mm2 + 2), by2); c.lineTo(tx(mm2 + 2), by2 - (mm2 % 10 ? (mm2 % 5 ? 5 : 9) : 14)); c.strokeStyle = '#8a958e'; c.lineWidth = 1; c.stroke(); if (!(mm2 % 10)) text(c, mm2 + '', tx(mm2 + 2), by2 + 11, 13, '#5e6b64', 'center', false); }
+    text(c, 'mm', tx(52) + 18, by2 + 11, 13, '#5e6b64');
     c.beginPath(); c.moveTo(tx(C.s + 2) + 0, by2 - 18); c.lineTo(tx(C.s + 2), by2); c.strokeStyle = '#c2410c'; c.lineWidth = 3; c.stroke();
     pill(c, '進んだ距離 ' + fmt(C.s, 2) + 'mm', S.cw / 2, 30, { size: 16, bg: '#264d3a', color: '#fff' });
   }

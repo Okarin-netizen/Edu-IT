@@ -445,15 +445,15 @@
     // のこぎりで板を切る場面
     saw: function () {
       return '<rect class="k-floor" x="0" y="226" width="400" height="34"/>' +
-        P.saw({ x: 268, y: 132, a: -35, s: 0.72 }) +
+        P.saw({ x: 290, y: 116, a: -30, s: 0.72 }) +
         P.bench({ x: 30, w: 220, y: 150, floor: 226 }) +
         // 作業台の端からはみ出したげんのう(柄が外に出ている)
         '<g transform="translate(72 150) scale(-0.8 0.8)">' + P.hammer({ x: 0, y: 0, len: 60 }) + '</g>' +
         // 固定されていない板(クランプなし)
         P.board({ x: 60, y: 132, w: 240, h: 18 }) +
-        P.line({ x1: 268, y1: 132, x2: 268, y2: 150, dash: true }) +
+        P.line({ x1: 262, y1: 132, x2: 262, y2: 150, dash: true }) +
         // 作業する人(長い髪をまとめていない)。左手は切る所のすぐそば
-        person({ x: 362, y: 106, face: 'left', hair: 'long', arms: [[328, 78], [256, 128]] }) +
+        person({ x: 362, y: 106, face: 'left', hair: 'long', arms: [[330, 80], [252, 128]] }) +
         // 床の木片
         '<rect class="f-wood" x="300" y="234" width="46" height="9" transform="rotate(-8 323 238)"/>' +
         '<rect class="f-wood" x="250" y="240" width="22" height="7"/>';
@@ -469,8 +469,8 @@
         person({ x: 196, y: 106, face: 'left', hair: 'short', walk: true, arms: [[186, 168], [208, 166]] }) +
         P.arrow({ x1: 218, y1: 80, x2: 176, y2: 80 }, ARR) +
         // きりの刃先を相手に向けて手わたす人(そで口が広い)
-        P.awl({ x: 342, y: 128, a: -90, s: 0.75 }) +
-        person({ x: 262, y: 106, face: 'right', hair: 'short', sleeve: 'loose', arms: [[284, 168], [292, 128]] }) +
+        P.awl({ x: 350, y: 142, a: -90, s: 0.75 }) +
+        person({ x: 262, y: 106, face: 'right', hair: 'short', sleeve: 'loose', arms: [[284, 168], [300, 142]] }) +
         person({ x: 372, y: 106, face: 'left', hair: 'tied', arms: [[380, 168], [344, 136]] }) +
         // 通路をまたぐコード
         '<path class="k-cord" d="M170 260 Q200 230 240 246 T330 238 L400 232"/>';

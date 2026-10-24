@@ -3,24 +3,24 @@ import { h, s, explain, reducedMotion, sleep } from "./ui.js";
 import { store } from "./store.js";
 
 const BOX = {
-  ctrl: { x: 285, y: 18, w: 150, h: 66, title: "制御装置", sub: "命令を読んで指示を出す", cpu: true },
-  in: { x: 16, y: 158, w: 148, h: 66, title: "入力装置", sub: "キーボード・マウスなど" },
+  ctrl: { x: 280, y: 18, w: 160, h: 66, title: "制御装置", sub: "命令を読んで指示を出す", cpu: true },
+  in: { x: 10, y: 158, w: 158, h: 66, title: "入力装置", sub: "キーボード・マウスなど" },
   mem: { x: 285, y: 158, w: 150, h: 66, title: "記憶装置", sub: "メモリ（主記憶）" },
-  out: { x: 556, y: 158, w: 148, h: 66, title: "出力装置", sub: "ディスプレイなど" },
+  out: { x: 552, y: 158, w: 158, h: 66, title: "出力装置", sub: "ディスプレイなど" },
   alu: { x: 285, y: 298, w: 150, h: 66, title: "演算装置", sub: "計算・くらべる" },
 };
 
 // 矢印（data=データの流れ、ctrl=制御の信号）
 const ARROWS = {
-  inMem: { kind: "data", d: "M164 191 H283" },
-  memOut: { kind: "data", d: "M435 191 H554" },
+  inMem: { kind: "data", d: "M168 191 H283" },
+  memOut: { kind: "data", d: "M435 191 H550" },
   memAlu: { kind: "data", d: "M340 224 V296" },
   aluMem: { kind: "data", d: "M380 298 V226" },
   memCtrl: { kind: "data", d: "M360 158 V86" },
-  ctrlIn: { kind: "ctrl", d: "M285 40 H90 V156" },
-  ctrlOut: { kind: "ctrl", d: "M435 40 H630 V156" },
+  ctrlIn: { kind: "ctrl", d: "M280 40 H89 V156" },
+  ctrlOut: { kind: "ctrl", d: "M440 40 H631 V156" },
   ctrlMem: { kind: "ctrl", d: "M310 84 V156" },
-  ctrlAlu: { kind: "ctrl", d: "M285 70 H250 V331 H283" },
+  ctrlAlu: { kind: "ctrl", d: "M280 70 H250 V331 H283" },
 };
 
 const STEPS = [
