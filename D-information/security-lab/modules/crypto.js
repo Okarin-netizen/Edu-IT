@@ -103,7 +103,7 @@ export const cryptoModule = {
             { style: "margin:4px 0" },
             h("li", {}, h("strong", {}, "1回目: "), `ステップ1〜${breakIdx + 1}（昔の暗号を作って、破る）約15〜20分`),
             h("li", {}, h("strong", {}, "2回目: "), `ステップ${breakIdx + 2}〜${STEPS.length}（強い暗号、鍵の受け渡し、素因数分解）約15〜20分`),
-            h("li", {}, h("strong", {}, "発展: "), "公開鍵暗号（RSA）の計算は、やれる人だけ。やらなくても、このモジュールは完了になります。"),
+            h("li", {}, h("strong", {}, "発展: "), "公開鍵暗号（RSA）の計算は、やれる人だけ。やらなくても、この体験は完了になります。"),
           ),
           h("div", { class: "btn-row" }, h("button", { class: "btn small secondary", type: "button", onclick: goSecond }, `2回目の人: ステップ${breakIdx + 2}へ ↓`)),
         ),

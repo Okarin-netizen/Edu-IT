@@ -277,7 +277,7 @@
     var idx = SECTIONS.indexOf(s);
     if (s.no) {
       view.appendChild(h('header', { class: 'module-head sec-head' },
-        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label }),
         h('h1', { class: 'sec-title', text: s.title })));
     }
     var body = h('div', { class: 'sec-body' });
@@ -328,11 +328,6 @@
           h('li', { text: FK_OFF ? '⑦でクイズに答える' : '⑦でクイズとふりかえりを書く' }),
           h('li', null, h('a', { href: '#records', text: T_REC }), 'からファイルを書き出して提出する')),
         h('div', { class: 'lesson-plan' },
-          h('h3', { text: '授業で行うときの例' }),
-          h('ul', null,
-            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① ハッシュ値を作る・② 1文字だけ変える・③ 手作りハッシュ・④ もとにもどせる？」'),
-            h('li', null, h('strong', { text: '2時間目' }), '「⑤ パスワードの守り方・⑥ 改ざんを見つける・⑦ ' + T_QUIZ + '」'),
-            h('li', null, h('strong', { text: '1時間で行うとき' }), 'は、①・②・④・⑤・⑦ を中心にする')),
           h('p', { class: 'muted', text: '次の人に端末をわたすときは、「' + T_REC + '」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
       h('section', { class: 'module-group' },
         h('h2', { text: 'ステップ' }),
@@ -340,7 +335,7 @@
           var m = missionOf(x.id);
           var state = m && cleared(m.id) ? '✓ チャレンジ達成' : visited[x.id] ? '✓ やった' : 'まだ';
           return h('a', { class: 'module-card', href: '#' + x.id },
-            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
             h('span', { class: 'mc-state' + (visited[x.id] ? ' is-done' : ''), text: state }));

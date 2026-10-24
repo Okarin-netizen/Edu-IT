@@ -97,7 +97,7 @@ function renderHome() {
       return h(
         "a",
         { class: "module-card", href: `#/${m.id}` },
-        h("span", { class: "mc-num" }, `${m.label}　目安 ${m.minutes}（${m.period}時間目）`),
+        h("span", { class: "mc-num" }, m.label),
         h("span", { class: "mc-title" }, m.title),
         h("span", { class: "mc-desc" }, m.desc),
         h("span", { class: "hint" }, p.complete ? "✓ クリア" : `${p.done} / ${p.total} ステップ`),
@@ -109,36 +109,18 @@ function renderHome() {
       "div",
       { class: "module-head" },
       h("h1", {}, "ネットワーク通信シミュレータ"),
-      h("p", { class: "meta" }, "中学校 技術・家庭科（技術分野）D「情報の技術」　情報通信ネットワークの構成と、情報を利用するための基本的なしくみ"),
+      h("p", { class: "meta" }, "Webページを見るとき、ネットワークの中で何が起きているかを、模型で確かめよう。"),
       h("p", { class: "author" }, "作成：技術 岡田"),
     ),
     h(
       "div",
       { class: "card" },
-      h("p", {}, "パソコンでWebページを見るとき、ネットワークの中では何が起きているのでしょう。このシミュレータでは、ブラウザの中で", h("strong", {}, "模型のネットワーク"), "を組み立てます。パケット・IPアドレス・DNS・ルータ・サーバのはたらきを、目で見て確かめよう。"),
+      h("p", {}, "このシミュレータでは、ブラウザの中で", h("strong", {}, "模型のネットワーク"), "を組み立てます。パケット・IPアドレス・DNS・ルータ・サーバのはたらきを、目で見て確かめよう。"),
       explainCard("安心して使えます", "この教材は、ブラウザの中だけで動きます。本物のネットワークや外部のサイトには、まったくつながりません。サイト名は架空（<code>.example</code>）、IPアドレスは家の中で使う番号（プライベートアドレス）と、説明用に予約された番号です。"),
       h("p", { class: "hint" }, "おすすめの順番：① → ② → ③ → ④ → ⑤（⑤は発展）。①で作ったネットワークを、②〜④で使います。はじめから用意された形のままでも体験できます。"),
     ),
-    // 授業の区切り（NW-17）。2時間で使う
-    h(
-      "div",
-      { class: "card lesson-plan" },
-      h("h2", {}, "授業で使うとき（2時間）"),
-      h(
-        "table",
-        { class: "data" },
-        h("thead", {}, h("tr", {}, h("th", {}, "時間"), h("th", {}, "やること"), h("th", {}, "目安"))),
-        h(
-          "tbody",
-          {},
-          [1, 2].map((p) => {
-            const ms = MODULES.filter((m) => m.period === p);
-            return h("tr", {}, h("th", { scope: "row" }, `${p}時間目`), h("td", {}, ms.map((m) => `${m.label} ${m.title}`).join("、")), h("td", {}, ms.map((m) => m.minutes).join(" ＋ ")));
-          }),
-        ),
-      ),
-      h("p", { class: "hint" }, h("span", REFLECT_ATTR, "どのページも、終わりに「ふりかえり」を書きます。"), "⑤のドリル（発展）の「チャレンジ問題」は、時間がある人だけでかまいません。"),
-    ),
+    // 授業の時間わり（何時間目に何をするか）は先生用ガイドにある。生徒の画面には出さない
+    h("p", { class: "hint" }, h("span", REFLECT_ATTR, "どのページも、終わりに「ふりかえり」を書きます。"), "⑤のドリル（発展）の「チャレンジ問題」は、時間がある人だけでかまいません。"),
     grid,
     // ことばの一覧（読み方つき）（NW-13）
     h(
@@ -234,7 +216,7 @@ function renderRecords() {
 }
 
 function renderModule(m) {
-  const head = h("div", { class: "module-head" }, h("h1", {}, `${m.label} ${m.title}`), h("p", { class: "meta" }, `目安 ${m.minutes}（2時間で使うときは ${m.period}時間目）`), h("p", {}, m.lead));
+  const head = h("div", { class: "module-head" }, h("h1", {}, `${m.label} ${m.title}`), h("p", {}, m.lead));
   view.replaceChildren(head);
   m.render(view);
   const idx = MODULES.indexOf(m);

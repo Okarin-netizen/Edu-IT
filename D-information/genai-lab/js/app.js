@@ -252,10 +252,12 @@
       if (a.getAttribute('data-id') === s.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
     view.textContent = '';
+    // 教科書の4章「これからの技術」の入り口の問い(shared/eduit-frame.js が中身を入れる)
+    if (s.id === 'halluc') view.appendChild(h('div', { 'data-ef-lets': 'd42' }));
     var idx = SECTIONS.indexOf(s);
     if (s.no) {
       view.appendChild(h('header', { class: 'module-head sec-head' },
-        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label }),
         h('h1', { class: 'sec-title', text: s.title })));
     }
     var body = h('div', { class: 'sec-body' });
@@ -304,17 +306,12 @@
           h('li', { text: '発展: ④〜⑥で文章をつくるAI、⑦・⑧で画像をつくるAIのしくみを体験する' }),
           h('li', null, h('a', { href: '#records', text: T_REC }), 'からファイルを書き出して提出する')),
         h('div', { class: 'lesson-plan' },
-          h('h3', { text: '2時間で行うときの例' }),
-          h('ul', null,
-            h('li', null, h('strong', { text: '1時間目' }), '「はじめに・① もっともらしいまちがい・② 個人情報・③ ' + T_QUIZ + '」(基本)'),
-            h('li', null, h('strong', { text: '2時間目' }), '「④ つぎの言葉あて・⑤ トークン・⑥ ミニ文章AI・⑦ ノイズをまぜる・⑧ ノイズから絵をつくる」(発展)'),
-            h('li', null, h('strong', { text: '発展を少しだけ行うとき' }), 'は、⑥・⑧ を中心にする')),
           h('p', { class: 'muted', text: '次の人に端末をわたすときは、「' + T_REC + '」のいちばん下の「はじめからやり直す」で、この端末の記録を消せます。' }))),
       h('section', { class: 'module-group' },
         h('h2', { text: 'ステップ' }),
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
           return h('a', { class: 'module-card', href: '#' + x.id },
-            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
             h('span', { class: 'mc-state' + (visited[x.id] ? ' is-done' : ''), text: visited[x.id] ? '✓ やった' : 'まだ' }));

@@ -84,7 +84,7 @@ function renderHome() {
     return h(
       "a",
       { class: "module-card", href: `#/${c.id}` },
-      h("span", { class: "mc-num" }, `${c.label}・目安 ${c.module.minutes}`),
+      h("span", { class: "mc-num" }, c.label),
       h("span", { class: "mc-title" }, c.title),
       h("span", { class: "mc-desc" }, c.desc),
       h("div", { class: "bar", "aria-hidden": "true" }, h("span", { style: `width:${(p.done / p.total) * 100}%` })),
@@ -92,35 +92,24 @@ function renderHome() {
     );
   });
   view.replaceChildren(
-    h("div", { class: "module-head" }, h("h1", {}, "デジタル化ラボ"), h("p", { class: "meta" }, "コンピュータは、画像も音も文字も「0と1」にして扱います。どうやって0と1にするのか、データの量はどう変わるのか、手を動かして確かめよう。"), h("p", { class: "hint author" }, "作成：技術 岡田")),
+    h("div", { "data-ef-lets": "d13" }),
+    h("div", { class: "module-head" }, h("h1", {}, "デジタル化ラボ"), h("p", { class: "meta" }, "コンピュータは、写真も音も文字も、0と1の数にして記録します。どうやって数にするのかを、手を動かして確かめよう。"), h("p", { class: "hint author" }, "作成：技術 岡田")),
     h(
       "section",
       { class: "card" },
-      h("h2", {}, "デジタル化の3つの手順"),
-      h("p", {}, "連続して変わる量（アナログ）を、とびとびの数（デジタル）にします。それには、次の3つの手順をふみます。どのモジュールでも、この手順が出てきます。"),
-      pipeline(),
+      h("h2", {}, "アナログとデジタル"),
+      h("p", {}, "針の時計は、針がなめらかに動きます。このように、切れめなく変わる量をアナログといいます。"),
+      h("p", {}, "数字の時計は、1分ごとに数がとびとびに変わります。このように、数で表したものをデジタルといいます。"),
+      h("details", {}, h("summary", {}, "くわしく: デジタルにする3つの手順(①〜③で出てくる)"), pipeline()),
       explainCard("安心して体験できます", "このラボは、このブラウザの中だけで動きます。インターネットには、まったくつながりません。写真を読み込んでも、マイクで声を録音しても、保存も送信もしません。"),
     ),
     h(
       "section",
       { class: "card" },
       h("h2", {}, "すすめ方"),
-      h("ol", {}, h("li", {}, "①〜③のモジュールを順に体験する", h("span", REFLECT_ATTR, "。それぞれのふりかえりを書く")), h("li", {}, "④の計算ドリルで、データ量の計算を練習する"), h("li", {}, "⑤の圧縮のしくみは発展。先生に言われたときや、早く終わったときに取り組む"), h("li", {}, h("a", { href: "#/records" }, recordsTitle()), "からファイルを書き出して提出する")),
-      h(
-        "div",
-        { class: "lesson-plan" },
-        h("h3", {}, "2時間で行うときの例"),
-        h(
-          "ul",
-          {},
-          h("li", {}, h("strong", {}, "1時間目"), "「はじめに・① 画像・② 音」"),
-          h("li", {}, h("strong", {}, "2時間目"), `「③ 2進数・④ ドリル・${recordsTitle()}」`),
-          h("li", {}, h("strong", {}, "⑤ 圧縮（発展）"), "は、早く終わった人や、次の時間に使う"),
-        ),
-        h("p", { class: "hint", ...REFLECT_ATTR }, "時間の終わりには、ふりかえりを書いてから次へ進もう。"),
-      ),
+      h("ol", {}, h("li", {}, "①〜③を順に体験する", h("span", REFLECT_ATTR, "。それぞれのふりかえりを書く")), h("li", {}, "④の計算ドリルで、データ量の計算を練習する"), h("li", {}, "⑤の圧縮のしくみは発展。先生に言われたときや、早く終わったときに取り組む"), h("li", {}, h("a", { href: "#/records" }, recordsTitle()), "からファイルを書き出して提出する")),
     ),
-    h("section", { class: "module-group" }, h("h2", {}, "モジュール"), h("div", { class: "module-grid" }, cards)),
+    h("section", { class: "module-group" }, h("h2", {}, "体験する"), h("div", { class: "module-grid" }, cards)),
     h("div", { class: "btn-row start-row" }, h("a", { class: "btn", href: `#/${CATALOG[0].id}` }, `${CATALOG[0].label} ${CATALOG[0].title}からはじめよう →`)),
   );
 }
@@ -128,14 +117,14 @@ function renderHome() {
 async function renderModule(entry, stepId) {
   const m = entry.module;
   const root = h("div");
-  view.replaceChildren(h("div", { class: "module-head" }, h("p", { class: "meta" }, `モジュール${entry.label}・目安 ${m.minutes}`), h("h1", {}, entry.title), h("p", {}, m.lead)), root);
+  view.replaceChildren(h("div", { class: "module-head" }, h("p", { class: "meta" }, entry.label), h("h1", {}, entry.title), h("p", {}, m.lead)), root);
   const idx = CATALOG.indexOf(entry);
   const prev = CATALOG[idx - 1];
   const next = CATALOG[idx + 1];
   const navRow = h(
     "div",
     { class: "btn-row" },
-    prev ? h("a", { class: "btn secondary", href: `#/${prev.id}` }, "← 前のモジュール") : null,
+    prev ? h("a", { class: "btn secondary", href: `#/${prev.id}` }, "← 前へ") : null,
     next ? h("a", { class: "btn", href: `#/${next.id}` }, `次へ：${next.title} →`) : h("a", { class: "btn", href: "#/records" }, `${recordsTitle()}へ →`),
   );
   await m.render(root);

@@ -347,6 +347,7 @@ function viewWorks() {
   const sampleChoice = h("div", { class: "explain sample-choice", role: "alert", hidden: true });
   view.append(
     ...[loadProblemBanner()].filter(Boolean),
+    h("div", { "data-ef-lets": "d21" }),
     h(
       "div",
       { class: "module-head" },
@@ -874,6 +875,8 @@ function viewEditor() {
   );
 
   view.append(
+    // 部品をまだ置いていない作りはじめだけ、入り口の問いを出す（作業の場所をせまくしないため）
+    ...(work.ui.length ? [] : [h("div", { "data-ef-lets": "d23" })]),
     datalist,
     h(
       "div",
@@ -967,6 +970,7 @@ function viewRun() {
     }
   };
   view.append(
+    ...(work.ui.length ? [] : [h("div", { "data-ef-lets": "d24" })]),
     h("div", { class: "toolbar" }, h("h1", { class: "tb-title" }, "実行", h("span", { class: "hint" }, work.title))),
     h(
       "div",
