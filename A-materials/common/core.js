@@ -623,7 +623,7 @@
     // (リンクの付けかえは build-single.py が各ページに入れるスクリプトが行う)
     var start = function () {
       // タブの帯は、下へ読み進めると隠れ、上へ戻すと出る(shared/eduit-frame.js)
-      Array.prototype.forEach.call(document.querySelectorAll('.g-tablist'), function (t) { t.setAttribute('data-ef-autohide', ''); });
+      Array.prototype.forEach.call(document.querySelectorAll('.ef-apptabs'), function (t) { t.setAttribute('data-ef-autohide', ''); });
       G.ruby.apply(document.body);
       G.ruby.observe();
     };

@@ -541,6 +541,7 @@ html[data-ef-prefs] { font-size: var(--ef-fs); }
 }
 .ef-apptab[aria-selected="true"] rt, .ef-apptab[aria-current] rt, .ef-apptab.is-on rt { color: inherit; }
 .ef-apptab.is-advanced { color: var(--ef-advanced); }  /* 発展のタブ(字だけむらさき。開いたときの下線は分野の色) */
+.ef-apptab.is-done::after { content: " ✓"; }        /* 書き終えたページ */
 /* タブの帯の右はしの道具(使い方・記録・音 など) */
 .ef-apptabs-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 0; }
 
@@ -2673,22 +2674,18 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e1 *{box-sizing:border-box}
-.e1 button{font:inherit;touch-action:manipulation}
+:where(.e1 button){font:inherit;touch-action:manipulation}
 .e1 rt{font-size:.55em;font-weight:normal}
-.e1-top{height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(右に道具)。ここには置き方だけを書く */
+.e1-top{flex:none;align-items:center;min-height:52px}
 .e1-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e1-stitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
+.e1-stitle{align-self:center;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
 .e1-stitle .t{font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e1-stitle .l{font-size:calc(13px * var(--ea-fs, 1));opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e1-btn:active{transform:translateY(1px)}
 .e1-btn:disabled{opacity:.45;cursor:default;transform:none}
-.e1-top .e1-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;white-space:nowrap;padding:0 12px;flex:none}
-.e1-top .e1-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e1-top .e1-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e1-top h1{color:var(--ef-text,#1f2328)}
-.e1-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e1-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e1-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e1-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .e1-btn.go{background:var(--accent);color:#fff;font-size:calc(21px * var(--ea-fs, 1));min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
@@ -2849,11 +2846,7 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   .e1-modal{padding:16px 18px 0}
   .e1-axis{grid-template-columns:minmax(0,230px) 1fr 40px}
 }
-/* せまい画面(スマホの縦など): 上のバーのボタンは絵文字だけにして、はみ出さないようにする */
 @media (max-width:700px){
-  .e1-top{gap:4px;padding:0 6px}
-  .e1-top .lg{display:none}
-  .e1-top .e1-btn{padding:0 8px;min-width:44px}
   .e1-two{grid-template-columns:1fr}
   .e1-modal .acts .e1-btn{min-width:0;flex:1 1 40%}
 }
@@ -2862,22 +2855,14 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e6 *{box-sizing:border-box}
-.e6 button{font:inherit;touch-action:manipulation;color:inherit}
+:where(.e6 button){font:inherit;touch-action:manipulation;color:inherit}
 .e6 input,.e6 textarea{font:inherit}
 .e6 ruby rt{font-size:.55em;font-weight:normal}
-.e6-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブ)。.e6-tabs・.e6-tab は JS が探すための名前。ここには置き方だけを書く */
+.e6-top{position:sticky;top:0;z-index:5;flex:none}
+.e6-tabs{display:contents}
+.e6-tab .ck{color:var(--ef-ok);margin-left:3px}
 .e6-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
-.e6-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
-.e6-tabs::-webkit-scrollbar{display:none}
-.e6-tab{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1))}
-.e6-tab:hover{border-color:var(--ef-accent,#b45309)}
-.e6-tab.on{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-.e6-tab.adv{border-style:dashed}
-.e6-tab.adv.on{border-style:solid}
-.e6-tab .ck{color:#1a9b5b;margin-left:3px}
-.e6-tab.on .ck{color:#fff}
-.e6-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e6-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e6-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e6-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .e6-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
@@ -2984,12 +2969,11 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   .e6-meth{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media (max-width:760px){
-  .e6-top h1 .lg{display:none}
+
   .e6-grid3,.e6-start,.e6-two{grid-template-columns:minmax(0,1fr)}
   .e6-days{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:640px){
-  .e6-top{padding:0 6px}
   .e6-body{padding:10px 10px 40px}
   .e6-card{padding:10px}
   .e6-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3001,22 +2985,14 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
   color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e7 *{box-sizing:border-box}
-.e7 button{font:inherit;touch-action:manipulation;color:inherit}
+:where(.e7 button){font:inherit;touch-action:manipulation;color:inherit}
 .e7 input,.e7 textarea{font:inherit}
 .e7 ruby rt{font-size:.55em;font-weight:normal}
-.e7-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブ)。.e7-tabs・.e7-tab は JS が探すための名前。ここには置き方だけを書く */
+.e7-top{position:sticky;top:0;z-index:5;flex:none}
+.e7-tabs{display:contents}
+.e7-tab .ck{color:var(--ef-ok);margin-left:3px}
 .e7-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
-.e7-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
-.e7-tabs::-webkit-scrollbar{display:none}
-.e7-tab{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1))}
-.e7-tab:hover{border-color:var(--ef-accent,#b45309)}
-.e7-tab.on{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-.e7-tab.adv{border-style:dashed}
-.e7-tab.adv.on{border-style:solid}
-.e7-tab .ck{color:#1a9b5b;margin-left:3px}
-.e7-tab.on .ck{color:#fff}
-.e7-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e7-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e7-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e7-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .e7-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
@@ -3123,12 +3099,11 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   .e7-meth{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media (max-width:760px){
-  .e7-top h1 .lg{display:none}
+
   .e7-grid3,.e7-start,.e7-two{grid-template-columns:minmax(0,1fr)}
   .e7-days{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:640px){
-  .e7-top{padding:0 6px}
   .e7-body{padding:10px 10px 40px}
   .e7-card{padding:10px}
   .e7-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3158,21 +3133,15 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e2 *{box-sizing:border-box}
-.e2 button{font:inherit;touch-action:manipulation}
-.e2-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
-.e2-top .e2-btn{white-space:nowrap}
-.e2-top .sh{display:none}
+:where(.e2 button){font:inherit;touch-action:manipulation}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e2-top{flex:none;align-items:center}
 .e2-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e2-stitle{flex:1;font-size:calc(16px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px}
+.e2-stitle{align-self:center;flex:1;min-width:0;font-size:calc(16px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px}
 .e2-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e2-btn:active{transform:translateY(1px)}
 .e2-btn:disabled{opacity:.4;cursor:default}
-.e2-top .e2-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 12px}
-.e2-top .e2-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e2-top .e2-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e2-top h1{color:var(--ef-text,#1f2328)}
-.e2-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e2-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e2-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e2-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .e2-btn.good{background:#fff;border-color:#0d6b3a;color:#0d6b3a}
@@ -3332,7 +3301,6 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 @media (max-width:1000px){.e2-cost{flex-direction:column;align-items:stretch}.e2-cost>div:first-child{flex:none!important}.e2-cside{width:100%;display:grid;grid-template-columns:1fr 1fr}.e2-cside .e2-card:first-child{grid-column:1/3}}
 /* 縦向き: パレットは盤面の上の横帯、盤面は全幅、右パネルは盤面の下 */
 @media (max-width:900px){
-  .e2-top .lg{display:none}.e2-top .sh{display:inline}.e2-top{gap:4px;padding:0 6px}.e2-top .e2-btn{padding:0 10px}
   .e2-main{flex-direction:column}
   .e2-pal{width:100%;flex:none;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;border-right:0;border-bottom:1px solid var(--line)}
   .e2-pal h2{display:none}
@@ -3353,12 +3321,9 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   .e2-stgrid{grid-template-columns:repeat(2,1fr)}
   .e2-steps{grid-template-columns:1fr}
 }
-/* せまい画面(スマホの縦など): 上のバーのボタンは絵文字だけにして、はみ出さないようにする */
+/* せまい画面(スマホの縦など): タブの帯は横にスクロールするので、課題の名前は出さない(盤面の上の文に出る) */
 @media (max-width:600px){
-  .e2-top{gap:3px;padding:0 4px}
-  .e2-top .lg{display:none}
-  .e2-top .e2-btn{padding:0 4px;min-width:44px;flex:none}
-  .e2-stitle{min-width:0;padding-left:0}
+  .e2-stitle{display:none}
   .e2-two{grid-template-columns:1fr}
   .e2-modal .acts .e2-btn{min-width:0;flex:1 1 40%}
 }
@@ -3368,22 +3333,16 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#f1f3ee;-webkit-tap-highlight-color:transparent;}
 .e3 *{box-sizing:border-box}
-.e3 button{font:inherit;touch-action:manipulation}
-.e3-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
-.e3-top .e3-btn{white-space:nowrap}
-.e3-top .sh{display:none}
+:where(.e3 button){font:inherit;touch-action:manipulation}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e3-top{flex:none}
 .e3-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e3-stitle{flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
+.e3-stitle{align-self:center;flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
 .e3-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e3-btn:active{transform:translateY(1px)}
 .e3-btn:disabled{opacity:.4;cursor:default}
 .e3-btn:focus-visible,.e3-cv:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e3-top .e3-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 12px}
-.e3-top .e3-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e3-top .e3-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e3-top h1{color:var(--ef-text,#1f2328)}
-.e3-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e3-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e3-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e3-btn.blue{background:var(--accent2);color:#fff}
 .e3-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
@@ -3501,12 +3460,6 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 .e3-printarea img{display:block;margin:6px auto;max-height:300px;object-fit:contain;max-width:100%;border:1px solid var(--line);border-radius:0;background:#fff}
 @media (max-width:1100px){.e3-list .e3-btn{padding:0 8px;font-size:calc(14px * var(--ea-fs, 1));gap:6px}.e3-pal{width:184px}.e3-side{width:280px}.e3-top h1{display:none}.e3-tgrid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:900px){
-  .e3-top{gap:4px;padding:0 6px}
-  .e3-top .e3-btn{padding:0 9px}
-  .e3-top .lg{display:none}.e3-top .sh{display:inline}
-  /* スマホ: ボタンをちぢめたり横に隠したりせず、2行に折り返してぜんぶ見せる */
-  .e3-top{height:auto;min-height:58px;flex-wrap:wrap;row-gap:6px;padding:6px;overflow:visible!important}
-  .e3-top>*{flex:none}
   .e3-stitle{font-size:calc(14px * var(--ea-fs, 1));padding-left:2px}
   .e3-main{flex-direction:column}
   .e3-pal{width:auto;flex:none;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;border-right:0;border-bottom:1px solid var(--line)}
@@ -3553,21 +3506,15 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#f2f1ec;-webkit-tap-highlight-color:transparent;}
 .e4 *{box-sizing:border-box}
-.e4 button{font:inherit;touch-action:manipulation}
-.e4-top{height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222);white-space:nowrap}
+:where(.e4 button){font:inherit;touch-action:manipulation}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e4-top{flex:none}
 .e4-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e4-top .sp{flex:1}
 .e4-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e4-btn:active{transform:translateY(1px)}
 .e4-btn:disabled{opacity:.4;cursor:default}
 .e4-btn:focus-visible,.e4-cv:focus-visible,.e4-hot:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e4-top .e4-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 12px;min-height:44px;white-space:nowrap}
-.e4-top .e4-sh{display:none}
-.e4-top .e4-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e4-top .e4-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e4-top h1{color:var(--ef-text,#1f2328)}
-.e4-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e4-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e4-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e4-btn.blue{background:#e3eefc;color:#1450a8;border-color:#9cc3ff}
 .e4-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
@@ -3717,9 +3664,8 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 .e4-cgrid{display:block}
 .e4-pcard .nt{font-size:calc(15px * var(--ea-fs, 1));line-height:1.5}
 .e4-ic svg{width:100%;height:100%;display:block}
-@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:calc(16px * var(--ea-fs, 1))}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}.e4-top .e4-btn{padding:0 9px;font-size:calc(15px * var(--ea-fs, 1))}}
+@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:calc(16px * var(--ea-fs, 1))}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}}
 @media (max-width:900px){
-  .e4-top{gap:4px;padding:0 6px}.e4-top h1{font-size:calc(15px * var(--ea-fs, 1));margin-right:2px}.e4-top .e4-lg{display:none}.e4-top .e4-sh{display:inline}.e4-top .e4-btn{padding:0 8px}
   .e4-main{flex-direction:column}
   .e4-side{width:auto;flex:none;max-height:44%;border-left:0;border-top:2px solid var(--line)}
   .e4-mcenter{flex:none}.e4-mcenter .e4-mbox{flex:none;aspect-ratio:1000/640}
@@ -3752,21 +3698,16 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
   color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
   font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
 .e5 *{box-sizing:border-box}
-.e5 button{font:inherit;touch-action:manipulation}
+:where(.e5 button){font:inherit;touch-action:manipulation}
 .e5 input,.e5 textarea,.e5 select{font:inherit;user-select:text;-webkit-user-select:text}
-.e5-top{height:62px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
-.e5-top .sh{display:none}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
+.e5-top{flex:none}
 .e5-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e5-stitle{flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
+.e5-stitle{align-self:center;flex:1;font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:6px;min-width:0}
 .e5-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
 .e5-btn:active{transform:translateY(1px)}
 .e5-btn:disabled{opacity:.4;cursor:default}
-.e5-top .e5-btn{background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);border:1px solid var(--ef-ink,#222);border-radius:0;padding:0 11px;white-space:nowrap}
-.e5-top .e5-btn:hover{background:var(--ef-surface-2,#f7f7f5)}
-.e5-top .e5-btn.on{box-shadow:inset 0 -4px 0 var(--ef-accent,#b45309)}
 .e5-top h1{color:var(--ef-text,#1f2328)}
-.e5-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e5-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e5-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
 .e5-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .e5-btn.good{background:#fff;border-color:#0d6b3a;color:#0d6b3a}
@@ -3936,15 +3877,9 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 }
 @media (max-width:1100px){
   .e5-pal{width:172px}.e5-side{width:262px}
-  .e5-top .e5-btn{padding:0 8px;font-size:calc(15px * var(--ea-fs, 1))}
-  .e5-top h1{font-size:calc(15px * var(--ea-fs, 1))}
 }
 @media (max-width:900px){
   .e5-stitle{display:none}
-  .e5-top{gap:4px;padding:0 6px}
-  .e5-top .lg{display:none}
-  .e5-top .sh{display:inline}
-  .e5-top .e5-btn{padding:0 8px;font-size:calc(15px * var(--ea-fs, 1))}
   .e5-page{flex-direction:column;overflow-y:auto}
   .e5-col{overflow:visible;flex:none!important;width:auto!important}
   .e5-sticky{position:static}
@@ -4234,27 +4169,18 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 .e8 *{box-sizing:border-box}
 .e8 button{touch-action:manipulation}
 .e8 ruby rt{font-size:.55em;font-weight:normal}
-.e8-top{position:sticky;top:0;z-index:5;min-height:58px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--ef-surface,#fff);color:var(--ef-text,#1f2328);flex:none;border-bottom:1px solid var(--ef-ink,#222)}
+/* 上の帯は共通の .ef-apptabs(字＋下線のタブ)。.e8-tabs・.e8-tab は JS が探すための名前。ここには置き方だけを書く */
+.e8-top{position:sticky;top:0;z-index:5;flex:none}
+.e8-tabs{display:contents}
+.e8-tab .ck{color:var(--ef-ok);margin-left:3px}
 .e8-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
-.e8-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}
-.e8-tabs::-webkit-scrollbar{display:none}
-.e8-tab{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--ef-line,#d6d3cb);background:var(--ef-surface,#fff);font:inherit;font-weight:bold;cursor:pointer;white-space:nowrap;font-size:calc(15px * var(--ea-fs, 1));color:inherit}
-.e8-tab:hover{border-color:var(--ef-accent,#b45309)}
-.e8-tab.on{background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent)}
-.e8-tab.adv{border-style:dashed}
-.e8-tab.adv.on{border-style:solid}
-.e8-tab .ck{color:#1a9b5b;margin-left:3px}
-.e8-tab.on .ck{color:#fff}
-.e8-top .ef-about-btn{font-size:0;min-width:44px;min-height:44px;padding:0;flex:none}
-.e8-top .ef-about-btn::before{content:"ⓘ";font-size:calc(20px * var(--ea-fs, 1))}
 .e8-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e8-wrap{max-width:1240px;margin:0 auto}
 .e8-wrap > section[hidden]{display:none!important}
 .e8-saved{color:var(--sub);font-size:.85em;margin:.3em 0}
 .e8-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:0;z-index:30;display:none;max-width:90%;text-align:center}
-@media (max-width:760px){ .e8-top h1 .lg{display:none} }
+
 @media (max-width:640px){
-  .e8-top{padding:0 6px}
   .e8-body{padding:10px 8px 40px}
 }
 @media print{ .e8-top,.e8-toast{display:none!important} }
@@ -4270,12 +4196,11 @@ body{overflow:hidden}
 /* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。
  * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
 .ea-noruby rt,.ea-noruby rp{display:none}
-.ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
 .ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--ef-ink);border-radius:0;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
 .ea-btn:hover:not([disabled]){background:var(--ef-surface-2)}
-.ea-btn:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+.ea-btn:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 .ea-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .ea-btn.primary{background:var(--ef-ink);border-color:var(--ef-ink);color:#fff;font-weight:bold}
 .ea-back{color:var(--ink);background:none;border-color:transparent;font-weight:bold}
@@ -4303,23 +4228,15 @@ body{overflow:hidden}
 .ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
 .ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
 .ea-pg .bar{height:6px;max-width:16em;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-pg .bar i{display:block;height:100%}
+.ea-pg .bar i{display:block;height:100%;background:var(--ef-accent)}
 .ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
 .ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
-.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:var(--ef-surface);color:var(--ink);border-bottom:1px solid var(--ef-ink)}
-.ea-bar .ea-btn{min-height:42px;font-size:15px;padding:0 12px}
+/* アプリの上のバーは共通の .ef-appbar(◀ メニュー・C1〜C8 の切りかえ .ef-switch・道具)。ここには置き方だけを書く */
+.ea-bar{flex:none}
 .ea-btn[hidden]{display:none}
-.ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-.ea-chips::-webkit-scrollbar{display:none}
-.ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
-.ea-chip:hover{color:var(--ink)}
-.ea-chip.cur{color:var(--ink);font-weight:bold;border-bottom-color:var(--accent)}
-.ea-chip .ef-code{font-size:13px;min-width:0}
-.ea-apptitle{margin:0 6px 0 4px;font-size:17px;white-space:nowrap;flex:none}
-.ea-apptitle .ef-code{margin-right:6px}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
@@ -4353,13 +4270,10 @@ body{overflow:hidden}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:0 0 20px}
   .ea-foot{padding:0 16px 20px}
-  .ea-chip{padding:0 8px}
   .ea-hbody{padding:6px 16px 40px}
   .ea-help .bar{padding:8px 12px}
 }
 /* 1440px 以下(11インチの Chromebook など)では C1〜C8 が1行に入りきらず、C6 から先が切れて見えない。アプリ名(下の道具の帯にも出る)を消し、開いていないアプリは記号だけにする */
-@media (max-width:1440px){ .ea-apptitle{display:none} .ea-chip:not(.cur) .sn{display:none} }
-@media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
 /* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
@@ -4367,20 +4281,9 @@ body{overflow:hidden}
   .ea-hd .ef-title{font-size:16px}
   .ea-hd .ef-btn{min-height:36px;padding:0 10px;font-size:14px}
   .ea-foot{padding:0 12px 16px}
-  .ea-bar{height:auto;flex-wrap:wrap;row-gap:4px;padding:4px 6px}
-  .ea-bar .ea-btn{min-height:38px;font-size:14px;padding:0 9px}
-  .ea-bar .ea-apptitle{display:flex!important;flex:1 1 calc(100% - 140px);min-width:0;white-space:normal;font-size:16px;line-height:1.35}
-  .ea-bar-tools{order:3;gap:4px}
   .ea [data-ea="fs"]{display:none!important}
-  .ea-chips{order:4;flex:1 1 0}
-  .ea-chip{min-height:40px;padding:0 9px}
-  /* 各アプリの道具の帯(.e1-top〜.e5-top): ボタンの字を切らずに、帯だけ横にスクロール */
-  .e1-top,.e2-top,.e3-top,.e4-top,.e5-top{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .e1-top>*,.e2-top>*,.e3-top>*,.e4-top>*,.e5-top>*{flex:none!important;min-width:auto!important;max-width:none!important}
 }
 @media (max-width:1100px){ .ea-apptitle{display:none} }
-@media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
-@media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-hgrid{grid-template-columns:1fr}
 }
@@ -4414,11 +4317,11 @@ body{overflow:hidden}
 
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
-    <div class="ea-bar">
+    <div class="ea-bar ef-header ef-appbar">
       <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
-      <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
-      <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
-      <div class="ea-bar-tools">
+      <h1 class="ef-title ef-apptitle" data-ref="app-title"></h1>
+      <nav class="ef-switch" data-ref="chips" aria-label="アプリを切りかえる"></nav>
+      <div class="ef-tools">
         <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>全画面</button>
@@ -5217,16 +5120,18 @@ function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
   S.root.innerHTML =
-    '<div class="e1-top">' +
-      '<h1>⚡ エネルギー変換ゲーム</h1>' +
-      '<button class="e1-btn" data-act="stages" aria-label="ステージ">☰<span class="lg"> ステージ</span></button>' +
+    // 2段目の帯 = 共通の帯(.ef-apptabs)。タブはなく、左にいまのステージの名前、右に道具(.ef-apptabs-tools)
+    '<div class="e1-top ef-apptabs">' + (NS.embedded ? '' : '<h1>エネルギー変換ゲーム</h1>') +
       '<div class="e1-stitle" data-ref="stitle"></div>' +
-      '<button class="e1-btn" data-act="howto" aria-label="使い方">❓<span class="lg"> 使い方</span></button>' +
-      '<button class="e1-btn" data-act="intro" aria-label="目標">🎯<span class="lg"> 目標</span></button>' +
-      '<button class="e1-btn" data-act="hint" aria-label="ヒント">💡<span class="lg"> ヒント</span></button>' +
-      '<button class="e1-btn" data-act="rec" aria-label="記録">💾<span class="lg"> 記録</span></button>' +
-      '<button class="e1-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' +
-      efSlot() +
+      '<div class="ef-apptabs-tools">' +
+        '<button class="ef-btn is-s" data-act="stages">ステージ</button>' +
+        '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+        '<button class="ef-btn is-s" data-act="intro">目標</button>' +
+        '<button class="ef-btn is-s" data-act="hint">ヒント</button>' +
+        '<button class="ef-btn is-s" data-act="rec">記録</button>' +
+        '<button class="ef-btn is-s ef-toggle" data-act="sound" data-ref="sound" aria-pressed="false" aria-label="効果音">音</button>' +
+        efSlot() +
+      '</div>' +
     '</div>' +
     '<div class="e1-main">' +
       '<div class="e1-palwrap"><div class="e1-pal" data-ref="pal"></div><div class="e1-palmore" data-ref="palmore" aria-hidden="true"></div></div>' +
@@ -5243,8 +5148,7 @@ function stageLabel(i) { return STAGES[i].free ? '自由' : 'ステージ' + (i 
 function renderTop() {
   var st = stage();
   S.el.stitle.innerHTML = '<span class="t">' + stageLabel(S.si) + ':' + esc(st.title) + '</span><span class="l">' + esc(st.learn) + '</span>';
-  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
-  S.el.sound.setAttribute('aria-label', S.save.sound ? '効果音:オン' : '効果音:オフ');
+  S.el.sound.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false');
 }
 function renderMsg() { var m = S.el.msg; m.innerHTML = '<span>' + esc(S.msg) + '</span>'; m.className = 'e1-msg' + (S.msgCls ? ' ' + S.msgCls : ''); }
 function renderPal() {
@@ -6110,7 +6014,7 @@ function renderTabs() {
   var nav = S.el.tabs; if (!nav) return;
   nav.innerHTML = TABS.map(function (t) {
     var on = S.tab === t.id;
-    return '<button class="e6-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
+    return '<button class="e6-tab ef-apptab' + (t.adv ? ' is-advanced' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
   }).join('');
 }
 function go(tab) {
@@ -6739,7 +6643,7 @@ function renderBody() {
 function mount(root) {
   S.root = root; root.classList.add('e6');
   S.save = loadSave();
-  root.innerHTML = '<div class="e6-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>🌬️ <span class="lg">風力発電の羽根ラボ</span></h1>') + '<nav class="e6-tabs" data-ref="tabs" aria-label="C2 のページ"></nav>' + efSlot() + '</div>' +
+  root.innerHTML = '<div class="e6-top ef-apptabs" data-ef-autohide>' + (NS.embedded ? '' : '<h1>風力発電の羽根ラボ</h1>') + '<nav class="e6-tabs" data-ref="tabs" aria-label="C2 のページ"></nav>' + efSlot() + '</div>' +
     '<div class="e6-body" data-ref="body"></div><div class="e6-toast" data-ref="toast" role="status"></div>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
@@ -6817,7 +6721,7 @@ function renderTabs() {
   var nav = S.el.tabs; if (!nav) return;
   nav.innerHTML = TABS.map(function (t) {
     var on = S.tab === t.id;
-    return '<button class="e7-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
+    return '<button class="e7-tab ef-apptab' + (t.adv ? ' is-advanced' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (tabDone(t) ? '<span class="ck">✓</span>' : '') + '</button>';
   }).join('');
 }
 function go(tab) {
@@ -7358,7 +7262,7 @@ function renderBody() {
 function mount(root) {
   S.root = root; root.classList.add('e7');
   S.save = loadSave();
-  root.innerHTML = '<div class="e7-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>🔌 <span class="lg">直流・交流と送電ラボ</span></h1>') + '<nav class="e7-tabs" data-ref="tabs" aria-label="C3 のページ"></nav>' + efSlot() + '</div>' +
+  root.innerHTML = '<div class="e7-top ef-apptabs" data-ef-autohide>' + (NS.embedded ? '' : '<h1>直流・交流と送電ラボ</h1>') + '<nav class="e7-tabs" data-ref="tabs" aria-label="C3 のページ"></nav>' + efSlot() + '</div>' +
     '<div class="e7-body" data-ref="body"></div><div class="e7-toast" data-ref="toast" role="status"></div>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
   if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
@@ -8087,17 +7991,21 @@ function openMode(mode) {
 /* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
+function tabBtn(act, label, on) { return '<button class="ef-apptab" data-act="' + act + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</button>'; }
 function buildShell() {
   var v = S.view;
-  var top = '<div class="e2-top"><h1>🔌 電気回路ラボ</h1>' +
-    '<button class="e2-btn' + (v === 'lab' && S.mode === 'free' ? ' on' : '') + '" data-act="free" aria-label="自由につくる">🧪<span class="lg2"> 自由に<span class="lg">つくる</span></span></button>' +
-    '<button class="e2-btn' + (v === 'lab' && S.mode !== 'free' ? ' on' : '') + '" data-act="chals" aria-label="課題">📋<span class="lg2"> 課題</span></button>' +
-    '<button class="e2-btn' + (v === 'safety' ? ' on' : '') + '" data-act="safety" aria-label="安全体験">🏠<span class="lg2"> 安全<span class="lg">体験</span></span></button>' +
-    '<button class="e2-btn' + (v === 'cost' ? ' on' : '') + '" data-act="cost" aria-label="電気料金">💴<span class="lg2"> <span class="lg">電気</span>料金</span></button>' +
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、まん中にいまの課題の名前、右に道具(.ef-apptabs-tools)
+  var top = '<div class="e2-top ef-apptabs">' + (NS.embedded ? '' : '<h1>電気回路ラボ</h1>') +
+    tabBtn('free', '自由につくる', v === 'lab' && S.mode === 'free') +
+    tabBtn('chals', '課題', v === 'lab' && S.mode !== 'free') +
+    tabBtn('safety', '安全体験', v === 'safety') +
+    tabBtn('cost', '電気料金', v === 'cost') +
     '<div class="e2-stitle" data-ref="stitle"></div>' +
-    '<button class="e2-btn" data-act="howto" aria-label="使い方">❓<span class="lg2"> 使い方</span></button>' +
-    '<button class="e2-btn" data-act="rec" aria-label="記録">💾<span class="lg2"> 記録</span></button>' +
-    '<button class="e2-btn" data-act="sound" data-ref="sound" aria-label="効果音"></button>' + efSlot() + '</div>';
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s" data-act="rec">記録</button>' +
+      '<button class="ef-btn is-s ef-toggle" data-act="sound" data-ref="sound" aria-pressed="false">音</button>' + efSlot() +
+    '</div></div>';
   var main;
   if (v === 'lab') {
     main = '<div class="e2-main"><div class="e2-pal" data-ref="pal"></div>' +
@@ -8124,7 +8032,7 @@ function renderTop() {
   else if (S.view === 'safety') t = '電気を安全に使う';
   else t = '電力量と電気料金';
   S.el.stitle.innerHTML = t;
-  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
+  S.el.sound.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false');
   S.el.sound.title = S.save.sound ? '効果音 ON' : '効果音 OFF';
 }
 function renderMsg() { var m = S.el.msg; if (!m) return; m.textContent = S.msg; m.className = 'e2-msg' + (S.msgCls ? ' ' + S.msgCls : ''); }
@@ -9412,17 +9320,20 @@ function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mo
 function curTask() { return S.task ? taskById(S.task) : null; }
 function buildShell() {
   var v = S.view, tk = curTask();
-  var tb = function (act, label, on) { return '<button class="e3-btn' + (on ? ' on' : '') + '" data-act="' + act + '">' + label + '</button>'; };
-  var top = '<div class="e3-top"><h1>⚙️ 機構ラボ</h1>' +
-    tb('parts', '🔍 <span class="lg">機械のつくり</span><span class="sh">つくり</span>', v === 'parts') +
-    tb('build', '⚙️ <span class="lg">回転を伝える</span><span class="sh">伝える</span>', v === 'build' && !tk) +
-    tb('conv', '🔄 <span class="lg">運動を変える</span><span class="sh">変える</span>', v === 'conv' && !tk) +
-    tb('tasks', '📋 <span class="lg">設計課題</span><span class="sh">課題</span>', v === 'tasks' || !!tk) +
-    tb('quiz', '📦 <span class="lg">ブラックボックス</span><span class="sh">箱</span>', v === 'quiz') +
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、まん中に課題・しくみの名前、右に道具(.ef-apptabs-tools)
+  var tb = function (act, label, on) { return '<button class="ef-apptab" data-act="' + act + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</button>'; };
+  var top = '<div class="e3-top ef-apptabs">' + (NS.embedded ? '' : '<h1>機構ラボ</h1>') +
+    tb('parts', '機械のつくり', v === 'parts') +
+    tb('build', '回転を伝える', v === 'build' && !tk) +
+    tb('conv', '運動を変える', v === 'conv' && !tk) +
+    tb('tasks', '設計課題', v === 'tasks' || !!tk) +
+    tb('quiz', 'ブラックボックス', v === 'quiz') +
     '<div class="e3-stitle" data-ref="stitle"></div>' +
-    '<button class="e3-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e3-btn" data-act="export" data-ref="exp">📄 設計図</button>' +
-    '<button class="e3-btn" data-act="sound" data-ref="sound" aria-label="音"></button>' + efSlot() + '</div>';
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s" data-act="export" data-ref="exp">設計図</button>' +
+      '<button class="ef-btn is-s ef-toggle" data-act="sound" data-ref="sound" aria-pressed="false">音</button>' + efSlot() +
+    '</div></div>';
   var main;
   if (v === 'tasks' || v === 'parts') main = '<div class="e3-page" data-ref="page"></div>';
   else main = '<div class="e3-main">' + (v === 'quiz' ? '' : '<div class="e3-pal" data-ref="pal"></div>') +
@@ -9451,11 +9362,11 @@ function renderHint() {
 }
 function renderTop() {
   var tk = curTask(), t = '';
-  if (tk) t = '📋 ' + tk.title;
+  if (tk) t = tk.title;
   else if (S.view === 'conv') t = mechById(S.mech).name;
   S.el.stitle.textContent = t;
-  S.el.sound.textContent = S.save.sound ? '🔊' : '🔇';
-  S.el.exp.classList.toggle('off', !(S.view === 'build' || S.view === 'conv'));
+  S.el.sound.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false');
+  S.el.exp.setAttribute('aria-disabled', (S.view === 'build' || S.view === 'conv') ? 'false' : 'true');
 }
 function openView(v) {
   stopSpin();
@@ -11644,11 +11555,13 @@ var VIEWS = [
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
 function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
 function buildShell() {
-  var top = '<div class="e4-top"><h1 class="e4-noruby">🔧 保守点検ラボ</h1>' +
-    VIEWS.map(function (v) { return '<button class="e4-btn' + (S.view === v.id ? ' on' : '') + '" data-act="view" data-v="' + v.id + '"' + (S.view === v.id ? ' aria-current="page"' : '') + ' aria-label="' + v.label + '">' + v.ic + ' <span class="e4-lg">' + v.label + '</span><span class="e4-sh">' + v.sh + '</span></button>'; }).join('') +
-    '<div class="sp"></div>' +
-    '<button class="e4-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e4-btn" data-act="sound" aria-label="効果音 ' + (S.save.sound ? 'オン' : 'オフ') + '">' + (S.save.sound ? '🔊' : '🔇') + '</button>' + efSlot() + '</div>';
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、右に道具(.ef-apptabs-tools)
+  var top = '<div class="e4-top ef-apptabs">' + (NS.embedded ? '' : '<h1 class="e4-noruby">保守点検ラボ</h1>') +
+    VIEWS.map(function (v) { return '<button class="ef-apptab" data-act="view" data-v="' + v.id + '"' + (S.view === v.id ? ' aria-current="page"' : '') + '>' + v.label + '</button>'; }).join('') +
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s ef-toggle" data-act="sound" aria-pressed="' + (S.save.sound ? 'true' : 'false') + '" aria-label="効果音">音</button>' + efSlot() +
+    '</div></div>';
   S.root.innerHTML = top + '<div class="e4-main" data-ref="body"></div><div class="e4-printarea" data-ref="print"></div>';
   refs();
   efMount();
@@ -12586,7 +12499,7 @@ function onClick(ev) {
     case 'noop': return;
     case 'view': beep('tap'); openView(t.getAttribute('data-v')); return;   // クイズの途中はタブを移っても残す
     case 'howto': showHowto(); return;
-    case 'sound': S.save.sound = !S.save.sound; persist(); t.textContent = S.save.sound ? '🔊' : '🔇'; t.setAttribute('aria-label', '効果音 ' + (S.save.sound ? 'オン' : 'オフ')); beep('tap'); return;
+    case 'sound': S.save.sound = !S.save.sound; persist(); t.setAttribute('aria-pressed', S.save.sound ? 'true' : 'false'); beep('tap'); return;
     case 'close': closeModal(); return;
     /* 図鑑 */
     case 'cat': S.cat = t.getAttribute('data-v'); beep('tap'); renderBook(); return;
@@ -13508,13 +13421,16 @@ function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mo
 function topHtml() {
   var v = S.view, a = A(), ng = a.nNG, wn = a.nWarn;
   var badge = ng ? '<span class="e5-badge">' + ng + '</span>' : (wn ? '<span class="e5-badge y">' + wn + '</span>' : (a.hasSrc && D().parts.length ? '<span class="e5-badge g">✓</span>' : ''));
-  function tab(k, ic, lg, sh, extra) { return '<button class="e5-btn' + (v === k ? ' on' : '') + '" data-act="v" data-v="' + k + '"' + (v === k ? ' aria-current="page"' : '') + '>' + ic + ' <span class="lg">' + lg + '</span><span class="sh">' + sh + '</span>' + (extra || '') + '</button>'; }
-  return '<div class="e5-top"><h1>📐 <span class="lg">回路設計シート</span></h1>' +
-    tab('brief', '📝', '① 課題・構想', '①課題') + tab('edit', '✏️', '② 回路図', '②回路図', badge) + tab('bom', '📦', '③ 部品表・手順', '③部品表') + tab('eval', '📏', '④ 評価', '④評価') +
-    '<div class="e5-stitle">' + task().icon + ' ' + esc(task().title) + '</div>' +
-    '<button class="e5-btn" data-act="howto">❓ 使い方</button>' +
-    '<button class="e5-btn" data-act="print">🖨️ 印刷</button>' +
-    '<button class="e5-btn" data-act="file">💾 保存</button>' + efSlot() + '</div>';
+  // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、まん中に課題の名前、右に道具(.ef-apptabs-tools)
+  function tab(k, label, extra) { return '<button class="ef-apptab" data-act="v" data-v="' + k + '"' + (v === k ? ' aria-current="page"' : '') + '>' + label + (extra || '') + '</button>'; }
+  return '<div class="e5-top ef-apptabs">' + (NS.embedded ? '' : '<h1>回路設計シート</h1>') +
+    tab('brief', '① 課題・構想') + tab('edit', '② 回路図', badge) + tab('bom', '③ 部品表・手順') + tab('eval', '④ 評価') +
+    '<div class="e5-stitle">' + esc(task().title) + '</div>' +
+    '<div class="ef-apptabs-tools">' +
+      '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
+      '<button class="ef-btn is-s" data-act="print">印刷</button>' +
+      '<button class="ef-btn is-s" data-act="file">保存</button>' + efSlot() +
+    '</div></div>';
 }
 function build() {
   closeModal();
@@ -15528,7 +15444,7 @@ function renderTabs() {
   var done = {}; if (S.note) stepsOf(S.note.data).forEach(function (s) { done[s.id] = s.done; });
   nav.innerHTML = TABS.map(function (t) {
     var on = S.tab === t.id;
-    return '<button class="e8-tab' + (t.adv ? ' adv' : '') + (on ? ' on' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (done[t.id] ? '<span class="ck">✓</span>' : '') + '</button>';
+    return '<button class="e8-tab ef-apptab' + (t.adv ? ' is-advanced' : '') + '" data-tab="' + t.id + '"' + (on ? ' aria-current="page"' : '') + (t.reflect ? ' data-ef-reflect' : '') + (t.adv ? ' title="発展編"' : '') + '>' + t.lg + (done[t.id] ? '<span class="ck">✓</span>' : '') + '</button>';
   }).join('');
   rb(nav);
 }
@@ -15545,7 +15461,7 @@ function go(tab) {
 function mount(root) {
   S.root = root; root.classList.add('e8');
   S.save = loadSave();
-  root.innerHTML = '<div class="e8-top" data-ef-autohide>' + (NS.embedded ? '' : '<h1>📝 <span class="lg">問題解決ノート</span></h1>') + '<nav class="e8-tabs" data-ref="tabs" aria-label="C8 のページ"></nav>' + efSlot() + '</div>' +
+  root.innerHTML = '<div class="e8-top ef-apptabs" data-ef-autohide>' + (NS.embedded ? '' : '<h1>問題解決ノート</h1>') + '<nav class="e8-tabs" data-ref="tabs" aria-label="C8 のページ"></nav>' + efSlot() + '</div>' +
     '<div class="e8-body" data-ref="body"><div class="e8-wrap" data-ref="wrap">' +
     TABS.map(function (t) { return '<section data-sec="' + t.id + '"' + (t.reflect ? ' data-ef-reflect' : '') + ' hidden></section>'; }).join('') +
     '<p class="e8-saved" data-ref="saved" aria-live="polite"></p></div></div>' +
@@ -15688,7 +15604,7 @@ function progressHtml(a, p) {
   if (!p || !p.t) return '';
   var pct = Math.round(100 * Math.min(1, p.n / p.t));
   return '<div class="ea-pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
-    '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%;background:' + a.color + '"></i></span>' +
+    '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%"></i></span>' +
     (p.sub ? '<span class="s2">' + esc(p.sub) + '</span>' : '') + '</div>';
 }
 
@@ -15722,8 +15638,8 @@ function renderCards() {
 if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle($('[data-ref="menu-title"]'));
 // アプリを切りかえるボタン: 記号の印 + 短い名前(「C4 電気回路」)
 refs.chips.innerHTML = APPS.map(function (a) {
-  return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +
-    '<span class="ef-code">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
+  return '<button class="ef-swchip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '">' +
+    '<span class="ef-code">' + a.id + '</span><span class="ef-sw-n">' + esc(a.short) + '</span></button>';
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
@@ -15734,7 +15650,7 @@ function setView(v) {
 function openApp(id) {
   setView('app');
   [].forEach.call(refs.panes.children, function (p) { p.classList.toggle('on', p.getAttribute('data-pane') === id); });
-  [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; c.classList.toggle('cur', on); c.setAttribute('aria-current', on ? 'page' : 'false'); });
+  [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; if (on) c.setAttribute('aria-current', 'page'); else c.removeAttribute('aria-current'); });
   APPS.forEach(function (a) { document.body.classList.toggle('ea-on-' + a.id, a.id === id); });
   cur = id; lastView = id;
   document.title = id + ' ' + byId(id).name + ' - エネルギー変換の技術 教材集';

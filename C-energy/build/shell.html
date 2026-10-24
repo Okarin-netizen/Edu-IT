@@ -31,12 +31,11 @@ body{overflow:hidden}
 /* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。
  * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
 .ea-noruby rt,.ea-noruby rp{display:none}
-.ea-bar-tools{display:flex;align-items:center;gap:6px;flex:none}
 .ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--ef-ink);border-radius:0;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
 .ea-btn[disabled]{opacity:.55;cursor:default}
 .ea-btn:active{transform:translateY(1px)}
 .ea-btn:hover:not([disabled]){background:var(--ef-surface-2)}
-.ea-btn:focus-visible,.ea-chip:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+.ea-btn:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 .ea-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
 .ea-btn.primary{background:var(--ef-ink);border-color:var(--ef-ink);color:#fff;font-weight:bold}
 .ea-back{color:var(--ink);background:none;border-color:transparent;font-weight:bold}
@@ -64,23 +63,15 @@ body{overflow:hidden}
 .ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
 .ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
 .ea-pg .bar{height:6px;max-width:16em;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-pg .bar i{display:block;height:100%}
+.ea-pg .bar i{display:block;height:100%;background:var(--ef-accent)}
 .ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
 .ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
-.ea-bar{height:52px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px;background:var(--ef-surface);color:var(--ink);border-bottom:1px solid var(--ef-ink)}
-.ea-bar .ea-btn{min-height:42px;font-size:15px;padding:0 12px}
+/* アプリの上のバーは共通の .ef-appbar(◀ メニュー・C1〜C8 の切りかえ .ef-switch・道具)。ここには置き方だけを書く */
+.ea-bar{flex:none}
 .ea-btn[hidden]{display:none}
-.ea-chips{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-.ea-chips::-webkit-scrollbar{display:none}
-.ea-chip{font:inherit;font-size:15px;color:var(--sub);background:transparent;border:none;border-radius:0;min-height:44px;padding:0 10px;cursor:pointer;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;border-bottom:4px solid transparent}
-.ea-chip:hover{color:var(--ink)}
-.ea-chip.cur{color:var(--ink);font-weight:bold;border-bottom-color:var(--accent)}
-.ea-chip .ef-code{font-size:13px;min-width:0}
-.ea-apptitle{margin:0 6px 0 4px;font-size:17px;white-space:nowrap;flex:none}
-.ea-apptitle .ef-code{margin-right:6px}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
@@ -114,13 +105,10 @@ body{overflow:hidden}
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:0 0 20px}
   .ea-foot{padding:0 16px 20px}
-  .ea-chip{padding:0 8px}
   .ea-hbody{padding:6px 16px 40px}
   .ea-help .bar{padding:8px 12px}
 }
 /* 1440px 以下(11インチの Chromebook など)では C1〜C8 が1行に入りきらず、C6 から先が切れて見えない。アプリ名(下の道具の帯にも出る)を消し、開いていないアプリは記号だけにする */
-@media (max-width:1440px){ .ea-apptitle{display:none} .ea-chip:not(.cur) .sn{display:none} }
-@media (max-width:760px){ .ea-chip .sn{display:none} .ea-chip{padding:0 12px} }
 /* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
 @media (max-width:640px){
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
@@ -128,20 +116,9 @@ body{overflow:hidden}
   .ea-hd .ef-title{font-size:16px}
   .ea-hd .ef-btn{min-height:36px;padding:0 10px;font-size:14px}
   .ea-foot{padding:0 12px 16px}
-  .ea-bar{height:auto;flex-wrap:wrap;row-gap:4px;padding:4px 6px}
-  .ea-bar .ea-btn{min-height:38px;font-size:14px;padding:0 9px}
-  .ea-bar .ea-apptitle{display:flex!important;flex:1 1 calc(100% - 140px);min-width:0;white-space:normal;font-size:16px;line-height:1.35}
-  .ea-bar-tools{order:3;gap:4px}
   .ea [data-ea="fs"]{display:none!important}
-  .ea-chips{order:4;flex:1 1 0}
-  .ea-chip{min-height:40px;padding:0 9px}
-  /* 各アプリの道具の帯(.e1-top〜.e5-top): ボタンの字を切らずに、帯だけ横にスクロール */
-  .e1-top,.e2-top,.e3-top,.e4-top,.e5-top{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .e1-top>*,.e2-top>*,.e3-top>*,.e4-top>*,.e5-top>*{flex:none!important;min-width:auto!important;max-width:none!important}
 }
 @media (max-width:1100px){ .ea-apptitle{display:none} }
-@media (max-width:900px){ .ea-bar [data-ea="fs"] .t{display:none} }
-@media (max-width:1180px){ .ea-bar .ef-about-btn .t{display:none} }
 @media (max-width:1100px){
   .ea-hgrid{grid-template-columns:1fr}
 }
@@ -175,11 +152,11 @@ body{overflow:hidden}
 
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
-    <div class="ea-bar">
+    <div class="ea-bar ef-header ef-appbar">
       <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
-      <h1 class="ef-title ea-apptitle" data-ref="app-title"></h1>
-      <nav class="ea-chips" data-ref="chips" aria-label="アプリを切りかえる"></nav>
-      <div class="ea-bar-tools">
+      <h1 class="ef-title ef-apptitle" data-ref="app-title"></h1>
+      <nav class="ef-switch" data-ref="chips" aria-label="アプリを切りかえる"></nav>
+      <div class="ef-tools">
         <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
         <button class="ea-btn ef-btn ef-size" data-ea-size></button>
         <button class="ea-btn ef-btn" data-ea="fs" hidden>全画面</button>
@@ -324,7 +301,7 @@ function progressHtml(a, p) {
   if (!p || !p.t) return '';
   var pct = Math.round(100 * Math.min(1, p.n / p.t));
   return '<div class="ea-pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
-    '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%;background:' + a.color + '"></i></span>' +
+    '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%"></i></span>' +
     (p.sub ? '<span class="s2">' + esc(p.sub) + '</span>' : '') + '</div>';
 }
 
@@ -358,8 +335,8 @@ function renderCards() {
 if (window.EduitFrame && EduitFrame.menuTitle) EduitFrame.menuTitle($('[data-ref="menu-title"]'));
 // アプリを切りかえるボタン: 記号の印 + 短い名前(「C4 電気回路」)
 refs.chips.innerHTML = APPS.map(function (a) {
-  return '<button class="ea-chip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '" style="border-bottom-color:' + a.color + '">' +
-    '<span class="ef-code">' + a.id + '</span><span class="sn">' + esc(a.short) + '</span></button>';
+  return '<button class="ef-swchip" data-chip="' + a.id + '" aria-label="' + a.id + ' ' + esc(a.name) + '" title="' + a.id + ' ' + esc(a.name) + '">' +
+    '<span class="ef-code">' + a.id + '</span><span class="ef-sw-n">' + esc(a.short) + '</span></button>';
 }).join('');
 refs.panes.innerHTML = APPS.map(function (a) { return '<div class="ea-pane" data-pane="' + a.id + '"><div></div></div>'; }).join('');
 
@@ -370,7 +347,7 @@ function setView(v) {
 function openApp(id) {
   setView('app');
   [].forEach.call(refs.panes.children, function (p) { p.classList.toggle('on', p.getAttribute('data-pane') === id); });
-  [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; c.classList.toggle('cur', on); c.setAttribute('aria-current', on ? 'page' : 'false'); });
+  [].forEach.call(refs.chips.children, function (c) { var on = c.getAttribute('data-chip') === id; if (on) c.setAttribute('aria-current', 'page'); else c.removeAttribute('aria-current'); });
   APPS.forEach(function (a) { document.body.classList.toggle('ea-on-' + a.id, a.id === id); });
   cur = id; lastView = id;
   document.title = id + ' ' + byId(id).name + ' - エネルギー変換の技術 教材集';

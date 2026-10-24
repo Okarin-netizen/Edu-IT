@@ -540,6 +540,7 @@ html[data-ef-prefs] { font-size: var(--ef-fs); }
 }
 .ef-apptab[aria-selected="true"] rt, .ef-apptab[aria-current] rt, .ef-apptab.is-on rt { color: inherit; }
 .ef-apptab.is-advanced { color: var(--ef-advanced); }  /* 発展のタブ(字だけむらさき。開いたときの下線は分野の色) */
+.ef-apptab.is-done::after { content: " ✓"; }        /* 書き終えたページ */
 /* タブの帯の右はしの道具(使い方・記録・音 など) */
 .ef-apptabs-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 0; }
 
@@ -709,15 +710,7 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
   #tapp .ef-header .ef-btn { font-size: 15px; }
   /* 上のバーとタブの帯(下へ読むと隠れ、上へもどすと出る) */
   .t-top { position: sticky; top: 0; z-index: 30; background: var(--ef-surface); box-shadow: none; }
-  /* タブの帯は4分野共通の形(C エネルギー変換と同じ: 白い帯・下に分野の色の線・丸いボタン。shared/eduit-frame.css の .ef-apptabs と同じ見た目) */
-  .t-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 6px 10px; background: var(--ef-surface); border-bottom:1px solid var(--ef-ink,#222); }
-  .t-tabs button { flex: none; min-height: 44px; padding: 0 12px; border: 1px solid var(--ef-line); border-radius: 0;
-    background: var(--ef-surface); color: var(--ef-text); font-weight: 700; font-size: min(.84em, 16px); line-height: 1.3; white-space: nowrap; cursor: pointer; }
-  .t-tabs button:hover { border-color: var(--ef-accent); }
-  .t-tabs button[aria-selected="true"] { background:var(--ef-surface,#fff);border-color:var(--ef-ink,#222);color:var(--ef-text,#222);box-shadow:inset 0 -4px 0 var(--ef-accent); }
-  .t-tabs button:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: -3px; }
-  .t-tabs .t-done::after { content: " ✓"; }
-  .t-tabs rt { color: inherit; opacity: .85; }
+  /* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線。.t-tabs は JS がタブを探すための名前) */
   main.t-main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 60px; }
   .t-sec[hidden] { display: none !important; }
   .t-sec > h2 { margin: 4px 0 2px; font-size: 1.45em; line-height: 1.4; color: var(--ef-accent); }
@@ -862,9 +855,6 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
     .t-case { grid-template-columns: 1fr; }
     main.t-main { padding: 10px 10px 60px; }
     .t-card { padding: 12px; }
-    .t-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 6px 8px; }
-    .t-tabs::-webkit-scrollbar { display: none; }
-    .t-tabs button { padding: 0 10px; }
     .t-row3, .t-design { grid-template-columns: 1fr; }
     .t-gap { grid-template-columns: 1fr; }
     .t-who { grid-template-columns: 1fr 1fr; }
@@ -2725,7 +2715,7 @@ window.T_RUBY = {
     function start(o) {
       function marks() {
         var st = o.status(S);
-        TABS.forEach(function (t) { t.classList.toggle('t-done', !!st[t.getAttribute('data-tab')]); });
+        TABS.forEach(function (t) { t.classList.toggle('is-done', !!st[t.getAttribute('data-tab')]); });
       }
       onSave.push(marks);
       function progress() {
@@ -2809,14 +2799,14 @@ window.T_RUBY = {
         <span data-ef-about></span>
       </div>
     </header>
-    <nav class="t-tabs" role="tablist" aria-label="技術さがしのページ">
-      <button type="button" role="tab" data-tab="intro">はじめに</button>
-      <button type="button" role="tab" data-tab="a" data-area="a">① 材料と加工</button>
-      <button type="button" role="tab" data-tab="b" data-area="b">② 生物育成</button>
-      <button type="button" role="tab" data-tab="c" data-area="c">③ エネルギー変換</button>
-      <button type="button" role="tab" data-tab="d" data-area="d">④ 情報</button>
-      <button type="button" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
-      <button type="button" role="tab" data-tab="rec">記録</button>
+    <nav class="t-tabs ef-apptabs" role="tablist" aria-label="技術さがしのページ">
+      <button type="button" class="ef-apptab" role="tab" data-tab="intro">はじめに</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="a" data-area="a">① 材料と加工</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="b" data-area="b">② 生物育成</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="c" data-area="c">③ エネルギー変換</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="d" data-area="d">④ 情報</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="refl" data-ef-reflect>振り返り</button>
+      <button type="button" class="ef-apptab" role="tab" data-tab="rec">記録</button>
     </nav>
   </div>
 

@@ -268,7 +268,7 @@
     function start(o) {
       function marks() {
         var st = o.status(S);
-        TABS.forEach(function (t) { t.classList.toggle('t-done', !!st[t.getAttribute('data-tab')]); });
+        TABS.forEach(function (t) { t.classList.toggle('is-done', !!st[t.getAttribute('data-tab')]); });
       }
       onSave.push(marks);
       function progress() {
