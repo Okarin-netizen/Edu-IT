@@ -14,10 +14,9 @@
 <script src="../../shared/mondai-note/mondai-note-data.js"></script>
 <script src="../../shared/mondai-note/mondai-note.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#eef3f8;}
-.e8{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;
-  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
-  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(17px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;line-height:1.6}
+html,body{margin:0;height:100%;background:var(--ef-bg);}
+.e8{font-family:var(--ef-font);
+  color:var(--ef-text);height:100%;display:flex;flex-direction:column;font-size:1rem;overflow:hidden;position:relative;background:var(--ef-bg);-webkit-tap-highlight-color:transparent;line-height:1.6}
 .e8 *{box-sizing:border-box}
 .e8 button{touch-action:manipulation}
 .e8 ruby rt{font-size:.55em;font-weight:normal}
@@ -25,12 +24,12 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e8-top{position:sticky;top:0;z-index:5;flex:none}
 .e8-tabs{display:contents}
 .e8-tab .ck{color:var(--ef-ok);margin-left:3px}
-.e8-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e8-top h1{font-size:1rem;margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
 .e8-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e8-wrap{max-width:1240px;margin:0 auto}
 .e8-wrap > section[hidden]{display:none!important}
-.e8-saved{color:var(--sub);font-size:.85em;margin:.3em 0}
-.e8-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:0;z-index:30;display:none;max-width:90%;text-align:center}
+.e8-saved{color:var(--ef-muted);font-size:.85em;margin:.3em 0}
+.e8-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;z-index:30;display:none;max-width:90%;text-align:center}
 
 @media (max-width:640px){
   .e8-body{padding:10px 8px 40px}
@@ -58,7 +57,7 @@ function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
 function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function p2(n) { return (n < 10 ? '0' : '') + n; }
 
-/* ---------- ふりがな(このノートで使う語。ふりがなを消すのはシェルの .ea-noruby) ---------- */
+/* ---------- ふりがな(このノートで使う語。ふりがなを消すのは共通の EduitFrame.prefs) ---------- */
 var RUBY = {
   '問題解決': 'もんだいかいけつ', '付箋': 'ふせん', '課題': 'かだい', '観点': 'かんてん', '最適化': 'さいてきか', '折り合い': 'おりあい', '制約条件': 'せいやくじょうけん',
   '評価': 'ひょうか', '改善': 'かいぜん', '修正': 'しゅうせい', '構想': 'こうそう', '製作品': 'せいさくひん', '過程': 'かてい',
@@ -236,7 +235,7 @@ function mount(root) {
     '<p class="e8-saved" data-ref="saved" aria-live="polite"></p></div></div>' +
     '<div class="e8-toast" data-ref="toast" role="status"></div><input type="file" data-ref="file" accept=".json,application/json" hidden>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
-  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); /* 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に */ }
   S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
   S.el.file.addEventListener('change', function (ev) { var f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (f) loadFile(f); });
   var panels = {}; TABS.forEach(function (t) { panels[t.id] = S.el.wrap.querySelector('[data-sec="' + t.id + '"]'); });

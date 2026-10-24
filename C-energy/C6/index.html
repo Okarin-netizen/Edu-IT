@@ -10,194 +10,214 @@
 <script data-ef-app>EDUIT_INFO.app = { name: 'C6 保守点検ラボ' };</script>
 <script src="../../shared/eduit-frame.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#f2f1ec;}
-.e4{--ink:#262a30;--sub:#5f6670;--line:#dcdad2;--accent:#c8620e;--accent2:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#e67700;--top:#1d3557;--app:#c8620e;
-  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
-  color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
-  font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#f2f1ec;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;background:var(--ef-bg);}
+/* 図の色(画面の部品の色は共通の --ef-…) */
+.e4{
+  --fig-btn-outline: #ffb703;
+  --fig-ct-text: #fff;
+  --fig-ct: #7a8691;
+  --fig-cat-fasten: #8a5a2b;
+  --fig-cat-support: #3f6e8c;
+  --fig-cat-turn: #2b7a4b;
+  --fig-cat-conv: #7b4fa0;
+  --fig-cat-other: #5d6d2b;
+  --fig-pbig: #f7f7f3;
+  --fig-mbox: #fbfbf8;
+  --fig-ring: rgba(200,98,14,.18);
+  --fig-ring-line: #c8620e;
+  --fig-ring-2: rgba(26,155,91,.18);
+  --fig-ring-line-2: #1a9b5b;
+  --fig-ring-3: rgba(30,111,217,.25);
+  --fig-ring-line-3: #1e6fd9;
+  --fig-hot: #c8620e;
+  --fig-found: #1a9b5b;
+  --fig-sel: #1e6fd9;
+  --fig-qno: #e2e2dc;
+  --fig-cur: #9cc3ff;
+  --fig-half: #f0b429;
+  --fig-cvbox: #fbfbf8;
+  --fig-meter: #e5e5df;
+}
+.e4{font-family:var(--ef-font);
+  color:var(--ef-text);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
+  font-size:.94rem;overflow:hidden;position:relative;background:var(--ef-bg);-webkit-tap-highlight-color:transparent;}
+.e4 :is(.ef-btn,.ef-btn-primary):not(.is-s){min-height:46px;font-size:.94rem}
 .e4 *{box-sizing:border-box}
 :where(.e4 button){font:inherit;touch-action:manipulation}
 /* 上の帯は共通の .ef-apptabs(字＋下線のタブと、右の道具)。ここには置き方だけを書く */
 .e4-top{flex:none}
-.e4-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
-.e4-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
-.e4-btn:active{transform:translateY(1px)}
-.e4-btn:disabled{opacity:.4;cursor:default}
-.e4-btn:focus-visible,.e4-cv:focus-visible,.e4-hot:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
-.e4-top h1{color:var(--ef-text,#1f2328)}
-.e4-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
-.e4-btn.blue{background:#e3eefc;color:#1450a8;border-color:#9cc3ff}
-.e4-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
-.e4-btn.good{background:#fff;border-color:#0d6b3a;color:#0d6b3a}
-.e4-btn.big{min-height:56px;font-size:calc(18px * var(--ea-fs, 1));width:100%}
-.e4-btn.sm{min-height:44px;padding:0 12px;font-size:calc(15px * var(--ea-fs, 1))}
-.e4-btn.on{background:var(--top);color:#fff}
+.e4-top h1{font-size:1rem;margin:0 6px 0 0;white-space:nowrap;font-weight:bold}
+.ef-btn:focus-visible,.e4-cv:focus-visible,.e4-hot:focus-visible{outline:3px solid var(--fig-btn-outline);outline-offset:2px}
+.e4-top h1{color:var(--ef-text)}
+.e4 :is(.ef-btn,.ef-btn-primary).good{background:var(--ef-surface);border-color:var(--ef-ok);color:var(--ef-ok)}
+.e4 :is(.ef-btn,.ef-btn-primary).big{min-height:56px;font-size:1.06rem;width:100%}
+.e4 .ef-btn.on{font-weight:bold;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 .e4-page{flex:1;overflow-y:auto;padding:14px 16px;min-height:0}
 .e4-main{flex:1;display:flex;min-height:0}
 .e4-center{flex:1;display:flex;flex-direction:column;min-width:0}
-.e4-side{width:330px;flex:none;overflow-y:auto;padding:10px 12px;background:#fff;border-left:1px solid var(--line)}
-.e4-side h2{font-size:calc(15px * var(--ea-fs, 1));margin:6px 2px 6px;color:var(--sub)}
-.e4-msg{min-height:46px;padding:10px 14px;font-size:calc(16px * var(--ea-fs, 1));background:#fffbe6;border-bottom:1px solid #f1e3a6;line-height:1.4}
-.e4-msg.err{background:#ffe8e8;border-color:#f5b5b5;color:#8a1414}
-.e4-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
-.e4-bar{display:flex;gap:6px;padding:6px 8px;background:#f8f8f5;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.e4-side{width:330px;flex:none;overflow-y:auto;padding:10px 12px;background:var(--ef-surface);border-left:1px solid var(--ef-line)}
+.e4-side h2{font-size:.88rem;margin:6px 2px 6px;color:var(--ef-muted)}
+.e4-msg{min-height:46px;padding:10px 14px;font-size:.94rem;background:var(--ef-warn-soft);border-bottom:1px solid var(--ef-line);line-height:1.4}
+.e4-msg.err{background:var(--ef-ng-soft);border-color:var(--ef-line);color:var(--ef-ng)}
+.e4-msg.ok{background:var(--ef-ok-soft);border-color:var(--ef-line)}
+.e4-bar{display:flex;gap:6px;padding:6px 8px;background:var(--ef-surface-2);border-bottom:1px solid var(--ef-line);flex-wrap:wrap;align-items:center}
 .e4-bar .sp{flex:1}
-.e4-bar .lbl{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);font-weight:bold;margin-left:4px}
+.e4-bar .lbl{font-size:.88rem;color:var(--ef-muted);font-weight:bold;margin-left:4px}
 .e4-chips{display:flex;flex-wrap:wrap;gap:6px}
-.e4-chips .e4-btn{min-height:44px;padding:0 12px;font-size:calc(15px * var(--ea-fs, 1))}
+.e4-chips :is(.ef-btn,.ef-btn-primary){min-height:44px;padding:0 12px;font-size:.88rem}
 .e4-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
-.e4-h h2{margin:0;font-size:calc(21px * var(--ea-fs, 1))}
+.e4-h h2{margin:0;font-size:1.24rem}
 .e4-h .sp{flex:1}
-.e4-prog{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);font-weight:bold}
-.e4-card{background:#f6f6f2;border-radius:0;padding:10px 12px;margin-bottom:10px;line-height:1.5}
-.e4-card.warn{background:#fff3e0}
-.e4-card.blue{background:#eef5ff}
-.e4-card.good{background:#ecfaf1}
+.e4-prog{font-size:.88rem;color:var(--ef-muted);font-weight:bold}
+.e4-card{background:var(--ef-surface-2);border-radius:0;padding:10px 12px;margin-bottom:10px;line-height:1.5}
+.e4-card.warn{background:var(--ef-warn-soft)}
+.e4-card.blue{background:var(--ef-surface-2)}
+.e4-card.good{background:var(--ef-ok-soft)}
 /* 図鑑 */
 .e4-pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.e4-pcard{position:relative;border:2px solid var(--line);border-radius:0;padding:8px 10px 10px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:196px}
+.e4-pcard{position:relative;border:2px solid var(--ef-line);border-radius:0;padding:8px 10px 10px;background:var(--ef-surface);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:196px}
 .e4-pcard svg{width:100%;height:92px;display:block}
-.e4-pcard .nm{font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;line-height:1.25}
-.e4-pcard .yo{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
-.e4-pcard .ct{font-size:calc(13px * var(--ea-fs, 1));color:#fff;background:#7a8691;border-radius:0;padding:1px 7px;align-self:flex-start;margin-top:2px}
-.e4-pcard .rl{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.4;margin-top:3px}
-.e4-pcard.seen{border-color:#a8d7bd}
-.e4-pcard .chk{position:absolute;right:8px;top:6px;color:var(--ok);font-weight:bold;font-size:calc(15px * var(--ea-fs, 1))}
-.e4-cat-fasten{background:#8a5a2b!important}.e4-cat-support{background:#3f6e8c!important}.e4-cat-turn{background:#2b7a4b!important}.e4-cat-conv{background:#7b4fa0!important}.e4-cat-other{background:#5d6d2b!important}
+.e4-pcard .nm{font-size:1rem;font-weight:bold;line-height:1.25}
+.e4-pcard .yo{font-size:.76rem;color:var(--ef-muted)}
+.e4-pcard .ct{font-size:.76rem;color:var(--fig-ct-text);background:var(--fig-ct);border-radius:0;padding:1px 7px;align-self:flex-start;margin-top:2px}
+.e4-pcard .rl{font-size:.88rem;color:var(--ef-muted);line-height:1.4;margin-top:3px}
+.e4-pcard.seen{border-color:var(--ef-line)}
+.e4-pcard .chk{position:absolute;right:8px;top:6px;color:var(--ef-ok);font-weight:bold;font-size:.88rem}
+.e4 .e4-cat-fasten{background:var(--fig-cat-fasten)}.e4 .e4-cat-support{background:var(--fig-cat-support)}.e4 .e4-cat-turn{background:var(--fig-cat-turn)}.e4 .e4-cat-conv{background:var(--fig-cat-conv)}.e4 .e4-cat-other{background:var(--fig-cat-other)}
 .e4-pbig{display:flex;gap:16px;align-items:flex-start}
-.e4-pbig svg{width:200px;height:170px;flex:none;background:#f7f7f3;border-radius:0}
+.e4-pbig svg{width:200px;height:170px;flex:none;background:var(--fig-pbig);border-radius:0}
 .e4-pbig .tx{flex:1;min-width:0}
 .e4-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
-.e4-tags span{background:#eef1f4;border-radius:0;padding:3px 10px;font-size:calc(15px * var(--ea-fs, 1))}
+.e4-tags span{background:var(--ef-surface-2);border-radius:0;padding:3px 10px;font-size:.88rem}
 .e4-ul{margin:4px 0 8px;padding-left:22px}
 .e4-ul li{margin:2px 0}
 /* 機械を見る */
-.e4-mbox{flex:1;min-height:0;position:relative;background:#fbfbf8;display:flex;align-items:center;justify-content:center;padding:6px}
+.e4-mbox{flex:1;min-height:0;position:relative;background:var(--fig-mbox);display:flex;align-items:center;justify-content:center;padding:6px}
 .e4-mbox svg{width:100%;height:100%;max-height:100%}
 .e4-hot{cursor:pointer}
-.e4-hot circle.ring{fill:rgba(200,98,14,.18);stroke:#c8620e;stroke-width:3;stroke-dasharray:6 4}
-.e4-hot.found circle.ring{fill:rgba(26,155,91,.18);stroke:#1a9b5b;stroke-dasharray:none}
-.e4-hot.sel circle.ring{fill:rgba(30,111,217,.25);stroke:#1e6fd9;stroke-width:4;stroke-dasharray:none}
-.e4-hot text{font-size:calc(30px * var(--ea-fs, 1));font-weight:bold;fill:#c8620e;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.e4-hot.found text{fill:#1a9b5b}
-.e4-hot.sel text{fill:#1e6fd9}
+.e4-hot circle.ring{fill:var(--fig-ring);stroke:var(--fig-ring-line);stroke-width:3;stroke-dasharray:6 4}
+.e4-hot.found circle.ring{fill:var(--fig-ring-2);stroke:var(--fig-ring-line-2);stroke-dasharray:none}
+.e4-hot.sel circle.ring{fill:var(--fig-ring-3);stroke:var(--fig-ring-line-3);stroke-width:4;stroke-dasharray:none}
+.e4-hot text{font-size:1.76rem;font-weight:bold;fill:var(--fig-hot);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.e4-hot.found text{fill:var(--fig-found)}
+.e4-hot.sel text{fill:var(--fig-sel)}
 .e4-hidelbl .e4-hot text{display:none}
 /* クイズ */
 .e4-tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.e4-tcard{border:2px solid var(--line);border-radius:0;padding:10px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:84px;display:flex;flex-direction:column;gap:2px}
-.e4-tcard.done{background:#effaf3;border-color:#a8e0c0}
-.e4-tcard .no{font-size:calc(14px * var(--ea-fs, 1));color:var(--sub);display:flex;justify-content:space-between}
-.e4-tcard .t{font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;line-height:1.35}
-.e4-tcard .l{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.e4-tcard .star{color:#e8a200;font-size:calc(16px * var(--ea-fs, 1));letter-spacing:1px}
+.e4-tcard{border:2px solid var(--ef-line);border-radius:0;padding:10px 12px;background:var(--ef-surface);cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:84px;display:flex;flex-direction:column;gap:2px}
+.e4-tcard.done{background:var(--ef-ok-soft);border-color:var(--ef-line)}
+.e4-tcard .no{font-size:.82rem;color:var(--ef-muted);display:flex;justify-content:space-between}
+.e4-tcard .t{font-size:1rem;font-weight:bold;line-height:1.35}
+.e4-tcard .l{font-size:.88rem;color:var(--ef-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.e4-tcard .star{color:var(--ef-warn);font-size:.94rem;letter-spacing:1px}
 .e4-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
-.e4-mode{border:2px solid var(--line);border-radius:0;background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-.e4-mode .t{font-size:calc(20px * var(--ea-fs, 1));font-weight:bold}
-.e4-mode .l{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.45}
+.e4-mode{border:2px solid var(--ef-line);border-radius:0;background:var(--ef-surface);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.e4-mode .t{font-size:1.18rem;font-weight:bold}
+.e4-mode .l{font-size:.88rem;color:var(--ef-muted);line-height:1.45}
 .e4-quiz{flex:1;display:flex;min-height:0}
-.e4-qcase{width:44%;flex:none;overflow-y:auto;padding:14px 16px;background:#fff;border-right:1px solid var(--line)}
+.e4-qcase{width:44%;flex:none;overflow-y:auto;padding:14px 16px;background:var(--ef-surface);border-right:1px solid var(--ef-line)}
 .e4-qans{flex:1;overflow-y:auto;padding:14px 16px;min-width:0}
 .e4-qno{display:flex;gap:4px;margin-bottom:10px}
-.e4-qno i{flex:1;height:8px;border-radius:0;background:#e2e2dc}
-.e4-qno i.cur{background:#9cc3ff}.e4-qno i.ok{background:var(--ok)}.e4-qno i.half{background:#f0b429}.e4-qno i.ng{background:var(--ng)}
-.e4-qmach{display:flex;align-items:center;gap:10px;font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);font-weight:bold}
-.e4-qmach .ic{font-size:calc(40px * var(--ea-fs, 1))}
-.e4-symp{font-size:calc(19px * var(--ea-fs, 1));font-weight:bold;line-height:1.6;margin:8px 0 10px;background:#fff8e8;border-left:6px solid var(--warn);padding:10px 12px;border-radius:0}
-.e4-clue{font-size:calc(17px * var(--ea-fs, 1));line-height:1.6;background:#eef5ff;border-left:6px solid var(--accent2);padding:10px 12px;border-radius:0;margin:8px 0}
-.e4-stepttl{font-size:calc(18px * var(--ea-fs, 1));font-weight:bold;margin:2px 0 6px;display:flex;align-items:center;gap:8px}
-.e4-stepttl .n{display:inline-flex;width:30px;height:30px;border-radius:15px;background:var(--top);color:#fff;align-items:center;justify-content:center;font-size:calc(16px * var(--ea-fs, 1))}
-.e4-ch{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;font-weight:bold;font-size:calc(18px * var(--ea-fs, 1));min-height:56px;border-radius:0;border:2px solid var(--line);background:#fff;cursor:pointer;color:var(--ink);line-height:1.4}
+.e4-qno i{flex:1;height:8px;border-radius:0;background:var(--fig-qno)}
+.e4-qno i.cur{background:var(--fig-cur)}.e4-qno i.ok{background:var(--ef-ok)}.e4-qno i.half{background:var(--fig-half)}.e4-qno i.ng{background:var(--ef-ng)}
+.e4-qmach{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--ef-muted);font-weight:bold}
+.e4-qmach .ic{font-size:2.35rem}
+.e4-symp{font-size:1.12rem;font-weight:bold;line-height:1.6;margin:8px 0 10px;background:var(--ef-warn-soft);border-left:6px solid var(--ef-warn);padding:10px 12px;border-radius:0}
+.e4-clue{font-size:1rem;line-height:1.6;background:var(--ef-surface-2);border-left:6px solid var(--ef-info);padding:10px 12px;border-radius:0;margin:8px 0}
+.e4-stepttl{font-size:1.06rem;font-weight:bold;margin:2px 0 6px;display:flex;align-items:center;gap:8px}
+.e4-stepttl .n{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--ef-ink);color:var(--ef-on-ink);align-items:center;justify-content:center;font-size:.94rem}
+.e4-ch{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;font-weight:bold;font-size:1.06rem;min-height:56px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);cursor:pointer;color:var(--ef-text);line-height:1.4}
 .e4-ch:disabled{cursor:default}
-.e4-ch.right{background:#d3f5e1;border-color:var(--ok)}
-.e4-ch.wrong{background:#ffe0e0;border-color:var(--ng)}
+.e4-ch.right{background:var(--ef-ok-soft);border-color:var(--ef-ok)}
+.e4-ch.wrong{background:var(--ef-ng-soft);border-color:var(--ef-ng)}
 .e4-ch.dim{opacity:.85}
 .e4-ch.lock{opacity:.55}
-.e4-ch .why{display:block;font-weight:normal;font-size:calc(15px * var(--ea-fs, 1));margin-top:4px;color:#3b4148;line-height:1.5}
-.e4-ch .mk{float:right;font-size:calc(20px * var(--ea-fs, 1));margin-left:8px}
-.e4-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:0;line-height:1.55}
-.e4-reason.tip{background:#fff9e6;border-color:var(--warn)}
-.e4-reason.good{background:#ecfaf1;border-color:var(--ok)}
-.e4-reason.safe{background:#fff0f0;border-color:#c62828}
-.e4-big{font-size:calc(46px * var(--ea-fs, 1));text-align:center;margin:4px 0}
+.e4-ch .why{display:block;font-weight:normal;font-size:.88rem;margin-top:4px;color:var(--ef-text);line-height:1.5}
+.e4-ch .mk{float:right;font-size:1.18rem;margin-left:8px}
+.e4-reason{background:var(--ef-ng-soft);border-left:5px solid var(--ef-ng);padding:8px 12px;margin:8px 0;border-radius:0;line-height:1.55}
+.e4-reason.tip{background:var(--ef-warn-soft);border-color:var(--ef-warn)}
+.e4-reason.good{background:var(--ef-ok-soft);border-color:var(--ef-ok)}
+.e4-reason.safe{background:var(--ef-ng-soft);border-color:var(--ef-ng)}
+.e4-big{font-size:2.71rem;text-align:center;margin:4px 0}
 /* アニメ */
-.e4-cvbox{flex:1;min-height:0;position:relative;background:#fbfbf8}
+.e4-cvbox{flex:1;min-height:0;position:relative;background:var(--fig-cvbox)}
 .e4-cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-.e4-kv{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:2px 0;font-size:calc(15px * var(--ea-fs, 1))}
-.e4-kv b{font-size:calc(19px * var(--ea-fs, 1))}
-.e4-meter{height:16px;background:#e5e5df;border-radius:0;overflow:hidden;margin:2px 0 8px;position:relative}
-.e4-meter i{display:block;height:100%;border-radius:0;background:var(--ok)}
-.e4-meter.mid i{background:var(--warn)}.e4-meter.bad i{background:var(--ng)}
-.e4-res{font-size:calc(16px * var(--ea-fs, 1));line-height:1.6}
+.e4-kv{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:2px 0;font-size:.88rem}
+.e4-kv b{font-size:1.12rem}
+.e4-meter{height:16px;background:var(--fig-meter);border-radius:0;overflow:hidden;margin:2px 0 8px;position:relative}
+.e4-meter i{display:block;height:100%;border-radius:0;background:var(--ef-ok)}
+.e4-meter.mid i{background:var(--ef-warn)}.e4-meter.bad i{background:var(--ef-ng)}
+.e4-res{font-size:.94rem;line-height:1.6}
 /* 点検表 */
 .e4-cl{display:flex;flex:1;min-height:0}
-.e4-cand{width:330px;flex:none;overflow-y:auto;padding:10px 12px;background:#fff;border-right:1px solid var(--line)}
-.e4-cand h2{font-size:calc(15px * var(--ea-fs, 1));margin:6px 2px;color:var(--sub)}
-.e4-citem{display:flex;align-items:center;gap:8px;width:100%;text-align:left;min-height:52px;margin:5px 0;padding:6px 10px;border-radius:0;border:2px solid var(--line);background:#fafaf7;font-weight:bold;font-size:calc(15px * var(--ea-fs, 1));cursor:pointer;color:var(--ink);line-height:1.35}
-.e4-citem.in{background:#e8f1fb;border-color:#9cc3ff;color:#1b4f8f}
-.e4-citem .pl{font-size:calc(20px * var(--ea-fs, 1));flex:none;width:24px;text-align:center}
+.e4-cand{width:330px;flex:none;overflow-y:auto;padding:10px 12px;background:var(--ef-surface);border-right:1px solid var(--ef-line)}
+.e4-cand h2{font-size:.88rem;margin:6px 2px;color:var(--ef-muted)}
+.e4-citem{display:flex;align-items:center;gap:8px;width:100%;text-align:left;min-height:52px;margin:5px 0;padding:6px 10px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);font-weight:bold;font-size:.88rem;cursor:pointer;color:var(--ef-text);line-height:1.35}
+.e4-citem.in{background:var(--ef-accent-soft);border-color:var(--ef-line);color:var(--ef-accent)}
+.e4-citem .pl{font-size:1.18rem;flex:none;width:24px;text-align:center}
 .e4-clmain{flex:1;overflow-y:auto;padding:12px 16px;min-width:0}
-.e4-row{border:2px solid var(--line);border-radius:0;background:#fff;padding:8px 12px;margin-bottom:10px}
+.e4-row{border:2px solid var(--ef-line);border-radius:0;background:var(--ef-surface);padding:8px 12px;margin-bottom:10px}
 .e4-row .hd{display:flex;align-items:center;gap:8px}
-.e4-row .hd .t{flex:1;font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;line-height:1.35}
-.e4-row .hd .key{color:#e8a200;font-size:calc(15px * var(--ea-fs, 1));flex:none}
-.e4-row .lab{font-size:calc(14px * var(--ea-fs, 1));color:var(--sub);font-weight:bold;margin:6px 0 3px}
-.e4-row .e4-chips .e4-btn{min-height:44px;font-size:calc(15px * var(--ea-fs, 1));padding:0 10px}
-.e4-row .hd .e4-btn.danger{margin-left:18px}
-.e4-row.warn{border-color:#f0b429}
-.e4-row .adv{font-size:calc(15px * var(--ea-fs, 1));color:#8a4b00;background:#fff4dc;border-radius:0;padding:4px 8px;margin-top:6px}
-.e4-in{font:inherit;font-size:calc(17px * var(--ea-fs, 1));min-height:46px;padding:8px 10px;border:2px solid var(--line);border-radius:0;width:100%;user-select:text;-webkit-user-select:text;background:#fff;color:var(--ink)}
-.e4-tbl{border-collapse:collapse;width:100%;font-size:calc(15px * var(--ea-fs, 1))}
-.e4-tbl th{background:#eceee8;padding:5px;font-size:calc(15px * var(--ea-fs, 1));border:1px solid #d5d7d0}
-.e4-tbl td{border:1px solid #dfe1da;padding:5px 6px;text-align:center}
+.e4-row .hd .t{flex:1;font-size:1rem;font-weight:bold;line-height:1.35}
+.e4-row .hd .key{color:var(--ef-warn);font-size:.88rem;flex:none}
+.e4-row .lab{font-size:.82rem;color:var(--ef-muted);font-weight:bold;margin:6px 0 3px}
+.e4-row .e4-chips :is(.ef-btn,.ef-btn-primary){min-height:44px;font-size:.88rem;padding:0 10px}
+.e4-row .hd .ef-btn.danger{margin-left:18px}
+.e4-row.warn{border-color:var(--ef-warn)}
+.e4-row .adv{font-size:.88rem;color:var(--ef-warn);background:var(--ef-warn-soft);border-radius:0;padding:4px 8px;margin-top:6px}
+.e4-in{font:inherit;font-size:1rem;min-height:46px;padding:8px 10px;border:2px solid var(--ef-line);border-radius:0;width:100%;user-select:text;-webkit-user-select:text;background:var(--ef-surface);color:var(--ef-text)}
+.e4-tbl{border-collapse:collapse;width:100%;font-size:.88rem}
+.e4-tbl th{background:var(--ef-surface-2);padding:5px;font-size:.88rem;border:1px solid var(--ef-line)}
+.e4-tbl td{border:1px solid var(--ef-line);padding:5px 6px;text-align:center}
 .e4-tbl td.l{text-align:left}
-.e4-recrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #eee}
-.e4-recrow .t{flex:1;font-size:calc(16px * var(--ea-fs, 1));line-height:1.35}
-.e4-recrow .e4-btn{min-width:64px;min-height:50px;font-size:calc(18px * var(--ea-fs, 1));padding:2px 6px;line-height:1.1}
-.e4-recrow .e4-btn.on.r0{background:var(--ok);color:#fff}
-.e4-recrow .e4-btn.on.r1{background:var(--warn);color:#fff}
-.e4-recrow .e4-btn.on.r2{background:var(--ng);color:#fff}
+.e4-recrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--ef-line)}
+.e4-recrow .t{flex:1;font-size:.94rem;line-height:1.35}
+.e4-recrow :is(.ef-btn,.ef-btn-primary){min-width:64px;min-height:50px;font-size:1.06rem;padding:2px 6px;line-height:1.1}
+.e4-recrow .ef-btn.on.r0{background:var(--ef-ok);color:var(--ef-on-ink)}
+.e4-recrow .ef-btn.on.r1{background:var(--ef-warn);color:var(--ef-on-ink)}
+.e4-recrow .ef-btn.on.r2{background:var(--ef-ng);color:var(--ef-on-ink)}
 /* モーダル */
-.e4-ov{position:absolute;inset:0;background:rgba(25,32,40,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
-.e4-modal{background:#fff;border-radius:0;max-width:920px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px;box-shadow:none;font-size:calc(17px * var(--ea-fs, 1));line-height:1.6}
-.e4-modal h2{margin:0 0 10px;font-size:calc(23px * var(--ea-fs, 1))}
-.e4-modal h3{margin:14px 0 6px;font-size:calc(18px * var(--ea-fs, 1))}
+.e4-ov{position:absolute;inset:0;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.e4-modal{background:var(--ef-surface);border-radius:0;max-width:920px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px;box-shadow:none;font-size:1rem;line-height:1.6}
+.e4-modal h2{margin:0 0 10px;font-size:1.35rem}
+.e4-modal h3{margin:14px 0 6px;font-size:1.06rem}
 .e4-modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
-.e4-modal .acts .e4-btn{min-width:150px;min-height:54px;font-size:calc(18px * var(--ea-fs, 1))}
+.e4-modal .acts :is(.ef-btn,.ef-btn-primary){min-width:150px;min-height:54px;font-size:1.06rem}
 .e4-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.e4-steps div{background:#f3f4f0;border-radius:0;padding:12px;font-size:calc(16px * var(--ea-fs, 1))}
-.e4-steps b{font-size:calc(18px * var(--ea-fs, 1))}
+.e4-steps div{background:var(--ef-surface-2);border-radius:0;padding:12px;font-size:.94rem}
+.e4-steps b{font-size:1.06rem}
 .e4-printarea{display:none}
 .e4 ruby{ruby-align:center}
-.e4 ruby rt{font-size:max(12px,.5em);font-weight:normal;color:#4b5560;ruby-align:center;letter-spacing:0}
-.e4-hint{font-size:calc(15px * var(--ea-fs, 1));color:#8a4b00;background:#fff4dc;border-radius:0;padding:8px 12px;margin:6px 0}
-.e4-toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:#1d3557;color:#fff;padding:12px 20px;border-radius:0;font-size:calc(17px * var(--ea-fs, 1));font-weight:bold;z-index:200;box-shadow:none;max-width:90%;text-align:center}
+.e4 ruby rt{font-size:max(.71rem,.5em);font-weight:normal;color:var(--ef-muted);ruby-align:center;letter-spacing:0}
+.e4-hint{font-size:.88rem;color:var(--ef-warn);background:var(--ef-warn-soft);border-radius:0;padding:8px 12px;margin:6px 0}
+.e4-toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:12px 20px;border-radius:0;font-size:1rem;font-weight:bold;z-index:200;box-shadow:none;max-width:90%;text-align:center}
 .e4-cgrid{display:block}
-.e4-pcard .nt{font-size:calc(15px * var(--ea-fs, 1));line-height:1.5}
+.e4-pcard .nt{font-size:.88rem;line-height:1.5}
 .e4-ic svg{width:100%;height:100%;display:block}
-@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:calc(16px * var(--ea-fs, 1))}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}}
+@media (max-width:1100px){.e4-long{display:none}.e4-top h1{font-size:.94rem}.e4-pgrid{grid-template-columns:repeat(3,1fr)}.e4-tgrid{grid-template-columns:repeat(2,1fr)}.e4-side{width:290px}.e4-cand{width:290px}}
 @media (max-width:900px){
   .e4-main{flex-direction:column}
-  .e4-side{width:auto;flex:none;max-height:44%;border-left:0;border-top:2px solid var(--line)}
+  .e4-side{width:auto;flex:none;max-height:44%;border-left:0;border-top:2px solid var(--ef-line)}
   .e4-mcenter{flex:none}.e4-mcenter .e4-mbox{flex:none;aspect-ratio:1000/640}
   .e4-side.e4-mside{flex:1;max-height:none}
   .e4-quiz{flex-direction:column;overflow-y:auto}
-  .e4-qcase{width:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line)}
+  .e4-qcase{width:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--ef-line)}
   .e4-qans{overflow:visible;flex:none}
   .e4-cl{flex-direction:column;overflow-y:auto}
-  .e4-cand{width:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line)}
+  .e4-cand{width:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--ef-line)}
   .e4-cgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:8px}
   .e4-clmain{overflow:visible;flex:none}
 }
 @media (max-width:820px){.e4-pgrid{grid-template-columns:repeat(2,1fr)}.e4-modes{grid-template-columns:1fr}}
 @media print{
-  html,body{height:auto;background:#fff}
+  html,body{height:auto;background:var(--ef-surface)}
   body *{visibility:hidden}
   .e4-printarea,.e4-printarea *{visibility:visible}
-  .e4-printarea{display:block;position:absolute;left:0;top:0;width:100%;font-size:calc(14px * var(--ea-fs, 1));color:#000}
-  .e4-printarea h1{font-size:calc(20px * var(--ea-fs, 1));margin:0 0 6px}
-  .e4-printarea h2{font-size:calc(16px * var(--ea-fs, 1));margin:12px 0 4px}
-  .e4-printarea .e4-tbl{font-size:calc(12.5px * var(--ea-fs, 1))}
-  .e4-printarea .e4-tbl td,.e4-printarea .e4-tbl th{border:1px solid #888}
+  .e4-printarea{display:block;position:absolute;left:0;top:0;width:100%;font-size:.82rem;color:var(--ef-text)}
+  .e4-printarea h1{font-size:1.18rem;margin:0 0 6px}
+  .e4-printarea h2{font-size:.94rem;margin:12px 0 4px}
+  .e4-printarea .e4-tbl{font-size:.74rem}
+  .e4-printarea .e4-tbl td,.e4-printarea .e4-tbl th{border:1px solid var(--ef-muted)}
   .e4{height:auto;overflow:visible}
   .e4>*:not(.e4-printarea){display:none!important}
   .e4-printarea{position:static}
@@ -1150,7 +1170,7 @@ function toast(text) {
 /* 消す操作の確認(「やめる」/「消す」) */
 function confirmModal(title, body, okLabel, fn) {
   S.cfm = fn;
-  modal('<h2>' + title + '</h2><p>' + body + '</p><div class="acts"><button class="e4-btn primary" data-act="close">やめる</button><button class="e4-btn danger" data-act="cfmok">' + (okLabel || '消す') + '</button></div>');
+  modal('<h2>' + title + '</h2><p>' + body + '</p><div class="acts"><button class="ef-btn-primary" data-act="close">やめる</button><button class="ef-btn is-danger" data-act="cfmok">' + (okLabel || '消す') + '</button></div>');
 }
 
 /* ---------- 読みがな(難しい用語の初出に <ruby>) ----------
@@ -1211,7 +1231,7 @@ var VIEWS = [
 ];
 /* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
-function efMount() { if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount(); }
+function efMount() { if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); /* 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に */ } }
 function buildShell() {
   // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、右に道具(.ef-apptabs-tools)
   var top = '<div class="e4-top ef-apptabs">' + (NS.embedded ? '' : '<h1 class="e4-noruby">保守点検ラボ</h1>') +
@@ -1244,7 +1264,7 @@ function setBody(html) { S.el.body.innerHTML = html; addRuby(S.el.body); var pr 
 function renderBook() {
   var seen = D.ORDER.filter(function (k) { return S.save.seenP[k]; }).length;
   var chips = [{ id: 'all', name: 'すべて' }].concat(D.CATS).map(function (c) {
-    return '<button class="e4-btn' + (S.cat === c.id ? ' on' : '') + '" data-act="cat" data-v="' + c.id + '">' + c.name + '</button>';
+    return '<button class="ef-btn' + (S.cat === c.id ? ' on' : '') + '" data-act="cat" data-v="' + c.id + '">' + c.name + '</button>';
   }).join('');
   var cards = D.ORDER.filter(function (k) { return S.cat === 'all' || PARTS[k].cat === S.cat; }).map(function (k) {
     var p = PARTS[k];
@@ -1255,7 +1275,7 @@ function renderBook() {
   }).join('');
   setBody('<div class="e4-page"><div data-ef-lets="c19"></div><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
     '<div class="e4-chips">' + chips + '</div></div>' +
-    '<p style="margin:0 0 12px;color:#5f6670">機械は、ねじ・軸・軸受・歯車・ばねなどの組み合わせでできています。これらは「どの機械にも使われる部品(共通部品)」です。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
+    '<p style="margin:0 0 12px;color:var(--ef-muted)">機械は、ねじ・軸・軸受・歯車・ばねなどの組み合わせでできています。これらは「どの機械にも使われる部品(共通部品)」です。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
     '<div class="e4-pgrid">' + cards + '</div></div>');
 }
 function partModal(k) {
@@ -1265,7 +1285,7 @@ function partModal(k) {
   var hs = [];
   D.MACHINES.forEach(function (m) { m.hot.forEach(function (h) { if (h.part === k) hs.push({ m: m, h: h }); }); });
   var h = '<div class="e4-pbig">' + D.icon(k) + '<div class="tx"><h2 class="e4-noruby" style="margin-bottom:2px">' + esc(p.name) + '</h2>' +
-    (hasKanji(p.name) && p.yomi ? '<div class="e4-noruby" style="color:#5f6670;font-size:calc(15px * var(--ea-fs, 1))">読み: ' + esc(p.yomi) + '</div>' : '') +
+    (hasKanji(p.name) && p.yomi ? '<div class="e4-noruby" style="color:var(--ef-muted);font-size:.88rem">読み: ' + esc(p.yomi) + '</div>' : '') +
     '<span class="e4-pcard" style="display:inline;border:0;padding:0;min-height:0"><span class="ct e4-cat-' + p.cat + '">' + esc(catName(p.cat)) + '</span></span>' +
     '<h3>はたらき</h3><div>' + esc(p.role) + '</div></div></div>' +
     '<h3>使われている所</h3><div class="e4-tags">' + p.where.map(function (w) { return '<span>' + esc(w) + '</span>'; }).join('') + '</div>' +
@@ -1274,9 +1294,9 @@ function partModal(k) {
     (p.how ? '<div class="e4-reason good"><b>保守のしかた:</b> ' + esc(p.how) + '</div>' : '') +
     (p.note ? '<h3>📚 もっと知る</h3><div>' + esc(p.note) + '</div>' : '') +
     '<div class="acts">' +
-    (S.view === 'quiz' && S.qz ? [] : hs).slice(0, 1).map(function (x) { return '<button class="e4-btn" data-act="gohot" data-m="' + x.m.id + '" data-h="' + x.h.id + '">' + x.m.icon + ' ' + esc(x.m.name) + 'で見る</button>'; }).join('') +
-    (S.view === 'quiz' && S.qz ? [] : cs).slice(0, 2).map(function (c) { return '<button class="e4-btn blue" data-act="case1" data-id="' + c.id + '">🩺 ' + esc(c.title) + '</button>'; }).join('') +
-    '<button class="e4-btn primary" data-act="closebook">とじる</button></div>';
+    (S.view === 'quiz' && S.qz ? [] : hs).slice(0, 1).map(function (x) { return '<button class="ef-btn" data-act="gohot" data-m="' + x.m.id + '" data-h="' + x.h.id + '">' + x.m.icon + ' ' + esc(x.m.name) + 'で見る</button>'; }).join('') +
+    (S.view === 'quiz' && S.qz ? [] : cs).slice(0, 2).map(function (c) { return '<button class="ef-btn" data-act="case1" data-id="' + c.id + '">🩺 ' + esc(c.title) + '</button>'; }).join('') +
+    '<button class="ef-btn-primary" data-act="closebook">とじる</button></div>';
   modal(h);
 }
 
@@ -1345,9 +1365,9 @@ function renderMach() {
   var m = byId(D.MACHINES, S.mach) || D.MACHINES[0], f = S.save.found[m.id], n = m.hot.filter(function (h) { return f[h.id]; }).length;
   var bar = D.MACHINES.map(function (x) {
     var nn = x.hot.filter(function (h) { return S.save.found[x.id][h.id]; }).length;
-    return '<button class="e4-btn' + (x.id === m.id ? ' on' : '') + '" data-act="mach" data-v="' + x.id + '">' + x.icon + ' ' + esc(x.name) + ' <small>(' + nn + '/' + x.hot.length + ')</small></button>';
+    return '<button class="ef-btn' + (x.id === m.id ? ' on' : '') + '" data-act="mach" data-v="' + x.id + '">' + x.icon + ' ' + esc(x.name) + ' <small>(' + nn + '/' + x.hot.length + ')</small></button>';
   }).join('') + '<div class="sp"></div><span class="lbl">見つけた部品 ' + n + ' / ' + m.hot.length + '</span>' +
-    '<button class="e4-btn sm danger" data-act="machreset"' + (n ? '' : ' disabled') + '>↺ 最初から</button>';
+    '<button class="ef-btn is-s is-danger" data-act="machreset"' + (n ? '' : ' disabled') + '>↺ 最初から</button>';
   var hots = m.hot.map(function (h, i) {
     var cls = 'e4-hot' + (f[h.id] ? ' found' : '') + (S.hot === h.id ? ' sel' : '');
     return '<g class="' + cls + '" data-act="hot" data-h="' + h.id + '" tabindex="0" role="button" aria-label="' + esc(f[h.id] ? h.label : '部品 ' + (i + 1)) + '">' +
@@ -1365,19 +1385,19 @@ function renderMach() {
 function hotLabel(h) {
   var lp = h.lp || 'u', x = h.x, y = h.y, anc = 'middle';
   if (lp === 'u') y -= 58; else if (lp === 'd') y += 60; else if (lp === 'l') { x -= 48; anc = 'end'; } else { x += 48; anc = 'start'; }
-  return '<text x="' + x + '" y="' + y + '" style="font-size:calc(26px * var(--ea-fs, 1));text-anchor:' + anc + ';paint-order:stroke;stroke:#fff;stroke-width:7px">' + esc(h.label) + '</text>';
+  return '<text x="' + x + '" y="' + y + '" style="font-size:1.53rem;text-anchor:' + anc + ';paint-order:stroke;stroke:var(--ef-surface);stroke-width:7px">' + esc(h.label) + '</text>';
 }
 function renderMachSide(m) {
   var h = S.hot ? byId(m.hot, S.hot) : null, html = '';
   if (h) {
     html += '<div class="e4-card blue">' + (h.part ? '<div class="e4-ic" style="width:110px;height:90px;float:right">' + D.icon(h.part) + '</div>' : '') +
-      '<div style="font-size:calc(20px * var(--ea-fs, 1));font-weight:bold">' + esc(h.label) + '</div>' +
-      (h.part ? '<div style="font-size:calc(15px * var(--ea-fs, 1));color:#5f6670">共通部品: ' + esc(partName(h.part)) + '</div>' : '<div style="font-size:calc(15px * var(--ea-fs, 1));color:#5f6670">(この機械に特有の部分)</div>') +
+      '<div style="font-size:1.18rem;font-weight:bold">' + esc(h.label) + '</div>' +
+      (h.part ? '<div style="font-size:.88rem;color:var(--ef-muted)">共通部品: ' + esc(partName(h.part)) + '</div>' : '<div style="font-size:.88rem;color:var(--ef-muted)">(この機械に特有の部分)</div>') +
       '<div style="clear:both;margin-top:6px">' + esc(h.role) + '</div></div>' +
       '<div class="e4-card warn"><b>🔍 点検ポイント:</b><br>' + esc(h.care) + '</div>' +
-      (h.part ? '<button class="e4-btn big" data-act="part" data-k="' + h.part + '">📖 図鑑で「' + esc(PARTS[h.part].name) + '」を見る</button>' : '');
+      (h.part ? '<button class="ef-btn big" data-act="part" data-k="' + h.part + '">📖 図鑑で「' + esc(PARTS[h.part].name) + '」を見る</button>' : '');
   } else {
-    html += '<div class="e4-card">機械の図の <b style="color:#c8620e">?</b> をタップすると、そこに使われている部品と、その<b>点検ポイント</b>がわかります。</div>';
+    html += '<div class="e4-card">機械の図の <b style="color:var(--ef-warn)">?</b> をタップすると、そこに使われている部品と、その<b>点検ポイント</b>がわかります。</div>';
   }
   var f = S.save.found[m.id];
   html += '<h2>見つけた部品</h2><div class="e4-tags">' + m.hot.filter(function (x) { return f[x.id]; }).map(function (x) { return '<span>' + esc(x.label) + '</span>'; }).join('') + '</div>';
@@ -1393,7 +1413,7 @@ function tapHot(id) {
     beep('ok');
     var nx = D.MACHINES.filter(function (x) { return x.id !== m.id && x.hot.some(function (hh) { return !S.save.found[x.id][hh.id]; }); })[0];
     say('🎉 クリア! ' + m.name + 'の部品を全部見つけた。1つの機械に、いろいろな共通部品が使われているね。 ' +
-      (nx ? '<button class="e4-btn primary" data-act="mach" data-v="' + nx.id + '">次: ' + nx.icon + ' ' + esc(nx.name) + 'を見る ▶</button>' : '<button class="e4-btn primary" data-act="view" data-v="quiz">次: 🎯 クイズに挑戦 ▶</button>'), 'ok');
+      (nx ? '<button class="ef-btn-primary" data-act="mach" data-v="' + nx.id + '">次: ' + nx.icon + ' ' + esc(nx.name) + 'を見る ▶</button>' : '<button class="ef-btn-primary" data-act="view" data-v="quiz">次: 🎯 クイズに挑戦 ▶</button>'), 'ok');
   }
   else { beep(first ? 'right' : 'tap'); say((first ? '✔ 見つけた: ' : '') + '<b>' + esc(h.label) + '</b>' + (h.part ? '(' + esc(partName(h.part)) + ')' : '') + '。' + (window.innerWidth <= 900 ? '下' : '右') + 'に点検ポイントが出ているよ。'); }
   renderMach();
@@ -1416,12 +1436,12 @@ function renderQuizMenu() {
     return '<button class="e4-tcard' + (b === 2 ? ' done' : '') + '" data-act="case1" data-id="' + c.id + '"><span class="no"><span>' + (i + 1) + ' ' + D.MACH[c.mach].icon + ' ' + esc(D.MACH[c.mach].name) + '</span><span class="star">' + (b < 0 ? '' : stars(b, 2)) + '</span></span>' +
       '<span class="t">' + c.icon + ' ' + esc(c.title) + '</span><span class="l">' + esc(c.symptom) + '</span></button>';
   }).join('');
-  var mbtn = function (f, label) { return '<button class="e4-btn' + (f === 'all' ? ' primary' : '') + '" data-act="caseset" data-v="' + f + '">' + label + '</button>'; };
+  var mbtn = function (f, label) { return '<button class="' + (f === 'all' ? 'ef-btn-primary' : 'ef-btn') + '" data-act="caseset" data-v="' + f + '">' + label + '</button>'; };
   setBody('<div class="e4-page"><div class="e4-h"><h2>🎯 クイズ</h2><span class="e4-prog">事例 満点 ' + done + ' / ' + D.CASES.length + '</span></div>' +
     '<div class="e4-modes"><div class="e4-mode"><div class="t">🩺 不具合事例クイズ</div><div class="l">「ペダルが重い」「扇風機がキーキー」などの症状を、まず<b>🔍 よく調べる</b>。そして、<b>① 原因の部品</b> と <b>② 対処のしかた</b> を選ぶ。全部の選択肢に理由の解説が出ます。</div>' +
     '<div class="e4-chips">' + mbtn('rand', '🎲 ランダム5問') + mbtn('bike', '🚲 自転車') + mbtn('home', '🏠 家の電気製品') + mbtn('school', '🏫 学校') + mbtn('all', '全部(' + D.CASES.length + '問)') + '</div></div>' +
     '<div class="e4-mode"><div class="t">🧩 部品あてクイズ</div><div class="l">共通部品の名前を当てる(10問)。ヒントは、はたらき・使われている所・点検ポイント。最高記録: <b>' + S.save.pq.best + ' / 10</b></div>' +
-    '<div class="e4-chips"><button class="e4-btn primary" data-act="pqstart">スタート</button></div></div></div>' +
+    '<div class="e4-chips"><button class="ef-btn-primary" data-act="pqstart">スタート</button></div></div></div>' +
     '<h3 style="margin:4px 0 8px">事例を1つずつ選ぶ</h3><div class="e4-tgrid">' + cards + '</div></div>');
 }
 function startCases(ids) {
@@ -1450,19 +1470,19 @@ function renderCaseQ() {
   var bar = '<div class="e4-qno">' + Q.ids.map(function (_, i) {
     var r = Q.res[i]; return '<i class="' + (i === Q.i ? 'cur' : r == null ? '' : r === 2 ? 'ok' : r === 1 ? 'half' : 'ng') + '"></i>';
   }).join('') + '</div>';
-  var left = bar + '<div class="e4-qmach"><span class="ic">' + c.icon + '</span><span>' + (Q.i + 1) + ' / ' + Q.ids.length + '問 ・ ' + esc(D.MACH[c.mach].name) + '<br><span style="font-size:calc(20px * var(--ea-fs, 1));color:#262a30">' + esc(c.title) + '</span></span></div>' +
+  var left = bar + '<div class="e4-qmach"><span class="ic">' + c.icon + '</span><span>' + (Q.i + 1) + ' / ' + Q.ids.length + '問 ・ ' + esc(D.MACH[c.mach].name) + '<br><span style="font-size:1.18rem;color:var(--ef-text)">' + esc(c.title) + '</span></span></div>' +
     '<div class="e4-symp">' + esc(c.symptom) + '</div>' +
-    (Q.clue || Q.pick[0] >= 0 ? '<div class="e4-clue">🔍 <b>よく調べると…</b><br>' + esc(c.clue) + '</div>' : '<button class="e4-btn blue big" data-act="clue">🔍 よく調べる(見る・聞く・さわる)</button>') +
-    (Q.pick[0] >= 0 && c.part ? '<div class="e4-card" style="display:flex;gap:10px;align-items:center;margin-top:10px"><div class="e4-ic" style="width:90px;height:80px;flex:none">' + D.icon(c.part) + '</div><div><b>関係する共通部品:</b> ' + esc(partName(c.part)) + '<br><button class="e4-btn sm" data-act="part" data-k="' + c.part + '">📖 図鑑で見る</button></div></div>' : '');
+    (Q.clue || Q.pick[0] >= 0 ? '<div class="e4-clue">🔍 <b>よく調べると…</b><br>' + esc(c.clue) + '</div>' : '<button class="ef-btn big" data-act="clue">🔍 よく調べる(見る・聞く・さわる)</button>') +
+    (Q.pick[0] >= 0 && c.part ? '<div class="e4-card" style="display:flex;gap:10px;align-items:center;margin-top:10px"><div class="e4-ic" style="width:90px;height:80px;flex:none">' + D.icon(c.part) + '</div><div><b>関係する共通部品:</b> ' + esc(partName(c.part)) + '<br><button class="ef-btn is-s" data-act="part" data-k="' + c.part + '">📖 図鑑で見る</button></div></div>' : '');
   var right = '<div class="e4-stepttl"><span class="n">1</span>原因はどれ?</div>' +
     (Q.clue || Q.pick[0] >= 0 ? '' : '<div class="e4-hint">🔍 まず' + (window.innerWidth <= 900 ? '上' : '左') + 'の「よく調べる」を押して、手がかりを見よう。調べるまで選べません。</div>') + choiceHTML(c, 0);
   if (Q.pick[0] >= 0) right += '<div class="e4-stepttl" data-ref="step2" style="margin-top:16px"><span class="n">2</span>どう対処する?</div>' + choiceHTML(c, 1);
   if (Q.pick[1] >= 0) {
     right += '<div class="e4-reason safe" data-ref="fin">⚠ <b>安全:</b> ' + esc(c.safety) + '</div><div class="e4-reason good">💡 ' + esc(c.learn) + '</div>' +
-      '<button class="e4-btn primary big" data-act="cnext">' + (Q.i + 1 < Q.ids.length ? '次の問題へ ▶' : '結果を見る ▶') + '</button>';
+      '<button class="ef-btn-primary big" data-act="cnext">' + (Q.i + 1 < Q.ids.length ? '次の問題へ ▶' : '結果を見る ▶') + '</button>';
   }
   setBody('<div class="e4-quiz"><div class="e4-qcase">' + left + '</div><div class="e4-qans" data-ref="qans">' + right +
-    '<div style="margin-top:14px"><button class="e4-btn sm" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
+    '<div style="margin-top:14px"><button class="ef-btn is-s" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
 }
 function caseAnswer(step, oi) {
   var Q = S.qz;
@@ -1492,8 +1512,8 @@ function caseNext() {
     '<p style="text-align:center">原因と対処、それぞれ1点。</p>' +
     (miss.length ? '<h3>もう一度ためしたい問題</h3><div class="e4-tags">' + miss.map(function (id) { return '<span>' + esc(caseById(id).title) + '</span>'; }).join('') + '</div>' : '') +
     '<div class="e4-reason tip">実際に点検するときは、<b>電源を切る・止まってから・わからなければ大人や専門家に</b>。</div>' +
-    '<div class="acts">' + (miss.length ? '<button class="e4-btn blue" data-act="retry" data-ids="' + miss.join(',') + '">まちがえた問題をもう一度</button>' : '') +
-    '<button class="e4-btn primary" data-act="qmenu">クイズのはじめへ</button></div>');
+    '<div class="acts">' + (miss.length ? '<button class="ef-btn" data-act="retry" data-ids="' + miss.join(',') + '">まちがえた問題をもう一度</button>' : '') +
+    '<button class="ef-btn-primary" data-act="qmenu">クイズのはじめへ</button></div>');
 }
 /* 部品あてクイズ */
 /* 問題文は C6data.PQ の手書きの手がかり(部品ごとに区別できるもの)。
@@ -1522,8 +1542,8 @@ function renderPartQ() {
   setBody('<div class="e4-quiz"><div class="e4-qcase">' + bar + '<div class="e4-qmach"><span class="ic">🧩</span><span>部品あてクイズ ' + (Q.i + 1) + ' / ' + Q.qs.length + '</span></div>' +
     '<div class="e4-stepttl" style="margin-top:10px">' + esc(q.lead) + '</div><div class="e4-symp" style="white-space:pre-line">' + esc(q.text) + '</div>' +
     (q.ans != null ? '<div class="e4-reason ' + (q.ans === q.k ? 'good' : 'tip') + '">' + (q.ans === q.k ? '⭕ 正解!' : '❌ 正解は「' + esc(PARTS[q.k].name) + '」') + '<br>右の各選択肢の下に、それぞれの部品のはたらき(理由)が出ています。</div>' +
-      '<button class="e4-btn primary big" data-act="pnext">' + (Q.i + 1 < Q.qs.length ? '次の問題へ ▶' : '結果を見る ▶') + '</button>' : '') +
-    '</div><div class="e4-qans">' + ops + '<div style="margin-top:14px"><button class="e4-btn sm" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
+      '<button class="ef-btn-primary big" data-act="pnext">' + (Q.i + 1 < Q.qs.length ? '次の問題へ ▶' : '結果を見る ▶') + '</button>' : '') +
+    '</div><div class="e4-qans">' + ops + '<div style="margin-top:14px"><button class="ef-btn is-s" data-act="qmenu">◀ クイズのはじめにもどる</button></div></div></div>');
 }
 function partAnswer(k) {
   var q = S.qz.qs[S.qz.i]; if (q.ans != null) return;
@@ -1538,7 +1558,7 @@ function partNext() {
   var n = Q.qs.length;   // ふつうは10問(手がかりのある部品が10より少ないときは、その数)
   beep(sc >= n * 0.8 ? 'ok' : 'tap');
   modal('<h2>' + (sc === n ? '🎉 クリア! 全問正解' : '🧩 結果') + '</h2><div class="e4-big">' + sc + ' / ' + n + '</div>' + (rec ? '<p style="text-align:center">🏅 最高記録を更新!</p>' : '') +
-    '<div class="acts"><button class="e4-btn" data-act="view" data-v="book">📖 図鑑で復習</button><button class="e4-btn blue" data-act="pqstart">もう一度</button><button class="e4-btn primary" data-act="qmenu">クイズのはじめへ</button></div>');
+    '<div class="acts"><button class="ef-btn" data-act="view" data-v="book">📖 図鑑で復習</button><button class="ef-btn" data-act="pqstart">もう一度</button><button class="ef-btn-primary" data-act="qmenu">クイズのはじめへ</button></div>');
 }
 
 /* =================================================================
@@ -1657,10 +1677,10 @@ function simCompare() {
 function renderSim() {
   var d = simDef();
   if (!S.sim) simReset();
-  var bar = SIMS.map(function (x) { return '<button class="e4-btn' + (x.id === d.id ? ' on' : '') + '" data-act="simsel" data-v="' + x.id + '">' + x.icon + ' ' + x.nm[0] + '<span class="e4-long">' + x.nm[1] + '</span></button>'; }).join('') +
-    '<div class="sp"></div><button class="e4-btn primary" data-act="simplay" data-ref="play" style="min-width:112px"></button>' +
-    [1, 3, 8].map(function (v) { return '<button class="e4-btn sm' + ((S.save.simSpeed || 1) === v ? ' on' : '') + '" data-act="simspeed" data-v="' + v + '" aria-label="速さ ' + v + '倍">×' + v + '</button>'; }).join('') +
-    '<button class="e4-btn sm danger" data-act="simreset" style="margin-left:12px">↺ 最初から</button>';
+  var bar = SIMS.map(function (x) { return '<button class="ef-btn' + (x.id === d.id ? ' on' : '') + '" data-act="simsel" data-v="' + x.id + '">' + x.icon + ' ' + x.nm[0] + '<span class="e4-long">' + x.nm[1] + '</span></button>'; }).join('') +
+    '<div class="sp"></div><button class="ef-btn-primary" data-act="simplay" data-ref="play" style="min-width:112px"></button>' +
+    [1, 3, 8].map(function (v) { return '<button class="ef-btn is-s' + ((S.save.simSpeed || 1) === v ? ' on' : '') + '" data-act="simspeed" data-v="' + v + '" aria-label="速さ ' + v + '倍">×' + v + '</button>'; }).join('') +
+    '<button class="ef-btn is-s is-danger" data-act="simreset" style="margin-left:12px">↺ 最初から</button>';
   setBody('<div class="e4-center"><div class="e4-msg" data-ref="msg" role="status" aria-live="polite"></div><div class="e4-bar">' + bar + '</div>' +
     '<div class="e4-cvbox" data-ref="box"><canvas class="e4-cv" data-ref="cv" tabindex="0" aria-label="' + esc(d.name) + 'のようすとグラフ"></canvas></div></div><div class="e4-side" data-ref="side"></div>');
   S.cw = 0;
@@ -1672,13 +1692,13 @@ function renderSimSide() {
   if (!S.el.side) return;
   var d = simDef(), set = simSet(), st = S.sim;
   var h = '<h2>条件を変える</h2>' + d.sets.map(function (s) {
-    return '<div style="margin-bottom:8px"><div style="font-size:calc(15px * var(--ea-fs, 1));font-weight:bold;color:#5f6670;margin-bottom:3px">' + s.name + '</div><div class="e4-chips">' +
-      s.opts.map(function (o) { return '<button class="e4-btn' + (set[s.k] === o[0] ? ' on' : '') + '" data-act="simset" data-k="' + s.k + '" data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div></div>';
+    return '<div style="margin-bottom:8px"><div style="font-size:.88rem;font-weight:bold;color:var(--ef-muted);margin-bottom:3px">' + s.name + '</div><div class="e4-chips">' +
+      s.opts.map(function (o) { return '<button class="ef-btn' + (set[s.k] === o[0] ? ' on' : '') + '" data-act="simset" data-k="' + s.k + '" data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div></div>';
   }).join('');
-  h += '<h2>いまのようす(<span data-ref="sday">' + st.day + '</span>日目)</h2><div class="e4-card"><div style="font-weight:bold;font-size:calc(17px * var(--ea-fs, 1));margin-bottom:4px" data-ref="sign">' + esc(d.sign(st)) + '</div><div data-ref="meters"></div></div>' +
-    '<button class="e4-btn big good" data-act="siminsp"' + (st.broken ? ' disabled' : '') + '>🔧 点検する(' + st.insp + '回)</button>' +
-    '<div class="e4-card" style="margin-top:10px;font-size:calc(15px * var(--ea-fs, 1))">故障 <b>' + st.fails + '</b> 回 ・ 点検で直した <b>' + st.fixes + '</b> 回</div>' +
-    '<h2>点検する間隔をくらべる(1年間)</h2><button class="e4-btn big blue" data-act="simcmp">📊 計算してくらべる</button><div data-ref="cmp" style="margin-top:8px"></div>';
+  h += '<h2>いまのようす(<span data-ref="sday">' + st.day + '</span>日目)</h2><div class="e4-card"><div style="font-weight:bold;font-size:1rem;margin-bottom:4px" data-ref="sign">' + esc(d.sign(st)) + '</div><div data-ref="meters"></div></div>' +
+    '<button class="ef-btn big good" data-act="siminsp"' + (st.broken ? ' disabled' : '') + '>🔧 点検する(' + st.insp + '回)</button>' +
+    '<div class="e4-card" style="margin-top:10px;font-size:.88rem">故障 <b>' + st.fails + '</b> 回 ・ 点検で直した <b>' + st.fixes + '</b> 回</div>' +
+    '<h2>点検する間隔をくらべる(1年間)</h2><button class="ef-btn big" data-act="simcmp">📊 計算してくらべる</button><div data-ref="cmp" style="margin-top:8px"></div>';
   S.el.side.innerHTML = h; addRuby(S.el.side);
   S.el.sign = S.el.side.querySelector('[data-ref="sign"]'); S.el.meters = S.el.side.querySelector('[data-ref="meters"]'); S.el.cmp = S.el.side.querySelector('[data-ref="cmp"]'); S.el.sday = S.el.side.querySelector('[data-ref="sday"]');
   updateMeters();
@@ -1689,15 +1709,15 @@ function updateMeters() {
   S.el.sign.textContent = st.broken ? '💥 ' + d.failText : d.sign(st);
   S.el.meters.innerHTML = d.meters(st).map(function (m) {
     var max = m[4] || 100, pct = clamp(m[1] / max * 100, 0, 100), bad = m[3] ? pct : 100 - pct;
-    return '<div class="e4-kv"><span>' + m[0] + '</span><b>' + Math.round(m[1]) + '<small style="font-size:calc(13px * var(--ea-fs, 1))">' + m[2] + '</small></b></div><div class="e4-meter ' + (bad > 70 ? 'bad' : bad > 40 ? 'mid' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>';
+    return '<div class="e4-kv"><span>' + m[0] + '</span><b>' + Math.round(m[1]) + '<small style="font-size:.76rem">' + m[2] + '</small></b></div><div class="e4-meter ' + (bad > 70 ? 'bad' : bad > 40 ? 'mid' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>';
   }).join('');
 }
 function showCompare() {
   var rows = simCompare(), d = simDef();
   var best = rows.filter(function (r) { return r.fails === 0; })[0];
   S.el.cmp.innerHTML = '<table class="e4-tbl"><tr><th>点検する間隔</th><th>点検</th><th>直した</th><th>故障</th></tr>' + rows.map(function (r) {
-    return '<tr' + (r.fails ? ' style="background:#ffeaea"' : '') + '><td class="l">' + (r.per ? (r.per === 7 ? '毎週' : r.per === 30 ? '毎月' : '3か月ごと') : '点検しない') + '</td><td>' + r.insp + '回</td><td>' + r.fixes + '回</td><td><b>' + r.fails + '回</b></td></tr>';
-  }).join('') + '</table><div class="e4-reason tip" style="font-size:calc(15px * var(--ea-fs, 1))">' +
+    return '<tr' + (r.fails ? ' style="background:var(--ef-ng-soft)"' : '') + '><td class="l">' + (r.per ? (r.per === 7 ? '毎週' : r.per === 30 ? '毎月' : '3か月ごと') : '点検しない') + '</td><td>' + r.insp + '回</td><td>' + r.fixes + '回</td><td><b>' + r.fails + '回</b></td></tr>';
+  }).join('') + '</table><div class="e4-reason tip" style="font-size:.88rem">' +
     (best ? (best.per ? 'この条件では<b>' + (best.per === 7 ? '毎週' : best.per === 30 ? '毎月' : '3か月ごと') + '</b>の点検で故障を防げた。点検が多すぎると手間がかかる。ちょうどよい間隔を考えよう。' : 'この条件では1年間こわれなかった。でも条件が変わると…? 振動や使い方を変えてためそう。') : 'この条件では毎週点検しても故障した。点検だけでなく、<b>条件(しめ方・ゆるみ止め・潤滑剤・置き場所)</b>を改善しよう。') +
     '</div>';
   beep('tap');
@@ -1865,7 +1885,7 @@ function renderCheck() {
     setBody('<div class="e4-page"><div class="e4-h"><h2>📋 点検表づくり</h2></div>' +
       '<p>ふだん使っている機械や、自分で製作した作品の点検表(チェックリスト)をつくろう。<b>何を・どうやって・どのくらいの間隔で</b>点検するかを決めよう。作ったら印刷して、実際に点検した記録もつけられます。</p>' +
       targetPicker() +
-      '<div class="e4-chips" style="margin-top:12px"><button class="e4-btn" data-act="cload">📂 ファイルを読みこむ</button><span style="color:#5f6670;align-self:center">(前に「💾 ファイルに保存」した点検表を開く)</span></div>' +
+      '<div class="e4-chips" style="margin-top:12px"><button class="ef-btn" data-act="cload">📂 ファイルを読みこむ</button><span style="color:var(--ef-muted);align-self:center">(前に「💾 ファイルに保存」した点検表を開く)</span></div>' +
       safetyCard() + '</div>');
     return;
   }
@@ -1875,38 +1895,38 @@ function renderCheck() {
       var inn = L.items.some(function (x) { return x.src === i; });
       return '<button class="e4-citem' + (inn ? ' in' : '') + '" data-act="ctog" data-i="' + i + '"><span class="pl">' + (inn ? '✔' : '＋') + '</span><span>' + esc(it.t) + '</span></button>';
     }).join('') + '</div>' +
-    '<h2 style="margin-top:12px">自分で項目を足す</h2><input class="e4-in" data-ref="newitem" maxlength="40" placeholder="例: かごのねじのゆるみ"><button class="e4-btn big" data-act="cadd" style="margin-top:6px">＋ 足す</button>' +
+    '<h2 style="margin-top:12px">自分で項目を足す</h2><input class="e4-in" data-ref="newitem" maxlength="40" placeholder="例: かごのねじのゆるみ"><button class="ef-btn big" data-act="cadd" style="margin-top:6px">＋ 足す</button>' +
     safetyCard();
   var rows = L.items.map(function (it, i) {
     var adv = S.adv && S.adv.items[i];
-    return '<div class="e4-row' + (adv ? ' warn' : '') + '"><div class="hd"><span style="font-weight:bold;color:#5f6670">' + (i + 1) + '</span>' +
+    return '<div class="e4-row' + (adv ? ' warn' : '') + '"><div class="hd"><span style="font-weight:bold;color:var(--ef-muted)">' + (i + 1) + '</span>' +
       (it.key ? '<span class="key" title="大切な項目">★</span>' : '') + '<span class="t">' + esc(it.t) + '</span>' +
-      '<button class="e4-btn sm" data-act="cup" data-i="' + i + '" aria-label="上へ"' + (i ? '' : ' disabled') + '>▲</button>' +
-      '<button class="e4-btn sm" data-act="cdown" data-i="' + i + '" aria-label="下へ"' + (i < L.items.length - 1 ? '' : ' disabled') + '>▼</button>' +
-      '<button class="e4-btn sm danger" data-act="cdel" data-i="' + i + '" aria-label="この項目を消す">✕ 消す</button></div>' +
+      '<button class="ef-btn is-s" data-act="cup" data-i="' + i + '" aria-label="上へ"' + (i ? '' : ' disabled') + '>▲</button>' +
+      '<button class="ef-btn is-s" data-act="cdown" data-i="' + i + '" aria-label="下へ"' + (i < L.items.length - 1 ? '' : ' disabled') + '>▼</button>' +
+      '<button class="ef-btn is-s is-danger" data-act="cdel" data-i="' + i + '" aria-label="この項目を消す">✕ 消す</button></div>' +
       '<div class="lab">方法(いくつでも)</div><div class="e4-chips">' + D.METHODS.map(function (m) {
-        return '<button class="e4-btn' + (it.m.indexOf(m.id) >= 0 ? ' on' : '') + '" data-act="cm" data-i="' + i + '" data-v="' + m.id + '">' + m.icon + ' ' + m.name + '</button>';
+        return '<button class="ef-btn' + (it.m.indexOf(m.id) >= 0 ? ' on' : '') + '" data-act="cm" data-i="' + i + '" data-v="' + m.id + '">' + m.icon + ' ' + m.name + '</button>';
       }).join('') + '</div>' +
       '<div class="lab">点検する間隔</div><div class="e4-chips">' + D.CYCLES.map(function (cy) {
-        return '<button class="e4-btn' + (it.c === cy.id ? ' on' : '') + '" data-act="cc" data-i="' + i + '" data-v="' + cy.id + '">' + cy.name + '</button>';
+        return '<button class="ef-btn' + (it.c === cy.id ? ' on' : '') + '" data-act="cc" data-i="' + i + '" data-v="' + cy.id + '">' + cy.name + '</button>';
       }).join('') + '</div>' + (adv ? '<div class="adv">💡 ' + adv + '</div>' : '') + '</div>';
   }).join('');
   var recs = L.records.slice(-6).reverse();
-  var main = '<div class="e4-h"><input class="e4-in" data-ref="lname" data-act="noop" maxlength="30" style="flex:1;min-width:200px;font-weight:bold;font-size:calc(19px * var(--ea-fs, 1))" value="' + esc(L.name) + '" aria-label="点検表の名前">' +
-    '<button class="e4-btn" data-act="clists">📂 ほかの点検表</button></div>' +
-    '<div class="e4-chips" style="margin-bottom:10px"><button class="e4-btn primary" data-act="cadv">💡 アドバイスをもらう</button>' +
-    '<button class="e4-btn blue" data-act="crec"' + (L.items.length ? '' : ' disabled') + '>📒 点検して記録する</button>' +
-    '<button class="e4-btn" data-act="cprint"' + (L.items.length ? '' : ' disabled') + '>🖨️ 印刷</button>' +
-    '<button class="e4-btn" data-act="csave">💾 ファイルに保存</button><button class="e4-btn" data-act="cload">📂 ファイルを読みこむ</button></div>' +
+  var main = '<div class="e4-h"><input class="e4-in" data-ref="lname" data-act="noop" maxlength="30" style="flex:1;min-width:200px;font-weight:bold;font-size:1.12rem" value="' + esc(L.name) + '" aria-label="点検表の名前">' +
+    '<button class="ef-btn" data-act="clists">📂 ほかの点検表</button></div>' +
+    '<div class="e4-chips" style="margin-bottom:10px"><button class="ef-btn-primary" data-act="cadv">💡 アドバイスをもらう</button>' +
+    '<button class="ef-btn" data-act="crec"' + (L.items.length ? '' : ' disabled') + '>📒 点検して記録する</button>' +
+    '<button class="ef-btn" data-act="cprint"' + (L.items.length ? '' : ' disabled') + '>🖨️ 印刷</button>' +
+    '<button class="ef-btn" data-act="csave">💾 ファイルに保存</button><button class="ef-btn" data-act="cload">📂 ファイルを読みこむ</button></div>' +
     (S.adv ? '<div class="e4-reason ' + (S.adv.stars === 3 ? 'good' : 'tip') + '"><b>アドバイス ' + stars(S.adv.stars, 3) + '</b><br>' + S.adv.msgs.join('<br>') + '</div>' : '') +
     (L.items.length ? rows : '<div class="e4-card">候補の項目をタップして、点検項目を入れよう。</div>') +
     '<h3 style="margin:14px 0 6px">📒 点検の記録(' + L.records.length + '回)</h3>' +
     (recs.length ? '<table class="e4-tbl"><tr><th>日付</th><th>⭕ よい</th><th>🔺 気になる</th><th>❌ だめ</th><th>メモ</th><th></th></tr>' + recs.map(function (r) {
       var n = [0, 0, 0]; r.res.forEach(function (x) { if (x != null && n[x] != null) n[x]++; });
       var ri = L.records.indexOf(r);
-      return '<tr><td>' + esc(r.date) + '</td><td>' + n[0] + '</td><td>' + n[1] + '</td><td' + (n[2] ? ' style="color:#d93a3a;font-weight:bold"' : '') + '>' + n[2] + '</td><td class="l">' + esc(r.memo || '') + '</td>' +
-        '<td><button class="e4-btn sm" data-act="crecview" data-i="' + ri + '">見る</button></td></tr>';
-    }).join('') + '</table>' : '<div style="color:#5f6670">まだ記録はありません。「📒 点検して記録する」から記録しよう。</div>') +
+      return '<tr><td>' + esc(r.date) + '</td><td>' + n[0] + '</td><td>' + n[1] + '</td><td' + (n[2] ? ' style="color:var(--ef-ng);font-weight:bold"' : '') + '>' + n[2] + '</td><td class="l">' + esc(r.memo || '') + '</td>' +
+        '<td><button class="ef-btn is-s" data-act="crecview" data-i="' + ri + '">見る</button></td></tr>';
+    }).join('') + '</table>' : '<div style="color:var(--ef-muted)">まだ記録はありません。「📒 点検して記録する」から記録しよう。</div>') +
     reflCard();
   setBody('<div class="e4-cl"><div class="e4-cand">' + left + '</div><div class="e4-clmain" data-ref="clmain">' + main + '</div></div>');
   var inp = S.el.lname;
@@ -1926,7 +1946,7 @@ var REFL = [
 function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function reflCard() {
   return '<div class="e4-card e4-refl" data-ef-reflect style="margin-top:14px"><h3 style="margin:0 0 4px">✏️ 振り返り</h3>' +
-    '<p style="margin:0 0 8px;color:#5f6670">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存されます。「💾 ファイルに保存」で、点検表といっしょにファイルに入ります。</p>' +
+    '<p style="margin:0 0 8px;color:var(--ef-muted)">学んだことを、自分の言葉で書きましょう。書いた内容は自動で保存されます。「💾 ファイルに保存」で、点検表といっしょにファイルに入ります。</p>' +
     REFL.map(function (r, i) {
       return '<label for="e4-' + r.id + '" style="display:block;font-weight:bold;margin:8px 0 4px">' + (i + 1) + '. ' + r.q + '</label>' +
         '<textarea class="e4-in" id="e4-' + r.id + '" data-refl="' + r.id + '" maxlength="800" rows="3" style="resize:vertical">' + esc(S.save.refl[r.id]) + '</textarea>';
@@ -1935,11 +1955,11 @@ function reflCard() {
 function reflData() { var o = {}; REFL.forEach(function (r) { o[r.id] = String(S.save.refl[r.id] || ''); }); return o; }
 function targetPicker() {
   return '<h3>何の点検表をつくる?</h3><div class="e4-tgrid">' + D.TARGETS.map(function (t) {
-    return '<button class="e4-tcard" data-act="cnew" data-v="' + t.id + '"><span class="t" style="font-size:calc(22px * var(--ea-fs, 1))">' + t.icon + ' ' + esc(t.name) + '</span><span style="color:#5f6670;font-size:calc(15px * var(--ea-fs, 1))">候補 ' + t.items.length + '項目</span></button>';
-  }).join('') + '<button class="e4-tcard" data-act="cnew" data-v="free"><span class="t" style="font-size:calc(22px * var(--ea-fs, 1))">✏️ 自由に</span><span style="color:#5f6670;font-size:calc(15px * var(--ea-fs, 1))">家電・道具など、項目を自分で書く</span></button></div>';
+    return '<button class="e4-tcard" data-act="cnew" data-v="' + t.id + '"><span class="t" style="font-size:1.29rem">' + t.icon + ' ' + esc(t.name) + '</span><span style="color:var(--ef-muted);font-size:.88rem">候補 ' + t.items.length + '項目</span></button>';
+  }).join('') + '<button class="e4-tcard" data-act="cnew" data-v="free"><span class="t" style="font-size:1.29rem">✏️ 自由に</span><span style="color:var(--ef-muted);font-size:.88rem">家電・道具など、項目を自分で書く</span></button></div>';
 }
 function safetyCard() {
-  return '<div class="e4-reason safe" style="margin-top:14px"><b>⚠ 実際の機械を点検するときの約束</b><ul class="e4-ul" style="font-size:calc(15px * var(--ea-fs, 1))">' + SAFETY.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ul></div>';
+  return '<div class="e4-reason safe" style="margin-top:14px"><b>⚠ 実際の機械を点検するときの約束</b><ul class="e4-ul" style="font-size:.88rem">' + SAFETY.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ul></div>';
 }
 function newList(tid) {
   var T = targetById(tid);
@@ -2012,10 +2032,10 @@ function advise(L) {
 function listsModal() {
   var h = '<h2>📂 点検表の一覧</h2>' + (S.save.lists.length ? '<table class="e4-tbl"><tr><th>名前</th><th>つくった日</th><th>項目</th><th>記録</th><th></th></tr>' + S.save.lists.map(function (L, i) {
     var T = targetById(L.target);
-    return '<tr' + (i === S.save.cur ? ' style="background:#eef5ff"' : '') + '><td class="l"><b>' + esc(L.name) + '</b>' + (i === S.save.cur ? '(いま開いている)' : '') + '<br><span style="font-size:calc(14px * var(--ea-fs, 1));color:#5f6670">' + (T ? T.icon + ' ' + esc(T.name) : '✏️ 自由') + '</span></td><td>' + esc(L.created || '') + '</td><td>' + L.items.length + 'こ</td><td>' + L.records.length + '回</td>' +
-      '<td style="white-space:nowrap"><button class="e4-btn sm blue" data-act="copen" data-i="' + i + '">開く</button><button class="e4-btn sm danger" data-act="cremove" data-i="' + i + '" style="margin-left:18px">消す</button></td></tr>';
+    return '<tr' + (i === S.save.cur ? ' style="background:var(--ef-surface-2)"' : '') + '><td class="l"><b>' + esc(L.name) + '</b>' + (i === S.save.cur ? '(いま開いている)' : '') + '<br><span style="font-size:.82rem;color:var(--ef-muted)">' + (T ? T.icon + ' ' + esc(T.name) : '✏️ 自由') + '</span></td><td>' + esc(L.created || '') + '</td><td>' + L.items.length + 'こ</td><td>' + L.records.length + '回</td>' +
+      '<td style="white-space:nowrap"><button class="ef-btn is-s" data-act="copen" data-i="' + i + '">開く</button><button class="ef-btn is-s is-danger" data-act="cremove" data-i="' + i + '" style="margin-left:18px">消す</button></td></tr>';
   }).join('') + '</table>' : '') + '<h3>新しくつくる</h3>' + targetPicker() +
-    '<div class="acts"><button class="e4-btn" data-act="cload">📂 ファイルを読みこむ</button><button class="e4-btn primary" data-act="close">とじる</button></div>';
+    '<div class="acts"><button class="ef-btn" data-act="cload">📂 ファイルを読みこむ</button><button class="ef-btn-primary" data-act="close">とじる</button></div>';
   modal(h);
 }
 /* 点検の記録 */
@@ -2024,17 +2044,17 @@ function recordModal(ri) {
   var L = curList(), view = ri != null, R = view ? L.records[ri] : { date: today(), res: L.items.map(function () { return null; }), memo: '' };
   S.rec = { R: R, view: view, ri: ri };
   var h = '<h2>📒 ' + (view ? '点検の記録(' + esc(R.date) + ')' : '点検して記録する') + '</h2>' +
-    (view ? '' : '<div class="e4-reason safe" style="font-size:calc(15px * var(--ea-fs, 1))">⚠ 電源を切る・止まってから・刃や熱い所に注意。わからない所は大人に聞こう。</div>') +
+    (view ? '' : '<div class="e4-reason safe" style="font-size:.88rem">⚠ 電源を切る・止まってから・刃や熱い所に注意。わからない所は大人に聞こう。</div>') +
     '<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><b>日付</b><input type="date" class="e4-in" data-ref="rdate" style="width:auto" value="' + esc(R.date) + '"' + (view ? ' disabled' : '') + '></div>' +
     L.items.map(function (it, i) {
       return '<div class="e4-recrow"><span class="t">' + (i + 1) + '. ' + esc(it.t) + '</span>' + RES.map(function (r, k) {
-        return '<button class="e4-btn r' + k + (R.res[i] === k ? ' on' : '') + '" data-act="rres" data-i="' + i + '" data-v="' + k + '"' + (view ? ' disabled' : '') + '>' + r[0] + '<small style="display:block;font-size:calc(13px * var(--ea-fs, 1));font-weight:normal;line-height:1.1">' + r[1] + '</small></button>';
+        return '<button class="ef-btn r' + k + (R.res[i] === k ? ' on' : '') + '" data-act="rres" data-i="' + i + '" data-v="' + k + '"' + (view ? ' disabled' : '') + '>' + r[0] + '<small style="display:block;font-size:.76rem;font-weight:normal;line-height:1.1">' + r[1] + '</small></button>';
       }).join('') + '</div>';
     }).join('') +
     '<div style="margin-top:10px"><b>メモ(気づいたこと・直したこと)</b><input class="e4-in" data-ref="rmemo" maxlength="80" value="' + esc(R.memo || '') + '"' + (view ? ' disabled' : '') + '></div>' +
     '<div data-ref="rwarn"></div>' +
-    '<div class="acts">' + (view ? '<button class="e4-btn danger" data-act="recdel">この記録を消す</button><button class="e4-btn primary" data-act="close">とじる</button>' :
-      '<button class="e4-btn" data-act="close">やめる</button><button class="e4-btn primary" data-act="recsave">記録する</button>') + '</div>';
+    '<div class="acts">' + (view ? '<button class="ef-btn is-danger" data-act="recdel">この記録を消す</button><button class="ef-btn-primary" data-act="close">とじる</button>' :
+      '<button class="ef-btn" data-act="close">やめる</button><button class="ef-btn-primary" data-act="recsave">記録する</button>') + '</div>';
   modal(h);
   recWarn();
 }
@@ -2120,7 +2140,7 @@ function applyImport(txt) {
     return true;
   }
   beep('err'); closeModal();
-  modal('<h2>読みこめませんでした</h2><p>このファイルは読みこめなかった。C6 保守点検ラボの「💾 ファイルに保存」で保存したファイルを選んでね。</p><div class="acts"><button class="e4-btn primary" data-act="close">とじる</button></div>');
+  modal('<h2>読みこめませんでした</h2><p>このファイルは読みこめなかった。C6 保守点検ラボの「💾 ファイルに保存」で保存したファイルを選んでね。</p><div class="acts"><button class="ef-btn-primary" data-act="close">とじる</button></div>');
   return false;
 }
 
@@ -2132,7 +2152,7 @@ function modal(html) {
   addRuby(ov.firstChild);
   ov.addEventListener('click', function (ev) { if (ev.target === ov) closeModal(); });
   S.root.appendChild(ov); S.ov = ov;
-  var b = ov.querySelector('.acts .e4-btn.primary') || ov.querySelector('.e4-btn'); if (b) b.focus({ preventScroll: true });
+  var b = ov.querySelector('.acts .ef-btn-primary') || ov.querySelector('.ef-btn'); if (b) b.focus({ preventScroll: true });
 }
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function showHowto(first) {
@@ -2144,8 +2164,8 @@ function showHowto(first) {
     '<div><b>📋 点検表づくり</b><br>点検する項目・方法・間隔を選んで、自分の点検表をつくる。印刷・ファイル保存・点検の記録ができる。</div>' +
     '<div><b>⚠ 安全</b><br>実際の機械をさわるときは、<b>電源を切る・止まってから・大人と一緒に</b>。電気製品の中は分解しない。</div>' +
     '</div><div class="e4-reason tip">「ゆるみ・摩耗」は、変化のようすをわかりやすくした簡単なモデルです。実際の進み方は、機械や使い方によってちがいます。</div>' +
-    '<div class="e4-reason good" style="font-size:calc(15px * var(--ea-fs, 1))">効果音は最初は消してあります。右上の 🔇 を押すと音が出ます。</div>' +
-    '<div class="acts"><button class="e4-btn primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');
+    '<div class="e4-reason good" style="font-size:.88rem">効果音は最初は消してあります。右上の 🔇 を押すと音が出ます。</div>' +
+    '<div class="acts"><button class="ef-btn-primary" data-act="close">' + (first ? 'はじめる' : 'わかった') + '</button></div>');
 }
 
 /* ---------- 入力 ---------- */

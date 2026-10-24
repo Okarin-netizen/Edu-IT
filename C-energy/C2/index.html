@@ -10,10 +10,29 @@
 <script data-ef-app>EDUIT_INFO.app = { name: 'C2 風力発電の羽根ラボ' };</script>
 <script src="../../shared/eduit-frame.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#eef3f8;}
-.e6{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
-  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
-  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(16px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;background:var(--ef-bg);}
+/* 図の色(画面の部品の色は共通の --ef-…) */
+.e6{
+  --fig-stage: #e8f4ff;
+  --fig-stage-2: #f7fbff;
+  --fig-stage-3: #eaf5e4;
+  --fig-rank-line: #edf1f5;
+  --fig-rank: #e3ebf5;
+  --fig-rank-2: #ffd43b;
+  --fig-rank-3: #dee2e6;
+  --fig-rank-4: #f4c095;
+  --fig-me: #fff4e0;
+  --fig-flow-line: #c9d6e4;
+  --fig-flow: #fbfdff;
+  --fig-st: #fff4e0;
+  --fig-st-line: #f6c37a;
+  --fig-el: #fff9c4;
+  --fig-el-line: #f0c419;
+  --fig-ar-text: #b35c00;
+}
+.e6{font-family:var(--ef-font);
+  color:var(--ef-text);height:100%;display:flex;flex-direction:column;font-size:.94rem;overflow:hidden;position:relative;background:var(--ef-bg);-webkit-tap-highlight-color:transparent;}
+.e6 :is(.ef-btn,.ef-btn-primary):not(.is-s){min-height:46px;font-size:.94rem}
 .e6 *{box-sizing:border-box}
 :where(.e6 button){font:inherit;touch-action:manipulation;color:inherit}
 .e6 input,.e6 textarea{font:inherit}
@@ -22,106 +41,101 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e6-top{position:sticky;top:0;z-index:5;flex:none}
 .e6-tabs{display:contents}
 .e6-tab .ck{color:var(--ef-ok);margin-left:3px}
-.e6-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e6-top h1{font-size:1rem;margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
 .e6-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e6-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .e6-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
 .e6-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.e6-card{background:#fff;border:1px solid var(--line);border-radius:0;padding:12px 14px;line-height:1.6;min-width:0}
-.e6-card h2{font-size:calc(19px * var(--ea-fs, 1));margin:0 0 6px}
-.e6-card h3{font-size:calc(16.5px * var(--ea-fs, 1));margin:10px 0 4px;color:#1d3557}
+.e6-card{background:var(--ef-surface);border:1px solid var(--ef-line);border-radius:0;padding:12px 14px;line-height:1.6;min-width:0}
+.e6-card h2{font-size:1.12rem;margin:0 0 6px}
+.e6-card h3{font-size:.97rem;margin:10px 0 4px;color:var(--ef-accent)}
 .e6-card p{margin:4px 0}
-.e6-card.lead{background:#fffaf0;border-color:#f1d9a6}
-.e6-card.tip{background:#fff9e6;border-color:#f1e3a6}
-.e6-card.good{background:#ecfaf1;border-color:#a8dcbc}
-.e6-card.adv{border-left:6px solid #5b3fa8}
-.e6-kicker{display:inline-block;font-size:calc(13px * var(--ea-fs, 1));font-weight:bold;border-radius:0;padding:1px 10px;margin-bottom:4px;background:#e4f2e5;color:#2f6f3e}
-.e6-kicker.adv{background:#efe9fb;color:#5b3fa8}
-.e6-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;font-weight:bold;cursor:pointer;font-size:calc(16px * var(--ea-fs, 1))}
-.e6-btn:active{transform:translateY(1px)}
-.e6-btn:disabled{opacity:.45;cursor:default}
-.e6-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
-.e6-btn.good{background:#fff;border-color:#0d6b3a;color:#0d6b3a}
-.e6-btn.sel{background:#1d3557;color:#fff}
-.e6-btn.sm{min-height:44px;padding:0 10px;font-size:calc(15px * var(--ea-fs, 1))}
+.e6-card.lead{background:var(--ef-warn-soft);border-color:var(--ef-line)}
+.e6-card.tip{background:var(--ef-warn-soft);border-color:var(--ef-line)}
+.e6-card.good{background:var(--ef-ok-soft);border-color:var(--ef-line)}
+.e6-card.adv{border-left:6px solid var(--ef-advanced)}
+.e6-kicker{display:inline-block;font-size:.76rem;font-weight:bold;border-radius:0;padding:1px 10px;margin-bottom:4px;background:var(--ef-surface-2);color:var(--ef-text)}
+.e6-kicker.adv{background:var(--ef-advanced-soft);color:var(--ef-advanced)}
+.e6 :is(.ef-btn,.ef-btn-primary).good{background:var(--ef-surface);border-color:var(--ef-ok);color:var(--ef-ok)}
+.e6 .ef-btn.sel{font-weight:bold;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 .e6-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .e6-seg{display:flex;flex-wrap:wrap;gap:6px}
-.e6-seg .e6-btn{flex:1 0 auto}
+.e6-seg :is(.ef-btn,.ef-btn-primary){flex:1 0 auto}
 .e6-ctl{margin:8px 0 10px}
-.e6-ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:bold;font-size:calc(15.5px * var(--ea-fs, 1))}
-.e6-ctl label b{color:#b35c00;white-space:nowrap}
-.e6-ctl small{display:block;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1));line-height:1.45}
-.e6 input[type=range]{width:100%;height:44px;accent-color:#b45309;touch-action:pan-y;margin:0}
+.e6-ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:bold;font-size:.91rem}
+.e6-ctl label b{color:var(--ef-accent);white-space:nowrap}
+.e6-ctl small{display:block;color:var(--ef-muted);font-size:.76rem;line-height:1.45}
+.e6 input[type=range]{width:100%;height:44px;accent-color:var(--ef-accent);touch-action:pan-y;margin:0}
 .e6-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.e6-m{background:#f6f9fc;border:1px solid var(--line);border-radius:0;padding:6px 8px;text-align:center;min-width:0}
-.e6-m .k{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);white-space:nowrap}
-.e6-m .v{font-size:calc(22px * var(--ea-fs, 1));font-weight:bold;white-space:nowrap}
-.e6-m .u{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub);margin-left:2px}
-.e6-m.hi{background:#fff4e0;border-color:#f6c37a}
+.e6-m{background:var(--ef-surface-2);border:1px solid var(--ef-line);border-radius:0;padding:6px 8px;text-align:center;min-width:0}
+.e6-m .k{font-size:.76rem;color:var(--ef-muted);white-space:nowrap}
+.e6-m .v{font-size:1.29rem;font-weight:bold;white-space:nowrap}
+.e6-m .u{font-size:.76rem;color:var(--ef-muted);margin-left:2px}
+.e6-m.hi{background:var(--ef-warn-soft);border-color:var(--ef-line)}
 .e6-svg{width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none}
 .e6-stage .e6-svg{max-height:44vh;min-height:220px}
-.e6-stage{background:linear-gradient(#e8f4ff,#f7fbff 78%,#eaf5e4 78%);border-radius:0;border:1px solid var(--line);overflow:hidden}
-.e6-msg{min-height:44px;padding:8px 12px;border-radius:0;background:#fffbe6;border:1px solid #f1e3a6;line-height:1.5}
-.e6-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
-.e6-msg.ng{background:#ffe8e8;border-color:#f5b5b5}
-.e6-tbl{width:100%;border-collapse:collapse;font-size:calc(14.5px * var(--ea-fs, 1));background:#fff}
-.e6-tbl th,.e6-tbl td{border:1px solid var(--line);padding:4px 6px;text-align:center;white-space:nowrap}
-.e6-tbl th{background:#f3f6fa;font-size:calc(13.5px * var(--ea-fs, 1))}
-.e6-tbl td.diff{background:#fff1c9;font-weight:bold}
-.e6-tbl tr.best td{background:#e6f8ee}
+.e6-stage{background:linear-gradient(var(--fig-stage),var(--fig-stage-2) 78%,var(--fig-stage-3) 78%);border-radius:0;border:1px solid var(--ef-line);overflow:hidden}
+.e6-msg{min-height:44px;padding:8px 12px;border-radius:0;background:var(--ef-warn-soft);border:1px solid var(--ef-line);line-height:1.5}
+.e6-msg.ok{background:var(--ef-ok-soft);border-color:var(--ef-line)}
+.e6-msg.ng{background:var(--ef-ng-soft);border-color:var(--ef-line)}
+.e6-tbl{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--ef-surface)}
+.e6-tbl th,.e6-tbl td{border:1px solid var(--ef-line);padding:4px 6px;text-align:center;white-space:nowrap}
+.e6-tbl th{background:var(--ef-surface-2);font-size:.79rem}
+.e6-tbl td.diff{background:var(--ef-warn-soft);font-weight:bold}
+.e6-tbl tr.best td{background:var(--ef-ok-soft)}
 .e6-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-.e6-mis{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:0;padding:8px 10px;margin:6px 0;background:#f8fbff}
-.e6-mis .m{font-size:calc(24px * var(--ea-fs, 1));flex:none;line-height:1.2}
-.e6-mis.ok{border-color:#40c057;background:#ecfaf1}
+.e6-mis{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--ef-line);border-radius:0;padding:8px 10px;margin:6px 0;background:var(--ef-surface-2)}
+.e6-mis .m{font-size:1.41rem;flex:none;line-height:1.2}
+.e6-mis.ok{border-color:var(--ef-ok);background:var(--ef-ok-soft)}
 .e6-mis b{display:block}
 .e6-rank{list-style:none;margin:0;padding:0;counter-reset:r}
-.e6-rank li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid #edf1f5;counter-increment:r;font-size:calc(15px * var(--ea-fs, 1))}
-.e6-rank li::before{content:counter(r);width:28px;height:28px;border-radius:50%;background:#e3ebf5;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;flex:none}
-.e6-rank li:nth-child(1)::before{background:#ffd43b}
-.e6-rank li:nth-child(2)::before{background:#dee2e6}
-.e6-rank li:nth-child(3)::before{background:#f4c095}
+.e6-rank li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--fig-rank-line);counter-increment:r;font-size:.88rem}
+.e6-rank li::before{content:counter(r);width:28px;height:28px;border-radius:50%;background:var(--fig-rank);display:inline-flex;align-items:center;justify-content:center;font-weight:bold;flex:none}
+.e6-rank li:nth-child(1)::before{background:var(--fig-rank-2)}
+.e6-rank li:nth-child(2)::before{background:var(--fig-rank-3)}
+.e6-rank li:nth-child(3)::before{background:var(--fig-rank-4)}
 .e6-rank li .p{margin-left:auto;font-weight:bold;white-space:nowrap}
-.e6-rank li.me{background:#fff4e0}
-.e6-q{border:1px solid var(--line);border-radius:0;padding:8px 10px;margin:8px 0;background:#fbfdff}
+.e6-rank li.me{background:var(--fig-me)}
+.e6-q{border:1px solid var(--ef-line);border-radius:0;padding:8px 10px;margin:8px 0;background:var(--ef-surface-2)}
 .e6-q .opts{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
-.e6-q .opts .e6-btn{text-align:left;font-weight:normal;background:#fff;border-color:var(--line);line-height:1.4;padding:6px 12px}
-.e6-q .opts .e6-btn.right{background:#d3f5e1;border-color:#40c057;font-weight:bold}
-.e6-q .opts .e6-btn.wrong{background:#ffe3e3;border-color:#f08080}
-.e6-q .why{margin-top:6px;font-size:calc(14.5px * var(--ea-fs, 1));color:#33475b}
+.e6-q .opts :is(.ef-btn,.ef-btn-primary){text-align:left;font-weight:normal;background:var(--ef-surface);border-color:var(--ef-line);line-height:1.4;padding:6px 12px}
+.e6-q .opts .ef-btn.right{background:var(--ef-ok-soft);border-color:var(--ef-ok);font-weight:bold}
+.e6-q .opts .ef-btn.wrong{background:var(--ef-ng-soft);border-color:var(--ef-line)}
+.e6-q .why{margin-top:6px;font-size:.85rem;color:var(--ef-text)}
 .e6-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
-.e6-chip{min-height:46px;padding:4px 12px;border-radius:0;border:2px solid #c9d6e4;background:#fff;cursor:pointer;font-weight:bold;line-height:1.3;text-align:left}
+.e6-chip{min-height:46px;padding:4px 12px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);cursor:pointer;font-weight:bold;line-height:1.3;text-align:left}
 .e6-chip.used{opacity:.3;cursor:default}
-.e6-chip.bad{animation:e6shake .35s;border-color:#f08080;background:#ffe3e3}
+.e6-chip.bad{animation:e6shake .35s;border-color:var(--ef-line);background:var(--ef-ng-soft)}
 @keyframes e6shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.e6-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:58px;padding:6px;border:2px dashed #c9d6e4;border-radius:0;background:#fbfdff}
-.e6-flow .st{border-radius:0;padding:6px 10px;background:#fff4e0;border:2px solid #f6c37a;font-weight:bold;line-height:1.3}
-.e6-flow .st.el{background:#fff9c4;border-color:#f0c419}
-.e6-flow .ar{color:#b35c00;font-weight:bold}
-.e6-flow .ph{color:var(--sub)}
+.e6-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:58px;padding:6px;border:2px dashed var(--fig-flow-line);border-radius:0;background:var(--fig-flow)}
+.e6-flow .st{border-radius:0;padding:6px 10px;background:var(--fig-st);border:2px solid var(--fig-st-line);font-weight:bold;line-height:1.3}
+.e6-flow .st.el{background:var(--fig-el);border-color:var(--fig-el-line)}
+.e6-flow .ar{color:var(--fig-ar-text);font-weight:bold}
+.e6-flow .ph{color:var(--ef-muted)}
 .e6-meth{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.e6-meth .e6-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;line-height:1.2;padding:4px}
-.e6-meth .e6-btn .i{font-size:calc(24px * var(--ea-fs, 1))}
-.e6-feat{font-size:calc(19px * var(--ea-fs, 1));font-weight:bold;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;border-radius:0;background:#f3f7fc;border:2px solid var(--line)}
+.e6-meth :is(.ef-btn,.ef-btn-primary){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;line-height:1.2;padding:4px}
+.e6-meth :is(.ef-btn,.ef-btn-primary) .i{font-size:1.41rem}
+.e6-feat{font-size:1.12rem;font-weight:bold;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;border-radius:0;background:var(--ef-surface-2);border:2px solid var(--ef-line)}
 .e6-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.e6-days .e6-btn{min-height:58px;line-height:1.25}
-.e6-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:calc(14px * var(--ea-fs, 1))}
+.e6-days :is(.ef-btn,.ef-btn-primary){min-height:58px;line-height:1.25}
+.e6-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem}
 .e6-leg i{display:inline-block;width:18px;height:6px;border-radius:0;vertical-align:middle;margin-right:4px}
 .e6-field{display:flex;flex-direction:column;gap:3px;margin:10px 0}
 .e6-field label{font-weight:bold}
-.e6-field small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
-.e6 textarea,.e6 input[type=text]{min-height:44px;border:2px solid var(--line);border-radius:0;padding:8px 10px;font-size:calc(16px * var(--ea-fs, 1));background:#fbfdff;color:var(--ink);width:100%}
+.e6-field small{color:var(--ef-muted);font-size:.79rem}
+.e6 textarea,.e6 input[type=text]{min-height:44px;border:2px solid var(--ef-line);border-radius:0;padding:8px 10px;font-size:.94rem;background:var(--ef-surface-2);color:var(--ef-text);width:100%}
 .e6 textarea{min-height:84px;resize:vertical;line-height:1.5}
 .e6-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .e6-sum{list-style:none;padding:0;margin:0}
-.e6-sum li{padding:5px 0;border-bottom:1px solid #edf1f5;display:flex;gap:8px}
+.e6-sum li{padding:5px 0;border-bottom:1px solid var(--ef-line);display:flex;gap:8px}
 .e6-sum li .m{flex:none;width:26px;text-align:center}
-.e6-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;border-radius:0;z-index:30;display:none;max-width:90%;text-align:center}
+.e6-toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;z-index:30;display:none;max-width:90%;text-align:center}
 .e6-start{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.e6-go{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid var(--line);border-radius:0;padding:10px 12px;background:#f8fbff;cursor:pointer;min-height:70px;line-height:1.4}
-.e6-go:hover{border-color:#b45309}
-.e6-go .i{font-size:calc(28px * var(--ea-fs, 1));flex:none}
-.e6-go b{display:block;font-size:calc(17px * var(--ea-fs, 1))}
-.e6-go small{color:var(--sub);font-size:calc(13.5px * var(--ea-fs, 1))}
+.e6-go{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid var(--ef-line);border-radius:0;padding:10px 12px;background:var(--ef-surface-2);cursor:pointer;min-height:70px;line-height:1.4}
+.e6-go:hover{border-color:var(--ef-accent)}
+.e6-go .i{font-size:1.65rem;flex:none}
+.e6-go b{display:block;font-size:1rem}
+.e6-go small{color:var(--ef-muted);font-size:.79rem}
 .e6-go.adv{border-style:dashed}
 @media (prefers-reduced-motion: reduce){.e6-chip.bad{animation:none}}
 @media (max-width:1000px){
@@ -137,7 +151,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
   .e6-body{padding:10px 10px 40px}
   .e6-card{padding:10px}
   .e6-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .e6-m .v{font-size:calc(19px * var(--ea-fs, 1))}
+  .e6-m .v{font-size:1.12rem}
   .e6-meth{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
@@ -322,13 +336,13 @@ function pitchSvg(b) {
 function bladeControls(b, prefix, opts) {
   opts = opts || {};
   var h = '<div class="e6-ctl"><label>羽根の枚数 <b>' + b.n + ' 枚</b></label><div class="e6-seg">' +
-    NBL.map(function (n) { return '<button class="e6-btn sm' + (b.n === n ? ' sel' : '') + '" data-bn="' + n + '">' + n + '枚</button>'; }).join('') + '</div></div>';
+    NBL.map(function (n) { return '<button class="ef-btn is-s' + (b.n === n ? ' sel' : '') + '" data-bn="' + n + '">' + n + '枚</button>'; }).join('') + '</div></div>';
   h += '<div class="e6-ctl"><label for="' + prefix + '-pitch">羽根のかたむき(ピッチ角) <b data-out="pitch">' + b.pitch + '°</b></label>' +
     '<input type="range" id="' + prefix + '-pitch" min="0" max="90" step="1" value="' + b.pitch + '" data-in="pitch"><small>0° は板が風に正面を向けた向き、90° は風と平行な向き。どちらも回りません。</small><div data-ref="pitchpic"></div></div>';
   h += '<div class="e6-ctl"><label for="' + prefix + '-len">羽根の長さ <b data-out="len">' + b.len + ' cm</b></label>' +
     '<input type="range" id="' + prefix + '-len" min="5" max="30" step="1" value="' + b.len + '" data-in="len"><small>扇風機の風が当たるのは、中心から 22 cm(羽根 20 cm)まで。</small></div>';
   h += '<div class="e6-ctl"><label>羽根の形 <b>' + SHAPES[b.shape].name + '</b></label><div class="e6-seg">' +
-    Object.keys(SHAPES).map(function (k) { return '<button class="e6-btn sm' + (b.shape === k ? ' sel' : '') + '" data-bs="' + k + '">' + SHAPES[k].name + '</button>'; }).join('') +
+    Object.keys(SHAPES).map(function (k) { return '<button class="ef-btn is-s' + (b.shape === k ? ' sel' : '') + '" data-bs="' + k + '">' + SHAPES[k].name + '</button>'; }).join('') +
     '</div><small>' + SHAPES[b.shape].note + '</small></div>';
   if (!opts.noWind) h += '<div class="e6-ctl"><label for="' + prefix + '-wind">風の強さ(風速) <b data-out="wind">' + S.save.wind.toFixed(1) + ' m/s</b></label>' +
     '<input type="range" id="' + prefix + '-wind" min="0" max="10" step="0.5" value="' + S.save.wind + '" data-in="wind"><small>扇風機の「弱」はおよそ 2〜3 m/s、「強」はおよそ 4〜5 m/s。</small></div>';
@@ -411,7 +425,7 @@ function renderIntro(box) {
   box.innerHTML = '<div class="e6-card lead"><h2>🌬️ 風力発電の羽根ラボ</h2>' +
     '<p><b>めあて: 羽根の形や枚数を工夫して、少ない風でもたくさん電気をつくれる風車を考えよう。</b></p>' +
     '<p>このラボでは、扇風機の風で回す「風力発電のモデル」を画面の中で作ります。羽根の<b>枚数・かたむき・長さ・形</b>と<b>風の強さ</b>を変えてみよう。どれだけ電気ができるかをくらべましょう。</p>' +
-    '<p style="color:#5b6b7c;font-size:.92em">考えること: 電気はどうやってつくられているのか。風車が回ると電気が生まれるのはなぜか。</p></div>' +
+    '<p style="color:var(--ef-muted);font-size:.92em">考えること: 電気はどうやってつくられているのか。風車が回ると電気が生まれるのはなぜか。</p></div>' +
     '<div class="e6-card"><span class="e6-kicker">基本編</span><div class="e6-start">' +
     go1('gen', '🧲', '① 発電機のしくみ', 'コイルと磁石で電気が生まれるわけ(電磁誘導)') +
     go1('cmp', '🔬', '② 羽根を変えて発電量をくらべる', '1つだけ変えて、回転数・電圧・電流・電力をくらべる') +
@@ -447,12 +461,12 @@ function renderGen(box) {
     '<text x="12" y="22" font-size="14" font-weight="bold" fill="#1d3557" data-ref="gcap"></text>' +
     '</svg></div>' +
     '<svg class="e6-svg" viewBox="0 0 420 110" data-ref="wave" role="img" aria-label="電圧の変わり方のグラフ" style="margin-top:6px"></svg>' +
-    '<p style="font-size:.92em;color:#5b6b7c">グラフ: 電圧の変わり方(右が今)。磁石が半回転するごとに、電流の向きが入れかわります。</p></div>' +
+    '<p style="font-size:.92em;color:var(--ef-muted)">グラフ: 電圧の変わり方(右が今)。磁石が半回転するごとに、電流の向きが入れかわります。</p></div>' +
     '<div class="e6-card"><h2>ためしてみよう</h2>' +
-    '<div class="e6-seg" style="margin-bottom:8px"><button class="e6-btn sm" data-mode="gen">🔄 回して発電する(発電機)</button><button class="e6-btn sm" data-mode="motor">🔋 電池をつなぐ(モーター)</button></div>' +
+    '<div class="e6-seg" style="margin-bottom:8px"><button class="ef-btn is-s" data-mode="gen">🔄 回して発電する(発電機)</button><button class="ef-btn is-s" data-mode="motor">🔋 電池をつなぐ(モーター)</button></div>' +
     '<div class="e6-ctl"><label for="e6-gsp">磁石を回す速さ <b data-ref="gspo"></b></label><input type="range" id="e6-gsp" min="0" max="3" step="0.1" data-ref="gsp"></div>' +
-    '<div class="e6-ctl"><label>コイルの巻き数</label><div class="e6-seg">' + [50, 100, 200].map(function (n) { return '<button class="e6-btn sm" data-turn="' + n + '">' + n + '回</button>'; }).join('') + '</div></div>' +
-    '<div class="e6-ctl"><label>磁石の強さ</label><div class="e6-seg"><button class="e6-btn sm" data-mag="0.5">弱い磁石</button><button class="e6-btn sm" data-mag="1">強い磁石</button></div></div>' +
+    '<div class="e6-ctl"><label>コイルの巻き数</label><div class="e6-seg">' + [50, 100, 200].map(function (n) { return '<button class="ef-btn is-s" data-turn="' + n + '">' + n + '回</button>'; }).join('') + '</div></div>' +
+    '<div class="e6-ctl"><label>磁石の強さ</label><div class="e6-seg"><button class="ef-btn is-s" data-mag="0.5">弱い磁石</button><button class="ef-btn is-s" data-mag="1">強い磁石</button></div></div>' +
     '<div class="e6-msg" data-ref="gmsg" role="status" aria-live="polite"></div>' +
     '<h3>風力発電では</h3><p>風が羽根(風車)を回します。羽根の軸が、発電機の中の磁石(またはコイル)を回します。<br><b>風の運動エネルギー → 羽根の回転 → 発電機 → 電気エネルギー</b></p>' +
     '<div data-ref="quiz"></div></div></div>';
@@ -497,7 +511,7 @@ function renderGen(box) {
       var got = S.save.quiz[q.id];
       h += '<div class="e6-q"><b>' + (i + 1) + '. ' + q.q + '</b><div class="opts">' + G.quizOrder[i].map(function (o) {
         var cls = got ? (o === q.a ? ' right' : (got === o ? ' wrong' : '')) : '';
-        return '<button class="e6-btn' + cls + '" data-qa="' + i + '" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+        return '<button class="ef-btn' + cls + '" data-qa="' + i + '" data-o="' + esc(o) + '">' + esc(o) + '</button>';
       }).join('') + '</div>' + (got ? '<div class="why">' + (got === q.a ? '⭕ 正解! ' : '❌ もう一度考えよう。 ') + q.why + '</div>' : '') + '</div>';
     });
     el.quiz.innerHTML = h;
@@ -542,9 +556,9 @@ function renderCmp(box) {
   box.innerHTML = '<div class="e6-card"><p>🔬 <b>1つだけ変えてくらべよう。</b> 枚数・かたむき・長さ・形のどれか1つを変えて「📋 記録する」を押そう。前の羽根とちがう所が、表の中に黄色で出ます。</p></div>' +
     '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div style="margin-top:8px" data-ref="meters">' + meterHtml() + '</div>' +
     '<div class="e6-msg" style="margin-top:8px" data-ref="msg" role="status" aria-live="polite"></div>' +
-    '<p style="font-size:.88em;color:#5b6b7c;margin-top:6px">羽根は、見やすいようにほんとうの速さの 1/10 で回しています。「風から電気へ」は、電気になった割合(エネルギー変換効率)です。羽根に当たった風のエネルギーのうちの割合です。</p></div>' +
+    '<p style="font-size:.88em;color:var(--ef-muted);margin-top:6px">羽根は、見やすいようにほんとうの速さの 1/10 で回しています。「風から電気へ」は、電気になった割合(エネルギー変換効率)です。羽根に当たった風のエネルギーのうちの割合です。</p></div>' +
     '<div class="e6-card" data-ref="ctl"></div></div>' +
-    '<div class="e6-card"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">📋 くらべた記録</h2><div class="e6-row"><button class="e6-btn primary" data-act="rec">📋 記録する</button><button class="e6-btn sm" data-act="clr">🗑 記録を消す</button></div></div>' +
+    '<div class="e6-card"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">📋 くらべた記録</h2><div class="e6-row"><button class="ef-btn-primary" data-act="rec">📋 記録する</button><button class="ef-btn is-s" data-act="clr">🗑 記録を消す</button></div></div>' +
     '<div class="e6-scroll" data-ref="tbl"></div>' +
     '<h3>風速と電力のグラフ(いまの羽根 = 太い線、記録の新しい3つ = 点線)</h3><div data-ref="curve" style="max-width:640px"></div><div class="e6-leg" data-ref="leg"></div></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
@@ -574,7 +588,7 @@ function renderCmp(box) {
   }
   function table() {
     var rs = S.save.recs;
-    if (!rs.length) { el.tbl.innerHTML = '<p style="color:#5b6b7c">まだ記録がありません。羽根を作って「📋 記録する」を押そう。</p>'; return; }
+    if (!rs.length) { el.tbl.innerHTML = '<p style="color:var(--ef-muted)">まだ記録がありません。羽根を作って「📋 記録する」を押そう。</p>'; return; }
     var bestP = Math.max.apply(null, rs.map(function (r) { return r.P; }));
     var h = '<table class="e6-tbl"><tr><th>#</th><th>枚数</th><th>かたむき</th><th>長さ</th><th>形</th><th>風速</th><th>回転数<br>(回/分)</th><th>電圧<br>(V)</th><th>電流<br>(mA)</th><th>電力</th><th>回り始め<br>(m/s)</th></tr>';
     rs.forEach(function (r, i) {
@@ -582,7 +596,7 @@ function renderCmp(box) {
       h += '<tr' + (r.P === bestP && r.P > 0 ? ' class="best"' : '') + '><td>' + (i + 1) + '</td><td' + d('n') + '>' + r.b.n + '</td><td' + d('pitch') + '>' + r.b.pitch + '°</td><td' + d('len') + '>' + r.b.len + 'cm</td><td' + d('shape') + '>' + SHAPES[r.b.shape].name + '</td>' +
         '<td' + (p && p.v !== r.v ? ' class="diff"' : '') + '>' + r.v.toFixed(1) + '</td><td>' + Math.round(r.rpm) + '</td><td>' + r.V.toFixed(2) + '</td><td>' + Math.round(r.I * 1000) + '</td><td><b>' + fWs(r.P) + '</b></td><td>' + vsTxt(r.vs) + '</td></tr>';
     });
-    el.tbl.innerHTML = h + '</table><p style="font-size:.88em;color:#5b6b7c">黄色 = 1つ前の記録から変えたところ。緑 = いちばん電力が大きかった記録。</p>';
+    el.tbl.innerHTML = h + '</table><p style="font-size:.88em;color:var(--ef-muted)">黄色 = 1つ前の記録から変えたところ。緑 = いちばん電力が大きかった記録。</p>';
   }
   box.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-act]'); if (!t) return;
@@ -618,7 +632,7 @@ function renderBest(box) {
     '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div style="margin-top:8px" data-ref="meters">' + meterHtml() + '</div>' +
     '<div data-ref="mis" style="margin-top:8px"></div></div>' +
     '<div><div class="e6-card" data-ref="ctl"></div>' +
-    '<div class="e6-card" style="margin-top:12px"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">🏅 わたしのランキング(4 m/s の電力)</h2><button class="e6-btn primary" data-act="rank">🏅 ランキングにのせる</button></div><ol class="e6-rank" data-ref="rank"></ol></div></div></div>';
+    '<div class="e6-card" style="margin-top:12px"><div class="e6-row" style="justify-content:space-between"><h2 style="margin:0">🏅 わたしのランキング(4 m/s の電力)</h2><button class="ef-btn-primary" data-act="rank">🏅 ランキングにのせる</button></div><ol class="e6-rank" data-ref="rank"></ol></div></div></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
   var spin = spinner('e6-r3'), dots = windDots('e6-r3'), c, lastId = null;
   function rebuild() {
@@ -644,7 +658,7 @@ function renderBest(box) {
   }
   function rank() {
     var r = S.save.rank;
-    el.rank.innerHTML = r.length ? r.map(function (x, i) { return '<li' + (x.at === lastId ? ' class="me"' : '') + '><span>' + esc(bladeName(x.b)) + '<br><small style="color:#5b6b7c">回り始め ' + vsTxt(x.vs) + ' m/s</small></span><span class="p">' + fWs(x.p) + '</span></li>'; }).join('') : '<li style="color:#5b6b7c">まだありません。羽根を作ってのせよう。</li>';
+    el.rank.innerHTML = r.length ? r.map(function (x, i) { return '<li' + (x.at === lastId ? ' class="me"' : '') + '><span>' + esc(bladeName(x.b)) + '<br><small style="color:var(--ef-muted)">回り始め ' + vsTxt(x.vs) + ' m/s</small></span><span class="p">' + fWs(x.p) + '</span></li>'; }).join('') : '<li style="color:var(--ef-muted)">まだありません。羽根を作ってのせよう。</li>';
   }
   box.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-act="rank"]'); if (!t) return;
@@ -689,28 +703,28 @@ function renderMeth(box) {
     '<div class="e6-grid"><div class="e6-card"><h2>🔗 変換の流れをならべよう</h2><div class="e6-meth" data-ref="mlist"></div>' +
     '<p style="margin-top:8px">下のカードを、<b>はじめ → 電気</b> の順にタップしよう。1つだけ、ちがう発電方法のカードがまざっています。</p>' +
     '<div class="e6-flow" data-ref="flow"></div><div class="e6-chips" data-ref="pool" style="margin-top:8px"></div>' +
-    '<div class="e6-row" style="margin-top:8px"><button class="e6-btn sm" data-act="undo">↩ 1つもどす</button></div><div class="e6-msg" data-ref="fmsg" style="margin-top:8px"></div></div>' +
+    '<div class="e6-row" style="margin-top:8px"><button class="ef-btn is-s" data-act="undo">↩ 1つもどす</button></div><div class="e6-msg" data-ref="fmsg" style="margin-top:8px"></div></div>' +
     '<div class="e6-card"><h2>🎯 この特徴はどの発電方法?</h2><p>特徴を読んで、あてはまる発電方法をえらぼう。</p><div class="e6-feat" data-ref="feat"></div><div class="e6-meth" data-ref="fans" style="margin-top:8px"></div>' +
     '<div class="e6-msg" data-ref="amsg" style="margin-top:8px"></div><p data-ref="fsc" style="font-weight:bold"></p></div></div>' +
     '<div class="e6-card" data-ref="group"></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
   function m() { return METH.filter(function (x) { return x.id === M.cur; })[0]; }
   function draw() {
-    el.mlist.innerHTML = METH.map(function (x) { return '<button class="e6-btn' + (x.id === M.cur ? ' sel' : '') + '" data-m="' + x.id + '"><span class="i">' + x.ic + '</span>' + x.name + (S.save.flow[x.id] ? ' ✓' : '') + '</button>'; }).join('');
+    el.mlist.innerHTML = METH.map(function (x) { return '<button class="ef-btn' + (x.id === M.cur ? ' sel' : '') + '" data-m="' + x.id + '"><span class="i">' + x.ic + '</span>' + x.name + (S.save.flow[x.id] ? ' ✓' : '') + '</button>'; }).join('');
     var mm = m(), done = M.pick.length === mm.flow.length;
     el.flow.innerHTML = M.pick.length ? M.pick.map(function (t, i) { return (i ? '<span class="ar">→</span>' : '') + '<span class="st' + (i === mm.flow.length - 1 ? ' el' : '') + '">' + esc(t) + '</span>'; }).join('') : '<span class="ph">ここにならびます</span>';
     el.pool.innerHTML = M.pool.map(function (t, i) { var used = M.pick.indexOf(t) >= 0; return '<button class="e6-chip' + (used ? ' used' : '') + '" data-pi="' + i + '"' + (used || done ? ' disabled' : '') + '>' + esc(t) + '</button>'; }).join('');
     el.fmsg.innerHTML = done ? '🎉 ' + mm.name + '発電の流れが完成! ' + (mm.gen ? 'この発電方法は<b>発電機を回して</b>電気をつくります。' : 'この発電方法は<b>発電機を使わずに</b>電気をつくります。') + (mm.fake ? '<br>まざっていたカード「' + esc(mm.fake) + '」は使いません。' : '') : 'はじめのエネルギーはどれかな?';
     el.fmsg.className = 'e6-msg' + (done ? ' ok' : '');
     var all = METH.every(function (x) { return S.save.flow[x.id]; });
-    el.group.innerHTML = '<h2>📊 まとめ: 発電機を回す? 回さない?</h2>' + (all ? '<div class="e6-two"><div class="e6-card good"><b>⚙️ 発電機を回してつくる</b><p>火力・水力・風力(原子力・地熱も)。蒸気・水・風の力でタービンや羽根を回し、発電機の<b>電磁誘導</b>で電気にします。</p></div><div class="e6-card tip"><b>🔆 発電機を使わずにつくる</b><p>太陽光(太陽電池)・燃料電池。光や化学変化から直接電気をつくります。</p></div></div><p>どの発電方法にもよいところと課題があります。今は、それぞれの特徴を生かしながら組み合わせて電気を送っています。</p>' : '<p style="color:#5b6b7c">5つの発電方法の流れをぜんぶ完成させると、まとめが出ます(いま ' + METH.filter(function (x) { return S.save.flow[x.id]; }).length + ' / 5)。</p>');
+    el.group.innerHTML = '<h2>📊 まとめ: 発電機を回す? 回さない?</h2>' + (all ? '<div class="e6-two"><div class="e6-card good"><b>⚙️ 発電機を回してつくる</b><p>火力・水力・風力(原子力・地熱も)。蒸気・水・風の力でタービンや羽根を回し、発電機の<b>電磁誘導</b>で電気にします。</p></div><div class="e6-card tip"><b>🔆 発電機を使わずにつくる</b><p>太陽光(太陽電池)・燃料電池。光や化学変化から直接電気をつくります。</p></div></div><p>どの発電方法にもよいところと課題があります。今は、それぞれの特徴を生かしながら組み合わせて電気を送っています。</p>' : '<p style="color:var(--ef-muted)">5つの発電方法の流れをぜんぶ完成させると、まとめが出ます(いま ' + METH.filter(function (x) { return S.save.flow[x.id]; }).length + ' / 5)。</p>');
   }
   function feat() {
     if (!M.feat) { M.feat = shuffle(FEATS); M.fi = 0; M.score = 0; M.ans = null; }
     var f = M.feat[M.fi];
     if (!f) {
       el.feat.textContent = '🎉 10問終わり! ' + M.score + ' / 10 問正解';
-      el.fans.innerHTML = '<button class="e6-btn primary" data-act="again" style="grid-column:1/-1">もう一度</button>';
+      el.fans.innerHTML = '<button class="ef-btn-primary" data-act="again" style="grid-column:1/-1">もう一度</button>';
       el.amsg.style.display = ''; el.amsg.className = 'e6-msg ok';
       el.amsg.textContent = 'これまでのいちばん: ' + Math.max(S.save.featBest, M.score) + ' / 10';
       if (M.score > S.save.featBest) { S.save.featBest = M.score; persist(); }
@@ -719,8 +733,8 @@ function renderMeth(box) {
     el.feat.textContent = '「' + f[0] + '」';
     el.fans.innerHTML = METH.map(function (x) {
       var cls = M.ans ? (x.id === f[1] ? ' good' : (M.ans === x.id ? ' sel' : '')) : '';
-      return '<button class="e6-btn' + cls + '" data-fa="' + x.id + '"' + (M.ans ? ' disabled' : '') + '><span class="i">' + x.ic + '</span>' + x.name + '</button>';
-    }).join('') + (M.ans ? '<button class="e6-btn primary" data-act="next" style="grid-column:1/-1">つぎへ ▶</button>' : '');
+      return '<button class="ef-btn' + cls + '" data-fa="' + x.id + '"' + (M.ans ? ' disabled' : '') + '><span class="i">' + x.ic + '</span>' + x.name + '</button>';
+    }).join('') + (M.ans ? '<button class="ef-btn-primary" data-act="next" style="grid-column:1/-1">つぎへ ▶</button>' : '');
     el.amsg.innerHTML = M.ans ? (M.ans === f[1] ? '⭕ 正解! ' : '❌ 答えは「' + METH.filter(function (x) { return x.id === f[1]; })[0].name + '」。 ') + f[2] : '';
     el.amsg.className = 'e6-msg' + (M.ans ? (M.ans === f[1] ? ' ok' : ' ng') : '');
     el.amsg.style.display = M.ans ? '' : 'none';
@@ -767,7 +781,7 @@ function renderDay(box) {
   list.push({ b: WEAK, name: '弱い風むきの羽根(' + bladeName(WEAK) + ')', col: COLS[2] });
   box.innerHTML = '<div class="e6-card adv"><span class="e6-kicker adv">発展編</span><h2>📅 風の強さが変わる日の発電量</h2><p>風は1日の中でも強くなったり弱くなったりします。②③で作った羽根で、1日(24時間)にどれだけの電気(電力量)ができるかをくらべましょう。「▶ 1日を再生」で時間を進められます。</p></div>' +
     '<div class="e6-card"><div class="e6-days" data-ref="days"></div></div>' +
-    '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div class="e6-row" style="margin-top:8px"><button class="e6-btn primary" data-act="play"></button><label style="flex:1;min-width:160px">時刻 <b data-ref="hlab"></b><input type="range" min="0" max="23.9" step="0.1" data-ref="hr"></label></div><div class="e6-msg" data-ref="dmsg" style="margin-top:8px"></div></div>' +
+    '<div class="e6-grid"><div class="e6-card"><div class="e6-stage" data-ref="stage"></div><div class="e6-row" style="margin-top:8px"><button class="ef-btn-primary" data-act="play"></button><label style="flex:1;min-width:160px">時刻 <b data-ref="hlab"></b><input type="range" min="0" max="23.9" step="0.1" data-ref="hr"></label></div><div class="e6-msg" data-ref="dmsg" style="margin-top:8px"></div></div>' +
     '<div class="e6-card"><h2>1日の風と電力</h2><div data-ref="chart"></div><div class="e6-leg" data-ref="leg"></div><div class="e6-scroll" data-ref="tot" style="margin-top:8px"></div></div></div>' +
     '<div class="e6-card tip"><b>考えよう</b> 風が弱い日も、電気を安定して届けるには?<br>ヒント:ためる・組み合わせる<details><summary>くわしく</summary><small>本物の風車も、強すぎる風では羽根のかたむきを変えて止めます。このモデルでは風速 ' + CUT + ' m/s 以上で止めます。</small></details></div>';
   var el = {}; box.querySelectorAll('[data-ref]').forEach(function (x) { el[x.getAttribute('data-ref')] = x; });
@@ -800,10 +814,10 @@ function renderDay(box) {
     var tt = totals(), best = Math.max.apply(null, tt);
     el.tot.innerHTML = '<table class="e6-tbl"><tr><th>羽根</th><th>1日の電力量</th><th>LED(0.1 W)を<br>つけられる時間</th></tr>' + list.map(function (it, k) {
       return '<tr' + (tt[k] === best && best > 0 ? ' class="best"' : '') + '><td style="text-align:left;white-space:normal">' + esc(it.name) + '</td><td><b>' + tt[k].toFixed(2) + ' Wh</b></td><td>' + (tt[k] / 0.1).toFixed(1) + ' 時間</td></tr>';
-    }).join('') + '</table><p style="font-size:.88em;color:#5b6b7c">電力量(Wh) = 電力(W)× 時間(h)。1 W で1時間発電すると 1 Wh。</p>';
+    }).join('') + '</table><p style="font-size:.88em;color:var(--ef-muted)">電力量(Wh) = 電力(W)× 時間(h)。1 W で1時間発電すると 1 Wh。</p>';
     S.save.days[D.cur] = 1; if (Object.keys(S.save.days).length >= 2) mark('day'); persist();
   }
-  function days() { el.days.innerHTML = DAYS.map(function (d) { return '<button class="e6-btn' + (d.id === D.cur ? ' sel' : '') + '" data-day="' + d.id + '">' + d.ic + '<br>' + d.name + (S.save.days[d.id] ? ' ✓' : '') + '</button>'; }).join(''); }
+  function days() { el.days.innerHTML = DAYS.map(function (d) { return '<button class="ef-btn' + (d.id === D.cur ? ' sel' : '') + '" data-day="' + d.id + '">' + d.ic + '<br>' + d.name + (S.save.days[d.id] ? ' ✓' : '') + '</button>'; }).join(''); }
   function setHour(h) {
     D.hour = h; el.hr.value = h;
     var hh = Math.floor(h), mm = Math.floor((h - hh) * 60); el.hlab.textContent = hh + '時' + (mm < 10 ? '0' : '') + mm + '分';
@@ -848,13 +862,13 @@ function whoInit() {
 }
 function renderRec(box) {
   var w = whoInit(), s = S.save;
-  var rows = STEPS.map(function (st) { var ok = stepDone(st.id); return '<li><span class="m">' + (ok ? '✅' : '⬜') + '</span>' + st.name + (st.id.charAt(0) === 'm' && s.mis[st.id] ? '<small style="color:#5b6b7c"> ・' + esc(s.mis[st.id]) + '</small>' : '') + '</li>'; }).join('');
+  var rows = STEPS.map(function (st) { var ok = stepDone(st.id); return '<li><span class="m">' + (ok ? '✅' : '⬜') + '</span>' + st.name + (st.id.charAt(0) === 'm' && s.mis[st.id] ? '<small style="color:var(--ef-muted)"> ・' + esc(s.mis[st.id]) + '</small>' : '') + '</li>'; }).join('');
   box.innerHTML = '<div class="e6-grid"><div class="e6-card"><h2>📊 やったこと</h2><ul class="e6-sum">' + rows + '</ul>' +
     '<p>ランキング1位: <b>' + (s.rank[0] ? esc(bladeName(s.rank[0].b)) + '(' + fWs(s.rank[0].p) + ')' : 'まだありません') + '</b><br>④ 特徴クイズのいちばん: <b>' + s.featBest + ' / 10</b></p></div>' +
     '<div class="e6-card"><h2>💾 ファイルに保存して提出</h2><div class="e6-two"><div class="e6-field"><label for="e6-cls">組・番号</label><input type="text" id="e6-cls" data-who="cls" maxlength="20" value="' + esc(w.cls) + '" placeholder="例: 2組15番"></div><div class="e6-field"><label for="e6-name">名前</label><input type="text" id="e6-name" data-who="name" maxlength="30" value="' + esc(w.name) + '"></div></div>' +
     '<p>やったこと・ランキング・振り返りを、1つのファイル(<code>C2-fuuryoku-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
-    '<button class="e6-btn primary" data-act="save" style="width:100%">💾 ファイルに保存</button>' +
-    '<div data-ef-reflect style="margin-top:10px"><h3>振り返り(ファイルに入ります)</h3>' + REFL.map(function (r, i) { return '<p><b>' + (i + 1) + '.</b> ' + (s.refl[r.id] ? esc(s.refl[r.id]) : '<span style="color:#868e96">(まだ書いていません)</span>') + '</p>'; }).join('') + '</div></div></div>';
+    '<button class="ef-btn-primary" data-act="save" style="width:100%">💾 ファイルに保存</button>' +
+    '<div data-ef-reflect style="margin-top:10px"><h3>振り返り(ファイルに入ります)</h3>' + REFL.map(function (r, i) { return '<p><b>' + (i + 1) + '.</b> ' + (s.refl[r.id] ? esc(s.refl[r.id]) : '<span style="color:var(--ef-muted)">(まだ書いていません)</span>') + '</p>'; }).join('') + '</div></div></div>';
   box.addEventListener('input', function (ev) { var k = ev.target.getAttribute('data-who'); if (!k) return; S.save.who[k] = ev.target.value.slice(0, k === 'cls' ? 20 : 30); persist(); });
   box.addEventListener('click', function (ev) { if (ev.target.closest('[data-act="save"]')) saveFile(); });
 }
@@ -887,7 +901,7 @@ function mount(root) {
   root.innerHTML = '<div class="e6-top ef-apptabs" data-ef-autohide>' + (NS.embedded ? '' : '<h1>風力発電の羽根ラボ</h1>') + '<nav class="e6-tabs" data-ref="tabs" aria-label="C2 のページ"></nav>' + efSlot() + '</div>' +
     '<div class="e6-body" data-ref="body"></div><div class="e6-toast" data-ref="toast" role="status"></div>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
-  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); /* 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に */ }
   S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
   var t0 = TABS.some(function (t) { return t.id === S.save.tab; }) ? S.save.tab : 'intro';
   go(t0);
