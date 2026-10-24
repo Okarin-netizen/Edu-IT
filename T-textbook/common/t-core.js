@@ -7,7 +7,7 @@
  *   var T = TCore.init({ key: 'eduit.m.v1', blank: function () { return {…}; } });
  *   … T.quiz(…)・T.picker(…)・T.self(…) で中身を作り …
  *   T.start({ status: function (S) { return { intro: true, … }; }, prog: [[タブ, 名前, 点数の関数], …], exp: { code, title, file, score } });
- * ページの形: <div id="tapp" class="t-noruby"> の中に、上のバー(.t-top: ふりがな #t-ruby・文字 #t-size・使い方 #t-howto)、
+ * ページの形: <div id="tapp"> の中に、上のバー(.t-top: ふりがな [data-ef-pref=ruby]・文字 [data-ef-pref=fs]・使い方 #t-howto)、
  *   タブ(.t-tabs [data-tab])、ページ(.t-sec[data-sec])。書く欄は data-k="t1.memo" のように S の中の場所を書く。
  *   記録のページには #t-prog・#t-export・#t-print・#t-reset・#t-export-msg を置く。
  * 分野ごとに開く(教科書順コースから ?bunya=a のように開く): data-area="a" の部分は、その分野のときと全部のときだけ出す。
@@ -16,7 +16,6 @@
  */
 (function () {
   'use strict';
-  var PREF = 'eduit.t.prefs';  // ふりがな・文字の大きさ(コースと M・F・Z で同じ)
 
   function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
   // 保存していた中身を blank() に重ねる。形のちがう値(配列のはずが文字など)は入れない(こわれた保存で止まらないように)
@@ -104,30 +103,9 @@
     function text(node, s) { node.textContent = s; ruby(node); }
 
     // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
-    var FS_STEPS = [[0.9, '小'], [1, '中'], [1.15, '大'], [1.3, '特大']];
-    var prefs = { ruby: false, fs: 1 };
-    try {
-      var pr = JSON.parse(localStorage.getItem(PREF) || 'null');
-      if (pr) {
-        prefs.ruby = !!pr.ruby;
-        var fs = +pr.fs;  // 段の範囲の外(こわれた値)は「中」にもどす
-        prefs.fs = fs >= FS_STEPS[0][0] && fs <= FS_STEPS[FS_STEPS.length - 1][0] ? fs : 1;
-      }
-    } catch (e) {}
-    function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
-    function applyPrefs() {
-      root.classList.toggle('t-noruby', !prefs.ruby);
-      $('t-ruby').setAttribute('aria-pressed', String(prefs.ruby));
-      root.style.setProperty('--t-fs', prefs.fs);
-    }
-    $('t-ruby').addEventListener('click', function () { prefs.ruby = !prefs.ruby; savePrefs(); applyPrefs(); });
-    EduitFrame.sizeButton($('t-size'), {
-      steps: FS_STEPS,
-      get: function () { return prefs.fs; },
-      set: function (v) { prefs.fs = v; savePrefs(); applyPrefs(); }
-    });
+    // 上のバーの data-ef-pref のボタンを EduitFrame がボタンにする(全教材で同じ設定 EduitFrame.prefs)。ふりがなは付けておき、オフのときは CSS でかくす
     if (opts.howto) $('t-howto').addEventListener('click', function () {
-      EduitFrame.howto(opts.howto, { onOpen: function (box) { if (prefs.ruby) ruby(box); } });
+      EduitFrame.howto(opts.howto, { onOpen: function (box) { ruby(box); } });
     });
 
     // ---------- 書く欄(data-k)は自動で保存 ----------
@@ -318,7 +296,6 @@
         location.reload();
       });
       fields();
-      applyPrefs();
       ruby(root);
       marks();
       var first = location.hash.slice(1);
@@ -330,7 +307,7 @@
     return {
       S: S, $: $, el: el, root: root, save: save, ruby: ruby, text: text, filled: filled, seeded: seeded, fields: fields,
       quiz: quiz, quizDone: quizDone, quizOk: quizOk, picker: picker, self: self, selfDone: selfDone,
-      select: select, onShow: onShow, onSave: onSave, start: start, prefs: prefs, applyPrefs: applyPrefs, area: AREA
+      select: select, onShow: onShow, onSave: onSave, start: start, area: AREA
     };
   }
 

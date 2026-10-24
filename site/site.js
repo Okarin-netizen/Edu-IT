@@ -35,7 +35,7 @@
       var s = document.createElement('span');
       s.textContent = x.extra;
       var c = EduitFrame.card({ code: x.code, title: x.title, desc: x.desc, extra: [s], href: x.href + (q || '') });
-      c.classList.add('site-' + k);
+      c.setAttribute('data-ef-domain', k);  // カードの色を分野の色にする(eduit-frame.css)
       box.appendChild(c);
     });
   }
