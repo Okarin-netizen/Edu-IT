@@ -18,11 +18,10 @@ html,body{margin:0;padding:0;background:var(--ef-bg);}
   --pri:var(--ef-accent); --pri-d:#1b5e20; --pri-l:var(--ef-accent-soft); --acc:#d84315; --acc-l:#fbe9e7;
   --warn:#b71c1c; --warn-l:#fdecea; --info:#0d47a1; --info-l:#e3edfb; --yel:#fff6d6;
   font-family:var(--ef-font);
-  font-size:18px; line-height:1.6; color:var(--ink); background:var(--bg);
+  font-size:1rem; line-height:1.6; color:var(--ink); background:var(--bg);
   min-height:100vh; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:rgba(46,125,50,.2);
 }
 .b4 *{box-sizing:border-box;}
-.b4.noruby rt{display:none;}
 .b4 rt{font-size:.5em;color:var(--sub);letter-spacing:-.04em;}
 .b4 ruby{ruby-align:center;}
 .b4 .topbar rt{color:var(--sub);}
@@ -224,8 +223,9 @@ html.kz-embed .b4 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
       <h1 class="ttl ef-title"><span class="ef-code">B4</span> <span class="ef-title-name"><ruby>育<rt>いく</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>日<rt>にっ</rt></ruby><ruby>誌<rt>し</rt></ruby>＋<ruby>成<rt>せい</rt></ruby><ruby>長<rt>ちょう</rt></ruby><ruby>予<rt>よ</rt></ruby><ruby>測<rt>そく</rt></ruby></span></h1>
       <div class="ef-tools">
       <div class="pf" role="group" aria-label="表示の設定">
-        <button type="button" class="ef-btn ef-toggle pfb" id="b4-pf-ruby" aria-pressed="true" title="ふりがなを表示する・かくす">ふりがな</button>
-        <button type="button" class="ef-btn ef-size pfb" id="b4-pf-size">文字</button>
+        <button type="button" class="pfb" data-ef-pref="ruby" title="ふりがなを表示する・かくす">ふりがな</button>
+        <button type="button" class="pfb" data-ef-pref="fs"></button>
+        <button type="button" class="pfb" data-ef-pref="kukkiri"></button>
       </div>
       <button type="button" class="ef-btn who" data-act="who" id="b4-who">👤 ---</button>
       </div>
@@ -309,131 +309,18 @@ html.kz-embed .b4 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
 })();
 </script>
 <!--
-  kz-prefs : 教材集ぜんぶで共通の「ふりがな」「文字の大きさ」設定 (K1)
+  kz-embed : 教材集(メニュー)の iframe の中なら <html class="kz-embed"> を付ける(K3)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。
-          2回入れても害はない(window.kzPrefs があれば何もしない)。ES5。外部通信なし。
-
-  保存キー(localStorage):
-    hub_ruby  '1' = ふりがなあり / '0' = なし
-    hub_fs    文字の大きさ(px の整数。14〜26、2きざみ、初期 18)
-
-  API (グローバルは window.kzPrefs だけ):
-    kzPrefs.get()            → {ruby: true|false|null, fs: 14..26|null}
-                               キーが無い(まだ一度も設定していない)ときは null。
-                               localStorage が使えないときは、このページ内のメモリ上の値を返す。
-    kzPrefs.set({ruby?, fs?}) → 指定した項目だけ書きこみ、変わっていればリスナーに知らせる。
-                               fs は clampFs で丸める。ほかの画面(親・ほかの iframe)には
-                               storage イベント＋postMessage(予備)で伝わる。戻り値は get()。
-    kzPrefs.on(fn)           → fn(prefs) を登録。自分の set()、ほかの画面での変更
-                               (storage イベント / postMessage)のときに呼ばれる。
-                               同じ値が続けて来たときは呼ばない。戻り値は登録解除の関数。
-    kzPrefs.clampFs(n)       → 14〜26 の偶数に丸めた数(数でなければ 18)。
-    kzPrefs.bump(d)          → 文字サイズを d 段(+1 / -1)変える。新しい fs を返す。
-    kzPrefs.bind(rubyBtn, decBtn, incBtn)
-                             → K2 の3つのボタンをつなぐ(どれか null 可)。
-                               クリックで set()、aria-pressed と disabled(上限・下限)を自動更新。
-    kzPrefs.embed            → 教材集(メニュー)の iframe の中なら true。
-                               true のとき <html> に class "kz-embed" をすぐ付ける(K3 の CSS 用)。
-    kzPrefs.FS_MIN=14, FS_MAX=26, FS_STEP=2, FS_DEFAULT=18
-
-  教材側の使い方の例:
-    var p = kzPrefs.get();
-    var ruby = (p.ruby !== null) ? p.ruby : 自分の古い設定;   // 古い設定は null のときだけ使う
-    var fs   = (p.fs   !== null) ? p.fs   : 自分の古い設定を clampFs したもの;
-    apply(ruby, fs);
-    kzPrefs.on(function(p){ apply(p.ruby !== false, p.fs || 18); });
-    kzPrefs.bind(document.getElementById('x-ruby'), document.getElementById('x-dec'), document.getElementById('x-inc'));
+  入れ方: kzConfirm の <script> のすぐ後ろに、このファイルの <script> をそのまま貼る。ES5。
+  CSS の html.kz-embed … で、教材の見出し(メニューの上のバーと同じボタン)を隠す。
+  site/build.py が「embed = window.self !== window.top;」を書きかえるので、この書き方を変えない。
+  ふりがな・文字の大きさは全教材で共通の EduitFrame.prefs(shared/eduit-frame.js)を使う。
 -->
-<script data-kz-prefs>
+<script data-kz-embed>
 (function(){
-  if (window.kzPrefs) return;
-  var KR = 'hub_ruby', KF = 'hub_fs', MIN = 14, MAX = 26, STEP = 2, DEF = 18;
-  var mem = {ruby: null, fs: null};          /* localStorage が使えないときの予備 */
-  var fns = [], last = '';
-  var embed = false;
+  var embed;
   try { embed = window.self !== window.top; } catch (e) { embed = true; }
-  if (embed) { try { document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'kz-embed'; } catch (e) {} }
-
-  function clampFs(n){
-    n = Number(n);
-    if (!isFinite(n)) return DEF;
-    n = Math.round(n / STEP) * STEP;
-    return n < MIN ? MIN : (n > MAX ? MAX : n);
-  }
-  function lsGet(k){ try { return window.localStorage.getItem(k); } catch (e) { return undefined; } }
-  function lsSet(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
-  function get(){
-    var r = lsGet(KR), f = lsGet(KF), o = {ruby: mem.ruby, fs: mem.fs};
-    if (r !== undefined) o.ruby = (r === '1') ? true : (r === '0' ? false : null);
-    if (o.ruby === null) o.ruby = false;  /* ふりがなは、はじめはなし(4分野で同じ) */
-    if (f !== undefined) o.fs = (f === null || f === '' || isNaN(parseInt(f, 10))) ? null : clampFs(parseInt(f, 10));
-    return o;
-  }
-  function notify(p){
-    var key = String(p.ruby) + '|' + String(p.fs);
-    if (key === last) return;
-    last = key;
-    for (var i = 0; i < fns.length; i++) { try { fns[i](p); } catch (e) { if (window.console) console.error(e); } }
-  }
-  function post(win, p){ try { win.postMessage({kzPrefs: {ruby: p.ruby, fs: p.fs}}, '*'); } catch (e) {} }
-  function broadcast(p, except){
-    /* 予備の伝え方: 親と子の iframe に postMessage(storage イベントが届かない環境のため) */
-    try { if (embed && window.parent && window.parent !== except) post(window.parent, p); } catch (e) {}
-    try { for (var i = 0; i < window.frames.length; i++) { if (window.frames[i] !== except) post(window.frames[i], p); } } catch (e) {}
-  }
-  function set(o){
-    o = o || {};
-    if (o.ruby !== undefined && o.ruby !== null) { mem.ruby = !!o.ruby; lsSet(KR, o.ruby ? '1' : '0'); }
-    if (o.fs !== undefined && o.fs !== null) { mem.fs = clampFs(o.fs); lsSet(KF, String(mem.fs)); }
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    broadcast(p, null);
-    return p;
-  }
-  function on(fn){
-    if (typeof fn === 'function') fns.push(fn);
-    return function(){ for (var i = fns.length - 1; i >= 0; i--) if (fns[i] === fn) fns.splice(i, 1); };
-  }
-  function cur(){ var p = get(); return {ruby: p.ruby !== false, fs: p.fs || DEF}; }
-  function bump(d){ return set({fs: cur().fs + (d > 0 ? STEP : -STEP)}).fs || DEF; }
-  function bind(rb, dec, inc){
-    function upd(){
-      var c = cur();
-      if (rb) rb.setAttribute('aria-pressed', c.ruby ? 'true' : 'false');
-      if (dec) dec.disabled = c.fs <= MIN;
-      if (inc) inc.disabled = c.fs >= MAX;
-    }
-    if (rb) rb.addEventListener('click', function(){ set({ruby: !cur().ruby}); });
-    if (dec) dec.addEventListener('click', function(){ bump(-1); });
-    if (inc) inc.addEventListener('click', function(){ bump(1); });
-    on(upd); upd();
-    return upd;
-  }
-
-  window.addEventListener('storage', function(e){
-    if (e.key !== KR && e.key !== KF && e.key !== null) return;
-    notify(get());
-  });
-  window.addEventListener('message', function(e){
-    var d = e.data;
-    if (!d || typeof d !== 'object' || !d.kzPrefs || typeof d.kzPrefs !== 'object') return;
-    var q = d.kzPrefs;
-    if (typeof q.ruby === 'boolean') mem.ruby = q.ruby;
-    if (typeof q.fs === 'number') mem.fs = clampFs(q.fs);
-    var p = get();
-    if (p.ruby === null) p.ruby = mem.ruby;
-    if (p.fs === null) p.fs = mem.fs;
-    notify(p);
-    /* メニュー(いちばん上)は、ほかの iframe にも伝える */
-    if (!embed) { try { for (var i = 0; i < window.frames.length; i++) if (window.frames[i] !== e.source) post(window.frames[i], p); } catch (err) {} }
-  });
-
-  var p0 = get(); last = String(p0.ruby) + '|' + String(p0.fs);
-  window.kzPrefs = {get: get, set: set, on: on, clampFs: clampFs, bump: bump, bind: bind, embed: embed,
-    FS_MIN: MIN, FS_MAX: MAX, FS_STEP: STEP, FS_DEFAULT: DEF};
+  if (embed) document.documentElement.classList.add('kz-embed');
 })();
 </script>
 <!--
@@ -459,7 +346,7 @@ html.kz-embed .b4 .topbar{justify-content:flex-end;padding:2px 10px;min-height:0
                          文字列のよみで語にかなが入る場合(「間引き」まびき)は、漢字の部分にだけ自動で付ける
     kzRuby.add(list)     [語, よみ] を追加・上書きして作り直す(教材だけの語に使う)
 
-  ふりがなの表示・非表示は、各教材の CSS で rt を隠す(例 .noruby rt{display:none})。kzRuby は付けるだけ。
+  ふりがなの表示・非表示は、全教材で共通の EduitFrame.prefs がする(<html data-ef-ruby="off"> のとき rt を隠す)。kzRuby は付けるだけ。
   辞書は kz-ruby-dict.json と同じ内容(build-dict.js で dict-src.txt から作る)。
 -->
 <style data-kz-ruby>
@@ -942,28 +829,12 @@ function go(name, opt){
   var fn = R[name]; if(fn) fn(opt||{});
   window.scrollTo(0,0);
 }
-/* ---------- ふりがな・文字の大きさ(K1: 教材集で共通の hub_ruby / hub_fs) ---------- */
-var PF = {ruby:true, fs:18};
-function legacyPrefs(){
-  var st=S.settings||{};
-  var fs = st.fs!=null ? kzPrefs.clampFs(st.fs) : (st.big ? 22 : 18);
-  return {ruby: st.ruby!==false, fs: fs};
-}
-function effPrefs(){
-  var p=kzPrefs.get(), lg=legacyPrefs();
-  return {ruby: p.ruby!==null ? p.ruby : lg.ruby, fs: p.fs!==null ? p.fs : lg.fs};
-}
+/* ---------- ふりがな・文字の大きさ(全教材で共通の EduitFrame.prefs。上のバーのボタンは data-ef-pref) ---------- */
+var lastFs = EduitFrame.prefs.get('fs');
 function applyPrefs(){
-  var e=effPrefs(), fsChanged = e.fs!==PF.fs;
-  PF=e;
-  APP.classList.toggle('noruby', !e.ruby);
-  APP.style.fontSize = e.fs+'px';
-  APP.classList.toggle('big', e.fs>=22);
-  S.settings = S.settings||{}; S.settings.ruby=e.ruby; S.settings.fs=e.fs; S.settings.big = e.fs>=22;
-  var rc=$('#b4-set-ruby'); if(rc) rc.checked=e.ruby;
-  var fv=$('#b4-set-fsv'); if(fv) fv.textContent=e.fs+'px';
-  var fd=$('[data-act="fsDec"]'); if(fd) fd.disabled = e.fs<=kzPrefs.FS_MIN;
-  var fi=$('[data-act="fsInc"]'); if(fi) fi.disabled = e.fs>=kzPrefs.FS_MAX;
+  var fs = EduitFrame.prefs.get('fs'), fsChanged = fs!==lastFs;
+  lastFs = fs;
+  APP.classList.toggle('big', fs>=20);
   updateWho();
   layoutTabs();
   if(fsChanged){ if(cur==='graph') drawGraph(); if(cur==='predict') renderPredictResult(); }
@@ -1852,9 +1723,8 @@ function reflText(){
 R.help = function(opt){
   var el=$('#b4-help');
   var h='<h2>❓ 使い方・設定</h2>';
-  h+='<div class="card"><h3>⚙️ 表示の設定</h3><div class="row"><label class="chip"><input type="checkbox" id="b4-set-ruby" data-chg="setRuby"'+(PF.ruby?' checked':'')+'> <span>ふりがなを表示</span></label>'+
-     '<span class="row" style="gap:6px"><span>文字の大きさ</span><button type="button" class="btn sm" data-act="fsDec" aria-label="文字を小さくする"'+(PF.fs<=kzPrefs.FS_MIN?' disabled':'')+'>A−</button><b id="b4-set-fsv" style="min-width:3.2em;text-align:center">'+PF.fs+'px</b><button type="button" class="btn sm" data-act="fsInc" aria-label="文字を大きくする"'+(PF.fs>=kzPrefs.FS_MAX?' disabled':'')+'>A＋</button></span></div>'+
-     '<p class="small" style="margin-bottom:0">上のバーの「ふりがな」「文字 中」と同じ設定です。教材集のほかの教材にも同じように反映されます。</p></div>';
+  h+='<div class="card"><h3>⚙️ 表示の設定</h3><div class="row"><button type="button" data-ef-pref="ruby"></button><button type="button" data-ef-pref="fs"></button><button type="button" data-ef-pref="kukkiri"></button></div>'+
+     '<p class="small" style="margin-bottom:0">上のバーの「ふりがな」「文字」「くっきり」と同じ設定です。ほかの教材にも同じように効きます。</p></div>';
   h+='<details open><summary>📖 この教材の使い方(6ステップ)</summary><div><ol>'+
     '<li><b>計画</b>: 育てる生物・開始日・場所と、<b>育成環境の調節方法</b>(日よけ・かん水・保温など)を決める。作業の予定が、自動でカレンダーに入ります。</li>'+
     '<li><b>記録</b>: 観察した日に記録する(天気・温度・水やり・草丈(体重/体長)・メモ・写真)。前の記録を直すときは、「これまでの記録」の「直す」を押します。</li>'+
@@ -1887,6 +1757,7 @@ R.help = function(opt){
     '<p class="small">「サンプルデータを入れる」と、練習用の名前「サンプル(練習用)」に切りかわります。自分の記録には混ざりません。</p>'+
     '<div class="row"><button type="button" class="btn" data-act="demo">サンプルデータを入れる</button></div></div></details>';
   el.innerHTML=h;
+  EduitFrame.prefs.mount();
   /* B4-15: 固定された上の帯にかくれないように、帯の高さの分だけ下げて表示する */
   if(opt.anchor==='kensa'){ var k=$('#b4-kensa'); setTimeout(function(){ var hd=$('.top'), y=k.getBoundingClientRect().top+(window.pageYOffset||0)-(hd?hd.offsetHeight:0)-8; window.scrollTo(0, Math.max(0,y)); }, 30); }
 };
@@ -2049,8 +1920,6 @@ APP.addEventListener('click', function(ev){
   case 'switchProfile': switchProfile(id); closeOverlay(); toast('「'+P().name+'」に切り替えました'); break;
   case 'demoBack': { var back=(S.demoReturn&&S.profiles[S.demoReturn]&&!S.profiles[S.demoReturn].demo)? S.demoReturn : S.order.filter(function(i){ return S.profiles[i] && !S.profiles[i].demo; })[0];
     if(back){ switchProfile(back); toast('「'+P().name+'」の記録にもどりました'); } else askName(false); break; }
-  case 'fsDec': kzPrefs.bump(-1); break;
-  case 'fsInc': kzPrefs.bump(1); break;
   case 'delProfile': if(!p) return; kzConfirm('「'+p.name+'」の記録・写真・評価・振り返りをすべて削除します。元にもどせません。よろしいですか?', {ok:'削除する', danger:true}).then(function(ok){ return ok && kzConfirm('本当に削除しますか? (書き出しはしましたか?)', {ok:'削除する', danger:true}); }).then(function(ok){ if(!ok) return;
     p.entries.forEach(function(e){ (e.photoIds||[]).forEach(function(i){ PhotoDB.del(i); }); }); delete S.profiles[p.id]; S.order=S.order.filter(function(i){return i!==p.id;}); S.current=S.order[0]||null; save(); applySettings(); draft=null; go('home'); toast('削除しました'); }); break;
   case 'demo': {
@@ -2180,7 +2049,6 @@ APP.addEventListener('change', function(ev){
         }); break; }
       draft.date=d; afterDate(); break; }
   case 'gTemp': graphOpt.temp=t.checked; drawGraph(); break;
-  case 'setRuby': kzPrefs.set({ruby:t.checked}); break;
   }
 });
 /* B4-03 / K7: 評価・メモ・振り返りは入力のたびに自動で保存する */
@@ -2233,17 +2101,8 @@ kzRuby.add([
 ]);
 decoObs.observe(APP, {childList:true, subtree:true});
 kzRuby(APP.querySelector('.top'), {skip:RUBY_SKIP}); kzRuby($('#b4-demobar'), {skip:RUBY_SKIP});
-/* K1: hub の設定がまだ無いときだけ、前の B4 の設定(b4_store.settings)を使う */
-(function(){
-  var hp=kzPrefs.get(), lg=legacyPrefs(), o={};
-  if(hp.ruby===null && lg.ruby===false) o.ruby=false;
-  if(hp.fs===null && lg.fs!==kzPrefs.FS_DEFAULT) o.fs=lg.fs;
-  if(o.ruby!==undefined || o.fs!==undefined) kzPrefs.set(o);
-})();
-kzPrefs.bind($('#b4-pf-ruby'));
-/* 文字の大きさ: 4分野共通の「文字 中」ボタン */
-kzPrefs.on(EduitFrame.sizeButton($('#b4-pf-size'), { steps: [[16, '小'], [18, '中'], [22, '大'], [26, '特大']], get: function(){ return kzPrefs.get().fs || kzPrefs.FS_DEFAULT; }, set: function(v){ kzPrefs.set({fs: v}); } }));
-kzPrefs.on(function(){ applyPrefs(); try{ save(); }catch(e){} });
+EduitFrame.prefs.mount();
+EduitFrame.prefs.on(applyPrefs);
 PhotoDB.open().then(function(){
   applySettings(); renderTabs();
   try{ localStorage.setItem('b4__t','1'); localStorage.removeItem('b4__t'); }catch(e){ storageOK=false; }
