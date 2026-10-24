@@ -9,183 +9,176 @@
 <script>EDUIT_INFO.app = { name: 'B5 植物工場の自動化' };</script>
 <script src="../../shared/eduit-frame.js"></script>
 <style>
+:root {
+  /* 図の色 */
+  --fig-shelf: #f3efe6;   /* 棚の絵の地 */
+}
 body{margin:0;background:var(--ef-bg)}
 #b5app{
   /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
-  --b5-bg:var(--ef-bg);--b5-card:var(--ef-surface);--b5-ink:var(--ef-text);--b5-sub:var(--ef-muted);--b5-line:#cfdccc;
-  --b5-main:var(--ef-accent);--b5-main-d:#1b5e20;--b5-soft:#e8f5e9;--b5-ok:#2e7d32;--b5-warn:#a86400;--b5-bad:#b23b3b;
   font-family:var(--ef-font);
-  font-size:1rem;line-height:1.65;color:var(--b5-ink);background:var(--b5-bg);
+  font-size:1rem;line-height:1.65;color:var(--ef-text);background:var(--ef-bg);
   min-height:100vh;-webkit-text-size-adjust:100%;
 }
 #b5app *{box-sizing:border-box}
-#b5app rt{font-size:.55em;color:var(--b5-sub)}
+#b5app rt{font-size:.55em;color:var(--ef-muted)}
 #b5app h1,#b5app h2,#b5app h3{line-height:1.4;margin:.3em 0 .5em}
 #b5app h1{font-size:1.3em}
-#b5app h2{font-size:1.2em;color:var(--b5-main-d)}
+#b5app h2{font-size:1.2em;color:var(--ef-accent)}
 #b5app h3{font-size:1.05em}
 #b5app p{margin:.4em 0}
 :where(#b5app button,#b5app select,#b5app input,#b5app textarea){font:inherit;color:inherit}
 #b5app button{cursor:pointer;touch-action:manipulation}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
-#b5app .b5-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:none}
+#b5app .b5-head{position:sticky;top:0;z-index:20;background:var(--ef-surface);color:var(--ef-text);padding:0;box-shadow:none}
 #b5app .b5-head-row{flex-wrap:wrap}
-#b5app .b5-title{flex:1 1 auto;min-width:200px;margin:0;font-size:18px;line-height:1.3}
-#b5app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
-#b5app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b5app .b5-title{flex:1 1 auto;min-width:200px;margin:0;font-size:1.05rem;line-height:1.3}
 #b5app .b5-tools button{min-height:44px;min-width:48px}
 /* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする */
 html.kz-embed #b5app .b5-head-row{display:none}
 html.kz-embed #b5app .b5-head{padding-top:6px}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
-#b5app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b5app main{padding-bottom:80px}  /* はばと左右の余白は .ef-main.is-wide */
 #b5app section[hidden]{display:none!important}
-#b5app .b5-card{background:var(--b5-card);border:1px solid var(--b5-line);border-radius:0;padding:14px 16px;margin-bottom:14px;min-width:0}
-#b5app .b5-note{background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:10px 14px;margin:10px 0}
-#b5app .b5-tip{background:#eef7ee;border:1px solid #b9d8bb;border-radius:0;padding:10px 14px;margin:10px 0}
-#b5app .b5-bad{background:#fbeaea;border:1px solid #e5b3b3;border-radius:0;padding:10px 14px;margin:10px 0}
-#b5app .b5-btn{display:inline-block;text-align:center;vertical-align:middle;min-height:48px;line-height:1.5;padding:8px 18px;border-radius:0;border:2px solid var(--b5-main);background:#fff;color:var(--b5-main-d);font-weight:700}
-#b5app .b5-btn.b5-pri{background:var(--b5-main);color:#fff}
-#b5app .b5-btn.b5-pri rt{color:#e8f5e9}
-#b5app .b5-btn:disabled{opacity:.45;cursor:not-allowed}
-#b5app .b5-btn:active:not(:disabled){transform:translateY(1px)}
+/* 箱は .ef-box、注意は .ef-note(.is-warn / .is-ok)、ボタンは .ef-btn / .ef-btn-primary(shared/eduit-frame.css)。ここは置き場所だけ */
+#b5app .ef-box{margin-bottom:14px;min-width:0}
 #b5app .b5-btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;align-items:center}
-#b5app :focus-visible{outline:3px solid #f0a020;outline-offset:2px}
-#b5app .b5-small{font-size:.85em;color:var(--b5-sub)}
+#b5app :focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
+#b5app .ef-small{font-size:.85em;color:var(--ef-muted)}
 #b5app .b5-seg{display:flex;flex-wrap:wrap;gap:4px}
-#b5app .b5-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--b5-line);background:#fff;border-radius:0;padding:4px 6px;font-size:.9em;line-height:1.25}
-#b5app .b5-seg button[aria-pressed="true"]{border-color:var(--b5-main);background:var(--b5-main);color:#fff;font-weight:700}
-#b5app .b5-seg button[aria-pressed="true"] rt{color:#e8f5e9}
+#b5app .b5-seg button{flex:1 1 0;min-width:64px;min-height:48px;border:2px solid var(--ef-line);background:var(--ef-surface);border-radius:0;padding:4px 6px;font-size:.9em;line-height:1.25}
+#b5app .b5-seg button[aria-pressed="true"]{border-color:var(--ef-ink);font-weight:700;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 #b5app .b5-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 #b5app .b5-num{display:inline-flex;align-items:center;gap:4px}
-#b5app .b5-num button{width:44px;height:44px;border-radius:10px;border:2px solid var(--b5-line);background:#fff;font-size:1.2em;font-weight:700;flex:none;padding:0}
-#b5app .b5-num input{width:3.6em;min-height:44px;text-align:center;border:2px solid var(--b5-line);border-radius:0;font-weight:700;padding:0 4px;background:#fff}
+#b5app .b5-num button{width:44px;height:44px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface);font-size:1.2em;font-weight:700;flex:none;padding:0}
+#b5app .b5-num input{width:3.6em;min-height:44px;text-align:center;border:2px solid var(--ef-line);border-radius:0;font-weight:700;padding:0 4px;background:var(--ef-surface)}
 #b5app .b5-grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
 @media (max-width:900px){#b5app .b5-grid2{grid-template-columns:1fr}}
 /* はじめに */
 #b5app .b5-comic{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0}
 @media (max-width:760px){#b5app .b5-comic{grid-template-columns:repeat(2,minmax(0,1fr))}}
-#b5app .b5-koma{border:2px solid #3a4a3a;border-radius:0;background:#fff;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:150px;text-align:center}
+#b5app .b5-koma{border:2px solid var(--ef-ink);border-radius:0;background:var(--ef-surface);padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:150px;text-align:center}
 #b5app .b5-koma .b5-face{font-size:2.2em;line-height:1.1}
-#b5app .b5-koma .b5-say{background:#fff8e6;border:1px solid #ecd59c;border-radius:0;padding:4px 8px;font-size:.85em}
+#b5app .b5-koma .b5-say{background:var(--ef-warn-soft);border:1px solid var(--ef-warn);border-radius:0;padding:4px 8px;font-size:.85em}
 #b5app .b5-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0;padding:0;list-style:none}
 @media (max-width:760px){#b5app .b5-flow{grid-template-columns:1fr}}
-#b5app .b5-flow li{background:var(--b5-soft);border-radius:0;padding:8px 10px;font-size:.88em;position:relative}
-#b5app .b5-flow li b{display:block;color:var(--b5-main-d)}
+#b5app .b5-flow li{background:var(--ef-accent-soft);border-radius:0;padding:8px 10px;font-size:.88em;position:relative}
+#b5app .b5-flow li b{display:block;color:var(--ef-accent)}
 #b5app .b5-sys{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:8px 0}
 #b5app .b5-sys>div{flex:1 1 150px;border-radius:0;padding:8px 12px;border:2px solid}
-#b5app .b5-sys .b5-in{border-color:#2a78d6;background:#e6f0fc}
-#b5app .b5-sys .b5-pg{border-color:#e07b00;background:#ffeedd}
-#b5app .b5-sys .b5-ot{border-color:#1baf7a;background:#e2f6ee}
+#b5app .b5-sys .b5-in{border-color:var(--ef-info);background:var(--ef-info-soft)}
+#b5app .b5-sys .b5-pg{border-color:var(--ef-warn);background:var(--ef-warn-soft)}
+#b5app .b5-sys .b5-ot{border-color:var(--ef-accent);background:var(--ef-accent-soft)}
 #b5app .b5-sys .b5-arrow{flex:0 0 auto;border:0;align-self:center;font-size:1.5em;padding:0}
 #b5app .b5-mis{display:grid;gap:6px;margin:6px 0;padding:0;list-style:none}
-#b5app .b5-mis li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px solid var(--b5-line);border-radius:0;padding:8px 12px;background:#fff}
+#b5app .b5-mis li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px solid var(--ef-line);border-radius:0;padding:8px 12px;background:var(--ef-surface)}
 #b5app .b5-mis li .b5-go{margin-left:auto;min-height:44px;padding:4px 14px}
-#b5app .b5-stars{color:#d39b00;letter-spacing:2px;font-size:1.1em;white-space:nowrap}
-#b5app .b5-lv{display:inline-block;font-size:.75em;font-weight:700;padding:1px 8px;border-radius:0;background:var(--b5-soft);color:var(--b5-main-d)}
-#b5app .b5-lv.adv{background:#efe6f8;color:#5b2d8a}
+#b5app .b5-stars{color:var(--ef-warn);letter-spacing:2px;font-size:1.1em;white-space:nowrap}
+#b5app .b5-lv{display:inline-block;font-size:.75em;font-weight:700;padding:1px 8px;border-radius:0;background:var(--ef-accent-soft);color:var(--ef-accent)}
+#b5app .b5-lv.adv{background:var(--ef-advanced-soft);color:var(--ef-advanced)}
 /* ブロックのプログラム(D7 計測・制御シミュレータに似せる) */
 #b5app .b5-prog{font-size:.95em}
 #b5app .b5-blk{border-radius:0;border:2px solid;border-left-width:8px;margin:4px 0;padding:4px 8px}
 #b5app .b5-bh{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;font-weight:700}
 #b5app .b5-inner{margin-left:16px;padding:2px 0}
-#b5app .b5-forever{border-color:#e07b00;background:#ffeedd}
-#b5app .b5-if{border-color:#e2a400;background:#fff6dc}
-#b5app .b5-out{border-color:#2a78d6;background:#e6f0fc;font-weight:700}
+#b5app .b5-forever{border-color:var(--ef-warn);background:var(--ef-warn-soft)}
+#b5app .b5-if{border-color:var(--ef-warn);background:var(--ef-warn-soft)}
+#b5app .b5-out{border-color:var(--ef-info);background:var(--ef-info-soft);font-weight:700}
 #b5app .b5-out .b5-bh{font-weight:700}
-#b5app .b5-blk select{min-height:44px;border:2px solid #b9b2a0;border-radius:0;background:#fff;padding:2px 6px;font-weight:700;max-width:100%}
-#b5app .b5-blk select:disabled{opacity:1;color:var(--b5-ink);background:#f6f3ea;-webkit-appearance:none;appearance:none;border-style:dashed}
-#b5app .b5-tm{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;background:#e2f6ee;border:2px solid #1baf7a;border-radius:0;padding:2px 6px}
-#b5app .b5-mini{min-height:44px;min-width:44px;border-radius:0;border:1px solid var(--b5-line);background:#fff;font-size:.85em;padding:0 8px}
+#b5app .b5-blk select{min-height:44px;border:2px solid var(--ef-line);border-radius:0;background:var(--ef-surface);padding:2px 6px;font-weight:700;max-width:100%}
+#b5app .b5-blk select:disabled{opacity:1;color:var(--ef-text);background:var(--ef-warn-soft);-webkit-appearance:none;appearance:none;border-style:dashed}
+#b5app .b5-tm{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;background:var(--ef-accent-soft);border:2px solid var(--ef-accent);border-radius:0;padding:2px 6px}
+#b5app .b5-mini{min-height:44px;min-width:44px;border-radius:0;border:1px solid var(--ef-line);background:var(--ef-surface);font-size:.85em;padding:0 8px}
 #b5app .b5-tools2{margin-left:auto;display:inline-flex;gap:4px}
-#b5app .b5-eval{font-size:.8em;font-weight:700;padding:2px 8px;border-radius:0;background:#fff;border:1px solid var(--b5-line);min-width:6.5em;text-align:center}
-#b5app .b5-eval.t{background:#2e7d32;color:#fff;border-color:#2e7d32}
-#b5app .b5-eval.f{background:#eee;color:#555}
-#b5app .b5-add{border:2px dashed #e2a400;background:#fffbea;border-radius:0;min-height:48px;width:100%;font-weight:700;color:#7a5a00;margin-top:4px}
+#b5app .b5-eval{font-size:.8em;font-weight:700;padding:2px 8px;border-radius:0;background:var(--ef-surface);border:1px solid var(--ef-line);min-width:6.5em;text-align:center}
+#b5app .b5-eval.t{border-color:var(--ef-ink);font-weight:700;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
+#b5app .b5-eval.f{background:var(--ef-surface-2);color:var(--ef-muted)}
+#b5app .b5-add{border:2px dashed var(--ef-warn);background:var(--ef-warn-soft);border-radius:0;min-height:48px;width:100%;font-weight:700;color:var(--ef-warn);margin-top:4px}
 /* 棚のようす */
 #b5app .b5-view{position:relative}
-#b5app svg.b5-shelf{width:100%;height:auto;display:block;border-radius:0;border:1px solid var(--b5-line);background:#f3efe6}
+#b5app svg.b5-shelf{width:100%;height:auto;display:block;border-radius:0;border:1px solid var(--ef-line);background:var(--fig-shelf)}
 #b5app .b5-io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;margin-top:8px}
 #b5app .b5-io h4{margin:0 0 4px;font-size:.85em}
-#b5app .b5-io-col{background:#fff;border:1px solid var(--b5-line);border-radius:0;padding:6px 8px;font-size:.85em;min-width:0}
-#b5app .b5-io-mid{font-size:.8em;text-align:center;color:var(--b5-sub);line-height:1.3}
-#b5app .b5-io-mid b{display:block;font-size:1.6em;color:#e07b00}
-#b5app .b5-sv{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dashed #e2e8df;padding:1px 0}
+#b5app .b5-io-col{background:var(--ef-surface);border:1px solid var(--ef-line);border-radius:0;padding:6px 8px;font-size:.85em;min-width:0}
+#b5app .b5-io-mid{font-size:.8em;text-align:center;color:var(--ef-muted);line-height:1.3}
+#b5app .b5-io-mid b{display:block;font-size:1.6em;color:var(--ef-warn)}
+#b5app .b5-sv{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dashed var(--ef-line);padding:1px 0}
 #b5app .b5-sv:last-child{border-bottom:0}
 #b5app .b5-sv b{font-variant-numeric:tabular-nums;white-space:nowrap}
-#b5app .b5-lamp{display:inline-block;min-width:3em;text-align:center;border-radius:0;padding:0 6px;font-weight:700;font-size:.9em;background:#e5e5e5;color:#666}
-#b5app .b5-lamp.on{background:#f0b400;color:#3a2a00}
+#b5app .b5-lamp{display:inline-block;min-width:3em;text-align:center;border-radius:0;padding:0 6px;font-weight:700;font-size:.9em;background:var(--ef-surface-2);color:var(--ef-muted)}
+#b5app .b5-lamp.on{background:var(--ef-warn);color:var(--ef-text)}
 #b5app .b5-lamp.dim{opacity:.4}
 @media (max-width:520px){#b5app .b5-io{grid-template-columns:1fr}#b5app .b5-io-mid b{transform:rotate(90deg)}}
 #b5app .b5-play{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
 #b5app .b5-play .b5-seg{flex:1 1 220px}
-#b5app [data-speed],#b5app [data-s4],#b5app [data-cs]{white-space:nowrap;flex:1 0 auto!important;min-width:0!important;padding:4px 10px!important}
-#b5app .b5-prog-bar{height:10px;background:#dfe8dc;border-radius:0;overflow:hidden;flex:1 1 140px;min-width:100px}
-#b5app .b5-prog-bar i{display:block;height:100%;width:0;background:var(--b5-main)}
+#b5app .b5-seg>[data-speed],#b5app .b5-seg>[data-s4],#b5app .b5-seg>[data-cs]{white-space:nowrap;flex:1 0 auto;min-width:0;padding:4px 10px}
+#b5app .b5-pick{min-height:48px;border:2px solid var(--ef-line);border-radius:0;padding:4px 8px;max-width:100%}
+#b5app .b5-prog-bar{height:10px;background:var(--ef-surface-2);border:var(--ef-bw) solid var(--ef-line);border-radius:0;overflow:hidden;flex:1 1 140px;min-width:100px}
+#b5app .b5-prog-bar i{display:block;height:100%;width:0;background:var(--ef-accent)}
 /* グラフ */
 #b5app .b5-chart{width:100%;overflow:hidden;margin:4px 0 10px}
 #b5app .b5-chart svg{display:block;width:100%;height:auto}
 #b5app .b5-chart h4{margin:4px 0;font-size:.92em}
-#b5app .b5-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8em;color:var(--b5-sub)}
+#b5app .b5-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8em;color:var(--ef-muted)}
 #b5app .b5-legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:4px}
 #b5app .b5-legend i.band{height:10px;border:0;border-radius:0}
 /* 結果 */
-#b5app .b5-res{border:3px solid var(--b5-main);background:#f3faf3}
+#b5app .b5-res{border:3px solid var(--ef-accent);background:var(--ef-accent-soft)}
 #b5app .b5-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}
-#b5app .b5-kpi div{background:#fff;border:1px solid var(--b5-line);border-radius:0;padding:6px 10px}
+#b5app .b5-kpi div{background:var(--ef-surface);border:1px solid var(--ef-line);border-radius:0;padding:6px 10px}
 #b5app .b5-kpi b{display:block;font-size:1.25em;font-variant-numeric:tabular-nums}
-#b5app .b5-kpi span{font-size:.8em;color:var(--b5-sub)}
-#b5app .b5-kpi .bad b{color:var(--b5-bad)}
+#b5app .b5-kpi span{font-size:.8em;color:var(--ef-muted)}
+#b5app .b5-kpi .bad b{color:var(--ef-ng)}
 #b5app .b5-tbl-wrap{overflow-x:auto;max-width:100%}
 #b5app table.b5-tbl{border-collapse:collapse;width:100%;font-size:.9em;margin:6px 0}
-#b5app table.b5-tbl th,#b5app table.b5-tbl td{border:1px solid var(--b5-line);padding:4px 8px;text-align:right;white-space:nowrap}
+#b5app table.b5-tbl th,#b5app table.b5-tbl td{border:1px solid var(--ef-line);padding:4px 8px;text-align:right;white-space:nowrap}
 #b5app table.b5-tbl th:first-child,#b5app table.b5-tbl td:first-child{text-align:left;white-space:normal}
-#b5app table.b5-tbl thead th{background:var(--b5-soft)}
-#b5app table.b5-tbl tr.b5-me td{background:#fff6dc;font-weight:700}
+#b5app table.b5-tbl thead th{background:var(--ef-accent-soft)}
+#b5app table.b5-tbl tr.b5-me td{background:var(--ef-warn-soft);font-weight:700}
 @media (max-width:640px){#b5app table.b5-tbl th,#b5app table.b5-tbl td{white-space:normal;padding:4px 6px}}
 /* ① くらべる */
 #b5app .b5-vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 @media (max-width:640px){#b5app .b5-vs{grid-template-columns:1fr}}
 #b5app .b5-vs h3{margin:0 0 4px}
-#b5app .b5-vs svg{width:100%;height:auto;display:block;border-radius:0;border:1px solid var(--b5-line)}
-#b5app .b5-wbar{height:12px;border-radius:0;background:#e3ebe1;overflow:hidden;margin:4px 0}
-#b5app .b5-wbar i{display:block;height:100%;background:var(--b5-main)}
+#b5app .b5-vs svg{width:100%;height:auto;display:block;border-radius:0;border:1px solid var(--ef-line)}
+#b5app .b5-wbar{height:12px;border-radius:0;background:var(--ef-surface-2);overflow:hidden;margin:4px 0}
+#b5app .b5-wbar i{display:block;height:100%;background:var(--ef-accent)}
 #b5app .b5-sort{display:grid;gap:8px;margin:8px 0}
-#b5app .b5-sort-item{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border:1px solid var(--b5-line);border-radius:0;padding:6px 10px;background:#fff}
+#b5app .b5-sort-item{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border:1px solid var(--ef-line);border-radius:0;padding:6px 10px;background:var(--ef-surface)}
 @media (max-width:700px){#b5app .b5-sort-item{grid-template-columns:1fr}}
-#b5app .b5-sort-item.ok{border-color:var(--b5-ok);background:#e9f6ea}
-#b5app .b5-sort-item.ng{border-color:var(--b5-bad);background:#fbeaea}
+#b5app .b5-sort-item.ok{border-color:var(--ef-ok);background:var(--ef-accent-soft)}
+#b5app .b5-sort-item.ng{border-color:var(--ef-ng);background:var(--ef-ng-soft)}
 #b5app .b5-sort-item .b5-exp{grid-column:1/-1;font-size:.88em}
 /* ⑤ スマート農業 */
 #b5app .b5-shelves{display:flex;flex-wrap:wrap;gap:8px}
-#b5app .b5-shelves button{flex:1 1 100px;min-height:56px;border-radius:0;border:3px solid var(--b5-line);background:#fff;font-weight:700}
-#b5app .b5-shelves button[aria-pressed="true"]{border-color:var(--b5-main);background:var(--b5-soft)}
+#b5app .b5-shelves button{flex:1 1 100px;min-height:56px;border-radius:0;border:3px solid var(--ef-line);background:var(--ef-surface);font-weight:700}
+#b5app .b5-shelves button[aria-pressed="true"]{border-color:var(--ef-accent);background:var(--ef-accent-soft)}
 #b5app .b5-choices{display:grid;gap:8px;margin-top:8px}
-#b5app .b5-choices button{min-height:52px;text-align:left;padding:8px 14px;border-radius:0;border:2px solid var(--b5-line);background:#fff}
-#b5app .b5-choices button.right,#b5app .b5-shelves button.right{border-color:var(--b5-ok);background:#e9f6ea}
-#b5app .b5-choices button.wrong,#b5app .b5-shelves button.wrong{border-color:var(--b5-bad);background:#fbeaea}
+#b5app .b5-choices button{min-height:52px;text-align:left;padding:8px 14px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface)}
+#b5app .b5-choices button.right,#b5app .b5-shelves button.right{border-color:var(--ef-ok);background:var(--ef-accent-soft)}
+#b5app .b5-choices button.wrong,#b5app .b5-shelves button.wrong{border-color:var(--ef-ng);background:var(--ef-ng-soft)}
 #b5app .b5-ai{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-#b5app .b5-ai div{border:1px solid var(--b5-line);border-radius:0;padding:8px 12px;background:#fff}
+#b5app .b5-ai div{border:1px solid var(--ef-line);border-radius:0;padding:8px 12px;background:var(--ef-surface)}
 #b5app .b5-ai b{display:block}
 /* 振り返り */
 #b5app label.b5-f{display:block;font-weight:700;margin:10px 0 4px}
-#b5app input[type=text],#b5app textarea{width:100%;min-height:48px;border:2px solid var(--b5-line);border-radius:0;padding:8px 10px;background:#fff}
+#b5app input[type=text],#b5app textarea{width:100%;min-height:48px;border:2px solid var(--ef-line);border-radius:0;padding:8px 10px;background:var(--ef-surface)}
 #b5app textarea{min-height:110px;resize:vertical;line-height:1.6}
 #b5app .b5-who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px}
 @media (max-width:520px){#b5app .b5-who{grid-template-columns:1fr 1fr}#b5app .b5-who>div:last-child{grid-column:1/-1}}
-#b5app .b5-evr{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--b5-line);padding:6px 0}
+#b5app .b5-evr{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr);gap:8px;align-items:center;border-bottom:1px dashed var(--ef-line);padding:6px 0}
 @media (max-width:700px){#b5app .b5-evr{grid-template-columns:1fr}}
 #b5app .b5-radar-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center}
 @media (max-width:700px){#b5app .b5-radar-wrap{grid-template-columns:1fr}}
 #b5app svg.b5-radar{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
 #b5app .b5-rs{display:grid;gap:4px}
-#b5app .b5-rs>div{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--b5-line);padding:2px 0}
-#b5app .b5-saved{font-size:.85em;color:var(--b5-ok);min-height:1.4em}
+#b5app .b5-rs>div{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--ef-line);padding:2px 0}
+#b5app .b5-saved{font-size:.85em;color:var(--ef-ok);min-height:1.4em}
 #b5app .b5-pval{display:none}
-#b5app .b5-summary{background:#f5f9f4;border-radius:0;padding:8px 12px;font-size:.92em}
-#b5app .b5-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f3320;color:#fff;padding:10px 18px;border-radius:0;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
+#b5app .b5-summary{background:var(--ef-surface-2);border-radius:0;padding:8px 12px;font-size:.92em}
+#b5app .b5-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;z-index:50;font-size:.95em;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s}
 #b5app .b5-toast.show{opacity:1}
-#b5app details{border:1px solid var(--b5-line);border-radius:0;padding:8px 12px;background:#fff;margin:8px 0}
+#b5app details{border:1px solid var(--ef-line);border-radius:0;padding:8px 12px;background:var(--ef-surface);margin:8px 0}
 #b5app summary{font-weight:700;cursor:pointer;min-height:44px;display:list-item;padding:8px 0}
 /* アニメーション */
 #b5app .b5-spin{animation:b5spin 1s linear infinite;transform-box:fill-box;transform-origin:center}
@@ -197,9 +190,9 @@ html.kz-embed #b5app .b5-head{padding-top:6px}
   #b5app{min-height:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #b5app .b5-head,#b5app .b5-btns,#b5app .b5-noprint,#b5app .b5-toast{display:none!important}
   #b5app main{padding:0}
-  #b5app .b5-card{break-inside:auto;border-color:#999}
+  #b5app .ef-box{break-inside:auto}
   #b5app input[type=text]{display:none!important}
-  #b5app .b5-pval{display:block;border:1px solid #999;border-radius:0;padding:4px 8px;min-height:2em;white-space:pre-wrap}
+  #b5app .b5-pval{display:block;border:1px solid var(--ef-muted);border-radius:0;padding:4px 8px;min-height:2em;white-space:pre-wrap}
 }
 
 /* タブの帯は4分野共通の形(C エネルギー変換と同じ: 白い帯・下に分野の色の線・丸いボタン。shared/eduit-frame.css の .ef-apptabs と同じ見た目) */
@@ -230,7 +223,7 @@ html.kz-embed #b5app .b5-head{padding-top:0}
       <button type="button" class="ef-apptab" role="tab" data-tab="rec">記録</button>
     </nav>
   </header>
-  <main>
+  <main class="ef-main is-wide">
     <section data-sec="home"></section>
     <section data-sec="cmp" hidden></section>
     <section data-sec="light" hidden></section>
@@ -245,17 +238,18 @@ html.kz-embed #b5app .b5-head{padding-top:0}
 </div>
 <!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
 <style>
-.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+/* 色・字・線は共通の --ef-…(shared/eduit-frame.css)。「消す」などの確認は .kzd-danger で赤 */
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
-.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
-.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
-.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:0;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
-.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
-.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
-.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
-@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+  font-family:var(--ef-font);-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:var(--ef-surface);color:var(--ef-text);border:var(--ef-bw) solid var(--ef-ink);border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:1.05rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:var(--ef-bw) solid var(--ef-line);background:var(--ef-surface);}
+.kzd-btns button{box-sizing:border-box;min-height:var(--ef-tap);min-width:120px;padding:0 20px;border-radius:0;border:var(--ef-bw) solid var(--ef-ink);background:var(--ef-surface);color:var(--ef-text);font:inherit;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:var(--ef-ink);color:var(--ef-on-ink);}
+.kzd-btns .kzd-ok.kzd-danger{background:var(--ef-ng);border-color:var(--ef-ng);}
+.kzd-btns button:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:.95rem;}.kzd-btns{padding:8px 16px 10px;}}
 @media print{.kzd-back{display:none !important;}}
 </style>
 <script>
@@ -321,7 +315,7 @@ html.kz-embed #b5app .b5-head{padding-top:0}
 <!--
   kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-embed の後)に、このファイルの <style> と <script> を貼る。
           2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
 
   API (グローバルは window.kzRuby だけ):
@@ -484,8 +478,8 @@ ruby.kzr{ruby-position:over;}
 .kz-ptext{display:none}
 @media print{
   textarea{display:none !important}
-  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
-  .kz-ptext.kz-empty{color:#666}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid var(--ef-muted);border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:var(--ef-text);background:var(--ef-surface)}
+  .kz-ptext.kz-empty{color:var(--ef-muted)}
 }
 </style>
 <script data-kz-print>
@@ -851,7 +845,7 @@ function progHTML(prog,opt){
       '<span class="b5-num"><button type="button" data-step="-1" aria-label="へらす">−</button><input type="number" data-f="v" inputmode="numeric" min="'+S.min+'" max="'+S.max+'" step="'+S.step+'" value="'+r.v+'" aria-label="くらべる数"><button type="button" data-step="1" aria-label="ふやす">＋</button></span>'+(S.unit?'<span>'+S.unit+'</span>':'');
     if(r.tm)h+='<span class="b5-tm">かつ 時刻が <select data-f="ta" aria-label="はじめの時刻">'+hours(r.ta,0,23)+'</select>時から <select data-f="tb" aria-label="おわりの時刻">'+hours(r.tb,1,24)+'</select>時まで <button type="button" class="b5-mini" data-act="tmoff" aria-label="時刻の条件をはずす">✕</button></span>';
     h+=' なら <span class="b5-eval" data-eval="'+i+'">-</span>';
-    if(opt.canAdd)h+='<span class="b5-tools2"><button type="button" class="b5-mini" data-act="up" aria-label="上へ"'+(i===0?' disabled':'')+'>↑</button><button type="button" class="b5-mini" data-act="down" aria-label="下へ"'+(i===prog.length-1?' disabled':'')+'>↓</button><button type="button" class="b5-mini" data-act="del" aria-label="このルールを消す">🗑</button></span>';
+    if(opt.canAdd)h+='<span class="b5-tools2"><button type="button" class="b5-mini" data-act="up" aria-label="上へ"'+(i===0?' disabled':'')+'>↑</button><button type="button" class="b5-mini" data-act="down" aria-label="下へ"'+(i===prog.length-1?' disabled':'')+'>↓</button><button type="button" class="b5-mini" data-act="del" aria-label="このルールを消す">消す</button></span>';
     h+='</div><div class="b5-inner"><div class="b5-blk b5-out"><div class="b5-bh">'+devSel(r,opt)+' を <select data-f="a" aria-label="成り立つとき">'+onoff(r.a)+'</select> にする</div></div></div>';
     h+='<div class="b5-bh">でなければ</div><div class="b5-inner"><div class="b5-blk b5-out"><div class="b5-bh"><span>'+DEVICES[r.dev].ic+' '+DEVICES[r.dev].short+'</span> を <select data-f="b" aria-label="成り立たないとき">'+onoff(r.b)+'</select> にする</div></div></div>';
     if(opt.canTime&&!r.tm)h+='<button type="button" class="b5-add" data-act="tmon">＋「かつ 時刻が ○時から○時まで」の条件を足す</button>';
@@ -917,9 +911,12 @@ function play(res,o){
 }
 var SPEEDS=[['ゆっくり',2],['ふつう',0.8],['はやい',0.25],['結果だけ',0]];
 var speedIdx=store.get('speed',1);if(!(speedIdx>=0&&speedIdx<4))speedIdx=1;
+/* グラフの凡例の線・帯。色はグラフ(SVG)をかく JS と同じ値をわたす */
+function legLine(col,dash){return '<i style="border-color:'+col+(dash?';border-top-style:dashed':'')+'"></i>'}
+function legBand(col){return '<i class="band" style="background:'+col+'"></i>'}
 function speedHTML(){return '<div class="b5-seg" role="group" aria-label="早送りの速さ">'+SPEEDS.map(function(s,i){return '<button type="button" data-speed="'+i+'" aria-pressed="'+(i===speedIdx)+'">'+s[0]+'</button>'}).join('')+'</div>'}
 function bindSpeed(el){$$('[data-speed]',el).forEach(function(b){b.addEventListener('click',function(){speedIdx=+b.dataset.speed;store.set('speed',speedIdx);$$('[data-speed]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})})}
-function seedHTML(id,v){return '<span class="b5-row" style="gap:6px"><span>天気の番号</span><span class="b5-num"><button type="button" data-seedstep="-1" aria-label="番号をへらす">−</button><input type="number" id="'+id+'" min="1" max="99" value="'+v+'" inputmode="numeric" aria-label="天気の番号(1〜99)"><button type="button" data-seedstep="1" aria-label="番号をふやす">＋</button></span><button type="button" class="b5-mini" data-seedrand aria-label="番号をくじで決める">🎲</button></span>'}
+function seedHTML(id,v){return '<span class="b5-row" style="gap:6px"><span>天気の番号</span><span class="b5-num"><button type="button" data-seedstep="-1" aria-label="番号をへらす">−</button><input type="number" id="'+id+'" min="1" max="99" value="'+v+'" inputmode="numeric" aria-label="天気の番号(1〜99)"><button type="button" data-seedstep="1" aria-label="番号をふやす">＋</button></span><button type="button" class="b5-mini" data-seedrand aria-label="番号をくじで決める">ランダム</button></span>'}
 function bindSeed(el,id,get,set){
   var inp=$('#'+id,el);
   function put(v){v=clamp(Math.round(num(v,1)),1,99);inp.value=v;set(v)}
@@ -932,7 +929,7 @@ function wxStrip(res,days){return res.wx.slice(0,days).map(function(w,i){return 
 
 /* ================= はじめに ================= */
 RENDER.home=function(el){
-  var h='<div class="b5-card"><h1>植物工場の自動化 ― 日本の農業を救うのは?</h1>';
+  var h='<div class="ef-box"><h1>植物工場の自動化 ― 日本の農業を救うのは?</h1>';
   h+='<div class="b5-comic">'+
     koma('🧑‍🏫','教室でリーフレタスを育てたけど、管理作業ができないなあ。')+
     koma('👧','教室を植物工場にするってこと?')+
@@ -940,10 +937,10 @@ RENDER.home=function(el){
     koma('🧑‍🌾','自動化しても、ずっと見ていたら意味がないと思うんだけど…')+'</div>';
   h+='<p><b>問題</b>:リーフレタスを、手間をかけずに安定して収穫したい。<br><b>課題</b>:教室の棚で、リーフレタスの照明・温度・水やりの調節を自動にする。</p>';
   h+='<div class="b5-sys"><div class="b5-in"><b>入力(センサ)</b><br>明るさ・温度・土の水分を測る</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-pg"><b>プログラム</b><br>「もし〜なら」で判断する</div><div class="b5-arrow" aria-hidden="true">➡</div><div class="b5-ot"><b>出力(機器)</b><br>LED・ポンプ・ヒーター・冷房を動かす</div></div>';
-  h+='<p class="b5-small">センサで測り、プログラムで判断して、機器を動かします。このしくみを「計測・制御」といいます。情報の技術(D)で学ぶしくみを、生物育成に使います。</p>';
+  h+='<p class="ef-small">センサで測り、プログラムで判断して、機器を動かします。このしくみを「計測・制御」といいます。情報の技術(D)で学ぶしくみを、生物育成に使います。</p>';
   h+='<ol class="b5-flow"><li><b>1 問題の発見・課題の設定</b>① くらべる</li><li><b>2 解決策の構想</b>② ③ プログラムを考える</li><li><b>3 制作</b>②〜④ ためして直す</li><li><b>4 評価・改善</b>④ レーダーチャート</li><li><b>5 これからの技術</b>⑤ スマート農業</li></ol>';
-  h+='<div class="b5-note">🥬 これは授業用のかんたんなシミュレーションです。数値(重さ・電気代など)は目安です。本物の作物を育てるときの考え方に生かしましょう。</div></div>';
-  h+='<div class="b5-card"><h2>ミッション</h2><ul class="b5-mis">';
+  h+='<div class="ef-note is-warn">🥬 これは授業用のかんたんなシミュレーションです。数値(重さ・電気代など)は目安です。本物の作物を育てるときの考え方に生かしましょう。</div></div>';
+  h+='<div class="ef-box"><h2>ミッション</h2><ul class="b5-mis">';
   var c1=(ST.cmpRuns.length?1:0)+(ST.sort&&ST.sort.score>=6?1:0)+(ST.cmpRuns.map(function(r){return r.season}).filter(function(v,i,a){return a.indexOf(v)===i}).length>=2?1:0);
   var best4=ST.trials.reduce(function(m,t){return Math.max(m,t.score)},0),s4=best4>=85?3:best4>=70?2:best4>=50?1:0;
   var s5=ST.smartBest?(ST.smartBest.score>=6?3:ST.smartBest.score>=4?2:1):0;
@@ -955,7 +952,7 @@ RENDER.home=function(el){
   h+='</ul></div>';
   el.innerHTML=h;rb(el);
   function koma(f,t){return '<div class="b5-koma"><div class="b5-face" aria-hidden="true">'+f+'</div><div class="b5-say">'+t+'</div></div>'}
-  function mis(tab,t,n,lv){return '<li><span class="b5-lv'+(lv==='発展'?' adv':'')+'">'+lv+'</span><span>'+t+'</span><span class="b5-stars" aria-label="星'+n+'つ">'+stars(n)+'</span><button type="button" class="b5-btn b5-go" data-go="'+tab+'">ひらく ▶</button></li>'}
+  function mis(tab,t,n,lv){return '<li><span class="b5-lv'+(lv==='発展'?' adv':'')+'">'+lv+'</span><span>'+t+'</span><span class="b5-stars" aria-label="星'+n+'つ">'+stars(n)+'</span><button type="button" class="ef-btn b5-go" data-go="'+tab+'">ひらく ▶</button></li>'}
 };
 
 /* ================= ① くらべる ================= */
@@ -972,16 +969,16 @@ var SORT=[
 var SORT_L={o:'露地栽培',f:'植物工場',b:'両方'};
 var cmpRes=null;
 RENDER.cmp=function(el){
-  var h='<div class="b5-card"><h1>① 露地栽培と植物工場をくらべよう</h1>';
+  var h='<div class="ef-box"><h1>① 露地栽培と植物工場をくらべよう</h1>';
   h+='<p>同じリーフレタスを1m²で育て、日数・とれる量・費用をくらべよう。<br><b>露地栽培</b>:畑で、太陽の光や雨を使って育てる。<br><b>植物工場</b>:建物の中で、光(LED)・温度・養分を人工的に調節して育てる。</p>';
   h+='<div class="b5-row"><span>季節</span>'+seasonHTML(ST.cmpSeason,'data-cs')+seedHTML('b5-cseed',ST.cmpSeed)+'</div>';
-  h+='<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-crun">▶ 育ててくらべる</button>'+speedHTML()+'</div>';
-  h+='<div class="b5-vs"><div><h3>🌤️ 露地栽培(畑)</h3><div id="b5-cfield"></div><div class="b5-wbar"><i id="b5-cfw"></i></div><div id="b5-cft" class="b5-small">-</div></div>'+
-     '<div><h3>🏭 植物工場</h3><div id="b5-cfac"></div><div class="b5-wbar"><i id="b5-cpw"></i></div><div id="b5-cpt" class="b5-small">-</div></div></div>';
+  h+='<div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-crun">▶ 育ててくらべる</button>'+speedHTML()+'</div>';
+  h+='<div class="b5-vs"><div><h3>🌤️ 露地栽培(畑)</h3><div id="b5-cfield"></div><div class="b5-wbar"><i id="b5-cfw"></i></div><div id="b5-cft" class="ef-small">-</div></div>'+
+     '<div><h3>🏭 植物工場</h3><div id="b5-cfac"></div><div class="b5-wbar"><i id="b5-cpw"></i></div><div id="b5-cpt" class="ef-small">-</div></div></div>';
   h+='<div id="b5-cres"></div></div>';
-  h+='<div class="b5-card"><h2>仕分けクイズ:どちらの特徴かな?</h2><p>それぞれの文は、「露地栽培」「植物工場」「両方」のどれにあてはまるかな。全部えらんだら「答え合わせ」を押そう。</p><div class="b5-sort" id="b5-sort"></div>'+
-    '<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-scheck">答え合わせ</button><button type="button" class="b5-btn" id="b5-sagain">もう一度(順番を変える)</button></div><div id="b5-sres"></div></div>';
-  h+='<div class="b5-card"><h2>考えよう</h2><p>植物工場は、どこで、だれの役に立つかな。露地栽培のほうがよいのはどんなときかな。結果の数字を使って、振り返りに書こう。</p><p class="b5-small">制約条件:品質・収量・費用・安全性・環境への配慮など(教科書 2編1章6)。</p></div>';
+  h+='<div class="ef-box"><h2>仕分けクイズ:どちらの特徴かな?</h2><p>それぞれの文は、「露地栽培」「植物工場」「両方」のどれにあてはまるかな。全部えらんだら「答え合わせ」を押そう。</p><div class="b5-sort" id="b5-sort"></div>'+
+    '<div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-scheck">答え合わせ</button><button type="button" class="ef-btn" id="b5-sagain">もう一度(順番を変える)</button></div><div id="b5-sres"></div></div>';
+  h+='<div class="ef-box"><h2>考えよう</h2><p>植物工場は、どこで、だれの役に立つかな。露地栽培のほうがよいのはどんなときかな。結果の数字を使って、振り返りに書こう。</p><p class="ef-small">制約条件:品質・収量・費用・安全性・環境への配慮など(教科書 2編1章6)。</p></div>';
   el.innerHTML=h;
   $('#b5-cfield').innerHTML=fieldSVG();$('#b5-cfac').innerHTML=factorySVG();
   rb(el);bindSpeed(el);
@@ -1040,7 +1037,7 @@ function drawCmpFrame(d,fin){
 }
 function cmpResult(){
   var r=cmpRes,F=r.field,P=r.factory,el=$('#b5-cres');if(!el)return;
-  var h='<h2>結果(1m² あたり・'+SEASON[r.season].name+'・天気の番号 '+r.seed+')</h2><div class="b5-small">60日間の天気:'+r.wx.join('').replace(/sun/g,'☀️').replace(/cloud/g,'☁️').replace(/rain/g,'☔')+'</div>';
+  var h='<h2>結果(1m² あたり・'+SEASON[r.season].name+'・天気の番号 '+r.seed+')</h2><div class="ef-small">60日間の天気:'+r.wx.join('').replace(/sun/g,'☀️').replace(/cloud/g,'☁️').replace(/rain/g,'☔')+'</div>';
   h+='<div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>くらべること</th><th>露地栽培</th><th>植物工場</th></tr></thead><tbody>';
   h+='<tr><td>収穫(1株100g)までの日数</td><td>'+(F.day?F.day+'日':'60日で育ちきらない')+'</td><td>'+P.day+'日</td></tr>';
   h+='<tr><td>植える株の数(1m²)</td><td>16株(1段)</td><td>64株(4段に重ねる)</td></tr>';
@@ -1052,7 +1049,7 @@ function cmpResult(){
   h+='<tr><td>天候・害虫の影響</td><td>'+(F.events.length?F.events.length+'回('+esc(F.events.slice(0,4).join('、'))+(F.events.length>4?' など':'')+')':'なし')+'</td><td>なし</td></tr>';
   h+='<tr><td>建物・設備のお金</td><td>少ない(畑・農機具)</td><td>とても多い(建物・LED・空調)</td></tr>';
   h+='</tbody></table></div>';
-  h+='<p class="b5-tip">💡 季節や天気の番号を変えてくらべてみよう。夏や冬は、露地栽培の結果が大きく変わります。植物工場は、いつも同じように育ちますが、電気代がかかります。</p>';
+  h+='<p class="ef-note is-ok">💡 季節や天気の番号を変えてくらべてみよう。夏や冬は、露地栽培の結果が大きく変わります。植物工場は、いつも同じように育ちますが、電気代がかかります。</p>';
   el.innerHTML=h;rb(el);
 }
 function sortRender(check){
@@ -1065,7 +1062,7 @@ function sortRender(check){
       (S.checked?'<div class="b5-exp">'+(a===it.a?'⭕ 正解':'❌ 答えは「'+SORT_L[it.a]+'」')+':'+it.e+'</div>':'')+'</div>'});
   el.innerHTML=h;rb(el);
   $$('[data-si]',el).forEach(function(b){b.addEventListener('click',function(){S.ans[b.dataset.si]=b.dataset.sv;save();$$('[data-si="'+b.dataset.si+'"]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})});
-  var r=$('#b5-sres');if(r){r.innerHTML=S.checked?'<p class="'+(S.score>=6?'b5-tip':'b5-note')+'"><b>'+S.score+' / '+SORT.length+' 問 正解</b>。'+(S.score>=6?'よくできました!':'説明を読んで、もう一度ためしてみよう。')+'</p>':'';rb(r)}
+  var r=$('#b5-sres');if(r){r.innerHTML=S.checked?'<p class="'+(S.score>=6?'ef-note is-ok':'ef-note is-warn')+'"><b>'+S.score+' / '+SORT.length+' 問 正解</b>。'+(S.score>=6?'よくできました!':'説明を読んで、もう一度ためしてみよう。')+'</p>':'';rb(r)}
 }
 
 /* ================= ② 照明を自動に ================= */
@@ -1079,17 +1076,17 @@ function lightRef(seed){
 }
 function starsLight(r,seed){var t=r.tot,n=0;if(t.lackDays===0){n=1;if(t.nodark===0){n=2;if(t.cost<=Math.ceil(lightRef(seed)*1.15))n=3}}return n}
 RENDER.light=function(el){
-  var h='<div class="b5-card"><h1>② 明るさセンサで照明を自動にしよう</h1>';
+  var h='<div class="ef-box"><h1>② 明るさセンサで照明を自動にしよう</h1>';
   h+='<p>暗いときだけ <b>LED</b> をつけるプログラムをつくろう。窓ぎわの棚は、くもりや雨の日に光が足りません。<b>明るさセンサ</b>で外の明るさを測ります。例:<br>「ずっと / もし 明るさ &lt; 50 なら LED を ON / でなければ OFF」</p>';
-  h+='<p class="b5-small">1日に「明るさ100で10時間ぶん」くらいの光が必要です(この教材の目安)。夜は暗くして休ませます。水やりは③で自動にします。</p></div>';
-  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p2"></div>';
-  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s2',ST.seed2)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run2">▶ 7日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar2"></i></div></div></div>';
-  h+='<div class="b5-card b5-view" id="b5-v2"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
-  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>窓の外の明るさ(センサの値)と LED</h4><div id="b5-g2a"></div><div class="b5-legend"><span><i style="border-color:#e0a000"></i>明るさ</span><span><i style="border-color:#c62828;border-top-style:dashed"></i>プログラムの数(しきい値)</span><span><i class="band" style="background:#fff0a0"></i>LED が ON</span></div></div>';
-  h+='<div class="b5-chart"><h4>1日の光の量(植物に当たった光)</h4><div id="b5-g2b"></div><div class="b5-legend"><span><i class="band" style="background:#66a86a"></i>足りた日</span><span><i class="band" style="background:#e08a3a"></i>足りない日</span><span><i style="border-color:#c62828;border-top-style:dashed"></i>必要な量</span></div></div></div>';
-  h+='<div class="b5-card b5-res" id="b5-r2" hidden></div>';
-  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10・50・90 に変えると、LED がつく時間はどう変わるかな。</li><li>「&lt;」を「&gt;」にすると、どうなるかな。(わざとまちがえて、グラフで確かめよう)</li><li>夜も LED がついたままだと、どんな問題があるかな。→「かつ 時刻が〜」を足そう。</li></ul>'+
-    '<p class="b5-small">★1:7日とも光が足りた ★2:そのうえ、毎日 暗い時間(6時間以上)がある ★3:そのうえ、電気代がとても少ない</p></div>';
+  h+='<p class="ef-small">1日に「明るさ100で10時間ぶん」くらいの光が必要です(この教材の目安)。夜は暗くして休ませます。水やりは③で自動にします。</p></div>';
+  h+='<div class="b5-grid2"><div class="ef-box"><h2>プログラム</h2><div id="b5-p2"></div>';
+  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s2',ST.seed2)+'</div><div class="b5-play"><button type="button" class="ef-btn-primary" id="b5-run2">▶ 7日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar2"></i></div></div></div>';
+  h+='<div class="ef-box b5-view" id="b5-v2"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="ef-box"><h2>グラフ</h2><div class="b5-chart"><h4>窓の外の明るさ(センサの値)と LED</h4><div id="b5-g2a"></div><div class="b5-legend"><span>'+legLine('#e0a000')+'明るさ</span><span>'+legLine('#c62828',1)+'プログラムの数(しきい値)</span><span>'+legBand('#fff0a0')+'LED が ON</span></div></div>';
+  h+='<div class="b5-chart"><h4>1日の光の量(植物に当たった光)</h4><div id="b5-g2b"></div><div class="b5-legend"><span>'+legBand('#66a86a')+'足りた日</span><span>'+legBand('#e08a3a')+'足りない日</span><span>'+legLine('#c62828',1)+'必要な量</span></div></div></div>';
+  h+='<div class="ef-box b5-res" id="b5-r2" hidden></div>';
+  h+='<div class="ef-box"><h2>ためしてみよう</h2><ul><li>しきい値を 10・50・90 に変えると、LED がつく時間はどう変わるかな。</li><li>「&lt;」を「&gt;」にすると、どうなるかな。(わざとまちがえて、グラフで確かめよう)</li><li>夜も LED がついたままだと、どんな問題があるかな。→「かつ 時刻が〜」を足そう。</li></ul>'+
+    '<p class="ef-small">★1:7日とも光が足りた ★2:そのうえ、毎日 暗い時間(6時間以上)がある ★3:そのうえ、電気代がとても少ない</p></div>';
   el.innerHTML=h;rb(el);bindSpeed(el);
   bindProg($('#b5-p2'),ST.prog2,{lockS:true,lockDev:true,canTime:true},function(){save();$('#b5-r2').hidden=true});
   bindSeed(el,'b5-s2',function(){return ST.seed2},function(v){ST.seed2=v;save()});
@@ -1120,7 +1117,7 @@ function run2(quiet){
       if(t.nodark>0)msg.push('夜も LED がついたままです(夜は「明るさ &lt; しきい値」になるから)。暗い時間も必要で、電気代もむだです。「かつ 時刻が〜」を足そう。');
       if(!msg.length&&n<3)msg.push('光は足りていて、夜は暗くできています。LED をつける時間をもう少しへらせないかな(しきい値・時刻を調整しよう)。');
       if(n===3)msg.push('すばらしい!必要なときだけ LED をつける、むだの少ないプログラムです。');
-      h+='<div class="'+(n===3?'b5-tip':'b5-note')+'">'+msg.join('<br>')+'</div>';
+      h+='<div class="'+(n===3?'ef-note is-ok':'ef-note is-warn')+'">'+msg.join('<br>')+'</div>';
       el.innerHTML=h;el.hidden=false;rb(el);
     }});
 }
@@ -1132,16 +1129,16 @@ var HOLI=[1,2,3,4,5,6];   /* 金曜日から始めて、土・日と連休(水�
 function sim3(prog,manual){return simulate({season:'spring',seed:ST.seed3,days:10,prog:LIGHT_OK.concat(manual?[]:prog),manual:manual,startDow:5,holidays:HOLI,w0:30})}
 function starsWater(r){var t=r.tot;if(t.wilt>0)return 0;var n=1;if(t.wet===0&&t.overflow===0){n=2;if(r.w>=74)n=3}return n}
 RENDER.water=function(el){
-  var h='<div class="b5-card"><h1>③ 水やり(かん水)を自動にしよう</h1>';
+  var h='<div class="ef-box"><h1>③ 水やり(かん水)を自動にしよう</h1>';
   h+='<p>かわいたら <b>ポンプ</b> で水をやるプログラムをつくろう。5月の連休(2〜7日目)は、だれも水やりができません。<b>土の水分センサ</b>で、かわき方を測ります。</p>';
-  h+='<p class="b5-small">ちょうどよい水分は40〜80%です。20%より少ないとしおれ、90%より多いと根が傷みます。ポンプは1時間で2Lです。</p></div>';
-  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p3"></div>';
-  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s3',ST.seed3)+'</div><div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run3">▶ 10日間 早送りで実行</button><button type="button" class="b5-btn" id="b5-man3">人が水やりすると?(平日の朝だけ)</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar3"></i></div></div></div>';
-  h+='<div class="b5-card b5-view" id="b5-v3"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
-  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>土の水分(%)</h4><div id="b5-g3"></div><div class="b5-legend"><span><i style="border-color:#1e6fd9"></i>土の水分</span><span><i style="border-color:#888;border-top-style:dashed"></i>人が水やり(くらべるとき)</span><span><i class="band" style="background:#e3f3e3"></i>ちょうどよい範囲</span><span><i class="band" style="background:#cfe4ff"></i>ポンプが ON</span><span><i class="band" style="background:#eee"></i>連休(水やりできない日)</span></div></div></div>';
-  h+='<div class="b5-card b5-res" id="b5-r3" hidden></div>';
-  h+='<div class="b5-card"><h2>ためしてみよう</h2><ul><li>しきい値を 10〜95 に変えると、しおれ・根の傷み・水の量はどう変わるかな。</li><li>「人が水やりすると?」とくらべて、自動にするよさを説明しよう。</li><li>夏休みのかん水を自動にするとき、ほかに気をつけることは?(水切れ・ホースがはずれる など)</li></ul>'+
-    '<p class="b5-small">★1:しおれなかった ★2:そのうえ、水が多すぎて根が傷まなかった ★3:そのうえ、レタスがよく育った(1株 74g 以上)</p></div>';
+  h+='<p class="ef-small">ちょうどよい水分は40〜80%です。20%より少ないとしおれ、90%より多いと根が傷みます。ポンプは1時間で2Lです。</p></div>';
+  h+='<div class="b5-grid2"><div class="ef-box"><h2>プログラム</h2><div id="b5-p3"></div>';
+  h+='<div class="b5-row" style="margin-top:8px">'+seedHTML('b5-s3',ST.seed3)+'</div><div class="b5-play"><button type="button" class="ef-btn-primary" id="b5-run3">▶ 10日間 早送りで実行</button><button type="button" class="ef-btn" id="b5-man3">人が水やりすると?(平日の朝だけ)</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar3"></i></div></div></div>';
+  h+='<div class="ef-box b5-view" id="b5-v3"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="ef-box"><h2>グラフ</h2><div class="b5-chart"><h4>土の水分(%)</h4><div id="b5-g3"></div><div class="b5-legend"><span>'+legLine('#1e6fd9')+'土の水分</span><span>'+legLine('#888',1)+'人が水やり(くらべるとき)</span><span>'+legBand('#e3f3e3')+'ちょうどよい範囲</span><span>'+legBand('#cfe4ff')+'ポンプが ON</span><span>'+legBand('#eee')+'連休(水やりできない日)</span></div></div></div>';
+  h+='<div class="ef-box b5-res" id="b5-r3" hidden></div>';
+  h+='<div class="ef-box"><h2>ためしてみよう</h2><ul><li>しきい値を 10〜95 に変えると、しおれ・根の傷み・水の量はどう変わるかな。</li><li>「人が水やりすると?」とくらべて、自動にするよさを説明しよう。</li><li>夏休みのかん水を自動にするとき、ほかに気をつけることは?(水切れ・ホースがはずれる など)</li></ul>'+
+    '<p class="ef-small">★1:しおれなかった ★2:そのうえ、水が多すぎて根が傷まなかった ★3:そのうえ、レタスがよく育った(1株 74g 以上)</p></div>';
   el.innerHTML=h;rb(el);bindSpeed(el);
   bindProg($('#b5-p3'),ST.prog3,{lockS:true,lockDev:true,canTime:true},function(){save();$('#b5-r3').hidden=true});
   bindSeed(el,'b5-s3',function(){return ST.seed3},function(v){ST.seed3=v;save()});
@@ -1175,7 +1172,7 @@ function run3(manual,quiet){
         if(t.wet>0||t.overflow>0)msg.push('水が多すぎて、根が傷んだり、水があふれたりしました。しきい値を小さくしよう。'+(t.overflow>0?'水があふれると、床がぬれて危険です(安全性)。':''));
         if(!msg.length&&n<3)msg.push('しおれも根の傷みもありません。もう少し水分の多いところを保つと、レタスがもっと育つかもしれません。');
         if(n===3)msg.push('すばらしい!連休中も、ちょうどよい水分を保てました。');}
-      h+='<div class="'+(n===3?'b5-tip':'b5-note')+'">'+msg.join('<br>')+'</div>';
+      h+='<div class="'+(n===3?'ef-note is-ok':'ef-note is-warn')+'">'+msg.join('<br>')+'</div>';
       el.innerHTML=h;el.hidden=false;rb(el);
     }});
 }
@@ -1205,17 +1202,17 @@ var last4=null;
 function prog4(){if(!ST.prog4)ST.prog4=JSON.parse(JSON.stringify(ST.prog2.concat(ST.prog3)));return ST.prog4}
 RENDER.all=function(el){
   var prog=prog4();
-  var h='<div class="b5-card"><h1>④ 照明・水やり・温度を全部自動にしよう</h1>';
+  var h='<div class="ef-box"><h1>④ 照明・水やり・温度を全部自動にしよう</h1>';
   h+='<p>②・③のプログラムに<b>温度</b>のルール(ヒーター・冷房)を足し、35日間を全部自動にしよう。<b>収量を上げると、電気代がふえることがあります</b>。どこで折り合いをつけるか考えよう(最適化)。</p>';
-  h+='<p class="b5-small">よく育つのは15〜22℃です(32℃より上・4℃より下で傷む)。1株 80g 以上・品質 60 以上で出荷できます。電気代の目安(1時間):LED '+PRICE.led+'円・ポンプ '+PRICE.pump+'円・ヒーター '+PRICE.heat+'円・冷房 '+PRICE.cool+'円。</p></div>';
-  h+='<div class="b5-grid2"><div class="b5-card"><h2>プログラム</h2><div id="b5-p4"></div>';
+  h+='<p class="ef-small">よく育つのは15〜22℃です(32℃より上・4℃より下で傷む)。1株 80g 以上・品質 60 以上で出荷できます。電気代の目安(1時間):LED '+PRICE.led+'円・ポンプ '+PRICE.pump+'円・ヒーター '+PRICE.heat+'円・冷房 '+PRICE.cool+'円。</p></div>';
+  h+='<div class="b5-grid2"><div class="ef-box"><h2>プログラム</h2><div id="b5-p4"></div>';
   h+='<div class="b5-row" style="margin-top:8px"><span>季節</span>'+seasonHTML(ST.season4,'data-s4')+'</div><div class="b5-row" style="margin-top:6px">'+seedHTML('b5-s4',ST.seed4)+'</div>';
-  h+='<div class="b5-play"><button type="button" class="b5-btn b5-pri" id="b5-run4">▶ 35日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar4"></i></div></div>';
-  h+='<p class="b5-small">同じ機器を2つのブロックで動かすと、下のブロックの決めたことが使われます。</p></div>';
-  h+='<div class="b5-card b5-view" id="b5-v4"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
-  h+='<div class="b5-card"><h2>グラフ</h2><div class="b5-chart"><h4>1株の重さ(g)</h4><div id="b5-g4a"></div></div><div class="b5-chart"><h4>棚の温度(℃)</h4><div id="b5-g4b"></div><div class="b5-legend"><span><i style="border-color:#d84315"></i>温度</span><span><i class="band" style="background:#e3f3e3"></i>よく育つ温度(15〜22℃)</span></div></div><div class="b5-chart"><h4>電気代のたし算(円)</h4><div id="b5-g4c"></div></div></div>';
-  h+='<div class="b5-card b5-res" id="b5-r4" hidden></div>';
-  h+='<div class="b5-card"><h2>ランキング(自分の試した結果)</h2><div id="b5-rank"></div><p class="b5-small">点数(100点)= 収量 35 + 品質 25 + 費用 20 + 環境(水・電気) 10 + 安全 10。費用の点は季節ごとの目安とくらべます。</p></div>';
+  h+='<div class="b5-play"><button type="button" class="ef-btn-primary" id="b5-run4">▶ 35日間 早送りで実行</button>'+speedHTML()+'</div><div class="b5-row"><div class="b5-prog-bar"><i id="b5-bar4"></i></div></div>';
+  h+='<p class="ef-small">同じ機器を2つのブロックで動かすと、下のブロックの決めたことが使われます。</p></div>';
+  h+='<div class="ef-box b5-view" id="b5-v4"><h2>棚のようす</h2>'+shelfSVG()+ioHTML()+'</div></div>';
+  h+='<div class="ef-box"><h2>グラフ</h2><div class="b5-chart"><h4>1株の重さ(g)</h4><div id="b5-g4a"></div></div><div class="b5-chart"><h4>棚の温度(℃)</h4><div id="b5-g4b"></div><div class="b5-legend"><span>'+legLine('#d84315')+'温度</span><span>'+legBand('#e3f3e3')+'よく育つ温度(15〜22℃)</span></div></div><div class="b5-chart"><h4>電気代のたし算(円)</h4><div id="b5-g4c"></div></div></div>';
+  h+='<div class="ef-box b5-res" id="b5-r4" hidden></div>';
+  h+='<div class="ef-box"><h2>ランキング(自分の試した結果)</h2><div id="b5-rank"></div><p class="ef-small">点数(100点)= 収量 35 + 品質 25 + 費用 20 + 環境(水・電気) 10 + 安全 10。費用の点は季節ごとの目安とくらべます。</p></div>';
   el.innerHTML=h;rb(el);bindSpeed(el);
   bindProg($('#b5-p4'),prog,{canAdd:true,canTime:true},function(){save();$('#b5-r4').hidden=true});
   $$('[data-s4]',el).forEach(function(b){b.addEventListener('click',function(){ST.season4=b.dataset.s4;save();$$('[data-s4]',el).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});$('#b5-r4').hidden=true})});
@@ -1253,20 +1250,20 @@ function run4(quiet){
       if(t.hot)iss.push('32℃より暑い時間が '+t.hot+'時間ありました。');
       if(t.cold)iss.push('4℃より寒い時間が '+t.cold+'時間ありました。');
       if(t.both)iss.push('ヒーターと冷房が同時に動いた時間が '+t.both+'時間ありました(電気のむだ・安全性)。');
-      h+='<div class="'+(iss.length?'b5-note':'b5-tip')+'">'+(iss.length?iss.join('<br>'):'大きな問題はありませんでした。電気代や水をへらせないか、さらに考えてみよう。')+'</div>';
+      h+='<div class="'+(iss.length?'ef-note is-warn':'ef-note is-ok')+'">'+(iss.length?iss.join('<br>'):'大きな問題はありませんでした。電気代や水をへらせないか、さらに考えてみよう。')+'</div>';
       h+='<div class="b5-radar-wrap"><div>'+radarSVG([{v:sc.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.18)'}])+'</div><div><h3>評価(5段階)</h3><div class="b5-rs">'+RADAR_AX.map(function(a){return '<div><span>'+a[1]+'</span><b>'+stars(sc.radar[a[0]],5)+'</b></div>'}).join('')+'</div>'+
-        '<p class="b5-small">点数の内わけ:収量 '+sc.parts.y+'・品質 '+sc.parts.q+'・費用 '+sc.parts.c+'・環境 '+sc.parts.e+'・安全 '+sc.parts.s+'</p></div></div>';
-      h+='<p class="b5-small">新たな問題の発見:たとえば「近くにいないと、急な対応ができない」「電気代が高い」など。⑤ スマート農業で、データを見て決める方法を考えよう。</p>';
+        '<p class="ef-small">点数の内わけ:収量 '+sc.parts.y+'・品質 '+sc.parts.q+'・費用 '+sc.parts.c+'・環境 '+sc.parts.e+'・安全 '+sc.parts.s+'</p></div></div>';
+      h+='<p class="ef-small">新たな問題の発見:たとえば「近くにいないと、急な対応ができない」「電気代が高い」など。⑤ スマート農業で、データを見て決める方法を考えよう。</p>';
       el.innerHTML=h;el.hidden=false;rb(el);
     }});
 }
 function rankRender(hl){
   var el=$('#b5-rank');if(!el)return;
-  if(!ST.trials.length){el.innerHTML='<p class="b5-small">まだ試していません。「▶ 35日間 早送りで実行」を押すと、ここに記録が残ります。</p>';return}
+  if(!ST.trials.length){el.innerHTML='<p class="ef-small">まだ試していません。「▶ 35日間 早送りで実行」を押すと、ここに記録が残ります。</p>';return}
   var list=ST.trials.slice().sort(function(a,b){return b.score-a.score||a.cost-b.cost}).slice(0,8);
   var h='<div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>順位・試した回</th><th>点数</th><th>季節</th><th>1株</th><th>品質</th><th>電気代</th><th>水</th><th></th></tr></thead><tbody>';
   list.forEach(function(t,i){h+='<tr'+(t.no===hl?' class="b5-me"':'')+'><td>'+(i+1)+'位(第'+t.no+'回)</td><td>'+t.score+'</td><td>'+SEASON[t.season].name.replace(/\(.*\)/,'')+'</td><td>'+Math.round(t.w)+'g</td><td>'+t.q+'</td><td>'+yen(t.cost)+'</td><td>'+t.water+'L</td><td><button type="button" class="b5-mini" data-load="'+t.no+'">プログラムを使う</button></td></tr>'});
-  h+='</tbody></table></div><div class="b5-btns"><button type="button" class="b5-btn" id="b5-rclear">ランキングを消す</button></div>';
+  h+='</tbody></table></div><div class="b5-btns"><button type="button" class="ef-btn" id="b5-rclear">ランキングを消す</button></div>';
   el.innerHTML=h;rb(el);
   $$('[data-load]',el).forEach(function(b){b.addEventListener('click',function(){var t=ST.trials.filter(function(x){return x.no===+b.dataset.load})[0];if(!t||!t.progData)return;
     ST.prog4=normProg(t.progData,prog4());ST.season4=t.season;ST.seed4=t.seed;save();RENDER.all($('[data-sec="all"]'));toast('第'+t.no+'回のプログラムにもどしました')})});
@@ -1297,11 +1294,11 @@ function roundData(r){
 }
 function leafAI(res){var t=res.tot;if(t.wilt>0)return '😣 しおれている';if(t.hot>0)return '🟤 葉の先が傷んでいる';if(t.cold>0)return '🥶 寒さで傷んでいる';if(t.lackDays>0)return '🌱 育ちがおそい';var f=res.days.reduce(function(a,d){return a+d.f},0)/res.days.length;return f<0.6?'🌱 育ちがおそい':'😊 元気'}
 RENDER.smart=function(el){
-  var h='<div class="b5-card"><h1>⑤ スマート農業 ― データを見て決めよう</h1>';
+  var h='<div class="ef-box"><h1>⑤ スマート農業 ― データを見て決めよう</h1>';
   h+='<p><b>スマート農業</b>:<b>IoT</b>・<b>AI</b>・<b>ロボット</b>を使う農業。担い手がへる中で、人手を減らし、品質を上げます。</p>';
   h+='<div class="b5-ai"><div><b>📡 IoT</b>センサの値を、学校の外から見る。異常をお知らせする。</div><div><b>🤖 AI</b>カメラの画像から、葉のようすや収穫の時期を判断する。</div><div><b>🦾 ロボット</b>種まき・収穫・運ぶ作業などを自動で行う。</div></div></div>';
-  h+='<div class="b5-card" id="b5-q5"></div>';
-  h+='<div class="b5-card" id="b5-d5"></div>';
+  h+='<div class="ef-box" id="b5-q5"></div>';
+  h+='<div class="ef-box" id="b5-d5"></div>';
   el.innerHTML=h;rb(el);
   if(!quiz5)newQuiz5();
   q5Render();d5Render();
@@ -1310,7 +1307,7 @@ function q5Render(){
   var el=$('#b5-q5');if(!el)return;var Q=quiz5;
   if(Q.cur>=Q.rounds.length){
     var best=ST.smartBest&&ST.smartBest.score>Q.score?ST.smartBest.score:Q.score;
-    el.innerHTML='<h2>遠隔監視のチャレンジ:おわり</h2><p class="'+(Q.score>=5?'b5-tip':'b5-note')+'"><b>'+Q.score+' / 6 点</b>(いちばんよい点:'+best+' 点)</p><p>データ(数値・グラフ)を見ると、その場にいなくても異常に気づけます。ただし、最後に原因を確かめて直すのは人です。</p><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-q5again">もう一度(ちがう問題)</button></div>';
+    el.innerHTML='<h2>遠隔監視のチャレンジ:おわり</h2><p class="'+(Q.score>=5?'ef-note is-ok':'ef-note is-warn')+'"><b>'+Q.score+' / 6 点</b>(いちばんよい点:'+best+' 点)</p><p>データ(数値・グラフ)を見ると、その場にいなくても異常に気づけます。ただし、最後に原因を確かめて直すのは人です。</p><div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-q5again">もう一度(ちがう問題)</button></div>';
     rb(el);$('#b5-q5again').addEventListener('click',function(){newQuiz5();q5Render()});return;
   }
   var r=Q.rounds[Q.cur],data=roundData(r),c=CASES[r.ci];
@@ -1320,7 +1317,7 @@ function q5Render(){
   h+='<div><h4>🤖 AI の判断と電気代(3日間)</h4><div class="b5-tbl-wrap"><table class="b5-tbl"><thead><tr><th>棚</th><th>AI による葉のようす</th><th>電気代</th></tr></thead><tbody>'+data.map(function(d,i){return '<tr><td>棚 '+SH[i]+'</td><td>'+leafAI(d)+'</td><td>'+yen(d.tot.cost)+'</td></tr>'}).join('')+'</tbody></table></div></div></div>';
   h+='<h3>1. 異常があるのはどの棚?</h3><div class="b5-shelves">'+SH.map(function(s,i){var cls=r.sh!=null?(i===r.bad?' right':(i===r.sh?' wrong':'')):'';return '<button type="button" data-sh="'+i+'" class="'+cls.trim()+'" aria-pressed="'+(r.sh===i)+'"'+(r.act!=null?' disabled':'')+'>棚 '+s+'</button>'}).join('')+'</div>';
   h+='<h3>2. どんな対策をする?</h3><div class="b5-choices">'+r.opts.map(function(ci){var cls=r.act!=null?(ci===r.ci?'right':(ci===r.act?'wrong':'')):'';return '<button type="button" data-act5="'+ci+'" class="'+cls+'"'+(r.act!=null?' disabled':'')+'>'+CASES[ci].act+'</button>'}).join('')+'</div>';
-  if(r.act!=null){h+='<div class="'+(r.pt===2?'b5-tip':'b5-note')+'"><b>'+(r.pt===2?'⭕ 2点':r.pt===1?'△ 1点':'❌ 0点')+'</b> 答え:棚 '+SH[r.bad]+'・'+c.act+'<br>'+c.exp+'</div><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-q5next">'+(Q.cur+1<Q.rounds.length?'次の問題へ':'結果を見る')+'</button></div>'}
+  if(r.act!=null){h+='<div class="'+(r.pt===2?'ef-note is-ok':'ef-note is-warn')+'"><b>'+(r.pt===2?'⭕ 2点':r.pt===1?'△ 1点':'❌ 0点')+'</b> 答え:棚 '+SH[r.bad]+'・'+c.act+'<br>'+c.exp+'</div><div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-q5next">'+(Q.cur+1<Q.rounds.length?'次の問題へ':'結果を見る')+'</button></div>'}
   el.innerHTML=h;rb(el);
   var n=data[0].log.length,xl=[{i:12,t:'1日'},{i:36,t:'2日'},{i:60,t:'3日'}];
   function lines(f){return data.map(function(d,i){return {vals:d.log.map(f),color:SH_COL[i],dash:SH_DASH[i],w:2}})}
@@ -1337,13 +1334,13 @@ function q5Render(){
 function d5Render(){
   var el=$('#b5-d5');if(!el)return;
   var tr=ST.trials,h='<h2>データを見て決める:自分の植物工場の「いちばんよい」設定は?</h2>';
-  if(tr.length<2){el.innerHTML=h+'<p>④ で2回以上ためすと、ここに結果の散布図が出ます。<button type="button" class="b5-btn" data-go="all">④ をひらく</button></p>';rb(el);return}
+  if(tr.length<2){el.innerHTML=h+'<p>④ で2回以上ためすと、ここに結果の散布図が出ます。<button type="button" class="ef-btn" data-go="all">④ をひらく</button></p>';rb(el);return}
   h+='<p>何を大事にするか(重み)を決めよう。④の結果の<b>散布図</b>(横=電気代、たて=収量)から、AI が「おすすめ」を出します。</p>';
   h+='<div class="b5-chart" id="b5-sc"></div>';
   h+='<div class="b5-row">'+[['y','収量'],['q','品質'],['c','費用の少なさ'],['e','環境への配慮']].map(function(a){return '<span class="b5-row" style="gap:6px"><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-w="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'の重みをへらす">−</button><input type="number" readonly value="'+ST.smartW[a[0]]+'" aria-label="'+a[1]+'の重み"><button type="button" data-w="'+a[0]+'" data-d="1" aria-label="'+a[1]+'の重みをふやす">＋</button></span></span>'}).join('')+'</div>';
   var best=aiPick();
-  h+='<p class="b5-tip">🤖 AI のおすすめ:<b>第'+best.no+'回</b>('+SEASON[best.season].name+'・1株 '+Math.round(best.w)+'g・品質 '+best.q+'・電気代 '+yen(best.cost)+')<br><span class="b5-small">AI は、人が決めた重みのとおりに計算しているだけです。何を大事にするかを決めるのは人です。</span></p>';
-  h+='<label class="b5-f" for="b5-pick">自分がえらぶ設定</label><select id="b5-pick" style="min-height:48px;border:2px solid var(--b5-line);border-radius:10px;padding:4px 8px;max-width:100%"><option value="">えらぶ</option>'+tr.map(function(t){return '<option value="'+t.no+'"'+(ST.pick===t.no?' selected':'')+'>第'+t.no+'回 '+SEASON[t.season].name+' '+Math.round(t.w)+'g・'+yen(t.cost)+'・'+t.score+'点</option>'}).join('')+'</select>';
+  h+='<p class="ef-note is-ok">🤖 AI のおすすめ:<b>第'+best.no+'回</b>('+SEASON[best.season].name+'・1株 '+Math.round(best.w)+'g・品質 '+best.q+'・電気代 '+yen(best.cost)+')<br><span class="ef-small">AI は、人が決めた重みのとおりに計算しているだけです。何を大事にするかを決めるのは人です。</span></p>';
+  h+='<label class="b5-f" for="b5-pick">自分がえらぶ設定</label><select id="b5-pick" class="b5-pick"><option value="">えらぶ</option>'+tr.map(function(t){return '<option value="'+t.no+'"'+(ST.pick===t.no?' selected':'')+'>第'+t.no+'回 '+SEASON[t.season].name+' '+Math.round(t.w)+'g・'+yen(t.cost)+'・'+t.score+'点</option>'}).join('')+'</select>';
   h+='<label class="b5-f" for="b5-preason">えらんだ理由(AI のおすすめと同じでも、ちがっても書こう)</label><textarea id="b5-preason" placeholder="例:電気代は少し高いが、冬でも全部の株を出荷できるので第3回をえらぶ。">'+esc(ST.pickReason)+'</textarea>';
   el.innerHTML=h;rb(el);printSync(el);
   var sc=$('#b5-sc');chartRaw(sc,function(){sc.innerHTML=scatterSVG(sc,tr,best)});
@@ -1362,7 +1359,7 @@ function scatterSVG(el,tr,best){
   s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+Y(SHIP)+'" y2="'+Y(SHIP)+'" stroke="#c62828" stroke-dasharray="6 4"/>';
   s+='<text x="'+(L+pw)+'" y="'+(H-2)+'" text-anchor="end" fill="#5a6a5a">電気代(円)→</text><text x="'+(L+4)+'" y="'+(T+fs)+'" fill="#5a6a5a">↑ 1株の重さ(g)</text>';
   tr.forEach(function(t){var x=X(t.cost),y=Y(t.w),b=best&&t.no===best.no;s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(b?9:6)+'" fill="'+col[t.season]+'" fill-opacity=".75" stroke="'+(b?'#000':'#fff')+'" stroke-width="'+(b?3:1)+'"/><text x="'+(x+8).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" fill="#333">'+t.no+'</text>'});
-  s+='</svg><div class="b5-legend"><span><i style="border-color:#2e7d32"></i>春</span><span><i style="border-color:#d84315"></i>夏</span><span><i style="border-color:#1a5fc8"></i>冬</span><span>大きな黒わくの点 = AI のおすすめ・数字 = 試した回</span></div>';
+  s+='</svg><div class="b5-legend"><span>'+legLine('#2e7d32')+'春</span><span>'+legLine('#d84315')+'夏</span><span>'+legLine('#1a5fc8')+'冬</span><span>大きな黒わくの点 = AI のおすすめ・数字 = 試した回</span></div>';
   return s;
 }
 
@@ -1394,16 +1391,16 @@ function bestTrial(){return ST.trials.slice().sort(function(a,b){return b.score-
 RENDER.refl=function(el){
   var d=getRefl(),bt=bestTrial(),auto=bt?bt.radar:null;
   if(!d.radar)d.radar=auto?JSON.parse(JSON.stringify(auto)):{quality:3,yield:3,cost:3,safety:3,env:3};
-  var h='<div class="b5-card"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>';
+  var h='<div class="ef-box"><h1>振り返り</h1><p>学習したことをふり返って書きましょう。入力すると自動で保存されます。書き終わったら「書き出す」で提出用のファイルをつくれます。</p>';
   h+='<div class="b5-who"><div><label class="b5-f" for="b5-r-cls">組</label><input type="text" id="b5-r-cls" data-who="cls" value="'+esc(d.cls)+'"></div><div><label class="b5-f" for="b5-r-no">番号</label><input type="text" id="b5-r-no" data-who="no" value="'+esc(d.no)+'" inputmode="numeric"></div><div><label class="b5-f" for="b5-r-name">名前</label><input type="text" id="b5-r-name" data-who="name" value="'+esc(d.name)+'"></div></div></div>';
-  h+='<div class="b5-card"><h2>学習の記録(自動)</h2><div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
-  h+='<div class="b5-card"><h2>評価のレーダーチャート</h2><p>自分がつくった植物工場を、5つの観点で評価しよう(1〜5)。④でいちばん点数の高い設定を使います。点線はシミュレーションの点数から出した目安です。</p><div class="b5-radar-wrap"><div id="b5-rd">'+radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}])+'</div><div class="b5-rs">'+
+  h+='<div class="ef-box"><h2>学習の記録(自動)</h2><div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div></div>';
+  h+='<div class="ef-box"><h2>評価のレーダーチャート</h2><p>自分がつくった植物工場を、5つの観点で評価しよう(1〜5)。④でいちばん点数の高い設定を使います。点線はシミュレーションの点数から出した目安です。</p><div class="b5-radar-wrap"><div id="b5-rd">'+radarSVG([auto?{v:auto,color:'#888',fill:'none',dash:1}:null,{v:d.radar,color:'#7b3fa0',fill:'rgba(123,63,160,.2)'}])+'</div><div class="b5-rs">'+
     RADAR_AX.map(function(a){return '<div><span>'+a[1]+'</span><span class="b5-num"><button type="button" data-rd="'+a[0]+'" data-d="-1" aria-label="'+a[1]+'を下げる">−</button><input type="number" readonly value="'+d.radar[a[0]]+'" data-rv="'+a[0]+'" aria-label="'+a[1]+'"><button type="button" data-rd="'+a[0]+'" data-d="1" aria-label="'+a[1]+'を上げる">＋</button></span></div>'}).join('')+'</div></div></div>';
-  h+='<div class="b5-card"><h2>ふり返りを書こう</h2>';
+  h+='<div class="ef-box"><h2>ふり返りを書こう</h2>';
   RQ.forEach(function(q,i){h+='<label class="b5-f" for="b5-r-'+q.k+'">'+(i+1)+'. '+q.t+'</label><textarea id="b5-r-'+q.k+'" data-r="'+q.k+'" placeholder="'+esc(q.ph)+'">'+esc(d[q.k]||'')+'</textarea>'});
-  h+='</div><div class="b5-card"><h2>自己評価</h2>';
+  h+='</div><div class="ef-box"><h2>自己評価</h2>';
   EV.forEach(function(e){h+='<div class="b5-evr"><div>'+e.t+'</div><div class="b5-seg" data-ev="'+e.k+'" role="group" aria-label="'+esc(e.t)+'">'+EVL.map(function(l,i){return '<button type="button" data-v="'+i+'" aria-pressed="'+(d.ev[e.k]===i?'true':'false')+'">'+l+'</button>'}).join('')+'</div></div>'});
-  h+='</div><div class="b5-card b5-noprint"><div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-r-txt">テキストで書き出す(.txt)</button><button type="button" class="b5-btn" id="b5-r-copy">コピーする</button><button type="button" class="b5-btn" id="b5-r-print">印刷する</button><button type="button" class="b5-btn" id="b5-r-json">データで書き出す(.json)</button></div><div class="b5-saved" id="b5-r-saved">'+savedLabel(d.saved)+'</div></div>';
+  h+='</div><div class="ef-box b5-noprint"><div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-r-txt">テキストで書き出す(.txt)</button><button type="button" class="ef-btn" id="b5-r-copy">コピーする</button><button type="button" class="ef-btn" id="b5-r-print">印刷する</button><button type="button" class="ef-btn" id="b5-r-json">データで書き出す(.json)</button></div><div class="b5-saved" id="b5-r-saved">'+savedLabel(d.saved)+'</div></div>';
   el.innerHTML=h;rb(el);printSync(el);
   function sv(){var ok=saveRefl();$('#b5-r-saved',el).textContent=ok?savedLabel(d.saved):'保存できませんでした'}
   $$('[data-who]',el).forEach(function(i){i.addEventListener('input',function(){d[i.dataset.who]=i.value;sv()})});
@@ -1438,10 +1435,10 @@ function reflText(){
 
 /* ================= 記録(書き出し・読み込み) ================= */
 RENDER.rec=function(el){
-  var h='<div class="b5-card"><h1>記録</h1><p>この教材の記録は、この端末のブラウザの中に保存されています。先生の指示があったら、データで書き出して提出しましょう。</p>';
+  var h='<div class="ef-box"><h1>記録</h1><p>この教材の記録は、この端末のブラウザの中に保存されています。先生の指示があったら、データで書き出して提出しましょう。</p>';
   h+='<div class="b5-summary">'+esc(autoSummary()).replace(/\n/g,'<br>')+'</div>';
-  h+='<div class="b5-btns"><button type="button" class="b5-btn b5-pri" id="b5-x-json">データで書き出す(.json)</button><button type="button" class="b5-btn" id="b5-x-imp">書き出したファイルを読みこむ</button><button type="button" class="b5-btn" id="b5-x-del">この教材の記録をすべて消す</button></div>';
-  h+='<p class="b5-small">書き出したファイル(B5_データ_…json)は、先生用の「振り返り一覧」で読みこめます。</p></div>';
+  h+='<div class="b5-btns"><button type="button" class="ef-btn-primary" id="b5-x-json">データで書き出す(.json)</button><button type="button" class="ef-btn" id="b5-x-imp">書き出したファイルを読みこむ</button><button type="button" class="ef-btn" id="b5-x-del">この教材の記録をすべて消す</button></div>';
+  h+='<p class="ef-small">書き出したファイル(B5_データ_…json)は、先生用の「振り返り一覧」で読みこめます。</p></div>';
   el.innerHTML=h;rb(el);
   $('#b5-x-json').addEventListener('click',exportAll);
   $('#b5-x-imp').addEventListener('click',function(){$('#b5-file').click()});

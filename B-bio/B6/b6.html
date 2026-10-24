@@ -19,22 +19,19 @@ body{margin:0;background:var(--ef-bg)}
 :where(#b6app button,#b6app select,#b6app input,#b6app textarea){font:inherit;color:inherit}
 #b6app button{cursor:pointer;touch-action:manipulation}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色(B5 と同じ形) */
-#b6app .b6-head{position:sticky;top:0;z-index:20;background:var(--ef-accent);color:#fff;padding:0;box-shadow:none}
+#b6app .b6-head{position:sticky;top:0;z-index:20;background:var(--ef-surface);color:var(--ef-text);padding:0;box-shadow:none}
 #b6app .b6-head-row{flex-wrap:wrap}
-#b6app .b6-title{flex:1 1 auto;min-width:200px;margin:0;font-size:18px;line-height:1.3}
-#b6app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
-#b6app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
+#b6app .b6-title{flex:1 1 auto;min-width:200px;margin:0;font-size:1.05rem;line-height:1.3}
 #b6app .b6-tools button{min-height:44px;min-width:48px}
 /* メニュー(教材集)の中では見出し行を隠し、タブの帯をいちばん上にする */
 html.kz-embed #b6app .b6-head-row{display:none}
 html.kz-embed #b6app .b6-head{padding-top:6px}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
-#b6app main{max-width:1240px;margin:0 auto;padding:14px 14px 80px}
+#b6app main{padding-bottom:80px}  /* はばと左右の余白は .ef-main.is-wide */
 #b6app main > section[hidden]{display:none!important}
 #b6app .b6-saved{color:var(--ef-muted);font-size:.85em;margin:.3em 0}
-#b6app .b6-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 18px;border-radius:0;font-size:16px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:92vw}
+#b6app .b6-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;border-radius:0;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:92vw}
 #b6app .b6-toast.show{opacity:1}
-@media (max-width:640px){#b6app main{padding:10px 8px 60px}}
 @media print{#b6app .b6-head,#b6app .b6-toast{display:none!important}}
 
 /* タブの帯は4分野共通の形(C エネルギー変換と同じ: 白い帯・下に分野の色の線・丸いボタン。shared/eduit-frame.css の .ef-apptabs と同じ見た目) */
@@ -63,7 +60,7 @@ html.kz-embed #b6app .b6-head{padding-top:0}
       <button type="button" class="ef-apptab" role="tab" data-tab="rec">記録</button>
     </nav>
   </header>
-  <main>
+  <main class="ef-main is-wide">
     <section data-sec="intro"></section>
     <section data-sec="find" hidden></section>
     <section data-sec="eval" hidden></section>
@@ -77,17 +74,18 @@ html.kz-embed #b6app .b6-head{padding-top:0}
 </div>
 <!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
 <style>
-.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+/* 色・字・線は共通の --ef-…(shared/eduit-frame.css)。「消す」などの確認は .kzd-danger で赤 */
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
-.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
-.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
-.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:0;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
-.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
-.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
-.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
-@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+  font-family:var(--ef-font);-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:var(--ef-surface);color:var(--ef-text);border:var(--ef-bw) solid var(--ef-ink);border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:1.05rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:var(--ef-bw) solid var(--ef-line);background:var(--ef-surface);}
+.kzd-btns button{box-sizing:border-box;min-height:var(--ef-tap);min-width:120px;padding:0 20px;border-radius:0;border:var(--ef-bw) solid var(--ef-ink);background:var(--ef-surface);color:var(--ef-text);font:inherit;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:var(--ef-ink);color:var(--ef-on-ink);}
+.kzd-btns .kzd-ok.kzd-danger{background:var(--ef-ng);border-color:var(--ef-ng);}
+.kzd-btns button:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:.95rem;}.kzd-btns{padding:8px 16px 10px;}}
 @media print{.kzd-back{display:none !important;}}
 </style>
 <script>
@@ -153,7 +151,7 @@ html.kz-embed #b6app .b6-head{padding-top:0}
 <!--
   kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-embed の後)に、このファイルの <style> と <script> を貼る。
           2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
 
   API (グローバルは window.kzRuby だけ):
@@ -316,8 +314,8 @@ ruby.kzr{ruby-position:over;}
 .kz-ptext{display:none}
 @media print{
   textarea{display:none !important}
-  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
-  .kz-ptext.kz-empty{color:#666}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid var(--ef-muted);border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:var(--ef-text);background:var(--ef-surface)}
+  .kz-ptext.kz-empty{color:var(--ef-muted)}
 }
 </style>
 <script data-kz-print>
@@ -402,7 +400,6 @@ if(window.kzRuby)kzRuby.add([['問題解決','もんだいかいけつ'],['付�
   ['農薬','のうやく'],['害虫','がいちゅう'],['資源','しげん'],['持続可能','じぞくかのう'],['生産者','せいさんしゃ'],['管理作業','かんりさぎょう'],['育成計画','いくせいけいかく'],['追肥','ついひ'],
   ['当事者','とうじしゃ'],['経済','けいざい'],['環境','かんきょう'],['社会','しゃかい'],['過程','かてい'],['立場','たちば'],['重み','おもみ'],['候補','こうほ'],['具体的','ぐたいてき'],['達成','たっせい'],['不便','ふべん']]);
 function rb(el){if(window.kzRuby&&el){try{kzRuby(el)}catch(e){}}}
-/* ---- ふりがな・文字の大きさ(教材集ぜんぶで共通: hub_ruby / hub_fs) ---- */
 /* ふりがな・文字の大きさは全教材で共通の EduitFrame.prefs(上のバーのボタンは data-ef-pref) */
 EduitFrame.prefs.mount();
 

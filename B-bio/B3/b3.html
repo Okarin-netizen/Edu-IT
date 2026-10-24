@@ -12,11 +12,8 @@
 <style>
 #b3-app{
   /* 共通の枠(shared/eduit-frame.css)の色にそろえる */
-  --b3-bg:var(--ef-bg); --b3-card:var(--ef-surface); --b3-ink:var(--ef-text); --b3-sub:var(--ef-muted); --b3-line:#cdd6c6;
-  --b3-main:var(--ef-accent); --b3-main-d:#1b5e20; --b3-soft:var(--ef-accent-soft); --b3-warn:#a85b00; --b3-warn-bg:#fff4e0;
-  --b3-bad:#b3261e; --b3-bad-bg:#fdeceb; --b3-hol:#eef0f6;
   font-family:var(--ef-font);
-  font-size:1rem; line-height:1.6; color:var(--b3-ink); background:var(--b3-bg);
+  font-size:1rem; line-height:1.6; color:var(--ef-text); background:var(--ef-bg);
   min-height:100vh; box-sizing:border-box; -webkit-text-size-adjust:100%; overflow-wrap:anywhere;
 }
 #b3-app *,#b3-app *::before,#b3-app *::after{box-sizing:inherit}
@@ -25,11 +22,9 @@
 /* タブの帯は共通の .ef-apptabs・.ef-apptab(字＋下線)。.b3-tabs は JS がタブを探すための名前。ここには置き場所だけを書く */
 #b3-app .b3-tabs{position:sticky;top:0;z-index:5}
 #b3-app button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-#b3-app :focus-visible{outline:3px solid #1565c0;outline-offset:2px}
+#b3-app :focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
 /* 見出しは共通の枠(.ef-header)。タブの帯は分野の色 */
 #b3-app .b3-head h1{flex:1 1 auto}
-#b3-app .ef-btn{font:600 15px/1.2 var(--ef-font);color:var(--ef-text)}
-#b3-app .ef-btn[aria-pressed="true"]{color:var(--ef-accent-ink)}
 #b3-app .b3-tools button{min-height:44px;min-width:48px}
 #b3-app .b3-tools button:disabled{opacity:.4;cursor:not-allowed}
 html.kz-embed #b3-app .b3-head{display:none}
@@ -37,122 +32,123 @@ html.kz-embed #b3-app .b3-head{display:none}
 #b3-app.b3-big .b3-tabs .b3-tl{display:none}
 /* スマホ: タブの名前を折り返さず、帯を1行にして横にスクロール */
 #b3-app .b3-tbl td:nth-child(3),#b3-app .b3-tbl td:nth-child(4){white-space:nowrap}
-#b3-app main{padding:1em;max-width:1200px;margin:0 auto}
-#b3-app h2{font-size:1.2em;margin:.2em 0 .5em;color:var(--b3-main-d)}
+/* はばと余白は .ef-main.is-wide */
+#b3-app h2{font-size:1.2em;margin:.2em 0 .5em;color:var(--ef-accent)}
 #b3-app h3{font-size:1.05em;margin:.8em 0 .4em}
-#b3-app .b3-lead{background:var(--b3-soft);border-left:6px solid var(--b3-main);padding:.6em .9em;border-radius:0;margin:0 0 1em}
-#b3-app .b3-card{background:var(--b3-card);border:1px solid var(--b3-line);border-radius:0;padding:1em;margin-bottom:1em;min-width:0}
+#b3-app .b3-lead{background:var(--ef-accent-soft);border-left:6px solid var(--ef-accent);padding:.6em .9em;border-radius:0;margin:0 0 1em}
+/* 箱は .ef-box、ボタンは .ef-btn / .ef-btn-primary(shared/eduit-frame.css)。ここは置き場所だけ */
+#b3-app .ef-box{margin-bottom:1em;min-width:0}
 #b3-app .b3-grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1em;align-items:start}
 #b3-app .b3-grid2>*{min-width:0}
 @media (max-width:860px){#b3-app .b3-grid2{grid-template-columns:minmax(0,1fr)}}
-#b3-app .b3-btn{min-height:48px;padding:.3em 1em;border-radius:0;border:2px solid var(--b3-main);background:#fff;color:var(--b3-main-d);font-weight:bold;max-width:100%}
-#b3-app .b3-btn.b3-primary{background:var(--b3-main);color:#fff}
-#b3-app .b3-btn.b3-danger{border-color:var(--b3-bad);color:var(--b3-bad)}
-#b3-app .b3-btn.b3-small{min-height:44px;min-width:48px;padding:.1em .7em;font-size:.9em}
-#b3-app .b3-btn:disabled{opacity:.45;cursor:not-allowed}
 #b3-app .b3-row{display:flex;gap:.6em;flex-wrap:wrap;align-items:center}
 #b3-app .b3-seg{display:flex;flex-wrap:wrap;gap:.5em}
-#b3-app .b3-seg button{min-height:52px;min-width:0;flex:1 1 8em;border:2px solid var(--b3-line);background:#fff;border-radius:0;padding:.3em .6em;text-align:left;line-height:1.35}
-#b3-app .b3-seg button small{display:block;color:var(--b3-sub);font-size:.75em}
-#b3-app .b3-seg button[aria-pressed="true"]{border-color:var(--b3-main);background:var(--b3-soft);box-shadow:0 0 0 2px var(--b3-main) inset}
-#b3-app .b3-seg button[aria-pressed="true"]::before{content:"✔ ";color:var(--b3-main);font-weight:bold}
+#b3-app .b3-seg button{min-height:52px;min-width:0;flex:1 1 8em;border:2px solid var(--ef-line);background:var(--ef-surface);border-radius:0;padding:.3em .6em;text-align:left;line-height:1.35}
+#b3-app .b3-seg button small{display:block;color:var(--ef-muted);font-size:.75em}
+#b3-app .b3-seg button[aria-pressed="true"]{border-color:var(--ef-ink);font-weight:bold;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
+#b3-app .b3-seg button[aria-pressed="true"]::before{content:"✔ ";color:var(--ef-accent);font-weight:bold}
 #b3-app label.b3-field{display:block;margin:.5em 0}
 #b3-app label.b3-field>span{display:block;font-weight:bold;margin-bottom:.2em}
-#b3-app input[type=date],#b3-app input[type=text],#b3-app input[type=number],#b3-app select{min-height:48px;border:2px solid var(--b3-line);border-radius:0;padding:.2em .5em;background:#fff;max-width:100%;min-width:0}
-#b3-app textarea{width:100%;min-height:6em;border:2px solid var(--b3-line);border-radius:0;padding:.5em;background:#fff;resize:vertical}
-#b3-app input[type=checkbox]{width:30px;height:30px;vertical-align:middle;accent-color:var(--b3-main);margin:0}
+#b3-app input[type=date],#b3-app input[type=text],#b3-app input[type=number],#b3-app select{min-height:48px;border:2px solid var(--ef-line);border-radius:0;padding:.2em .5em;background:var(--ef-surface);max-width:100%;min-width:0}
+#b3-app textarea{width:100%;min-height:6em;border:2px solid var(--ef-line);border-radius:0;padding:.5em;background:var(--ef-surface);resize:vertical}
+#b3-app input[type=checkbox]{width:30px;height:30px;vertical-align:middle;accent-color:var(--ef-accent);margin:0}
 #b3-app .b3-check{display:inline-flex;align-items:center;gap:.4em;min-height:48px;white-space:nowrap;cursor:pointer}
 #b3-app .b3-cbx{display:flex;justify-content:center;align-items:center;min-width:56px;min-height:56px;margin:-.35em -.45em;cursor:pointer}
 #b3-app .b3-crops{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(14em,100%),1fr));gap:.8em;margin-bottom:1em}
-#b3-app .b3-crop{display:flex;gap:.7em;align-items:center;text-align:left;border:2px solid var(--b3-line);background:#fff;border-radius:0;padding:.7em;min-height:84px;min-width:0}
-#b3-app .b3-crop[aria-pressed="true"]{border-color:var(--b3-main);background:var(--b3-soft);box-shadow:0 0 0 3px var(--b3-main) inset}
-#b3-app .b3-badge{flex:0 0 auto;width:2.4em;height:2.4em;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:1.05em}
+#b3-app .b3-crop{display:flex;gap:.7em;align-items:center;text-align:left;border:2px solid var(--ef-line);background:var(--ef-surface);border-radius:0;padding:.7em;min-height:84px;min-width:0}
+#b3-app .b3-crop[aria-pressed="true"]{border-color:var(--ef-ink);font-weight:bold;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
+#b3-app .b3-badge{flex:0 0 auto;width:2.4em;height:2.4em;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--ef-on-ink);font-weight:bold;font-size:1.05em}
 #b3-app .b3-crop b{display:block;font-size:1.05em}
-#b3-app .b3-crop small{color:var(--b3-sub);font-size:.8em;display:block;line-height:1.4}
+#b3-app .b3-crop small{color:var(--ef-muted);font-size:.8em;display:block;line-height:1.4}
 /* 作業の流れ */
 #b3-app .b3-flow{list-style:none;margin:0;padding:0;position:relative}
-#b3-app .b3-flow li{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:.6em;padding:.45em 0;border-bottom:1px dashed var(--b3-line);align-items:start}
+#b3-app .b3-flow li{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:.6em;padding:.45em 0;border-bottom:1px dashed var(--ef-line);align-items:start}
 @supports (grid-template-columns:subgrid){
   #b3-app .b3-flow{display:grid;grid-template-columns:minmax(6em,max-content) minmax(0,1fr);column-gap:.8em}
   #b3-app .b3-flow li{grid-column:1/-1;grid-template-columns:subgrid}
 }
 #b3-app .b3-flow li:last-child{border-bottom:0}
-#b3-app .b3-flow .b3-when{font-weight:bold;color:var(--b3-main-d)}
-#b3-app .b3-flow .b3-note{display:block;font-size:.82em;color:var(--b3-warn)}
-#b3-app .b3-flow li.b3-done .b3-what{text-decoration:line-through;color:var(--b3-sub)}
-#b3-app .b3-flow li.b3-prep .b3-when{color:#6d4c41}
-#b3-app .b3-obs{display:inline-block;font-size:.78em;border:1.5px dashed #5c6bc0;color:#283593;border-radius:0;padding:0 .4em;margin-left:.3em;font-weight:bold;white-space:nowrap}
+#b3-app .b3-flow .b3-when{font-weight:bold;color:var(--ef-accent)}
+#b3-app .b3-flow .b3-flownote{display:block;font-size:.82em;color:var(--ef-warn)}
+#b3-app .b3-flow li.b3-done .b3-what{text-decoration:line-through;color:var(--ef-muted)}
+#b3-app .b3-flow li.b3-prep .b3-when{color:var(--ef-ng)}
+#b3-app .b3-obs{display:inline-block;font-size:.78em;border:1.5px dashed var(--ef-info);color:var(--ef-info);border-radius:0;padding:0 .4em;margin-left:.3em;font-weight:bold;white-space:nowrap}
 #b3-app .b3-gq{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:0;background:transparent;padding:0;vertical-align:middle;margin:-8px 0}
-#b3-app .b3-gq>span{display:inline-flex;align-items:center;justify-content:center;width:1.5em;height:1.5em;border-radius:50%;border:2px solid var(--b3-main);background:#eef6ec;color:var(--b3-main-d);font-weight:bold;font-size:.85em;line-height:1}
+#b3-app .b3-gq>span{display:inline-flex;align-items:center;justify-content:center;width:1.5em;height:1.5em;border-radius:50%;border:2px solid var(--ef-accent);background:var(--ef-accent-soft);color:var(--ef-accent);font-weight:bold;font-size:.85em;line-height:1}
 #b3-app .b3-msg{padding:.6em .8em;border-radius:0;margin:.5em 0;border:2px solid}
-#b3-app .b3-msg.b3-warn{background:var(--b3-warn-bg);border-color:#f0b765;color:#5a3300}
-#b3-app .b3-msg.b3-bad{background:var(--b3-bad-bg);border-color:#e7a29d;color:#6b120d}
-#b3-app .b3-msg.b3-ok{background:var(--b3-soft);border-color:#9cc995;color:#173d19}
-#b3-app .b3-msg.b3-info{background:#eaf2fb;border-color:#a7c4e6;color:#123a63}
-#b3-app .b3-msg .b3-btn{margin-top:.3em}
+#b3-app .b3-msg.b3-warn{background:var(--ef-warn-soft);border-color:var(--ef-warn);color:var(--ef-text)}
+#b3-app .b3-msg.b3-bad{background:var(--ef-ng-soft);border-color:var(--ef-ng);color:var(--ef-ng)}
+#b3-app .b3-msg.b3-ok{background:var(--ef-accent-soft);border-color:var(--ef-accent);color:var(--ef-text)}
+#b3-app .b3-msg.b3-info{background:var(--ef-info-soft);border-color:var(--ef-info);color:var(--ef-info)}
+#b3-app .b3-msg .ef-btn,#b3-app .b3-msg .ef-btn-primary{margin-top:.3em}
 /* 休業日(2段組み) */
-#b3-app .b3-hol-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"name rep del" "dates dates dates";gap:.3em .5em;align-items:center;margin:.4em 0;padding:.4em 0;border-bottom:1px dashed var(--b3-line)}
+#b3-app .b3-hol-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"name rep del" "dates dates dates";gap:.3em .5em;align-items:center;margin:.4em 0;padding:.4em 0;border-bottom:1px dashed var(--ef-line)}
 #b3-app .b3-hol-item .b3-hn{grid-area:name;width:100%}
 #b3-app .b3-hol-item .b3-check{grid-area:rep}
 #b3-app .b3-hol-item .b3-hdel{grid-area:del;white-space:nowrap}
 #b3-app .b3-hol-item .b3-dates{grid-area:dates;display:flex;gap:.3em;align-items:center;flex-wrap:wrap}
 #b3-app .b3-hol-item .b3-dates input{flex:1 1 9em}
 #b3-app .b3-hol-item .b3-hmsg{grid-column:1/-1;margin:0}
-#b3-app .b3-chipbtn{min-height:44px;border:2px dashed var(--b3-main);background:#fff;color:var(--b3-main-d);border-radius:0;padding:0 .9em;font-weight:bold}
+#b3-app .b3-chipbtn{min-height:44px;border:2px dashed var(--ef-accent);background:var(--ef-surface);color:var(--ef-accent);border-radius:0;padding:0 .9em;font-weight:bold}
 #b3-app .b3-plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(16em,100%),1fr));gap:.7em}
-#b3-app .b3-plan{border:2px solid var(--b3-line);border-left-width:10px;border-radius:0;padding:.6em .8em;background:#fff;min-width:0}
-#b3-app .b3-plan.b3-cur{box-shadow:0 0 0 3px #f9a825}
+#b3-app .b3-plan{border:2px solid var(--ef-line);border-left-width:10px;border-radius:0;padding:.6em .8em;background:var(--ef-surface);min-width:0}
+#b3-app .b3-plan.b3-cur{outline:3px solid var(--ef-accent);outline-offset:-3px}
 #b3-app .b3-plan .b3-row{margin-top:.4em}
 /* 縦向きの要約バー */
 #b3-app .b3-sumbar{display:none}
 @media (max-width:860px){
-  #b3-app .b3-sumbar{display:flex;position:sticky;bottom:0;z-index:4;gap:.5em;align-items:center;flex-wrap:wrap;background:#fff;border:2px solid var(--b3-main);border-radius:0;padding:.5em .7em;margin:0 0 1em;box-shadow:none}
+  #b3-app .b3-sumbar{display:flex;position:sticky;bottom:0;z-index:4;gap:.5em;align-items:center;flex-wrap:wrap;background:var(--ef-surface);border:2px solid var(--ef-accent);border-radius:0;padding:.5em .7em;margin:0 0 1em;box-shadow:none}
   #b3-app .b3-sumbar .b3-sumtxt{flex:1 1 12em;line-height:1.4;min-width:0}
 }
 /* calendar */
 #b3-app .b3-calbar{display:flex;flex-wrap:wrap;gap:.5em;align-items:center;margin-bottom:.6em}
 #b3-app .b3-calbar .b3-title{font-size:1.2em;font-weight:bold;min-width:6em;text-align:center}
 #b3-app .b3-calbar select{flex:1 1 10em}
-#b3-app .b3-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--b3-line);border-radius:0;overflow:hidden;background:#fff}
-#b3-app .b3-month .b3-dow{text-align:center;font-weight:bold;padding:.2em;background:#e9eee5;font-size:.9em}
-#b3-app .b3-dow.b3-sun,#b3-app .b3-day.b3-sun .b3-dnum{color:#c62828}
-#b3-app .b3-dow.b3-sat,#b3-app .b3-day.b3-sat .b3-dnum{color:#1565c0}
-#b3-app .b3-day{min-height:6.2em;min-width:0;border-top:1px solid var(--b3-line);border-left:1px solid var(--b3-line);padding:.2em;text-align:left;background:#fff;display:flex;flex-direction:column;gap:2px;overflow:hidden;border-radius:0;border-right:0;border-bottom:0}
+#b3-app .b3-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--ef-line);border-radius:0;overflow:hidden;background:var(--ef-surface)}
+#b3-app .b3-month .b3-dow{text-align:center;font-weight:bold;padding:.2em;background:var(--ef-surface-2);font-size:.9em}
+#b3-app .b3-dow.b3-sun,#b3-app .b3-day.b3-sun .b3-dnum{color:var(--ef-ng)}
+#b3-app .b3-dow.b3-sat,#b3-app .b3-day.b3-sat .b3-dnum{color:var(--ef-info)}
+#b3-app .b3-day{min-height:6.2em;min-width:0;border-top:1px solid var(--ef-line);border-left:1px solid var(--ef-line);padding:.2em;text-align:left;background:var(--ef-surface);display:flex;flex-direction:column;gap:2px;overflow:hidden;border-radius:0;border-right:0;border-bottom:0}
 #b3-app .b3-day:nth-child(7n+1){border-left:0}
-#b3-app .b3-day.b3-out{background:#f3f3f3;color:#999}
-#b3-app .b3-day.b3-holday{background:repeating-linear-gradient(135deg,var(--b3-hol) 0 8px,#fff 8px 16px)}
-#b3-app .b3-day.b3-today{box-shadow:inset 0 0 0 3px #f9a825}
-#b3-app .b3-day.b3-sel{box-shadow:inset 0 0 0 4px #1565c0}
+#b3-app .b3-day.b3-out{background:var(--ef-surface-2);color:var(--ef-muted)}
+#b3-app .b3-day.b3-holday{background:repeating-linear-gradient(135deg,var(--ef-surface-2) 0 8px,var(--ef-surface) 8px 16px)}
+#b3-app .b3-day.b3-today{outline:3px solid var(--ef-warn);outline-offset:-3px}
+#b3-app .b3-day.b3-sel{outline:4px solid var(--ef-info);outline-offset:-4px}
 #b3-app .b3-dnum{font-weight:bold;font-size:.9em;line-height:1.2}
-#b3-app .b3-hl{font-size:.78em;color:#3d4a7a;line-height:1.2;font-weight:bold;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#b3-app .b3-ev{font-size:.8em;line-height:1.35;border-radius:0;padding:1px 4px;border-left:5px solid;background:#f5f7f2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-all}
-#b3-app .b3-ev.b3-evobs{background:#fff;border-top:1.5px dashed #7986cb;border-right:1.5px dashed #7986cb;border-bottom:1.5px dashed #7986cb}
+#b3-app .b3-hl{font-size:.78em;color:var(--ef-info);line-height:1.2;font-weight:bold;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#b3-app .b3-ev{font-size:.8em;line-height:1.35;border-radius:0;padding:1px 4px;border-left:5px solid;background:var(--ef-surface-2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-all}
+#b3-app .b3-ev.b3-evobs{background:var(--ef-surface);border-top:1.5px dashed var(--ef-info);border-right:1.5px dashed var(--ef-info);border-bottom:1.5px dashed var(--ef-info)}
 #b3-app .b3-ev.b3-evdone{text-decoration:line-through;opacity:.65}
-#b3-app .b3-evk{display:inline-block;color:#fff;border-radius:0;padding:0 3px;margin-right:2px;font-size:.9em;line-height:1.3}
-#b3-app .b3-more{font-size:.75em;color:var(--b3-sub)}
+#b3-app .b3-evk{display:inline-block;color:var(--ef-on-ink);border-radius:0;padding:0 3px;margin-right:2px;font-size:.9em;line-height:1.3}
+#b3-app .b3-more{font-size:.75em;color:var(--ef-muted)}
 #b3-app .b3-week{display:flex;flex-direction:column;gap:.4em}
-#b3-app .b3-wday{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:.6em;background:#fff;border:1px solid var(--b3-line);border-radius:0;padding:.5em;text-align:left;min-height:64px}
-#b3-app .b3-wday.b3-holday{background:repeating-linear-gradient(135deg,var(--b3-hol) 0 8px,#fff 8px 16px)}
-#b3-app .b3-wday.b3-today{box-shadow:inset 0 0 0 3px #f9a825}
-#b3-app .b3-wday.b3-sel{box-shadow:inset 0 0 0 4px #1565c0}
+#b3-app .b3-wday{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:.6em;background:var(--ef-surface);border:1px solid var(--ef-line);border-radius:0;padding:.5em;text-align:left;min-height:64px}
+#b3-app .b3-wday.b3-holday{background:repeating-linear-gradient(135deg,var(--ef-surface-2) 0 8px,var(--ef-surface) 8px 16px)}
+#b3-app .b3-wday.b3-today{outline:3px solid var(--ef-warn);outline-offset:-3px}
+#b3-app .b3-wday.b3-sel{outline:4px solid var(--ef-info);outline-offset:-4px}
 #b3-app .b3-wday .b3-ev{font-size:.9em;margin-bottom:3px;-webkit-line-clamp:3}
-#b3-app .b3-legend{display:flex;flex-wrap:wrap;gap:.8em;font-size:.85em;margin:.6em 0;color:var(--b3-sub)}
+#b3-app .b3-legend{display:flex;flex-wrap:wrap;gap:.8em;font-size:.85em;margin:.6em 0;color:var(--ef-muted)}
 #b3-app .b3-legend span{display:inline-flex;align-items:center;gap:.3em}
-#b3-app .b3-sw{display:inline-block;width:1.2em;height:1.2em;border-radius:4px;border:1px solid var(--b3-line)}
-#b3-app .b3-daypanel .b3-task{display:flex;gap:.6em;align-items:center;justify-content:space-between;border-left:8px solid;padding:.4em .6em;margin:.4em 0;background:#fafbf8;border-radius:0;flex-wrap:wrap}
+#b3-app .b3-sw{display:inline-block;width:1.2em;height:1.2em;border-radius:0;border:1px solid var(--ef-line)}
+#b3-app .b3-sw-hol{background:repeating-linear-gradient(135deg,var(--ef-surface-2) 0 4px,var(--ef-surface) 4px 8px)}
+#b3-app .b3-sw-today{outline:3px solid var(--ef-warn);outline-offset:-3px}
+#b3-app .b3-sw-obs{border:1.5px dashed var(--ef-info)}
+#b3-app .b3-sun{color:var(--ef-ng)}
+#b3-app .b3-sat{color:var(--ef-info)}
+#b3-app .b3-daypanel .b3-task{display:flex;gap:.6em;align-items:center;justify-content:space-between;border-left:8px solid;padding:.4em .6em;margin:.4em 0;background:var(--ef-surface);border-radius:0;flex-wrap:wrap}
 #b3-app .b3-daypanel .b3-task>span{min-width:0;flex:1 1 14em}
 /* eval table */
 #b3-app .b3-tablewrap{overflow-x:auto}
-#b3-app table.b3-tbl{border-collapse:collapse;width:100%;min-width:640px;background:#fff}
-#b3-app .b3-tbl th,#b3-app .b3-tbl td{border:1px solid var(--b3-line);padding:.35em .45em;text-align:left;vertical-align:middle}
-#b3-app .b3-tbl th{background:#e9eee5;font-size:.9em}
-#b3-app .b3-tbl tr.b3-done td{background:#f2f8f0}
-#b3-app .b3-tbl tr.b3-trobs td{background:#f7f8fd}
-#b3-app .b3-late{color:var(--b3-bad);font-weight:bold}
-#b3-app .b3-early{color:#1565c0;font-weight:bold}
-#b3-app .b3-ontime{color:var(--b3-main-d);font-weight:bold}
+#b3-app table.b3-tbl{border-collapse:collapse;width:100%;min-width:640px;background:var(--ef-surface)}
+#b3-app .b3-tbl th,#b3-app .b3-tbl td{border:1px solid var(--ef-line);padding:.35em .45em;text-align:left;vertical-align:middle}
+#b3-app .b3-tbl th{background:var(--ef-surface-2);font-size:.9em}
+#b3-app .b3-tbl tr.b3-done td{background:var(--ef-accent-soft)}
+#b3-app .b3-tbl tr.b3-trobs td{background:var(--ef-info-soft)}
+#b3-app .b3-late{color:var(--ef-ng);font-weight:bold}
+#b3-app .b3-early{color:var(--ef-info);font-weight:bold}
+#b3-app .b3-ontime{color:var(--ef-accent);font-weight:bold}
 #b3-app .b3-stepper{display:inline-flex;align-items:center;gap:.3em}
-#b3-app .b3-stepper .b3-btn{min-width:48px}
+#b3-app .b3-stepper .ef-btn,#b3-app .b3-stepper .ef-btn-primary{min-width:48px}
 #b3-app .b3-stepper input{width:4.5em;text-align:center}
 #b3-app .b3-self{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4em .8em;align-items:center}
 @media (max-width:700px){#b3-app .b3-self{grid-template-columns:minmax(0,1fr)}}
@@ -161,38 +157,38 @@ html.kz-embed #b3-app .b3-head{display:none}
 #b3-app .b3-who label.b3-field{margin:0}
 #b3-app .b3-who input{width:100%}
 @media (max-width:520px){#b3-app .b3-who{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#b3-app .b3-who .b3-wname{grid-column:1/-1}}
-#b3-app .b3-saved{color:var(--b3-sub);font-size:.85em}
-#b3-app .b3-toast{position:fixed;left:50%;bottom:1.5em;transform:translateX(-50%) translateY(200%);opacity:0;visibility:hidden;background:#263238;color:#fff;padding:.7em 1.2em;border-radius:0;max-width:90vw;transition:transform .25s,opacity .25s,visibility .25s;z-index:20;pointer-events:none}
+#b3-app .b3-saved{color:var(--ef-muted);font-size:.85em}
+#b3-app .b3-toast{position:fixed;left:50%;bottom:1.5em;transform:translateX(-50%) translateY(200%);opacity:0;visibility:hidden;background:var(--ef-ink);color:var(--ef-on-ink);padding:.7em 1.2em;border-radius:0;max-width:90vw;transition:transform .25s,opacity .25s,visibility .25s;z-index:20;pointer-events:none}
 #b3-app .b3-toast.b3-show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 #b3-app .b3-hidden{display:none!important}
-#b3-app .b3-muted{color:var(--b3-sub);font-size:.88em}
-#b3-app .b3-cost{background:#fff8e1;border:2px solid #ecd59c;border-radius:0;padding:.6em .8em;margin:.5em 0}
+#b3-app .b3-muted{color:var(--ef-muted);font-size:.88em}
+#b3-app .b3-cost{background:var(--ef-warn-soft);border:2px solid var(--ef-warn);border-radius:0;padding:.6em .8em;margin:.5em 0}
 #b3-app .b3-cost table{border-collapse:collapse;width:100%;font-size:.92em;margin:.3em 0}
-#b3-app .b3-cost td{border-bottom:1px dashed #e3cf95;padding:.2em .3em}
+#b3-app .b3-cost td{border-bottom:1px dashed var(--ef-warn);padding:.2em .3em}
 #b3-app .b3-cost td:last-child{text-align:right;white-space:nowrap}
 #b3-app .b3-cost tr.b3-tot td{font-weight:bold;border-bottom:0}
 #b3-app .b3-bottomnav{display:flex;justify-content:space-between;gap:.6em;margin-top:1em;flex-wrap:wrap}
 /* 栽培計画書(PDF・Googleドキュメント用に書き出す画面) */
-#b3-app .b3-docov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;background:rgba(0,0,0,.5);display:flex;justify-content:center;padding:10px;box-sizing:border-box}
-#b3-app .b3-docbox{background:var(--b3-bg);border-radius:0;width:100%;max-width:980px;display:flex;flex-direction:column;overflow:hidden;box-shadow:none}
-#b3-app .b3-docbar{flex:0 0 auto;padding:.5em .8em;border-bottom:1px solid var(--b3-line);background:var(--b3-card)}
+#b3-app .b3-docov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;background:var(--ef-backdrop);display:flex;justify-content:center;padding:10px;box-sizing:border-box}
+#b3-app .b3-docbox{background:var(--ef-bg);border-radius:0;width:100%;max-width:980px;display:flex;flex-direction:column;overflow:hidden;box-shadow:none}
+#b3-app .b3-docbar{flex:0 0 auto;padding:.5em .8em;border-bottom:1px solid var(--ef-line);background:var(--ef-surface)}
 #b3-app .b3-docbar h2{margin:0 0 .3em;font-size:1.1em}
 #b3-app .b3-docbar .b3-row{gap:.4em}
-#b3-app .b3-docbar .b3-btn{min-height:44px;padding:.2em .8em}
+#b3-app .b3-docbar .ef-btn,#b3-app .b3-docbar .ef-btn-primary{min-height:44px;padding:.2em .8em}
 #b3-app .b3-dochint{margin:.3em 0 0}
-#b3-app .b3-docscroll{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;background:#d9ded5}
-#b3-app .b3-doc{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:28px 32px;font-size:15px;line-height:1.6;box-shadow:none}
+#b3-app .b3-docscroll{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;background:var(--ef-surface-2)}
+#b3-app .b3-doc{background:var(--ef-surface);color:var(--ef-text);max-width:800px;margin:0 auto;padding:28px 32px;font-size:.9rem;line-height:1.6;box-shadow:none}
 @media print{
   html.b3-printdoc body>:not(#b3-app),#b3-app.b3-printdoc>:not(.b3-docov){display:none!important}
   #b3-app.b3-printdoc .b3-docov{position:static;display:block;background:none;padding:0}
-  #b3-app.b3-printdoc .b3-docbox{display:block;border-radius:0;max-width:none;box-shadow:none;background:#fff}
+  #b3-app.b3-printdoc .b3-docbox{display:block;border-radius:0;max-width:none;box-shadow:none;background:var(--ef-surface)}
   #b3-app.b3-printdoc .b3-docbar{display:none!important}
-  #b3-app.b3-printdoc .b3-docscroll{overflow:visible;padding:0;background:#fff}
+  #b3-app.b3-printdoc .b3-docscroll{overflow:visible;padding:0;background:var(--ef-surface)}
   #b3-app.b3-printdoc .b3-doc{max-width:none;padding:0;box-shadow:none;font-size:11pt}
   #b3-app .b3-doc tr{break-inside:avoid}
   #b3-app .b3-head,#b3-app .b3-tabs,#b3-app .b3-noprint,#b3-app .b3-toast,#b3-app .b3-sumbar,#b3-app .b3-gq{display:none!important}
-  #b3-app{background:#fff;min-height:0}
-  #b3-app .b3-card{break-inside:auto;border-color:#999}
+  #b3-app{background:var(--ef-surface);min-height:0}
+  #b3-app .ef-box{break-inside:auto}
   #b3-app .b3-tablewrap{overflow:visible}
   #b3-app table.b3-tbl{min-width:0}
 }
@@ -218,23 +214,24 @@ html.kz-embed #b3-app .b3-head{display:none}
     <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="eval">④ 記録<span class="b3-tl">と評価</span></button>
     <button type="button" class="ef-apptab" role="tab" data-act="tab" data-t="refl" data-ef-reflect>振り返り</button>
   </nav>
-  <main id="b3-main" role="tabpanel"></main>
+  <main id="b3-main" class="ef-main is-wide" role="tabpanel"></main>
   <input type="file" id="b3-file" accept=".json,application/json" class="b3-hidden">
   <div class="b3-toast" id="b3-toast" role="status" aria-live="polite"></div>
 </div>
 <!-- 確認メッセージ(全画面・タブレットでも切れない自作ダイアログ。window.confirm の代わり) -->
 <style>
-.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+/* 色・字・線は共通の --ef-…(shared/eduit-frame.css)。「消す」などの確認は .kzd-danger で赤 */
+.kzd-back{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   padding:12px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%;}
-.kzd-box{box-sizing:border-box;background:#fff;color:#1b2a1b;border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
-.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:18px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #e1e8dc;background:#fff;}
-.kzd-btns button{box-sizing:border-box;min-height:50px;min-width:120px;padding:0 20px;border-radius:0;border:2px solid #2e7d32;background:#fff;color:#1b5e20;font:inherit;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation;}
-.kzd-btns .kzd-ok{background:#2e7d32;color:#fff;}
-.kzd-btns .kzd-ok.kzd-danger{background:#b3261e;border-color:#b3261e;}
-.kzd-btns button:focus-visible{outline:3px solid #1565c0;outline-offset:2px;}
-@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:16px;}.kzd-btns{padding:8px 16px 10px;}.kzd-btns button{min-height:44px;}}
+  font-family:var(--ef-font);-webkit-text-size-adjust:100%;}
+.kzd-box{box-sizing:border-box;background:var(--ef-surface);color:var(--ef-text);border:var(--ef-bw) solid var(--ef-ink);border-radius:0;width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:none;}
+.kzd-msg{box-sizing:border-box;flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 10px;margin:0;font-size:1.05rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.kzd-btns{box-sizing:border-box;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:var(--ef-bw) solid var(--ef-line);background:var(--ef-surface);}
+.kzd-btns button{box-sizing:border-box;min-height:var(--ef-tap);min-width:120px;padding:0 20px;border-radius:0;border:var(--ef-bw) solid var(--ef-ink);background:var(--ef-surface);color:var(--ef-text);font:inherit;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.kzd-btns .kzd-ok{background:var(--ef-ink);color:var(--ef-on-ink);}
+.kzd-btns .kzd-ok.kzd-danger{background:var(--ef-ng);border-color:var(--ef-ng);}
+.kzd-btns button:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px;}
+@media (max-height:420px){.kzd-msg{padding:12px 16px 6px;font-size:.95rem;}.kzd-btns{padding:8px 16px 10px;}}
 @media print{.kzd-back{display:none !important;}}
 </style>
 <script>
@@ -300,7 +297,7 @@ html.kz-embed #b3-app .b3-head{display:none}
 <!--
   kz-ruby : 共通の用語辞書で、画面の文字に自動でふりがな(ruby)を付ける (K8)
   ------------------------------------------------------------------
-  入れ方: kzConfirm の <script> のすぐ後ろ(kz-prefs の後)に、このファイルの <style> と <script> を貼る。
+  入れ方: kzConfirm の <script> のすぐ後ろ(kz-embed の後)に、このファイルの <style> と <script> を貼る。
           2回入れても害はない(window.kzRuby があれば何もしない)。ES5。外部通信なし。
 
   API (グローバルは window.kzRuby だけ):
@@ -463,8 +460,8 @@ ruby.kzr{ruby-position:over;}
 .kz-ptext{display:none}
 @media print{
   textarea{display:none !important}
-  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid #999;border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:#000;background:#fff}
-  .kz-ptext.kz-empty{color:#666}
+  .kz-ptext{display:block !important;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;border:1px solid var(--ef-muted);border-radius:0;padding:6px 8px;min-height:2.5em;break-inside:auto;color:var(--ef-text);background:var(--ef-surface)}
+  .kz-ptext.kz-empty{color:var(--ef-muted)}
 }
 </style>
 <script data-kz-print>
@@ -852,8 +849,8 @@ function warnings(p,isDraft){var c=CROP[p.cropId],out=[],a=aTask(p),h=hTask(p);
     else if(CROP[q.cropId].fam===c.fam&&c.fam!=='ine')out.push({lv:'warn',html:'⚠ 同じ区画「'+esc(p.plot)+'」で同じ科('+FAM[c.fam].name.split('(')[0]+')の'+cropPlain(q.cropId)+'も育てる計画です。連作にならないか確認しよう。'})})}
   return out}
 function msgHtml(ws,withFix){return ws.map(function(w){return '<div class="b3-msg b3-'+w.lv+'">'+w.html+
-  (w.fix&&withFix?' <button type="button" class="b3-btn b3-small" data-act="fixwin">適期に合わせる</button>':'')+
-  (w.early&&withFix?' <button type="button" class="b3-btn b3-small" data-act="early" data-v="'+w.early+'">間に合うように早める</button>':'')+'</div>'}).join('')}
+  (w.fix&&withFix?' <button type="button" class="ef-btn is-s" data-act="fixwin">適期に合わせる</button>':'')+
+  (w.early&&withFix?' <button type="button" class="ef-btn is-s" data-act="early" data-v="'+w.early+'">間に合うように早める</button>':'')+'</div>'}).join('')}
 
 /* ---------- ふりがな・文字の大きさ(全教材で共通の EduitFrame.prefs。上のバーのボタンは data-ef-pref) ---------- */
 function applyPrefs(){root.classList.toggle('b3-big',EduitFrame.prefs.get('fs')>=24)}
@@ -870,8 +867,8 @@ function render(){
   root.querySelectorAll('.b3-tabs [data-t]').forEach(function(b){b.setAttribute('aria-selected',b.getAttribute('data-t')===S.set.tab?'true':'false')});
   ({crop:rCrop,plan:rPlan,cal:rCal,eval:rEval,refl:rRefl})[S.set.tab]();
 }
-function nav(prev,next){if(FK_OFF&&next&&next[0]==='refl')next=null;return '<div class="b3-bottomnav b3-noprint">'+(prev?'<button type="button" class="b3-btn" data-act="tab" data-t="'+prev[0]+'">◀ '+prev[1]+'</button>':'<span></span>')+
-  (next?'<button type="button" class="b3-btn b3-primary" data-act="tab" data-t="'+next[0]+'">'+next[1]+' ▶</button>':'')+'</div>'}
+function nav(prev,next){if(FK_OFF&&next&&next[0]==='refl')next=null;return '<div class="b3-bottomnav b3-noprint">'+(prev?'<button type="button" class="ef-btn" data-act="tab" data-t="'+prev[0]+'">◀ '+prev[1]+'</button>':'<span></span>')+
+  (next?'<button type="button" class="ef-btn-primary" data-act="tab" data-t="'+next[0]+'">'+next[1]+' ▶</button>':'')+'</div>'}
 function obsTag(t){return t.kind==='obs'?'<span class="b3-obs">観察</span>':''}
 function whenText(c,t){return t.off<0?(-t.off)+'日前':t.off===0?c.start+'の日':t.off+'日目ごろ'}
 
@@ -883,11 +880,11 @@ function rCrop(){var c=CROP[S.cropId],reg=S.draft.region,hasAutumn=c.win.some(fu
   '<p class="b3-lead"><b>「いつ収穫したいか」から逆算</b>して、栽培暦をつくろう。①→④の順に進みます<span data-ef-reflect>(最後に「振り返り」)</span>。まず作物をタップしよう。</p>'+
   '<div class="b3-crops">'+ORDER.map(function(id){var k=CROP[id];return '<button type="button" class="b3-crop" data-act="crop" data-id="'+id+'" aria-pressed="'+(id===S.cropId)+'">'+badge(k)+
     '<span><b>'+cropName(id)+'</b><small>'+k.how+'</small><small>収穫まで 約'+hOff(id,'mid',1)+'日</small></span></button>'}).join('')+'</div>'+
-  '<div class="b3-grid2"><div class="b3-card"><div class="b3-row">'+badge(c,true)+'<h3 style="margin:0">'+cropName(S.cropId)+'</h3></div>'+
+  '<div class="b3-grid2"><div class="ef-box"><div class="b3-row">'+badge(c,true)+'<h3 style="margin:0">'+cropName(S.cropId)+'</h3></div>'+
   '<p><b>育て方:</b>'+c.how+'<br><b>'+c.start+'の適期(目安):</b>'+winText(c,reg)+'<span class="b3-muted">('+REG[reg].name+')</span><br><b>科:</b>'+FAM[c.fam].name.split('(')[0]+'</p>'+
   (c.noteReg&&c.noteReg[reg]?'<div class="b3-msg b3-info">ℹ '+c.noteReg[reg]+'</div>':'')+
   '<p><b>ポイント:</b>'+c.tip+'</p><p><b>組み合わせ・連作:</b>'+c.comp+(FAM[c.fam].years?'同じ科の作物を同じ場所で続けて育てるときは、'+FAM[c.fam].years+'あけるのが目安。':'')+'</p></div>'+
-  '<div class="b3-card"><h3 style="margin-top:0">作業の流れ(目安・'+REG[reg].name+')</h3>'+flowList(S.cropId,reg)+
+  '<div class="ef-box"><h3 style="margin-top:0">作業の流れ(目安・'+REG[reg].name+')</h3>'+flowList(S.cropId,reg)+
   '<p class="b3-muted">※「観察」の印は、作物が自然に育って起こること(発芽・開花など)です。休みでも動きません。<br>※「?」をタップすると、ことばの説明が出ます。</p>'+
   (hasAutumn?'<p class="b3-muted">※秋おそく(10月ごろから)にまくと、気温が低いので、育つのに時間がかかります。計画では、日数を約1.3倍にします。</p>':'')+
   '<p class="b3-muted">※日数は目安です。天気・品種・育てる場所で変わります。実際の育ち方を見て計画を直すことが大切です。</p></div></div>'+
@@ -900,7 +897,7 @@ function ensureDraftDates(){var d=S.draft,cid=S.cropId,c=CROP[cid];
   else if(!isDate(d.harvest)&&d.mode==='harvest'&&d.harvest!==''){d.harvest=add(d.start,hOff(cid,d.region,1))}}
 function holHtml(){
   return (S.hol.length?S.hol.map(function(h,i){return '<div class="b3-hol-item"><input type="text" class="b3-hn" aria-label="休みの名前" data-hol="l" data-i="'+i+'" value="'+esc(h.l)+'" placeholder="例:夏休み">'+
-    '<label class="b3-check"><input type="checkbox" data-act="holrep" data-i="'+i+'"'+(h.rep?' checked':'')+'> 毎年</label><button type="button" class="b3-btn b3-small b3-danger b3-hdel" data-act="holdel" data-i="'+i+'" aria-label="この休みを消す">消す</button>'+
+    '<label class="b3-check"><input type="checkbox" data-act="holrep" data-i="'+i+'"'+(h.rep?' checked':'')+'> 毎年</label><button type="button" class="ef-btn is-s is-danger b3-hdel" data-act="holdel" data-i="'+i+'" aria-label="この休みを消す">消す</button>'+
     '<span class="b3-dates"><input type="date" aria-label="はじまり" data-hol="s" data-i="'+i+'" value="'+esc(h.s)+'">〜<input type="date" aria-label="おわり" data-hol="e" data-i="'+i+'" value="'+esc(h.e)+'"></span>'+
     (h.draft?'<p class="b3-msg b3-info b3-hmsg">ℹ はじまりとおわりの日付を入れてください(入れるまでは計画に反映しません)。</p>':'')+
     (isDate(h.s)&&isDate(h.e)&&h.e<h.s?'<p class="b3-msg b3-bad b3-hmsg">おわりの日が、はじまりの日より前になっています。</p>':'')+'</div>'}).join(''):'<p class="b3-muted">まだ休業日は入っていません。</p>')+
@@ -910,30 +907,30 @@ var regionNote='', lastSavedSig='';
 function draftSig(){var d=S.draft;return JSON.stringify([S.cropId,d.region,d.mode,d.mode==='harvest'?d.harvest:d.start,d.plot,d.prev,d.early||0,+d.qty||1,S.hol,S.set.wk])}
 function rPlan(){ensureDraftDates();var d=S.draft,c=CROP[S.cropId];
   fill(main,'<h2>② '+cropName(S.cropId)+'の栽培計画をつくろう</h2>'+
-  '<p class="b3-lead">地域・収穫したい日・休みの日を入れよう。作業日が計算され、「計画の下書き」(横向きは右、縦向きは下)がすぐ変わります。<button type="button" class="b3-btn b3-small" data-act="tab" data-t="crop">作物を変える</button></p>'+
+  '<p class="b3-lead">地域・収穫したい日・休みの日を入れよう。作業日が計算され、「計画の下書き」(横向きは右、縦向きは下)がすぐ変わります。<button type="button" class="ef-btn is-s" data-act="tab" data-t="crop">作物を変える</button></p>'+
   '<div class="b3-grid2"><div>'+
-   '<div class="b3-card"><h3 style="margin-top:0">1. 地域(気温のちがい)</h3><div class="b3-seg">'+Object.keys(REG).map(function(k){return '<button type="button" data-act="region" data-v="'+k+'" aria-pressed="'+(d.region===k)+'">'+REG[k].name+'<small>'+REG[k].ex+'</small></button>'}).join('')+'</div>'+
+   '<div class="ef-box"><h3 style="margin-top:0">1. 地域(気温のちがい)</h3><div class="b3-seg">'+Object.keys(REG).map(function(k){return '<button type="button" data-act="region" data-v="'+k+'" aria-pressed="'+(d.region===k)+'">'+REG[k].name+'<small>'+REG[k].ex+'</small></button>'}).join('')+'</div>'+
    '<p class="b3-muted">寒い地域ほど適期がおそく(秋は早く)なり、育つのにも日数がかかります。収穫したい日はそのままなので、地域だけを変えてくらべてみよう。</p></div>'+
-   '<div class="b3-card"><h3 style="margin-top:0">2. 日にちの決め方</h3><div class="b3-seg">'+
+   '<div class="ef-box"><h3 style="margin-top:0">2. 日にちの決め方</h3><div class="b3-seg">'+
     '<button type="button" data-act="mode" data-v="harvest" aria-pressed="'+(d.mode==='harvest')+'">収穫したい日から<b>逆算</b><small>例:文化祭で使いたい</small></button>'+
     '<button type="button" data-act="mode" data-v="start" aria-pressed="'+(d.mode==='start')+'">'+c.start+'の日から計算<small>例:始める日が決まっている</small></button></div>'+
     '<label class="b3-field"><span>'+(d.mode==='harvest'?'収穫したい日(収穫をはじめる日)':c.start+'をする日')+'</span><input type="date" data-draft="'+(d.mode==='harvest'?'harvest':'start')+'" value="'+esc(d.mode==='harvest'?d.harvest:d.start)+'"></label></div>'+
-   '<div class="b3-card"><h3 style="margin-top:0">3. 休業日(作業できない日)</h3>'+
+   '<div class="ef-box"><h3 style="margin-top:0">3. 休業日(作業できない日)</h3>'+
     '<label class="b3-check"><input type="checkbox" data-act="wk"'+(S.set.wk?' checked':'')+'> 土曜・日曜は作業しない</label>'+
     '<div id="b3-hol">'+holHtml()+'</div><p class="b3-muted">休みと重なった作業は、近い登校日に動きます(収穫は休み明け)。「観察」は動きません。「毎年」にチェックすると、どの年の計画にも入ります。</p></div>'+
-   '<div class="b3-card"><h3 style="margin-top:0">4. 育てる場所</h3>'+
+   '<div class="ef-box"><h3 style="margin-top:0">4. 育てる場所</h3>'+
     '<label class="b3-field"><span>畑の区画・プランター名(なくてもよい)</span><input type="text" data-draft="plot" value="'+esc(d.plot)+'" placeholder="例:A区画、2班のプランター"></label>'+
     '<label class="b3-field"><span>数(プランター、または畑1m²の区画がいくつ分)</span><select data-draft="qty">'+[1,2,3,4,5,6,8,10].map(function(n){return '<option value="'+n+'"'+((+d.qty||1)===n?' selected':'')+'>'+n+'つ</option>'}).join('')+'</select></label>'+
     '<label class="b3-field"><span>その場所で前に育てた作物</span><select data-draft="prev">'+Object.keys(FAM).map(function(k){return '<option value="'+k+'"'+(d.prev===k?' selected':'')+'>'+FAM[k].name+'</option>'}).join('')+'</select></label></div>'+
-  '</div><div><div class="b3-card" id="b3-preview"></div></div></div>'+
+  '</div><div><div class="ef-box" id="b3-preview"></div></div></div>'+
   '<div class="b3-sumbar b3-noprint" id="b3-sumbar"></div>'+
-  '<div class="b3-card"><h3 style="margin-top:0">保存した計画('+S.plans.length+')</h3>'+plansHtml()+
-  (S.plans.length?'<div class="b3-row b3-noprint" style="margin-top:.6em"><button type="button" class="b3-btn" data-act="doc" data-s="all">📄 計画書にする(PDF・Googleドキュメント)</button></div>':'')+'</div>'+
+  '<div class="ef-box"><h3 style="margin-top:0">保存した計画('+S.plans.length+')</h3>'+plansHtml()+
+  (S.plans.length?'<div class="b3-row b3-noprint" style="margin-top:.6em"><button type="button" class="ef-btn" data-act="doc" data-s="all">📄 計画書にする(PDF・Googleドキュメント)</button></div>':'')+'</div>'+
   nav(['crop','作物をえらぶ'],['cal','カレンダーで見る']));
   rPreview();
 }
 function saveBtn(){var same=lastSavedSig&&lastSavedSig===draftSig();
-  return '<button type="button" class="b3-btn b3-primary" data-act="saveplan"'+(same?' disabled':'')+'>'+(same?'保存ずみ ✓':'この計画を保存する')+'</button>'}
+  return '<button type="button" class="ef-btn-primary" data-act="saveplan"'+(same?' disabled':'')+'>'+(same?'保存ずみ ✓':'この計画を保存する')+'</button>'}
 function rPreview(){var box=$('#b3-preview'),bar=$('#b3-sumbar');if(!box)return;var d=S.draft,c=CROP[S.cropId];
   var v=d.mode==='harvest'?d.harvest:d.start;
   if(!isDate(v)){fill(box,'<h3 style="margin-top:0">計画の下書き</h3><div class="b3-msg b3-bad">日にちを入れてください。</div>');
@@ -948,16 +945,16 @@ function rPreview(){var box=$('#b3-preview'),bar=$('#b3-sumbar');if(!box)return;
    msgHtml(ws,true)+timeline(p,false)+costHtml(p)+
    '<div class="b3-row" style="margin-top:.6em">'+saveBtn()+'</div>');
   if(bar)fill(bar,'<span class="b3-sumtxt"><b>'+c.start+' '+md(a.date)+'</b> → <b>収穫 '+md(h.date)+'</b>'+(nb?' <span class="b3-late">⚠ 注意'+nb+'件</span>':'')+'</span>'+
-    '<button type="button" class="b3-btn b3-small" data-act="toprev">くわしく見る</button>'+saveBtn());
+    '<button type="button" class="ef-btn is-s" data-act="toprev">くわしく見る</button>'+saveBtn());
 }
 function timeline(p,showDone){var c=CROP[p.cropId];return '<ol class="b3-flow">'+p.tasks.map(function(t){
-  var note='';if(t.moved&&t.kind!=='obs')note='<span class="b3-note">↪ 休みのため '+md(t.base)+' → '+md(t.date)+' に移動</span>';
+  var note='';if(t.moved&&t.kind!=='obs')note='<span class="b3-flownote">↪ 休みのため '+md(t.base)+' → '+md(t.date)+' に移動</span>';
   return '<li class="'+(showDone&&t.done?'b3-done':'')+(t.k==='prep'?' b3-prep':'')+'"><span class="b3-when">'+md(t.date)+(t.kind==='obs'?'ごろ':'')+'</span><span class="b3-what">'+ICON[t.k]+' '+esc(t.label)+obsTag(t)+(showDone&&t.done?' ✅':'')+note+'</span></li>'}).join('')+'</ol>'}
 function plansHtml(){if(!S.plans.length)return '<p class="b3-muted">まだありません。上で計画をつくって「この計画を保存する」を押そう。いくつでも保存できます(例:春と秋、ちがう作物)。</p>';
   return '<div class="b3-plans">'+S.plans.map(function(p){var done=p.tasks.filter(function(t){return t.done}).length;
     return '<div class="b3-plan'+(p.id===S.cur?' b3-cur':'')+'" style="border-left-color:'+planColor(p)+'"><div class="b3-row">'+badge(CROP[p.cropId])+'<b>'+cropName(p.cropId)+'</b>'+(p.id===S.cur?'<span class="b3-muted">(えらんでいる計画)</span>':'')+'</div>'+
     '<div class="b3-muted">'+REG[p.region].name+(p.plot?'・'+esc(p.plot):'')+'</div><div>'+CROP[p.cropId].start+' '+md(sowDate(p))+' 〜 収穫 '+md(effDate(hTask(p)))+'</div><div class="b3-muted">作業 '+done+'/'+p.tasks.length+' 完了・費用の目安 約'+yenS(costEst(p.cropId,p.tasks,p.qty).yen)+'</div>'+
-    '<div class="b3-row"><button type="button" class="b3-btn b3-small" data-act="opencal" data-id="'+p.id+'">カレンダー</button><button type="button" class="b3-btn b3-small" data-act="openeval" data-id="'+p.id+'">記録・評価</button><button type="button" class="b3-btn b3-small b3-danger" data-act="delplan" data-id="'+p.id+'">削除</button></div></div>'}).join('')+'</div>'}
+    '<div class="b3-row"><button type="button" class="ef-btn is-s" data-act="opencal" data-id="'+p.id+'">カレンダー</button><button type="button" class="ef-btn is-s" data-act="openeval" data-id="'+p.id+'">記録・評価</button><button type="button" class="ef-btn is-s is-danger" data-act="delplan" data-id="'+p.id+'">削除</button></div></div>'}).join('')+'</div>'}
 
 /* カレンダー */
 function events(){var ev={};S.plans.forEach(function(p){if(S.cal.filter!=='all'&&S.cal.filter!==p.id)return;
@@ -982,22 +979,22 @@ function rCal(){
     body+='</div>';
   }else{var ws=add(a,-dow(a));title=md(ws)+'〜'+md(add(ws,6));
     body='<div class="b3-week">';for(var j=0;j<7;j++){var dd=add(ws,j),hh=holOf(dd),ls=ev[dd]||[];
-      body+='<button type="button" class="b3-wday'+(hh?' b3-holday':'')+(dd===tdy?' b3-today':'')+(dd===S.cal.sel?' b3-sel':'')+'" data-act="day" data-d="'+dd+'"><span><b style="color:'+(dow(dd)===0?'#c62828':dow(dd)===6?'#1565c0':'inherit')+'">'+md(dd)+'</b>'+(hh?'<br><span class="b3-hl">休み:'+esc(hh.l||'')+'</span>':'')+'</span><span>'+(ls.length?ls.map(function(e){return evHtml(e,true)}).join(''):'<span class="b3-muted">作業なし</span>')+'</span></button>'}
+      body+='<button type="button" class="b3-wday'+(hh?' b3-holday':'')+(dd===tdy?' b3-today':'')+(dd===S.cal.sel?' b3-sel':'')+'" data-act="day" data-d="'+dd+'"><span><b class="'+(dow(dd)===0?'b3-sun':dow(dd)===6?'b3-sat':'')+'">'+md(dd)+'</b>'+(hh?'<br><span class="b3-hl">休み:'+esc(hh.l||'')+'</span>':'')+'</span><span>'+(ls.length?ls.map(function(e){return evHtml(e,true)}).join(''):'<span class="b3-muted">作業なし</span>')+'</span></button>'}
     body+='</div>'}
   fill(main,'<h2>③ カレンダー(栽培暦)</h2>'+
    (S.plans.length?'':'<div class="b3-msg b3-info">まだ計画がありません。②で計画をつくって保存すると、ここに作業が表示されます。</div>')+
    '<p class="b3-lead">日にちをタップすると、その日の作業が下に出ます。作業が終わったら「できた!」を押して記録しよう。点線のわくは「観察」(発芽・開花など、自然に起こること)です。</p>'+
    '<div class="b3-calbar b3-noprint"><div class="b3-seg" style="flex:0 0 auto"><button type="button" data-act="cview" data-v="month" aria-pressed="'+(S.cal.view==='month')+'" style="flex:0 0 auto">月</button><button type="button" data-act="cview" data-v="week" aria-pressed="'+(S.cal.view==='week')+'" style="flex:0 0 auto">週</button></div>'+
-   '<button type="button" class="b3-btn" data-act="cmove" data-v="-1" aria-label="前へ">◀</button><span class="b3-title">'+title+'</span><button type="button" class="b3-btn" data-act="cmove" data-v="1" aria-label="次へ">▶</button>'+
-   '<button type="button" class="b3-btn b3-small" data-act="ctoday">今日</button>'+
+   '<button type="button" class="ef-btn" data-act="cmove" data-v="-1" aria-label="前へ">◀</button><span class="b3-title">'+title+'</span><button type="button" class="ef-btn" data-act="cmove" data-v="1" aria-label="次へ">▶</button>'+
+   '<button type="button" class="ef-btn is-s" data-act="ctoday">今日</button>'+
    '<select data-act="cfilter" aria-label="表示する計画"><option value="all">すべての計画</option>'+S.plans.map(function(p){return '<option value="'+p.id+'"'+(S.cal.filter===p.id?' selected':'')+'>'+cropPlain(p.cropId)+'('+md(sowDate(p))+'〜)</option>'}).join('')+'</select></div>'+
    body+
    '<div class="b3-legend">'+S.plans.map(function(p){return '<span><i class="b3-sw" style="background:'+planColor(p)+'"></i>'+cropPlain(p.cropId)+'</span>'}).join('')+
-   '<span><i class="b3-sw" style="background:repeating-linear-gradient(135deg,#eef0f6 0 4px,#fff 4px 8px)"></i>しま模様=休業日</span><span><i class="b3-sw" style="box-shadow:inset 0 0 0 3px #f9a825"></i>今日</span><span><i class="b3-sw" style="border:1.5px dashed #7986cb"></i>点線=観察(〜ごろ)</span><span>線つき=完了</span></div>'+
-   '<div class="b3-card b3-daypanel" id="b3-daypanel">'+dayPanel()+'</div>'+
-   '<div class="b3-card b3-noprint"><h3 style="margin-top:0">書き出し</h3><div class="b3-row">'+
-   '<button type="button" class="b3-btn b3-primary" data-act="doc" data-s="vis"'+(S.plans.length?'':' disabled')+'>📄 計画書(PDF・Googleドキュメント)</button>'+
-   '<button type="button" class="b3-btn" data-act="csv"'+(S.plans.length?'':' disabled')+'>CSV(表計算用)</button><button type="button" class="b3-btn" data-act="ics"'+(S.plans.length?'':' disabled')+'>ICS(カレンダーアプリ用)</button></div>'+
+   '<span><i class="b3-sw b3-sw-hol"></i>しま模様=休業日</span><span><i class="b3-sw b3-sw-today"></i>今日</span><span><i class="b3-sw b3-sw-obs"></i>点線=観察(〜ごろ)</span><span>線つき=完了</span></div>'+
+   '<div class="ef-box b3-daypanel" id="b3-daypanel">'+dayPanel()+'</div>'+
+   '<div class="ef-box b3-noprint"><h3 style="margin-top:0">書き出し</h3><div class="b3-row">'+
+   '<button type="button" class="ef-btn-primary" data-act="doc" data-s="vis"'+(S.plans.length?'':' disabled')+'>📄 計画書(PDF・Googleドキュメント)</button>'+
+   '<button type="button" class="ef-btn" data-act="csv"'+(S.plans.length?'':' disabled')+'>CSV(表計算用)</button><button type="button" class="ef-btn" data-act="ics"'+(S.plans.length?'':' disabled')+'>ICS(カレンダーアプリ用)</button></div>'+
    '<p class="b3-muted">「すべての計画/えらんだ計画」の表示中のものを書き出します。計画書は、PDFに保存したり、Googleドキュメントで開いたりできます。ICSはカレンダーアプリに読みこめます。</p></div>'+
    nav(['plan','計画をつくる'],['eval','記録と評価']));
 }
@@ -1005,7 +1002,7 @@ function dayPanel(){var d=S.cal.sel;if(!isDate(d))return '<p class="b3-muted" st
   var list=events()[d]||[],h=holOf(d);
   return '<h3 style="margin-top:0">'+jdy(d)+(h?'(休み:'+esc(h.l||'')+')':'')+'</h3>'+(list.length?list.map(function(e){var obs=e.t.kind==='obs';
     return '<div class="b3-task" style="border-left-color:'+planColor(e.p)+'"><span>'+badge(CROP[e.p.cropId])+' <b>'+cropName(e.p.cropId)+'</b>:'+ICON[e.t.k]+' '+esc(e.t.label)+(obs?'ごろ'+obsTag(e.t):'')+gq(e.t.label)+(e.t.done?'<br><span class="b3-ontime">✅ '+(obs?'観察できた':'完了')+'('+md(e.t.actual)+')</span>':'')+'</span>'+
-    '<button type="button" class="b3-btn '+(e.t.done?'':'b3-primary')+'" data-act="toggle" data-id="'+e.p.id+'" data-t="'+e.t.id+'">'+(e.t.done?'取り消す':obs?'観察できた!':'できた!')+'</button></div>'}).join(''):'<p class="b3-muted">この日の作業はありません。</p>')}
+    '<button type="button" class="'+(e.t.done?'ef-btn':'ef-btn-primary')+'" data-act="toggle" data-id="'+e.p.id+'" data-t="'+e.t.id+'">'+(e.t.done?'取り消す':obs?'観察できた!':'できた!')+'</button></div>'}).join(''):'<p class="b3-muted">この日の作業はありません。</p>')}
 function markDone(p,t){t.done=true;t.actual=today()}
 function unmark(p,t){t.done=false;t.actual='';layout(p)}
 /* 完了にする前の確認(B3-02・25) */
@@ -1022,16 +1019,16 @@ function gap(t){if(!t.done||!isDate(t.actual)||!isDate(t.orig))return '<span cla
   return g>0?'<span class="b3-late">'+g+'日おくれ</span>':g<0?'<span class="b3-early">'+(-g)+'日早い</span>':'<span class="b3-ontime">予定どおり</span>'}
 function rEval(){var p=curPlan();if(!p&&S.plans.length){p=S.plans[0];S.cur=p.id}
   var head='<h2>④ 記録と評価</h2><p class="b3-lead">実際に作業した日を記録し、<b>計画とのずれ</b>をくらべます。育ちがおくれたときは「再計算」で残りの作業日を直そう。最後に原因と改善案を書きます。</p>';
-  var resetCard='<div class="b3-card b3-noprint"><h3 style="margin-top:0">書き出し・バックアップ</h3>'+(p?'<div class="b3-row">'+
-  '<button type="button" class="b3-btn b3-primary" data-act="doc" data-s="cur">📄 この計画の計画書(PDF・Googleドキュメント)</button><button type="button" class="b3-btn" data-act="csv1">この計画をCSVで書き出す</button><button type="button" class="b3-btn" data-act="ics1">この計画をICSで書き出す</button></div>':'')+
-  '<div class="b3-row" style="margin-top:.5em"><button type="button" class="b3-btn" data-act="backup">バックアップを書き出す</button><button type="button" class="b3-btn" data-act="restore">バックアップを読みこむ</button></div>'+
+  var resetCard='<div class="ef-box b3-noprint"><h3 style="margin-top:0">書き出し・バックアップ</h3>'+(p?'<div class="b3-row">'+
+  '<button type="button" class="ef-btn-primary" data-act="doc" data-s="cur">📄 この計画の計画書(PDF・Googleドキュメント)</button><button type="button" class="ef-btn" data-act="csv1">この計画をCSVで書き出す</button><button type="button" class="ef-btn" data-act="ics1">この計画をICSで書き出す</button></div>':'')+
+  '<div class="b3-row" style="margin-top:.5em"><button type="button" class="ef-btn" data-act="backup">バックアップを書き出す</button><button type="button" class="ef-btn" data-act="restore">バックアップを読みこむ</button></div>'+
   '<p class="b3-muted">バックアップ(JSONファイル)をとっておこう。端末を変えるときや、データが消えたときに使えます。</p>'+
-  '<div class="b3-row"><button type="button" class="b3-btn b3-danger" data-act="resetall">すべてのデータを消して最初から</button></div></div>';
+  '<div class="b3-row"><button type="button" class="ef-btn is-danger" data-act="resetall">すべてのデータを消して最初から</button></div></div>';
   if(!p){fill(main,head+'<div class="b3-msg b3-info">まだ計画がありません。②で計画をつくって保存してください。</div>'+resetCard+nav(['cal','カレンダー'],['refl','振り返り']));return}
   var done=p.tasks.filter(function(t){return t.done}),late=done.filter(function(t){return isDate(t.actual)&&diff(t.actual,t.orig)>0}),early=done.filter(function(t){return isDate(t.actual)&&diff(t.actual,t.orig)<0});
   var maxg=0;done.forEach(function(t){if(isDate(t.actual)){var g=Math.abs(diff(t.actual,t.orig));if(g>maxg)maxg=g}});
   fill(main,head+
-  '<div class="b3-card"><label class="b3-field"><span>計画をえらぶ</span><select data-act="evsel">'+S.plans.map(function(q){return '<option value="'+q.id+'"'+(q.id===p.id?' selected':'')+'>'+cropPlain(q.cropId)+'('+REG[q.region].name+'・'+md(sowDate(q))+'〜'+(q.plot?'・'+esc(q.plot):'')+')</option>'}).join('')+'</select></label>'+
+  '<div class="ef-box"><label class="b3-field"><span>計画をえらぶ</span><select data-act="evsel">'+S.plans.map(function(q){return '<option value="'+q.id+'"'+(q.id===p.id?' selected':'')+'>'+cropPlain(q.cropId)+'('+REG[q.region].name+'・'+md(sowDate(q))+'〜'+(q.plot?'・'+esc(q.plot):'')+')</option>'}).join('')+'</select></label>'+
   msgHtml(warnings(p,false).filter(function(w){return w.lv!=='info'}),false)+
   '<div class="b3-tablewrap"><table class="b3-tbl"><thead><tr><th>完了</th><th>作業</th><th>最初の予定</th><th>今の予定</th><th>実際にした日</th><th>最初の予定とのずれ</th></tr></thead><tbody>'+
   p.tasks.map(function(t){var obs=t.kind==='obs';return '<tr class="'+(t.done?'b3-done':obs?'b3-trobs':'')+'"><td><label class="b3-cbx"><input type="checkbox" data-act="evdone" data-t="'+t.id+'"'+(t.done?' checked':'')+' aria-label="'+esc(t.label)+'を完了にする"></label></td>'+
@@ -1039,12 +1036,12 @@ function rEval(){var p=curPlan();if(!p&&S.plans.length){p=S.plans[0];S.cur=p.id}
     '<td>'+(t.done?'<input type="date" data-act="evact" data-t="'+t.id+'" value="'+esc(t.actual)+'" aria-label="実際にした日">':'<span class="b3-muted">完了にすると入力</span>')+'</td><td>'+gap(t)+'</td></tr>'}).join('')+
   '</tbody></table></div>'+
   '<p class="b3-muted">「観察」は、発芽・開花など作物が自然に進むことです。見られた日を記録しよう。予定より先の作業を完了にするときは、確認が出ます。</p>'+
-  '<h3>育ちがおくれた・早まったとき</h3><div class="b3-row"><button type="button" class="b3-btn b3-primary" data-act="recalc">実際の日に合わせて残りを再計算</button>'+
-  (p.undo?'<button type="button" class="b3-btn" data-act="undo">↩ 元に戻す('+esc(p.undo.label)+'の前へ)</button>':'')+'</div>'+
+  '<h3>育ちがおくれた・早まったとき</h3><div class="b3-row"><button type="button" class="ef-btn-primary" data-act="recalc">実際の日に合わせて残りを再計算</button>'+
+  (p.undo?'<button type="button" class="ef-btn" data-act="undo">↩ 元に戻す('+esc(p.undo.label)+'の前へ)</button>':'')+'</div>'+
   '<p class="b3-muted">最後に完了した作業の「実際にした日」と「今の予定」のずれを見ます。ずれた分だけ、まだの作業をずらします。表の「ずれ」は、最初の予定とくらべた日数です。</p>'+
-  '<div class="b3-row"><span>まだの作業を</span><span class="b3-stepper"><button type="button" class="b3-btn b3-small" data-act="shn" data-v="-1" aria-label="1日へらす">−</button><input type="number" id="b3-shift" value="3" min="-60" max="60" inputmode="numeric" aria-label="ずらす日数"><button type="button" class="b3-btn b3-small" data-act="shn" data-v="1" aria-label="1日ふやす">＋</button></span><span>日</span><button type="button" class="b3-btn" data-act="shift">ずらす</button></div>'+
+  '<div class="b3-row"><span>まだの作業を</span><span class="b3-stepper"><button type="button" class="ef-btn is-s" data-act="shn" data-v="-1" aria-label="1日へらす">−</button><input type="number" id="b3-shift" value="3" min="-60" max="60" inputmode="numeric" aria-label="ずらす日数"><button type="button" class="ef-btn is-s" data-act="shn" data-v="1" aria-label="1日ふやす">＋</button></span><span>日</span><button type="button" class="ef-btn" data-act="shift">ずらす</button></div>'+
   '<p class="b3-muted">例:天気が悪くて育ちがおそい → ＋の日数。マイナスにすると早めます。</p></div>'+
-  '<div class="b3-card"><h3 style="margin-top:0">計画の評価</h3>'+
+  '<div class="ef-box"><h3 style="margin-top:0">計画の評価</h3>'+
   '<div class="b3-msg b3-info">完了した作業:'+done.length+'/'+p.tasks.length+'<br>予定よりおくれた作業:'+late.length+'、早かった作業:'+early.length+(done.length?'、いちばん大きなずれ:'+maxg+'日':'')+'</div>'+
   '<label class="b3-field"><span>計画と実際のずれ・育ちのようす</span><textarea data-ev="result" placeholder="例:間引きが予定より3日おくれた。発芽がそろわなかった。">'+esc(p.ev.result)+'</textarea></label>'+
   '<label class="b3-field"><span>ずれの原因(天気・気温・作業の都合・休みなど)</span><textarea data-ev="cause" placeholder="例:雨の日が続いて気温が低く、発芽がおそかった。">'+esc(p.ev.cause)+'</textarea></label>'+
@@ -1108,17 +1105,19 @@ function docModel(plans){var B=[],hs=S.hol.filter(function(h){return !h.draft&&i
   B.push({t:'note',x:'日にちは目安です。天気や作物の育ち方を見て、計画を直しましょう。(B3 栽培暦ビルダーで作成)'});
   return B}
 /* 画面・印刷・コピー用の HTML(コピーしても見た目が残るよう、書式はタグに直接書く) */
-function docHtml(B){var bd='border:1px solid #888;padding:4px 6px;vertical-align:top;text-align:left;';
+/* 計画書は Googleドキュメントなどに貼りつけるので、色は style に値を直に書く(貼った先には CSS がない)。値はここにまとめる */
+var DOC_COL={line:'#888',head:'#eef5ea',h2:'#2e7d32',note:'#444'};
+function docHtml(B){var bd='border:1px solid '+DOC_COL.line+';padding:4px 6px;vertical-align:top;text-align:left;';
   function br(s){return esc(s).replace(/\n/g,'<br>')}
   return B.map(function(b){
     if(b.t==='title')return '<h1 style="font-size:1.6em;margin:0 0 .4em;text-align:center">'+esc(b.x)+'</h1>';
-    if(b.t==='h2')return '<h2 style="font-size:1.3em;margin:1.2em 0 .4em;border-bottom:2px solid #2e7d32;padding-bottom:2px">'+esc(b.x)+'</h2>';
+    if(b.t==='h2')return '<h2 style="font-size:1.3em;margin:1.2em 0 .4em;border-bottom:2px solid '+DOC_COL.h2+';padding-bottom:2px">'+esc(b.x)+'</h2>';
     if(b.t==='h3')return '<h3 style="font-size:1.08em;margin:.9em 0 .3em">'+esc(b.x)+'</h3>';
     if(b.t==='li')return '<p style="margin:.15em 0 .15em 1em">・'+br(b.x)+'</p>';
-    if(b.t==='note')return '<p style="margin:1.2em 0 0;font-size:.85em;color:#444">'+esc(b.x)+'</p>';
-    if(b.t==='kv')return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+b.rows.map(function(r){return '<tr><th style="'+bd+'width:26%;background:#eef5ea">'+esc(r[0])+'</th><td style="'+bd+'">'+(r[1]?br(r[1]):'&nbsp;')+'</td></tr>'}).join('')+'</table>';
+    if(b.t==='note')return '<p style="margin:1.2em 0 0;font-size:.85em;color:'+DOC_COL.note+'">'+esc(b.x)+'</p>';
+    if(b.t==='kv')return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+b.rows.map(function(r){return '<tr><th style="'+bd+'width:26%;background:'+DOC_COL.head+'">'+esc(r[0])+'</th><td style="'+bd+'">'+(r[1]?br(r[1]):'&nbsp;')+'</td></tr>'}).join('')+'</table>';
     if(b.t==='table'){var tot=b.w.reduce(function(a,x){return a+x},0);
-      return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+(b.head?'<thead><tr>'+b.head.map(function(x,i){return '<th style="'+bd+'background:#eef5ea;width:'+Math.round(b.w[i]/tot*100)+'%">'+esc(x)+'</th>'}).join('')+'</tr></thead>':'')+
+      return '<table style="border-collapse:collapse;width:100%;margin:.3em 0">'+(b.head?'<thead><tr>'+b.head.map(function(x,i){return '<th style="'+bd+'background:'+DOC_COL.head+';width:'+Math.round(b.w[i]/tot*100)+'%">'+esc(x)+'</th>'}).join('')+'</tr></thead>':'')+
         '<tbody>'+b.rows.map(function(r){return '<tr>'+r.map(function(x){return '<td style="'+bd+'">'+(x?br(x):'&nbsp;')+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>'}
     return ''}).join('')}
 /* .docx(Word 形式。Googleドキュメントで開ける)をその場で作る。外部の部品は使わない */
@@ -1173,10 +1172,10 @@ function openDoc(plans){if(!plans||!plans.length){toast('まだ計画があり�
   closeDoc();docPlans=plans;docPrev=document.activeElement;
   var ov=document.createElement('div');ov.className='b3-docov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-labelledby','b3-doctitle');
   ov.innerHTML='<div class="b3-docbox"><div class="b3-docbar"><h2 id="b3-doctitle">栽培計画書(PDF・Googleドキュメント)</h2><div class="b3-row">'+
-    '<button type="button" class="b3-btn b3-primary" data-act="docpdf">PDFで保存・印刷</button>'+
-    '<button type="button" class="b3-btn" data-act="docx">Googleドキュメント用(.docx)</button>'+
-    '<button type="button" class="b3-btn" data-act="doccopy">コピーして貼りつける</button>'+
-    '<button type="button" class="b3-btn" data-act="docclose">とじる</button></div>'+
+    '<button type="button" class="ef-btn-primary" data-act="docpdf">PDFで保存・印刷</button>'+
+    '<button type="button" class="ef-btn" data-act="docx">Googleドキュメント用(.docx)</button>'+
+    '<button type="button" class="ef-btn" data-act="doccopy">コピーして貼りつける</button>'+
+    '<button type="button" class="ef-btn" data-act="docclose">とじる</button></div>'+
     '<p class="b3-muted b3-dochint">PDF:印刷の画面で、送信先を「PDFに保存」にします。Googleドキュメント:.docx をドライブで開くか、「コピー」して貼りつけます。</p></div>'+
     '<div class="b3-docscroll"><div class="b3-doc kz-norb" id="b3-doc" lang="ja">'+docHtml(docModel(plans))+'</div></div></div>';
   root.appendChild(ov);if(window.kzRuby){kzRuby(ov.querySelector('.b3-docbar'));fitRuby(ov.querySelector('.b3-docbar'))}
@@ -1200,15 +1199,15 @@ var SELF=[['a','作物の性質をもとに、作業日を逆算して計画を�
 var LV=[[3,'◎ よくできた'],[2,'○ できた'],[1,'△ もう少し']];
 function rRefl(){
   fill(main,'<h2>振り返り</h2><p class="b3-lead">この教材で学んだことを、自分の言葉で書こう。入力すると自動で保存されます。書き終わったら「テキストで書き出す」か「印刷」で提出しよう。</p>'+
-  '<div class="b3-card"><div class="b3-who"><label class="b3-field"><span>組</span><input type="text" data-r="kumi" value="'+esc(R.kumi)+'" placeholder="例:1年2組" autocomplete="off"></label>'+
+  '<div class="ef-box"><div class="b3-who"><label class="b3-field"><span>組</span><input type="text" data-r="kumi" value="'+esc(R.kumi)+'" placeholder="例:1年2組" autocomplete="off"></label>'+
   '<label class="b3-field"><span>番号</span><input type="text" data-r="ban" value="'+esc(R.ban)+'" placeholder="例:15" inputmode="numeric" autocomplete="off"></label>'+
   '<label class="b3-field b3-wname"><span>名前</span><input type="text" data-r="name" value="'+esc(R.name)+'" placeholder="例:山田 花子" autocomplete="off"></label></div>'+
   '<p class="b3-muted" style="margin:.5em 0 0">つくった計画:'+(S.plans.length?S.plans.map(function(p){return cropPlain(p.cropId)+'('+md(sowDate(p))+'〜)'}).join('、'):'なし')+'</p></div>'+
-  Q.map(function(q,i){return '<div class="b3-card"><label class="b3-field"><span>'+(i+1)+'. '+q[1]+'</span><textarea data-r="'+q[0]+'" rows="4">'+esc(R[q[0]])+'</textarea></label></div>'}).join('')+
-  '<div class="b3-card"><h3 style="margin-top:0">自己評価</h3><div class="b3-self">'+SELF.map(function(s){return '<span>'+s[1]+'</span><div class="b3-seg" role="group" aria-label="'+s[1]+'">'+LV.map(function(l){return '<button type="button" data-act="self" data-k="'+s[0]+'" data-v="'+l[0]+'" aria-pressed="'+(R.self[s[0]]===l[0])+'">'+l[1]+'</button>'}).join('')+'</div>'}).join('')+'</div></div>'+
-  '<div class="b3-card b3-noprint"><div class="b3-row"><button type="button" class="b3-btn b3-primary" data-act="rsave">保存する</button><button type="button" class="b3-btn" data-act="rtxt">テキストで書き出す</button><button type="button" class="b3-btn" data-act="rcopy">コピーする</button><button type="button" class="b3-btn" data-act="rprint">印刷する</button></div>'+
+  Q.map(function(q,i){return '<div class="ef-box"><label class="b3-field"><span>'+(i+1)+'. '+q[1]+'</span><textarea data-r="'+q[0]+'" rows="4">'+esc(R[q[0]])+'</textarea></label></div>'}).join('')+
+  '<div class="ef-box"><h3 style="margin-top:0">自己評価</h3><div class="b3-self">'+SELF.map(function(s){return '<span>'+s[1]+'</span><div class="b3-seg" role="group" aria-label="'+s[1]+'">'+LV.map(function(l){return '<button type="button" data-act="self" data-k="'+s[0]+'" data-v="'+l[0]+'" aria-pressed="'+(R.self[s[0]]===l[0])+'">'+l[1]+'</button>'}).join('')+'</div>'}).join('')+'</div></div>'+
+  '<div class="ef-box b3-noprint"><div class="b3-row"><button type="button" class="ef-btn-primary" data-act="rsave">保存する</button><button type="button" class="ef-btn" data-act="rtxt">テキストで書き出す</button><button type="button" class="ef-btn" data-act="rcopy">コピーする</button><button type="button" class="ef-btn" data-act="rprint">印刷する</button></div>'+
   '<p class="b3-saved" id="b3-saved" aria-live="polite">'+savedText()+'</p>'+
-  '<div class="b3-row" style="margin-top:.6em"><button type="button" class="b3-btn b3-danger" data-act="resetall">すべてのデータを消して最初から</button></div>'+
+  '<div class="b3-row" style="margin-top:.6em"><button type="button" class="ef-btn is-danger" data-act="resetall">すべてのデータを消して最初から</button></div>'+
   '<p class="b3-muted">共用のタブレットで、次の人に使ってもらう前に押そう。計画・休業日・記録・振り返りが、すべて消えます。</p></div>'+
   nav(['eval','記録と評価'],null));
 }

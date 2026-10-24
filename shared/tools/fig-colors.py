@@ -21,7 +21,7 @@ PROP_SUFFIX = {'fill': '', 'stroke': '-line', 'background': '', 'background-colo
 def name_for(selector, prop):
     classes = re.findall(r'\.([\w-]+)', selector.split(',')[0])
     base = classes[-1] if classes else re.sub(r'\W+', '-', selector.strip()).strip('-') or 'x'
-    base = re.sub(r'^(f|k|fig)-', '', base)
+    base = re.sub(r'^(f|k|fig|[a-z]\d+)-', '', base)  # 教材の頭の字(b1- など)は名前に入れない
     return 'fig-' + base + PROP_SUFFIX.get(prop, '-' + prop)
 
 
