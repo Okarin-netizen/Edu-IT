@@ -5,7 +5,8 @@
 
 | ファイル | 中身 |
 |---|---|
-| `eduit-frame.css` | 共通の色・文字・ヘッダー・ボタン・カード・フッター・ダイアログ |
+| `eduit-frame.css` | 共通の見た目。① 設定(色・文字・余白・線・はばの値)と ② 共通の部品(ボタン・箱・注意の箱・ラベル・入力欄・表・タブ・上のバー・メニュー・フッター・ダイアログ)。中は6つの章に分かれていて、先頭に目次がある |
+| `ef-mihon.html` | 見本帳。①の色・文字・余白と、②の部品を全部ならべたページ(分野の色・文字の大きさ・くっきりの切りかえ付き)。設定を変えたら、ブラウザで開いて全部の部品の変わり方を見る |
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
 | `eduit-frame.js`  | 自習モードの「自習ガイド」(下の「自習モード」)、フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
 | `style-check.py` | 見た目の点検の道具。教材の CSS に、決まりにない色の値・角丸・影・フォントの指定・`!important`・古い色の名前・px の文字の大きさがないかを、ファイル名と行番号つきで出す(下の「見た目の点検と撮影」) |
@@ -27,6 +28,50 @@
 1ファイル版を作るビルドでは、この3つを `<style>` / `<script>` として中に入れます(外部ファイルを読まない)。
 
 ## 枠の決まり
+
+### 見た目の3つの層
+
+| 層 | 置き場所 | 書くもの |
+|---|---|---|
+| ① 設定(トークン) | `eduit-frame.css` の 1章 | 色・文字・余白・線・はばの **値**。値はここにだけ書く。色を変えたいときは、ここの1行を変えれば全分野が変わる |
+| ② 共通の部品 | `eduit-frame.css` の 2〜4章 | 下の表の部品。教材はクラス名を付けるだけ |
+| ③ 教材だけの見た目 | 各教材の CSS | 図・盤面・シミュレーションの絵と、その教材にしかない並べ方だけ。色・字の大きさ・余白は①の名前(`var(--ef-…)`)を使う。図の色は教材の CSS のいちばん上で `--fig-…` の名前を付けて書く |
+
+教材の CSS に書かないもの: 色の値(図の `--fig-…` の外)・角丸・影・`font-family`・`!important`・共通の部品と同じものの作り直し・ダークモードの指定・px の字の大きさ(rem・em で書く)。
+本物に似せた画面(D5 ネット詐欺 追体験ラボのスマホ・メールの画面など)は③のままでよい(`/* style-check: off */` ではさむ)。
+
+**①の主な名前**: 地と面 `--ef-bg` `--ef-surface` `--ef-surface-2`、線 `--ef-line`(細い灰)`--ef-ink`(黒)、字 `--ef-text` `--ef-muted`、分野の色 `--ef-accent` `--ef-accent-soft`、発展 `--ef-advanced`、
+状態の色 `--ef-ok` `--ef-ng` `--ef-warn` `--ef-info`(それぞれ `-soft` はうすい地)、グラフの線 `--ef-series-1`〜`5`、
+字 `--ef-font` `--ef-mono` `--ef-fs`(ふだんの字)`--ef-fs-h1`〜`h3` `--ef-fs-s` `--ef-lh`、余白 `--ef-sp-1`〜`6`(4・8・12・16・24・32px)、線の太さ `--ef-bw` `--ef-bw-strong` `--ef-mark`、
+高さ `--ef-tap`(44px)`--ef-tap-s`(36px)`--ef-tap-bar`(上のバーのボタン 40px)、はば `--ef-read-w`(1040px)。
+
+**②の部品**(書き方の見本は `ef-mihon.html`):
+
+| 部品 | クラス | 使う場面 |
+|---|---|---|
+| 中身の箱 | `main.ef-main`(1040px まで真ん中)・`.ef-main.is-wide`(作業の画面。画面いっぱい) | 教材の中身を全部この中に入れる。中の `h1` `h2` `h3` `p` `ul` 入力欄は、クラスなしでそろった形になる |
+| ボタン | `.ef-btn`・`.ef-btn-primary`(黒でぬる。いちばん大事な操作)・`.is-s`(小さい)・`.is-danger`(消す)・`.is-on` か `aria-pressed="true"`(ON。下線) | |
+| ボタンの行 | `.ef-row` | ボタン・入力欄を横にならべる |
+| 箱 | `.ef-box`(見出しは `.ef-box-h`)・`.is-soft`(灰の地)・`.is-accent`(左に分野の色の線) | カード・パネル |
+| 注意・お知らせ | `.ef-note` と `.is-warn` `.is-info` `.is-ok` `.is-ng`(見出しの字は `.ef-note-k`) | 注意・ポイント・よい・危ない |
+| 小さなラベル | `.ef-tag` と `.is-accent` `.is-advanced` `.is-ok` `.is-ng` `.is-warn` | 「切断」「基本編」「発展」「振り返り: まだ」 |
+| 1つえらぶボタン | `.ef-seg` の中に `button[aria-pressed]` | 「回転・往復・ゆれる」など |
+| クイズの答え | `.ef-choices` の中に `.ef-choice`、答えたら `.is-ok` / `.is-ng`(○ × も出る) | |
+| 表 | `table.ef-table`(数字の列は `.is-num`)。はみ出すときは `.ef-scroll` で包む | |
+| 結果の数字 | `.ef-result` の中に `.ef-result-k`(名前)`.ef-result-v`(数字)`.ef-result-u`(単位) | 「たわみ 1.05mm」 |
+| 進み具合 | `.ef-progress` の中に字と `.ef-progress-bar > span[style="width: 50%"]` | 「必修 2/4」 |
+| アプリのタブ | `.ef-apptabs` の中に `.ef-apptab`(発展は `.is-advanced`)、右はしの道具は `.ef-apptabs-tools` | 下の「アプリの中のタブの帯」 |
+| タブの中の切りかえ | `.ef-subtabs` の中に `button[role=tab]` | タブの中のさらに小さな切りかえ |
+
+### 表示の設定(文字の大きさ・ふりがな・くっきり)
+
+`EduitFrame.prefs`(`eduit-frame.js`)が全教材で1つの設定を持つ。覚える場所は localStorage `eduit.prefs` の1つだけで、どの教材で変えても全教材(同じページの iframe も)に効く。
+
+- 上のバーのボタンに `data-ef-pref="ruby"`(ふりがな)・`data-ef-pref="fs"`(文字 小・中・大・特大 = 15・17・20・24px)・`data-ef-pref="kukkiri"`(くっきり)を付けるだけで、`EduitFrame.mount()` がボタンにする。
+- ボタンのない教材(教材集の iframe の中など)は `EduitFrame.prefs.use()` を呼ぶ。どちらでも `<html data-ef-prefs>` になり、`<html>` の字が `--ef-fs` になる(教材の字は rem・em で書けば一緒に大きくなる)。
+- `<html>` には `data-ef-ruby="on|off"`・`data-ef-kukkiri="on|off"` が付く。ふりがなを付ける・外すなど教材ですることは `EduitFrame.prefs.on(function (key, value) {…})` で受ける。`get(key)`・`set(key, value)` もある。
+
+### 形のきまり
 
 **見た目は「教科書の目次」(案1, 2026-10-24)**: 白地・黒の細い線・角なし・影なし・絵文字なし。色は分野の色を、記号(A1 など)・開いているタブの下線・ON のボタンの下線にだけ使う。
 新しい教材も角丸(`border-radius`)と落ちる影(`box-shadow`)を使わない(丸い点・つまみなど、もとから丸いものは別)。

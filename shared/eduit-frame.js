@@ -34,6 +34,9 @@
  *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
  *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * 表示の設定(全教材で1つ): EduitFrame.prefs。上のバーのボタンに data-ef-pref="ruby" / "fs" / "kukkiri" を付けると、
+ *   ふりがな・「文字 中」(小・中・大・特大)・くっきりのボタンになる。ボタンのない教材は EduitFrame.prefs.use()。
+ *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。くわしくは下の「表示の設定」。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
@@ -268,6 +271,7 @@
     ]);
   }
   function mount() {
+    prefsMount();
     if (app.footer === false) return;
     var slot = document.querySelector('[data-ef-footer]');
     var about = document.querySelector('[data-ef-about]');
@@ -551,6 +555,85 @@
     update();
     return update;
   }
+
+  // ---- 表示の設定(文字の大きさ・ふりがな・くっきり。全教材で1つ) ----
+  // 覚える場所は localStorage 'eduit.prefs' の1つだけ。どの教材で変えても、ほかの教材(同じページの iframe もほかのタブも)に効く。
+  //   fs:      文字の大きさ(px)。FS_STEPS の 15・17・20・24 のどれか → <html> の --ef-fs
+  //   ruby:    ふりがな(true / false。はじめは false)→ <html data-ef-ruby="on|off">
+  //   kukkiri: くっきり(true / false)→ <html data-ef-kukkiri="on|off">(eduit-frame.css が字と線を濃くする)
+  // 使い方:
+  //   上のバーのボタンに data-ef-pref="fs" / "ruby" / "kukkiri" を付けるだけで、EduitFrame.mount() がボタンにする。
+  //   ボタンのない教材(教材集の iframe の中など)は EduitFrame.prefs.use() を呼ぶ。どちらでも <html data-ef-prefs> になり、<html> の字が --ef-fs になる。
+  //   ふりがなを付ける・外すなど、変わったときに教材ですることは EduitFrame.prefs.on(function (key, value) {…}) で受ける。
+  var PREFS_KEY = 'eduit.prefs';
+  var FS_STEPS = [[15, '小'], [17, '中'], [20, '大'], [24, '特大']];
+  var PREF_DEFAULTS = { fs: 17, ruby: false, kukkiri: false };
+  var prefListeners = [];
+  function prefsLoad() {
+    var v = {};
+    try { v = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') || {}; } catch (e) {}
+    var out = {};
+    Object.keys(PREF_DEFAULTS).forEach(function (k) { out[k] = typeof v[k] === typeof PREF_DEFAULTS[k] ? v[k] : PREF_DEFAULTS[k]; });
+    return out;
+  }
+  var prefState = prefsLoad();
+  function prefsApply() {
+    var h = document.documentElement;
+    h.style.setProperty('--ef-fs', prefState.fs + 'px');
+    h.setAttribute('data-ef-ruby', prefState.ruby ? 'on' : 'off');
+    h.setAttribute('data-ef-kukkiri', prefState.kukkiri ? 'on' : 'off');
+  }
+  function prefsNotify(changed) {
+    changed.forEach(function (k) { prefListeners.forEach(function (fn) { try { fn(k, prefState[k]); } catch (e) {} }); });
+    prefsPaintButtons();
+  }
+  function prefGet(k) { return prefState[k]; }
+  function prefSet(k, value) {
+    if (!(k in PREF_DEFAULTS) || prefState[k] === value) return;
+    prefState[k] = value;
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefState)); } catch (e) {}
+    prefsApply();
+    prefsNotify([k]);
+  }
+  function prefsUse() { document.documentElement.setAttribute('data-ef-prefs', ''); prefsApply(); }
+  // ほかの教材(ほかのタブ・同じページの iframe)で変えたとき
+  window.addEventListener('storage', function (e) {
+    if (e.key !== PREFS_KEY) return;
+    var old = prefState;
+    prefState = prefsLoad();
+    prefsApply();
+    prefsNotify(Object.keys(PREF_DEFAULTS).filter(function (k) { return old[k] !== prefState[k]; }));
+  });
+  var prefSizeUpdates = [];
+  function prefsPaintButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-pref="ruby"], [data-ef-pref="kukkiri"]'), function (b) {
+      b.setAttribute('aria-pressed', prefState[b.getAttribute('data-ef-pref')] ? 'true' : 'false');
+    });
+    prefSizeUpdates.forEach(function (u) { u(); });
+  }
+  function prefsMount() {
+    var btns = document.querySelectorAll('[data-ef-pref]:not([data-ef-pref-done])');
+    if (!btns.length) return;
+    prefsUse();
+    Array.prototype.forEach.call(btns, function (b) {
+      var k = b.getAttribute('data-ef-pref');
+      b.setAttribute('data-ef-pref-done', '');
+      if (k === 'fs') {
+        prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
+      } else if (k === 'ruby' || k === 'kukkiri') {
+        b.classList.add('ef-btn', 'ef-toggle');
+        b.type = 'button';
+        if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
+        b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
+      }
+    });
+    prefsPaintButtons();
+  }
+  prefsApply();
+  var prefs = {
+    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount,
+    on: function (fn) { prefListeners.push(fn); }
+  };
 
   // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
   function autoHide() {
@@ -1012,7 +1095,7 @@
   }
   watchPlain();  // 読みこみの途中から見はる(はじめに絵文字が一瞬出ないように)
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, prefs: prefs, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
   function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
