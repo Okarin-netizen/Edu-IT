@@ -1385,7 +1385,7 @@ function renderSide() {
 /* --- 課題・構想 --- */
 function renderBrief() {
   var t = task(), d = D(), n = d.notes, seen = {};
-  var h = '<div class="e5-col" style="width:44%;flex:none"><h2>① 課題をえらぶ</h2><div class="e5-tasks">';
+  var h = '<div class="e5-col" style="width:44%;flex:none"><div data-ef-lets="c22"></div><h2>① 課題をえらぶ</h2><div class="e5-tasks">';
   TASKS.forEach(function (x) {
     var dd = S.save.designs[x.id], prog = '';
     if (dd && dd.parts.length) {
@@ -1597,7 +1597,9 @@ function modal(html) {
   ov.innerHTML = '<div class="e5-modal" role="dialog" aria-modal="true">' + html + '</div>';
   ov.addEventListener('click', function (e) { if (e.target === ov) closeModal(); });
   S.root.appendChild(ov); S.ov = ov;
-  var b = ov.querySelector('.acts .e5-btn.primary') || ov.querySelector('.e5-btn'); if (b) b.focus();
+  // ボタンにフォーカスすると窓が下までスクロールして、はじめの説明が見えなくなるので、スクロールさせない
+  var b = ov.querySelector('.acts .e5-btn.primary') || ov.querySelector('.e5-btn'); if (b) b.focus({ preventScroll: true });
+  var m = ov.querySelector('.e5-modal'); if (m) m.scrollTop = 0;
 }
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function optSvg(kind) {
@@ -1856,7 +1858,8 @@ function mount(root) {
   }
   bindInput(); build();
   if (S.view === 'edit') say(D().parts.length ? '前の回路図のつづきだよ。' + (isPortrait() ? '下' : '右') + 'の自動チェックと条件を見ながら直そう。' : (isPortrait() ? '上' : '左') + 'の記号をえらんで、点と点の間をタップしよう。');
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
 }
 
 NS.C7 = {

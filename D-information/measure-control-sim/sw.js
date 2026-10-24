@@ -1,5 +1,5 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "mcsim-v11";
+const CACHE = "mcsim-v12";
 const FILES = [
   "./",
   "index.html",

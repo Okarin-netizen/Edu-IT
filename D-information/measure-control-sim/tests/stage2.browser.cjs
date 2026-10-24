@@ -62,10 +62,10 @@ const prog = (page, sid) => page.evaluate((id) => JSON.parse(localStorage.getIte
     await page.waitForTimeout(150);
   };
 
-  // MC-09: はじめに授業の進め方と目安
+  // MC-09: 授業の進め方と目安は先生用ページだけ。生徒のはじめにには出さない
   await go("#/");
   const home = await page.textContent("#view");
-  ok(home.includes("授業の進め方（3時間）") && home.includes("1時間目") && home.includes("3時間目") && home.includes("目安 40分（2時間目）"), "はじめに: 3時間の進め方と場面ごとの目安");
+  ok(!home.includes("授業の進め方（3時間）") && !home.includes("時間目") && !home.includes("目安 40分"), "はじめに: 時間の目安を出さない");
   ok(home.includes("＋ ここに入れる"), "はじめにの使い方に、ブロックの入れ方");
 
   // MC-06: 模範プログラムはガイドにない。先生用ページはメニューにない
@@ -83,7 +83,7 @@ const prog = (page, sid) => page.evaluate((id) => JSON.parse(localStorage.getIte
 
   // MC-09・MC-02: 場面④ははじめから「もし」の中のメモの下が選ばれている
   await go("#/s/traffic-button");
-  ok(/目安 25分（3時間目）/.test(await page.textContent(".scn-head")), "場面④に目安");
+  ok(!/目安|時間目/.test(await page.textContent(".scn-head")), "場面④に時間の目安を出さない（先生用ページにある）");
   const active = await page.evaluate(() => {
     const a = document.querySelector(".blk-slot.active");
     return a && a.closest(".blk-if") && a.previousElementSibling?.classList.contains("blk-comment");

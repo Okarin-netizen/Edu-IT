@@ -529,6 +529,9 @@
     var evRadar = null, evHints = null, evRows = {};
     function renderEval() {
       var el = P.eval; if (!el) return; el.innerHTML = '';
+      // 「まず考えよう」(shared/eduit-frame.js の LETS。分野ごとの節: A 1編2章5・B 2編2章4・C 3編2章4・D 4編2章5)
+      var letsId = { A: 'a25', B: 'b24', C: 'c24', D: 'd25' }[D.domain];
+      if (letsId) el.appendChild(h('div', { 'data-ef-lets': letsId }));
       var E = D.ev;
       var modeBtns = [['res', 'できあがり(評価)'], ['tgt', 'はじめの目標']].map(function (m) {
         return h('button', { type: 'button', class: 'mn-seg-b', 'aria-pressed': String(E.mode === m[0]), onclick: function () { E.mode = m[0]; changed(); renderEval(); } },

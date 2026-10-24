@@ -60,7 +60,6 @@ function renderHome() {
       h("span", { class: "scn-num" }, `ステージ${s.label}・${s.level === "basic" ? "基本編" : "発展編"}`),
       h("span", { class: "scn-title" }, s.title),
       h("span", { class: "scn-desc" }, s.goal),
-      h("span", { class: "scn-time" }, `目安 ${s.time}`),
       h("span", { class: `scn-status${best && (s.free || best.passed === best.total) ? " done" : ""}` }, status),
     );
   });
@@ -195,7 +194,7 @@ function renderStage(sid) {
   const head = h(
     "section",
     { class: "card scn-head" },
-    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `${s.label} ${s.title}`), h("span", { class: "scn-time" }, `${s.level === "basic" ? "基本編" : "発展編"}・目安 ${s.time}`)),
+    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `${s.label} ${s.title}`), h("span", { class: "scn-time" }, s.level === "basic" ? "基本編" : "発展編")),
     h("p", { class: "scn-goal" }, h("strong", {}, "めあて："), s.goal),
     h(
       "details",
@@ -796,6 +795,7 @@ function renderEval() {
     return h("div", { class: "field" }, h("label", { for: tid, class: "block-label" }, q), ta, note);
   });
   view.replaceChildren(
+    h("div", { "data-ef-lets": "d35" }),
     h("h1", {}, T_EVAL),
     h(
       "section",

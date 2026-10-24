@@ -57,7 +57,7 @@ test("SEC-70: △のときに出す「よりよい答え」がどの問いにも
 
 test("第3段: ふりがな・キャッシュ名", () => {
   assert.equal(json("data/ruby.json").words["枠"], "わく");
-  assert.match(read("sw.js"), /seclab-v13"/);
+  assert.match(read("sw.js"), /seclab-v14"/);
 });
 
 // ---- ブラウザ ----

@@ -1058,7 +1058,7 @@ function alertsFor(pl){
 }
 R.home = function(){
   var p=P(), el=$('#b4-home');
-  if(!p){ el.innerHTML=''; return askName(true); }
+  if(!p){ el.innerHTML=startHtml(); return; }
   var ap=activePlan(), h='';
   h+='<h2>こんにちは、'+esc(p.name)+' さん</h2>';
   /* エクスポートの促し */
@@ -1107,6 +1107,16 @@ function loadImgs(root){
   });
 }
 
+/* はじめて開いたとき: 名前の登録の前に、この教材ですることを見せる(登録の画面から始まると、何の教材か分からないため) */
+function startHtml(){
+  return '<div data-ef-lets="b23"></div>'+
+    '<div class="card"><h2 style="margin-top:0">🌱 この教材ですること</h2>'+
+    '<p>本物の作物を育てながら、毎日のようすを記録します。</p>'+
+    '<ul><li>計画: いつ何をするかを決める。</li><li>記録・診断: 草たけや写真を残し、こまったら原因を考える。</li><li>評価: 育て方がよかったかをふり返る。</li></ul>'+
+    '<p>記録はこのタブレットに保存されます。はじめに、自分の名前(または班の名前)を登録しよう。</p>'+
+    '<div class="row"><button type="button" class="btn pri" data-act="startName">名前を登録して始める</button></div></div>';
+}
+function needName(){ return '<div class="card"><p>先に名前(または班の名前)を登録しよう。</p><button type="button" class="btn pri" data-act="startName">名前を登録する</button></div>'; }
 /* 名前の登録・切り替え */
 function askName(first){
   var p=P();
@@ -1132,7 +1142,7 @@ function addProfile(){
 /* ================= 計画 ================= */
 var planEdit = null, calMonth = null, calSel = null;
 R.plan = function(opt){
-  var el=$('#b4-plan'), p=P(); if(!p){ el.innerHTML=''; return; }
+  var el=$('#b4-plan'), p=P(); if(!p){ el.innerHTML=needName(); return; }
   if(opt.edit!==undefined) planEdit = opt.edit;
   var h='<h2>🗓️ 育成計画</h2>';
   if(planEdit!==null || !p.plans.length){ el.innerHTML = h+planForm(planEdit? plan(planEdit) : null); updateSeason(); return; }
@@ -1223,7 +1233,7 @@ function calDayHTML(ap){
 /* ================= 記録(日誌) ================= */
 var draft = null; // 入力中の記録
 R.entry = function(opt){
-  var el=$('#b4-entry'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-entry'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>✏️ 記録</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), F=FIELDS[c.cat];
   if(opt.id){ var e0=P().entries.filter(function(e){return e.id===opt.id;})[0]; if(e0){ draft=JSON.parse(JSON.stringify(e0)); ap=plan(e0.planId)||ap; if(P().activePlan!==ap.id){ P().activePlan=ap.id; save(); } c=crop(ap.cropId); F=FIELDS[c.cat]; } }
@@ -1393,7 +1403,7 @@ function attachTip(cv){
 }
 var graphOpt = {metric:'m1', temp:true, compare:null};
 R.graph = function(){
-  var el=$('#b4-graph'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-graph'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>📈 グラフ</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), F=FIELDS[c.cat], es=entriesOf(ap.id);
   var metrics=[['m1',c.m1.label+'('+c.m1.unit+')']]; if(c.m2) metrics.push(['m2',c.m2.label+'('+c.m2.unit+')']); if(F.ph) metrics.push(['ph','pH']); metrics.push(['water',F.water.label+'('+F.water.unit+')']);
@@ -1437,7 +1447,7 @@ function drawGraph(){
 /* ================= 写真タイムライン ================= */
 var phSel=[];
 R.photos = function(){
-  var el=$('#b4-photos'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-photos'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>📷 写真</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), es=entriesOf(ap.id).filter(function(e){ return (e.photoIds||[]).length; });
   var h='<h2>📷 写真タイムライン</h2>'+planPicker();
@@ -1531,7 +1541,7 @@ var WHATIF = {
 };
 var wi = {delta:0, sel:{}, futureT:null, planId:null};
 R.predict = function(){
-  var el=$('#b4-predict'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-predict'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>🔮 予測</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), F=FIELDS[c.cat], dt=dailyTemps(ap);
   if(wi.planId!==ap.id){ wi={delta:0, sel:{}, futureT:null, planId:ap.id}; }
@@ -1699,7 +1709,7 @@ var DIAG = {
 };
 var dg={where:null, sym:null};
 R.diag = function(){
-  var el=$('#b4-diag'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-diag'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>🩺 診断</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), D=DIAG[c.cat];
   if(dg.where && !D.sym[dg.where]) dg={where:null,sym:null};
@@ -1729,7 +1739,7 @@ R.diag = function(){
 
 /* ================= 評価シート ================= */
 R.eval = function(){
-  var el=$('#b4-eval'), ap=activePlan(); if(!P()){ el.innerHTML=''; return; }
+  var el=$('#b4-eval'), ap=activePlan(); if(!P()){ el.innerHTML=needName(); return; }
   if(!ap){ el.innerHTML='<h2>📝 評価</h2>'+needPlan(); return; }
   var c=crop(ap.cropId), ev=P().evals[ap.id]||{};
   var h='<h2>📝 収穫(育成)後の評価シート</h2>'+planPicker();
@@ -1803,7 +1813,7 @@ function savedLabel(){
 }
 function autoLabel(){ return '<p class="autosave" data-autosave>入力すると自動で保存されます</p>'; }
 R.refl = function(){
-  var el=$('#b4-refl'), p=P(); if(!p){ el.innerHTML=''; return; }
+  var el=$('#b4-refl'), p=P(); if(!p){ el.innerHTML=needName(); return; }
   var r=p.refl||{}, ap=reflPlan();
   var h='<h2>💭 振り返り</h2>';
   h+='<div class="card soft"><div class="reflhead">'+
@@ -2044,7 +2054,8 @@ APP.addEventListener('click', function(ev){
   var a=b.dataset.act, v=b.dataset.v, id=b.dataset.id, p=P(), ap=activePlan();
   switch(a){
   case 'tab': if(cur==='entry') collectDraft(); go(v, {anchor:b.dataset.anchor}); break;
-  case 'who': askName(false); break;
+  case 'who': askName(!P()); break;
+  case 'startName': askName(true); break;
   case 'closeOv': closeOverlay(); break;
   case 'addProfile': addProfile(); break;
   case 'switchProfile': switchProfile(id); closeOverlay(); toast('「'+P().name+'」に切り替えました'); break;

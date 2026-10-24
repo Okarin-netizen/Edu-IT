@@ -471,7 +471,7 @@ test("NW-08・NW-13・NW-16・NW-17: 足りない機器の案内・用語・ク�
   assert.equal(new Set(placeholders).size, 5);
   assert.ok(!src("js/ui.js").includes("すると安全になる"));
   const app = src("js/app.js");
-  assert.ok(app.includes("授業で使うとき（2時間）"));
+  assert.ok(!app.includes("授業で使うとき（2時間）"), "時間わりは先生用ガイドに移した。生徒の画面には出さない");
   assert.ok(/num: 1, period: 1/.test(app) && /num: 2, period: 1/.test(app) && /num: 3, period: 2/.test(app) && /num: 4, period: 2/.test(app) && /num: 5, period: 2/.test(app));
 });
 

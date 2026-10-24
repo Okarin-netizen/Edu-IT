@@ -71,7 +71,6 @@ function renderHome() {
       h("span", { class: "scn-num" }, `場面${s.label}`),
       h("span", { class: "scn-title" }, s.title),
       h("span", { class: "scn-desc" }, s.summary),
-      s.time ? h("span", { class: "scn-time" }, `目安 ${s.time}（${s.period}時間目）`) : null,
       h("span", { class: `scn-status${best && best.passed === best.total ? " done" : ""}` }, status),
     );
   });
@@ -80,14 +79,20 @@ function renderHome() {
       "section",
       { class: "card hero" },
       h("h1", {}, "計測・制御シミュレータ"),
-      h("p", { class: "lead" }, "センサで「はかる（計測）」、コンピュータが「判断」、モーターやLEDを「動かす（制御）」。自動ドアや信号機と同じしくみを、画面の中で作って確かめよう。"),
-      homeDiagram(),
-      h("p", {}, "センサの電気信号は、インタフェースがデジタルの数に変えます（A/D変換）。「明るさ 0〜100」は、変えたあとの数です。命令をLEDやモーターの信号に変えるのもインタフェースです（この画面では見えません）。"),
+      h("p", { class: "lead" }, "暗くなると、街灯が勝手につきます。人が近づくと、自動ドアが開きます。"),
+      h("p", {}, "これは、まわりを「はかって」、コンピュータが「決めて」、ものを「動かす」しくみです。"),
+      h("p", {}, "このしくみを、画面の中で作って確かめよう。"),
+      h(
+        "details",
+        { class: "home-more" },
+        h("summary", {}, "くわしく: 計測・制御のしくみ（センサ・インタフェース・アクチュエータ）"),
+        homeDiagram(),
+        h("p", {}, "センサの電気信号は、インタフェースが数に変えます（A/D変換）。「明るさ 0〜100」は、変えたあとの数です。"),
+      ),
       h("p", { class: "author-line" }, "作成：技術 岡田"),
     ),
     h("h2", { class: "section-title" }, "場面をえらぶ"),
     h("div", { class: "scn-grid" }, cards),
-    planCard(),
     h(
       "section",
       { class: "card" },
@@ -106,7 +111,7 @@ function renderHome() {
   );
 }
 
-// 授業の進め方（3時間）。はじめにと先生用ページに出す
+// 授業の進め方（3時間）。先生用ページだけに出す（生徒の画面には時間を出さない）
 function planRows() {
   const byPeriod = [1, 2, 3].map((p) => scenarios.filter((s) => s.period === p));
   const names = (list) => list.map((s) => `${s.label} ${s.title.replace(/（.*?）/g, "")}（${s.time}）`).join("、");
@@ -115,16 +120,6 @@ function planRows() {
     ["2時間目", `${names(byPeriod[1])}、ふりかえり（10分）`],
     ["3時間目", `${names(byPeriod[2])}、ふりかえり・記録の書き出し（10分）`],
   ];
-}
-
-function planCard() {
-  return h(
-    "section",
-    { class: "card plan" },
-    h("h2", {}, "授業の進め方（3時間）"),
-    h("table", { class: "data plan-table" }, h("tbody", {}, planRows().map(([a, b]) => h("tr", {}, h("th", {}, a), h("td", {}, b))))),
-    h("p", { class: "hint" }, "時間は目安です。終わらなかったところは、次の時間に続きから始められます。プログラムは、この端末に自動で保存されます。"),
-  );
 }
 
 // 信号機のグラフの線は、ランプの色でかく
@@ -368,7 +363,7 @@ function renderScenario(sid) {
   const head = h(
     "section",
     { class: "card scn-head" },
-    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `${s.label} ${s.title}`), s.time ? h("span", { class: "scn-time" }, `目安 ${s.time}（${s.period}時間目）`) : null),
+    h("div", { class: "scn-title-row" }, h("h1", {}, h("span", { "aria-hidden": "true" }, s.icon, " "), `${s.label} ${s.title}`)),
     h("p", { class: "scn-goal" }, h("strong", {}, "めあて："), s.goal),
     h(
       "details",

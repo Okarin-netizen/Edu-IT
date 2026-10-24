@@ -246,6 +246,22 @@
       }, function (k) { quizState.idx = k; renderQuiz(); }, quizState.idx));
     }
 
+    // はじめに: 第三角法のきまり(クイズの前に、図の置き方を見せる。1問でも答えたら、たたんでおく)
+    var exSolid = M.fromHeights([[2, 1], [1, 0]]);
+    var anyDone = Object.keys(rec.data.quiz).length > 0;
+    var intro = h('details', { class: 'card a4-intro' },
+      h('summary', null, h('strong', null, '第三角法のきまり'), '(はじめに読もう)'),
+      h('p', null, '品物を、前・上・右の3つの方向から見た形をかきます。これを三面図といいます。'),
+      h('div', { class: 'a4-intro-figs' },
+        h('figure', null, svgNode(SV.iso(M.isoLines(exSolid), { cell: 30, aria: '品物の例(等角図)' })), h('figcaption', null, '品物の例')),
+        h('figure', null, svgNode(SV.threeView(M.threeViews(exSolid), { cell: 30, guides: true, aria: '品物の例の三面図' })), h('figcaption', null, '三面図'))),
+      h('ul', null,
+        h('li', null, '前から見た形が正面図です。左下にかきます。'),
+        h('li', null, '上から見た形が平面図です。正面図の上にかきます。'),
+        h('li', null, '右から見た形が右側面図です。正面図の右にかきます。')));
+    if (!anyDone) intro.open = true;
+    root.appendChild(h('div', { 'data-ef-lets': 'a22' }));
+    root.appendChild(intro);
     root.appendChild(h('div', { class: 'card' },
       h('h2', null, '三面図クイズ'),
       h('p', null, '左の立体を第三角法でかいた三面図はどれですか。立体はドラッグや矢印キーで回せます。'),

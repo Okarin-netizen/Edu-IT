@@ -1,5 +1,5 @@
 // オフラインで使えるように、スタジオのファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "istudio-v9";
+const CACHE = "istudio-v10";
 const FILES = [
   "./",
   "index.html",

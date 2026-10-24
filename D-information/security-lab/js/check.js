@@ -6,9 +6,9 @@ import { CATALOG } from "./catalog.js";
 
 const ID = "check";
 const MODES = [
-  { id: "事前テスト", desc: "学習を始める前に1回。各モジュール1問ずつ。1回目の点が記録になります。" },
+  { id: "事前テスト", desc: "学習を始める前に1回。①〜⑨から1問ずつ。1回目の点が記録になります。" },
   { id: "事後テスト", desc: "学習のあとに。事前テストと同じ問題で、伸びを確かめます。1回目の点が記録になります。" },
-  { id: "練習", desc: "練習したいモジュールにチェックを入れて始めよう。1回に10問まで出ます（毎回ちがう問題が出ます）。" },
+  { id: "練習", desc: "練習したい項目にチェックを入れて始めよう。1回に10問まで出ます（毎回ちがう問題が出ます）。" },
   { id: "復習", desc: "これまでにまちがえた問題だけに挑戦します。" },
 ];
 
@@ -106,9 +106,9 @@ export async function renderCheck(view, available, easy = "") {
     else if (mode === "復習") set = pool.filter((q) => reviewIds().has(q.id));
     else {
       const chosen = moduleBoxes.filter((b) => b.input.checked).map((b) => b.id);
-      if (!chosen.length) return toast("練習したいモジュールにチェックを入れよう");
+      if (!chosen.length) return toast("練習したい項目にチェックを入れよう");
       set = practiceSet(pool, chosen);
-      if (!set.length && policy.hideCore) return toast("このモジュールの練習問題は、事後テストのあとで出ます。ほかのモジュールも選ぼう");
+      if (!set.length && policy.hideCore) return toast("この項目の練習問題は、事後テストのあとで出ます。ほかの項目も選ぼう");
     }
     if (!set.length) return toast(mode === "復習" ? "復習する問題はありません" : "問題がありません");
     runQuiz(mode, set, policy);
@@ -213,7 +213,7 @@ export async function renderCheck(view, available, easy = "") {
             { class: m.id === "練習" ? "module-card practice-card" : "module-card" },
             h("span", { class: "mc-title" }, m.id),
             h("span", { class: "mc-desc" }, m.desc),
-            m.id === "練習" ? h("details", { open: true, class: "practice-picker" }, h("summary", {}, "モジュールを選ぶ"), h("div", { class: "check-list" }, moduleBoxes.map((b) => h("label", { class: "check-item" }, b.input, h("span", {}, titleOf(b.id)))))) : "",
+            m.id === "練習" ? h("details", { open: true, class: "practice-picker" }, h("summary", {}, "項目を選ぶ"), h("div", { class: "check-list" }, moduleBoxes.map((b) => h("label", { class: "check-item" }, b.input, h("span", {}, titleOf(b.id)))))) : "",
             h("button", { class: "btn", type: "button", onclick: () => start(m.id) }, "はじめる"),
           ),
         ),

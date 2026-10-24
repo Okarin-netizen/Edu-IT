@@ -337,6 +337,17 @@ html.ef-jishu-open .ef-jishu-fab { display: none; }
 }
 @media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
 
+/* まず考えよう(各節の導入の問い。shared/eduit-frame.js の LETS) */
+.ef-lets { margin: 0 0 12px; padding: 10px 16px 10px 14px; background: var(--ef-accent-soft); border-left: 6px solid var(--ef-accent); border-radius: 10px; color: inherit; line-height: 1.6; font-size: 1.05em; }
+.ef-lets-k { margin: 0; font-size: .85em; font-weight: bold; color: var(--ef-accent); letter-spacing: .05em; }
+.ef-lets-k::before { content: "💭 "; }
+.ef-lets-q { margin: 2px 0 0; font-weight: bold; font-size: 1.1em; }
+.ef-lets .ef-lets-hint { margin: 4px 0 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+/* 教材ごとの details・summary の見た目(白い箱など)を受けつがない */
+.ef-lets .ef-lets-hint > summary { display: list-item; min-height: 0; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: var(--ef-accent); font-size: .9em; font-weight: normal; width: max-content; }
+.ef-lets-hint p { margin: 4px 0 0; }
+@media print { .ef-lets-hint { display: none; } }
+
 </style>
   <style>
 /* ネット詐欺 追体験ラボ。色・文字・ボタンは共通の枠(shared/eduit-frame.css)の --ef-* を使う */
@@ -695,8 +706,8 @@ button.sb-mail:hover { background: #eef3fb; }
     domain: 'D',
     domainName: '情報の技術',
     suite: '情報の技術 教材集',
-    version: '2.2',
-    updated: '2026-10-23',
+    version: '2.3',
+    updated: '2026-10-24',
     app: meta && meta.content ? { name: meta.content } : undefined,
     safety: [
       '情報セキュリティ体験ラボのパスワード強度ラボに入れた文字は、その画面の中で強さを調べるためだけに使い、保存も送信もしません。本物のパスワードは入れないでください。',
@@ -706,6 +717,7 @@ button.sb-mail:hover { background: #eef3fb; }
       '双方向コンテンツ制作スタジオの「サーバー」は、その端末のブラウザの中の模型です。作品やアンケートの答えは、ほかの端末には送られません。'
     ],
     history: [
+      { version: '2.3', date: '2026-10-24', items: ['教材の入り口に、教科書の節ごとの「まず考えよう」の問いを出した(D2・D4 ①・D6・D8 評価・D9 ①・D11)', '生徒の画面から、時間の目安・何時間目・授業の計画表・学習指導要領の文を外した(先生用ガイドの「教材ごとの進め方の例」にある)', 'D2・D7 のはじめにを、身近な例から始まる短い文にした。むずかしい言葉は「くわしく」の中にした'] },
       { version: '2.2', date: '2026-10-23', items: ['記号を教科書の順に付け直した(D1 仮想CPU・D2 デジタル化・D8 火星探査・D9 生成AI・D10 ハッシュ化)', 'D4 に「① 情報を守るしくみ」を足し、ほかの教材と同じ内容の3つ(デジタル化と情報量・ネットワーク通信の模擬・ハッシュ体験)を倉庫に移して ①〜⑨ にした。D11 の「③ 技術の最適化」を基本編にした', 'メニューの4章のさいごに「学習のまとめ」を足した。カードを「名前・1行の説明・教科書の節」にし、説明の文を短くした(1か所3文まで)'] },
       { version: '2.1', date: '2026-10-19', items: ['自習モードを足した。自習用のファイル(生徒に配る/自習用/)か生徒用サイトの ?jishu=on で開くと、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・この場所へ・たしかめ問題)が出て、メニューに進め方と進み具合が出る(「1. 配り方と開き方」の「自習で進めるとき」)'] },
       { version: '2.0', date: '2026-10-18', items: [
@@ -915,7 +927,7 @@ window.EDUIT_INFO.jishu = {
         { where: '⑤ SNS投稿の個人情報チェック', do: '写真と文章から、場所や学校がわかる手がかりを探そう。⑥ デジタルタトゥーで、投稿が広がるようすも見よう。', hint: '駅の看板、電柱の住所表示、制服の校章、影の長さを見てみよう。⑥は「▶ 時間を進める」を押そう。見た人が8人以上になってから、消してみよう。', go: '#/sns' },
         { where: '⑦ 著作権・利用ルールクイズ', do: '場面ごとに、使ってよいか考えて答えよう。⑧ 判断ロールプレイで、自分ならどうするかも選ぼう。', hint: 'ロールプレイは、正解を当てなくてかまいません。ちがう道も選んで、結末をくらべてみよう。', go: '#/copyright' },
         { where: '⑨ まとめ・行動宣言', do: '今日から実行する対策を3つ選んで、「この3つで宣言する」を押そう。そのあと、理解度チェックの「事後テスト」を受けよう。', hint: '事後テストでまちがえた問題は、「復習」で確かめよう。体験したステップにもどれます。', go: '#/declare' },
-        { where: 'ふりかえり', do: '各モジュールのいちばん下に「ふりかえり」があります。なぜその対策で安全になるのか、書こう。', hint: '理由を入れて書こう。「〜だから、〜すると安全になる」の形です。', reflect: true },
+        { where: 'ふりかえり', do: '①〜⑨の各ページのいちばん下に「ふりかえり」があります。なぜその対策で安全になるのか、書こう。', hint: '理由を入れて書こう。「〜だから、〜すると安全になる」の形です。', reflect: true },
         { where: 'ふりかえり・記録', do: 'クラス(組)と出席番号を入れて、「JSONで書き出す」を押そう。できたファイルを、先生の言う場所に出そう。', hint: 'テストの点も、ファイルに入ります。パスワード強度ラボで入れた文字は入りません。', go: '#/records' }
       ],
       check: [
@@ -965,7 +977,7 @@ window.EDUIT_INFO.jishu = {
       goal: 'センサの値をプログラムで判断して、LED・モーター・ランプを自動で制御できるようになる。テストで確かめて直す流れも身につける。',
       time: '3時間',
       steps: [
-        { where: 'はじめに', do: 'はじめに、センサからアクチュエータまでの図を読もう。そのあと「場面をえらぶ」の場面①を開こう。', hint: '場面は①から順に進めます。カードの「目安」の時間を見て、1時間に1〜2場面のペースで進めよう。プログラムは自動で保存されるので、続きは次の時間にできます。', go: '#/' },
+        { where: 'はじめに', do: 'はじめにを読もう。そのあと「場面をえらぶ」の場面①を開こう。', hint: '場面は①から順に進めよう。しくみの図は「くわしく」を開くと見られます。プログラムは自動で保存されるので、続きは次の時間にできます。', go: '#/' },
         { where: '① 街灯', do: 'めあてと「場面の説明」を読もう。暗くなったらつき、明るくなったら消えるプログラムにしよう。「✔ テストを実行」で全部合格をめざそう。', hint: 'はじめは、つける命令しかありません。「もし」の「＋「でなければ」を付ける」を押して、消す命令を入れよう。こまったら「ヒントを見る」。', go: '#/s/streetlight' },
         { where: '② 自動ドア', do: '人が近づいたら開き、いなくなったら閉まるドアにしよう。しきい値(距離の数)を変えながら、4つのテストに全部合格しよう。', hint: 'ドアは開くのに1秒、人は1秒に約100cm歩きます。しきい値が小さすぎるとぶつかり、大きすぎると「店の前を通りすぎる」で不合格です。理由を読んで、数を少しずつ変えよう。', go: '#/s/door' },
         { where: '③ 信号機', do: '「待つ」を使って、車の信号を 青→黄→赤→青 にしよう。歩行者は、車が赤のときだけ青にしよう。合格したら「改善メモ」に直したところを書き、「メモを保存」を押そう。', hint: '黄は3秒以上、歩行者の青は4秒以上、車も歩行者も赤の時間(全赤)は1秒以上です。不合格のときは「▶ このケースを再生」を押そう。「デバッグ」のグラフで、赤い点線の時刻を見てみよう。', go: '#/s/traffic' },
@@ -1866,6 +1878,11 @@ window.EDUIT_INFO.jishu.ruby = {
  *   1つのページの中でアプリを切りかえる教材集は、開いたときに EduitFrame.jishuApp('C4')、メニューにもどったら EduitFrame.jishuApp(null) を呼ぶ。
  *   できた印と答えは localStorage 'eduit.jishu.v1.<記号>'。メニュー(levels に code を渡したとき)は基本編の上に進め方の説明、カードに進み具合を出す。
  *
+ * まず考えよう(教科書の各節の「レッツスタート」にあたる導入): 下の LETS に、学習コース(T-textbook/course-data.js)の節の id ごとに
+ *   { q: '問い', hint: 'ヒント' } を書く。文は教科書を写さず、この教材のために書いたもの(1文40字くらい)。
+ *   教材の画面では、そのタブのいちばん上に <div data-ef-lets="a12"></div> を置くだけで、カードが入る(JS で後から作る画面でもよい)。
+ *   学習コースは EduitFrame.lets(id) でデータを、EduitFrame.letsCard(id) でカードを取る。
+ *
  * 基本編・発展編(メニュー用): EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, code: function (item) { return 'A1'; } })
  *   code を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行を出す(カードの順 = 番号の順 = おすすめの順)。
  *   EDUIT_INFO.levels = {
@@ -2639,9 +2656,98 @@ window.EDUIT_INFO.jishu.ruby = {
     });
   });
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); } };
+
+  // ---- まず考えよう(各節の導入の問い。id は学習コースの節の id) ----
+  var LETS = {
+    a11: { q: '身の回りの物を3つ選ぼう。それぞれ何の材料でできているかな?', hint: '机・はし・ペットボトルなど。木・金属・プラスチックのどれかな。' },
+    a12: { q: '木・金属・プラスチックは、家や学校のどこに使われているかな?', hint: 'いすの脚、窓のわく、筆箱など。なぜその材料なのかも考えよう。' },
+    a13: { q: '同じ紙でも、折ったり形を変えたりすると強くなるのはなぜだろう?', hint: '段ボールや、三角形の骨組みを思い出そう。' },
+    a14: { q: '飲み物の容器には、どんな工夫があるかな? よく見てさがそう。', hint: '形・材料・ふたのつくりなどに注目しよう。' },
+    a21: { q: '教室の机やいすで「こうだったらいいのに」と思うことは?', hint: '物を置く場所、すわり心地、片づけやすさなど。' },
+    a22: { q: '作りたい物で、いちばん大事にしたいことは何かな?', hint: '大きさ・じょうぶさ・使いやすさなど。図にかく前に1つ決めよう。' },
+    a23: { q: '材料や工具をむだなく用意するには、何を決めておくとよいかな?', hint: '部品の大きさと数、切る順番、使う工具など。' },
+    a24: { q: 'のこぎりやげんのうを使うとき、気をつけることを思い出そう。', hint: '手の位置、まわりの人、服装など。' },
+    a25: { q: '作った物で、はじめの「困った」は解決できたかな?', hint: 'できたこと・できなかったことを1つずつ考えよう。' },
+    a31: { q: '自分の作品とお店の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    a32: { q: '木や金属をむだなく使うには、どんな技術があるとよいかな?', hint: 'リサイクルや、長く使える工夫など。' },
+    b11: { q: '冬なのに、夏の野菜がお店にならぶのはなぜだろう?', hint: 'どこで、どうやって育てているかを考えよう。' },
+    b12: { q: '畑の土を黒いシートでおおうと、作物に何がよいのだろう?', hint: '土の温度・水分・雑草のことを考えよう。' },
+    b13: { q: 'キャベツが虫に食べられないようにするには、どんな世話が必要かな?', hint: '見回り、ネットをかける、間引きなど。' },
+    b14: { q: '牛乳をたくさん出す牛は、どうやって生まれてきたのだろう?', hint: '育て方や、親えらびのくり返しを考えよう。' },
+    b15: { q: '魚を「とる」だけでなく「育てる」のはなぜだろう?', hint: 'とれる量の変化や、食べる人の数を考えよう。' },
+    b16: { q: '畑の野菜と、工場の中で育てる野菜は、何がちがうかな?', hint: '光・水・温度・費用のちがいを考えよう。' },
+    b21: { q: '食べ物や環境のために、育てる技術で解決したいことは?', hint: '食べ物のむだ、水不足、育てる人がへることなど。' },
+    b22: { q: '作物を育てる計画で、いちばん大事にしたいことは何かな?', hint: 'とれる量・費用・手間・安全など。順位をつけてみよう。' },
+    b23: { q: 'ミニトマトの葉がしおれていたら、原因は何だと思う?', hint: '水・暑さ・根・病気・虫など、いくつも考えよう。' },
+    b24: { q: '育てた結果を、どんな見方でふり返るとよいかな?', hint: 'できばえ、とれた量、かかった費用、安全など。' },
+    b31: { q: '自分の育て方と農家の育て方は、何がにていて何がちがうかな?', hint: '育てる量や、費用・手間を考えよう。' },
+    b32: { q: 'これからの農業や漁業に、どんな技術があるとよいかな?', hint: '人手が少なくても育てられる工夫など。' },
+    c11: { q: '扇風機・電灯・テレビは、電気を何に変えて使っているかな?', hint: '光・熱・音・動き。1つの機器でいくつも変えていることもある。' },
+    c12: { q: '風車の羽根の形や枚数を変えると、できる電気は変わるかな?', hint: '予想を立ててから確かめよう。' },
+    c13: { q: 'コンセントの電気と乾電池の電気は、どこがちがうのかな?', hint: '電圧の大きさや、どこから来ているかを考えよう。' },
+    c14: { q: '扇風機の風の強さを変えられるのは、どんなしくみかな?', hint: 'スイッチと、電気の流れる量に注目しよう。' },
+    c15: { q: '電気の事故には、どんなものがあるかな? 原因も考えよう。', hint: 'たこ足配線、ぬれた手、こわれたコードなど。' },
+    c16: { q: '扇風機の中で、羽根を回しているのは何だろう?', hint: 'モーターから羽根まで、力がどう伝わるかを考えよう。' },
+    c17: { q: '自転車のペダルを1回こぐと、後ろの車輪は何回回るかな?', hint: '前と後ろの歯車の大きさ(歯の数)をくらべよう。' },
+    c18: { q: '回る動きを、ほかの動きに変えている物をさがそう。', hint: 'ワイパー、ミシン、ポンプなど。まっすぐ・ゆれる動きに変わる。' },
+    c19: { q: 'ねじの大きさが製品ごとにばらばらだったら、何が困るかな?', hint: '部品の交換や修理のときを考えよう。' },
+    c110: { q: '新しい家電には、前の物よりどんな工夫があるかな?', hint: '省エネ、安全、使いやすさに注目しよう。' },
+    c21: { q: '電気や機械で「あったらいいな」と思う物は何かな?', hint: '家や学校の明かり、温度、動く物など。' },
+    c22: { q: '作りたい回路には、どんな部品が必要かな?', hint: '電源・スイッチ・明かりやモーター・安全のための部品。' },
+    c23: { q: 'どんな動きをする模型を作りたいかな?', hint: '回る、行ったり来たりする、持ち上げる など。身近な物から考えよう。' },
+    c24: { q: '作った物は、使う人にとって安全で便利だったかな?', hint: 'はたらき・使いやすさ・安全・環境への影響で考えよう。' },
+    c31: { q: '自分の作品と会社の製品は、何がにていて何がちがうかな?', hint: '費用・安全・作る数などを考えよう。' },
+    c32: { q: 'エネルギーをむだにしない技術には、どんなものがあるとよいかな?', hint: '電気をつくる・送る・使う、それぞれで考えよう。' },
+    d11: { q: 'タブレットやスマホを、ふだん何のために使っているかな?', hint: '調べもの、連絡、写真、勉強など。' },
+    d12: { q: 'タブレットに文字や命令を入れる方法は、いくつあるかな?', hint: 'キーボード、タッチ、声、カメラなど。' },
+    d13: { q: '針の時計と数字の時計は、時刻の表し方がどうちがうかな?', hint: '針はなめらかに動く。数字はとびとびに変わる。' },
+    d14: { q: 'Webページを見るとき、そのページはどこから来ているのだろう?', hint: '画面の上のアドレス(URL)を見てみよう。' },
+    d15: { q: '大事な情報を守るには、どんな方法があるかな? 3つあげよう。', hint: 'パスワード、カギをかける、写しを取っておく など。' },
+    d16: { q: 'ネットを使っていて、「こまった」と思ったことはあるかな?', hint: '知らない人からの連絡、写真ののせ方など。' },
+    d17: { q: '情報の技術で、生活のどこが便利になったかな?', hint: '買い物、連絡、地図、学校の勉強など。' },
+    d21: { q: 'ネットで、相手とやりとりしながら使うものには何があるかな?', hint: 'アンケート、チャット、ゲーム、予約など。' },
+    d22: { q: 'よく使うアプリで「こうだったらいいのに」と思うことは?', hint: '入力しにくい、見つけにくい、知らせてほしい など。' },
+    d23: { q: '作るコンテンツには、どんなボタンや表示が必要かな?', hint: '使う人が何を入れて、何が返ってくるかを考えよう。' },
+    d24: { q: '画面の流れを図にかこう。何を入れて、何が出るかな?', hint: '入力 → 処理 → 出力の順に考えよう。' },
+    d25: { q: 'できたコンテンツに、考えた機能は全部そろったかな?', hint: '友だちに使ってもらい、感想を聞こう。' },
+    d31: { q: '人が操作しなくても、自動で動く物をさがそう。', hint: '自動ドア、エアコン、街灯、信号など。' },
+    d32: { q: '自動で動く物は、何を「はかって」動きを決めているかな?', hint: '明るさ、温度、人がいるかどうか など。' },
+    d33: { q: '自動で動くしくみを作るには、どんな部品が必要かな?', hint: 'センサ・コンピュータ・動かす部品の3つで考えよう。' },
+    d34: { q: 'センサの値でどう動かすかを、先に言葉で書いてみよう。', hint: '「もし〜なら〜する」の形で書こう。' },
+    d35: { q: '作ったしくみは、考えたとおりに動いたかな?', hint: 'うまくいかなかった場面を1つえらび、直し方を考えよう。' },
+    d41: { q: '自分の作品の工夫を、社会の製品とくらべてみよう。', hint: '使いやすさ・安全・費用など。' },
+    d42: { q: 'これからの社会に、どんな情報の技術があるとよいかな?', hint: 'AI、自動運転、遠くの人とのやりとりなど。よい点と心配な点も。' }
+  };
+  function letsCard(id) {
+    var d = LETS[id];
+    if (!d) return null;
+    return el('section', { class: 'ef-lets', 'aria-label': 'まず考えよう' }, [
+      el('p', { class: 'ef-lets-k', text: 'まず考えよう' }),
+      el('p', { class: 'ef-lets-q', text: d.q }),
+      d.hint ? el('details', { class: 'ef-lets-hint' }, [el('summary', { text: 'ヒント' }), el('p', { text: d.hint })]) : null
+    ]);
+  }
+  // data-ef-lets の置き場所にカードを入れる(あとから作られた画面にも入れる)
+  function fillLets() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-lets]:not([data-ef-lets-done])'), function (box) {
+      box.setAttribute('data-ef-lets-done', '');
+      var c = letsCard(box.getAttribute('data-ef-lets'));
+      if (c) box.appendChild(c);
+    });
+  }
+  var letsTimer = 0;
+  function watchLets() {
+    fillLets();
+    if (!window.MutationObserver) return;
+    new MutationObserver(function () {
+      if (letsTimer) return;
+      letsTimer = setTimeout(function () { letsTimer = 0; fillLets(); }, 0);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
-  function start() { mount(); if (!jishuSet) jishuMount(); }
+  function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 
@@ -3522,7 +3628,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
     var idx = SECTIONS.indexOf(s);
     if (s.no) {
       view.appendChild(h('header', { class: 'module-head sec-head' },
-        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label + '・目安 ' + s.min }),
+        h('p', { class: 'meta', text: s.group + '・ステップ' + s.label }),
         h('h1', { class: 'sec-title', text: s.title })));
     }
     var body = h('div', { class: 'sec-body' });
@@ -3565,7 +3671,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = ScamData;
         h('div', { class: 'module-grid' }, STEP_SECTIONS.map(function (x) {
           var done = isDone(x);
           return h('a', { class: 'module-card', href: '#' + x.id },
-            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label + '・目安 ' + x.min }),
+            h('span', { class: 'mc-num', text: x.group + '・ステップ' + x.label }),
             h('span', { class: 'mc-title', text: x.title }),
             h('span', { class: 'mc-desc', text: x.desc }),
             h('span', { class: 'mc-state' + (done ? ' is-done' : ''), 'data-ef-reflect': x.sc ? null : '', text: done ? (x.sc ? '✓ クリア' : '✓ 書いた') : 'まだ' }));

@@ -695,7 +695,8 @@ function buildShell() {
       '<div class="e3-center"><div class="e3-msg" data-ref="msg" role="status" aria-live="polite"></div>' +
       '<div class="e3-bar" data-ref="bar"></div>' +
       '<div class="e3-cvbox" data-ref="box"><canvas class="e3-cv" data-ref="cv" tabindex="0" aria-label="機構のようす"></canvas><div class="e3-hint" data-ref="hint"></div></div></div>' +
-      '<div class="e3-side" data-ref="side"></div></div>';
+      // 右の欄のいちばん上に「まず考えよう」(回転を伝える・運動を変える。課題のときは出さない)。下の欄は renderSide が書きかえる
+      '<div class="e3-side">' + (S.task ? '' : v === 'build' ? '<div data-ef-lets="c17"></div>' : v === 'conv' ? '<div data-ef-lets="c18"></div>' : '') + '<div data-ref="side"></div></div></div>';
   S.root.innerHTML = top + main;
   S.el = {};
   S.root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
@@ -1759,7 +1760,7 @@ function drawQuiz(c) {
 
 /* ---------- 設計課題の一覧 ---------- */
 function renderTasks() {
-  var h = '<h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。少ない部品でできたら ★★★(モーターは60回/分)。</p><div class="e3-tgrid">';
+  var h = '<div data-ef-lets="c23"></div><h2 style="margin:0 0 4px;font-size:calc(21px * var(--ea-fs, 1))">📋 設計課題</h2><p style="margin:0 0 12px;color:#5e6b64">条件に合う機構を組み立てよう。少ない部品でできたら ★★★(モーターは60回/分)。</p><div class="e3-tgrid">';
   TASKS.forEach(function (t, i) {
     var st = S.save.tasks[t.id] || 0;
     h += '<button class="e3-tcard' + (st ? ' done' : '') + '" data-act="task" data-id="' + t.id + '"><span class="no"><span>課題' + (i + 1) + ' ・ ' + (t.kind === 'train' ? '回転を伝える' : '運動を変える') + '</span><span class="star">' + (st ? '★★★'.slice(0, st) : '') + '</span></span>' +
@@ -2172,7 +2173,8 @@ function mount(root) {
   root.addEventListener('pointerdown', function () { S.kbd = false; }, true);
   var v = ['build', 'conv', 'quiz', 'tasks'].indexOf(S.save.view) >= 0 ? S.save.view : 'parts';
   openView(v);
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 
