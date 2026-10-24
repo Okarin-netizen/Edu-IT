@@ -9,7 +9,6 @@ input[type="text"], input[type="number"], input[type="search"], input:not([type]
 .display-toggles .toggle:not([aria-pressed="true"]) { border-color: var(--kz-line); }
 
 /* いま開いているページ: 色の薄い背景だけでなく、青い線でも示す */
-.chapter-nav a[aria-current="page"] { box-shadow: inset 4px 0 0 var(--accent); }
 .main-nav a[aria-current="page"], .top-nav a[aria-current="page"], .tabs .tab[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--accent); }
 
 /* つぎはこれ（guide.js） */
@@ -33,19 +32,17 @@ html:where(.large-text) { font-size: 20px; }
 ruby.kz-ruby { ruby-position: over; ruby-align: center; }
 ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color: inherit; opacity: 0.85; user-select: none; -webkit-user-select: none; }
 
-/* KS-03: 教材集の中では教材の上のバーを少し細くする（教材集のバーと2本で高さを取りすぎないように） */
-.app-header { padding-top: 6px; padding-bottom: 6px; min-height: 44px; }
-.app-header .display-toggles .toggle.ef-btn { min-height: 34px; }
+/* 教材集の中では、教材の名前のバー（.app-header）は出さない。名前は教材集の上のバー（D1〜D11 の切りかえ）に出る。
+   C エネルギー変換と同じく、上のバーのすぐ下がページの切りかえの帯（d-frame.css）になる。
+   進み具合はページの切りかえの帯の ✓ の印で見る。スタジオ（D6）の作品の名前だけは残す */
+.app-header .brand, .app-header .overall-progress { display: none; }
+.app-header { min-height: 0; padding-top: 4px; padding-bottom: 4px; }
+/* 教材だけのボタン（情報セキュリティ体験ラボの「やさしい日本語」など）や作品の名前がないときは、バーごと出さず、ページの切りかえの帯をいちばん上に */
+.app-header:not(:has(.work-chip:not(:empty))):not(:has(.display-toggles:not([data-kz-empty]):not(:empty))) { display: none; }
+.chapter-nav { top: 0; }
+body:has(.app-header .work-chip:not(:empty), .app-header .display-toggles:not([data-kz-empty]):not(:empty)) .chapter-nav { top: 48px; }
+@media (max-height: 700px), (max-width: 640px) { body:has(.app-header .work-chip:not(:empty), .app-header .display-toggles:not([data-kz-empty]):not(:empty)) .chapter-nav { top: 0; } }
 
-/* KS-02: タブレット縦など、はばがせまいときの左のメニュー。
-   横1列の帯（右が見えない）をやめて、折り返して全部のページを見せる（ページの名前そのものは折り返さない）。スマホ(640px 以下)はこの下 */
-@media (max-width: 860px) {
-  .chapter-nav ol { display: flex; flex-wrap: wrap; overflow-x: visible; padding-bottom: 0; gap: 4px; }
-  .chapter-nav li { flex: 1 1 auto; }
-  .chapter-nav a, .chapter-nav span.disabled { padding: 5px 8px; min-height: 40px; font-size: 0.88rem; line-height: 1.35; border: 1px solid var(--border); white-space: nowrap; }
-  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
-  .chapter-nav .nav-group { display: none; }
-}
 /* KS-03: はばがせまいとき、教材の表示の切りかえ（「やさしい日本語」など）を2段目に送らず、入るなら1段にする */
 @media (max-width: 860px) { .app-header .display-toggles { order: 0; width: auto; } }
 
@@ -59,18 +56,10 @@ ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; color
 .kyozai-back .btn { min-height: 40px; }
 @media print { .kyozai-back, .kyozai-link { display: none; } }
 
-/* KS-04: スマホ(教材集の中も同じ): 教材の上のバーは固定せず、左のメニュー(ページのタブ)を1行にして横にスクロールし、上に固定する。
-   教材の名前とページの名前は折り返さない(入りきらない道具は次の行へ)。下へ読み進めるとメニューが隠れ、上へ戻すと出る(data-ef-autohide・shared/eduit-frame.js) */
+/* KS-04: スマホ(教材集の中も同じ): 教材の上のバーは固定しない。ページの切りかえの帯は d-frame.css(1行にして横にスクロール) */
 @media (max-width: 640px) {
   .app-header { position: static; padding: 8px 12px; gap: 8px; }
   .app-header .brand { flex: 0 0 auto; font-size: 1rem; white-space: nowrap; max-width: 100%; overflow: hidden; }
   .app-header .ef-tools { margin-left: auto; }
   main h1, .hero h1 { font-size: 1.35rem; }
-  .chapter-nav { position: sticky; top: 0; z-index: 4; max-height: none; overflow: visible; padding: 6px 0; background: var(--ef-bg); box-shadow: -16px 0 0 var(--ef-bg), 16px 0 0 var(--ef-bg); border-bottom: 1px solid var(--border); }
-  .chapter-nav ol { position: relative; display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; padding-bottom: 0; scrollbar-width: none; }
-  .chapter-nav ol::-webkit-scrollbar { display: none; }
-  .chapter-nav li { flex: none; }
-  .chapter-nav .nav-group { display: none; }
-  .chapter-nav a, .chapter-nav span.disabled { white-space: nowrap; min-height: 40px; padding: 5px 10px; border: 1px solid var(--border); }
-  .chapter-nav a[aria-current="page"] { border-color: var(--accent); }
 }

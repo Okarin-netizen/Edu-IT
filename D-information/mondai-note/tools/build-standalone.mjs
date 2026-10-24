@@ -25,7 +25,7 @@ replaceOnce(/<link rel="stylesheet" href="css\/style\.css">/, () => style("css/s
 for (const f of ["../../shared/mondai-note/mondai-note-data.js", "../../shared/mondai-note/mondai-note.js", "js/app.js"]) {
   replaceOnce(new RegExp(`<script src="${f.replace(/[./]/g, "\\$&")}"></script>`), () => `<script>\n${safe(read(f))}\n</script>`);
 }
-if (/<link rel="stylesheet" href="(?!\.\.\/\.\.\/shared\/eduit-frame)|<script src="(?!\.\.\/(\.\.\/shared\/)?eduit-)/.test(html)) throw new Error("中に入れられなかったファイルがあります");
+if (/<link rel="stylesheet" href="(?!\.\.\/\.\.\/shared\/eduit-frame|\.\.\/d-frame)|<script src="(?!\.\.\/(\.\.\/shared\/)?eduit-)/.test(html)) throw new Error("中に入れられなかったファイルがあります");
 // 4分野共通の枠と、版・更新履歴を中に入れる
 html = inlineEduitFrame(html);
 

@@ -9,8 +9,6 @@
   const stage = document.getElementById("stage");
   const barTitle = document.getElementById("bar-title");
   const switcher = document.getElementById("switcher");
-  const switchWrap = document.getElementById("switch-wrap");
-  const switchBtn = document.getElementById("switch-btn");
   const frames = new Map();
 
   // 上のバーの「ふりがな」「大きな文字」（KS-01）: すべての教材とこのメニューにかかる。
@@ -127,8 +125,6 @@
       h(
         "div",
         { class: "hero" },
-        h("p", { class: "lead" }, DATA.lead),
-        h("p", { class: "author" }, DATA.author),
         last ? h("p", { class: "resume" }, h("span", { class: "resume-k" }, "前回のつづき"), h("a", { href: `#/${last.id}`, class: "resume-go" }, codeEl(last), ` ${last.title} ▶`)) : null,
       ),
       renderLevels(),
@@ -143,7 +139,7 @@
           h("li", {}, "インターネットにつながっていなくても使えます。入力した内容や記録は、このパソコンのブラウザの中にだけ保存されます。"),
           h("li", {}, `教材の記号（D1〜D${DATA.materials.length}）は、おすすめの順番です。1つずつ配るファイルの名前（D1_〜）の番号と同じです。授業の進め方に合わせて、どこから始めてもかまいません。`),
           h("li", {}, `記録の提出は、上の「記録をまとめて書き出す」で、${DATA.materials.length}つの教材の記録を1つの JSON ファイルにして出せます。教材ごとの「ふりかえり・記録」からも書き出せます。`),
-          h("li", {}, "教材を開いているときは、上のバーの教材の記号と名前（はばがせまい画面では「教材をかえる ▾」）で教材を切りかえられます。切りかえても、開いていた教材の作業は消えません。"),
+          h("li", {}, "教材を開いているときは、上のバーの D1〜D11 の記号で教材を切りかえられます。切りかえても、開いていた教材の作業は消えません。"),
           h("li", {}, `上のバーの「ふりがな」「文字 中」(押すと「文字 大」になって文字が大きくなる)は、${DATA.materials.length}つの教材とこのメニューにまとめてかかります。プログラムを書く欄や入力欄には、ふりがなは付きません。`),
           h("li", {}, "「情報セキュリティ体験ラボ」の「デジタル化と情報量」「ネットワーク通信の模擬」は短い体験版です。くわしく扱うときは、その単元のさいご（ふりかえりのあと）の案内から「デジタル化ラボ」「ネットワーク通信シミュレータ」に移れます。移った先のページの上と下に「← 情報セキュリティ体験ラボにもどる」が出ます。"),
           renderCurriculum(),
@@ -169,7 +165,7 @@
     const box = h("section", { class: "group levels", "aria-label": "教材（基本編・発展編）" });
     if (LEVELS && window.EduitFrame && EduitFrame.levels) {
       EduitFrame.levels(box, {
-        gridClass: "grid",
+        gridClass: "ef-mgrid",
         card: (item, parts) => (byId.has(item.id) ? card(byId.get(item.id), parts) : null),
         // 基本編の上に「おすすめの順番: D1 → D2 → …」の1行
         code: (item) => (byId.has(item.id) ? byId.get(item.id).code : null),
@@ -439,39 +435,25 @@
     document.getElementById("reset-all").focus();
   }
 
-  // 教材の切りかえ（KS-04）: 記号の印に短い名前（「D1 CPU」）。はばがせまいときは「教材をかえる ▾」で、記号と名前の一覧を出す
+  // 教材の切りかえ: 4分野共通の形（.ef-switch・.ef-swchip。C エネルギー変換と同じ）。開いている教材は「D1 CPU」、ほかは記号だけ（はばが広いときは短い名前も）
   function renderSwitcher(currentId) {
     switcher.replaceChildren(
       ...DATA.materials.map((m) =>
         h(
           "a",
-          { href: `#/${m.id}`, title: `${m.code} ${m.title}`, "aria-current": m.id === currentId ? "page" : null },
+          { class: "ef-swchip", href: `#/${m.id}`, title: `${m.code} ${m.title}`, "aria-label": `${m.code} ${m.title}`, "aria-current": m.id === currentId ? "page" : null },
           codeEl(m),
-          h("span", { class: "short", "aria-hidden": "true" }, m.short || m.title),
-          h("span", { class: m.short ? "full" : "full visually-hidden" }, m.title),
+          h("span", { class: "ef-sw-n", "aria-hidden": "true" }, m.short || m.title),
         ),
       ),
     );
+    switcher.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
-  function setSwitchOpen(open) {
-    switchWrap.classList.toggle("open", open);
-    switchBtn.setAttribute("aria-expanded", String(open));
-  }
-  switchBtn.addEventListener("click", () => {
-    const open = !switchWrap.classList.contains("open");
-    setSwitchOpen(open);
-    if (open) (switcher.querySelector('[aria-current="page"]') || switcher.querySelector("a"))?.focus();
-  });
-  switcher.addEventListener("click", () => setSwitchOpen(false));
-  document.addEventListener("click", (e) => !switchWrap.contains(e.target) && setSwitchOpen(false));
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && switchWrap.classList.contains("open")) {
-      setSwitchOpen(false);
-      switchBtn.focus();
-    }
-  });
-  // 教材の中（iframe）を押したときも閉じる
-  window.addEventListener("blur", () => setSwitchOpen(false));
+  // 上のバーの高さ（スマホでは2行になる）を、教材を出す場所の高さの計算に使う
+  const header = document.getElementById("shell-header");
+  const setBarH = () => document.documentElement.style.setProperty("--bar-h", `${header.offsetHeight}px`);
+  if (window.ResizeObserver) new ResizeObserver(setBarH).observe(header);
+  window.addEventListener("resize", setBarH);
 
   function frameFor(m) {
     let f = frames.get(m.id);
@@ -551,7 +533,8 @@
     document.body.classList.toggle("home-mode", !m);
     document.body.classList.toggle("app-mode", Boolean(m));
     document.documentElement.classList.toggle("large-text", prefs.largeText && !m);
-    setSwitchOpen(false);
+    header.classList.toggle("ef-appbar", Boolean(m));
+    barTitle.classList.toggle("ef-apptitle", Boolean(m));
     if (!m) {
       stage.hidden = true;
       renderMenu();

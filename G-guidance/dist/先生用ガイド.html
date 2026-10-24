@@ -229,6 +229,83 @@
 /* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
 html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 
+/* ---- メニューのカードの並べ方(4分野共通。C エネルギー変換と同じ) ----
+ * EduitFrame.levels({ gridClass: 'ef-mgrid' }) で使う。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる。はば 1100px 以下は2つ、スマホは1つ。
+ * メニューの中身(タブ・カード)を入れる箱は .ef-menu(左右の余白 32px。はばいっぱいに使う)。 */
+.ef-menu { padding: 6px 32px 0; box-sizing: border-box; }
+.ef-mgrid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; padding: 6px 0 24px; }
+.ef-mgrid > .ef-mcard { grid-column: span 2; touch-action: manipulation; }
+.ef-mgrid > .ef-mcard:hover { border-color: var(--ef-accent); }
+.ef-mgrid > .ef-mcard:nth-child(3n+1):nth-last-child(2) { grid-column: 2 / span 2; }
+.ef-mgrid > .ef-mcard:nth-child(3n+1):last-child { grid-column: 3 / span 2; }
+.ef-mgrid .ef-mcard-desc { color: var(--ef-muted); line-height: 1.5; }
+@media (max-width: 1100px) {
+  .ef-mgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ef-mgrid > .ef-mcard, .ef-mgrid > .ef-mcard:nth-child(3n+1):nth-last-child(2), .ef-mgrid > .ef-mcard:nth-child(3n+1):last-child { grid-column: auto; }
+}
+@media (max-width: 900px) { .ef-menu { padding: 6px 16px 0; } .ef-mgrid { gap: 12px; } }
+@media (max-width: 640px) { .ef-menu { padding: 6px 12px 0; } .ef-mgrid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- アプリを開いたときの上のバー・教材の切りかえ・タブの帯(4分野共通。C エネルギー変換の形) ----
+ * <header class="ef-header ef-appbar">
+ *   <a class="ef-btn ef-back">◀ メニュー</a>
+ *   <h1 class="ef-title ef-apptitle">[A2] 木材の繊維・収縮ラボ</h1>   … はばが広いとき(1441px 以上)とスマホだけ出す
+ *   <nav class="ef-switch"> <a class="ef-swchip" aria-current="page"><span class="ef-code">A2</span><span class="ef-sw-n">木材</span></a> … </nav>
+ *   <div class="ef-tools"> ふりがな / 文字 中 / (くっきり) / (使い方) / <span data-ef-fs></span> 全画面 / <span data-ef-about></span> ⓘ </div>
+ * </header>
+ * <nav class="ef-apptabs"> <button class="ef-apptab" aria-selected="true">はじめに</button> … </nav>   … アプリの中のタブ(丸いボタンの帯)
+ * 開いている教材は名前も出し、ほかの教材は記号だけ(はばが 1441px 以上なら名前も)。スマホは1行目に ◀ メニューと名前、2行目に道具と切りかえ。
+ */
+.ef-appbar { min-height: 52px; padding: 0 6px; gap: 6px; flex-wrap: nowrap; }
+.ef-appbar .ef-btn { min-height: 42px; padding: 0 12px; font-size: 15px; white-space: nowrap; flex: none; }
+.ef-appbar .ef-tools { flex: none; flex-wrap: nowrap; }
+.ef-appbar .ef-apptitle { margin: 0 6px 0 4px; font-size: 17px; white-space: nowrap; flex: none; }
+.ef-appbar .ef-apptitle .ef-code { margin-right: 0; }
+.ef-switch { display: flex; gap: 4px; flex: 1; min-width: 0; align-self: stretch; align-items: flex-end; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.ef-switch::-webkit-scrollbar { display: none; }
+.ef-swchip {
+  font: inherit; font-family: var(--ef-font); font-size: 15px; line-height: 1.2; color: var(--ef-muted); text-decoration: none;
+  background: transparent; border: 0; border-bottom: 4px solid rgba(0, 0, 0, .12); border-radius: 10px 10px 0 0;
+  min-height: 44px; padding: 0 10px; margin-bottom: 1px; cursor: pointer; white-space: nowrap; flex: none;
+  display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation;
+}
+.ef-swchip:hover { color: var(--ef-text); border-bottom-color: var(--ef-accent); }
+.ef-swchip[aria-current="page"], .ef-swchip[aria-current="true"] { background: var(--ef-accent-soft); color: var(--ef-text); font-weight: 700; border-bottom-color: var(--ef-accent); }
+.ef-swchip .ef-code { font-size: 13px; min-width: 0; margin: 0; }
+.ef-swchip:focus-visible, .ef-apptab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: -3px; }
+.ef-fs-btn[hidden] { display: none; }
+.ef-apptabs {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 6px 10px;
+  background: var(--ef-surface); border-bottom: 3px solid var(--ef-accent); font-family: var(--ef-font); box-sizing: border-box;
+}
+.ef-apptab {
+  font: inherit; font-family: var(--ef-font); font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ef-text); text-decoration: none;
+  flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; box-sizing: border-box;
+  border: 1px solid var(--ef-line); border-radius: 999px; background: var(--ef-surface); cursor: pointer; white-space: nowrap; touch-action: manipulation;
+}
+.ef-apptab:hover { border-color: var(--ef-accent); }
+.ef-apptab[aria-selected="true"], .ef-apptab[aria-current="page"], .ef-apptab[aria-current="true"], .ef-apptab.is-on {
+  background: var(--ef-accent); border-color: var(--ef-accent); color: var(--ef-accent-ink);
+}
+.ef-apptab[aria-selected="true"] rt, .ef-apptab[aria-current] rt, .ef-apptab.is-on rt { color: inherit; }
+@media (max-width: 1440px) { .ef-appbar .ef-apptitle { display: none; } .ef-swchip:not([aria-current]) .ef-sw-n { display: none; } }
+@media (max-width: 1180px) { .ef-header .ef-about-btn .t { display: none; } }
+@media (max-width: 900px) { .ef-header .ef-fs-btn .t { display: none; } .ef-swchip { padding: 0 8px; } }
+@media (max-width: 760px) { .ef-swchip .ef-sw-n { display: none; } .ef-swchip { padding: 0 12px; } }
+/* スマホ: タブの帯は1行にして横にスクロール(名前は折り返さない) */
+@media (max-width: 640px) {
+  .ef-appbar { flex-wrap: wrap; row-gap: 4px; padding: 4px 6px; }
+  .ef-appbar .ef-btn { min-height: 38px; padding: 0 9px; font-size: 14px; }
+  .ef-appbar .ef-apptitle { display: flex; flex: 1 1 calc(100% - 140px); min-width: 0; white-space: normal; font-size: 16px; line-height: 1.35; margin: 0 2px; }
+  .ef-appbar .ef-tools { order: 3; gap: 4px; margin-left: 0; }
+  .ef-header .ef-fs-btn { display: none; }
+  .ef-switch { order: 4; flex: 1 1 0; align-self: auto; }
+  .ef-swchip { min-height: 40px; padding: 0 9px; }
+  .ef-apptabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 6px 8px; }
+  .ef-apptabs::-webkit-scrollbar { display: none; }
+}
+@media print { .ef-appbar, .ef-apptabs { display: none !important; } }
+
 /* ---- スマホ(せまい画面) ----
  * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
  * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
@@ -408,12 +485,13 @@ window.EDUIT_INFO = {
   domain: 'G',
   domainName: '技術分野のガイダンス',
   suite: '技術分野のガイダンス',
-  version: '1.2',
-  updated: '2026-10-23',
+  version: '1.3',
+  updated: '2026-10-24',
   safety: [
     '製品の工夫や技術の歴史の話は、学習のために短くまとめたものです。年代や「〜から思いついた」という話には、いくつかの説があるものもあります。'
   ],
   history: [
+    { version: '1.3', date: '2026-10-24', items: ['画面のつくりを C エネルギー変換とそろえた(タブの帯を白い帯と丸いボタンに・上のバーに全画面と ⓘ このアプリについて)'] },
     { version: '1.2', date: '2026-10-23', items: ['説明の文を短くした(1か所3文まで・答えを先に)。内容は同じ'] },
     { version: '1.1', date: '2026-10-19', items: ['見出しと説明の文を、教科書と同じ言い回しにならないように自分の言葉で書き直した(内容は同じ)'] },
     { version: '1.0', date: '2026-10-19', items: [
@@ -659,7 +737,8 @@ window.EDUIT_INFO.jishu.ruby = {
  *   <script src="…/shared/eduit-frame.js"><\/script>
  * 置き場所(どれか):
  *   - <div data-ef-footer></div> があればそこにフッターを出す
- *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(フッターは出さない)
+ *   - <span data-ef-about></span> があればそこに「ⓘ このアプリについて」ボタンを出す(data-ef-footer がなければフッターは出さない)
+ *   - <span data-ef-fs></span> があればそこに「🖥️ 全画面」ボタンを出す(いちばん外のページごと全画面。できない端末では出さない)
  *   - どちらもなければ <body> の最後にフッターを足す
  *   - EDUIT_INFO.app.footer === false なら自動では何も出さない(EduitFrame.open() だけ使う)
  * EDUIT_INFO = {
@@ -872,8 +951,43 @@ window.EDUIT_INFO.jishu.ruby = {
   }
 
   function aboutButton(cls) {
-    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', text: 'ⓘ このアプリについて' });
+    var b = el('button', { type: 'button', class: cls || 'ef-btn ef-about-btn', title: '作った人・安全と個人情報・ライセンス・更新履歴', 'aria-label': 'このアプリについて(作った人・安全と個人情報・ライセンス・更新履歴)' },
+      ['ⓘ', el('span', { class: 't', text: ' このアプリについて' })]);
     b.addEventListener('click', function () { open(0); });
+    return b;
+  }
+  // 全画面(C エネルギー変換の「🖥️ 全画面」と同じ)。枠(生徒用サイト・1ファイル版のメニュー)の中で開いたときは、いちばん外のページごと全画面にする
+  function fsDoc() {
+    var d = document;
+    try { for (var w = window; w !== w.parent; w = w.parent) { var pd = w.parent.document; if (!pd) break; d = pd; } } catch (e) {}
+    return d;
+  }
+  function fsButton() {
+    var D = fsDoc(), W = D.defaultView || window;
+    var b = el('button', { type: 'button', class: 'ef-btn ef-fs-btn' });
+    var keyMq = W.matchMedia ? W.matchMedia('(display-mode: fullscreen)') : null;
+    function isFull() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+    function isKeyFull() { return !isFull() && !!(keyMq && keyMq.matches); }
+    function upd() {
+      var on = isFull() || isKeyFull();
+      b.hidden = !(D.fullscreenEnabled || D.webkitFullscreenEnabled);
+      b.textContent = '🖥️';
+      b.appendChild(el('span', { class: 't', text: on ? ' 全画面をやめる' : ' 全画面' }));
+      b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面にする');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    b.addEventListener('click', function () {
+      var r = D.documentElement;
+      try {
+        if (isFull()) (D.exitFullscreen || D.webkitExitFullscreen).call(D);
+        else if (isKeyFull()) window.alert('キーで全画面にしたときは、同じキー(F11 など)でもどせます');
+        else { var p = (r.requestFullscreen || r.webkitRequestFullscreen).call(r); if (p && p.catch) p.catch(function () {}); }
+      } catch (e) {}
+    });
+    D.addEventListener('fullscreenchange', upd);
+    D.addEventListener('webkitfullscreenchange', upd);
+    if (keyMq) { if (keyMq.addEventListener) keyMq.addEventListener('change', upd); else if (keyMq.addListener) keyMq.addListener(upd); }
+    upd();
     return b;
   }
   function footer() {
@@ -889,9 +1003,10 @@ window.EDUIT_INFO.jishu.ruby = {
     if (app.footer === false) return;
     var slot = document.querySelector('[data-ef-footer]');
     var about = document.querySelector('[data-ef-about]');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-fs]'), function (f) { if (!f.querySelector('button')) f.appendChild(fsButton()); });
+    if (about && !about.querySelector('button')) about.appendChild(aboutButton());
     if (slot) { if (!slot.querySelector('.ef-footer')) slot.appendChild(footer()); }
-    else if (about) { if (!about.querySelector('button')) about.appendChild(aboutButton()); }
-    else if (!document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
+    else if (!about && !document.querySelector('body > .ef-footer')) document.body.appendChild(footer());
   }
 
   // ---- 基本編・発展編のタブ(メニュー用) ----
@@ -1574,7 +1689,7 @@ window.EDUIT_INFO.jishu.ruby = {
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
   function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
@@ -1613,7 +1728,7 @@ window.EDUIT_INFO.jishu.ruby = {
     <h3>生徒用サイトで開く</h3>
     <p>生徒用サイト(<code>https://okarin-netizen.github.io/Edu-IT/</code>)のトップで「授業で使う」をえらぶと、いちばん上に「G 技術分野のガイダンス」のカードがあります。押すと <code>g.html</code> が開きます。</p>
     <h3>画面の上のバー</h3>
-    <p>左に「<b>G 技術分野のガイダンス</b>」、右に「<b>ふりがな</b>」「<b>文字 中</b>」「<b>使い方</b>」が出ます(4分野のアプリと同じ形です)。教材は1つだけなので、メニューの画面と「◀ メニュー」はありません。下の帯のタブで「はじめに」〜「記録」を切りかえます。ふりがなは、はじめは出しません。</p>
+    <p>左に「<b>G 技術分野のガイダンス</b>」、右に「<b>ふりがな</b>」「<b>文字 中</b>」「<b>使い方</b>」「<b>🖥️ 全画面</b>」「<b>ⓘ このアプリについて</b>」が出ます(4分野のアプリと同じ形です)。教材は1つだけなので、メニューの画面と「◀ メニュー」はありません。下の白い帯の丸いボタン(タブ)で「はじめに」〜「記録」を切りかえます(C エネルギー変換と同じ形)。ふりがなは、はじめは出しません。</p>
     <h3>自習で進めるとき(自習モード)</h3>
     <ul>
       <li>自習モードで開くと、右はしに「<b>自習ガイド</b>」が出ます。ねらい・時間の目安・進め方(どのタブで何をするか・ヒント・「この場所へ」・「できた」の印)・たしかめ問題(4問)を見ながら、1人で最後まで進められます。③ の「使う人を変えて、もう一度設計する」は発展にまとめてあります。</li>
@@ -1690,6 +1805,7 @@ window.EDUIT_INFO.jishu.ruby = {
   <section class="eg-sec" id="rireki">
     <h2>7. 更新履歴</h2>
     <ul>
+      <li><b>第1.3版(2026-10-24)</b>: 画面の枠を4分野で同じ形にした(C エネルギー変換と同じ)。タブを白い帯の丸いボタンにし、上のバーに「🖥️ 全画面」「ⓘ このアプリについて」を足した。</li>
       <li><b>第1.2版(2026-10-23)</b>: 説明の文を短くした(1か所3文まで・答えを先に)。内容は同じ。</li>
       <li><b>第1.1版(2026-10-19)</b>: 見出しと説明の文を、教科書と同じ言い回しにならないように書き直した(内容は同じ。タブと教科書の節の対応も同じ)。</li>
       <li><b>第1.0版(2026-10-19)</b>: 技術分野のガイダンスの教材を作った(教科書「技術分野のガイダンス」1〜5 に合わせた5つのタブと、振り返り・記録)。自習モード(自習ガイド)と自習ワークシート、振り返り一覧での読みこみに対応した。</li>

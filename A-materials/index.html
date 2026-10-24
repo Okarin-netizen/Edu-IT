@@ -13,6 +13,7 @@
 <script>window.EDUIT_INFO = window.EDUIT_INFO || {}; EDUIT_INFO.app = { name: '材料と加工の技術 教材集(メニュー)' };</script>
 <script src="../shared/eduit-frame.js"></script>
 <style>
+  main.ef-menu { max-width: none; }
   .apps { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: .75rem; }
   /* メニューのカードは4分野共通の EduitFrame.card(.ef-card.ef-mcard)。題名は「・」の区切りごとにまとめ、1文字だけ次の行に落ちないようにする */
   .ef-mcard .ef-card-title { text-wrap: balance; }
@@ -30,6 +31,7 @@
   /* 上のバーは4分野で同じ大きさ(名前 18px・ボタンの高さ 40px。スマホは 16px・36px) */
   #g-header .ef-btn { padding: 0 14px; font-size: 15px; }
   #g-header .ef-title { font-size: 18px; }
+  #g-header .ef-title .ef-code { margin-right: 8px; }
   @media (max-width: 640px) { #g-header .ef-btn { padding: 0 10px; font-size: 14px; } #g-header .ef-title { font-size: 16px; } }
   .profile .g-field input { width: 6em; }
   .profile .pf-name input { width: 14em; }
@@ -37,15 +39,9 @@
 </head>
 <body>
 <header id="g-header"></header>
-<main>
-  <section class="card">
-    <h2>材料と加工の技術</h2>
-    <p>使いたいアプリを選びましょう。一度開いたアプリは、インターネットにつながっていなくても使えます。作ったものはこの端末の中に保存されます。</p>
-  </section>
-  <section aria-labelledby="apps-h">
-    <h2 id="apps-h">アプリ(基本編・発展編)</h2>
-    <div id="apps"></div>
-  </section>
+<main class="ef-menu">
+  <!-- 基本編・発展編のタブとカード(4分野共通の形。C エネルギー変換のメニューと同じ並べ方 .ef-mgrid) -->
+  <div id="apps"></div>
   <section class="card" aria-labelledby="data-h">
     <h2 id="data-h">保存したデータ</h2>
     <p>すべてのアプリの作品・記録を、1つのファイルに書き出せます。書き出す前に、組・番号・名前を入れよう。この名前は、各アプリのファイルにも入ります。</p>
@@ -137,7 +133,7 @@
   var appById = {};
   G.APPS.forEach(function (a) { appById[a.id] = a; });
   EduitFrame.levels(G.$('#apps'), {
-    gridClass: 'apps',
+    gridClass: 'ef-mgrid',
     card: function (item, parts) { return appById[item.id] ? makeCard(appById[item.id], markReflect(parts, item.parts)) : null; },
     code: function (item) { return appById[item.id] && appById[item.id].code; },
     onRender: function (panel) { if (G.ruby && G.ruby.apply) try { G.ruby.apply(panel); } catch (e) {} }
