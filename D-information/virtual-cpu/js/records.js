@@ -60,7 +60,7 @@ export function reflectionBox(id) {
     const text = ta.value.trim();
     if (text.length < 5) {
       note.textContent = text ? "保存しました。もう少し書いてみよう（5文字以上）" : "もう少し書いてみよう（5文字以上）";
-      note.style.color = "var(--warn)";
+      note.style.color = "var(--ef-warn)";
       return;
     }
     store.setReflection(id, text);

@@ -1,10 +1,11 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "digilab-v9"; // 教材を直したら番号を上げる（古いキャッシュを使わないように）
+const CACHE = "digilab-v10"; // 教材を直したら番号を上げる（古いキャッシュを使わないように）
 const FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "icons/icon.svg",
+  "../d-common.css",
   "css/style.css",
   "../eduit-info.js",
   "../../shared/eduit-frame.css",

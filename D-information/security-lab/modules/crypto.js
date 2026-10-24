@@ -57,7 +57,7 @@ function freqBars(values, { title, highlight = [] } = {}) {
     r.setAttribute("width", bw - 4);
     r.setAttribute("height", Math.max(bh, 0.5));
     r.setAttribute("rx", 3);
-    r.setAttribute("fill", highlight.includes(i) ? "var(--series-2)" : "var(--series-1)");
+    r.setAttribute("fill", highlight.includes(i) ? "var(--fig-series-2)" : "var(--fig-series-1)");
     const t = document.createElementNS(NS, "title");
     t.textContent = `${A[i]}: ${Math.round((v / total) * 1000) / 10}%`;
     r.append(t);
@@ -392,7 +392,7 @@ export const cryptoModule = {
     cards[6].body.append(reflectionBox(ID, "インターネットで公開鍵暗号が必要なのは、なぜだと思う？ 一言で書こう。", () => cards[6].done()));
     const sessionBreak = h(
       "div",
-      { class: "session-break", role: "note", style: "margin:18px 0;padding:12px 14px;border:2px dashed var(--accent);border-radius:12px;background:var(--accent-soft);text-align:center" },
+      { class: "session-break", role: "note", style: "margin:18px 0;padding:12px 14px;border:2px dashed var(--ef-accent);border-radius:12px;background:var(--ef-accent-soft);text-align:center" },
       h("strong", { style: "display:block;font-size:1.05rem" }, `ここまでで1回目。次の時間はステップ${breakIdx + 2}から`),
       h("span", { class: "hint" }, "進み具合はこの端末に残っています。次の時間は、左のメニューの「暗号ラボ」を開いて、この下から始めよう。"),
     );

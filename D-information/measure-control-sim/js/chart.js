@@ -20,11 +20,11 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
   const g = canvas.getContext("2d");
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0, 0, width, height);
-  const colors = [css("--series-1", "#2a78d6"), css("--series-2", "#eb6834"), css("--series-3", "#1baf7a"), css("--series-4", "#eda100"), css("--series-5", "#8a5cd1")];
-  const text = css("--text-secondary", "#555");
-  const muted = css("--text-muted", "#777");
-  const grid = css("--border", "#ddd");
-  const band = css("--surface-2", "#f0f0f0");
+  const colors = [css("--fig-series-1", "#2a78d6"), css("--fig-series-2", "#eb6834"), css("--fig-series-3", "#1baf7a"), css("--fig-series-4", "#eda100"), css("--fig-series-5", "#8a5cd1")];
+  const text = css("--ef-muted", "#555");
+  const muted = css("--ef-muted", "#777");
+  const grid = css("--ef-line", "#ddd");
+  const band = css("--ef-surface-2", "#f0f0f0");
   const font = getComputedStyle(document.body).fontFamily;
 
   const lastT = samples.length ? samples[samples.length - 1].t : 0;
@@ -120,14 +120,14 @@ export function drawChart(canvas, series, samples, windowSec = 30, markT = null)
     g.fillText(`${t}秒`, px - 10, axisY + 6);
   }
   if (markT !== null && markT >= t0) {
-    const bad = css("--bad", "#b3261e");
+    const bad = css("--ef-ng", "#b3261e");
     // 不合格になった時刻の印（線の上に「× 9.7秒」）
     g.font = `bold 12px ${font}`;
     g.textBaseline = "top";
     const lab = `× ${Math.round(markT * 10) / 10}秒 不合格`;
     const lw = g.measureText(lab).width;
     const lx = x(markT) + 4 + lw > width - 2 ? x(markT) - 4 - lw : x(markT) + 4;
-    g.fillStyle = css("--surface-1", "#fff");
+    g.fillStyle = css("--ef-surface", "#fff");
     g.fillRect(lx - 2, 1, lw + 4, 15);
     g.fillStyle = bad;
     g.fillText(lab, lx, 2);

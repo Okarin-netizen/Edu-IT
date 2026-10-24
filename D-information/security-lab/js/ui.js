@@ -113,7 +113,7 @@ export function reflectionBox(moduleId, prompt, onSaved) {
   const saveBtn = h("button", { class: "btn", type: "button" }, "ふりかえりを保存");
   let timer = null;
   const setNote = (text, warn = false) => {
-    note.style.color = warn ? "var(--warn)" : "";
+    note.style.color = warn ? "var(--ef-warn)" : "";
     note.textContent = text;
   };
   // byButton: ボタンを押したとき true。自動保存のときは、短くても注意は出さない

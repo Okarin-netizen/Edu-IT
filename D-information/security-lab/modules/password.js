@@ -12,10 +12,10 @@ const RATES = [
   { log10: 12, label: "1秒に1兆回", note: "たくさんのコンピュータを使う場合" },
 ];
 const SERIES = [
-  { label: "英小文字だけ", size: 26, color: "var(--series-1)", dash: "" },
-  { label: "＋英大文字", size: 52, color: "var(--series-2)", dash: "6 3" },
-  { label: "＋数字", size: 62, color: "var(--series-3)", dash: "2 3" },
-  { label: "＋記号", size: 95, color: "var(--series-4)", dash: "" },
+  { label: "英小文字だけ", size: 26, color: "var(--fig-series-1)", dash: "" },
+  { label: "＋英大文字", size: 52, color: "var(--fig-series-2)", dash: "6 3" },
+  { label: "＋数字", size: 62, color: "var(--fig-series-3)", dash: "2 3" },
+  { label: "＋記号", size: 95, color: "var(--fig-series-4)", dash: "" },
 ];
 const STEPS = [
   { id: "try", title: "文字を入れて、解読時間を見てみよう" },
@@ -281,8 +281,8 @@ function lengthChart(rateL) {
     svg.append(s("text", { x: W - m.r + 6, y: Math.max(m.t + 4, ly) + 4, class: "label" }, ser.label));
   });
   // ホバー用の縦線とツールチップ
-  const cross = s("line", { y1: m.t, y2: H - m.b, stroke: "var(--text-muted)", "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" });
-  const dots = SERIES.map((ser) => s("circle", { r: 5, fill: ser.color, stroke: "var(--surface-1)", "stroke-width": 2, visibility: "hidden" }));
+  const cross = s("line", { y1: m.t, y2: H - m.b, stroke: "var(--ef-muted)", "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" });
+  const dots = SERIES.map((ser) => s("circle", { r: 5, fill: ser.color, stroke: "var(--ef-surface)", "stroke-width": 2, visibility: "hidden" }));
   svg.append(cross, ...dots);
   const hit = s("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" });
   svg.append(hit);

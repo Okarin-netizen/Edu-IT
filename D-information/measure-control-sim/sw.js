@@ -1,10 +1,11 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "mcsim-v12";
+const CACHE = "mcsim-v13";
 const FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "icons/icon.svg",
+  "../d-common.css",
   "css/style.css",
   "../eduit-info.js",
   "../../shared/eduit-frame.css",
