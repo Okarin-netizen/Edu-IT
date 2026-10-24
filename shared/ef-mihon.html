@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja" data-ef-domain="A">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>見本帳 | Edu-IT 共通の見た目</title>
+<!-- 共通の見た目(eduit-frame.css)の設定と部品を全部ならべたページ。設定を1つ変えたら、ここを開いて全部の部品の変わり方を見る。
+     先生・生徒には配らない(作る人のためのページ)。 -->
+<link rel="stylesheet" href="eduit-frame.css">
+<style>
+  body { margin: 0; background: var(--ef-bg); }
+  .mh-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--ef-sp-2); margin: var(--ef-sp-3) 0; }
+  .mh-sw { display: flex; align-items: center; gap: var(--ef-sp-2); font-size: var(--ef-fs-s); }
+  .mh-sw i { flex: none; width: 36px; height: 36px; border: var(--ef-bw) solid var(--ef-line); }
+  .mh-sw code { display: block; }
+  .mh-sp { display: flex; align-items: flex-end; gap: var(--ef-sp-4); margin: var(--ef-sp-3) 0; font-size: var(--ef-fs-s); }
+  .mh-sp i { display: block; background: var(--ef-accent); }
+  .mh-src { margin: var(--ef-sp-2) 0 0; font-size: var(--ef-fs-s); color: var(--ef-muted); }
+</style>
+<script>window.EDUIT_INFO = { domain: 'A', suite: 'Edu-IT 見本帳', app: { name: '見本帳' } };</script>
+<script src="eduit-frame.js"></script>
+</head>
+<body class="ef-page">
+<header class="ef-header ef-appbar">
+  <h1 class="ef-title"><span class="ef-code">見本</span> 共通の見た目の見本帳</h1>
+  <nav class="ef-switch" aria-label="分野の色" id="mh-domains"></nav>
+  <div class="ef-tools">
+    <button data-ef-pref="ruby"></button>
+    <button data-ef-pref="fs"></button>
+    <button data-ef-pref="kukkiri"></button>
+  </div>
+</header>
+<nav class="ef-apptabs" role="tablist" aria-label="アプリのタブ(見本)">
+  <button class="ef-apptab" role="tab" aria-selected="true">はじめに</button>
+  <button class="ef-apptab" role="tab" aria-selected="false">① しくみ</button>
+  <button class="ef-apptab" role="tab" aria-selected="false">② やってみよう</button>
+  <button class="ef-apptab is-advanced" role="tab" aria-selected="false">③ 発展</button>
+  <button class="ef-apptab" role="tab" aria-selected="false" data-ef-reflect>振り返り</button>
+  <div class="ef-apptabs-tools"><button class="ef-btn is-s">使い方</button><button class="ef-btn is-s">記録</button></div>
+</nav>
+
+<main class="ef-main">
+  <h1>見本帳</h1>
+  <p>このページは <code>shared/eduit-frame.css</code> の設定と部品を、全部ならべたものです。上の分野の記号で分野の色が、「文字 中」で文字の大きさが変わります。</p>
+  <div class="ef-note is-info"><span class="ef-note-k">作るときのきまり</span>教材の CSS には、図・盤面・シミュレーションの絵だけを書きます。色・文字・余白は <code>--ef-…</code> の名前を、ボタン・箱などはこのページの部品を使います。<code>python3 shared/style-check.py</code> で調べられます。</div>
+
+  <h2>1. 設定(トークン)</h2>
+  <h3>色</h3>
+  <div class="mh-swatches" id="mh-colors"></div>
+  <h3>文字</h3>
+  <p class="ef-box is-soft">
+    <span style="font-size: var(--ef-fs-h1)">見出し1 h1</span><br>
+    <span style="font-size: var(--ef-fs-h2)">見出し2 h2</span><br>
+    <span style="font-size: var(--ef-fs-h3)">見出し3 h3</span><br>
+    ふだんの字(--ef-fs)<br>
+    <span class="ef-small">小さい字(--ef-fs-s)</span><br>
+    <code>プログラム・数字 --ef-mono 0123456789</code>
+  </p>
+  <h3>余白</h3>
+  <div class="mh-sp" id="mh-space"></div>
+
+  <h2>2. 文字と中身の基本</h2>
+  <p>中身は <code>&lt;main class="ef-main"&gt;</code> に入れます。読む画面は 1040px まで真ん中、作業の画面(回路・盤面など)は <code>.ef-main.is-wide</code> で画面いっぱいです。中の <code>h2</code> <code>h3</code> <code>p</code> <code>ul</code> 入力欄は、クラスを付けなくてもこの形になります。</p>
+  <ul><li>リストの1つ目</li><li>リストの2つ目</li></ul>
+  <p class="ef-row">
+    <label>名前 <input type="text" placeholder="入力欄"></label>
+    <select><option>えらぶ欄</option><option>2つ目</option></select>
+    <label><input type="checkbox" checked> チェック</label>
+    <input type="range" aria-label="スライダー">
+  </p>
+  <textarea rows="2" placeholder="書く欄(textarea)"></textarea>
+
+  <h2>3. 部品</h2>
+  <h3>ボタン <code>.ef-btn</code></h3>
+  <div class="ef-row">
+    <button class="ef-btn-primary">いちばん大事な操作</button>
+    <button class="ef-btn">ふつう</button>
+    <button class="ef-btn is-on">ON(.is-on)</button>
+    <button class="ef-btn" aria-pressed="true">ON(aria-pressed)</button>
+    <button class="ef-btn is-danger">消す(.is-danger)</button>
+    <button class="ef-btn is-s">小さい(.is-s)</button>
+    <button class="ef-btn" disabled>押せない</button>
+  </div>
+
+  <h3>箱 <code>.ef-box</code></h3>
+  <section class="ef-box"><h3 class="ef-box-h">箱の見出し(.ef-box-h)</h3><p>白地・灰の細い線・影なし。</p></section>
+  <section class="ef-box is-soft"><h3 class="ef-box-h">.is-soft</h3><p>一段下げた面(灰の地)。</p></section>
+  <section class="ef-box is-accent"><h3 class="ef-box-h">.is-accent</h3><p>左に分野の色の線。</p></section>
+
+  <h3>注意・お知らせの箱 <code>.ef-note</code></h3>
+  <div class="ef-note"><span class="ef-note-k">ポイント</span>なし(分野の色の線)</div>
+  <div class="ef-note is-warn"><span class="ef-note-k">注意</span>刃物を使うときは、刃の進む方向に手を置かない。</div>
+  <div class="ef-note is-info"><span class="ef-note-k">お知らせ</span>記録はこの端末の中だけに保存されます。</div>
+  <div class="ef-note is-ok"><span class="ef-note-k">よい</span>回路がつながりました。</div>
+  <div class="ef-note is-ng"><span class="ef-note-k">危ない</span>ショートしています。</div>
+
+  <h3>小さなラベル <code>.ef-tag</code></h3>
+  <p class="ef-row">
+    <span class="ef-tag">切断</span>
+    <span class="ef-tag is-accent">基本編</span>
+    <span class="ef-tag is-advanced">発展</span>
+    <span class="ef-tag is-ok">○ できた</span>
+    <span class="ef-tag is-ng">× まだ</span>
+    <span class="ef-tag is-warn">振り返り: まだ</span>
+  </p>
+
+  <h3>1つえらぶボタンの組 <code>.ef-seg</code></h3>
+  <div class="ef-seg" role="group" aria-label="動き">
+    <button aria-pressed="true">回転</button><button aria-pressed="false">往復</button><button aria-pressed="false">ゆれる</button>
+  </div>
+
+  <h3>タブの中の小さな切りかえ <code>.ef-subtabs</code></h3>
+  <div class="ef-subtabs" role="tablist">
+    <button role="tab" aria-selected="true">感電</button><button role="tab" aria-selected="false">ショート</button><button role="tab" aria-selected="false">たこ足配線</button>
+  </div>
+
+  <h3>クイズの答え <code>.ef-choice</code></h3>
+  <div class="ef-choices">
+    <button class="ef-choice is-ok">正解の答え(.is-ok)</button>
+    <button class="ef-choice is-ng">まちがえた答え(.is-ng)</button>
+    <button class="ef-choice">まだ押していない答え</button>
+  </div>
+
+  <h3>表 <code>.ef-table</code></h3>
+  <div class="ef-scroll">
+    <table class="ef-table">
+      <tr><th>材料</th><th>かたさ</th><th class="is-num">密度(g/cm³)</th></tr>
+      <tr><td>スギ</td><td>やわらかい</td><td class="is-num">0.38</td></tr>
+      <tr><td>アルミニウム</td><td>ふつう</td><td class="is-num">2.70</td></tr>
+    </table>
+  </div>
+
+  <h3>結果の数字 <code>.ef-result</code></h3>
+  <p class="ef-row">
+    <span class="ef-result"><span class="ef-result-k">たわみ</span><span class="ef-result-v">1.05</span><span class="ef-result-u">mm</span></span>
+    <span class="ef-result is-ok"><span class="ef-result-k">効率</span><span class="ef-result-v">82</span><span class="ef-result-u">%</span></span>
+  </p>
+
+  <h3>進み具合 <code>.ef-progress</code></h3>
+  <div class="ef-progress"><span>必修 2/4</span><span class="ef-progress-bar"><span style="width: 50%"></span></span></div>
+
+  <h3>記号の印 <code>.ef-code</code></h3>
+  <p><span class="ef-code">A1</span> <span class="ef-code">B2</span> <span class="ef-code">C3</span> <span class="ef-code">D4</span></p>
+</main>
+
+<script>
+(function () {
+  // 分野の色の切りかえ
+  var nav = document.getElementById('mh-domains');
+  'A B C D G T M F Z'.split(' ').forEach(function (d) {
+    var b = document.createElement('button');
+    b.className = 'ef-swchip';
+    b.type = 'button';
+    b.innerHTML = '<span class="ef-code">' + d + '</span>';
+    b.addEventListener('click', function () {
+      document.documentElement.setAttribute('data-ef-domain', d);
+      Array.prototype.forEach.call(nav.children, function (x) { x.removeAttribute('aria-current'); });
+      b.setAttribute('aria-current', 'true');
+    });
+    if (d === 'A') b.setAttribute('aria-current', 'true');
+    nav.appendChild(b);
+  });
+  // 色の見本(eduit-frame.css の --ef- の色をならべる)
+  var COLORS = ['bg', 'surface', 'surface-2', 'line', 'ink', 'text', 'muted', 'focus', 'accent', 'accent-soft', 'advanced', 'advanced-soft',
+    'ok', 'ok-soft', 'ng', 'ng-soft', 'warn', 'warn-soft', 'info', 'info-soft', 'series-1', 'series-2', 'series-3', 'series-4', 'series-5'];
+  var box = document.getElementById('mh-colors');
+  COLORS.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'mh-sw';
+    d.innerHTML = '<i style="background: var(--ef-' + c + ')"></i><span><code>--ef-' + c + '</code><span class="mh-v"></span></span>';
+    box.appendChild(d);
+  });
+  function paintValues() {
+    var cs = getComputedStyle(document.documentElement);
+    Array.prototype.forEach.call(box.children, function (d, i) { d.querySelector('.mh-v').textContent = cs.getPropertyValue('--ef-' + COLORS[i]).trim(); });
+  }
+  paintValues();
+  new MutationObserver(paintValues).observe(document.documentElement, { attributes: true, attributeFilter: ['data-ef-domain', 'data-ef-kukkiri'] });
+  // 余白の見本
+  var sp = document.getElementById('mh-space');
+  [1, 2, 3, 4, 5, 6].forEach(function (n) {
+    var d = document.createElement('div');
+    d.innerHTML = '<i style="width: var(--ef-sp-' + n + '); height: var(--ef-sp-' + n + ')"></i>--ef-sp-' + n;
+    sp.appendChild(d);
+  });
+  // タブ(見本)を押せるように
+  Array.prototype.forEach.call(document.querySelectorAll('[role=tablist]'), function (list) {
+    list.addEventListener('click', function (e) {
+      var t = e.target.closest('[role=tab]');
+      if (!t) return;
+      Array.prototype.forEach.call(list.querySelectorAll('[role=tab]'), function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.ef-seg'), function (g) {
+    g.addEventListener('click', function (e) {
+      var t = e.target.closest('button');
+      if (t) Array.prototype.forEach.call(g.children, function (x) { x.setAttribute('aria-pressed', x === t ? 'true' : 'false'); });
+    });
+  });
+})();
+</script>
+</body>
+</html>

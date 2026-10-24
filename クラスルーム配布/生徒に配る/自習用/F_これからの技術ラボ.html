@@ -6,31 +6,99 @@
 <title>F これからの技術ラボ</title>
 <!-- これからの技術ラボ(教科書 1編〜3編の3章「これからの技術」)。T-textbook/build.py が CSS・JS を中に入れて dist/ に1ファイルを作る -->
 <style>
-/* Edu-IT 共通の枠(4分野・全アプリ共通)
- * 色・文字・ボタン・カード・ヘッダー・フッターの見た目をそろえるための部品。
- * 分野の色は <html data-ef-domain="A|B|C|D|G|T|M|F|Z"> で切りかわる(G は分野に入らない「技術分野のガイダンス」。T・M・F・Z は T-textbook/ の教科書順コースと3つの教材)。
- * アプリ固有の見た目は各アプリの CSS に残し、ここでは「枠」だけを決める。
+/* Edu-IT 共通の見た目(4分野・全アプリ共通)
+ * 見た目は案1「教科書の目次」: 白地・黒の細い線・角なし・影なし・絵文字なし。色は分野の色を、記号・開いているタブの下線・ON の下線にだけ使う。
+ *
+ * このファイルは3つの層の、上の2つ。
+ *   ① 設定(トークン) … 色・文字・余白・線・はばの「値」はここにだけ書く。教材の CSS は var(--ef-…) で使う
+ *   ② 共通の部品     … ボタン・箱・注意の箱・ラベル・入力欄・表・タブ など。教材はクラス名を付けるだけ
+ *   ③ 教材だけの見た目 … 各教材の CSS。図・盤面・シミュレーションの絵だけ。図の色は教材の CSS の上で --fig-… の名前を付ける
+ * 部品の見本は shared/ef-mihon.html。決まりに合っているかは python3 shared/style-check.py で調べる。
+ *
+ * 目次
+ *   1. 設定(トークン)と分野の色
+ *   2. 文字と中身の基本(.ef-main の中の見出し・文・入力欄)
+ *   3. 部品(ボタン・箱・注意・ラベル・えらぶボタン・クイズの答え・表・結果の数字・進み具合・小さな切りかえ)
+ *   4. 上のバー・メニュー・アプリのタブ・フッター・ダイアログ
+ *   5. 自習ガイド・まず考えよう・振り返りを隠す設定
+ *   6. はばに合わせた形(せまい画面・スマホ)と印刷
  */
+
+
+/* ======================================================================
+ * 1. 設定(トークン)と分野の色
+ *    色をあとで変えたいときは、ここの1行を変えれば全分野が変わる。
+ * ====================================================================== */
 :root {
-  color-scheme: light;      /* 端末がダークモードでも、4分野とも明るい画面で出す */
-  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
-  --ef-bg: #ffffff;          /* 画面の地(見た目は 案1「教科書の目次」: 白地・黒の細い線・角なし・影なし・絵文字なし) */
-  --ef-surface: #ffffff;     /* カード・ヘッダー */
-  --ef-surface-2: #f7f7f5;   /* 一段下げた面 */
-  --ef-line: #c8c8c8;        /* 枠線・区切りの線 */
-  --ef-ink: #222222;         /* 黒の線(上のバーの下・一覧の上・ボタンの枠) */
-  --ef-text: #222222;
-  --ef-muted: #565d68;
-  --ef-focus: #f08c00;       /* キーボード操作の枠 */
-  --ef-radius: 0;
-  --ef-radius-s: 0;
-  --ef-shadow: none;
-  --ef-header-h: 52px;
-  --ef-tap: 40px;            /* ボタンの最小の高さ */
-  /* 分野の色(既定は D) */
+  color-scheme: light;        /* 端末がダークモードでも、明るい画面で出す */
+
+  /* 地・面・線・文字 */
+  --ef-bg: #ffffff;           /* 画面の地 */
+  --ef-surface: #ffffff;      /* 箱・カード・上のバー */
+  --ef-surface-2: #f7f7f5;    /* 一段下げた面(押したとき・表の見出し) */
+  --ef-line: #c8c8c8;         /* 細い区切りの線・箱の枠 */
+  --ef-ink: #222222;          /* 黒の線(上のバーの下・見出しの下・ボタンの枠)と、黒でぬるボタン */
+  --ef-ink-hover: #444444;    /* 黒でぬるボタンにマウスをのせたとき */
+  --ef-on-ink: #ffffff;       /* 黒・分野の色でぬった上の字 */
+  --ef-text: #222222;         /* ふだんの字 */
+  --ef-muted: #565d68;        /* 説明の字 */
+  --ef-focus: #f08c00;        /* キーボード操作の枠 */
+  --ef-backdrop: rgba(0, 0, 0, .4);  /* ダイアログのうしろ */
+
+  /* 分野の色(既定は D。下の data-ef-domain で切りかわる) */
   --ef-accent: #1a5fc8;
   --ef-accent-ink: #ffffff;
   --ef-accent-soft: #e6eefb;
+  /* 発展の印(むらさき) */
+  --ef-advanced: #5b3fa8;
+  --ef-advanced-soft: #efeaf8;
+
+  /* 状態の色(正解・まちがい・注意・お知らせ)。-soft はうすい地 */
+  --ef-ok: #1f7a3a;   --ef-ok-soft: #e3f3e7;
+  --ef-ng: #b3261e;   --ef-ng-soft: #fbe5e3;
+  --ef-warn: #8a5a00; --ef-warn-soft: #fff4d6;
+  --ef-info: #1a5fc8; --ef-info-soft: #eaf1fc;
+
+  /* グラフの線の色(分野をまたいで同じ順に使う) */
+  --ef-series-1: #1a5fc8;
+  --ef-series-2: #b45309;
+  --ef-series-3: #1f7a3a;
+  --ef-series-4: #b3261e;
+  --ef-series-5: #5b3fa8;
+
+  /* 文字。--ef-fs は「文字 中」のボタンで変わる(EduitFrame.prefs)。見出しなどは em で --ef-fs からの倍にする */
+  --ef-font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --ef-mono: "BIZ UDGothic", ui-monospace, "SFMono-Regular", Consolas, monospace;  /* プログラム・数字をそろえる所 */
+  --ef-fs: 17px;
+  --ef-fs-h1: 1.6em;
+  --ef-fs-h2: 1.3em;
+  --ef-fs-h3: 1.1em;
+  --ef-fs-s: .88em;           /* 小さい字(説明・ラベル) */
+  --ef-lh: 1.75;              /* 行の間 */
+  --ef-lh-tight: 1.4;         /* 見出し・ボタンの行の間 */
+
+  /* 余白(4・8・12・16・24・32px) */
+  --ef-sp-1: 4px;
+  --ef-sp-2: 8px;
+  --ef-sp-3: 12px;
+  --ef-sp-4: 16px;
+  --ef-sp-5: 24px;
+  --ef-sp-6: 32px;
+
+  /* 線の太さ・角・影 */
+  --ef-bw: 1px;               /* ふつうの線 */
+  --ef-bw-strong: 2px;        /* 見出しの下・章の区切り */
+  --ef-mark: 4px;             /* 開いているタブ・ON のボタンの下線、注意の箱の左の線 */
+  --ef-radius: 0;
+  --ef-radius-s: 0;
+  --ef-shadow: none;
+
+  /* 大きさ・はば */
+  --ef-header-h: 52px;
+  --ef-tap: 44px;             /* ボタン・入力欄の高さ(指で押しやすい大きさ) */
+  --ef-tap-s: 36px;           /* 小さいボタン(.ef-btn.is-s) */
+  --ef-tap-bar: 40px;         /* メニューの上のバーのボタン */
+  --ef-read-w: 1040px;        /* 読む画面の中身のはば(.ef-main)。作業の画面(.ef-main.is-wide)は画面いっぱい */
 }
 :root[data-ef-domain="A"] { --ef-accent: #985a26; --ef-accent-soft: #f5e9dc; }  /* 材料と加工: 木の茶 */
 :root[data-ef-domain="B"] { --ef-accent: #2e7d32; --ef-accent-soft: #e4f2e5; }  /* 生物育成: 緑 */
@@ -41,47 +109,75 @@
 :root[data-ef-domain="M"] { --ef-accent: #9d174d; --ef-accent-soft: #fbe7ef; }  /* M 身の回りの技術さがし(各編のはじめ): 赤紫 */
 :root[data-ef-domain="F"] { --ef-accent: #4338ca; --ef-accent-soft: #e8e8fb; }  /* F これからの技術ラボ(各編の最後): あい色 */
 :root[data-ef-domain="Z"] { --ef-accent: #7c4a03; --ef-accent-soft: #f6ecdc; }  /* Z 学習を終えて(3年間のまとめ): こげ茶 */
+/* くっきり(EduitFrame.prefs の kukkiri): 字と線を濃くする */
+:root[data-ef-kukkiri="on"] { --ef-text: #000000; --ef-muted: #222222; --ef-line: #555555; --ef-surface-2: #ffffff; }
 
-/* ---- ヘッダー ----
- * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
- *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
- * アプリ:     <header class="ef-header"> <a class="ef-btn ef-back" href="…">◀ メニュー</a>
- *               <h1 class="ef-title"><span class="ef-code">A2</span> アプリ名</h1>
- *               <div class="ef-tools"> ふりがな / 文字の大きさ / くっきり / 使い方 / そのアプリだけのボタン </div> </header>
- *   同じ分野の教材を切りかえるボタンにも記号を出す(<button class="ef-btn"><span class="ef-code">D1</span> CPU</button>)。
- */
-.ef-header {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  min-height: var(--ef-header-h); padding: 6px 14px;
-  background: var(--ef-surface); color: var(--ef-text);
-  border-bottom: 1px solid var(--ef-ink);
-  font-family: var(--ef-font);
-  box-sizing: border-box;
+
+/* ======================================================================
+ * 2. 文字と中身の基本
+ *    教材の中身は <main class="ef-main"> に入れる(読む画面は 1040px まで真ん中、作業の画面は .is-wide で画面いっぱい)。
+ *    中の見出し・文・リスト・入力欄は、クラスを付けなくてもこの形になる。
+ *    文字の大きさ: EduitFrame.prefs を使うページ(<html data-ef-prefs>)は、<html> の字が --ef-fs になる。
+ *    教材の CSS は字の大きさを rem・em で書く(px で書くと「文字 中」のボタンで変わらない)。
+ * ====================================================================== */
+html[data-ef-prefs] { font-size: var(--ef-fs); }
+.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
+.ef-main {
+  box-sizing: border-box; max-width: var(--ef-read-w); margin: 0 auto; padding: var(--ef-sp-5) var(--ef-sp-6) var(--ef-sp-6);
+  font-family: var(--ef-font); font-size: 1rem; line-height: var(--ef-lh); color: var(--ef-text);
 }
-.ef-title {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+.ef-main.is-wide { max-width: none; padding: var(--ef-sp-3) var(--ef-sp-4) var(--ef-sp-5); }
+.ef-main h1, .ef-main h2, .ef-main h3 { margin: 1.4em 0 .5em; line-height: var(--ef-lh-tight); font-weight: 700; color: var(--ef-text); }
+.ef-main h1 { font-size: var(--ef-fs-h1); margin-top: .4em; }
+.ef-main h2 { font-size: var(--ef-fs-h2); padding-bottom: var(--ef-sp-1); border-bottom: var(--ef-bw-strong) solid var(--ef-ink); }
+.ef-main h3 { font-size: var(--ef-fs-h3); }
+.ef-main > :first-child { margin-top: 0; }
+.ef-main p { margin: .5em 0; }
+.ef-main ul, .ef-main ol { margin: .5em 0; padding-left: 1.5em; }
+.ef-main li { margin: .2em 0; }
+.ef-main small, .ef-small { font-size: var(--ef-fs-s); color: var(--ef-muted); }
+.ef-main code, .ef-main kbd { font-family: var(--ef-mono); font-size: .95em; }
+/* 入力欄: 灰の細い枠・高さ 44px。押している(フォーカス)ときは分野の色の枠 */
+.ef-main :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]), select, textarea) {
+  box-sizing: border-box; min-height: var(--ef-tap); padding: var(--ef-sp-2) var(--ef-sp-3);
+  border: var(--ef-bw) solid var(--ef-ink); border-radius: 0; background: var(--ef-surface); color: var(--ef-text);
+  font: inherit; line-height: var(--ef-lh-tight);
 }
-.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
-.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
-.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.ef-main textarea { width: 100%; line-height: var(--ef-lh); }
+.ef-main :is(input, select, textarea):focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-main :is(input[type=checkbox], input[type=radio], input[type=range]) { accent-color: var(--ef-accent); }
+.ef-main label { line-height: var(--ef-lh-tight); }
+
+
+/* ======================================================================
+ * 3. 部品
+ *    名前は ef- で始め、形のちがいは is-〜 で表す。書き方の見本は shared/ef-mihon.html。
+ * ====================================================================== */
 
 /* ---- ボタン ----
- * .ef-btn          ふつうのボタン(白地・黒の細い枠・角なし)
- * .ef-btn.is-on    ON の状態(下に分野の色の線)。aria-pressed="true" でも同じ
- * .ef-btn-primary  いちばん大事な操作(はじめる・ひらく など)
+ * .ef-btn           ふつうのボタン(白地・黒の細い枠・角なし)
+ * .ef-btn.is-s      小さいボタン(高さ 36px)
+ * .ef-btn.is-on     ON の状態(下に分野の色の線)。aria-pressed="true" でも同じ
+ * .ef-btn.is-danger 消す・取り消す(赤の字と枠)
+ * .ef-btn-primary   いちばん大事な操作(はじめる・ひらく など。黒でぬる)
  */
 .ef-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: var(--ef-tap); padding: 0 14px;
-  border: 1px solid var(--ef-ink); border-radius: 0;
+  min-height: var(--ef-tap-bar); padding: 0 14px;
+  border: var(--ef-bw) solid var(--ef-ink); border-radius: 0;
   background: var(--ef-surface); color: var(--ef-text);
   font: 600 15px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
   box-sizing: border-box; white-space: nowrap;
 }
 .ef-btn:hover { background: var(--ef-surface-2); }
 /* ON は下に分野の色の太い線(ぬりつぶさない) */
-.ef-btn.is-on, .ef-btn[aria-pressed="true"] { box-shadow: inset 0 -4px 0 var(--ef-accent); }
+.ef-btn.is-on, .ef-btn[aria-pressed="true"] { box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+.ef-btn:disabled, .ef-btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; background: var(--ef-surface); }
+.ef-btn.is-danger { color: var(--ef-ng); border-color: var(--ef-ng); }
+.ef-btn.is-danger:hover { background: var(--ef-ng-soft); }
+/* 中身の中のボタン(上のバーより大きく、字の大きさに合わせて大きくなる) */
+.ef-main .ef-btn, .ef-box .ef-btn { min-height: var(--ef-tap); font-size: .94rem; }
+.ef-btn.is-s, .ef-main .ef-btn.is-s { min-height: var(--ef-tap-s); padding: 0 10px; font-size: var(--ef-fs-s); }
 .ef-back { color: var(--ef-text); border-color: transparent; background: none; }
 .ef-back:hover { background: none; text-decoration: underline; }
 /* 上のバーの表示の道具(4分野で同じ形)。ふりがな・くっきりは .ef-toggle(ON で ✓)、文字の大きさは .ef-size(EduitFrame.sizeButton) */
@@ -102,26 +198,143 @@
 @media (prefers-reduced-motion: reduce) { [data-ef-autohide] { transition: none; } }
 .ef-btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 44px; padding: 0 20px;
-  border: 1px solid var(--ef-ink); border-radius: 0;
-  background: var(--ef-ink); color: #fff;
+  min-height: var(--ef-tap); padding: 0 20px;
+  border: var(--ef-bw) solid var(--ef-ink); border-radius: 0;
+  background: var(--ef-ink); color: var(--ef-on-ink);
   font: 700 16px/1.2 var(--ef-font); text-decoration: none; cursor: pointer;
 }
-.ef-btn-primary:hover { background: #444; }
+.ef-btn-primary:hover { background: var(--ef-ink-hover); }
+.ef-btn-primary:disabled { opacity: .45; cursor: not-allowed; background: var(--ef-ink); }
+.ef-main .ef-btn-primary, .ef-box .ef-btn-primary { font-size: 1rem; }
 .ef-btn:focus-visible, .ef-btn-primary:focus-visible, .ef-about-link:focus-visible, .ef-dialog :focus-visible {
   outline: 3px solid var(--ef-focus); outline-offset: 2px;
 }
+/* ボタンをならべる行 */
+.ef-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ef-sp-2); margin: var(--ef-sp-3) 0; }
 
-/* ---- メニューのカード ----
- * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
- * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+/* ---- 箱 ----
+ * <section class="ef-box"> <h3 class="ef-box-h">見出し</h3> … </section>
+ * 白地・灰の細い線・影なし。.is-soft は一段下げた面(灰の地)、.is-accent は左に分野の色の線
  */
-.ef-page { background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); }
-.ef-card {
-  background: var(--ef-surface); border: 0; border-top: 2px solid var(--ef-ink); padding: 14px 4px;
+.ef-box {
+  box-sizing: border-box; margin: var(--ef-sp-4) 0; padding: var(--ef-sp-4);
+  background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); border-radius: 0; box-shadow: none;
 }
-.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
-.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+.ef-box.is-soft { background: var(--ef-surface-2); }
+.ef-box.is-accent { border-left: var(--ef-mark) solid var(--ef-accent); }
+.ef-box > :first-child { margin-top: 0; }
+.ef-box > :last-child { margin-bottom: 0; }
+.ef-box-h, .ef-main .ef-box-h {
+  margin: 0 0 var(--ef-sp-2); padding: 0; border: 0;
+  font-size: var(--ef-fs-h3); font-weight: 700; line-height: var(--ef-lh-tight); color: var(--ef-text);
+}
+
+/* ---- 注意・お知らせの箱 ----
+ * <div class="ef-note is-warn">…</div>  左に 4px の線と、うすい地。
+ * .is-warn 注意(黄)・.is-info お知らせ(青)・.is-ok よい(緑)・.is-ng 危ない(赤)。なしは分野の色の線と白地
+ */
+.ef-note {
+  box-sizing: border-box; margin: var(--ef-sp-3) 0; padding: var(--ef-sp-2) var(--ef-sp-3);
+  border: 0; border-left: var(--ef-mark) solid var(--ef-accent); border-radius: 0; background: var(--ef-surface);
+  line-height: var(--ef-lh); color: var(--ef-text);
+}
+.ef-note > :first-child { margin-top: 0; }
+.ef-note > :last-child { margin-bottom: 0; }
+.ef-note.is-warn { border-left-color: var(--ef-warn); background: var(--ef-warn-soft); }
+.ef-note.is-info { border-left-color: var(--ef-info); background: var(--ef-info-soft); }
+.ef-note.is-ok { border-left-color: var(--ef-ok); background: var(--ef-ok-soft); }
+.ef-note.is-ng { border-left-color: var(--ef-ng); background: var(--ef-ng-soft); }
+.ef-note-k { display: block; font-weight: 700; }  /* 「注意」「ポイント」などの見出しの字 */
+.ef-note.is-warn .ef-note-k { color: var(--ef-warn); }
+.ef-note.is-info .ef-note-k { color: var(--ef-info); }
+.ef-note.is-ok .ef-note-k { color: var(--ef-ok); }
+.ef-note.is-ng .ef-note-k { color: var(--ef-ng); }
+
+/* ---- 小さなラベル ----
+ * <span class="ef-tag">切断</span>  白地に細い枠。.is-advanced 発展(むらさき)・.is-accent 分野の色・.is-ok / .is-ng / .is-warn
+ */
+.ef-tag {
+  display: inline-flex; align-items: center; gap: .3em; padding: 0 .5em; vertical-align: .08em;
+  border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); color: var(--ef-text);
+  font-size: var(--ef-fs-s); font-weight: 700; line-height: 1.6; white-space: nowrap;
+}
+.ef-tag.is-accent { border-color: var(--ef-accent); color: var(--ef-accent); }
+.ef-tag.is-advanced { border-color: var(--ef-advanced); color: var(--ef-advanced); }
+.ef-tag.is-ok { border-color: var(--ef-ok); color: var(--ef-ok); }
+.ef-tag.is-ng { border-color: var(--ef-ng); color: var(--ef-ng); }
+.ef-tag.is-warn { border-color: var(--ef-warn); color: var(--ef-warn); }
+
+/* ---- 1つえらぶボタンの組 ----
+ * <div class="ef-seg" role="group"> <button aria-pressed="true">回転</button> <button aria-pressed="false">往復</button> … </div>
+ * えらんだもの(aria-pressed="true" か .is-on)は太字と分野の色の下線
+ */
+.ef-seg { display: inline-flex; flex-wrap: wrap; gap: 0; border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); }
+.ef-seg > button {
+  min-height: var(--ef-tap); padding: 0 14px; margin: 0; cursor: pointer;
+  border: 0; border-right: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: none; color: var(--ef-text);
+  font: inherit; font-size: .94rem; line-height: var(--ef-lh-tight); white-space: nowrap;
+}
+.ef-seg > button:last-child { border-right: 0; }
+.ef-seg > button:hover { background: var(--ef-surface-2); }
+.ef-seg > button[aria-pressed="true"], .ef-seg > button.is-on { font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
+.ef-seg > button:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: -3px; }
+
+/* ---- クイズの答え ----
+ * <div class="ef-choices"> <button class="ef-choice">…</button> … </div>
+ * 答えたあと、正解は .is-ok(○ と緑)、まちがいは .is-ng(× と赤)。色だけでなく ○ × の字も出す
+ */
+.ef-choices { display: flex; flex-direction: column; gap: var(--ef-sp-2); margin: var(--ef-sp-2) 0; }
+.ef-choice {
+  display: block; width: 100%; min-height: var(--ef-tap); padding: var(--ef-sp-2) var(--ef-sp-3); cursor: pointer; text-align: left;
+  border: var(--ef-bw) solid var(--ef-line); border-radius: 0; background: var(--ef-surface); color: var(--ef-text);
+  font: inherit; line-height: var(--ef-lh-tight);
+}
+.ef-choice:hover { border-color: var(--ef-ink); }
+.ef-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-choice.is-ok { border-color: var(--ef-ok); background: var(--ef-ok-soft); font-weight: 700; }
+.ef-choice.is-ok::before { content: "○ "; color: var(--ef-ok); }
+.ef-choice.is-ng { border-color: var(--ef-ng); background: var(--ef-ng-soft); }
+.ef-choice.is-ng::before { content: "× "; color: var(--ef-ng); }
+
+/* ---- 表 ----
+ * <table class="ef-table"> 見出しの行は灰の地、線は細い灰。はばが足りないときは <div class="ef-scroll"> で包むと、表だけ横にスクロールする
+ */
+.ef-table { border-collapse: collapse; margin: var(--ef-sp-3) 0; font-size: .94em; line-height: var(--ef-lh-tight); }
+.ef-table th, .ef-table td { padding: var(--ef-sp-2) var(--ef-sp-3); border: var(--ef-bw) solid var(--ef-line); text-align: left; vertical-align: top; }
+.ef-table th { background: var(--ef-surface-2); font-weight: 700; }
+.ef-table .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.ef-scroll { max-width: 100%; overflow-x: auto; }
+
+/* ---- 結果の数字 ----
+ * <div class="ef-result"> <span class="ef-result-k">たわみ</span> <span class="ef-result-v">1.05</span> <span class="ef-result-u">mm</span> </div>
+ */
+.ef-result { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .1em .4em; }
+.ef-result-k { font-size: var(--ef-fs-s); font-weight: 700; color: var(--ef-muted); }
+.ef-result-v { font-size: 1.6em; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--ef-text); }
+.ef-result-u { font-size: .94em; color: var(--ef-muted); }
+.ef-result.is-ok .ef-result-v { color: var(--ef-ok); }
+.ef-result.is-ng .ef-result-v { color: var(--ef-ng); }
+
+/* ---- 進み具合のバー ----
+ * <div class="ef-progress"> <span class="ef-progress-t">必修 2/4</span> <span class="ef-progress-bar"><span style="width: 50%"></span></span> </div>
+ */
+.ef-progress { display: flex; align-items: center; gap: var(--ef-sp-2); font-size: var(--ef-fs-s); font-weight: 700; }
+.ef-progress-bar { flex: 1; min-width: 4em; height: 8px; border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); }
+.ef-progress-bar > span { display: block; height: 100%; background: var(--ef-accent); }
+
+/* ---- タブの中の小さな切りかえ ----
+ * <div class="ef-subtabs" role="tablist"> <button role="tab" aria-selected="true">…</button> … </div>
+ * アプリのタブ(.ef-apptabs)と同じ「字＋下線」で、ひとまわり小さい
+ */
+.ef-subtabs { display: flex; flex-wrap: wrap; gap: 0 var(--ef-sp-4); margin: var(--ef-sp-2) 0 var(--ef-sp-3); border-bottom: var(--ef-bw) solid var(--ef-line); }
+.ef-subtabs > button, .ef-subtabs > a {
+  min-height: var(--ef-tap-s); padding: 0 var(--ef-sp-1); margin: 0 0 -1px; cursor: pointer;
+  border: 0; border-bottom: var(--ef-mark) solid transparent; border-radius: 0; background: none; color: var(--ef-muted);
+  font: inherit; font-size: .94em; font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+.ef-subtabs > :hover { color: var(--ef-text); }
+.ef-subtabs > [aria-selected="true"], .ef-subtabs > [aria-current], .ef-subtabs > .is-on { color: var(--ef-text); border-bottom-color: var(--ef-accent); }
+.ef-subtabs > :focus-visible { outline: 3px solid var(--ef-focus); outline-offset: -3px; }
 
 /* ---- 記号の印(A1・B2・C3・D4 など。メニューの上のバー・アプリの上のバー・切りかえボタン・カード) ---- */
 .ef-code {
@@ -129,15 +342,51 @@
   background: none; color: var(--ef-accent);
   font: 700 1em/1.5 var(--ef-font); letter-spacing: .02em; white-space: nowrap; vertical-align: .05em;
 }
-.ef-title .ef-code { font-size: 22px; min-width: 0; margin-right: 4px; }
 .ef-btn .ef-code { font-size: 13px; min-width: 0; margin-right: 2px; }
 
 
-/* ---- メニューのカード(EduitFrame.card が作る。4分野同じ形) ---- */
-/* 教科書の目次のように1行ずつ: 左に記号、まん中に名前と説明、右に「ひらく →」。行の上下は細い線 */
+/* ======================================================================
+ * 4. 上のバー・メニュー・アプリのタブ・フッター・ダイアログ
+ *    上のバー(ヘッダー)の字とボタンは、文字の大きさのボタンで変えない(px のまま)。
+ * ====================================================================== */
+
+/* ---- ヘッダー ----
+ * メニュー:   <header class="ef-header"> <h1 class="ef-title"><span class="ef-code">A</span> 材料と加工の技術 教材集</h1>
+ *               <div class="ef-tools"> ふりがな / 文字 中 / 使い方 / 先生用 </div> </header>   (4分野でこの4つだけ・字だけ)
+ * アプリ:     下の .ef-appbar
+ */
+.ef-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: var(--ef-header-h); padding: 6px 14px;
+  background: var(--ef-surface); color: var(--ef-text);
+  border-bottom: var(--ef-bw) solid var(--ef-ink);
+  font-family: var(--ef-font);
+  box-sizing: border-box;
+}
+.ef-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ef-text);
+}
+.ef-title .ef-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; font-size: 22px; }
+.ef-title .ef-sub { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
+.ef-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.ef-title .ef-code { font-size: 22px; min-width: 0; margin-right: 4px; }
+
+/* ---- メニューのカード ----
+ * <article class="ef-card"> <p class="ef-card-tag">A1</p> <h3 class="ef-card-title">…</h3> <p>…</p> <a class="ef-btn-primary">ひらく ▶</a> </article>
+ * メニューのカードは EduitFrame.card() で作る(下の .ef-mcard)。
+ */
+.ef-card {
+  background: var(--ef-surface); border: 0; border-top: var(--ef-bw-strong) solid var(--ef-ink); padding: 14px 4px;
+}
+.ef-card-tag { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-card-title { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--ef-text); }
+
+/* EduitFrame.card が作るメニューのカード(4分野同じ形)
+ * 教科書の目次のように1行ずつ: 左に記号、まん中に名前と説明、右に「ひらく ▶」。行の上下は細い線 */
 .ef-mcard {
   display: grid; grid-template-columns: 4.2em minmax(0, 1fr) auto; column-gap: 16px; row-gap: 2px; align-items: baseline;
-  padding: 14px 4px; border: 0; border-bottom: 1px solid var(--ef-line); border-radius: 0; box-shadow: none;
+  padding: 14px 4px; border: 0; border-bottom: var(--ef-bw) solid var(--ef-line); border-radius: 0; box-shadow: none;
   cursor: pointer; font-family: var(--ef-font); color: var(--ef-text);
 }
 .ef-mcard:hover { background: var(--ef-surface-2); }
@@ -160,7 +409,7 @@
 .ef-footer {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px;
   margin: 24px 0 0; padding: 12px 16px;
-  border-top: 1px solid var(--ef-line); background: var(--ef-surface-2);
+  border-top: var(--ef-bw) solid var(--ef-line); background: var(--ef-surface-2);
   font: 13px/1.6 var(--ef-font); color: var(--ef-muted);
 }
 .ef-footer .ef-author { font-weight: 700; color: var(--ef-text); }
@@ -174,19 +423,19 @@
 /* ---- このアプリについて(ダイアログ) ---- */
 .ef-dialog {
   width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
-  padding: 0; border: 1px solid var(--ef-line); border-radius: var(--ef-radius);
+  padding: 0; border: var(--ef-bw) solid var(--ef-ink); border-radius: var(--ef-radius);
   background: var(--ef-surface); color: var(--ef-text); font: 15px/1.7 var(--ef-font);
-  box-shadow: none; border-color: var(--ef-ink);
+  box-shadow: none;
 }
-.ef-dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.ef-dialog::backdrop { background: var(--ef-backdrop); }
 .ef-dialog-in { display: flex; flex-direction: column; max-height: calc(100vh - 50px); }
-.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--ef-ink); }
+.ef-dialog-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: var(--ef-bw) solid var(--ef-ink); }
 .ef-dialog-head h2 { margin: 0; font-size: 18px; flex: 1; }
 .ef-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 16px 0; }
 .ef-tab { border: 0; border-bottom: 3px solid transparent; background: none;
   padding: 6px 10px; font: 600 14px/1.3 var(--ef-font); color: var(--ef-muted); cursor: pointer; min-height: 36px; }
 .ef-tab[aria-selected="true"] { color: var(--ef-text); border-bottom-color: var(--ef-accent); }
-.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: 1px solid var(--ef-line); }
+.ef-panel { padding: 14px 18px 18px; overflow: auto; border-top: var(--ef-bw) solid var(--ef-line); }
 .ef-panel h3 { margin: 12px 0 4px; font-size: 16px; }
 .ef-panel ul { margin: 4px 0 8px; padding-left: 1.3em; }
 .ef-panel p { margin: 4px 0 8px; }
@@ -196,10 +445,9 @@
 .ef-hist-ver { font-weight: 700; color: var(--ef-accent); }
 .ef-hist-date { color: var(--ef-muted); font-size: 13px; margin-left: 6px; }
 
-/* 文字を大きくした・くっきりのときも読めるように */
-/* 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) */
+/* ---- 基本編・発展編のタブ(メニュー。EduitFrame.levels が作る) ---- */
 .ef-levels { margin: 0 0 18px; font-family: var(--ef-font); }
-.ef-level-tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--ef-line); }
+.ef-level-tabs { display: flex; gap: 24px; border-bottom: var(--ef-bw) solid var(--ef-line); }
 .ef-level-tab {
   display: inline-flex; align-items: baseline; gap: 4px; min-height: 48px; padding: 8px 0; margin: 0 0 -1px;
   font: inherit; font-size: 1.15em; font-weight: 700 !important; color: var(--ef-muted) !important; cursor: pointer;
@@ -215,12 +463,12 @@
 .ef-level-panel { padding: 12px 0 0; }
 .ef-level-panel:focus { outline: none; }
 .ef-level-lead { margin: 0 0 12px; color: var(--ef-muted); line-height: 1.6; }
-.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { border-bottom-color: #5b3fa8 !important; }
+.ef-level-advanced[aria-selected="true"], .ef-level-advanced[aria-selected="true"]:hover { border-bottom-color: var(--ef-advanced) !important; }
 .ef-level-parts { margin: .3em 0 0; font-size: .9em; line-height: 1.5; color: var(--ef-text); }
-.ef-level-parts summary { cursor: pointer; color: var(--ef-sub, #5e6b64); }
+.ef-level-parts summary { cursor: pointer; color: var(--ef-muted); }
 .ef-level-parts p { margin: .2em 0 0; }
 .ef-mcard-tb { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-muted); }
-.ef-level-group { display: flex; align-items: baseline; gap: .7em; margin: 24px 0 0; padding: 0 0 6px; border-bottom: 2px solid var(--ef-ink); font-size: 1.1em; color: var(--ef-text); }
+.ef-level-group { display: flex; align-items: baseline; gap: .7em; margin: 24px 0 0; padding: 0 0 6px; border-bottom: var(--ef-bw-strong) solid var(--ef-ink); font-size: 1.1em; color: var(--ef-text); }
 .ef-level-group:first-of-type { margin-top: 4px; }
 .ef-level-group-ch { font-size: .8em; font-weight: 700; color: var(--ef-accent); }
 /* 区切りのはじめ・おわりの M・F へのリンクの行(EDUIT_INFO.textbook.links) */
@@ -228,39 +476,34 @@
 .ef-level-link a { display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; color: var(--ef-text); text-decoration: none; font-weight: 600; }
 .ef-level-link a:hover, .ef-level-link a:focus-visible { text-decoration: underline; }
 .ef-level-link-go { color: var(--ef-accent); font-weight: 700; }
-.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: 1px solid var(--ef-ink); border-radius: 0; background: #fff; color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
-.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-bg, #f6f7f5); }
+.ef-level-matome { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 14px; border: var(--ef-bw) solid var(--ef-ink); border-radius: 0; background: var(--ef-surface); color: var(--ef-text); font: inherit; cursor: pointer; text-align: left; }
+.ef-level-matome:hover, .ef-level-matome:focus-visible { background: var(--ef-surface-2); }
 .ef-level-matome-t { font-weight: 700; }
-.ef-level-matome-d { color: var(--ef-sub, #5e6b64); font-size: .92em; }
+.ef-level-matome-d { color: var(--ef-muted); font-size: .92em; }
 .ef-matome-score { font-weight: 700; }
 .ef-matome-h { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; font-size: 1.05em; }
 .ef-level-parts-k {
   display: inline-block; margin-right: .6em; padding: 0; font-size: .9em; font-weight: 700; color: var(--ef-text);
 }
 
-/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
-html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
-
-/* ---- メニューのカードの並べ方(4分野共通。C エネルギー変換と同じ) ----
- * EduitFrame.levels({ gridClass: 'ef-mgrid' }) で使う。3つずつ並べ、最後の行が2つ・1つのときは真ん中に寄せる。はば 1100px 以下は2つ、スマホは1つ。
- * メニューの中身(タブ・カード)を入れる箱は .ef-menu(左右の余白 32px。はばいっぱいに使う)。 */
-.ef-menu { max-width: 1040px; margin: 0 auto; padding: 6px 32px 0; box-sizing: border-box; }
+/* ---- メニューの中身の箱と、カードの並べ方(4分野共通) ----
+ * メニューの中身(タブ・カード)を入れる箱は .ef-menu(はば 1040px まで・真ん中)。カードは EduitFrame.levels({ gridClass: 'ef-mgrid' }) で1列にならべる。 */
+.ef-menu { max-width: var(--ef-read-w); margin: 0 auto; padding: 6px 32px 0; box-sizing: border-box; }
 .ef-mgrid { display: flex; flex-direction: column; padding: 0 0 24px; }
 .ef-mgrid > .ef-mcard { touch-action: manipulation; }
-.ef-mgrid { border-top: 1px solid var(--ef-line); }
+.ef-mgrid { border-top: var(--ef-bw) solid var(--ef-line); }
 .ef-level-group + .ef-mgrid { border-top: 0; }
 .ef-mgrid .ef-mcard-desc { line-height: 1.5; }
-@media (max-width: 900px) { .ef-menu { padding: 6px 16px 0; } }
-@media (max-width: 640px) { .ef-menu { padding: 6px 16px 0; } }
 
-/* ---- アプリを開いたときの上のバー・教材の切りかえ・タブの帯(4分野共通。C エネルギー変換の形) ----
+/* ---- アプリを開いたときの上のバー・教材の切りかえ・タブの帯(4分野共通) ----
  * <header class="ef-header ef-appbar">
  *   <a class="ef-btn ef-back">◀ メニュー</a>
  *   <h1 class="ef-title ef-apptitle">[A2] 木材の繊維・収縮ラボ</h1>   … はばが広いとき(1441px 以上)とスマホだけ出す
  *   <nav class="ef-switch"> <a class="ef-swchip" aria-current="page"><span class="ef-code">A2</span><span class="ef-sw-n">木材</span></a> … </nav>
  *   <div class="ef-tools"> ふりがな / 文字 中 / (くっきり) / (使い方) / <span data-ef-fs></span> 全画面 / <span data-ef-about></span> ⓘ </div>
  * </header>
- * <nav class="ef-apptabs"> <button class="ef-apptab" aria-selected="true">はじめに</button> … </nav>   … アプリの中のタブ(丸いボタンの帯)
+ * <nav class="ef-apptabs"> <button class="ef-apptab" aria-selected="true">はじめに</button> … <div class="ef-apptabs-tools">使い方 記録</div> </nav>
+ *   … アプリの中のタブ(字＋下線)。右はしにそのアプリの道具(使い方・記録など)を置くときは .ef-apptabs-tools に入れる
  * 開いている教材は名前も出し、ほかの教材は記号だけ(はばが 1441px 以上なら名前も)。スマホは1行目に ◀ メニューと名前、2行目に道具と切りかえ。
  */
 .ef-appbar { min-height: 52px; padding: 0 6px; gap: 6px; flex-wrap: nowrap; }
@@ -272,7 +515,7 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 .ef-switch::-webkit-scrollbar { display: none; }
 .ef-swchip {
   font: inherit; font-family: var(--ef-font); font-size: 15px; line-height: 1.2; color: var(--ef-muted); text-decoration: none;
-  background: transparent; border: 0; border-bottom: 4px solid transparent; border-radius: 0;
+  background: transparent; border: 0; border-bottom: var(--ef-mark) solid transparent; border-radius: 0;
   min-height: 44px; padding: 0 10px; margin-bottom: 1px; cursor: pointer; white-space: nowrap; flex: none;
   display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation;
 }
@@ -283,12 +526,12 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
 .ef-fs-btn[hidden] { display: none; }
 .ef-apptabs {
   display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 18px; padding: 0 14px;
-  background: var(--ef-surface); border-bottom: 1px solid var(--ef-ink); font-family: var(--ef-font); box-sizing: border-box;
+  background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink); font-family: var(--ef-font); box-sizing: border-box;
 }
 .ef-apptab {
-  font: inherit; font-family: var(--ef-font); font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ef-text); text-decoration: none;
+  font: inherit; font-family: var(--ef-font); font-size: 15px; font-weight: 700; line-height: 1.3; text-decoration: none;
   flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; box-sizing: border-box;
-  border: 0; border-bottom: 4px solid transparent; border-radius: 0; background: none; cursor: pointer; white-space: nowrap; touch-action: manipulation;
+  border: 0; border-bottom: var(--ef-mark) solid transparent; border-radius: 0; background: none; cursor: pointer; white-space: nowrap; touch-action: manipulation;
   color: var(--ef-muted);
 }
 .ef-apptab:hover { color: var(--ef-text); border-bottom-color: var(--ef-line); }
@@ -296,12 +539,131 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
   color: var(--ef-text); border-bottom-color: var(--ef-accent);
 }
 .ef-apptab[aria-selected="true"] rt, .ef-apptab[aria-current] rt, .ef-apptab.is-on rt { color: inherit; }
+.ef-apptab.is-advanced { color: var(--ef-advanced); }  /* 発展のタブ(字だけむらさき。開いたときの下線は分野の色) */
+/* タブの帯の右はしの道具(使い方・記録・音 など) */
+.ef-apptabs-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 0; }
+
+
+/* ======================================================================
+ * 5. 自習ガイド・まず考えよう・振り返りを隠す設定
+ * ====================================================================== */
+
+/* 振り返りを隠す設定(EduitFrame.furikaeri)。振り返りのタブ・欄・印には data-ef-reflect を付ける */
+html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
+
+/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
+ * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
+ * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
+ */
+.ef-jishu-fab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 7px; border: var(--ef-bw) solid var(--ef-ink); border-right: 0; border-radius: 0;
+  background: var(--ef-ink); color: var(--ef-on-ink); cursor: pointer;
+  font: 700 15px/1.2 var(--ef-font);
+}
+.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
+.ef-jishu-fab-p { font-size: 12px; font-weight: 700; padding: 1px 0; }
+.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+html.ef-jishu-open .ef-jishu-fab { display: none; }
+.ef-jishu {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
+  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
+  background: var(--ef-surface); color: var(--ef-text); border-left: var(--ef-bw) solid var(--ef-ink);
+  font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
+}
+.ef-jishu[hidden] { display: none; }
+.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
+.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: var(--ef-bw) solid var(--ef-ink); }
+.ef-jishu rt { display: ruby-text !important; font-size: .55em; font-weight: 400; }  /* 教材のふりがなをオフにしても、ガイドのふりがなはガイドのボタンで決める */
+.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
+.ef-jishu-k { color: var(--ef-accent); }
+.ef-jishu-name { font-weight: 700; }
+.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
+.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
+.ef-jishu p { margin: 0 0 6px; line-height: 1.85; }
+.ef-jishu-goal { padding: 2px 0 4px; border-bottom: var(--ef-bw) solid var(--ef-line); }
+.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
+.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
+.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: var(--ef-bw) solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
+.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
+.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: flex-start; min-width: 1.4em;
+  color: var(--ef-accent); font-size: 16px; font-weight: 700; }
+.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
+.ef-jishu-do { font-weight: 600; }
+.ef-jishu-line { display: block; }
+.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: var(--ef-mark) solid var(--ef-focus); background: var(--ef-warn-soft); font-size: 14px; }
+.ef-jishu-hint[hidden] { display: none; }
+.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
+.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: var(--ef-bw) solid var(--ef-line); border-radius: var(--ef-radius-s); }
+.ef-jishu-qt { font-weight: 700; }
+.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
+.ef-jishu-choice {
+  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
+  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); border-radius: var(--ef-radius-s);
+}
+.ef-jishu-choice:hover { border-color: var(--ef-accent); }
+.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
+.ef-jishu-choice.is-ok { background: var(--ef-ok-soft); border-color: var(--ef-ok); font-weight: 700; }
+.ef-jishu-choice.is-ok::before { content: "○ "; color: var(--ef-ok); }
+.ef-jishu-choice.is-ng { background: var(--ef-ng-soft); border-color: var(--ef-ng); }
+.ef-jishu-choice.is-ng::before { content: "× "; color: var(--ef-ng); }
+.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
+.ef-jishu-res.is-ok strong { color: var(--ef-ok); }
+.ef-jishu-res.is-ng strong { color: var(--ef-ng); }
+.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: var(--ef-bw) dashed var(--ef-line); font-size: 14px; }
+.ef-jishu-end.is-clear { background: var(--ef-ok-soft); border: var(--ef-bw-strong) solid var(--ef-ok); }
+.ef-jishu-prog { font-weight: 700; }
+.ef-jishu-adv { margin-top: 8px; }
+.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: var(--ef-advanced); padding: 6px 0; }
+/* メニュー: 進め方の説明と、カードの進み具合 */
+.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-ink); line-height: 1.7; }
+.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
+.ef-jishu-menu p { margin: 0 0 4px; }
+.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
+.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
+.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: var(--ef-ok); }
+
+/* ---- まず考えよう(各節の導入の問い。shared/eduit-frame.js の LETS) ---- */
+.ef-lets { margin: 0 0 12px; padding: 8px 16px 8px 14px; background: none; border-left: var(--ef-mark) solid var(--ef-accent); border-radius: 0; color: inherit; line-height: 1.6; font-size: 1.05em; }
+.ef-lets-k { margin: 0; font-size: .85em; font-weight: bold; color: var(--ef-accent); letter-spacing: .05em; }
+.ef-lets-q { margin: 2px 0 0; font-weight: bold; font-size: 1.1em; }
+.ef-lets .ef-lets-hint { margin: 4px 0 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+/* 教材ごとの details・summary の見た目(白い箱など)を受けつがない */
+.ef-lets .ef-lets-hint > summary { display: list-item; min-height: 0; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: var(--ef-accent); font-size: .9em; font-weight: normal; width: max-content; }
+.ef-lets-hint p { margin: 4px 0 0; }
+
+
+/* ======================================================================
+ * 6. はばに合わせた形(せまい画面・スマホ)と印刷
+ *    同じはばの指定の中では、あとに書いたものが勝つ(アプリの上のバー → 上のバー全体 の順)。
+ * ====================================================================== */
 @media (max-width: 1440px) { .ef-appbar .ef-apptitle { display: none; } .ef-swchip:not([aria-current]) .ef-sw-n { display: none; } }
 @media (max-width: 1180px) { .ef-header .ef-about-btn .t { display: none; } }
-@media (max-width: 900px) { .ef-header .ef-fs-btn .t { display: none; } .ef-swchip { padding: 0 8px; } }
+@media (max-width: 900px) {
+  .ef-menu { padding: 6px 16px 0; }
+  .ef-header .ef-fs-btn .t { display: none; }
+  .ef-swchip { padding: 0 8px; }
+}
 @media (max-width: 760px) { .ef-swchip .ef-sw-n { display: none; } .ef-swchip { padding: 0 12px; } }
-/* スマホ: タブの帯は1行にして横にスクロール(名前は折り返さない) */
+
+/* スマホ(はば 640px 以下)
+ * 中身: 左右の余白をせまくする。横に長い表や道具の帯は、その部分だけ横にスクロールさせる(.ef-scroll)
+ * アプリの上のバー: 1行目に ◀ メニューと名前、2行目に道具と切りかえ。タブの帯は1行にして横にスクロール(名前は折り返さない)
+ * 上のバー全体: 名前を1行目に、道具が入りきらないときは次の行へ。名前(.ef-title)は 9em 以上の幅を取る */
 @media (max-width: 640px) {
+  .ef-main { padding: var(--ef-sp-4) var(--ef-sp-4) var(--ef-sp-5); }
+  .ef-main.is-wide { padding: var(--ef-sp-2) var(--ef-sp-2) var(--ef-sp-4); }
+  .ef-box { padding: var(--ef-sp-3); }
+  .ef-seg { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .ef-subtabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+
+  .ef-menu { padding: 6px 16px 0; }
+
   .ef-appbar { flex-wrap: wrap; row-gap: 4px; padding: 4px 6px; }
   .ef-appbar .ef-btn { min-height: 38px; padding: 0 9px; font-size: 14px; }
   .ef-appbar .ef-apptitle { display: flex; flex: 1 1 calc(100% - 140px); min-width: 0; white-space: normal; font-size: 16px; line-height: 1.35; margin: 0 2px; }
@@ -311,14 +673,8 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
   .ef-swchip { min-height: 40px; padding: 0 9px; }
   .ef-apptabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 6px 8px; }
   .ef-apptabs::-webkit-scrollbar { display: none; }
-}
-@media print { .ef-appbar, .ef-apptabs { display: none !important; } }
+  .ef-apptabs-tools { position: sticky; right: 0; padding-left: 6px; background: var(--ef-surface); }
 
-/* ---- スマホ(せまい画面) ----
- * 上のバー: 名前を1行目に、道具が入りきらないときは次の行へ。ボタンは少し小さくする。
- * 名前(.ef-title)は 9em 以上の幅を取るので、せまい画面では道具が下の行に回る。
- */
-@media (max-width: 640px) {
   .ef-header { gap: 6px; padding: 6px 10px; }
   .ef-title { flex: 1 1 9em; min-width: 0; font-size: 16px; }
   .ef-tools { gap: 4px; }
@@ -329,102 +685,16 @@ html[data-ef-furikaeri="off"] [data-ef-reflect] { display: none !important; }
   .ef-title .ef-code { font-size: 19px; }
   .ef-dialog { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
   .ef-panel { padding: 12px; }
-}
 
-@media print { .ef-footer, .ef-dialog { display: none !important; } }
-
-/* ---- 自習ガイド(自習モードのとき。EduitFrame が作る) ----
- * .ef-jishu-fab  右はしのたてのボタン「自習ガイド 2/5」
- * .ef-jishu      右に開くパネル(スマホは下から出る)。教材を操作しながら読めるように、まわりを暗くしない
- */
-.ef-jishu-fab {
-  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 2147483000;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 12px 7px; border: 1px solid var(--ef-ink); border-right: 0; border-radius: 0;
-  background: var(--ef-ink); color: #fff; cursor: pointer;
-  font: 700 15px/1.2 var(--ef-font);
-}
-.ef-jishu-fab-t { display: block; width: 1.05em; line-height: 1.15; word-break: break-all; text-align: center; }  /* 1字ずつ縦にならべる(writing-mode だと字が重なる端末がある) */
-.ef-jishu-fab-p { font-size: 12px; font-weight: 700; padding: 1px 0; }
-.ef-jishu-fab:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
-html.ef-jishu-open .ef-jishu-fab { display: none; }
-.ef-jishu {
-  position: fixed; top: 0; right: 0; bottom: 0; z-index: 2147483001;
-  width: min(380px, 100vw); display: flex; flex-direction: column; box-sizing: border-box;
-  background: var(--ef-surface); color: var(--ef-text); border-left: 1px solid var(--ef-line);
-  border-left-color: var(--ef-ink); font: 15px/1.65 var(--ef-font); font-size: max(15px, .95rem); text-align: left;
-}
-.ef-jishu[hidden] { display: none; }
-.ef-jishu *, .ef-jishu *::before { box-sizing: border-box; }
-.ef-jishu-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--ef-ink); }
-.ef-jishu rt { display: ruby-text !important; font-size: .55em; font-weight: 400; }  /* 教材のふりがなをオフにしても、ガイドのふりがなはガイドのボタンで決める */
-.ef-jishu-head h2 { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; line-height: 1.35; }
-.ef-jishu-k { color: var(--ef-accent); }
-.ef-jishu-name { font-weight: 700; }
-.ef-jishu-body { flex: 1; overflow-y: auto; padding: 4px 14px 24px; overscroll-behavior: contain; }
-.ef-jishu h3 { margin: 14px 0 6px; font-size: 15px; color: var(--ef-accent); }
-.ef-jishu p { margin: 0 0 6px; line-height: 1.85; }
-.ef-jishu-goal { padding: 2px 0 4px; border-bottom: 1px solid var(--ef-line); }
-.ef-jishu-time, .ef-jishu-note { font-size: 13px; color: var(--ef-muted); }
-.ef-jishu-steps, .ef-jishu-qs { list-style: none; margin: 0; padding: 0; }
-.ef-jishu-step { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); background: var(--ef-surface-2); }
-.ef-jishu-step.is-done { background: var(--ef-accent-soft); border-color: var(--ef-accent); }
-.ef-jishu-step-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.ef-jishu-n { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: flex-start; min-width: 1.4em;
-  color: var(--ef-accent); font-size: 16px; font-weight: 700; }
-.ef-jishu-where { font-size: 13px; font-weight: 700; color: var(--ef-accent); }
-.ef-jishu-do { font-weight: 600; }
-.ef-jishu-line { display: block; }
-.ef-jishu-tools { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
-.ef-jishu .ef-jishu-small { min-height: 32px; padding: 0 10px; font-size: 13px; }
-.ef-jishu-hint { margin: 6px 0; padding: 8px 10px; border-left: 4px solid var(--ef-focus); background: #fff8e6; font-size: 14px; }
-.ef-jishu-hint[hidden] { display: none; }
-.ef-jishu-done { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 14px; font-weight: 700; cursor: pointer; }
-.ef-jishu-done input { width: 20px; height: 20px; accent-color: var(--ef-accent); }
-.ef-jishu-q { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s); }
-.ef-jishu-qt { font-weight: 700; }
-.ef-jishu-choices { display: flex; flex-direction: column; gap: 6px; }
-.ef-jishu-choice {
-  min-height: 38px; padding: 6px 10px; text-align: left; cursor: pointer;
-  font: 14px/1.5 var(--ef-font); color: var(--ef-text); background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: var(--ef-radius-s);
-}
-.ef-jishu-choice:hover { border-color: var(--ef-accent); }
-.ef-jishu-choice:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 1px; }
-.ef-jishu-choice.is-ok { background: #e3f4e4; border-color: #2e7d32; font-weight: 700; }
-.ef-jishu-choice.is-ok::before { content: "○ "; color: #2e7d32; }
-.ef-jishu-choice.is-ng { background: #fdecea; border-color: #c62828; }
-.ef-jishu-choice.is-ng::before { content: "× "; color: #c62828; }
-.ef-jishu-res { margin: 6px 0 0; font-size: 14px; }
-.ef-jishu-res.is-ok strong { color: #2e7d32; }
-.ef-jishu-res.is-ng strong { color: #c62828; }
-.ef-jishu-end { margin: 6px 0 10px; padding: 10px 12px; border-radius: var(--ef-radius-s); background: var(--ef-surface-2); border: 1px dashed var(--ef-line); font-size: 14px; }
-.ef-jishu-end.is-clear { background: #e3f4e4; border: 2px solid #2e7d32; }
-.ef-jishu-prog { font-weight: 700; }
-.ef-jishu-adv { margin-top: 8px; }
-.ef-jishu-adv summary { cursor: pointer; font-weight: 700; color: #5b3fa8; padding: 6px 0; }
-/* メニュー: 進め方の説明と、カードの進み具合 */
-.ef-jishu-menu { margin: 0 0 14px; padding: 12px 16px; background: var(--ef-surface); border: 1px solid var(--ef-ink); line-height: 1.7; }
-.ef-jishu-menu h3 { margin: 0 0 4px; font-size: 1.05em; color: var(--ef-accent); }
-.ef-jishu-menu p { margin: 0 0 4px; }
-.ef-jishu-menu ol { margin: 0; padding-left: 1.5em; }
-.ef-mcard-jishu { margin: .3em 0 0; font-size: .85em; line-height: 1.5; color: var(--ef-text); }
-.ef-mcard-jishu.is-clear::after { content: " ✓ クリア"; font-weight: 700; color: #2e7d32; }
-@media (max-width: 640px) {
   .ef-jishu-fab { top: auto; bottom: 88px; transform: none; padding: 10px 6px; font-size: 14px; }
-  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: 1px solid var(--ef-line);
-    border-top-color: var(--ef-ink); }
+  .ef-jishu { top: auto; left: 0; width: 100vw; height: 62vh; height: 62dvh; border-left: 0; border-top: var(--ef-bw) solid var(--ef-ink); }
 }
-@media print { .ef-jishu, .ef-jishu-fab { display: none !important; } }
 
-/* まず考えよう(各節の導入の問い。shared/eduit-frame.js の LETS) */
-.ef-lets { margin: 0 0 12px; padding: 8px 16px 8px 14px; background: none; border-left: 4px solid var(--ef-accent); border-radius: 0; color: inherit; line-height: 1.6; font-size: 1.05em; }
-.ef-lets-k { margin: 0; font-size: .85em; font-weight: bold; color: var(--ef-accent); letter-spacing: .05em; }
-.ef-lets-q { margin: 2px 0 0; font-weight: bold; font-size: 1.1em; }
-.ef-lets .ef-lets-hint { margin: 4px 0 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
-/* 教材ごとの details・summary の見た目(白い箱など)を受けつがない */
-.ef-lets .ef-lets-hint > summary { display: list-item; min-height: 0; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: var(--ef-accent); font-size: .9em; font-weight: normal; width: max-content; }
-.ef-lets-hint p { margin: 4px 0 0; }
-@media print { .ef-lets-hint { display: none; } }
+@media print {
+  .ef-appbar, .ef-apptabs, .ef-footer, .ef-dialog, .ef-jishu, .ef-jishu-fab { display: none !important; }
+  .ef-lets-hint { display: none; }
+  .ef-main { max-width: none; padding: 0; }
+}
 
 </style>
 <style>
@@ -936,6 +1206,9 @@ window.EDUIT_INFO.jishu.ruby = {
  *   文字の大きさ: <button class="ef-btn ef-size"></button> に EduitFrame.sizeButton(btn, { steps: [[値, '中'], [値, '大'], …], get: 今の値, set: function (値) {…} })
  *     →「文字 中」のボタンになり、押すたびに次の大きさへ(最後のつぎは最初へ)。もどり値の関数を呼ぶと表示を今の値に合わせる。
  *     「ふつう・大きい」の2段だけのときは、<button class="ef-btn ef-size" aria-pressed="false">文字 <span class="ef-size-v"></span></button> にして aria-pressed を切りかえるだけでよい(「中」「大」は CSS が出す)。
+ * 表示の設定(全教材で1つ): EduitFrame.prefs。上のバーのボタンに data-ef-pref="ruby" / "fs" / "kukkiri" を付けると、
+ *   ふりがな・「文字 中」(小・中・大・特大)・くっきりのボタンになる。ボタンのない教材は EduitFrame.prefs.use()。
+ *   EduitFrame.prefs.get('fs') / set('ruby', true) / on(function (key, value) {…})。くわしくは下の「表示の設定」。
  * タブの帯をスクロールで隠す: 上に固定(position: sticky)したタブの帯に data-ef-autohide を付けるだけ。
  *   下へ読み進めると上へ引っこみ、少しでも上へ戻すと出てくる(帯の中にフォーカスがあるときは隠さない)。
  *   画面のはばの半分より細いもの(PC で左にたてに並ぶメニュー)は隠さない。スマホで横1行の帯になったときだけ隠れる。
@@ -1170,6 +1443,7 @@ window.EDUIT_INFO.jishu.ruby = {
     ]);
   }
   function mount() {
+    prefsMount();
     if (app.footer === false) return;
     var slot = document.querySelector('[data-ef-footer]');
     var about = document.querySelector('[data-ef-about]');
@@ -1453,6 +1727,85 @@ window.EDUIT_INFO.jishu.ruby = {
     update();
     return update;
   }
+
+  // ---- 表示の設定(文字の大きさ・ふりがな・くっきり。全教材で1つ) ----
+  // 覚える場所は localStorage 'eduit.prefs' の1つだけ。どの教材で変えても、ほかの教材(同じページの iframe もほかのタブも)に効く。
+  //   fs:      文字の大きさ(px)。FS_STEPS の 15・17・20・24 のどれか → <html> の --ef-fs
+  //   ruby:    ふりがな(true / false。はじめは false)→ <html data-ef-ruby="on|off">
+  //   kukkiri: くっきり(true / false)→ <html data-ef-kukkiri="on|off">(eduit-frame.css が字と線を濃くする)
+  // 使い方:
+  //   上のバーのボタンに data-ef-pref="fs" / "ruby" / "kukkiri" を付けるだけで、EduitFrame.mount() がボタンにする。
+  //   ボタンのない教材(教材集の iframe の中など)は EduitFrame.prefs.use() を呼ぶ。どちらでも <html data-ef-prefs> になり、<html> の字が --ef-fs になる。
+  //   ふりがなを付ける・外すなど、変わったときに教材ですることは EduitFrame.prefs.on(function (key, value) {…}) で受ける。
+  var PREFS_KEY = 'eduit.prefs';
+  var FS_STEPS = [[15, '小'], [17, '中'], [20, '大'], [24, '特大']];
+  var PREF_DEFAULTS = { fs: 17, ruby: false, kukkiri: false };
+  var prefListeners = [];
+  function prefsLoad() {
+    var v = {};
+    try { v = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') || {}; } catch (e) {}
+    var out = {};
+    Object.keys(PREF_DEFAULTS).forEach(function (k) { out[k] = typeof v[k] === typeof PREF_DEFAULTS[k] ? v[k] : PREF_DEFAULTS[k]; });
+    return out;
+  }
+  var prefState = prefsLoad();
+  function prefsApply() {
+    var h = document.documentElement;
+    h.style.setProperty('--ef-fs', prefState.fs + 'px');
+    h.setAttribute('data-ef-ruby', prefState.ruby ? 'on' : 'off');
+    h.setAttribute('data-ef-kukkiri', prefState.kukkiri ? 'on' : 'off');
+  }
+  function prefsNotify(changed) {
+    changed.forEach(function (k) { prefListeners.forEach(function (fn) { try { fn(k, prefState[k]); } catch (e) {} }); });
+    prefsPaintButtons();
+  }
+  function prefGet(k) { return prefState[k]; }
+  function prefSet(k, value) {
+    if (!(k in PREF_DEFAULTS) || prefState[k] === value) return;
+    prefState[k] = value;
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefState)); } catch (e) {}
+    prefsApply();
+    prefsNotify([k]);
+  }
+  function prefsUse() { document.documentElement.setAttribute('data-ef-prefs', ''); prefsApply(); }
+  // ほかの教材(ほかのタブ・同じページの iframe)で変えたとき
+  window.addEventListener('storage', function (e) {
+    if (e.key !== PREFS_KEY) return;
+    var old = prefState;
+    prefState = prefsLoad();
+    prefsApply();
+    prefsNotify(Object.keys(PREF_DEFAULTS).filter(function (k) { return old[k] !== prefState[k]; }));
+  });
+  var prefSizeUpdates = [];
+  function prefsPaintButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-pref="ruby"], [data-ef-pref="kukkiri"]'), function (b) {
+      b.setAttribute('aria-pressed', prefState[b.getAttribute('data-ef-pref')] ? 'true' : 'false');
+    });
+    prefSizeUpdates.forEach(function (u) { u(); });
+  }
+  function prefsMount() {
+    var btns = document.querySelectorAll('[data-ef-pref]:not([data-ef-pref-done])');
+    if (!btns.length) return;
+    prefsUse();
+    Array.prototype.forEach.call(btns, function (b) {
+      var k = b.getAttribute('data-ef-pref');
+      b.setAttribute('data-ef-pref-done', '');
+      if (k === 'fs') {
+        prefSizeUpdates.push(sizeButton(b, { steps: FS_STEPS, get: function () { return prefState.fs; }, set: function (v) { prefSet('fs', v); } }));
+      } else if (k === 'ruby' || k === 'kukkiri') {
+        b.classList.add('ef-btn', 'ef-toggle');
+        b.type = 'button';
+        if (!b.textContent.trim()) b.textContent = k === 'ruby' ? 'ふりがな' : 'くっきり';
+        b.addEventListener('click', function () { prefSet(k, !prefState[k]); });
+      }
+    });
+    prefsPaintButtons();
+  }
+  prefsApply();
+  var prefs = {
+    FS_STEPS: FS_STEPS, get: prefGet, set: prefSet, use: prefsUse, mount: prefsMount,
+    on: function (fn) { prefListeners.push(fn); }
+  };
 
   // ---- タブの帯をスクロールで隠す([data-ef-autohide]。下へ読み進めると隠れ、上へ戻すと出る) ----
   function autoHide() {
@@ -1914,7 +2267,7 @@ window.EDUIT_INFO.jishu.ruby = {
   }
   watchPlain();  // 読みこみの途中から見はる(はじめに絵文字が一瞬出ないように)
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, prefs: prefs, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
   function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
