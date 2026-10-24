@@ -113,8 +113,8 @@ function freqSvg(sound, rate) {
   const limit = rate / 2;
   let out = "";
   if (limit < FMAX) {
-    out += `<rect x="${x(limit).toFixed(1)}" y="${top - 6}" width="${(W - m - x(limit)).toFixed(1)}" height="${base - top + 6}" fill="var(--surface-2)"/>`;
-    out += `<line x1="${x(limit).toFixed(1)}" x2="${x(limit).toFixed(1)}" y1="${top - 6}" y2="${base}" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="6 4"/>`;
+    out += `<rect x="${x(limit).toFixed(1)}" y="${top - 6}" width="${(W - m - x(limit)).toFixed(1)}" height="${base - top + 6}" fill="var(--ef-surface-2)"/>`;
+    out += `<line x1="${x(limit).toFixed(1)}" x2="${x(limit).toFixed(1)}" y1="${top - 6}" y2="${base}" stroke="var(--fig-series-2)" stroke-width="2" stroke-dasharray="6 4"/>`;
     out += `<text x="${W - m}" y="${top - 10}" class="label-strong" text-anchor="end">${fmt(limit)}Hz より高い音は記録できない</text>`;
   } else {
     out += `<text x="${W - m}" y="${top - 10}" class="label-strong" text-anchor="end">${fmt(limit)}Hz より低い音は、すべて記録できる</text>`;
@@ -123,9 +123,9 @@ function freqSvg(sound, rate) {
     if (f > FMAX) continue;
     const keep = f < limit;
     const y = base - Math.max(10, (a / maxA) * (base - top - 16));
-    out += `<line x1="${x(f).toFixed(1)}" x2="${x(f).toFixed(1)}" y1="${base}" y2="${y.toFixed(1)}" stroke="${keep ? "var(--series-1)" : "var(--text-muted)"}" stroke-width="3"${keep ? "" : ' stroke-dasharray="3 3" opacity="0.7"'}/>`;
+    out += `<line x1="${x(f).toFixed(1)}" x2="${x(f).toFixed(1)}" y1="${base}" y2="${y.toFixed(1)}" stroke="${keep ? "var(--fig-series-1)" : "var(--ef-muted)"}" stroke-width="3"${keep ? "" : ' stroke-dasharray="3 3" opacity="0.7"'}/>`;
   }
-  out += `<line x1="${m}" x2="${W - m}" y1="${base}" y2="${base}" stroke="var(--border)" stroke-width="1.5"/>`;
+  out += `<line x1="${m}" x2="${W - m}" y1="${base}" y2="${base}" stroke="var(--ef-line)" stroke-width="1.5"/>`;
   for (const f of [0, 5000, 10000, 15000, 20000]) out += `<text x="${x(f).toFixed(1)}" y="${base + 15}" class="axis" text-anchor="${f === 0 ? "start" : f === FMAX ? "end" : "middle"}">${fmt(f)}Hz</text>`;
   out += `<text x="${W / 2}" y="${H - 2}" class="axis" text-anchor="middle">低い音 ←　音の高さ　→ 高い音</text>`;
   const sp = splitByRate(sound, rate);
@@ -149,12 +149,12 @@ function waveSvg(orig, origRate, dig, rate, bits, t0) {
     const v = quantize(((dig[k] ?? 0) + 1) / 2, levels) * 2 - 1;
     const tA = k / rate, tB = Math.min(t0 + WAVE_LEN, (k + 1) / rate);
     stair += `${k === k0 ? "M" : "L"}${x(tA).toFixed(1)},${y(v).toFixed(1)}L${x(tB).toFixed(1)},${y(v).toFixed(1)}`;
-    if (k1 - k0 <= 60) dots += `<circle cx="${x(tA).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="1.5"/>`;
+    if (k1 - k0 <= 60) dots += `<circle cx="${x(tA).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5" fill="var(--fig-series-2)" stroke="var(--ef-surface)" stroke-width="1.5"/>`;
   }
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="6ミリ秒分の波。もとの波（点線）と、${fmt(rate)}Hz・${fmt(levels)}段階でデジタル化した波（階段の線）。">
-    <line x1="${m}" x2="${W - m}" y1="${H / 2}" y2="${H / 2}" stroke="var(--border)" stroke-width="1"/>
-    <path d="${o}" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5 4"/>
-    ${stair ? `<path d="${stair}" fill="none" stroke="var(--series-1)" stroke-width="2.5"/>` : ""}
+    <line x1="${m}" x2="${W - m}" y1="${H / 2}" y2="${H / 2}" stroke="var(--ef-line)" stroke-width="1"/>
+    <path d="${o}" fill="none" stroke="var(--ef-muted)" stroke-width="2" stroke-dasharray="5 4"/>
+    ${stair ? `<path d="${stair}" fill="none" stroke="var(--fig-series-1)" stroke-width="2.5"/>` : ""}
     ${dots}
   </svg>`;
 }
@@ -263,14 +263,14 @@ export const soundModule = {
           const v = quantize(wave(t), levels);
           const tNext = Math.min(T, (k + 1) / r);
           stair += `${k ? "L" : "M"}${x(t).toFixed(1)},${y(v).toFixed(1)}L${x(tNext).toFixed(1)},${y(v).toFixed(1)}`;
-          dots += `<circle cx="${x(t).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2"/>`;
+          dots += `<circle cx="${x(t).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4" fill="var(--fig-series-2)" stroke="var(--ef-surface)" stroke-width="2"/>`;
           if (k < 8) codes += `${Math.round(v * (levels - 1)).toString(2).padStart(b, "0")} `;
         }
-        const grid = levels <= 16 ? Array.from({ length: levels }, (_, i) => `<line x1="${m}" x2="${W - m}" y1="${y(i / (levels - 1)).toFixed(1)}" y2="${y(i / (levels - 1)).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`).join("") : "";
+        const grid = levels <= 16 ? Array.from({ length: levels }, (_, i) => `<line x1="${m}" x2="${W - m}" y1="${y(i / (levels - 1)).toFixed(1)}" y2="${y(i / (levels - 1)).toFixed(1)}" stroke="var(--ef-line)" stroke-width="1"/>`).join("") : "";
         chart.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="2ミリ秒分の音の波。もとの波（点線）を、${r}Hzではかり、${levels}段階で表したもの（階段状の線）。">
           ${grid}
-          <path d="${orig}" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5 4"/>
-          <path d="${stair}" fill="none" stroke="var(--series-1)" stroke-width="2.5"/>
+          <path d="${orig}" fill="none" stroke="var(--ef-muted)" stroke-width="2" stroke-dasharray="5 4"/>
+          <path d="${stair}" fill="none" stroke="var(--fig-series-1)" stroke-width="2.5"/>
           ${dots}
           <text x="${m}" y="14" class="axis">0ミリ秒</text><text x="${W - m}" y="14" class="axis" text-anchor="end">2ミリ秒</text>
         </svg>`;
@@ -287,7 +287,7 @@ export const soundModule = {
       rate.input.addEventListener("input", () => onMove("rate"));
       depth.input.addEventListener("input", () => onMove("depth"));
       c.body.append(
-        h("ul", { class: "legend", "aria-hidden": "true" }, h("li", {}, h("span", { class: "sw", style: "background:var(--text-muted)" }), "もとの音の波（アナログ）"), h("li", {}, h("span", { class: "sw", style: "background:var(--series-1)" }), "デジタル化した波"), h("li", {}, h("span", { class: "sw", style: "background:var(--series-2);height:8px;width:8px;border-radius:50%" }), "はかった点（標本）")),
+        h("ul", { class: "legend", "aria-hidden": "true" }, h("li", {}, h("span", { class: "sw", style: "background:var(--ef-muted)" }), "もとの音の波（アナログ）"), h("li", {}, h("span", { class: "sw", style: "background:var(--fig-series-1)" }), "デジタル化した波"), h("li", {}, h("span", { class: "sw", style: "background:var(--fig-series-2);height:8px;width:8px;border-radius:50%" }), "はかった点（標本）")),
         chart,
         h("div", { class: "field-row" }, rate.el, depth.el),
         info,

@@ -119,7 +119,7 @@ export function reflectionBox(moduleId, prompt, onSaved) {
   ta.value = store.getReflection(moduleId);
   const note = h("div", { class: "saved-note", "aria-live": "polite" });
   const setNote = (msg, warn = false) => {
-    note.style.color = warn ? "var(--warn)" : "";
+    note.style.color = warn ? "var(--ef-warn)" : "";
     note.textContent = msg;
   };
   const auto = reflectionAutosaver(moduleId, () => ta.value, onSaved, (msg) => setNote(msg));

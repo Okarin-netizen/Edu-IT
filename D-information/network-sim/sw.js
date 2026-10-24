@@ -1,10 +1,11 @@
 // オフラインで使えるように、教材のファイルをすべて端末にキャッシュする（外部への通信はしない）
-const CACHE = "netsim-v9"; // 中身を変えたら番号を上げる（古いキャッシュを使い続けないように）
+const CACHE = "netsim-v10"; // 中身を変えたら番号を上げる（古いキャッシュを使い続けないように）
 const FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "icons/icon.svg",
+  "../d-common.css",
   "css/style.css",
   "../eduit-info.js",
   "../../shared/eduit-frame.css",

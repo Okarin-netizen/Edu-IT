@@ -175,8 +175,8 @@ test("SEC-11/59/22/61: 切りかえで画面を作り直さない。ふりがな
   assert.doesNotMatch(toggleFn, /route\(\)/, "切りかえで route() を呼ばない");
   assert.match(read("js/settings.js"), /export function unrubyfy/);
   const css = read("css/style.css");
-  assert.match(css, /max-height: calc\(100vh - var\(--header-h, 60px\) - 24px\); overflow-y: auto;/);
-  assert.match(css, /scroll-margin-top: calc\(var\(--header-h, 60px\) \+ 12px\)/);
+  assert.match(css, /max-height: calc\(100vh - var\(--app-header-h, 60px\) - 24px\); overflow-y: auto;/);
+  assert.match(css, /scroll-margin-top: calc\(var\(--app-header-h, 60px\) \+ 12px\)/);
   assert.match(css, /\.check-item > span, \.check-item > \.rb-run \{ flex: 1 1 auto;/);
   assert.match(read("sw.js"), /seclab-v(?:[6-9]|[1-9]\d)"/, "第2段で v6 にした（あとの段でさらに上げてよい）");
 });

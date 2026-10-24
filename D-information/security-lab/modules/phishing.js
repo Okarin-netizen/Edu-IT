@@ -218,13 +218,13 @@ function urlFigure() {
   const part = (text, style) => h("span", { style }, text);
   return h(
     "div",
-    { style: "margin:6px 0 2px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;overflow-wrap:anywhere" },
+    { style: "margin:6px 0 2px;padding:8px 10px;border:1px solid var(--ef-line);border-radius:8px;overflow-wrap:anywhere" },
     h(
       "div",
       { class: "mono", style: "font-size:0.95rem" },
       part("http://", "opacity:0.6"),
       part("hayate-haisou.", ""),
-      h("mark", { style: "background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:2px;padding:0 2px" }, "delivery-check.example"),
+      h("mark", { style: "background:var(--ef-accent-soft);color:var(--ef-accent);font-weight:700;border-radius:2px;padding:0 2px" }, "delivery-check.example"),
       part("/xk7", "opacity:0.6"),
     ),
     h("div", { class: "hint", style: "margin-top:4px" }, "色の部分（右から読んだ、右はしとそのすぐ左）が本当の持ち主。左の「hayate-haisou」は、持ち主が自由に付けられる飾り。最後の「/xk7」はサイトの中の場所で、持ち主とは関係ない。"),

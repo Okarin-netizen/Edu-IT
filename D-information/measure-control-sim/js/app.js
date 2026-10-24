@@ -222,7 +222,7 @@ function reflectionBox(s) {
     saveText();
     if (ta.value.trim().length < 5) {
       note.textContent = "もう少し書いてみよう（5文字以上）";
-      note.style.color = "var(--warn)";
+      note.style.color = "var(--ef-warn)";
       return;
     }
     note.style.color = "";
@@ -1125,7 +1125,7 @@ async function start() {
   setupTeacherKeys();
   // 上の見出し（app-header）の高さ。ブロックの命令ボタンを、スクロールしてもその下に残すために使う
   const header = document.querySelector(".app-header");
-  const setHeaderH = () => document.documentElement.style.setProperty("--header-h", `${header?.offsetHeight || 0}px`);
+  const setHeaderH = () => document.documentElement.style.setProperty("--app-header-h", `${header?.offsetHeight || 0}px`);
   setHeaderH();
   if (header && "ResizeObserver" in window) new ResizeObserver(setHeaderH).observe(header);
   window.addEventListener("hashchange", route);

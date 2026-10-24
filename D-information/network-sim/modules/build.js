@@ -240,7 +240,7 @@ export const buildModule = {
         const ok = isValidIPv4(v);
         const dup = net.nodes.some((x) => x !== n && x.ip === v);
         ipNote.textContent = !v ? "⚠ IPアドレスを入れよう" : !ok ? `⚠ ${IP_FORMAT_HELP}` : dup ? "⚠ ほかの機器と同じIPアドレスです" : reverted ? "⚠ 正しい形ではなかったので、元の番号にもどしました" : "✓ 正しい形です";
-        ipNote.style.color = !ok || dup || reverted ? "var(--bad)" : "var(--good)";
+        ipNote.style.color = !ok || dup || reverted ? "var(--ef-ng)" : "var(--ef-ok)";
       };
       const apply = (e) => {
         remember();
@@ -261,7 +261,7 @@ export const buildModule = {
             hostNote.style.color = "";
           } else if (e?.target === host) {
             hostNote.textContent = `⚠ ${hv ? "説明用の名前（最後が .example）にしよう。" : "サイトの名前を入れよう。"}元の名前にもどしました`;
-            hostNote.style.color = "var(--bad)";
+            hostNote.style.color = "var(--ef-ng)";
           }
           host.value = n.host || "";
         }

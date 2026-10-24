@@ -57,7 +57,7 @@ function showCurrentInNav() {
 
 // 上の固定バーの高さ（見出しがバーの下にかくれないように: SEC-61、章ナビの高さ: SEC-22）
 const header = document.querySelector(".app-header");
-const setHeaderHeight = () => document.documentElement.style.setProperty("--header-h", `${Math.ceil(header.getBoundingClientRect().height)}px`);
+const setHeaderHeight = () => document.documentElement.style.setProperty("--app-header-h", `${Math.ceil(header.getBoundingClientRect().height)}px`);
 setHeaderHeight();
 if ("ResizeObserver" in window) new ResizeObserver(setHeaderHeight).observe(header);
 else window.addEventListener("resize", setHeaderHeight);
