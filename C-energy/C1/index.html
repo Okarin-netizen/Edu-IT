@@ -10,11 +10,50 @@
 <script data-ef-app>EDUIT_INFO.app = { name: 'C1 エネルギー変換ゲーム' };</script>
 <script src="../../shared/eduit-frame.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#eef3f8;}
-.e1{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;--accent:#1e6fd9;--ok:#1a9b5b;--ng:#d93a3a;--warn:#f08c00;
-  font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
-  color:var(--ink);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
-  font-size:.94rem;overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;background:var(--ef-bg);}
+/* 図の色(画面の部品の色は共通の --ef-…) */
+.e1{
+  --fig-pill-text: #fff;
+  --fig-cell: #f7fafd;
+  --fig-cell-line: #d5dee8;
+  --fig-pickable: #eaf3ff;
+  --fig-pickable-line: #8fb8f0;
+  --fig-hover: #cfe3ff;
+  --fig-nbox: #fff;
+  --fig-nbox-line: #9aaabb;
+  --fig-nbox-2: #fff4e0;
+  --fig-nbox-line-2: #e8a33d;
+  --fig-nbox-3: #eef6ff;
+  --fig-nbox-line-3: #5c8fd6;
+  --fig-nbox-4: #eafaf0;
+  --fig-nbox-line-4: #2f9e5a;
+  --fig-nbox-5: #fff0f0;
+  --fig-nbox-line-5: #d94848;
+  --fig-nbox-line-6: #1e6fd9;
+  --fig-nbox-line-7: #e8590c;
+  --fig-nbox-6: #ffe3d3;
+  --fig-nname: #1d2b3a;
+  --fig-nsub: #3d4d5c;
+  --fig-badge: #fff;
+  --fig-loss: #d9480f;
+  --fig-loss-line: #fff;
+  --fig-elabel-line: #fff;
+  --fig-flow-line: #fff;
+  --fig-vis: #fff;
+  --fig-vis-line: #8193a6;
+  --fig-ex: #4a5a6a;
+  --fig-bar: #e6ecf2;
+  --fig-neu: #5b8fd0;
+  --fig-sankey: #fafcff;
+  --fig-bar-2: #3b82c4;
+  --fig-bar-3: #8e44ad;
+  --fig-bar-4: #e07a2e;
+  --fig-star-text: #f0a500;
+}
+.e1{font-family:var(--ef-font);
+  color:var(--ef-text);height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
+  font-size:.94rem;overflow:hidden;position:relative;background:var(--ef-bg);-webkit-tap-highlight-color:transparent;}
+.e1 :is(.ef-btn,.ef-btn-primary):not(.is-s){min-height:46px;font-size:.94rem}
 .e1 *{box-sizing:border-box}
 :where(.e1 button){font:inherit;touch-action:manipulation}
 .e1 rt{font-size:.55em;font-weight:normal}
@@ -24,165 +63,160 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e1-stitle{align-self:center;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
 .e1-stitle .t{font-size:1rem;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e1-stitle .l{font-size:.76rem;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.e1-btn{min-height:46px;min-width:46px;padding:0 14px;border-radius:0;border:1px solid var(--ef-ink,#222);background:#fff;color:var(--ink);font-weight:bold;cursor:pointer;font-size:.94rem}
-.e1-btn:active{transform:translateY(1px)}
-.e1-btn:disabled{opacity:.45;cursor:default;transform:none}
-.e1-top h1{color:var(--ef-text,#1f2328)}
-.e1-btn.primary{background:var(--ef-ink,#222);border-color:var(--ef-ink,#222);color:#fff}
-.e1-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
-.e1-btn.go{background:var(--accent);color:#fff;font-size:1.24rem;min-height:64px;width:100%;box-shadow:0 3px 0 #134a94}
+.e1-top h1{color:var(--ef-text)}
+.e1 .ef-btn-primary.go{font-size:1.24rem;min-height:64px;width:100%}
 .e1-main{flex:1;display:flex;min-height:0}
-.e1-palwrap{position:relative;width:220px;flex:none;background:#fff;border-right:1px solid var(--line);min-height:0}
+.e1-palwrap{position:relative;width:220px;flex:none;background:var(--ef-surface);border-right:1px solid var(--ef-line);min-height:0}
 .e1-pal{position:absolute;inset:0;overflow-y:auto;padding:8px}
-.e1-palmore{position:absolute;left:0;right:0;bottom:0;padding:18px 0 8px;text-align:center;font-size:.88rem;font-weight:bold;color:#1d3557;background:linear-gradient(rgba(255,255,255,0),#fff 55%);pointer-events:none;display:none}
+.e1-palmore{position:absolute;left:0;right:0;bottom:0;padding:18px 0 8px;text-align:center;font-size:.88rem;font-weight:bold;color:var(--ef-accent);background:linear-gradient(transparent,var(--ef-surface) 55%);pointer-events:none;display:none}
 .e1-palmore.on{display:block}
-.e1-pal h2,.e1-side h2{font-size:.88rem;margin:4px 2px 6px;color:var(--sub)}
+.e1-pal h2,.e1-side h2{font-size:.88rem;margin:4px 2px 6px;color:var(--ef-muted)}
 .e1-palgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.e1-pi{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 2px;border-radius:0;border:2px solid var(--line);background:#f8fbff;touch-action:pan-y;cursor:pointer;min-height:76px;text-align:center}
-.e1-pi.sel{border-color:var(--accent);background:#dcebff;box-shadow:0 0 0 3px #9cc3ff}
+.e1-pi{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 2px;border-radius:0;border:2px solid var(--ef-line);background:var(--ef-surface-2);touch-action:pan-y;cursor:pointer;min-height:76px;text-align:center}
+.e1-pi.sel{border-color:var(--ef-accent);background:var(--ef-accent-soft);outline:3px solid var(--ef-accent);outline-offset:-1px}
 .e1-pi.empty{opacity:.38}
 .e1-pi .hd{display:flex;align-items:center;justify-content:center;gap:2px;font-weight:bold;font-size:.82rem;line-height:1.2}
 .e1-pi .ic{font-size:1.24rem;line-height:28px}
 .e1-pi .nm{white-space:nowrap;letter-spacing:-.04em}
-.e1-pi .sb{font-size:.76rem;color:var(--sub);line-height:1.35;margin-top:2px;white-space:nowrap}
-.e1-pi .left{font-size:.76rem;color:#1d3557;font-weight:bold;line-height:1.35}
-.e1-pill{display:inline-block;padding:0 4px;border-radius:0;color:#fff;font-size:.76rem;font-weight:bold;line-height:18px}
+.e1-pi .sb{font-size:.76rem;color:var(--ef-muted);line-height:1.35;margin-top:2px;white-space:nowrap}
+.e1-pi .left{font-size:.76rem;color:var(--ef-accent);font-weight:bold;line-height:1.35}
+.e1-pill{display:inline-block;padding:0 4px;border-radius:0;color:var(--fig-pill-text);font-size:.76rem;font-weight:bold;line-height:18px}
 .e1-center{flex:1;display:flex;flex-direction:column;min-width:0}
-.e1-msg{height:62px;flex:none;overflow-y:auto;padding:6px 14px;font-size:.94rem;background:#fffbe6;border-bottom:1px solid #f1e3a6;line-height:1.4;display:flex}
+.e1-msg{height:62px;flex:none;overflow-y:auto;padding:6px 14px;font-size:.94rem;background:var(--ef-warn-soft);border-bottom:1px solid var(--ef-line);line-height:1.4;display:flex}
 .e1-msg>span{margin:auto 0}
-.e1-msg.err{background:#ffe8e8;border-color:#f5b5b5;color:#8a1414}
-.e1-msg.ok{background:#e6f8ee;border-color:#a8e0c0}
+.e1-msg.err{background:var(--ef-ng-soft);border-color:var(--ef-line);color:var(--ef-ng)}
+.e1-msg.ok{background:var(--ef-ok-soft);border-color:var(--ef-line)}
 .e1-boardbox{flex:1;min-height:0;position:relative}
 .e1-board{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
-.e1-cell{fill:#f7fafd;stroke:#d5dee8;stroke-width:1.5;stroke-dasharray:5 5}
-.e1-cell.pickable{fill:#eaf3ff;stroke:#8fb8f0}
-.e1-cell.hover{fill:#cfe3ff;stroke:var(--accent);stroke-dasharray:none}
-.e1-nbox{fill:#fff;stroke:#9aaabb;stroke-width:2.5}
-.e1-node.src .e1-nbox{fill:#fff4e0;stroke:#e8a33d}
-.e1-node.conv .e1-nbox{fill:#eef6ff;stroke:#5c8fd6}
-.e1-node.goal .e1-nbox{fill:#eafaf0;stroke:#2f9e5a;stroke-width:3}
-.e1-node.goal.short .e1-nbox{fill:#fff0f0;stroke:#d94848}
-.e1-node.sel .e1-nbox{stroke:#1e6fd9;stroke-width:6}
-.e1-node.over .e1-nbox{stroke:#e8590c;stroke-width:6;fill:#ffe3d3}
+.e1-cell{fill:var(--fig-cell);stroke:var(--fig-cell-line);stroke-width:1.5;stroke-dasharray:5 5}
+.e1-cell.pickable{fill:var(--fig-pickable);stroke:var(--fig-pickable-line)}
+.e1-cell.hover{fill:var(--fig-hover);stroke:var(--ef-accent);stroke-dasharray:none}
+.e1-nbox{fill:var(--fig-nbox);stroke:var(--fig-nbox-line);stroke-width:2.5}
+.e1-node.src .e1-nbox{fill:var(--fig-nbox-2);stroke:var(--fig-nbox-line-2)}
+.e1-node.conv .e1-nbox{fill:var(--fig-nbox-3);stroke:var(--fig-nbox-line-3)}
+.e1-node.goal .e1-nbox{fill:var(--fig-nbox-4);stroke:var(--fig-nbox-line-4);stroke-width:3}
+.e1-node.goal.short .e1-nbox{fill:var(--fig-nbox-5);stroke:var(--fig-nbox-line-5)}
+.e1-node.sel .e1-nbox{stroke:var(--fig-nbox-line-6);stroke-width:6}
+.e1-node.over .e1-nbox{stroke:var(--fig-nbox-line-7);stroke-width:6;fill:var(--fig-nbox-6)}
 .e1-node.idle .e1-nbox{stroke-dasharray:7 5}
 .e1-nic{font-size:1.76rem;text-anchor:middle;dominant-baseline:central}
-.e1-nname{font-size:.94rem;font-weight:bold;text-anchor:middle;fill:#1d2b3a}
-.e1-nsub{font-size:.82rem;text-anchor:middle;fill:#3d4d5c}
-.e1-badge{font-size:.82rem;font-weight:bold;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.e1-loss{font-size:.94rem;font-weight:bold;fill:#d9480f;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:4px;animation:e1float 1.8s ease-in-out infinite}
-.e1-elabel{font-size:.94rem;font-weight:bold;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#fff;stroke-width:5px}
-.e1-flow{fill:none;stroke:#fff;stroke-opacity:.9;stroke-dasharray:4 12;animation:e1dash .9s linear infinite;pointer-events:none}
+.e1-nname{font-size:.94rem;font-weight:bold;text-anchor:middle;fill:var(--fig-nname)}
+.e1-nsub{font-size:.82rem;text-anchor:middle;fill:var(--fig-nsub)}
+.e1-badge{font-size:.82rem;font-weight:bold;fill:var(--fig-badge);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.e1-loss{font-size:.94rem;font-weight:bold;fill:var(--fig-loss);text-anchor:middle;paint-order:stroke;stroke:var(--fig-loss-line);stroke-width:4px;animation:e1float 1.8s ease-in-out infinite}
+.e1-elabel{font-size:.94rem;font-weight:bold;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--fig-elabel-line);stroke-width:5px}
+.e1-flow{fill:none;stroke:var(--fig-flow-line);stroke-opacity:.9;stroke-dasharray:4 12;animation:e1dash .9s linear infinite;pointer-events:none}
 .e1-running .e1-flow{animation-duration:.35s}
 .e1-ehit{stroke:transparent;stroke-width:36;fill:none;cursor:pointer}
 .e1-ex{cursor:pointer}
 .e1-ex .hit{fill:transparent}
-.e1-ex .vis{fill:#fff;stroke:#8193a6;stroke-width:2}
-.e1-ex text{font-size:1.12rem;font-weight:bold;fill:#4a5a6a;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.e1-ex .vis{fill:var(--fig-vis);stroke:var(--fig-vis-line);stroke-width:2}
+.e1-ex text{font-size:1.12rem;font-weight:bold;fill:var(--fig-ex);text-anchor:middle;dominant-baseline:central;pointer-events:none}
 @keyframes e1dash{to{stroke-dashoffset:-16}}
 @keyframes e1float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes e1pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
-@media (prefers-reduced-motion: reduce){.e1-flow,.e1-loss,.e1-star{animation:none!important}}
-.e1-side{width:286px;flex:none;overflow-y:auto;padding:10px;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
-.e1-card{border:1px solid var(--line);border-radius:0;padding:10px;background:#fbfdff}
+@media (prefers-reduced-motion: reduce){.e1-flow,.e1-loss,.e1-star{animation:none}}
+.e1-side{width:286px;flex:none;overflow-y:auto;padding:10px;background:var(--ef-surface);border-left:1px solid var(--ef-line);display:flex;flex-direction:column;gap:10px}
+.e1-card{border:1px solid var(--ef-line);border-radius:0;padding:10px;background:var(--ef-surface-2)}
 .e1-goalrow{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.88rem}
 .e1-goalrow .ic{font-size:1.29rem}
-.e1-bar{height:12px;background:#e6ecf2;border-radius:0;overflow:hidden;margin-top:3px}
-.e1-bar>i{display:block;height:100%;background:var(--ok);border-radius:0}
-.e1-bar.ng>i{background:var(--ng)}
-.e1-bar.mid>i{background:var(--warn)}
-.e1-bar.neu>i{background:#5b8fd0}
+.e1-bar{height:12px;background:var(--fig-bar);border-radius:0;overflow:hidden;margin-top:3px}
+.e1-bar>i{display:block;height:100%;background:var(--ef-ok);border-radius:0}
+.e1-bar.ng>i{background:var(--ef-ng)}
+.e1-bar.mid>i{background:var(--ef-warn)}
+.e1-bar.neu>i{background:var(--fig-neu)}
 .e1-meter{margin:6px 0;font-size:.88rem}
 .e1-meter b{font-size:1rem}
-.e1-meter small{font-size:.76rem;color:var(--sub)}
-.e1-note{font-size:.76rem;color:var(--sub);line-height:1.5}
+.e1-meter small{font-size:.76rem;color:var(--ef-muted)}
+.e1-note{font-size:.76rem;color:var(--ef-muted);line-height:1.5}
 .e1-slots{display:flex;gap:6px;flex-wrap:wrap}
-.e1-slots .e1-btn{flex:1 1 40%;padding:0 6px;font-size:.88rem;min-height:44px;white-space:nowrap}
-.e1-slots .e1-btn.on{background:#1d3557;color:#fff}
+.e1-slots :is(.ef-btn,.ef-btn-primary){flex:1 1 40%;padding:0 6px;font-size:.88rem;min-height:44px;white-space:nowrap}
+.e1-slots .ef-btn.on{font-weight:bold;box-shadow:inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent)}
 .e1-acts{display:flex;flex-direction:column;gap:8px}
 .e1-info{font-size:.88rem;line-height:1.6}
 .e1-info .ttl{font-size:1rem;font-weight:bold;margin-bottom:4px}
 .e1-elist{margin-top:8px;display:flex;flex-direction:column;gap:6px}
-.e1-elist .e1-btn{font-size:.88rem;min-height:44px;text-align:left;padding:4px 10px}
+.e1-elist :is(.ef-btn,.ef-btn-primary){font-size:.88rem;min-height:44px;text-align:left;padding:4px 10px}
 .e1-row{display:flex;gap:8px;margin-top:8px}
-.e1-row .e1-btn{flex:1}
+.e1-row :is(.ef-btn,.ef-btn-primary){flex:1}
 .e1-clearrow{display:flex;justify-content:flex-end;margin-top:14px}
-.e1-ghost{position:absolute;pointer-events:none;font-size:2.35rem;transform:translate(-50%,-50%);z-index:50;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
-.e1-ov{position:absolute;inset:0;background:rgba(20,30,45,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
-.e1-modal{background:#fff;border-radius:0;max-width:900px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px 0;box-shadow:none;font-size:1rem;line-height:1.7}
+.e1-ghost{position:absolute;pointer-events:none;font-size:2.35rem;transform:translate(-50%,-50%);z-index:50}
+.e1-ov{position:absolute;inset:0;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.e1-modal{background:var(--ef-surface);border-radius:0;max-width:900px;width:100%;max-height:100%;overflow-y:auto;padding:20px 24px 0;box-shadow:none;font-size:1rem;line-height:1.7}
 .e1-modal h2{margin:0 0 10px;font-size:1.35rem}
 .e1-modal h3{margin:14px 0 6px;font-size:1.06rem}
-.e1-modal .acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:#fff;margin-top:14px;padding:12px 0 16px;border-top:1px solid #e3e9ef;z-index:2}
-.e1-modal .acts .e1-btn{min-width:150px;min-height:54px;font-size:1.06rem}
-.e1-modal details{margin:12px 0 4px;border:1px solid var(--line);border-radius:0;padding:0 12px}
-.e1-modal summary{min-height:50px;display:flex;align-items:center;font-weight:bold;cursor:pointer;color:#1d3557}
+.e1-modal .acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:var(--ef-surface);margin-top:14px;padding:12px 0 16px;border-top:1px solid var(--ef-line);z-index:2}
+.e1-modal .acts :is(.ef-btn,.ef-btn-primary){min-width:150px;min-height:54px;font-size:1.06rem}
+.e1-modal details{margin:12px 0 4px;border:1px solid var(--ef-line);border-radius:0;padding:0 12px}
+.e1-modal summary{min-height:50px;display:flex;align-items:center;font-weight:bold;cursor:pointer;color:var(--ef-accent)}
 .e1-stars{font-size:3.06rem;text-align:center;letter-spacing:8px;margin:4px 0}
 .e1-star{display:inline-block;animation:e1pop .5s both}
 .e1-star.off{filter:grayscale(1);opacity:.25}
 .e1-checks{list-style:none;padding:0;margin:6px 0}
 .e1-checks li{padding:3px 0}
 .e1-stgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.e1-stcard{border:2px solid var(--line);border-radius:0;padding:12px;background:#f8fbff;cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:120px}
-.e1-stcard.cur{border-color:var(--accent);background:#e6f0ff}
-.e1-stcard .no{font-size:.82rem;color:var(--sub)}
+.e1-stcard{border:2px solid var(--ef-line);border-radius:0;padding:12px;background:var(--ef-surface-2);cursor:pointer;text-align:left;font:inherit;color:inherit;min-height:120px}
+.e1-stcard.cur{border-color:var(--ef-accent);background:var(--ef-accent-soft)}
+.e1-stcard .no{font-size:.82rem;color:var(--ef-muted)}
 .e1-stcard .t{font-size:1.06rem;font-weight:bold;margin:2px 0;line-height:1.35}
-.e1-stcard .l{font-size:.82rem;color:var(--sub);line-height:1.4}
+.e1-stcard .l{font-size:.82rem;color:var(--ef-muted);line-height:1.4}
 .e1-stcard .s{font-size:1.18rem;margin-top:4px}
-.e1-stcard .q{font-size:.82rem;color:#1a7a48;font-weight:bold}
-.e1-quiz .e1-btn{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;font-weight:normal;font-size:1rem;min-height:54px}
-.e1-quiz .e1-btn.right{background:#d3f5e1;border-color:var(--ok)}
-.e1-quiz .e1-btn.wrong{background:#ffe0e0;border-color:var(--ng)}
-.e1-reason{background:#fff4f4;border-left:5px solid var(--ng);padding:8px 12px;margin:8px 0;border-radius:0}
-.e1-reason.tip{background:#fff9e6;border-color:var(--warn)}
+.e1-stcard .q{font-size:.82rem;color:var(--ef-ok);font-weight:bold}
+.e1-quiz :is(.ef-btn,.ef-btn-primary){display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;font-weight:normal;font-size:1rem;min-height:54px}
+.e1-quiz .ef-btn.right{background:var(--ef-ok-soft);border-color:var(--ef-ok)}
+.e1-quiz .ef-btn.wrong{background:var(--ef-ng-soft);border-color:var(--ef-ng)}
+.e1-reason{background:var(--ef-ng-soft);border-left:5px solid var(--ef-ng);padding:8px 12px;margin:8px 0;border-radius:0}
+.e1-reason.tip{background:var(--ef-warn-soft);border-color:var(--ef-warn)}
 .e1-table{border-collapse:collapse;width:100%;font-size:.94rem}
-.e1-social{background:#f6f0fb;border:2px solid #d9c3ea;border-radius:0;padding:4px 14px 8px;margin:12px 0}
+.e1-social{background:var(--ef-advanced-soft);border:2px solid var(--ef-line);border-radius:0;padding:4px 14px 8px;margin:12px 0}
 .e1-axis.e1-price{grid-template-columns:minmax(0,260px) 1fr 76px}
-.e1-btn.e1-mini{min-height:44px;padding:4px 10px;font-size:.82rem;margin-top:4px}
-.e1-table td{border-bottom:1px solid #e3e9ef;padding:5px 8px}
+.ef-btn.e1-mini{min-height:44px;padding:4px 10px;font-size:.82rem;margin-top:4px}
+.e1-table td{border-bottom:1px solid var(--ef-line);padding:5px 8px}
 .e1-table td:last-child{text-align:right;font-weight:bold}
-.e1-sankey{width:100%;height:auto;background:#fafcff;border:1px solid var(--line);border-radius:0;margin-bottom:10px}
+.e1-sankey{width:100%;height:auto;background:var(--fig-sankey);border:1px solid var(--ef-line);border-radius:0;margin-bottom:10px}
 .e1-sankey text{font-size:.88rem}
 .e1-axis{display:grid;grid-template-columns:minmax(0,290px) 1fr 44px;gap:8px;align-items:center;margin:6px 0;font-size:.94rem;line-height:1.35}
-.e1-axis small{display:block;font-size:.76rem;color:var(--sub)}
+.e1-axis small{display:block;font-size:.76rem;color:var(--ef-muted)}
 .e1-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.e1-steps div{background:#f3f7fc;border-radius:0;padding:12px;font-size:.94rem}
+.e1-steps div{background:var(--ef-surface-2);border-radius:0;padding:12px;font-size:.94rem}
 .e1-steps b{font-size:1.06rem}
 /* 💾 記録(やったこと・振り返り・組・番号・名前 → ファイルに保存) */
 .e1-recl{list-style:none;padding:0;margin:4px 0}
-.e1-recl li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:5px 0;border-bottom:1px solid #e3e9ef;font-size:.94rem;line-height:1.45}
+.e1-recl li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:5px 0;border-bottom:1px solid var(--ef-line);font-size:.94rem;line-height:1.45}
 .e1-recl .nm{flex:1 1 13em;min-width:0}
-.e1-recl .st{color:#f0a500;white-space:nowrap;letter-spacing:2px}
-.e1-recl .qz{white-space:nowrap;font-size:.88rem;color:#1a7a48;font-weight:bold}
-.e1-recl .qz.no{color:var(--sub);font-weight:normal}
-.e1-recsum{background:#f3f7fc;border-radius:0;padding:8px 12px;margin:6px 0;font-size:.94rem}
+.e1-recl .st{color:var(--ef-warn);white-space:nowrap;letter-spacing:2px}
+.e1-recl .qz{white-space:nowrap;font-size:.88rem;color:var(--ef-ok);font-weight:bold}
+.e1-recl .qz.no{color:var(--ef-muted);font-weight:normal}
+.e1-recsum{background:var(--ef-surface-2);border-radius:0;padding:8px 12px;margin:6px 0;font-size:.94rem}
 .e1-field{display:flex;flex-direction:column;gap:4px;margin:10px 0;min-width:0}
 .e1-field label{font-weight:bold;line-height:1.5;font-size:.94rem}
-.e1-field textarea,.e1-field input{font:inherit;font-size:1rem;width:100%;padding:8px 10px;border:2px solid var(--line);border-radius:0;background:#fff;color:var(--ink);user-select:text;-webkit-user-select:text}
+.e1-field textarea,.e1-field input{font:inherit;font-size:1rem;width:100%;padding:8px 10px;border:2px solid var(--ef-line);border-radius:0;background:var(--ef-surface);color:var(--ef-text);user-select:text;-webkit-user-select:text}
 .e1-field textarea{min-height:5.4em;resize:vertical;line-height:1.5}
-.e1-field textarea:focus,.e1-field input:focus{outline:none;border-color:var(--accent)}
+.e1-field textarea:focus,.e1-field input:focus{outline:none;border-color:var(--ef-accent)}
 .e1-two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-.e1-saved{margin:8px 0 0;min-height:1.6em;color:#1a7a48;font-weight:bold}
-@media (max-width:1100px){.e1-top h1{display:none}.e1-btn.go{font-size:1.12rem}}
+.e1-saved{margin:8px 0 0;min-height:1.6em;color:var(--ef-ok);font-weight:bold}
+@media (max-width:1100px){.e1-top h1{display:none}.e1 .ef-btn-primary.go{font-size:1.12rem}}
 @media (max-width:900px){
   .e1-stitle .t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.88rem;line-height:1.2}
   .e1-stitle .l{display:none}
   .e1-main{flex-direction:column}
-  .e1-palwrap{width:auto;height:96px;flex:none;border-right:none;border-bottom:1px solid var(--line)}
+  .e1-palwrap{width:auto;height:96px;flex:none;border-right:none;border-bottom:1px solid var(--ef-line)}
   .e1-pal{overflow-x:auto;overflow-y:hidden;padding:8px}
   .e1-pal h2{display:none}
   .e1-palgrid{display:flex;gap:6px;width:max-content}
   .e1-pi{width:108px;min-height:78px;touch-action:pan-x}
-  .e1-palmore{left:auto;top:0;right:0;bottom:0;width:44px;padding:0;align-items:center;justify-content:center;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 55%);font-size:1.29rem}
+  .e1-palmore{left:auto;top:0;right:0;bottom:0;width:44px;padding:0;align-items:center;justify-content:center;background:linear-gradient(90deg,transparent,var(--ef-surface) 55%);font-size:1.29rem}
   .e1-palmore.on{display:flex}
   .e1-center{flex:none}
   .e1-boardbox{flex:none;width:100%;aspect-ratio:778/572}
-  .e1-side{width:auto;flex:1;min-height:0;border-left:none;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px}
+  .e1-side{width:auto;flex:1;min-height:0;border-left:none;border-top:1px solid var(--ef-line);display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px}
   .e1-side>*{min-width:0}
   .e1-side>.wide{grid-column:1/-1}
   .e1-acts{order:-2;flex-direction:row}
   .e1-acts .go{flex:2;min-height:56px}
-  .e1-acts .e1-btn:not(.go){flex:1}
+  .e1-acts .ef-btn{flex:1}
   .e1-side>.e1-info{order:-1}
-  .e1-slots .e1-btn{flex:1}
+  .e1-slots :is(.ef-btn,.ef-btn-primary){flex:1}
   .e1-clearrow{margin-top:6px}
   .e1-stgrid{grid-template-columns:repeat(2,1fr)}
   .e1-modal{padding:16px 18px 0}
@@ -190,7 +224,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 }
 @media (max-width:700px){
   .e1-two{grid-template-columns:1fr}
-  .e1-modal .acts .e1-btn{min-width:0;flex:1 1 40%}
+  .e1-modal .acts :is(.ef-btn,.ef-btn-primary){min-width:0;flex:1 1 40%}
 }
 </style>
 </head>
@@ -749,7 +783,7 @@ function starStr(n, max) { var s = ''; for (var i = 0; i < max; i++) s += i < n 
 
 /* 共通の枠: 単体で開いたときだけ、上のバーに「ⓘ このアプリについて」を出す(統合版はシェルが出す) */
 function efSlot() { return NS.embedded || !window.EduitFrame ? '' : '<span data-ef-about></span>'; }
-function efMount() { if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); }  // 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に合わせる }
+function efMount() { if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); /* 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に */ } }
 function buildShell() {
   S.root.innerHTML =
     // 2段目の帯 = 共通の帯(.ef-apptabs)。タブはなく、左にいまのステージの名前、右に道具(.ef-apptabs-tools)
@@ -916,7 +950,7 @@ function renderSide() {
     h += '<div class="e1-card wide"><h2>時間・天気を切りかえて確認</h2><div class="e1-slots">';
     st.slots.forEach(function (s, i) {
       var ok = R && !R.loop && R.slots[i].ok;
-      h += '<button class="e1-btn' + (i === S.view ? ' on' : '') + '" data-act="slot" data-i="' + i + '">' + s.icon + ' ' + s.name + (ok ? ' ✓' : '') + '</button>';
+      h += '<button class="ef-btn' + (i === S.view ? ' on' : '') + '" data-act="slot" data-i="' + i + '">' + s.icon + ' ' + s.name + (ok ? ' ✓' : '') + '</button>';
     });
     h += '</div></div>';
   } else if (st.slots[0].name) h += '<div class="e1-card wide">天気:' + st.slots[0].icon + ' ' + st.slots[0].name + '(太陽 ' + Math.round(st.slots[0].sun * 100) + '%)</div>';
@@ -946,15 +980,15 @@ function renderSide() {
     h += meter('総合効率', M.eff, 1, Math.round(M.eff * 100) + '%' + (et ? ' <small>(★は' + Math.round(et * 100) + '%以上)</small>' : ''), et ? (M.eff >= et - EPS ? true : 'mid') : 'neu');
     if (st.budget != null || st.free) {
       h += meter('費用', M.cost, st.budget || 60, r1(M.cost) + (st.budget != null ? ' / 予算 ' + st.budget : ''), st.budget != null && M.cost > st.budget ? false : true);
-      h += '<div class="e1-note" style="font-size:.82rem">つくる費用 ' + r1(M.build) + ' + 燃料代 ' + r1(M.fuel) + (M.unitCost ? '<br>電気100を届ける費用 ' + r1(M.unitCost) : '') + '<br><button class="e1-btn e1-mini" data-act="price">💴 発電方法の値段くらべ</button></div>';
+      h += '<div class="e1-note" style="font-size:.82rem">つくる費用 ' + r1(M.build) + ' + 燃料代 ' + r1(M.fuel) + (M.unitCost ? '<br>電気100を届ける費用 ' + r1(M.unitCost) : '') + '<br><button class="ef-btn e1-mini" data-act="price">💴 発電方法の値段くらべ</button></div>';
     }
     var co2max = st.co2Max != null ? Math.max(st.co2Max, 1) : 300;
     h += meter('CO₂', M.co2, co2max, fmt(M.co2) + (st.co2Max != null ? ' / 上限 ' + st.co2Max : ''), st.co2Max != null && M.co2 > st.co2Max + EPS ? false : (M.co2 > 150 ? 'mid' : true));
     h += '<div class="e1-note" style="font-size:.82rem">使った資源 ' + fmt(M.used) + ' → 役に立った ' + fmt(M.useful) + '、熱などのロス ' + fmt(M.loss) + '</div>';
     h += '</div>';
   }
-  h += '<div class="e1-acts wide"><button class="e1-btn go" data-act="run">⚡ スイッチON(ためす)</button>' +
-    '<button class="e1-btn" data-act="undo"' + (S.hist.length ? '' : ' disabled') + '>↩ もどす</button></div>';
+  h += '<div class="e1-acts wide"><button class="ef-btn-primary go" data-act="run">⚡ スイッチON(ためす)</button>' +
+    '<button class="ef-btn" data-act="undo"' + (S.hist.length ? '' : ' disabled') + '>↩ もどす</button></div>';
   if (S.sel) {
     var n = nodeById(S.sel);
     if (n) {
@@ -965,22 +999,22 @@ function renderSide() {
       if (d.kind === 'src' && n.type !== 'outlet') h += '<div>最大出力 <b>' + d.cap + '</b>' + (d.co2 ? '/CO₂ 1あたり ' + d.co2 : '/CO₂ 0') + '</div>';
       if ((d.cost || d.fuel) && (st.budget != null || st.free)) h += '<div>つくる費用 <b>' + d.cost + '</b>' + (d.kind === 'src' && n.type !== 'outlet' ? '/燃料代 ' + (d.fuel ? '燃料100を使うごとに <b>' + d.fuel + '</b>' : '<b>0</b>') : '') + '</div>';
       if (d.desc) h += '<div style="margin-top:4px">' + furi(d.desc) + '</div>';
-      if (d.tip) h += '<div style="margin-top:4px;color:#7a5a00">🔧 ' + furi(d.tip) + '</div>';
+      if (d.tip) h += '<div style="margin-top:4px;color:var(--ef-warn)">🔧 ' + furi(d.tip) + '</div>';
       h += '<div class="e1-note" style="margin-top:4px">※数値は授業用の目安です。' + (d.tip && d.tip.indexOf('点検') >= 0 ? '点検のしかたは C6「保守点検ラボ」でくわしく学べます。' : '') + '</div>';
       var es = S.board.edges.filter(function (e) { return e.from === n.id || e.to === n.id; });
       if (es.length) {
         h += '<div class="e1-elist"><b style="font-size:.88rem">この部品の線を消す</b>';
         es.forEach(function (e) {
           var a = nodeById(e.from), b = nodeById(e.to); if (!a || !b) return;
-          h += '<button class="e1-btn danger" data-act="edgeask" data-id="' + esc(e.id) + '">✂ ' + CAT[a.type].icon + CAT[a.type].name + ' → ' + CAT[b.type].icon + CAT[b.type].name + '</button>';
+          h += '<button class="ef-btn is-danger" data-act="edgeask" data-id="' + esc(e.id) + '">✂ ' + CAT[a.type].icon + CAT[a.type].name + ' → ' + CAT[b.type].icon + CAT[b.type].name + '</button>';
         });
         h += '</div>';
       }
-      if (!n.fixed) h += '<div class="e1-row"><button class="e1-btn danger" data-act="del">🗑 この部品を消す</button></div>';
+      if (!n.fixed) h += '<div class="e1-row"><button class="ef-btn is-danger" data-act="del">🗑 この部品を消す</button></div>';
       h += '</div>';
     }
   }
-  h += '<div class="e1-clearrow wide"><button class="e1-btn danger" data-act="clear">' + (st.free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '</button></div>';
+  h += '<div class="e1-clearrow wide"><button class="ef-btn is-danger" data-act="clear">' + (st.free ? '🗑 ぜんぶ消す' : '↺ 最初から') + '</button></div>';
   S.el.side.innerHTML = h;
 }
 
@@ -1075,7 +1109,7 @@ function modal(html, cls) {
   var ov = document.createElement('div');
   ov.className = 'e1-ov'; ov.innerHTML = '<div class="e1-modal ' + (cls || '') + '" role="dialog" aria-modal="true">' + html + '</div>';
   S.root.appendChild(ov); S.ov = ov;
-  var b = ov.querySelector('.acts .e1-btn.primary') || ov.querySelector('.e1-btn'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} }
+  var b = ov.querySelector('.acts .ef-btn-primary') || ov.querySelector('.ef-btn'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} }
   ov.firstChild.scrollTop = 0;
   return ov;
 }
@@ -1097,8 +1131,8 @@ function showIntroModal() {
   if (st.slots.length > 1) h += '<p>⏰ このステージは「' + st.slots.map(function (s) { return s.icon + s.name; }).join('」「') + '」のすべてで足りるようにします。「時間・天気」のボタンで切りかえて確認できます。</p>';
   if (st.preset) h += '<p>🗼 送電線と、家・工場への線は、はじめからつないであります。</p>';
   if (st.budget != null || st.free) h += '<p>🕵 このステージには、見えない「かくれポイント」(安全性・住民の理解)があります。クリアすると結果がわかるよ。</p>';
-  if (st.unit === 'W') h += '<p>数字は' + furi('消費電力') + '(W:ワット)です。</p>'; else h += '<p style="font-size:.88rem;color:#5b6b7c">数字はエネルギーの量の目安です(単位はありません)。</p>';
-  h += '<div class="acts">' + (S.si === 0 ? '<button class="e1-btn" data-act="howto">❓ 使い方を見る</button>' : '') + '<button class="e1-btn primary" data-act="close">はじめる</button></div>';
+  if (st.unit === 'W') h += '<p>数字は' + furi('消費電力') + '(W:ワット)です。</p>'; else h += '<p style="font-size:.88rem;color:var(--ef-muted)">数字はエネルギーの量の目安です(単位はありません)。</p>';
+  h += '<div class="acts">' + (S.si === 0 ? '<button class="ef-btn" data-act="howto">❓ 使い方を見る</button>' : '') + '<button class="ef-btn-primary" data-act="close">はじめる</button></div>';
   modal(h);
 }
 function showHowto(first) {
@@ -1114,24 +1148,24 @@ function showHowto(first) {
     '<div><b>💴 費用とは?</b><br>「つくる費用(部品を置くと1回)」+「燃料代(燃やした量だけ)」。太陽・風・水は燃料代が0。</div>' +
     '<div><b>🔊 効果音</b><br>右上の 🔇/🔊 で、音を出す・出さないを切りかえる(最初は音なし)。</div>' +
     '</div><p>部品の左右の丸は、入るエネルギー(左)と出るエネルギー(右)の形です。部品を通るたびに一部が熱になって逃げます(♨)。数値は授業用の目安です。</p>' +
-    '<div class="acts">' + (first ? '<button class="e1-btn primary" data-act="howtostart">はじめる</button>' : '<button class="e1-btn primary" data-act="close">わかった</button>') + '</div>');
+    '<div class="acts">' + (first ? '<button class="ef-btn-primary" data-act="howtostart">はじめる</button>' : '<button class="ef-btn-primary" data-act="close">わかった</button>') + '</div>');
 }
 function showStages() {
   var h = '<h2>☰ ステージを選ぶ</h2><div class="e1-stgrid">';
   STAGES.forEach(function (st, i) {
     var sc = S.save.stars[st.id] || 0;
     h += '<button class="e1-stcard' + (i === S.si ? ' cur' : '') + '" data-act="go" data-i="' + i + '"><div class="no">' + (st.free ? '自由' : 'ステージ ' + (i + 1)) + '</div><div class="t">' + esc(st.title) + '</div><div class="l">' + esc(st.learn) + '</div>' +
-      (st.stars.length ? '<div class="s" style="color:#f0a500">' + starStr(sc, st.stars.length) + '</div>' : '') +
+      (st.stars.length ? '<div class="s" style="color:var(--ef-warn)">' + starStr(sc, st.stars.length) + '</div>' : '') +
       (S.save.quiz[st.id] ? '<div class="q">🤔 ' + quizTitle() + ' ✓</div>' : '') + '</button>';
   });
-  h += '</div><div class="acts"><button class="e1-btn" data-act="close">とじる</button></div>';
+  h += '</div><div class="acts"><button class="ef-btn" data-act="close">とじる</button></div>';
   modal(h);
 }
 function showHint() {
   var st = stage(), n = Math.min(S.hint + 1, st.hints.length), h = '<h2>💡 ヒント</h2>';
   for (var i = 0; i < n; i++) h += '<div class="e1-reason tip">ヒント' + (i + 1) + ':' + furi(st.hints[i]) + '</div>';
   S.hint = n;
-  h += '<div class="acts">' + (n < st.hints.length ? '<button class="e1-btn" data-act="hint">もっとヒント</button>' : '') + '<button class="e1-btn primary" data-act="close">とじる</button></div>';
+  h += '<div class="acts">' + (n < st.hints.length ? '<button class="ef-btn" data-act="hint">もっとヒント</button>' : '') + '<button class="ef-btn-primary" data-act="close">とじる</button></div>';
   modal(h);
 }
 /* 電源の評価(授業用の目安)。どの組み合わせにも長所と短所があり、すべてが100になる組み合わせはない。
@@ -1171,7 +1205,7 @@ function axes(st, M) {
   var a = axesScores(st, S.board, S.R, M);
   var rows = [['🌏 環境', 'CO₂の少なさ', a.env], ['💴 経済', 'つくる費用・燃料代の安さ', a.econ], ['🔌 安定', '天気や時間に左右されにくい', a.stab]];
   var h = '<h3>' + (st.free ? 'この組み合わせの評価' : 'この町の電源の評価') + '</h3>';
-  rows.forEach(function (r) { h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#3b82c4"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>'; });
+  rows.forEach(function (r) { h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:var(--fig-bar-2)"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>'; });
   return h + '<p style="font-size:.94rem">' + furi('どの発電方法にも長所と短所があり、すべてを高くするのはむずかしい。何を大事にして、なぜその組み合わせにしたかを説明しよう。') +
     '</p><p class="e1-note" style="font-size:.82rem">' + furi('点数は授業用の目安です。太陽光や風力は環境の点は高いけれど、天気や時間で発電量が変わります。') + '</p>';
 }
@@ -1179,7 +1213,7 @@ function social(st, M) {
   var a = axesScores(st, S.board, S.R, M), avg = (a.safe + a.acc) / 2;
   var h = '<div class="e1-social"><h3>🕵 かくれポイント:社会からの評価</h3><p style="font-size:.94rem;margin:4px 0 8px">' + furi('じつは、見えない点数がありました。安全と、近くに住む人の理解です。それがないと、発電所はつくることも続けることもできません。') + '</p>';
   [['🛡 安全性', '事故や、処分のむずかしいごみの心配の少なさ', a.safe], ['🏘 住民の理解', '近くに住む人や市民に受け入れられやすいか', a.acc]].forEach(function (r) {
-    h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:#8e44ad"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>';
+    h += '<div class="e1-axis"><span>' + r[0] + '<small>' + r[1] + '</small></span><div class="e1-bar"><i style="width:' + Math.round(r[2] * 100) + '%;background:var(--fig-bar-3)"></i></div><b>' + Math.round(r[2] * 100) + '</b></div>';
   });
   var v = avg >= 0.75 ? ['😊', '多くの市民に受け入れられやすい組み合わせです。'] : avg >= 0.5 ? ['🤔', '賛成の人も反対の人もいそうです。ていねいな説明が必要です。'] : ['😟', '反対や不安の声が多く出そうです。安全対策や説明に、時間とお金がかかります。'];
   h += '<p style="font-size:1rem"><b>' + v[0] + ' ' + furi(v[1]) + '</b></p>';
@@ -1203,12 +1237,12 @@ function showPrice() {
   var h = '<h2>💴 発電方法の値段くらべ</h2><p style="font-size:.94rem">' + furi('本物の発電所で、電気1kWhをつくる値段のおよその目安です。1kWhは、1000Wのドライヤーを1時間使うくらいの量です。') + '</p>';
   PRICE.forEach(function (p) {
     var d = CAT[p.t];
-    h += '<div class="e1-axis e1-price"><span>' + d.icon + ' ' + p.nm + '<small>' + (p.f ? '🔥 燃料代が大きい' : '🏗 つくる費用が大きい') + '</small></span><div class="e1-bar"><i style="width:' + Math.round(p.y / 30 * 100) + '%;background:' + (p.f ? '#e07a2e' : '#3b82c4') + '"></i></div><b style="white-space:nowrap">約' + p.y + '円' + (p.more ? '〜' : '') + '</b></div>' +
+    h += '<div class="e1-axis e1-price"><span>' + d.icon + ' ' + p.nm + '<small>' + (p.f ? '🔥 燃料代が大きい' : '🏗 つくる費用が大きい') + '</small></span><div class="e1-bar"><i style="width:' + Math.round(p.y / 30 * 100) + '%;background:' + (p.f ? 'var(--fig-bar-4)' : 'var(--fig-bar-2)') + '"></i></div><b style="white-space:nowrap">約' + p.y + '円' + (p.more ? '〜' : '') + '</b></div>' +
       '<div class="e1-note" style="font-size:.82rem;margin:-2px 0 8px">' + furi(p.w) + '</div>';
   });
   h += '<p style="font-size:.94rem">' + furi('燃料を使う発電は「燃料代」が毎日かかり、太陽・風・水は「つくる費用」が大部分です。安いだけでなく、CO₂・安定・安全もあわせて考えよう。') + '</p>' +
     '<p class="e1-note" style="font-size:.82rem">※ 国の試算(2021年)を丸めた目安です。ゲームの中の費用とは別です。</p>' +
-    '<div class="acts"><button class="e1-btn primary" data-act="close">とじる</button></div>';
+    '<div class="acts"><button class="ef-btn-primary" data-act="close">とじる</button></div>';
   modal(h);
 }
 function costBox(M) {
@@ -1239,7 +1273,7 @@ function showResult(win) {
     h += '<h2>🎉 クリア!' + (st.free ? '(家に電気が届いた)' : '') + '</h2>';
     if (st.stars.length) {
       h += '<div class="e1-stars">';
-      M.stars.forEach(function (b, i) { h += '<span class="e1-star' + (b ? '' : ' off') + '" style="animation-delay:' + (i * 0.25) + 's;color:#f0a500">★</span>'; });
+      M.stars.forEach(function (b, i) { h += '<span class="e1-star' + (b ? '' : ' off') + '" style="animation-delay:' + (i * 0.25) + 's;color:var(--fig-star-text)">★</span>'; });
       h += '</div><ul class="e1-checks">';
       st.stars.forEach(function (s, i) { h += '<li>' + (M.stars[i] ? '⭐' : '◻️') + ' ' + s[0] + '</li>'; });
       h += '</ul>';
@@ -1253,7 +1287,7 @@ function showResult(win) {
     var order = [0, 1, 2];
     for (var oi = order.length - 1; oi > 0; oi--) { var oj = Math.floor(Math.random() * (oi + 1)), ot = order[oi]; order[oi] = order[oj]; order[oj] = ot; }   // Fisher–Yates(かたよりなく並べかえる)
     h += '<div class="e1-quiz" data-ref="quiz"><h3>🤔 ' + quizTitle() + '</h3><p>' + furi(st.quiz.q) + '</p>';
-    order.forEach(function (i) { h += '<button class="e1-btn" data-act="quiz" data-i="' + i + '">' + st.quiz.c[i] + '</button>'; });
+    order.forEach(function (i) { h += '<button class="ef-btn" data-act="quiz" data-i="' + i + '">' + st.quiz.c[i] + '</button>'; });
     h += '<div data-ref="qex"></div></div>';
   }
   if (win && (st.id === 's7' || st.free)) h += axes(st, M);
@@ -1271,11 +1305,11 @@ function showResult(win) {
   if (tbl) h += '<details><summary>📊 ' + (u ? '' : '数値の表と') + 'エネルギーの流れ図を見る</summary>' + tbl + '</details>';
   h += '<div class="acts">';
   if (win) {
-    h += '<button class="e1-btn" data-act="close">もう一度くふうする</button>';
-    if (st.budget != null || st.free) h += '<button class="e1-btn" data-act="price">💴 値段くらべ</button>';
-    if (S.si < STAGES.length - 1) h += '<button class="e1-btn primary" data-act="next">次のステージへ ▶</button>';
+    h += '<button class="ef-btn" data-act="close">もう一度くふうする</button>';
+    if (st.budget != null || st.free) h += '<button class="ef-btn" data-act="price">💴 値段くらべ</button>';
+    if (S.si < STAGES.length - 1) h += '<button class="ef-btn-primary" data-act="next">次のステージへ ▶</button>';
   } else {
-    h += '<button class="e1-btn" data-act="hint">💡 ヒント</button><button class="e1-btn primary" data-act="close">直してみる</button>';
+    h += '<button class="ef-btn" data-act="hint">💡 ヒント</button><button class="ef-btn-primary" data-act="close">直してみる</button>';
   }
   h += '</div>';
   modal(h);
@@ -1312,7 +1346,7 @@ function showRec() {
     var ok = stageCleared(st), sc = s.stars[st.id] || 0;
     if (ok) nClr++;
     sN += sc; sMax += st.stars.length;
-    return '<li><span aria-hidden="true">' + (ok ? '✅' : '⬜') + '</span><span class="nm">' + (st.free ? '' : stageLabel(i) + ' ') + esc(st.title) + (ok ? '' : '<small style="color:#5b6b7c">(まだ)</small>') + '</span>' +
+    return '<li><span aria-hidden="true">' + (ok ? '✅' : '⬜') + '</span><span class="nm">' + (st.free ? '' : stageLabel(i) + ' ') + esc(st.title) + (ok ? '' : '<small style="color:var(--ef-muted)">(まだ)</small>') + '</span>' +
       (st.stars.length ? '<span class="st" aria-label="★' + sc + ' / ' + st.stars.length + '">' + starStr(sc, st.stars.length) + '</span>' : '') +
       (st.quiz ? '<span class="qz' + (s.quiz[st.id] ? '' : ' no') + '">🤔 ' + quizTitle() + (s.quiz[st.id] ? ' ✓' : ' まだ') + '</span>' : '') + '</li>';
   }).join('');
@@ -1323,9 +1357,9 @@ function showRec() {
     REFL.map(function (r, i) { return '<div class="e1-field"><label for="e1-' + r.id + '">' + (i + 1) + '. ' + furi(r.q) + '</label><textarea id="e1-' + r.id + '" data-refl="' + r.id + '" maxlength="800">' + esc(s.refl[r.id] || '') + '</textarea></div>'; }).join('') + '</div>' +
     '<h3>👤 組・番号・名前</h3><div class="e1-two"><div class="e1-field"><label for="e1-cls">組・番号</label><input type="text" id="e1-cls" data-who="cls" maxlength="20" value="' + esc(w.cls || '') + '" placeholder="例: 2組15番"></div>' +
     '<div class="e1-field"><label for="e1-name">名前</label><input type="text" id="e1-name" data-who="name" maxlength="30" value="' + esc(w.name || '') + '"></div></div>' +
-    '<p style="margin:4px 0;font-size:.88rem;color:#5b6b7c">やったこと<span data-ef-reflect>・振り返り</span>を、1つのファイル(<code>C1-henkan-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
+    '<p style="margin:4px 0;font-size:.88rem;color:var(--ef-muted)">やったこと<span data-ef-reflect>・振り返り</span>を、1つのファイル(<code>C1-henkan-….json</code>)にしてダウンロードします。Classroom などで先生に提出しましょう。</p>' +
     '<div class="e1-saved" role="status" aria-live="polite"></div>' +
-    '<div class="acts"><button class="e1-btn" data-act="close">とじる</button><button class="e1-btn primary" data-act="recsave">💾 ファイルに保存</button></div>';
+    '<div class="acts"><button class="ef-btn" data-act="close">とじる</button><button class="ef-btn-primary" data-act="recsave">💾 ファイルに保存</button></div>';
   var ov = modal(h);
   ov.addEventListener('input', function (ev) {
     var t = ev.target, k = t.getAttribute('data-refl');
@@ -1468,8 +1502,8 @@ function bindInput() {
     else if (act === 'del') { if (S.sel) removeNode(S.sel); }
     else if (act === 'edgeask') askEdge(b.getAttribute('data-id'));
     else if (act === 'clear') {
-      if (stage().free) modal('<h2>🗑 ぜんぶ消しますか?</h2><p>置いた部品と線をすべて消します。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="clearyes">消す</button></div>');
-      else modal('<h2>↺ 最初からやり直しますか?</h2><p>置いた部品と線を消して、このステージの最初の状態にもどします。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="clearyes">消す</button></div>');
+      if (stage().free) modal('<h2>🗑 ぜんぶ消しますか?</h2><p>置いた部品と線をすべて消します。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="ef-btn" data-act="close">やめる</button><button class="ef-btn is-danger" data-act="clearyes">消す</button></div>');
+      else modal('<h2>↺ 最初からやり直しますか?</h2><p>置いた部品と線を消して、このステージの最初の状態にもどします。「↩ もどす」で元にもどせます。</p><div class="acts"><button class="ef-btn" data-act="close">やめる</button><button class="ef-btn is-danger" data-act="clearyes">消す</button></div>');
     }
     else if (act === 'clearyes') { closeModal(); resetBoard(); }
     else if (act === 'next') { closeModal(); openStage(Math.min(STAGES.length - 1, S.si + 1), true); }
@@ -1511,7 +1545,7 @@ function hoverCell(c) {
 function askEdge(id) {
   var e = null; S.board.edges.forEach(function (x) { if (x.id === id) e = x; }); if (!e) return;
   var a = nodeById(e.from), b = nodeById(e.to);
-  modal('<h2>この線を消しますか?</h2><p>' + CAT[a.type].icon + ' ' + CAT[a.type].name + ' → ' + CAT[b.type].icon + ' ' + CAT[b.type].name + '</p><p style="font-size:.88rem;color:#5b6b7c">「↩ もどす」で元にもどせます。</p><div class="acts"><button class="e1-btn" data-act="close">やめる</button><button class="e1-btn danger" data-act="edgeyes" data-id="' + esc(id) + '">消す</button></div>');
+  modal('<h2>この線を消しますか?</h2><p>' + CAT[a.type].icon + ' ' + CAT[a.type].name + ' → ' + CAT[b.type].icon + ' ' + CAT[b.type].name + '</p><p style="font-size:.88rem;color:var(--ef-muted)">「↩ もどす」で元にもどせます。</p><div class="acts"><button class="ef-btn" data-act="close">やめる</button><button class="ef-btn is-danger" data-act="edgeyes" data-id="' + esc(id) + '">消す</button></div>');
 }
 
 /* ---------- 起動 ---------- */
