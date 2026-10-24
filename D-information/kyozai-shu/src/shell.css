@@ -1,65 +1,48 @@
-/* 教材集の外わく（メニューと切りかえバー）。色の名前は各教材と同じ
+/* 教材集の外わく（メニューと切りかえバー）。色・字・線は共通の設定(--ef-…)だけを使う
    4分野共通の枠（shared/eduit-frame.css）を先に読み、色・文字・ヘッダー・ボタン・カードの形はそちらに合わせる */
 :root {
   color-scheme: light;
-  --bg: var(--ef-bg);
-  --surface-1: #fcfcfb;
-  --surface-2: #efeee9;
-  --border: #d9d7cf;
-  --text-primary: #1b1b1a;
-  --text-secondary: #52514e;
-  --text-muted: #6d6c67;
-  --accent: var(--ef-accent);
-  --accent-ink: #ffffff;
-  --accent-soft: var(--ef-accent-soft);
-  --good: #1f7a3a;
-  --good-soft: #e3f3e7;
-  --focus: var(--ef-focus);
-  --radius: 12px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --font: var(--ef-font);
-  --bar-h: 55px;
+  --app-bar-h: 55px; /* 上のバーの高さ(教材を開く場所の高さの計算に使う) */
 }
 
 * { box-sizing: border-box; }
-html { font-size: 17px; }
-body { margin: 0; background: var(--bg); color: var(--text-primary); font-family: var(--font); line-height: 1.75; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.75; -webkit-text-size-adjust: 100%; }
 h1, h2, h3 { line-height: 1.4; margin: 0 0 0.5em; }
 h1 { font-size: 1.7rem; }
 h2 { font-size: 1.25rem; }
 p { margin: 0 0 0.8em; }
-a { color: var(--accent); }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 0; }
-.skip-link { position: absolute; left: -999px; top: 0; background: var(--surface-1); padding: 8px 12px; z-index: 10; }
+a { color: var(--ef-accent); }
+:focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; border-radius: 0; }
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--ef-surface); padding: 8px 12px; z-index: 10; }
 .skip-link:focus { left: 8px; }
 
 /* 上のバー: 共通の枠のヘッダー（.ef-header: 白地・下に青い線3px）。高さはほかの分野と同じ（名前 18px・ボタン 40px）。
    教材を開いているときは4分野共通のアプリの上のバー（.ef-appbar・.ef-switch。C エネルギー変換と同じ形。shared/eduit-frame.css） */
 .shell-header.ef-header {
   gap: 10px; min-height: 52px; padding: 6px 14px; flex-wrap: nowrap;
-  position: sticky; top: 0; z-index: 5; font-size: 15px; line-height: 1.3;
+  position: sticky; top: 0; z-index: 5; line-height: 1.3;
 }
 .shell-header.ef-appbar { padding: 0 6px; gap: 6px; }
 .shell-header .ef-tools { flex-wrap: nowrap; flex: none; }
-.shell-header .ef-btn { min-height: 40px; padding: 0 14px; font-size: 15px; }
+.shell-header .ef-btn { min-height: 40px; padding: 0 14px; }
 .shell-header.ef-appbar .ef-btn { min-height: 42px; padding: 0 12px; }
 /* 上のバーの名前（メニュー「D 情報の技術 教材集」・教材「D1 仮想CPUラボ」）。共通の枠の .ef-title と .ef-code */
-.bar-title { margin: 0; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.bar-title { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: 6px; }
 .bar-title .ef-title-name { overflow: hidden; text-overflow: ellipsis; }
 .bar-title .ef-code { flex: none; }
 /* 「使い方」「先生用」はメニューのときだけ。「◀ メニュー」・切りかえ・全画面・ⓘ は教材を開いているときだけ */
 .app-mode .teacher-btn, .home-mode .in-app, .home-mode .switcher, #back-link { display: none; }
 .app-mode #back-link { display: inline-flex; }
 
-/* ふりがな・大きな文字（11の教材とメニューにかかる） */
+/* ふりがな・文字・くっきり（11の教材とメニューにかかる。共通の EduitFrame.prefs） */
 .shell-toggles { display: flex; gap: 6px; flex: none; }
-/* 「ふりがな」「文字 中」は4分野共通の形(shared/eduit-frame.css の .ef-toggle・.ef-size) */
-.shell-toggle:hover { border-color: var(--accent); }
 @media (max-width: 640px) {
   .shell-header.ef-header { flex-wrap: wrap; row-gap: 4px; padding: 4px 8px; }
   .home-mode .shell-header .ef-tools { flex: 1 1 100%; justify-content: flex-end; }
+  /* style-check: off(上のバーの字は共通の枠と同じ px。字の大きさの設定では変えない) */
   .shell-header .ef-btn, .shell-header.ef-appbar .ef-btn { min-height: 36px; padding: 0 10px; font-size: 14px; }
   .bar-title { font-size: 16px; white-space: normal; }
+  /* style-check: on */
   .shell-toggles { gap: 4px; }
 }
 
@@ -71,84 +54,78 @@ a { color: var(--accent); }
 #menu:focus { outline: none; }
 .hero { margin-bottom: 10px; }
 .hero:empty { display: none; }
-.hero .lead { color: var(--text-secondary); max-width: 46em; }
-.hero .author { font-size: 0.9rem; color: var(--text-muted); }
+.hero .lead { color: var(--ef-muted); max-width: 46em; }
+.hero .author { font-size: 0.9rem; color: var(--ef-muted); }
 .hero .resume { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; }
-.hero .resume-k { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
+.hero .resume-k { font-size: 0.85rem; font-weight: 700; color: var(--ef-muted); }
 .hero .resume-go { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; text-decoration: none; }
 .hero .resume-go:hover { text-decoration: underline; }
 .group { margin-bottom: 26px; }
 .group h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
 /* メニューのカード: 共通の枠の EduitFrame.card（.ef-card.ef-mcard）。アイコンは教材の SVG */
-.ef-mcard:hover { border-color: var(--accent); }
+.ef-mcard:hover { border-color: var(--ef-accent); }
 .ef-mcard-ic img { display: block; width: 44px; height: 44px; }
 .ef-mcard .ef-mcard-ic { width: 44px; }
 .ef-mcard .ef-level-parts { margin: 0; }
 .ef-mcard .ef-level-parts .ef-level-parts-k { margin-right: 0.4em; }
-.ef-mcard .seen-mark { font-size: 0.8rem; font-weight: 700; color: var(--good); }
+.ef-mcard .seen-mark { font-size: 0.8rem; font-weight: 700; color: var(--ef-ok); }
 .ef-mcard-go { text-decoration: none; }
 /* 記録（まとめて書き出す・はじめからやり直す）と先生用 */
-.note h2 { scroll-margin-top: calc(var(--bar-h) + 12px); }
-.note.teacher { scroll-margin-top: calc(var(--bar-h) + 12px); }
+.note h2 { scroll-margin-top: calc(var(--app-bar-h) + 12px); }
+.note.teacher { scroll-margin-top: calc(var(--app-bar-h) + 12px); }
 .note.teacher:focus { outline: none; }
-.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.note { background: var(--surface-1); border: 1px solid var(--border); border-radius: 0; padding: 18px 22px; margin-bottom: 18px; }
+.note { background: var(--ef-surface); border: 1px solid var(--ef-line); border-radius: 0; padding: 18px 22px; margin-bottom: 18px; }
 .note ul { margin: 0; padding-left: 1.3em; }
 .note li { margin-bottom: 0.4em; }
 .note > :last-child { margin-bottom: 0; }
 
 /* 教材を表示する場所 */
-.stage { position: relative; height: calc(100vh - var(--bar-h)); height: calc(100dvh - var(--bar-h)); }
-.stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+.stage { position: relative; height: calc(100vh - var(--app-bar-h)); height: calc(100dvh - var(--app-bar-h)); }
+.stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--ef-bg); }
 .stage iframe[hidden] { display: none; }
 /* 教材を開いているときは、教材の中の下に共通のフッターが出るので、教材集のフッターはかくす（二重にしない） */
 .app-mode .shell-footer { display: none; }
 .shell-footer { margin-top: 24px; text-align: center; }
-.shell-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: 0.8rem; color: var(--text-muted); }
+.shell-footer .app-note { margin: 0; padding: 0 16px 10px; font-size: 0.8rem; color: var(--ef-muted); }
 .shell-footer .ef-footer { margin: 0; }
 
-@media (max-width: 700px) {
-  html { font-size: 16px; }
-}
-/* 大きな文字（メニューを見ているとき。教材の中は display.js で教材ごとに大きくする） */
-html.large-text { font-size: 20px; }
-@media (max-width: 700px) { html.large-text { font-size: 18px; } }
 @media print {
   .shell-header { display: none; }
   .stage { height: auto; }
 }
-.note.reset p { margin: 0 0 0.8em; color: var(--text-secondary); }
-.reset-btn { border-color: var(--text-muted); }
-.note.reset .reset-msg { margin: 0.6em 0 0; color: var(--good); font-weight: 700; }
+.note.reset p { margin: 0 0 0.8em; color: var(--ef-muted); }
+.reset-btn { border-color: var(--ef-muted); }
+.note.reset .reset-msg { margin: 0.6em 0 0; color: var(--ef-ok); font-weight: 700; }
 .note.reset .reset-msg:empty { display: none; }
 
 /* 記録をまとめて書き出す（KS-05） */
-.note.export { border: 1.5px solid var(--accent); }
-.note.export > p { color: var(--text-secondary); }
+.note.export { border: 1.5px solid var(--ef-accent); }
+.note.export > p { color: var(--ef-muted); }
 .field-row { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 4px 0 14px; }
 .field-row .field { display: grid; gap: 2px; }
 .field-row label { font-size: 0.85rem; font-weight: 700; }
 .field-row input {
-  font: inherit; padding: 7px 10px; min-height: 40px; border-radius: 0; border: 1.5px solid #8c8a82;
-  background: var(--surface-1); color: var(--text-primary); width: 7em;
+  font: inherit; padding: 7px 10px; min-height: 40px; border-radius: 0; border: var(--ef-bw) solid var(--ef-ink);
+  background: var(--ef-surface); color: var(--ef-text); width: 7em;
 }
 .field-row .field.name input { width: 14em; max-width: 100%; }
-.field-row input[aria-invalid="true"] { border-color: #b3261e; }
+.field-row input[aria-invalid="true"] { border-color: var(--ef-ng); }
 .export-status-label { font-size: 0.85rem; font-weight: 700; margin: 0 0 4px; }
 .export-status { list-style: none; margin: 0 0 14px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 4px 14px; font-size: 0.92rem; }
 .export-status li { display: flex; gap: 8px; align-items: baseline; }
 .export-status .mark { flex: none; font-weight: 700; }
-.export-status .has .mark { color: var(--good); }
-.export-status .none { color: var(--text-secondary); }
-.export-status .none .mark { color: var(--text-muted); }
-.export-which { font-weight: 700; color: var(--text-primary) !important; }
+.export-status .has .mark { color: var(--ef-ok); }
+.export-status .none { color: var(--ef-muted); }
+.export-status .none .mark { color: var(--ef-muted); }
+.note.export > p.export-which { font-weight: 700; color: var(--ef-text); }
 .btn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 /* 「JSONで書き出す」は .ef-btn-primary、「CSVで書き出す」は .ef-btn（共通の枠） */
-.main-btn.secondary { min-height: 44px; border-color: var(--accent); color: var(--accent); }
-.note.export .export-msg { margin: 10px 0 0; font-weight: 700; color: var(--good); }
-.note.export .export-msg.warn { color: #b3261e; }
+.main-btn.secondary { min-height: 44px; }
+.note.export .export-msg { margin: 10px 0 0; font-weight: 700; color: var(--ef-ok); }
+.note.export .export-msg.warn { color: var(--ef-ng); }
 .export-msg:empty { display: none; }
 
 /* ふりがな（ruby.js） */
@@ -156,7 +133,7 @@ ruby.kz-ruby { ruby-align: center; }
 ruby.kz-ruby > rt { font-size: 0.5em; font-weight: 400; letter-spacing: 0; user-select: none; -webkit-user-select: none; }
 
 /* KS-09: 学習指導要領との対応（先生へ） */
-.note .curriculum .curr-key { display: block; font-size: 0.82rem; color: var(--text-muted); }
+.note .curriculum .curr-key { display: block; font-size: 0.82rem; color: var(--ef-muted); }
 
 /* 暗い画面の設定のときは、共通の枠の色も教材集の暗い色に合わせる（第1.5版） */
 

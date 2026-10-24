@@ -57,22 +57,9 @@ function renderOverall() {
   );
 }
 
-const LARGE_KEY = "netsim.largeText";
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる)
 function renderToggles() {
-  let on = false;
-  try {
-    on = localStorage.getItem(LARGE_KEY) === "1";
-  } catch {}
-  document.documentElement.classList.toggle("large-text", on);
-  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": on ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    try {
-      localStorage.setItem(LARGE_KEY, on ? "0" : "1");
-    } catch {}
-    renderToggles();
-  });
-  toggles.replaceChildren(b);
+  if (globalThis.EduitFrame) toggles.replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
 }
 
 const GLOSSARY = [

@@ -8,7 +8,6 @@ const view = document.getElementById("view");
 const nav = document.getElementById("chapter-nav");
 const overall = document.getElementById("overall-progress");
 const toggles = document.getElementById("display-toggles");
-const PREF_KEY = "digilab.largeText";
 
 function parseHash() {
   const [id = "home", step = null] = location.hash.replace(/^#\/?/, "").split("/");
@@ -46,25 +45,9 @@ function renderOverall() {
   );
 }
 
-function largeText() {
-  try {
-    return localStorage.getItem(PREF_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
+// 文字の大きさ: 全教材で共通の設定(EduitFrame.prefs。小・中・大・特大。ほかの教材で変えても同じになる)
 function renderToggles() {
-  const on = largeText();
-  document.documentElement.classList.toggle("large-text", on);
-  // 文字の大きさ: 4分野共通の「文字 中/大」ボタン(shared/eduit-frame.css の .ef-size)
-  const b = h("button", { type: "button", class: "ef-btn ef-size", "data-kz-label": "大きな文字", "aria-label": "文字の大きさ(大きな文字)", "aria-pressed": on ? "true" : "false" }, "文字 ", h("span", { class: "ef-size-v" }));
-  b.addEventListener("click", () => {
-    try {
-      localStorage.setItem(PREF_KEY, on ? "0" : "1");
-    } catch {}
-    renderToggles();
-  });
-  toggles.replaceChildren(b);
+  if (globalThis.EduitFrame) toggles.replaceChildren(globalThis.EduitFrame.prefs.button("fs"));
 }
 
 // アナログ→デジタルの3つの手順（標本化・量子化・符号化）の図

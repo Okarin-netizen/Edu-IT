@@ -250,7 +250,7 @@ export function renderTeacher(view, available, config, rerender) {
   // 設定
   const modBoxes = CATALOG.map((c) => ({ id: c.id, input: h("input", { type: "checkbox", checked: available.some((a) => a.id === c.id) ? true : null }) }));
   const flag = (key, label) => ({ key, input: h("input", { type: "checkbox", checked: config[key] ? true : null }), label });
-  const flags = [flag("ruby", "ふりがなを最初から表示する"), flag("easy", "やさしい日本語のまとめを最初から表示する"), flag("largeText", "文字を大きくして表示する"), flag("askName", "記録ページで名前を入力させる")];
+  const flags = [flag("easy", "やさしい日本語のまとめを最初から表示する"), flag("askName", "記録ページで名前を入力させる")];
   const rateSel = h("select", { id: "cfg-rate" }, [3, 10, 12].map((r) => h("option", { value: r, selected: Number(config.defaultAttackRate ?? 10) === r ? true : null }, r === 3 ? "1秒に1,000回" : r === 10 ? "1秒に100億回" : "1秒に1兆回")));
   const buildConfig = () => ({
     ...config,

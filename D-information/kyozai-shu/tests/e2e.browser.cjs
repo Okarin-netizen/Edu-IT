@@ -197,15 +197,15 @@ const check = (ok, label) => {
   await page.waitForFunction(() => location.hash === "#/network-sim", null, { timeout: 5000 }).catch(() => {});
   check((await page.evaluate(() => location.hash)) === "#/network-sim", "教材のさいごで、次の教材を開ける（D2 のつぎは D3）");
 
-  // ---- KS-01: 上のバーの「ふりがな」「大きな文字」が11の教材にかかる ----
+  // ---- KS-01: 上のバーの「ふりがな」「文字」が11の教材にかかる（全教材で共通の EduitFrame.prefs） ----
   await page.goto(url + "#/");
   // KS-09: 生徒向けのカードには学習指導要領の記号を出さず、「先生用」に対応をまとめる
   check(!/D\(\d\)/.test(await page.locator(".ef-mgrid").first().innerText()) && (await page.locator(".group .curr").count()) === 0, "KS-09: 教材のカードとグループ名に D(1) などの記号が出ない");
   const curr = await page.locator(".note .curriculum").evaluate((e) => { const c = e.cloneNode(true); c.querySelectorAll("rt").forEach((r) => r.remove()); return c.textContent; });
   check(/D1仮想CPUラボD\(1\)、D2デジタル化ラボD\(1\)、D3ネットワーク通信シミュレータD\(1\)\(2\)、D4情報セキュリティ体験ラボD\(1\)\(4\)、D5ネット詐欺追体験ラボD\(1\)\(4\)、D6双方向コンテンツ制作スタジオD\(2\)、D7計測・制御シミュレータD\(3\)、D8火星探査ロボット・シミュレータD\(3\)、D9生成AIのしくみラボD\(1\)\(4\)、D10ハッシュ化体験ラボD\(1\)\(4\)、D11問題解決ノートD\(2\)\(3\)\(4\)/.test(curr.replace(/\s+/g, "")), "KS-09: 「先生用」に学習指導要領との対応がある");
-  check((await page.locator("#tg-ruby").count()) === 1 && (await page.locator("#tg-large").count()) === 1, "上のバーに「ふりがな」「大きな文字」のボタンがある");
+  check((await page.locator("#tg-ruby[data-ef-pref=ruby]").count()) === 1 && (await page.locator("#tg-large[data-ef-pref=fs]").count()) === 1, "上のバーに「ふりがな」「文字」のボタンがある");
   await page.click("#tg-ruby");
-  await page.click("#tg-large");
+  await page.click("#tg-large"); // 文字 中 → 大
   check((await page.locator("#menu ruby.kz-ruby").count()) > 10, "メニューにふりがなが付く");
   const SKIPSEL = "textarea, input, select, code, pre, svg, [contenteditable], .editor, .listing, .editor-grid, .workspace, .stage-frame, .code-wrap, .code-view, .blk-editor";
   for (const id of IDS) {
@@ -220,17 +220,13 @@ const check = (ok, label) => {
         kz: d.querySelectorAll("ruby.kz-ruby").length,
         nested: d.querySelectorAll("ruby ruby").length,
         bad: [...d.querySelectorAll("ruby")].filter((r) => r.parentElement.closest(sel)).length,
-        large: (d.documentElement.classList.contains("large-text") || d.documentElement.classList.contains("big-text")) && parseFloat(f.contentWindow.getComputedStyle(d.documentElement).fontSize) >= 18,
-        shown: [...d.querySelectorAll("header button")].filter((b) => {
-          const c = b.cloneNode(true);
-          c.querySelectorAll("rt, rp").forEach((x) => x.remove());
-          return b.offsetParent && /^(大きな文字|ふりがな)$/.test(b.getAttribute("data-kz-label") || c.textContent.trim());
-        }).length,
+        large: d.documentElement.hasAttribute("data-ef-prefs") && parseFloat(f.contentWindow.getComputedStyle(d.documentElement).fontSize) === 20,
+        shown: [...d.querySelectorAll("header [data-ef-pref]")].filter((b) => b.offsetParent).length,
       };
     }, SKIPSEL);
     const rubyOk = ["security-lab", "scam-lab", "genai-lab", "hash-lab"].includes(id) ? r.own > 0 && r.kz === 0 : r.kz > 0;
     check(rubyOk && r.nested === 0 && r.bad === 0, `${id}: ふりがなが付く（二重にならない・入力欄やプログラムには付かない）${JSON.stringify(r)}`);
-    check(r.large && r.shown === 0, `${id}: 大きな文字になり、教材の同じボタンは上のバーにまとまる`);
+    check(r.large && r.shown === 0, `${id}: 文字が「大」(20px)になり、教材の同じボタンは上のバーにまとまる`);
   }
   await page.goto(url + "#/digitization-lab");
   await page.click("#tg-ruby");
@@ -238,7 +234,7 @@ const check = (ok, label) => {
   const off = await page.evaluate(() => [...document.querySelectorAll("iframe")].map((f) => f.contentDocument.querySelectorAll("ruby").length).reduce((a, b) => a + b, 0));
   check(off === 0, `「ふりがな」をもう一度押すと、11の教材のふりがなが外れる（残り ${off}）`);
   await page.click("#tg-ruby");
-  check(await page.evaluate(() => JSON.parse(localStorage.getItem("kyozai.prefs.v1") || "{}").ruby === true), "ふりがなの設定が保存される（kyozai.prefs.v1）");
+  check(await page.evaluate(() => JSON.parse(localStorage.getItem("eduit.prefs") || "{}").ruby === true), "ふりがなの設定が保存される（全教材で共通の eduit.prefs）");
 
   // ---- 上のバー: 4分野共通のアプリの上のバー（.ef-appbar。C エネルギー変換と同じ形）と D1〜D11 の切りかえ ----
   check((await page.locator(".shell-header").evaluate((e) => e.getBoundingClientRect().height)) <= 56, "教材を開いたときの上のバーは C と同じ高さ（56px 以下）");
@@ -337,14 +333,13 @@ const check = (ok, label) => {
   page.once("dialog", (d) => d.accept());
   await page.click("#reset-all");
   const left = await page.evaluate(() => ["digilab.v1", "vcpu.v1", "netsim.v1", "seclab.v1", "istudio.works.v1", "istudio.student.v1", "istudio.server.v1", "mcsim.v1", "rover.v1", "mondainote.v1", "kyozai.seen.v1", "kyozai.student.v1"].filter((k) => localStorage.getItem(k) !== null)
-    // 生成AI・ネット詐欺・ハッシュ化のラボは、表示の設定（ふりがな・大きな文字）だけ残る
-    .concat(["eduit-scam-lab", "eduit-genai-lab", "eduit-hash-lab"].filter((k) => Object.keys(JSON.parse(localStorage.getItem(k) || "{}")).some((f) => f !== "furigana" && f !== "big"))));
+    .concat(["eduit-scam-lab", "eduit-genai-lab", "eduit-hash-lab"].filter((k) => Object.keys(JSON.parse(localStorage.getItem(k) || "{}")).length > 0)));
   check(before.includes("リセット確認") && left.length === 0, `全リセットで11の教材とメニューの記録が消える${left.length ? "（残り: " + left.join(", ") + "）" : ""}`);
   const hashLeft = await page.evaluate(() => localStorage.getItem("eduit-hash-lab"));
-  check(hashLeft === JSON.stringify({ furigana: true, big: true }), `全リセットで、ラボのふりかえりは消え、ふりがなの設定だけ残る（${hashLeft}）`);
+  check(hashLeft === null, `全リセットで、ハッシュ化体験ラボの記録が消える（${hashLeft}）`);
   check((await page.locator(".ef-mcard.seen").count()) === 0 && (await page.locator(".hero .resume-go").count()) === 0 && (await page.locator("iframe").count()) === 0, "全リセットで「開いたことがある」の印と開いていた教材が消える");
   check(/消しました/.test(await page.locator("#reset-msg").innerText()), "全リセットのあとに知らせが出る");
-  check(await page.evaluate(() => JSON.parse(localStorage.getItem("kyozai.prefs.v1") || "{}").ruby === true), "全リセットでも、ふりがな・大きな文字の設定は残る");
+  check(await page.evaluate(() => JSON.parse(localStorage.getItem("eduit.prefs") || "{}").ruby === true), "全リセットでも、ふりがな・文字の大きさの設定は残る");
   check((await page.locator("#ex-cls").inputValue()) === "", "全リセットで、まとめて書き出す欄の組・番号・名前も消える");
   await page.goto(url + "#/virtual-cpu");
   await vc.locator("h1, h2").first().waitFor();

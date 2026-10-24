@@ -61,7 +61,7 @@
   var RUBY_KEYS = Object.keys(RUBY).filter(function (k) { return k.length > 1 || k === '値'; }).sort(function (a, b) { return b.length - a.length; });
   var RUBY_RE = new RegExp(RUBY_KEYS.join('|'), 'g');
   function applyRuby(root) {
-    if (!saved.furigana) return;
+    if (!rubyOn()) return;
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (n) {
         var p = n.parentNode;
@@ -951,11 +951,8 @@
   }
   function resetAll() {
     clearTimers();
-    var keep = { furigana: saved.furigana, big: saved.big };
     saved = {};
     try { localStorage.removeItem(KEY); } catch (e) { /* 保存できない環境でも続ける */ }
-    if (keep.furigana) save('furigana', true);
-    if (keep.big) save('big', true);
     var init = JSON.parse(INITIAL);
     [[s1, 's1'], [s2, 's2'], [s3, 's3'], [s4, 's4'], [s5, 's5'], [s6, 's6'], [qs, 'qs']].forEach(function (o) {
       Object.keys(o[0]).forEach(function (k) { delete o[0][k]; });
@@ -981,26 +978,16 @@
     toast.t = setTimeout(function () { t.classList.remove('show'); }, 2500);
   }
 
-  // ---- 表示の切りかえ(ふりがな・大きな文字) ----
+  // ---- 表示の切りかえ(ふりがな・文字の大きさ。全教材で共通の設定 EduitFrame.prefs) ----
+  function rubyOn() { return !!(window.EduitFrame && EduitFrame.prefs.get('ruby')); }
   function setupToggles() {
+    if (!window.EduitFrame) return;
     var tools = document.getElementById('display-toggles');
-    [['furigana', 'ふりがな', 'show-ruby'], ['big', '大きな文字', 'big-text']].forEach(function (t) {
-      var on = !!saved[t[0]];
-      document.documentElement.classList.toggle(t[2], on);
-      // ふりがなは ✓ の付く切りかえ(.ef-toggle)、文字の大きさは4分野共通の「文字 中/大」ボタン(.ef-size)
-      var b = t[0] === 'big'
-        ? h('button', { type: 'button', class: 'ef-btn ef-size', 'data-kz-label': '大きな文字', 'aria-label': '文字の大きさ(大きな文字)', 'aria-pressed': String(on) }, '文字 ', h('span', { class: 'ef-size-v' }))
-        : h('button', { type: 'button', class: 'toggle ef-btn ef-toggle', 'aria-pressed': String(on) }, t[1]);
-      b.addEventListener('click', function () {
-        on = !on;
-        save(t[0], on);
-        b.setAttribute('aria-pressed', String(on));
-        document.documentElement.classList.toggle(t[2], on);
-        if (t[0] === 'furigana' && current) rerender();
-      });
-      tools.appendChild(b);
-    });
+    tools.appendChild(EduitFrame.prefs.button('ruby'));
+    tools.appendChild(EduitFrame.prefs.button('fs'));
+    EduitFrame.prefs.on(function (key) { if (key === 'ruby' && current) rerender(); });
   }
+
 
   // 体験の途中のようす(入れた文・クイズの答えなど)も、この端末の中に残す(読みこみ直しても消えない)
   function persist() {
