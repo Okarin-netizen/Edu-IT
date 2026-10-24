@@ -19,108 +19,72 @@ EDUIT_INFO.app = { name: 'エネルギー変換の技術 教材集' };
 <style>
 /* ===== 各アプリのCSS(.e1〜.e5 接頭辞) ===== */
 {{APP_CSS}}
-/* ===== 統合シェル(.ea- 接頭辞) ===== */
+/* ===== 統合シェル(.ea- 接頭辞)。色・文字・線は共通の設定(--ef-…)と部品(.ef-btn など)だけを使う ===== */
 html,body{margin:0;height:100%;background:var(--ef-bg);}
 body{overflow:hidden}
-.ea{--ink:var(--ef-text);--sub:var(--ef-muted);--line:var(--ef-line);--accent:var(--ef-accent);
-  font-family:var(--ef-font);
-  color:var(--ink);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:calc(16px * var(--ea-fs, 1))}
+.ea{font-family:var(--ef-font);color:var(--ef-text);height:100%;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;font-size:.94rem}
 .ea *{box-sizing:border-box}
 .ea-view{flex:1;min-height:0;display:none;flex-direction:column}
 .ea-view.on{display:flex}
-/* ふりがな・文字の大きさ(4分野共通の形の「ふりがな」「文字 中」ボタン)。
- * 文字の大きさは、各アプリとメニューの font-size に掛ける倍率 --ea-fs(<html> に付ける。上のバーのボタンは変えない) */
-.ea-noruby rt,.ea-noruby rp{display:none}
-.ea-btn{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--ef-surface);border:1px solid var(--ef-ink);border-radius:0;padding:0 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;white-space:nowrap;flex:none}
-.ea-btn[disabled]{opacity:.55;cursor:default}
-.ea-btn:active{transform:translateY(1px)}
-.ea-btn:hover:not([disabled]){background:var(--ef-surface-2)}
-.ea-btn:focus-visible{outline:3px solid var(--ef-focus);outline-offset:2px}
-.ea-btn.danger{background:#fff;border-color:#a61e1e;color:#a61e1e}
-.ea-btn.primary{background:var(--ef-ink);border-color:var(--ef-ink);color:#fff;font-weight:bold}
-.ea-back{color:var(--ink);background:none;border-color:transparent;font-weight:bold}
+/* ふりがな・文字の大きさ・くっきりは共通の EduitFrame.prefs(上のバーのボタンは data-ef-pref)。
+ * 文字の大きさは <html> の字(--ef-fs)が変わり、各アプリの rem の字がいっしょに大きくなる */
+.ea [hidden]{display:none}
 
 /* --- トップ画面 --- */
 .ea-home{overflow:auto;background:var(--ef-bg)}
-/* 上のバーは4分野で同じ大きさ(名前 18px・ボタンの高さ 40px。スマホは 16px・36px) */
-.ea-hd{padding:6px 14px;flex:none}
-.ea-hd .ef-title{font-size:18px;flex-wrap:wrap;column-gap:8px}
-.ea-hd .ef-btn{min-height:40px}
-.ea-hd .ef-sub{font-size:14px}
-.ea-hbody rt{font-size:calc(12px * var(--ea-fs, 1))}
+.ea-hd{flex:none}
+.ea-hbody rt{font-size:.71rem}
 /* カードは共通の EduitFrame.card(.ef-mcard)。教科書の目次のように1行ずつ上から順にならべる */
-.ea-cards{display:flex;flex-direction:column;padding:0 0 24px;border-top:1px solid var(--line)}
+.ea-cards{display:flex;flex-direction:column;padding:0 0 24px;border-top:1px solid var(--ef-line)}
 .ea-cards>.ef-mcard{touch-action:manipulation}
-.ea-cards .ef-level-parts{display:block;font-size:calc(14px * var(--ea-fs, 1))}
-.ef-levels[data-ref="cards"]{max-width:1040px;margin:0 auto;padding:6px 32px 0}
+.ea-cards .ef-level-parts{display:block;font-size:.82rem}
+.ef-levels[data-ref="cards"]{max-width:var(--ef-read-w);margin:0 auto;padding:6px 32px 0}
 .ef-level-group+.ea-cards{border-top:0}
 .ef-levels .ea-cards{padding:0 0 24px}
-.ea-cards .ef-mcard-desc{font-size:calc(15px * var(--ea-fs, 1));color:var(--sub);line-height:1.5}
+.ea-cards .ef-mcard-desc{font-size:.88rem;color:var(--ef-muted);line-height:1.5}
 .ea-cards .ef-mcard-extra{flex-direction:column;align-items:stretch}
-.ea-card-tg{display:flex;flex-wrap:wrap;gap:6px}
-.ea-card-tg span{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
-.ea-card-tg span+span::before{content:"・"}
-.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:calc(14px * var(--ea-fs, 1));color:var(--sub)}
-.ea-pg b{font-size:calc(15px * var(--ea-fs, 1));color:var(--ink)}
-.ea-pg .bar{height:6px;max-width:16em;background:var(--ef-surface-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-.ea-pg .bar i{display:block;height:100%;background:var(--ef-accent)}
-.ea-pg .s2{font-size:calc(13px * var(--ea-fs, 1));color:var(--sub)}
-.ea-foot{padding:0 32px 4px;color:var(--sub);font-size:calc(13px * var(--ea-fs, 1))}
+.ea-pg{display:flex;flex-direction:column;gap:3px;font-size:.82rem;color:var(--ef-muted)}
+.ea-pg b{font-size:.88rem;color:var(--ef-text)}
+.ea-pg .ef-progress-bar{flex:none;width:16em;max-width:100%}
+.ea-pg .s2{font-size:.76rem;color:var(--ef-muted)}
+.ea-foot{max-width:var(--ef-read-w);margin:0 auto;padding:0 32px 4px;color:var(--ef-muted);font-size:.76rem}
 .ea-home .ef-footer{margin-top:10px}
 
 /* --- アプリ画面 --- */
 /* アプリの上のバーは共通の .ef-appbar(◀ メニュー・C1〜C8 の切りかえ .ef-switch・道具)。ここには置き方だけを書く */
 .ea-bar{flex:none}
-.ea-btn[hidden]{display:none}
 .ea-panes{flex:1;min-height:0;position:relative}
 .ea-pane{position:absolute;inset:0;display:none}
 .ea-pane.on{display:block}
 .ea-pane>div{height:100%}
-.ea-err{padding:30px;font-size:calc(18px * var(--ea-fs, 1))}
+.ea-err{padding:30px;font-size:1.06rem}
 
-/* --- 使い方 --- */
+/* --- 使い方(読む画面: 中身のはばは --ef-read-w) --- */
 .ea-help{background:var(--ef-bg)}
-.ea-help .bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:6px 20px;border-bottom:1px solid var(--ef-ink);background:var(--ef-surface)}
-.ea-help .bar h2{margin:0;font-size:20px;flex:1;white-space:nowrap}
-.ea-tabs{display:flex;gap:6px;flex-wrap:wrap}
-.ea-tabs .ea-btn.on{box-shadow:inset 0 -4px 0 var(--accent);font-weight:bold}
-.ea-hbody{flex:1;overflow:auto;padding:6px 32px 40px;line-height:1.7;font-size:calc(16.5px * var(--ea-fs, 1));-webkit-overflow-scrolling:touch}
-.ea-hbody h3{font-size:calc(19px * var(--ea-fs, 1));margin:22px 0 6px;padding-left:10px;border-left:4px solid var(--accent)}
-.ea-hbody li{margin:3px 0}
-.ea-hbody code{background:var(--ef-surface-2);padding:1px 6px;font-size:.92em}
+.ea-help .ef-header{flex:none}
+.ea-help .ef-subtabs{margin:0;border-bottom:0}
+.ea-hbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.ea-hbody>.ef-main{padding-bottom:40px}
 .ea-hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ea-hcard{background:#fff;border:0;border-top:1px solid var(--ef-ink);padding:10px 2px}
-.ea-hcard h4{margin:0 0 4px;font-size:calc(17px * var(--ea-fs, 1));display:flex;align-items:center;gap:8px}
-.ea-hcard p{margin:4px 0;font-size:calc(15px * var(--ea-fs, 1));line-height:1.6}
-.ea-hic{display:none}
-.ea-tip{color:#5b4a00;border-left:4px solid #e0b400;padding:2px 8px}
-.ea-tbl{border-collapse:collapse;background:#fff}
-.ea-tbl th,.ea-tbl td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:calc(15px * var(--ea-fs, 1));vertical-align:top}
-.ea-tbl th{background:var(--ef-surface-2)}
+.ea-hcard{border-top:1px solid var(--ef-ink);padding:10px 2px}
+.ea-hcard h4{margin:0 0 4px;font-size:1rem}
+.ea-hcard p{margin:4px 0;font-size:.88rem;line-height:1.6}
 .ea-tools{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.ea-note{color:var(--sub);font-size:calc(14px * var(--ea-fs, 1))}
-.ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2b3a;color:#fff;padding:10px 18px;font-size:15px;z-index:99;display:none}
+.ea-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ef-ink);color:var(--ef-on-ink);padding:10px 18px;font-size:.88rem;z-index:99;display:none}
 
 @media (max-width:900px){
   .ef-levels[data-ref="cards"]{padding:6px 16px 0}
   .ef-levels .ea-cards{padding:0 0 20px}
   .ea-foot{padding:0 16px 20px}
-  .ea-hbody{padding:6px 16px 40px}
-  .ea-help .bar{padding:8px 12px}
 }
-/* 1440px 以下(11インチの Chromebook など)では C1〜C8 が1行に入りきらず、C6 から先が切れて見えない。アプリ名(下の道具の帯にも出る)を消し、開いていないアプリは記号だけにする */
-/* スマホ: カードは1列。アプリの上のバーは2行(1行目 = ◀ メニューとアプリ名、2行目 = ふりがな・文字・ⓘ と C1〜C8) */
-@media (max-width:640px){
-  .ef-levels[data-ref="cards"]{padding:6px 16px 0}
-  .ea-hd{padding:6px 10px}
-  .ea-hd .ef-title{font-size:16px}
-  .ea-hd .ef-btn{min-height:36px;padding:0 10px;font-size:14px}
-  .ea-foot{padding:0 12px 16px}
-  .ea [data-ea="fs"]{display:none!important}
-}
-@media (max-width:1100px){ .ea-apptitle{display:none} }
+/* 1100px 以下では C1〜C8 が1行に入りきらないので、アプリ名(下の道具の帯にも出る)を消す */
 @media (max-width:1100px){
+  .ea-apptitle{display:none}
   .ea-hgrid{grid-template-columns:1fr}
+}
+/* スマホ: 全画面のボタンは出さない */
+@media (max-width:640px){
+  .ea [data-ea="fs"]{display:none!important}
 }
 @media print{
   html,body{height:auto;overflow:visible}
@@ -139,10 +103,10 @@ body{overflow:hidden}
     <header class="ef-header ea-hd">
       <h1 class="ef-title" data-ref="menu-title">エネルギー変換の技術 教材集</h1>
       <div class="ef-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
-        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
-        <button class="ea-btn ef-btn" data-ea="help">使い方</button>
-        <button class="ea-btn ef-btn" data-ea="help-t">先生用</button>
+        <button class="ef-btn" data-ef-pref="ruby" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ef-btn" data-ef-pref="fs"></button>
+        <button class="ef-btn" data-ea="help">使い方</button>
+        <button class="ef-btn" data-ea="help-t">先生用</button>
       </div>
     </header>
     <div data-ref="cards"></div>
@@ -153,13 +117,14 @@ body{overflow:hidden}
   <!-- アプリ画面 -->
   <section class="ea-view ea-app" data-view="app">
     <div class="ea-bar ef-header ef-appbar">
-      <button class="ea-btn ef-btn ef-back ea-back home" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
+      <button class="ef-btn ef-back" data-ea="home" aria-label="メニューにもどる">◀ メニュー</button>
       <h1 class="ef-title ef-apptitle" data-ref="app-title"></h1>
       <nav class="ef-switch" data-ref="chips" aria-label="アプリを切りかえる"></nav>
       <div class="ef-tools">
-        <button class="ea-btn ef-btn ef-toggle" data-ea="ruby" aria-pressed="false" title="ふりがなを出す・消す">ふりがな</button>
-        <button class="ea-btn ef-btn ef-size" data-ea-size></button>
-        <button class="ea-btn ef-btn" data-ea="fs" hidden>全画面</button>
+        <button class="ef-btn" data-ef-pref="ruby" title="ふりがなを出す・消す">ふりがな</button>
+        <button class="ef-btn" data-ef-pref="fs"></button>
+        <button class="ef-btn" data-ef-pref="kukkiri"></button>
+        <button class="ef-btn" data-ea="fs" hidden>全画面</button>
         <span data-ref="about"></span>
       </div>
     </div>
@@ -168,16 +133,16 @@ body{overflow:hidden}
 
   <!-- 使い方 -->
   <section class="ea-view ea-help" data-view="help" aria-label="使い方">
-    <div class="bar">
-      <button class="ea-btn ef-btn ef-back ea-back" data-ea="back">◀ もどる</button>
-      <h2>使い方</h2>
-      <div class="ea-tabs">
-        <button class="ea-btn" data-ea="tab-s">🧑‍🎓 生徒向け</button>
-        <button class="ea-btn" data-ea="tab-t">🧑‍🏫 先生用</button>
+    <header class="ef-header">
+      <button class="ef-btn ef-back" data-ea="back">◀ もどる</button>
+      <h1 class="ef-title">使い方</h1>
+      <div class="ef-subtabs" role="tablist">
+        <button role="tab" data-ea="tab-s">生徒向け</button>
+        <button role="tab" data-ea="tab-t">先生用</button>
       </div>
-    </div>
-    <div class="ea-hbody" data-tab="s">{{HELP_STUDENT}}</div>
-    <div class="ea-hbody" data-tab="t" hidden>{{HELP_TEACHER}}</div>
+    </header>
+    <div class="ea-hbody" data-tab="s"><div class="ef-main">{{HELP_STUDENT}}</div></div>
+    <div class="ea-hbody" data-tab="t" hidden><div class="ef-main">{{HELP_TEACHER}}</div></div>
   </section>
   <div class="ea-toast" data-ref="toast" role="status"></div>
 </div>
@@ -197,27 +162,17 @@ var $ = function (s) { return root.querySelector(s); };
 var refs = { cards: $('[data-ref="cards"]'), chips: $('[data-ref="chips"]'), panes: $('[data-ref="panes"]'), toast: $('[data-ref="toast"]') };
 // 共通の枠: アプリ画面の上のバーに「ⓘ このアプリについて」(作った人・安全と個人情報・ライセンス・更新履歴)
 if (window.EduitFrame) {
-  var ab = window.EduitFrame.aboutButton('ea-btn ef-btn ef-about-btn');
+  var ab = window.EduitFrame.aboutButton('ef-btn ef-about-btn');
   ab.innerHTML = 'ⓘ<span class="t"> このアプリについて</span>';
   ab.setAttribute('aria-label', 'このアプリについて(作った人・安全と個人情報・ライセンス・更新履歴)');
   $('[data-ref="about"]').appendChild(ab);
 }
 var KEY = function (id) { return 'energyApps.' + id + '.v1'; };
-/* ---- ふりがな・文字の大きさ(この教材集ぜんぶで同じ。localStorage energyApps.prefs.v1 = { ruby, fs }) ---- */
-var PKEY = 'energyApps.prefs.v1', prefs = { ruby: false, fs: 1 }, sizeUpds = [];
-try { var p0 = JSON.parse(localStorage.getItem(PKEY) || '{}'); if (p0.ruby === true) prefs.ruby = true; if (+p0.fs > 0) prefs.fs = +p0.fs; } catch (e) {}
-function applyPrefs() {
-  document.documentElement.classList.toggle('ea-noruby', !prefs.ruby);
-  document.documentElement.style.setProperty('--ea-fs', String(prefs.fs));
-  root.querySelectorAll('[data-ea="ruby"]').forEach(function (b) { b.setAttribute('aria-pressed', prefs.ruby ? 'true' : 'false'); });
-  sizeUpds.forEach(function (f) { f(); });
-  try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (e) {}
-  window.dispatchEvent(new Event('resize'));  // 図をかき直すアプリのため
+/* ---- ふりがな・文字の大きさ・くっきり(全教材で共通の EduitFrame.prefs。上のバーのボタンは data-ef-pref) ---- */
+if (window.EduitFrame) {
+  EduitFrame.prefs.mount();
+  EduitFrame.prefs.on(function (key) { if (key === 'fs') window.dispatchEvent(new Event('resize')); });  // 図をかき直すアプリのため
 }
-if (window.EduitFrame && EduitFrame.sizeButton) root.querySelectorAll('[data-ea-size]').forEach(function (b) {
-  sizeUpds.push(EduitFrame.sizeButton(b, { steps: [[0.9, '小'], [1, '中'], [1.2, '大'], [1.4, '特大']], get: function () { return prefs.fs; }, set: function (v) { prefs.fs = v; applyPrefs(); } }));
-});
-applyPrefs();
 var mounted = {}, cur = null, fromHome = false, helpPushed = false, lastView = 'home';
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -301,7 +256,7 @@ function progressHtml(a, p) {
   if (!p || !p.t) return '';
   var pct = Math.round(100 * Math.min(1, p.n / p.t));
   return '<div class="ea-pg"><span>' + esc(p.main) + ' <b>' + p.n + ' / ' + p.t + '</b>' + (p.end ? ' ' + esc(p.end) : '') + '</span>' +
-    '<span class="bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><i style="width:' + pct + '%"></i></span>' +
+    '<span class="ef-progress-bar" role="img" aria-label="' + esc(p.main + ' ' + p.n + '/' + p.t) + '"><span style="width:' + pct + '%"></span></span>' +
     (p.sub ? '<span class="s2">' + esc(p.sub) + '</span>' : '') + '</div>';
 }
 
@@ -378,8 +333,8 @@ function openHelp(tab) {
 }
 function showTab(t) {
   [].forEach.call(root.querySelectorAll('.ea-hbody'), function (b) { b.hidden = b.getAttribute('data-tab') !== t; });
-  $('[data-ea="tab-s"]').classList.toggle('on', t === 's');
-  $('[data-ea="tab-t"]').classList.toggle('on', t === 't');
+  $('[data-ea="tab-s"]').setAttribute('aria-selected', t === 's' ? 'true' : 'false');
+  $('[data-ea="tab-t"]').setAttribute('aria-selected', t === 't' ? 'true' : 'false');
 }
 function openHome() {
   setView('home'); renderCards(); cur = null; lastView = 'home'; fromHome = false;
@@ -411,7 +366,6 @@ root.addEventListener('click', function (ev) {
   else if (act === 'back') { if (helpPushed) { helpPushed = false; history.back(); } else setHash(lastView === 'home' ? '' : lastView, false); }
   else if (act === 'tab-s' || act === 'tab-t') { setHash(act === 'tab-t' ? 'help-t' : 'help', false); }
   else if (act === 'fs') toggleFull();
-  else if (act === 'ruby') { prefs.ruby = !prefs.ruby; applyPrefs(); }
   else if (act === 'export') exportAll();
   else if (act === 'import') $('[data-ea-file]').click();
 });
@@ -484,7 +438,7 @@ function renderResets() {
   var box = $('[data-ea-resets]'); if (!box) return;
   box.innerHTML = APPS.map(function (a) {
     var has = !!lsGet(KEY(a.id));
-    return '<button class="ea-btn danger" data-reset="' + a.id + '"' + (has ? '' : ' disabled') + '>🗑️ ' + a.id + ' の記録を消す' + (has ? '' : '(記録なし)') + '</button>';
+    return '<button class="ef-btn is-danger" data-reset="' + a.id + '"' + (has ? '' : ' disabled') + '>🗑️ ' + a.id + ' の記録を消す' + (has ? '' : '(記録なし)') + '</button>';
   }).join('');
 }
 function resetApp(id) {

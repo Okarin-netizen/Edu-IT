@@ -32,7 +32,9 @@ UPDATED = re.search(r"updated: '([^']+)'", EF_INFO).group(1)
 
 
 def ef_inline(text):
-    return text.replace('{{EF_CSS}}', EF_CSS).replace('{{EG_CSS}}', EG_CSS).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
+    # 共通の CSS はそのまま入れるだけなので、見た目の点検(shared/style-check.py)の外にする(元の shared/ の側で点検する)
+    off = lambda css: '/* style-check: off */\n' + css + '\n/* style-check: on */'
+    return text.replace('{{EF_CSS}}', off(EF_CSS)).replace('{{EG_CSS}}', off(EG_CSS)).replace('{{EF_INFO}}', EF_INFO).replace('{{EF_JS}}', EF_JS)
 
 
 # 各アプリの CSS・DOM の接頭辞(.e1〜.e8・e1-app など)は記号ではない中の名前。
@@ -92,7 +94,7 @@ for n in range(1, 9):
                                     '  S.raf = requestAnimationFrame(frame);\n  if (S.root.offsetParent === null) { S.last = 0; return; }\n  var dt')
         js_all.append('<script>/* ===== C%d %s ===== */\n%s</script>' % (n, 'app' if is_last else 'core', code))
 
-apps_json = json.dumps([{k: a[k] for k in ('id', 'icon', 'name', 'short', 'color', 'sub', 'tags')} for a in H.APPS], ensure_ascii=False)
+apps_json = json.dumps([{k: a[k] for k in ('id', 'icon', 'name', 'short', 'sub', 'tags')} for a in H.APPS], ensure_ascii=False)
 shell = open(os.path.join(HERE, 'shell.html'), encoding='utf-8').read()
 html = (ef_inline(shell).replace('{{APP_CSS}}', '\n'.join(css_all))
         .replace('{{APP_JS}}', '\n'.join(js_all))

@@ -17,7 +17,7 @@
 html,body{margin:0;height:100%;background:#eef3f8;}
 .e8{--ink:#1d2b3a;--sub:#5b6b7c;--line:#d5dee8;
   font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
-  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:calc(17px * var(--ea-fs, 1));overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;line-height:1.6}
+  color:var(--ink);height:100%;display:flex;flex-direction:column;font-size:1rem;overflow:hidden;position:relative;background:#eef3f8;-webkit-tap-highlight-color:transparent;line-height:1.6}
 .e8 *{box-sizing:border-box}
 .e8 button{touch-action:manipulation}
 .e8 ruby rt{font-size:.55em;font-weight:normal}
@@ -25,7 +25,7 @@ html,body{margin:0;height:100%;background:#eef3f8;}
 .e8-top{position:sticky;top:0;z-index:5;flex:none}
 .e8-tabs{display:contents}
 .e8-tab .ck{color:var(--ef-ok);margin-left:3px}
-.e8-top h1{font-size:calc(17px * var(--ea-fs, 1));margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
+.e8-top h1{font-size:1rem;margin:0 4px 0 0;white-space:nowrap;font-weight:bold;flex:none}
 .e8-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 14px 40px;-webkit-overflow-scrolling:touch}
 .e8-wrap{max-width:1240px;margin:0 auto}
 .e8-wrap > section[hidden]{display:none!important}
@@ -236,7 +236,7 @@ function mount(root) {
     '<p class="e8-saved" data-ref="saved" aria-live="polite"></p></div></div>' +
     '<div class="e8-toast" data-ref="toast" role="status"></div><input type="file" data-ref="file" accept=".json,application/json" hidden>';
   S.el = {}; root.querySelectorAll('[data-ref]').forEach(function (x) { S.el[x.getAttribute('data-ref')] = x; });
-  if (!NS.embedded && window.EduitFrame) window.EduitFrame.mount();
+  if (!NS.embedded && window.EduitFrame) { window.EduitFrame.mount(); window.EduitFrame.prefs.use(); }  // 1つで開いたときも、文字の大きさ・ふりがなは全教材で共通の設定に合わせる
   S.el.tabs.addEventListener('click', function (ev) { var t = ev.target.closest('[data-tab]'); if (t) go(t.getAttribute('data-tab')); });
   S.el.file.addEventListener('change', function (ev) { var f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (f) loadFile(f); });
   var panels = {}; TABS.forEach(function (t) { panels[t.id] = S.el.wrap.querySelector('[data-sec="' + t.id + '"]'); });
