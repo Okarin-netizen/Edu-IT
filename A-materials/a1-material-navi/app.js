@@ -202,6 +202,7 @@
     const mats = DATA.materials.filter(m => state.listCat === 'all' || m.category === state.listCat);
     const catOpts = [['all', 'すべて']].concat(Object.entries(DATA.categories));
     el.innerHTML =
+      '<div data-ef-lets="a12"></div>' +
       '<h2>' + rb('{材料|ざいりょう}カード') + '</h2>' +
       '<p class="lead">' + rb('材料の特徴をカードで確かめよう。評価は5段階で、●が多いほど、その性質が大きい。') + '<br>' + rb('「電気・熱の通しやすさ」は、●が多いほど通しやすい(よいか悪いかは用途しだい)。') + '</p>' +
       '<div class="notice"><strong>' + rb('{目安|めやす}') + '</strong> ' + rb(DATA.note) + '</div>' +

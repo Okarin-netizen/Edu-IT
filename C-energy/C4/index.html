@@ -1174,7 +1174,8 @@ function modal(html) {
 function closeModal() { if (S.ov) { S.ov.remove(); S.ov = null; } }
 function showIntro() {
   var ch = chal(); if (!ch) return;
-  var h = '<h2>課題' + (CHALS.indexOf(ch) + 1) + ':' + esc(ch.title) + '</h2><p>' + ch.intro + '</p><h3>🎯 めあて</h3><ul>';
+  // 課題1 のはじめに「まず考えよう」を出す(shared/eduit-frame.js の LETS)
+  var h = (CHALS.indexOf(ch) === 0 ? '<div data-ef-lets="c14"></div>' : '') + '<h2>課題' + (CHALS.indexOf(ch) + 1) + ':' + esc(ch.title) + '</h2><p>' + ch.intro + '</p><h3>🎯 めあて</h3><ul>';
   S.goals.forEach(function (g) { h += '<li>' + g.t + '</li>'; });
   h += '</ul><div class="acts"><button class="e2-btn primary" data-act="close">はじめる</button></div>';
   modal(h);
@@ -1215,7 +1216,7 @@ function answerQuiz(btn) {
   } else { beep('err'); box.querySelector('[data-ref=qex]').innerHTML = '<div class="e2-reason">ちがうよ。説明をもう一度読んで、ほかの答えをえらぼう。</div>'; }
 }
 function showChals() {
-  var h = '<h2>📋 課題をえらぶ</h2><p style="margin:0 0 8px">進み具合:<b>' + nCleared() + ' / ' + CHALS.length + '</b> クリア(上から順にやるのがおすすめ)</p><div class="e2-stgrid">';
+  var h = '<div data-ef-lets="c14"></div><h2>📋 課題をえらぶ</h2><p style="margin:0 0 8px">進み具合:<b>' + nCleared() + ' / ' + CHALS.length + '</b> クリア(上から順にやるのがおすすめ)</p><div class="e2-stgrid">';
   CHALS.forEach(function (c, i) {
     var done = S.save.cleared[c.id];
     h += '<button class="e2-stcard' + (S.mode === c.id ? ' cur' : '') + (done ? ' done' : '') + '" data-act="go" data-id="' + c.id + '"><div class="no">課題 ' + (i + 1) + (done ? ' ✅' : '') + '</div><div class="t">' + esc(c.title) + '</div><div class="l">' + esc(c.learn) + '</div></button>';
@@ -1547,7 +1548,7 @@ function houseState() { if (!S.house) S.house = { on: [], trip: false }; return 
 function leakState() { if (!S.leak) S.leak = { fault: false, earth: false, elcb: false, trip: false, touch: false, shock: 0, cut: false }; return S.leak; }
 function renderSafety() {
   var tabs = [['tap', '🔌 たこ足配線'], ['leak', '⚡ 漏電とアース'], ['short', '🔥 ショート']];
-  var h = '<div class="e2-subtabs">' + tabs.map(function (t) { return '<button class="e2-btn' + (S.stab === t[0] ? ' on' : '') + '" data-act="stab" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+  var h = '<div data-ef-lets="c15"></div><div class="e2-subtabs">' + tabs.map(function (t) { return '<button class="e2-btn' + (S.stab === t[0] ? ' on' : '') + '" data-act="stab" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
     '<div class="e2-caution">⚠ これはシミュレーションです。家のコンセントや配線で実験しないこと。実際の配線・通電は、必ず先生の指導のもとで行いましょう。</div>' +
     '<div class="e2-pbody"><div class="e2-scene" data-ref="scene"></div><div class="e2-pside" data-ref="pside"></div></div>';
   var keepScroll = S.el.pside ? S.el.pside.scrollTop : 0;
@@ -1764,7 +1765,8 @@ function mount(root) {
   var v = S.save.view;
   openMode(S.mode); closeModal();
   if (v === 'safety' || v === 'cost') openView(v);
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
 }
 
 NS.C4 = {

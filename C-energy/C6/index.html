@@ -1258,7 +1258,7 @@ function renderBook() {
       '<span class="nm' + (hasKanji(p.name) && p.yomi ? ' e4-noruby' : '') + '">' + esc(p.name) + '</span>' + (hasKanji(p.name) && p.yomi ? '<span class="yo e4-noruby">' + esc(p.yomi) + '</span>' : '') +
       '<span class="ct e4-cat-' + p.cat + '">' + esc(catName(p.cat)) + '</span><span class="rl">' + esc(p.short || p.role) + '</span></button>';
   }).join('');
-  setBody('<div class="e4-page"><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
+  setBody('<div class="e4-page"><div data-ef-lets="c19"></div><div class="e4-h"><h2>📖 部品図鑑</h2><span class="e4-prog">見た部品 ' + seen + ' / ' + D.ORDER.length + '</span><div class="sp"></div>' +
     '<div class="e4-chips">' + chips + '</div></div>' +
     '<p style="margin:0 0 12px;color:#5f6670">機械は、ねじ・軸・軸受・歯車・ばねなどの組み合わせでできています。これらは「どの機械にも使われる部品(共通部品)」です。カードをタップすると、役割と<b>点検ポイント</b>が見られます。</p>' +
     '<div class="e4-pgrid">' + cards + '</div></div>');
@@ -2279,7 +2279,8 @@ function mount(root) {
     if (g && (ev.key === 'Enter' || ev.key === ' ')) { tapHot(g.getAttribute('data-h')); ev.preventDefault(); }
   });
   openView(S.save.view || 'book');
-  if (!S.save.seen) { S.save.seen = true; persist(); showHowto(true); }
+  // 使い方の窓は、はじめに自動では出さない(カードが多く、読まずに閉じてしまうため)。画面の上の「まず考えよう」から入り、使い方は「❓ 使い方」で開く
+  if (!S.save.seen) { S.save.seen = true; persist(); }
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 }
 

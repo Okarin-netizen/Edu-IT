@@ -49,6 +49,7 @@
     function list() {
       cur = null;
       clear(root);
+      root.appendChild(h('div', { 'data-ef-lets': 'a24' }));
       root.appendChild(h('p', null, '使う工具を選ぶと、使い方の手順と注意を1つずつ確かめられます。'));
       var grid = h('ul', { class: 'a6-toolgrid' });
       D.tools.forEach(function (t) {
