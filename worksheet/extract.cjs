@@ -45,4 +45,11 @@ for (const [key, dir] of [["G", "G-guidance"], ["A", "A-materials"], ["B", "B-bi
   apps.sort((a, b) => (parseInt(a.code.slice(1), 10) || 0) - (parseInt(b.code.slice(1), 10) || 0));  // A2 < A10(G・M・F・Z は番号なし)
   out.push({ domain: key, domainName: I.domainName, version: I.version, lead: J.lead || "", ruby: J.ruby || {}, apps });
 }
-process.stdout.write(JSON.stringify(out));
+// 教科書の節(T-textbook/course-data.js)と、節の「まず考えよう」(shared/eduit-frame.js の LETS)。ワークシートは節ごとに1枚
+const course = (() => { const ctx = { window: {} }; vm.runInNewContext(read("T-textbook/course-data.js"), ctx); return { course: ctx.window.COURSE, apps: ctx.window.COURSE_APPS }; })();
+const lets = (() => {
+  const src = read("shared/eduit-frame.js"), m = src.match(/var LETS = (\{[\s\S]*?\n  \});/);
+  if (!m) throw new Error("shared/eduit-frame.js: var LETS = {…}; が見つかりません");
+  return vm.runInNewContext("(" + m[1] + ")");
+})();
+process.stdout.write(JSON.stringify({ domains: out, course: course.course, courseApps: course.apps, lets }));

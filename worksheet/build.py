@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""自習ワークシート(生徒用)と、その答え(先生用)を作る。実行: python3 worksheet/build.py  → worksheet/dist/
+"""ワークシート(生徒用)と、その答え(先生用)を作る。実行: python3 worksheet/build.py  → worksheet/dist/
 
-1つの分野につき1ファイル(A_材料と加工_ワークシート.html など)で、中に教材ごとのワークシートが1枚ずつ入っている。
-上のボタンで教材をえらび、タブレットで書きこむ(この端末に自動で保存)か、印刷して紙で使う。
-中身のもとは各分野の eduit-info.js の jishu(自習ガイドと同じ ねらい・進め方・たしかめ問題)。
-自習ガイドを直したら、これをもう一度実行する(クラスルーム配布/まとめる.py も実行する)。
+教科書の節ごとに1枚。1つの編(G・A・B・C・D と、統合的な問題解決・学習を終えての Z)につき1ファイルで、上のボタンで節をえらぶ。
+タブレットで書きこむ(この端末に自動で保存)か、B5 に印刷して紙で使う。学習コースの節の画面の「まとめ」からも開ける(#節の id)。
+1枚の中身は、学習コースの節の画面と同じ5手順: 教科書をひらく(ページ・キーワード・図)→ まず考えよう → やってみる → たしかめ → まとめ。
+  節・ページ・キーワード・図: T-textbook/course-data.js   まず考えよう: shared/eduit-frame.js の LETS
+  やってみる・たしかめ: 各分野の eduit-info.js の jishu(sec にその節の id が付いた手順と問題)
+自習ガイドや節のデータを直したら、これをもう一度実行する(クラスルーム配布/まとめる.py も実行する)。
 """
 import html, json, pathlib, re, subprocess
 
@@ -15,18 +17,20 @@ proc = subprocess.run(["node", str(here / "extract.cjs")], capture_output=True, 
 if proc.returncode != 0:
     # extract.cjs のエラー(jishu の記号がメニューにない など)を、そのまま見せて止める
     raise SystemExit(f"extract.cjs でエラーになりました:\n{proc.stderr.strip()}")
-data = json.loads(proc.stdout)
+DATA = json.loads(proc.stdout)
+DOMAINS, COURSE, CAPPS, LETS = DATA["domains"], DATA["course"], DATA["courseApps"], DATA["lets"]
 
-# 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)と、そこから見た統一版
-FILES = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html",
-         "M": "M_身の回りの技術さがし_ワークシート.html", "F": "F_これからの技術ラボ_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"}
-UNIFIED = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html",
-           "M": "M_身の回りの技術さがし.html", "F": "F_これからの技術ラボ.html", "Z": "Z_学習を終えて.html"}
-SINGLE = ("G", "M", "F", "Z")  # 教材が1つだけで、メニュー(カード)がない(ガイダンスと、教科書順コースの M・F・Z)
+# 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)。T-textbook/index.html の WS・site/build.py の WS と同じ
+FILES = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html",
+         "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"}
+TITLE = {"G": "技術分野のガイダンス", "A": "1編 材料と加工の技術", "B": "2編 生物育成の技術", "C": "3編 エネルギー変換の技術",
+         "D": "4編 情報の技術", "Z": "統合的な問題解決・学習を終えて"}
+COURSE_FILE = "教科書の順に進む_学習コース.html"   # 生徒に配る/ にある。ワークシートは 生徒に配る/ワークシート/
 ANSWERS = "ワークシートの答え.html"
 KANA = "アイウエオカキク"
-# 生徒用サイト(site/build.py)は、この印を入口へもどるリンクに、教材へのリンクを公開用の名前に書きかえる
+# 生徒用サイト(site/build.py)は、この印を入口へもどるリンクに、学習コースへのリンクを公開用の名前に書きかえる
 SITE_HOME = "<!--site-home-->"
+XFILE = {"1編": "A", "2編": "B", "3編": "C", "4編": "D"}   # 付録 発展編の章 → ファイル
 
 
 def e(s):
@@ -37,25 +41,23 @@ def read(p):
     return p.read_text(encoding="utf-8")
 
 
-# ふりがな: 自習ガイドと同じ、各分野の eduit-info.js の jishu.ruby(shared/jishu-ruby.py で作る)。area_page が分野ごとに入れかえる
-RUBY = {"table": {}, "rx": None}
+# ふりがな: 自習ガイドと同じ、各分野の eduit-info.js の jishu.ruby(shared/jishu-ruby.py で作る)。
+# 分野の表には、その分野の文の中だけの読み(「次の→じの」など)があるので、文ごとにその文が来た分野の表を使う
+RUBY = {d["domain"]: d.get("ruby") or {} for d in DOMAINS}
+RX = {k: (re.compile("|".join(map(re.escape, sorted(t, key=len, reverse=True)))) if t else None) for k, t in RUBY.items()}
 KJ = re.compile(r"[一-鿿々〆]")
 
 
-def set_ruby(table):
-    RUBY["table"] = table
-    RUBY["rx"] = re.compile("|".join(map(re.escape, sorted(table, key=len, reverse=True)))) if table else None
-
-
-def r(s):
-    """文に <ruby> を付けて HTML にする(言葉の中のかなのところには付けない)"""
+def r(s, dom=None):
+    """文に <ruby> を付けて HTML にする(言葉の中のかなのところには付けない)。dom はその文が来た分野(G・A〜D・M・F・Z)"""
     s = str(s)
-    if not RUBY["rx"]:
+    rx = RX.get(dom)
+    if not rx:
         return e(s)
-    out, last = [], 0
-    for m in RUBY["rx"].finditer(s):
+    table, out, last = RUBY[dom], [], 0
+    for m in rx.finditer(s):
         out.append(e(s[last:m.start()]))
-        k, rd = m.group(0), RUBY["table"][m.group(0)]
+        k, rd = m.group(0), table[m.group(0)]
         parts = re.findall(r"[一-鿿々〆]+|[^一-鿿々〆]+", k)
         mm = re.fullmatch("".join("(.+?)" if KJ.match(p) else "(" + re.escape(p) + ")" for p in parts), rd)
         pairs = [(p, mm.group(i + 1) if KJ.match(p) else None) for i, p in enumerate(parts)] if mm else [(k, rd)]
@@ -65,9 +67,20 @@ def r(s):
     return "".join(out)
 
 
-def is_submit(s):
-    """記録を書き出して出すだけの手順(書く欄はいらない)"""
-    return not s.get("reflect") and any(w in s.get("do", "") for w in ("ファイル", "先生の言"))
+def secs_of(v):
+    return v if isinstance(v, list) else ([v] if v else [])
+
+
+# 節の id → その節の手順・問題(どの分野の、どの教材のものか)
+STEPS, CHECKS = {}, {}
+for d in DOMAINS:
+    for a in d["apps"]:
+        for s in a.get("steps") or []:
+            for sid in secs_of(s.get("sec")):
+                STEPS.setdefault(sid, []).append((d["domain"], a, s))
+        for q in a.get("check") or []:
+            for sid in secs_of(q.get("sec")):
+                CHECKS.setdefault(sid, []).append((d["domain"], a, q))
 
 
 def box(key, label, ph, rows=2):
@@ -75,74 +88,104 @@ def box(key, label, ph, rows=2):
             f'aria-label="{e(label)}" data-ph="{e(ph)}" style="--rows:{rows}"></div>')
 
 
-def step_li(i, s):
-    where = s.get("where", "")  # where・do は自習ガイド(eduit-frame.js)と同じく、なくてもよい
-    if is_submit(s):
-        tail = '<span class="ws-tag">提出</span>'
-        body = ""
-    elif s.get("reflect"):
-        tail = '<span class="ws-tag ws-tag-r">まとめ</span>'
-        body = box(f"s{i}", f"{where} のまとめ", "画面に書いたまとめ・ふりかえりから、いちばん大事なことを写そう", 3)
-    else:
-        tail = ""
-        body = box(f"s{i}", f"{where} でわかったこと", "結果・わかったこと・気づいたこと", 2)
-    return (f'<li class="ws-step"><label class="ws-chk"><input type="checkbox" data-k="c{i}"><span class="ws-chk-mark" aria-hidden="true"></span>'
-            f'<span class="ws-sr">できた</span></label><div class="ws-step-main"><p class="ws-do"><span class="ws-where">{r(where)}</span>{tail} '
-            f'{r(s.get("do", ""))}</p>{body}</div></li>')
+def chk(k):
+    return (f'<label class="ws-chk"><input type="checkbox" data-k="{k}"><span class="ws-chk-mark" aria-hidden="true"></span>'
+            f'<span class="ws-sr">できた</span></label>')
 
 
-def sheet(d, a):
-    c = a["code"]
-    if d["domain"] in SINGLE:
-        how = f'タブレットで「{e(d["domainName"])}」を<b>自習モード</b>でひらきます。上のタブを「はじめに」から順に進めます。'
-    else:
-        how = f'タブレットで「{e(d["domainName"])} 教材集」を<b>自習モード</b>でひらきます。<b>{c} のカード</b>を押します。'
-    steps = list(enumerate(a["steps"]))
-    basic = [step_li(i, s) for i, s in steps if s.get("level") != "advanced"]
-    adv = [step_li(i, s) for i, s in steps if s.get("level") == "advanced"]
-    qs = []
-    for qi, q in enumerate(a.get("check") or []):
-        ch = "".join(f'<label class="ws-choice"><input type="radio" name="{c}-q{qi}" value="{ci}" data-k="q{qi}">'
-                     f'<span class="ws-kana">{KANA[ci]}</span><span>{r(t)}</span></label>' for ci, t in enumerate(q["choices"]))
-        qs.append(f'<li class="ws-q"><p>{r(q["q"])}</p><div class="ws-choices">{ch}</div></li>')
-    rate = [("r0", "ねらいが分かった"), ("r1", "自習ガイドを見ながら、自分で進められた"), ("r2", "たしかめ問題の答えの理由が言える")]
-    rows = "".join(f'<tr><th scope="row">{t}</th>' + "".join(
-        f'<td><label><input type="radio" name="{c}-{k}" value="{v}" data-k="{k}"><span>{v}</span></label></td>' for v in "◎○△") + "</tr>"
-        for k, t in rate)
-    n = 1
-    parts = [f'<h3><span class="ws-n">{n}</span>進め方(基本) <small>終わったら□に✓</small></h3><ol class="ws-steps">{"".join(basic)}</ol>']
-    if adv:
+def app_tag(a):
+    lab = a.get("label") or a["code"]
+    return f'<span class="ws-app">{e(lab)}</span>'
+
+
+def sheet(sec, fkey, group):
+    sid = sec["id"]
+    pg = f'教科書 p.{e(sec["p"])}' if sec.get("p") else ""
+    n = 0
+
+    def h3(t, small=""):
+        nonlocal n
         n += 1
-        parts.append(f'<h3 class="ws-adv"><span class="ws-n">{n}</span>発展 <small>基本が終わって、時間があったら</small></h3><ol class="ws-steps">{"".join(adv)}</ol>')
+        return f'<h3><span class="ws-n">{n}</span>{t}{" <small>" + small + "</small>" if small else ""}</h3>'
+
+    parts = []
+    # 1 教科書をひらく
+    open_ = [f'<p class="ws-do">{pg}{"(" + e(sec["pnote"]) + ")" if sec.get("pnote") else ""} をひらこう。</p>'] if pg else []
+    if sec.get("kw"):
+        rows = "".join(f'<li class="ws-kw"><span class="ws-kw-w">{e(k)}</span>{box(f"k{i}", k + " の意味", "意味を書こう", 1)}</li>' for i, k in enumerate(sec["kw"]))
+        open_.append(f'<p class="ws-lbl">キーワード: 教科書で見つけて、意味を書こう。</p><ol class="ws-kws">{rows}</ol>')
+    if sec.get("fig"):
+        open_.append(f'<p class="ws-lbl">教科書の {e(sec["fig"])} と、教材の画面をくらべよう。にているところ・ちがうところは?</p>{box("fig", "図とくらべて", "", 2)}')
+    if open_:
+        parts.append(h3("教科書をひらく") + "".join(open_))
+    # 2 まず考えよう
+    L = LETS.get(sid)
+    if L:
+        parts.append(h3("まず考えよう", "教材をひらく前に") + f'<p class="ws-do">{e(L["q"])}</p>{box("lets", "まず考えよう", L.get("hint", ""), 2)}')
+    # 3 やってみる
+    st = STEPS.get(sid, [])
+    if st:
+        lis = "".join(f'<li class="ws-step">{chk(f"c{i}")}<div class="ws-step-main"><p class="ws-do">{app_tag(a)}<span class="ws-where">{r(s.get("where", ""), dom)}</span> {r(s.get("do", ""), dom)}</p>'
+                      f'{box(f"s{i}", (s.get("where") or "") + " でわかったこと", "結果・わかったこと・気づいたこと", 1)}</div></li>' for i, (dom, a, s) in enumerate(st))
+        parts.append(h3("やってみる", "終わったら□に✓") + f'<ol class="ws-steps">{lis}</ol>')
+    else:
+        apps = "・".join(e(g[0] if not CAPPS.get(g[0], {}).get("tag") else CAPPS[g[0]]["tag"]) + " " + e(CAPPS.get(g[0], {}).get("name", "")) + (f"({e(g[1])})" if len(g) > 1 and g[1] else "") for g in sec.get("go", []))
+        parts.append(h3("やってみる") + f'<p class="ws-do">{apps} を使おう。</p>{box("s0", "やってみてわかったこと", "結果・わかったこと・気づいたこと", 3)}')
+    # 4 たしかめ
+    qs = CHECKS.get(sid, [])
     if qs:
-        n += 1
-        parts.append(f'<h3><span class="ws-n">{n}</span>たしかめ問題 <small>正しいものを1つえらぼう(紙なら記号に○)</small></h3><ol class="ws-qs">{"".join(qs)}</ol>')
-    n += 1
-    parts.append(f'''<h3><span class="ws-n">{n}</span>ふりかえり</h3>
+        li = []
+        for qi, (dom, a, q) in enumerate(qs):
+            ch = "".join(f'<label class="ws-choice"><input type="radio" name="{sid}-q{qi}" value="{ci}" data-k="q{qi}">'
+                         f'<span class="ws-kana">{KANA[ci]}</span><span>{r(t, dom)}</span></label>' for ci, t in enumerate(q["choices"]))
+            li.append(f'<li class="ws-q"><p>{r(q["q"], dom)}</p><div class="ws-choices">{ch}</div></li>')
+        parts.append(h3("たしかめ", "正しいものを1つえらぼう(紙なら記号に○)") + f'<ol class="ws-qs">{"".join(li)}</ol>')
+    # 5 まとめ
+    rate = [("r0", "ねらいが分かった"), ("r1", "教科書と教材を見くらべながら進められた"), ("r2", "たしかめの答えの理由が言える")]
+    rows = "".join(f'<tr><th scope="row">{t}</th>' + "".join(
+        f'<td><label><input type="radio" name="{sid}-{k}" value="{v}" data-k="{k}"><span>{v}</span></label></td>' for v in "◎○△") + "</tr>"
+        for k, t in rate)
+    kwh = f'キーワード({"・".join(sec["kw"][:3])} など)を1つ使って書こう' if sec.get("kw") else "ねらいの言葉を使って書こう"
+    parts.append(h3("まとめ") + f'''<p class="ws-lbl">この節で分かったことを、自分の言葉で書こう。</p>{box("f0", "この節で分かったこと", kwh, 3)}
 <table class="ws-rate"><thead><tr><th scope="col">自己評価</th><th scope="col">◎ よくできた</th><th scope="col">○ できた</th><th scope="col">△ もう少し</th></tr></thead><tbody>{rows}</tbody></table>
-<div class="ws-two">
-<div><p class="ws-lbl">きょう分かったこと(ねらいについて、自分の言葉で)</p>{box("f0", "きょう分かったこと", "", 3)}</div>
-<div><p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p>{box("f1", "まだ分からないこと・先生に聞きたいこと", "", 3)}</div>
-</div>''')
-    long = " ws-long" if len(steps) >= 9 else ""  # 手順が多い教材は、印刷で行の間を少しつめて B5 の2ページに入れる
-    return f'''<section class="ws{long}" id="{c}" data-code="{c}" aria-labelledby="{c}-h">
+<p class="ws-lbl">まだ分からないこと・先生に聞きたいこと</p>{box("f1", "まだ分からないこと・先生に聞きたいこと", "", 2)}''')
+    long = " ws-long" if len(st) >= 6 else ""
+    return f'''<section class="ws{long}" id="{sid}" data-code="{sid}" data-title="{e(sec["ref"])} {e(sec["name"])}" aria-labelledby="{sid}-h">
 <header class="ws-head">
-<h2 id="{c}-h"><span class="ws-code">{e(a.get("label", c))}</span>{e(a["name"])}<span class="ws-kind">自習ワークシート</span></h2>
+<h2 id="{sid}-h"><span class="ws-code">{e(sec["ref"])}</span>{e(sec["name"])}<span class="ws-kind">{e(group)}{" " + pg if pg else ""}</span></h2>
 <div class="ws-who"><label>組<input type="text" data-w="kumi" inputmode="numeric" size="2"></label><label>番<input type="text" data-w="ban" inputmode="numeric" size="2"></label><label class="ws-name">名前<input type="text" data-w="name"></label><label>日付<input type="text" data-k="date" size="5"></label></div>
 </header>
-<p class="ws-goal"><b>ねらい</b>{r(a.get("goal", ""))}<span class="ws-time">目安 {r(a.get("time", ""))}</span></p>
-<p class="ws-how">{how}こまったら、右はしの「自習ガイド」でヒントを見ましょう。</p>
+<p class="ws-goal"><b>ねらい</b>{e(sec.get("aim", ""))}</p>
 {"".join(parts)}
 </section>'''
 
 
+def file_secs():
+    """ファイルの記号 → [(組の名前, ボタンの字, 節)]。学習のまとめ(ws: false の教材だけの節)は入れない"""
+    out = {k: [] for k in FILES}
+    for part in COURSE:
+        for c in part["chapters"]:
+            for i, s in enumerate(c["secs"]):
+                if all(CAPPS.get(g[0], {}).get("ws") is False for g in s.get("go", [])):
+                    continue
+                if part["key"] == "X":
+                    k, grp, lab = XFILE[c["ch"]], "発展", str(sum(1 for x in out[XFILE[c["ch"]]] if x[0] == "発展") + 1)
+                elif part["key"] in ("I", "Z"):
+                    k, grp, lab = "Z", part["title"], str(i + 1)
+                else:
+                    k, grp, lab = part["key"], c["ch"] or "", str(i + 1)
+                out[k].append((grp, lab, s))
+    return out
+
 STYLE = r"""
   body { margin: 0; background: var(--ef-bg); color: var(--ef-text); font-family: var(--ef-font); line-height: 1.6; }
   .ws-bar { position: sticky; top: 0; z-index: 5; }
-  .ws-pick { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink); }
-  .ws-pick .ef-btn { min-width: 3.4em; padding: 0 12px; }
+  .ws-pick { position: relative; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink); }
+  .ws-pick .ef-btn { min-width: 2.6em; padding: 0 10px; }
+  .ws-grp { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .ws-grp + .ws-grp { margin-left: 10px; }
+  .ws-grp-l { font-size: 13px; color: var(--ef-muted); margin-right: 2px; }
   .ws-pick .ef-btn[aria-selected="true"] { font-weight: 700; box-shadow: inset 0 calc(-1 * var(--ef-mark)) 0 var(--ef-accent); }
-  .ws-pick-all { margin-left: auto; }
   main { max-width: 860px; margin: 0 auto; padding: 16px 16px 48px; }
   .ws-intro { margin: 0 0 14px; padding: 10px 16px; background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); border-radius: 0; font-size: 15px; }
   .ws-intro p { margin: .2em 0; }
@@ -158,8 +201,11 @@ STYLE = r"""
   .ws-who .ws-name input { width: 9em; }
   .ws-goal { margin: 12px 0 6px; padding: 8px 12px; background: var(--ef-surface); border-left: var(--ef-mark) solid var(--ef-accent); border-radius: 0; }
   .ws-goal b { margin-right: .6em; }
-  .ws-time { float: right; margin-left: 1em; font-size: 14px; color: var(--ef-muted); }
-  .ws-how { margin: 6px 0 4px; font-size: 14px; color: var(--ef-muted); }
+  .ws-app { display: inline-block; margin-right: .4em; padding: 0 .4em; background: var(--ef-ink); color: var(--ef-on-ink); font-size: 12px; font-weight: 700; vertical-align: 1px; }
+  .ws-kws { margin: 4px 0 0; padding: 0; list-style: none; }
+  .ws-kw { display: grid; grid-template-columns: minmax(6em, max-content) 1fr; gap: 8px; align-items: end; padding: 3px 0; }
+  .ws-kw .ws-box { margin-top: 0; }
+  .ws-kw-w { font-weight: 700; }
   .ws h3 { margin: 18px 0 6px; font-size: 17px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
   .ws h3 small { font-size: 13px; font-weight: 400; color: var(--ef-muted); }
   .ws-n { display: inline-flex; justify-content: center; min-width: 1.6em; border-radius: 50%; background: var(--ef-ink); color: var(--ef-on-ink); font-size: 14px; line-height: 1.6em; }
@@ -211,12 +257,12 @@ STYLE = r"""
   .ws-noruby .ws rt { display: none; }
   @media (max-width: 640px) {
     .ws-pick { flex-wrap: nowrap; overflow-x: auto; }
-    .ws-pick-all { margin-left: 0; }
+    .ws-grp { flex-wrap: nowrap; flex: none; }
+    .ws-kw { grid-template-columns: 1fr; gap: 2px; }
     main { padding: 10px 8px 40px; }
     .ws { padding: 12px 12px 16px; }
     .ws-head h2 { font-size: 18px; }
     .ws-two { grid-template-columns: 1fr; }
-    .ws-time { float: none; display: block; margin: 0; }
     .ws-rate th, .ws-rate td { padding: 3px 4px; }
   }
   @page { size: 182mm 257mm; margin: 8mm 9mm; }  /* B5(JIS)たて */
@@ -224,7 +270,6 @@ STYLE = r"""
     html, body { background: var(--ef-bg); }
     body { font-size: 10pt; line-height: 1.4; }
     .ws rt { font-size: .5em; }
-    .ws-how { font-size: 8.5pt; margin: 3px 0 0; }
     .ws-goal { margin: 8px 0 4px; padding: 5px 10px; }
     .ws-bar, .ws-intro, [data-ef-footer], .ef-footer { display: none !important; }
     main { max-width: none; padding: 0; }
@@ -252,7 +297,7 @@ STYLE = r"""
 
 SCRIPT = r"""
 (function () {
-  var KEY = 'eduit.ws.v1.', WHO = 'eduit.ws.v1.who';
+  var KEY = 'eduit.ws.v2.', WHO = 'eduit.ws.v1.who';
   function load(k) {  // こわれた値(オブジェクトでないもの)は空にする
     try { var v = JSON.parse(localStorage.getItem(k) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch (e) { return {}; }
   }
@@ -303,14 +348,16 @@ SCRIPT = r"""
       });
     });
   });
-  // 教材をえらぶ(アドレスの #A2 などでも開ける)
+  // 節をえらぶ(アドレスの #a12 などでも開ける)
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.ws-pick [data-code]'));
   function show(code, scroll) {
     // ワークシート(.ws)の中からさがす(#ws-print など、ほかの要素の id がアドレスにあっても取りちがえない)
     var ws = sheets.filter(function (s) { return s.id === code; })[0] || sheets[0];
     sheets.forEach(function (s) { s.classList.toggle('is-current', s === ws); });
-    tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-code') === ws.id)); });
-    document.title = ws.id + ' ' + ws.querySelector('h2').textContent.replace(/^(?:[A-D]\d+|[GMFZ])/, '').replace('自習ワークシート', '') + ' 自習ワークシート';
+    tabs.forEach(function (t) { var on = t.getAttribute('data-code') === ws.id; t.setAttribute('aria-selected', String(on));
+      if (on) { var nav = t.closest('.ws-pick'); if (nav.scrollWidth > nav.clientWidth) nav.scrollLeft = Math.max(0, t.offsetLeft - nav.clientWidth / 2); } });
+    document.title = ws.getAttribute('data-title') + ' ワークシート';
+    var op = document.getElementById('ws-open'); op.href = op.getAttribute('data-base') + '#s=' + ws.id;
     // Claude のプレビューなど about:srcdoc で開くとアドレスを書きかえられないので、失敗しても止めない
     if (location.hash.slice(1) !== ws.id) { try { history.replaceState(null, '', '#' + ws.id); } catch (e) {} }
     if (scroll) window.scrollTo(0, 0);
@@ -323,7 +370,7 @@ SCRIPT = r"""
   window.addEventListener('afterprint', function () { document.body.classList.remove('print-all'); });
   document.getElementById('ws-clear').addEventListener('click', function () {
     var ws = document.querySelector('.ws.is-current');
-    if (!confirm(ws.id + ' のワークシートに書いたことと ✓ を消します。よいですか?(組・番・名前は残ります)')) return;
+    if (!confirm(ws.getAttribute('data-title') + ' のワークシートに書いたことと ✓ を消します。よいですか?(組・番・名前は残ります)')) return;
     try { localStorage.removeItem(KEY + ws.id); } catch (e) {}
     location.reload();
   });
@@ -331,19 +378,22 @@ SCRIPT = r"""
 """
 
 
-def area_page(d):
-    k = d["domain"]
-    pick = "".join(f'<button type="button" class="ef-btn" role="tab" data-code="{a["code"]}" aria-controls="{a["code"]}" title="{e(a["name"])}">{e(a.get("label", a["code"]))}</button>' for a in d["apps"])
-    set_ruby(d.get("ruby") or {})
-    sheets = "\n".join(sheet(d, a) for a in d["apps"])
-    set_ruby({})
+def area_page(k, items):
+    groups, pick = [], []
+    for grp, lab, s in items:
+        if not groups or groups[-1][0] != grp:
+            groups.append((grp, []))
+        groups[-1][1].append(f'<button type="button" class="ef-btn" role="tab" data-code="{s["id"]}" aria-controls="{s["id"]}" title="{e(s["ref"])} {e(s["name"])}">{e(lab)}</button>')
+    for grp, bs in groups:
+        pick.append(f'<div class="ws-grp">{"<span class=" + chr(34) + "ws-grp-l" + chr(34) + ">" + e(grp) + "</span>" if grp else ""}{"".join(bs)}</div>')
+    sheets = "\n".join(sheet(s, k, grp) for grp, lab, s in items)
     return f'''<!doctype html>
 <html lang="ja" data-ef-domain="{k}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{e(d["domainName"])} 自習ワークシート</title>
-<!-- worksheet/build.py が各分野の eduit-info.js の jishu から作ったファイル。直接直さない -->
+<title>{e(TITLE[k])} ワークシート</title>
+<!-- worksheet/build.py が T-textbook/course-data.js と各分野の eduit-info.js の jishu から作ったファイル。直接直さない -->
 <style>
 {read(repo / "shared/eduit-frame.css")}
 </style>
@@ -352,20 +402,20 @@ def area_page(d):
 <body class="ef-page">
 <div class="ws-bar">
 <header class="ef-header">
-{SITE_HOME}<h1 class="ef-title"><span class="ef-code">{k}</span> {e(d["domainName"])} 自習ワークシート</h1>
+{SITE_HOME}<h1 class="ef-title"><span class="ef-code">{k}</span> {e(TITLE[k])} ワークシート</h1>
 <div class="ef-tools">
 <button type="button" class="ef-btn ef-toggle" id="ws-ruby" aria-pressed="true">ふりがな</button>
-<a class="ef-btn" id="ws-open" href="../{UNIFIED[k]}" target="_blank" rel="noopener">教材をひらく</a>
+<a class="ef-btn" id="ws-open" href="../{COURSE_FILE}" data-base="../{COURSE_FILE}" target="_blank" rel="noopener">この節をひらく</a>
 <button type="button" class="ef-btn" id="ws-print">印刷</button>
 </div>
 </header>
-<nav class="ws-pick" role="tablist" aria-label="教材をえらぶ">{pick}</nav>
+<nav class="ws-pick" role="tablist" aria-label="教科書の節をえらぶ">{"".join(pick)}</nav>
 </div>
 <main>
 <div class="ws-intro">
-<p><b>使い方</b> 上のボタンで、いま進める教材をえらびます。タブレットでは、□を押すと✓が付きます。わくの中に書きこめます。書いたことは<b>この端末に自動で保存</b>されます。紙で使うときは「印刷」を押します(用紙は <b>B5 たて</b>)。</p>
-<p>「教材をひらく(自習モード)」を押すと、教材がちがうタブで開きます。2つのタブを行き来して進めましょう。</p>
-<p class="ws-saved">先生に出すときは、先生の指示を聞きます。「印刷」で紙に印刷するか、PDFに保存して出します。<button type="button" class="ef-btn" id="ws-print-all">全部の教材を印刷</button> <button type="button" class="ef-btn" id="ws-clear">この教材の書いたことを消す</button></p>
+<p><b>使い方</b> 上の番号で、教科書の節をえらびます(1枚が1つの節)。□を押すと✓が付き、わくの中に書きこめます。書いたことは<b>この端末に自動で保存</b>されます。紙で使うときは「印刷」を押します(用紙は <b>B5 たて</b>)。</p>
+<p>「この節をひらく」を押すと、学習コースのこの節の画面がちがうタブで開きます。教科書・教材・ワークシートを行き来して進めましょう。</p>
+<p class="ws-saved">先生に出すときは、先生の指示を聞きます。<button type="button" class="ef-btn" id="ws-print-all">全部の節を印刷</button> <button type="button" class="ef-btn" id="ws-clear">この節の書いたことを消す</button></p>
 </div>
 {sheets}
 </main>
@@ -375,21 +425,24 @@ def area_page(d):
 '''
 
 
-def answers_page():
+def answers_page(by_file):
     secs = []
-    for d in data:
-        items = []
-        for a in d["apps"]:
-            qs = "".join(f'<li><p class="q">{e(q["q"])}</p><p class="a"><b>{KANA[q["answer"]]}</b> {e(q["choices"][q["answer"]])}</p>'
-                         f'<p class="x">{e(q.get("explain", ""))}</p></li>' for q in a.get("check") or [])
-            items.append(f'<article><h3><span class="c">{e(a.get("label", a["code"]))}</span>{e(a["name"])}</h3><ol>{qs}</ol></article>')
-        secs.append(f'<section><h2>{d["domain"]} {e(d["domainName"])}<small>生徒のファイル: {FILES[d["domain"]]}</small></h2>{"".join(items)}</section>')
+    for k, items in by_file.items():
+        arts = []
+        for grp, lab, s in items:
+            qs = CHECKS.get(s["id"], [])
+            if not qs:
+                continue
+            li = "".join(f'<li><p class="q">{e(q["q"])}</p><p class="a"><b>{KANA[q["answer"]]}</b> {e(q["choices"][q["answer"]])}</p>'
+                         f'<p class="x">{e(q.get("explain", ""))}</p></li>' for dom, a, q in qs)
+            arts.append(f'<article><h3><span class="c">{e(s["ref"])}</span>{e(s["name"])}</h3><ol>{li}</ol></article>')
+        secs.append(f'<section><h2>{k} {e(TITLE[k])}<small>生徒のファイル: {FILES[k]}</small></h2>{"".join(arts)}</section>')
     return f'''<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>自習ワークシートの答え(先生用)</title>
+<title>ワークシートの答え(先生用)</title>
 <!-- worksheet/build.py が作ったファイル。直接直さない -->
 <style>
 {read(repo / "shared/eduit-frame.css")}
@@ -406,16 +459,16 @@ def answers_page():
   ol {{ margin: 0; padding-left: 1.6em; }}
   li p {{ margin: 0; }}
   .a b {{ display: inline-flex; justify-content: center; width: 1.6em; border-radius: 50%; background: var(--ef-ok); color: var(--ef-on-ink); }}
-  .x {{ color: var(--ef-muted); font-size: 14px; margin-bottom: 4px !important; }}
+  .x {{ color: var(--ef-muted); font-size: 14px; margin-bottom: 4px; }}
   @media print {{ body {{ background: var(--ef-bg); font-size: 10pt; }} .lead {{ border: 0; padding: 0; }} }}
 </style>
 </head>
 <body>
-<header class="ef-header"><h1 class="ef-title">自習ワークシートの答え(先生用)</h1></header>
+<header class="ef-header"><h1 class="ef-title">ワークシートの答え(先生用)</h1></header>
 <main>
 <div class="lead">
-<p>生徒に配る/ワークシート/ の自習ワークシートの「たしかめ問題」の答えと解説です。問題は各教材の自習ガイドのたしかめ問題と同じなので、生徒は自習ガイドでも答え合わせができます(ワークシートには答えを出していません)。</p>
-<p>ワークシートは、教材ごとに ねらい → 進め方(基本・発展) → たしかめ問題 → ふりかえり(◎○△の自己評価と記述)の順です。生徒はタブレットで書きこむ(その端末に保存)か、印刷して紙で使います。</p>
+<p>生徒に配る/ワークシート/ のワークシートの「たしかめ」の答えと解説です。教科書の節ごとに1枚で、問題は学習コースの節の画面の「たしかめ」と同じです(ワークシートには答えを出していません)。</p>
+<p>1枚は、教科書をひらく(ページ・キーワードの意味・図とくらべる)→ まず考えよう → やってみる → たしかめ → まとめ(分かったことと ◎○△ の自己評価)の順です。生徒はタブレットで書きこむ(その端末に保存)か、B5 に印刷して紙で使います。</p>
 </div>
 {"".join(secs)}
 </main>
@@ -424,9 +477,12 @@ def answers_page():
 '''
 
 
+by_file = file_secs()
 dist.mkdir(exist_ok=True)
-for d in data:
-    (dist / FILES[d["domain"]]).write_text(area_page(d), encoding="utf-8")
-(dist / ANSWERS).write_text(answers_page(), encoding="utf-8")
+for old in dist.glob("*.html"):
+    old.unlink()
+for k, items in by_file.items():
+    (dist / FILES[k]).write_text(area_page(k, items), encoding="utf-8")
+(dist / ANSWERS).write_text(answers_page(by_file), encoding="utf-8")
 for p in sorted(dist.glob("*.html")):
     print(f"{p.relative_to(repo)}  ({p.stat().st_size // 1024} KB)")

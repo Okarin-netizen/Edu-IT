@@ -157,11 +157,11 @@ for p in sorted(student.rglob("*.html")):
         continue
     add_after_head(p, nofk / p.relative_to(student), FK_TAG)
 
-# ---- 自習ワークシート(教材ごとに1枚。タブレットで書きこむか印刷して使う)と、その答え(先生用) ----
+# ---- ワークシート(教科書の節ごとに1枚。タブレットで書きこむか印刷して使う)と、その答え(先生用) ----
 # 中身は各分野の eduit-info.js の jishu。振り返りなしの版は作らない(上のあとで入れる)
 subprocess.run([sys.executable, str(repo / "worksheet/build.py")], check=True)
 ws_src = repo / "worksheet/dist"
-for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術", "M_身の回りの技術さがし", "F_これからの技術ラボ", "Z_学習を終えて"):
+for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術", "Z_学習を終えて"):
     copy(ws_src / f"{k}_ワークシート.html", student / "ワークシート" / f"{k}_ワークシート.html")
 # 教科書の目次のワークシートへのリンクは「ワークシート/…」。1つ下のフォルダ(振り返りなし)の版では「../ワークシート/…」にする
 WS_LINK = "var BASE = '', WS_BASE = 'ワークシート/';"
