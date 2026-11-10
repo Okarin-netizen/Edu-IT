@@ -135,6 +135,15 @@ def main(out):
     show(id || 'menu');
   }
   window.addEventListener('hashchange', fromHash);
+  // 教科書の目次の節の画面(?sec=)から開いたとき: 目次と中のページのあいだで、節のやりとり(eduitSec)をそのまま中つぎする
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || typeof d !== 'object' || typeof d.eduitSec !== 'string') return;
+    try {
+      if (e.source === view.contentWindow) { if (window.parent !== window) window.parent.postMessage(d, '*'); }
+      else if (view.contentWindow) view.contentWindow.postMessage(d, '*');
+    } catch (err) {}
+  });
   view.addEventListener('load', function () {
     try { document.title = view.contentDocument.title || document.title; } catch (e) {}
   });
