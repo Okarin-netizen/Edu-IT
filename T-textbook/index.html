@@ -3,12 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>教科書の順に進む 学習コース</title>
-<!-- 教科書の順に進む学習コース(入口)。T-textbook/build.py が CSS・JS を中に入れて dist/教科書の順に進む_学習コース.html を作る -->
+<title>技術分野 教材集(教科書の目次)</title>
+<!-- 入り口のページ: 教科書の目次。節を開くと、教材と「この節の進め方」がならぶ。T-textbook/build.py が CSS・JS を中に入れて dist/教科書の順に進む_学習コース.html を作る -->
 <link rel="stylesheet" href="../shared/eduit-frame.css">
 <link rel="stylesheet" href="common/t-core.css">
+<!-- 各分野の自習ガイド(eduit-info.js の jishu)から、節の手順(sec)・たしかめ問題・ふりがなを集める。T の eduit-info.js は最後に読む -->
+<script>
+window.COURSE_JISHU = {}; window.COURSE_RUBY = {}; window.COURSE_RUBY_BY = {};
+window.courseTake = function () {
+  var J = (window.EDUIT_INFO || {}).jishu || {};
+  Object.keys(J.apps || {}).forEach(function (k) { window.COURSE_JISHU[k] = J.apps[k]; window.COURSE_RUBY_BY[k] = J.ruby || {}; });
+  Object.keys(J.ruby || {}).forEach(function (k) { window.COURSE_RUBY[k] = J.ruby[k]; });
+};
+</script>
+<script src="../G-guidance/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="../A-materials/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="../B-bio/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="../C-energy/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="../D-information/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="M-mimawari/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="F-korekara/eduit-info.js"></script>
+<script>courseTake();</script>
+<script src="Z-owari/eduit-info.js"></script>
+<script>courseTake();</script>
 <script src="eduit-info.js"></script>
-<script>EDUIT_INFO.app = { name: '教科書の順に進む 学習コース' };</script>
+<script>EDUIT_INFO.app = { name: '技術分野 教材集(教科書の目次)' };</script>
 <script src="../shared/eduit-frame.js"></script>
 <script src="common/t-ruby.js"></script>
 <script src="common/t-core.js"></script>
@@ -23,98 +48,221 @@
   --fig-hen-i: #475569;
   --fig-hen-z: #7c4a03;
   --fig-hen-x: #6b21a8;
+  --fig-row-now: #fff6ea;  /* つぎに進む節の行 */
 }
-  /* 編へ飛ぶ帯(白い帯・下に黒の線・細い枠のボタン) */
-  .c-nav { display: flex; gap: 4px; padding: 6px 10px; background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink); overflow-x: auto; scrollbar-width: none; }
-  .c-nav::-webkit-scrollbar { display: none; }
-  .c-nav a { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0; min-height: 44px; padding: 0 12px; border-radius: 0; border: var(--ef-bw) solid var(--ef-line); background: var(--ef-surface); color: var(--ef-text); text-decoration: none; font-weight: 700; font-size: .88em; white-space: nowrap; }
-  .c-nav a:hover { border-color: var(--ef-ink); }
-  .c-nav a:focus-visible { outline: 3px solid var(--ef-focus); }
-  .c-nav .c-n { margin-left: 4px; font-weight: 400; color: var(--ef-muted); font-size: .85em; }
-  .c-nav a.is-all { border-color: var(--ef-ok); }
-  .c-nav a.is-all .c-n { color: var(--ef-ok); font-weight: 700; }
-  .c-steps { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-  .c-steps li { display: grid; grid-template-columns: 2em 1fr; align-items: center; gap: 8px; }
-  .c-steps b.c-num { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--ef-ink); color: var(--ef-on-ink); }
-  .c-next { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-  .c-bar { flex: 1 1 200px; height: 14px; border-radius: 0; background: var(--ef-surface-2); border: var(--ef-bw) solid var(--ef-line); overflow: hidden; }
-  .c-bar span { display: block; height: 100%; background: var(--ef-ok); border-radius: 0; transition: width .3s; }
-  .c-hen { scroll-margin-top: 130px; margin: 26px 0 0; }
-  .c-hen > h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 4px; padding: 6px 12px; border-left: var(--ef-mark) solid var(--fig-c, var(--ef-accent)); background: var(--ef-surface); border-radius: 0; font-size: var(--ef-fs-h2); }
-  .c-hen > h2 .c-n { font-size: .65em; font-weight: 400; color: var(--ef-muted); }
-  .c-when { margin: 0 0 6px; font-size: var(--ef-fs-s); color: var(--ef-muted); }
-  .c-ch { margin: 16px 0 6px; font-size: var(--ef-fs-h3); color: var(--ef-text); }
-  .c-hen-G { --fig-c: var(--fig-hen-g); } .c-hen-A { --fig-c: var(--fig-hen-a); } .c-hen-B { --fig-c: var(--fig-hen-b); } .c-hen-C { --fig-c: var(--fig-hen-c); } .c-hen-D { --fig-c: var(--fig-hen-d); } .c-hen-I { --fig-c: var(--fig-hen-i); } .c-hen-Z { --fig-c: var(--fig-hen-z); } .c-hen-X { --fig-c: var(--fig-hen-x); }
-  .c-sec { scroll-margin-top: 130px; position: relative; background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-line); border-left: var(--ef-mark) solid var(--fig-c, var(--ef-accent)); border-radius: 0; padding: 12px 16px; margin: 0 0 12px; box-shadow: none; }
-  .c-sec.is-done { background: var(--ef-ok-soft); }
-  .c-sec.is-next { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
-  .c-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-  .c-ref { font-size: var(--ef-fs-s); font-weight: 700; color: var(--fig-c, var(--ef-accent)); white-space: nowrap; }
-  .c-name { margin: 0; font-size: var(--ef-fs-h3); line-height: var(--ef-lh-tight); flex: 1 1 14em; }
-  .c-aim { margin: 4px 0 8px; }
-  .c-aim::before { content: "🎯 "; }
-  .c-row { margin: 8px 0 0; }
-  .c-row-h { display: block; font-size: var(--ef-fs-s); font-weight: 700; color: var(--ef-muted); }
-  .c-go { display: flex; flex-wrap: wrap; gap: 8px; }
-  .c-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; border-radius: 0; border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); color: var(--ef-text); text-decoration: none; font-weight: 700; line-height: var(--ef-lh-tight); }
-  .c-open:hover { background: var(--ef-surface-2); }
-  .c-open:focus-visible, .c-ws:focus-visible, .c-done:focus-within { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
-  .c-open .c-tab { font-weight: 400; font-size: .9em; color: var(--ef-muted); }
-  .c-open .c-arrow { color: var(--ef-text); white-space: nowrap; margin-left: auto; }
-  .c-ws { display: inline-flex; align-items: center; min-height: 44px; padding: 4px 10px; border-radius: 0; color: var(--ef-muted); font-size: .9em; }
-  .c-q { margin: 0; padding: 0; list-style: none; }
-  .c-q .t-q { border-top: 0; padding: 4px 0 0; }
-  .c-q .t-q-text::before { content: "❓ "; color: inherit; }
-  .c-done { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 14px; border-radius: 0; border: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); cursor: pointer; font-weight: 700; white-space: nowrap; }
-  .c-done input { width: 22px; height: 22px; accent-color: var(--ef-ok); margin: 0; }
-  .c-done:has(input:checked) { border-color: var(--ef-ok); background: var(--ef-ok-soft); }
-  .c-foot { display: flex; justify-content: flex-end; margin-top: 8px; }
-  @media (max-width: 640px) {
-    .c-nav { padding: 4px 8px; }
-    .c-sec { padding: 10px 12px; }
-    .c-open { width: 100%; }
-    .c-hen, .c-sec { scroll-margin-top: 150px; }
+  .c-hen-g { --fig-c: var(--fig-hen-g); } .c-hen-a { --fig-c: var(--fig-hen-a); } .c-hen-b { --fig-c: var(--fig-hen-b); } .c-hen-c { --fig-c: var(--fig-hen-c); }
+  .c-hen-d { --fig-c: var(--fig-hen-d); } .c-hen-i { --fig-c: var(--fig-hen-i); } .c-hen-z { --fig-c: var(--fig-hen-z); } .c-hen-x { --fig-c: var(--fig-hen-x); }
+  [hidden] { display: none !important; }
+
+  /* ---- 上の帯(1段) ---- */
+  .c-bar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 6px 12px; min-height: 56px; padding: 6px 12px; background: var(--ef-surface); border-bottom: var(--ef-bw) solid var(--ef-ink); }
+  .c-bar-title { margin: 0; font-size: 1.1em; font-weight: 700; white-space: nowrap; }
+  .c-bar .c-sp { flex: 1 1 0; }
+  .c-back { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px 0 4px; border: 0; background: none; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .c-back:hover { text-decoration: underline; }
+  .c-bar-ref { font-weight: 700; color: var(--fig-c, var(--ef-accent)); white-space: nowrap; }
+  .c-bar-name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .c-bar-p { color: var(--ef-muted); font-size: var(--ef-fs-s); white-space: nowrap; }
+  .c-seg { display: inline-flex; border: var(--ef-bw) solid var(--ef-ink); }
+  .c-seg button { min-height: 40px; padding: 0 12px; border: 0; background: var(--ef-surface); font-weight: 700; font-size: .9em; cursor: pointer; white-space: nowrap; }
+  .c-seg button[aria-pressed="true"] { background: var(--ef-ink); color: var(--ef-on-ink); }
+  .c-bar .ef-btn { min-height: 44px; }
+  .c-bar :focus-visible, .c-main :focus-visible, .c-guide :focus-visible { outline: 3px solid var(--ef-focus); outline-offset: 2px; }
+  .c-menu { position: absolute; right: 8px; top: calc(100% + 4px); z-index: 50; display: grid; gap: 6px; min-width: 220px; padding: 10px; background: var(--ef-surface); border: var(--ef-bw) solid var(--ef-ink); }
+  .c-menu .ef-btn { width: 100%; justify-content: flex-start; }
+
+  /* ---- 目次 ---- */
+  .c-main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 60px; }
+  .c-small { font-size: var(--ef-fs-s); color: var(--ef-muted); }
+  .c-cont { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 4px 0 22px; padding: 14px 18px; border: 2px solid var(--ef-ink); }
+  .c-cont-t { flex: 1 1 16em; min-width: 0; }
+  .c-cont-t b { display: block; font-size: 1.2em; line-height: var(--ef-lh-tight); }
+  .c-prog { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+  .c-prog .c-track { flex: 1 1 auto; height: 8px; background: var(--ef-surface-2); border: var(--ef-bw) solid var(--ef-line); }
+  .c-prog .c-track span { display: block; height: 100%; background: var(--ef-ok); }
+  .c-hens { display: flex; overflow-x: auto; border-bottom: var(--ef-bw) solid var(--ef-line); scrollbar-width: none; }
+  .c-hens::-webkit-scrollbar { display: none; }
+  .c-hens button { flex: 0 0 auto; min-height: 48px; padding: 0 14px; border: 0; border-bottom: var(--ef-mark) solid transparent; background: none; font-weight: 700; color: var(--ef-muted); cursor: pointer; white-space: nowrap; }
+  .c-hens button[aria-selected="true"] { color: var(--ef-text); border-bottom-color: var(--fig-c, var(--ef-ink)); }
+  .c-hens .c-n { margin-left: 4px; font-weight: 400; font-size: .85em; }
+  .c-hen-h { margin: 18px 0 0; font-size: var(--ef-fs-h2); }
+  .c-when { margin: 2px 0 0; }
+  .c-ch { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 20px 0 0; padding: 8px 0; border-bottom: 2px solid var(--ef-ink); font-size: 1.02em; }
+  .c-rows { list-style: none; margin: 0; padding: 0; }
+  .c-row { display: grid; grid-template-columns: 30px 3.2em minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: var(--ef-bw) solid var(--ef-line); }
+  .c-row.is-now { background: var(--fig-row-now); }
+  .c-ck { display: grid; place-items: center; width: 24px; height: 24px; border: var(--ef-bw) solid var(--ef-ink); font-weight: 700; color: var(--ef-ok); }
+  .c-no { font-weight: 700; color: var(--fig-c, var(--ef-accent)); white-space: nowrap; }
+  .c-t { font-weight: 700; line-height: var(--ef-lh-tight); }
+  .c-t .c-small { display: block; font-weight: 400; }
+  .c-pg { white-space: nowrap; }
+  .c-pg2 { display: none; }
+  .c-open { min-width: 6.5em; }
+  .c-list { margin-top: 36px; }
+  .c-list h2, .c-rec h2 { margin: 0; padding: 8px 0; border-bottom: 2px solid var(--ef-ink); font-size: 1.02em; }
+  .c-list ul { list-style: none; margin: 0; padding: 0; }
+  .c-list li a { display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: var(--ef-bw) solid var(--ef-line); color: inherit; text-decoration: none; }
+  .c-list li a:hover .c-t { text-decoration: underline; }
+  .c-rec { margin-top: 36px; }
+  .c-rec .t-row3 { max-width: 640px; }
+
+  /* ---- 節の画面: 教材(左)と この節の進め方(右) ---- */
+  .c-secview { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: calc(100vh - 57px); height: calc(100dvh - 57px); }
+  .c-secview.is-class { grid-template-columns: minmax(0, 1fr); }
+  .c-app { position: relative; min-width: 0; border-right: var(--ef-bw) solid var(--ef-ink); background: var(--ef-surface); }
+  .c-secview.is-class .c-app { border-right: 0; }
+  .c-app iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--ef-surface); }
+  .c-guide { overflow-y: auto; padding: 14px 16px 24px; background: var(--ef-surface); }
+  .c-guide-h { display: flex; align-items: baseline; gap: 8px; margin: 0; font-size: 1em; color: var(--fig-c, var(--ef-accent)); }
+  .c-guide-h .c-small { font-weight: 400; }
+  .c-gtrack { height: 6px; margin: 8px 0 4px; background: var(--ef-surface-2); }
+  .c-gtrack span { display: block; height: 100%; background: var(--fig-c, var(--ef-accent)); }
+  .c-steps { list-style: none; margin: 0; padding: 0; }
+  .c-step { margin: 8px 0; border: var(--ef-bw) solid var(--ef-line); }
+  .c-step.is-open { border: 2px solid var(--ef-ink); }
+  .c-step-h { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) auto; align-items: center; width: 100%; min-height: 48px; padding: 6px 12px; border: 0; background: none; text-align: left; font-weight: 700; cursor: pointer; }
+  .c-step-h .c-sn { color: var(--ef-muted); }
+  .c-step.is-done .c-step-h .c-sn::after { content: " ✓"; color: var(--ef-ok); }
+  .c-step.is-done:not(.is-open) .c-step-h { color: var(--ef-muted); }
+  .c-step-b { padding: 0 12px 12px calc(2.4em + 12px); }
+  .c-step-b p { margin: .3em 0; }
+  .c-kws { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+  .c-kw { padding: 0 8px; border: var(--ef-bw) solid var(--ef-line); font-size: var(--ef-fs-s); }
+  .c-sub { list-style: none; margin: 6px 0; padding: 0; }
+  .c-sub > li { padding: 8px 0; border-top: 1px dashed var(--ef-line); }
+  .c-sub-where { display: block; font-size: var(--ef-fs-s); font-weight: 700; color: var(--ef-muted); }
+  .c-sub-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .c-sub-tools .ef-btn { min-height: 38px; padding: 0 10px; font-size: .88em; }
+  .c-sub label { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; font-size: .9em; cursor: pointer; }
+  .c-sub input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--ef-ok); margin: 0; }
+  .c-sub li.is-done .c-sub-do { color: var(--ef-muted); }
+  .c-hint { margin: 4px 0; padding: 6px 10px; border-left: var(--ef-mark) solid var(--ef-line); font-size: .92em; }
+  .c-apphead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+  .c-apphead .ef-btn { min-height: 38px; padding: 0 10px; font-size: .88em; }
+  .c-apphead .ef-btn[aria-pressed="true"] { border-bottom: var(--ef-mark) solid var(--fig-c, var(--ef-accent)); }
+  .c-fig { margin: 8px 0 0; font-size: var(--ef-fs-s); color: var(--ef-muted); }
+  .c-more { margin: 10px 0 0; }
+  .c-more summary { cursor: pointer; font-weight: 700; font-size: .92em; min-height: 36px; }
+  .c-foot { display: flex; gap: 8px; margin-top: 10px; }
+  .c-foot .ef-btn { flex: 1 1 0; justify-content: center; }
+  .c-guide .t-q-text::before { content: none; }
+  .c-guide .t-quiz { margin-top: 4px; }
+  .c-guide textarea { width: 100%; min-height: 5em; padding: 8px 10px; border: var(--ef-bw) solid var(--ef-ink); line-height: var(--ef-lh); resize: vertical; }
+  .c-end { margin: 12px 0 0; padding: 10px 12px; border: 2px solid var(--ef-ok); background: var(--ef-ok-soft); }
+  .c-end p { margin: 0 0 8px; font-weight: 700; }
+  .c-nav2 { display: flex; gap: 8px; margin-top: 16px; }
+  .c-nav2 .ef-btn { flex: 1 1 0; justify-content: center; }
+  .c-classnav { display: none; gap: 6px; }
+  body.is-class-sec .c-classnav { display: inline-flex; }
+  .c-sheet-h { display: none; }
+
+  @media (max-width: 860px) {
+    .c-bar { gap: 4px 8px; padding: 4px 8px; }
+    .c-bar-name { display: none; }
+    .c-row { grid-template-columns: 26px 2.4em minmax(0, 1fr) auto; }
+    .c-row .c-pg { display: none; }
+    .c-row .c-pg2 { display: block; }
+    .c-row .c-t .c-small { display: block; }
+    /* スマホ: 教材は画面いっぱい、進め方は下の1行の帯(押すと開く) */
+    .c-secview { display: block; height: auto; }
+    .c-app { border-right: 0; height: calc(100vh - 57px - 58px); height: calc(100dvh - 57px - 58px); }
+    .c-secview.is-class .c-app { height: calc(100dvh - 57px); }
+    .c-guide { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; max-height: 58px; overflow: hidden; padding: 0; border-top: 2px solid var(--ef-ink); }
+    .c-guide.is-up { max-height: 72vh; max-height: 72dvh; overflow-y: auto; }
+    .c-sheet-h { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 56px; padding: 0 12px; border: 0; background: var(--ef-surface); font-weight: 700; text-align: left; cursor: pointer; position: sticky; top: 0; z-index: 1; }
+    .c-sheet-h .c-sheet-n { color: var(--fig-c, var(--ef-accent)); }
+    .c-sheet-h .c-sp { flex: 1 1 auto; }
+    .c-guide-in { padding: 4px 12px 20px; }
   }
-  @media print {
-    .c-nav, .c-next .t-btn, .c-ws { display: none !important; }
-    .c-sec { break-inside: avoid; box-shadow: none; }
+  @media (max-width: 520px) {
+    .c-bar-title { font-size: 1em; }
+    .c-bar:has(> #c-bar-sec[hidden]) { flex-wrap: wrap; }  /* 目次の帯: 題名を1行目、切りかえと表示を2行目に */
+    .c-bar:has(> #c-bar-sec[hidden]) .c-bar-title { flex: 1 1 100%; }
+    .c-seg button { padding: 0 8px; }
+    .c-row { grid-template-columns: 26px minmax(0, 1fr) auto; }
+    .c-row .c-no { display: none; }
+    .c-open { min-width: 0; }
   }
+  @media print { .c-bar, .c-guide, .c-app { display: none !important; } }
 </style>
 </head>
-<body class="ef-page">
+<body class="ef-page" data-ef-domain="T">
 <div id="tapp">
-  <div class="t-top" data-ef-autohide>
-    <header class="ef-header">
-      <h1 class="ef-title"><span class="ef-title-name">教科書の順に進む 学習コース</span></h1>
-      <div class="ef-tools">
-        <button type="button" data-ef-pref="ruby" title="ふりがなの表示・非表示">ふりがな</button>
-        <button type="button" data-ef-pref="fs"></button>
-        <button type="button" class="ef-btn" id="t-howto">使い方</button>
-      </div>
-    </header>
-    <nav class="c-nav" id="c-nav" aria-label="編をえらぶ"></nav>
-  </div>
-
-  <main class="t-main">
-    <div class="t-card">
-      <h2 class="c-title" style="margin:0 0 4px;font-size:var(--ef-fs-h2)">教科書の順に、1つずつ進もう</h2>
-      <ol class="c-steps">
-        <li><b class="c-num">1</b><span>💭 <b>まず考えよう</b>の問いを考えて、🎯 <b>ねらい</b>を読む</span></li>
-        <li><b class="c-num">2</b><span>「<b>ひらく ▶</b>」で教材を開いて、やってみる</span></li>
-        <li><b class="c-num">3</b><span>❓ <b>たしかめの1問</b>に答える</span></li>
-        <li><b class="c-num">4</b><span>「<b>できた</b>」に ✓ を入れて、次の節へ</span></li>
-      </ol>
-      <p class="t-memo" id="c-jishu" style="white-space:pre-line"></p>
-      <div class="c-next">
-        <div class="c-bar" aria-hidden="true"><span id="c-bar"></span></div>
-        <span id="c-count" aria-live="polite"></span>
-        <button type="button" class="t-btn t-pri" id="c-go-next">つぎの節へ ▼</button>
-      </div>
+  <!-- 上の帯: 目次のときと、節を開いたときで中身を変える(どちらも1段) -->
+  <header class="c-bar" id="c-bar">
+    <div id="c-bar-toc" style="display:contents">
+      <h1 class="c-bar-title">技術分野 教材集</h1>
+      <span class="c-sp"></span>
+      <span class="c-seg" role="group" aria-label="使い方をえらぶ">
+        <button type="button" data-mode="self" aria-pressed="true">ひとりで進む</button>
+        <button type="button" data-mode="class" aria-pressed="false">授業で使う</button>
+      </span>
     </div>
-    <div id="c-list"></div>
+    <div id="c-bar-sec" style="display:contents" hidden>
+      <button type="button" class="c-back" id="c-back">◀ 目次</button>
+      <span class="c-bar-ref" id="c-bar-ref"></span>
+      <span class="c-bar-name" id="c-bar-name"></span>
+      <span class="c-bar-p" id="c-bar-p"></span>
+      <span class="c-sp"></span>
+      <span class="c-classnav" id="c-classnav">
+        <button type="button" class="ef-btn" id="c-cprev" title="前の節">◀ 前</button>
+        <button type="button" class="ef-btn" id="c-cnext" title="次の節">次 ▶</button>
+      </span>
+    </div>
+    <button type="button" class="ef-btn" id="c-view" aria-expanded="false" aria-controls="c-menu">表示</button>
+    <div class="c-menu" id="c-menu" hidden>
+      <button type="button" data-ef-pref="ruby" title="ふりがなの表示・非表示">ふりがな</button>
+      <button type="button" data-ef-pref="fs"></button>
+      <button type="button" data-ef-pref="kukkiri">くっきり</button>
+      <span data-ef-fs></span>
+      <button type="button" class="ef-btn" id="t-howto">使い方</button>
+      <button type="button" class="ef-btn" id="c-about">このページについて</button>
+    </div>
+  </header>
+
+  <!-- 目次 -->
+  <main class="c-main" id="c-toc">
+    <p class="c-small" id="c-cont-k">つづきから</p>
+    <div class="c-cont" id="c-cont">
+      <div class="c-cont-t"><span class="c-small" id="c-cont-ref"></span><b id="c-cont-name"></b></div>
+      <button type="button" class="ef-btn ef-btn-primary" id="c-cont-go">つづきをひらく ▶</button>
+    </div>
+    <div class="c-prog"><span class="c-track" aria-hidden="true"><span id="c-track"></span></span><span id="c-count" class="c-small"></span></div>
+    <nav class="c-hens" id="c-hens" role="tablist" aria-label="編をえらぶ"></nav>
+    <div id="c-hen-body"></div>
+
+    <section class="c-list" aria-labelledby="c-list-h">
+      <h2 id="c-list-h">教材の一覧 <span class="c-small">(先生が「A4 を開いて」と言ったとき)</span></h2>
+      <ul id="c-apps"></ul>
+    </section>
+
+    <section class="c-rec" aria-labelledby="c-rec-h">
+      <h2 id="c-rec-h">記録を出す</h2>
+      <p class="c-small">先生に言われたら、組・番号・名前を入れて書き出します。どの節まで進んだかと、「まとめ」に書いた文が入ります。</p>
+      <div class="t-row3">
+        <label class="t-field"><span>組</span><input data-k="who.cls" autocomplete="off"></label>
+        <label class="t-field"><span>番号</span><input data-k="who.no" inputmode="numeric" autocomplete="off"></label>
+        <label class="t-field"><span>名前</span><input data-k="who.name" autocomplete="off"></label>
+      </div>
+      <div class="t-btns"><button type="button" class="t-btn t-pri" id="c-export">記録を書き出す</button><span id="c-export-msg" class="c-small" aria-live="polite"></span></div>
+    </section>
   </main>
+
+  <!-- 節の画面 -->
+  <div class="c-secview" id="c-secview" hidden>
+    <div class="c-app"><iframe id="c-frame" title="教材" allow="fullscreen; microphone; camera; clipboard-write" allowfullscreen></iframe></div>
+    <aside class="c-guide" id="c-guide" aria-label="この節の進め方">
+      <button type="button" class="c-sheet-h" id="c-sheet-h" aria-expanded="false"><span class="c-sheet-n" id="c-sheet-n"></span><span id="c-sheet-t"></span><span class="c-sp"></span><span class="c-small" id="c-sheet-o">▲ ひらく</span></button>
+      <div class="c-guide-in">
+        <h2 class="c-guide-h">この節の進め方 <span class="c-small" id="c-gcount"></span></h2>
+        <div class="c-gtrack" aria-hidden="true"><span id="c-gtrack"></span></div>
+        <ol class="c-steps" id="c-steps"></ol>
+        <div class="c-nav2"><button type="button" class="ef-btn" id="c-prev">◀ 前の節</button><button type="button" class="ef-btn" id="c-next">次の節 ▶</button></div>
+      </div>
+    </aside>
+  </div>
 </div>
-<div data-ef-footer></div>
+<div data-ef-footer id="c-footer"></div>
 
 <script>
 (function () {
@@ -123,109 +271,487 @@
   var BASE = '../クラスルーム配布/生徒に配る/', WS_BASE = BASE + 'ワークシート/';
   var FILES = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html", "M": "M_身の回りの技術さがし.html", "F": "F_これからの技術ラボ.html", "Z": "Z_学習を終えて.html"};
   var WS = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html", "M": "M_身の回りの技術さがし_ワークシート.html", "F": "F_これからの技術ラボ_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"};
+  var MENU = FILES;  // 教材の一覧から開くファイル(生徒用サイトでは、上に「◀ 教科書の目次」のバーが付いたページにする)
 
-  var APPS = window.COURSE_APPS, COURSE = window.COURSE;
+  var APPS = window.COURSE_APPS, COURSE = window.COURSE, JISHU = window.COURSE_JISHU || {};
+  // 自習ガイドの言葉のふりがなも使う(t-ruby.js にないものだけ足す)。かなのまじる言葉(「次の」など)は、
+  // その分野の文の中だけの読みのことがあるので足さない。分野の手順・問題の文は、その分野の表で付ける(RB)
+  var R = window.COURSE_RUBY || {}, RB = window.COURSE_RUBY_BY || {};
+  window.T_RUBY = window.T_RUBY || {};
+  Object.keys(R).forEach(function (k) { if (!window.T_RUBY[k] && /^[一-鿿々]+$/.test(k)) window.T_RUBY[k] = R[k]; });
+
   var T = TCore.init({
-    key: 'eduit.course.v1', blank: function () { return { done: {}, q: {} }; },
-    howto: '<h3>このコースの使い方</h3><ol>' +
-      '<li>教科書の節の順に、カードがならんでいます。上から順に進みます。</li>' +
-      '<li>「ひらく ▶」を押すと、その節で使う教材が<b>新しいタブ</b>で開きます。終わったら、そのタブを閉じて、このページにもどります。</li>' +
-      '<li>「ワークシート」を押すと、その教材の自習ワークシートが開きます。</li>' +
-      '<li>❓ の問いに答えると、すぐに答えと説明が出ます。</li>' +
-      '<li>終わったら「できた」に ✓ を入れます。「つぎの節へ」を押すと、まだ ✓ のない節へ移ります。</li></ol>' +
-      '<p>✓ や答えは、この端末のブラウザの中に保存されます(書き出しはありません)。</p>'
+    key: 'eduit.course.v1', blank: function () { return { done: {}, st: {}, last: '', who: { cls: '', no: '', name: '' } }; },
+    howto: '<h3>このページの使い方</h3><ol>' +
+      '<li>教科書の目次の順に、節がならんでいます。上の「1編」などで編をえらびます。</li>' +
+      '<li>節の「ひらく」を押すと、左に教材、右に「この節の進め方」が出ます。</li>' +
+      '<li>進め方は5つです。教科書をひらく → まず考えよう → やってみる → たしかめ → まとめ。</li>' +
+      '<li>まとめを書くと、その節に ✓ が付きます。「次の節」で、そのまま次へ進めます。</li>' +
+      '<li>「授業で使う」にすると、進め方を出さずに教材だけを開きます。先生の説明を聞きながら使います。</li></ol>' +
+      '<p>✓ や書いたことは、この端末のブラウザの中に保存されます。先生に言われたら、目次のいちばん下の「記録を書き出す」で出します。</p>'
   });
   var S = T.S, el = T.el, $ = T.$;
+  if (typeof S.st !== 'object' || !S.st) S.st = {};
 
-  // 自習モードのとき(?jishu=on・自習用のファイル)は、ひらく教材も自習モードにする
-  var Q = EduitFrame.jishu ? '?jishu=on' : '';
-  var AREA_APPS = { M: 1, F: 1 };  // 分野ごとに開く教材
-  T.text($('c-jishu'), EduitFrame.jishu ? '自習モードです。上から順に進めよう。\n教材の右はしの「自習ガイド」と、📝 ワークシートを使おう。\nこまったら「ヒント」を押そう。' :
-    '先生の説明を聞きながら進めるモードです。ひとりで進めるときは、先生に「自習モード」の開き方を聞こう。');
+  // ---- 使い方のモード: ひとりで進む(進め方を出す)・授業で使う(教材だけ) ----
+  var MODE_KEY = 'eduit.course.mode';
+  var mode = 'self';
+  try { mode = localStorage.getItem(MODE_KEY) === 'class' ? 'class' : 'self'; } catch (e) {}
+  var m = /[?&]mode=(self|class)(?:&|$)/.exec(location.search);
+  if (m) mode = m[1];
+  Array.prototype.forEach.call(document.querySelectorAll('.c-seg [data-mode]'), function (b) {
+    b.addEventListener('click', function () {
+      mode = b.getAttribute('data-mode');
+      try { localStorage.setItem(MODE_KEY, mode); } catch (e) {}
+      paintMode();
+    });
+  });
+  function paintMode() {
+    Array.prototype.forEach.call(document.querySelectorAll('.c-seg [data-mode]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode)); });
+  }
 
-  var all = [], extra = [];  // [{ s: 節, card: 要素, hen }]。extra は付録(発展編)の節で、進み具合の数に入れない
-  var nav = $('c-nav'), list = $('c-list');
-  var SHORT = { g: 'ガイダンス', a: '1編 材料と加工', b: '2編 生物育成', c: '3編 エネルギー変換', d: '4編 情報', i: '統合的な問題解決', z: '学習を終えて', x: '付録 発展編' };  // 上の帯の名前
-  var navLinks = {};
-  COURSE.forEach(function (H, hi) {
-    var n = 0;
-    H.chapters.forEach(function (C) { n += C.secs.length; });
-    var count = el('span', { class: 'c-n' });
-    var a = el('a', { href: '#hen-' + H.id }, [SHORT[H.id] || H.title, count]);
-    a.addEventListener('click', function (e) { e.preventDefault(); var t = $('hen-' + H.id); if (t) t.scrollIntoView({ behavior: 'smooth' }); });
-    nav.appendChild(a);
-    navLinks[H.id] = { a: a, n: count, total: n };
-    var box = el('section', { class: 'c-hen c-hen-' + H.key, id: 'hen-' + H.id, 'aria-labelledby': 'hen-h-' + H.id });
-    box.appendChild(el('h2', { id: 'hen-h-' + H.id }, [H.title, el('span', { class: 'c-n', id: 'hen-n-' + H.id })]));
-    if (H.when) box.appendChild(el('p', { class: 'c-when', text: 'いつ: ' + H.when }));
+  // ---- 表示のメニュー(ふりがな・文字・くっきり・全画面・使い方) ----
+  var viewBtn = $('c-view'), menu = $('c-menu');
+  viewBtn.addEventListener('click', function (e) { e.stopPropagation(); menu.hidden = !menu.hidden; viewBtn.setAttribute('aria-expanded', String(!menu.hidden)); });
+  document.addEventListener('click', function (e) { if (!menu.hidden && !menu.contains(e.target) && e.target !== viewBtn) { menu.hidden = true; viewBtn.setAttribute('aria-expanded', 'false'); } });
+  $('c-about').addEventListener('click', function () { EduitFrame.open(0); });
+  // 表示を変えたら、となりの教材にも読みなおしてもらう(file:// で開いたときのため)
+  EduitFrame.prefs.on(function () { post({ eduitSec: 'prefs' }); });
+
+  // ---- 節の一覧を作る ----
+  var all = [], extra = [], byId = {};  // all: 進み具合に数える節。extra: 付録(発展)
+  COURSE.forEach(function (H) {
     H.chapters.forEach(function (C) {
-      if (C.title) box.appendChild(el('h3', { class: 'c-ch', text: C.ch + ' ' + C.title }));
-      C.secs.forEach(function (s, si) {
-        var card = el('article', { class: 'c-sec', id: 'sec-' + s.id });
-        var chk = el('input', { type: 'checkbox' });
-        chk.checked = !!S.done[s.id];
-        chk.addEventListener('change', function () { S.done[s.id] = chk.checked; T.save(); paint(); });
-        card.appendChild(el('div', { class: 'c-head' }, [el('span', { class: 'c-ref', text: '教科書 ' + s.ref + (s.p ? ' p.' + s.p : '') }), el('h4', { class: 'c-name', text: s.name })]));
-        // まず考えよう(教科書のレッツスタートにあたる導入の問い。データは shared/eduit-frame.js の LETS)
-        var lets = window.EduitFrame && EduitFrame.letsCard(s.id);
-        if (lets) card.appendChild(lets);
-        card.appendChild(el('p', { class: 'c-aim', text: s.aim }));
-        var go = el('div', { class: 'c-go' });
-        s.go.forEach(function (g) {
-          var A = APPS[g[0]];
-          if (!A) throw new Error('course-data.js: 教材の記号「' + g[0] + '」が COURSE_APPS にありません');
-          var h = g[2] != null ? g[2] : A.h;
-          // M・F は、その分野のタブだけを出して開く(?bunya=a。生徒が分野を行き来して迷わないように)。ワークシートも分野のもの(MA など)
-          var area = AREA_APPS[g[0]] && h ? h : '', ws = area ? g[0] + area.toUpperCase() : g[0];
-          var qs = [Q.slice(1), area ? 'bunya=' + area : '', A.q || ''].filter(Boolean).join('&');
-          var href = BASE + FILES[A.f] + (qs ? '?' + qs : '') + (h ? '#' + h : '');
-          go.appendChild(el('a', { class: 'c-open', href: href, target: '_blank', rel: 'noopener' }, [
-            el('span', { class: 'ef-code', text: A.tag || g[0] }), el('span', null, [A.name, g[1] ? el('span', { class: 'c-tab', text: ' ' + g[1] }) : null]), el('span', { class: 'c-arrow', text: 'ひらく ▶' })]));
-          if (A.ws !== false) go.appendChild(el('a', { class: 'c-ws', href: WS_BASE + WS[A.f] + '#' + ws, target: '_blank', rel: 'noopener', title: g[0] + ' の自習ワークシート' }, ['📝 ワークシート']));
-        });
-        card.appendChild(el('div', { class: 'c-row' }, [go]));
-        var qbox = s.q ? el('ol', { class: 'c-q' }) : null;
-        if (qbox) card.appendChild(el('div', { class: 'c-row' }, [el('span', { class: 'c-row-h', text: 'たしかめの1問' }), qbox]));
-        card.appendChild(el('div', { class: 'c-foot' }, [el('label', { class: 'c-done' }, [chk, el('span', { text: 'できた' })])]));
-        box.appendChild(card);
-        // たしかめの1問(正しい答えは c の1つめ。画面では順をまぜる)。付録の節には問いがない
-        if (qbox) {
-          if (!S.q[s.id] || typeof S.q[s.id] !== 'object') S.q[s.id] = {};
-          T.quiz(qbox, null, null, [{ t: s.q.t, c: s.q.c, a: 0, x: s.q.x }], function () { return S.q[s.id]; }, { mix: 3 + hi * 31 + si * 7 + s.id.length });
-        }
-        (H.extra ? extra : all).push({ s: s, card: card, chk: chk, hen: H.id });
+      C.secs.forEach(function (s) {
+        var x = { s: s, H: H, C: C };
+        byId[s.id] = x;
+        (H.extra ? extra : all).push(x);
       });
     });
-    list.appendChild(box);
+  });
+  var ORDER = all.concat(extra);
+  function numOf(s) { var mm = /(\d+)\s*$/.exec(s.ref); return mm ? mm[1] : ''; }
+  function shortRef(s) { return s.ref.replace(/\s+/g, ''); }
+  // 付録の節(「1編1章 2 を深める」)を、もとの節から開けるようにする
+  var deeper = {};
+  extra.forEach(function (x) {
+    var mm = /^(\d+編\d+章)\s*([\d・]+)\s*を深める/.exec(x.s.ref);
+    if (!mm) return;
+    mm[2].split('・').forEach(function (n) {
+      all.forEach(function (y) { if (y.s.ref === mm[1] + ' ' + n) (deeper[y.s.id] = deeper[y.s.id] || []).push(x); });
+    });
   });
 
-  function next() { for (var i = 0; i < all.length; i++) if (!S.done[all[i].s.id]) return all[i]; return null; }
-  function paint() {
-    var done = all.filter(function (x) { return S.done[x.s.id]; }).length, nx = next();
-    $('c-bar').style.width = (done / all.length * 100) + '%';
-    T.text($('c-count'), done + ' / ' + all.length + ' 節 できた');
-    all.concat(extra).forEach(function (x) { x.card.classList.toggle('is-done', !!S.done[x.s.id]); x.card.classList.toggle('is-next', x === nx); x.chk.checked = !!S.done[x.s.id]; });
-    COURSE.forEach(function (H) {
-      var mine = all.concat(extra).filter(function (x) { return x.hen === H.id; }), d = mine.filter(function (x) { return S.done[x.s.id]; }).length;
-      var L = navLinks[H.id];
-      L.n.textContent = ' ' + d + '/' + L.total;
-      L.a.classList.toggle('is-all', d === L.total);
-      $('hen-n-' + H.id).textContent = d + ' / ' + L.total + ' できた';
+  // 節で使う教材: go の1つずつ → { key: COURSE_APPS の記号, code: 教材の中の記号(ready で来る), j: 自習ガイドの記号, label, href }
+  function appsOf(s) {
+    return s.go.map(function (g) {
+      var A = APPS[g[0]];
+      var h = g[2] != null ? g[2] : A.h;
+      var area = (g[0] === 'M' || g[0] === 'F') && h ? h : '';
+      var qs = ['sec=' + s.id, area ? 'bunya=' + area : '', A.q || ''].filter(Boolean).join('&');
+      return {
+        key: g[0], code: A.q ? null : g[0], j: area ? g[0] + area.toUpperCase() : g[0], tab: g[1], tag: A.tag || g[0], name: A.name,
+        href: BASE + FILES[A.f] + '?' + qs + (h ? '#' + h : '')
+      };
     });
-    T.text($('c-go-next'), nx ? 'つぎの節へ ▼' : '全部できた! 🎉');
-    $('c-go-next').disabled = !nx;
   }
-  $('c-go-next').addEventListener('click', function () {
-    var nx = next();
-    if (nx) { nx.card.scrollIntoView({ behavior: 'smooth' }); try { history.replaceState(null, '', location.pathname + location.search + '#sec-' + nx.s.id); } catch (e) {} }
+  function hasSec(x, id) { return x.sec != null && [].concat(x.sec).indexOf(id) >= 0; }
+  // その節の手順(sec の付いた手順。発展は more に分ける)
+  function stepsOf(s, app) {
+    var J = JISHU[app.j];
+    if (!J) return { basic: [], adv: [] };
+    var list = (J.steps || []).map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return hasSec(o.x, s.id) && !o.x.reflect; });
+    return { basic: list.filter(function (o) { return o.x.level !== 'advanced'; }), adv: list.filter(function (o) { return o.x.level === 'advanced'; }) };
+  }
+  // たしかめ: コースの1問と、自習ガイドのたしかめ問題(sec の付いたもの)から、3問まで
+  function quizOf(s) {
+    var out = [];
+    if (s.q) out.push({ t: s.q.t, c: s.q.c, a: 0, x: s.q.x });
+    appsOf(s).forEach(function (a) {
+      var J = JISHU[a.j];
+      (J && J.check || []).forEach(function (q) { if (hasSec(q, s.id)) out.push({ t: q.q, c: q.choices, a: q.answer, x: q.explain, rb: RB[a.j] }); });
+    });
+    var seen = {};
+    return out.filter(function (q) { if (seen[q.t]) return false; seen[q.t] = 1; return true; }).slice(0, 3);
+  }
+  function stOf(id) {
+    var st = S.st[id];
+    if (!st || typeof st !== 'object') st = S.st[id] = {};
+    ['s', 'sub', 'q'].forEach(function (k) { if (!st[k] || typeof st[k] !== 'object') st[k] = {}; });
+    if (typeof st.m !== 'string') st.m = '';
+    return st;
+  }
+  function stepCount(id) { var st = S.st[id]; return st && st.s ? Object.keys(st.s).filter(function (k) { return st.s[k]; }).length : 0; }
+
+  // ---- 目次 ----
+  var HEN_SHORT = { g: 'ガイダンス', a: '1編 材料と加工', b: '2編 生物育成', c: '3編 エネルギー変換', d: '4編 情報', i: '統合的な問題解決', z: '学習を終えて', x: '付録 発展' };
+  var HEN_KEY = 'eduit.course.hen';
+  var curHen = '';
+  try { curHen = localStorage.getItem(HEN_KEY) || ''; } catch (e) {}
+  var henBtns = {};
+  COURSE.forEach(function (H) {
+    var b = el('button', { type: 'button', role: 'tab', class: 'c-hen-' + H.id, 'aria-selected': 'false' }, [HEN_SHORT[H.id] || H.title, el('span', { class: 'c-n' })]);
+    b.addEventListener('click', function () { showHen(H.id); });
+    $('c-hens').appendChild(b);
+    henBtns[H.id] = b;
   });
-  T.onSave.push(paint);
+  function nextSec() {
+    // つづき: 前に開いた節がまだなら、その節。終わっていれば、そのあとのまだの節。なければ最初のまだの節
+    var i = -1;
+    all.forEach(function (x, k) { if (x.s.id === S.last) i = k; });
+    if (i >= 0 && !S.done[all[i].s.id]) return all[i];
+    for (var k = i + 1; k < all.length; k++) if (!S.done[all[k].s.id]) return all[k];
+    for (k = 0; k < all.length; k++) if (!S.done[all[k].s.id]) return all[k];
+    return null;
+  }
+  function showHen(id) {
+    curHen = id;
+    try { localStorage.setItem(HEN_KEY, id); } catch (e) {}
+    renderToc();
+  }
+  function renderToc() {
+    var nx = nextSec();
+    if (!curHen || !henBtns[curHen]) curHen = nx ? nx.H.id : 'g';
+    Object.keys(henBtns).forEach(function (k) { henBtns[k].setAttribute('aria-selected', String(k === curHen)); });
+    // 編ごとの数
+    COURSE.forEach(function (H) {
+      var n = 0, d = 0;
+      H.chapters.forEach(function (C) { C.secs.forEach(function (s) { n++; if (S.done[s.id]) d++; }); });
+      henBtns[H.id].querySelector('.c-n').textContent = d + '/' + n;
+    });
+    // つづきから
+    $('c-cont').hidden = $('c-cont-k').hidden = !nx;
+    if (nx) {
+      T.text($('c-cont-ref'), shortRef(nx.s) + (nx.s.p ? ' ・ 教科書 p.' + nx.s.p : ''));
+      T.text($('c-cont-name'), nx.s.name);
+    }
+    var done = all.filter(function (x) { return S.done[x.s.id]; }).length;
+    $('c-track').style.width = (done / all.length * 100) + '%';
+    T.text($('c-count'), done + ' / ' + all.length + ' 節 できた');
+    // 編の中身
+    var box = $('c-hen-body');
+    box.innerHTML = '';
+    var H = COURSE.filter(function (h) { return h.id === curHen; })[0];
+    box.className = 'c-hen-' + H.id;
+    box.appendChild(el('h2', { class: 'c-hen-h', text: H.title }));
+    if (H.when) box.appendChild(el('p', { class: 'c-when c-small', text: (H.extra ? '' : 'いつ: ') + H.when }));
+    H.chapters.forEach(function (C) {
+      var d = C.secs.filter(function (s) { return S.done[s.id]; }).length;
+      if (C.title) box.appendChild(el('h3', { class: 'c-ch' }, [C.ch + ' ' + C.title, el('span', { class: 'c-small', text: d + ' / ' + C.secs.length + ' できた' })]));
+      var ul = el('ul', { class: 'c-rows' });
+      C.secs.forEach(function (s) {
+        var now = nx && nx.s.id === s.id;
+        var open = el('button', { type: 'button', class: 'ef-btn c-open' + (now ? ' ef-btn-primary' : ''), text: 'ひらく ▶' });
+        open.addEventListener('click', function () { openSec(s.id); });
+        var sub = H.extra ? s.ref : (stepCount(s.id) && !S.done[s.id] ? '進め方 ' + stepCount(s.id) + ' / 5' : '');
+        ul.appendChild(el('li', { class: 'c-row' + (now ? ' is-now' : '') }, [
+          el('span', { class: 'c-ck', 'aria-label': S.done[s.id] ? 'できた' : 'まだ', text: S.done[s.id] ? '✓' : '' }),
+          el('span', { class: 'c-no', text: H.extra ? '' : (numOf(s) || '') }),
+          el('span', { class: 'c-t' }, [s.name, sub ? el('span', { class: 'c-small', text: sub }) : null, s.p ? el('span', { class: 'c-small c-pg2', text: '教科書 p.' + s.p }) : null]),
+          el('span', { class: 'c-pg c-small', text: s.p ? 'p.' + s.p : '' }),
+          open
+        ]));
+      });
+      box.appendChild(ul);
+    });
+    T.ruby(box);
+  }
+  $('c-cont-go').addEventListener('click', function () { var nx = nextSec(); if (nx) openSec(nx.s.id); });
+
+  // 教材の一覧(先生が「A4 を開いて」と言ったとき。分野のメニューを開く)
+  [['G', 'G', '技術分野のガイダンス', '1年生のはじめ'], ['A', 'A', '材料と加工の技術', '教材 A1〜A8'], ['B', 'B', '生物育成の技術', '教材 B1〜B6'], ['C', 'C', 'エネルギー変換の技術', '教材 C1〜C8'],
+    ['D', 'D', '情報の技術', '教材 D1〜D11'], ['M', 'M', '身の回りの技術さがし', '各編のはじめ'], ['F', 'F', 'これからの技術ラボ', '各編の最後'], ['Z', 'Z', '学習を終えて', '3年生の最後']].forEach(function (a) {
+    $('c-apps').appendChild(el('li', null, [el('a', { href: BASE + MENU[a[0]], 'data-ef-domain': a[1] }, [
+      el('span', { class: 'ef-code', text: a[1] }), el('span', { class: 'c-t' }, [a[2], el('span', { class: 'c-small', text: a[3] })]), el('span', { class: 'c-small', text: 'ひらく ▶' })])]));
+  });
+
+  // ---- 節の画面 ----
+  var cur = null, curApp = null, frame = $('c-frame'), openStep = 0, wantGo = null, sentFirst = {};
+  function post(msg) { try { if (frame.contentWindow) frame.contentWindow.postMessage(msg, '*'); } catch (e) {} }
+  function tabsFor(app) {
+    var r = stepsOf(cur.s, app), out = [];
+    r.basic.concat(r.adv).forEach(function (o) { if (o.x.go && out.indexOf(o.x.go) < 0) out.push(o.x.go); });
+    return out;
+  }
+  function loadApp(app, go) {
+    curApp = app;
+    wantGo = go || null;
+    sentFirst = {};
+    frame.src = app.href;
+    paintAppBtns();
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!cur || !curApp || !d || d.eduitSec !== 'ready' || e.source !== frame.contentWindow) return;
+    if (d.code !== curApp.code) return;
+    post({ eduitSec: 'set', code: d.code, tabs: mode === 'self' ? tabsFor(curApp) : [] });
+    var go = wantGo;
+    if (!go && !sentFirst[d.code]) { var t = tabsFor(curApp); go = t[0] || null; }
+    sentFirst[d.code] = 1;
+    wantGo = null;
+    if (go) post({ eduitSec: 'go', code: d.code, go: go });
+  });
+
+  function idx(id) { for (var i = 0; i < ORDER.length; i++) if (ORDER[i].s.id === id) return i; return -1; }
+  function neighbor(id, dir) {
+    var x = byId[id], list = x.H.extra ? extra : all, i = list.indexOf(x) + dir;
+    return list[i] || null;
+  }
+  function openSec(id, noPush) {
+    var x = byId[id];
+    if (!x) return;
+    cur = x;
+    S.last = x.H.extra ? S.last : id;
+    T.save();
+    var st = stOf(id);
+    openStep = firstOpen(st);
+    document.body.classList.toggle('is-class-sec', mode === 'class');
+    $('c-toc').hidden = true; $('c-footer').hidden = true;
+    $('c-bar-toc').hidden = true; $('c-bar-sec').hidden = false;
+    var sv = $('c-secview');
+    sv.hidden = false;
+    sv.classList.toggle('is-class', mode === 'class');
+    $('c-guide').hidden = mode === 'class';
+    $('c-bar').className = 'c-bar c-hen-' + x.H.id;
+    sv.className = 'c-secview c-hen-' + x.H.id + (mode === 'class' ? ' is-class' : '');
+    T.text($('c-bar-ref'), shortRef(x.s));
+    T.text($('c-bar-name'), x.s.name);
+    T.text($('c-bar-p'), x.s.p ? '教科書 p.' + x.s.p : '');
+    document.title = shortRef(x.s) + ' ' + x.s.name;
+    $('c-guide').classList.remove('is-up');
+    $('c-sheet-h').setAttribute('aria-expanded', 'false');
+    loadApp(appsOf(x.s)[0]);
+    renderGuide();
+    if (!noPush) try { history.pushState({ sec: id }, '', location.pathname + location.search + '#s=' + id); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  function closeSec(noPush) {
+    cur = null; curApp = null;
+    frame.src = 'about:blank';
+    document.body.classList.remove('is-class-sec');
+    $('c-secview').hidden = true;
+    $('c-toc').hidden = false; $('c-footer').hidden = false;
+    $('c-bar-toc').hidden = false; $('c-bar-sec').hidden = true;
+    $('c-bar').className = 'c-bar';
+    document.title = '技術分野 教材集(教科書の目次)';
+    renderToc();
+    if (!noPush) try { history.pushState(null, '', location.pathname + location.search); } catch (e) {}
+  }
+  $('c-back').addEventListener('click', function () { closeSec(); });
+  window.addEventListener('popstate', function () { route(true); });
+  function route(noPush) {
+    var mm = /^#s=([a-z0-9]+)$/.exec(location.hash);
+    if (mm && byId[mm[1]]) openSec(mm[1], noPush); else if (cur) closeSec(noPush); else renderToc();
+  }
+  function go(dir) { var n = cur && neighbor(cur.s.id, dir); if (n) openSec(n.s.id); }
+  $('c-prev').addEventListener('click', function () { go(-1); });
+  $('c-next').addEventListener('click', function () { go(1); });
+  $('c-cprev').addEventListener('click', function () { go(-1); });
+  $('c-cnext').addEventListener('click', function () { go(1); });
+  $('c-sheet-h').addEventListener('click', function () {
+    var up = !$('c-guide').classList.contains('is-up');
+    $('c-guide').classList.toggle('is-up', up);
+    this.setAttribute('aria-expanded', String(up));
+    T.text($('c-sheet-o'), up ? '▼ とじる' : '▲ ひらく');
+  });
+
+  // ---- この節の進め方(5つの手順) ----
+  var STEP_NAMES = ['教科書をひらく', 'まず考えよう', 'やってみる', 'たしかめ', 'まとめ'];
+  function firstOpen(st) { for (var i = 1; i <= 5; i++) if (!st.s[i]) return i; return 5; }
+  var appBtns = [];
+  function paintAppBtns() { appBtns.forEach(function (o) { o.b.setAttribute('aria-pressed', String(curApp && o.a.href === curApp.href)); }); }
+  function doneBtn(n, label, check) {
+    var b = el('button', { type: 'button', class: 'ef-btn ef-btn-primary', text: label || 'できた' });
+    b.addEventListener('click', function () {
+      if (check && !check()) return;
+      markStep(n);
+    });
+    return b;
+  }
+  function markStep(n) {
+    var st = stOf(cur.s.id);
+    st.s[n] = 1;
+    if (n === 5) S.done[cur.s.id] = true;
+    T.save();
+    openStep = firstOpen(st);
+    if (st.s[5]) openStep = 0;
+    renderGuide();
+  }
+  function stepBody(n, st) {
+    var s = cur.s, b = el('div', { class: 'c-step-b' });
+    if (n === 1) {
+      b.appendChild(el('p', { text: s.p ? '教科書の p.' + s.p + ' をひらこう。' : '教科書の「' + s.ref + '」のページをひらこう。' }));
+      if (s.pnote) b.appendChild(el('p', { class: 'c-small', text: s.pnote }));
+      if (s.kw && s.kw.length) {
+        b.appendChild(el('p', { class: 'c-small', text: 'この節のキーワード。教科書で、この言葉をさがそう。' }));
+        b.appendChild(el('div', { class: 'c-kws' }, s.kw.map(function (k) { return el('span', { class: 'c-kw', text: k }); })));
+      }
+      b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(1, 'ひらいた')]));
+    } else if (n === 2) {
+      var L = EduitFrame.lets(s.id);
+      if (L) {
+        b.appendChild(el('p', { style: 'font-weight:700', text: L.q }));
+        if (L.hint) b.appendChild(el('details', { class: 'c-more' }, [el('summary', { text: 'ヒント' }), el('p', { class: 'c-hint', text: L.hint })]));
+      } else b.appendChild(el('p', { text: 'この節のねらいを読もう。' }));
+      b.appendChild(el('p', { class: 'c-small', text: 'ねらい: ' + s.aim }));
+      b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(2, '考えた')]));
+    } else if (n === 3) {
+      var apps = appsOf(s);
+      appBtns = [];
+      apps.forEach(function (a) {
+        var r = stepsOf(s, a);
+        if (apps.length > 1 || !a.code) {
+          var ob = el('button', { type: 'button', class: 'ef-btn', 'aria-pressed': 'false', text: 'ひらく ▶' });
+          ob.addEventListener('click', function () { loadApp(a); if (narrow()) sheet(false); });
+          appBtns.push({ a: a, b: ob });
+          b.appendChild(el('div', { class: 'c-apphead' }, [el('span', { class: 'ef-code', text: a.tag }), el('b', { text: a.name }), ob]));
+        }
+        if (!a.code) b.appendChild(el('p', { text: '学習のまとめの問題を、全部といてみよう。まちがえた問題は、教材にもどって確かめよう。' }));
+        b.appendChild(el('ol', { class: 'c-sub' }, r.basic.map(function (o) { return subEl(a, o, st); })));
+        if (r.adv.length) b.appendChild(el('details', { class: 'c-more' }, [el('summary', { text: 'もっと調べたい人(発展)' }), el('ol', { class: 'c-sub' }, r.adv.map(function (o) { return subEl(a, o, st); }))]));
+      });
+      paintAppBtns();
+      if (s.fig) b.appendChild(el('p', { class: 'c-fig', text: '教科書 ' + s.fig.replace(/ (図.*)$/, ' の$1') + ' と、教材の画面をくらべよう。' }));
+      var deep = deeper[s.id] || [];
+      if (deep.length) {
+        b.appendChild(el('details', { class: 'c-more' }, [el('summary', { text: 'もっと調べたい人(付録の発展)' }), el('ul', { class: 'c-sub' }, deep.map(function (x) {
+          var ob = el('button', { type: 'button', class: 'ef-btn', text: 'ひらく ▶' });
+          ob.addEventListener('click', function () { openSec(x.s.id); });
+          return el('li', null, [el('b', { text: x.s.name }), el('p', { class: 'c-small', text: x.s.aim }), ob]);
+        }))]));
+      }
+      b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(3)]));
+    } else if (n === 4) {
+      var qs = quizOf(s);
+      if (!qs.length) {
+        b.appendChild(el('p', { text: '教材でやったことを、教科書の本文と見くらべよう。' }));
+        b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(4)]));
+      } else {
+        b.appendChild(el('p', { class: 'c-small', text: '全部正解すると ✓ が付きます。まちがえたら、もう一度えらぼう。' }));
+        var ol = el('ol', { class: 't-quiz' });
+        b.appendChild(ol);
+        T.quiz(ol, null, null, qs, function () { return stOf(cur.s.id).q; }, { mix: idx(s.id) * 7 + 3 });
+      }
+    } else if (n === 5) {
+      b.appendChild(el('p', { text: 'この節で分かったことを、自分の言葉で1文に書こう。' }));
+      b.appendChild(el('p', { class: 'c-small', text: s.kw && s.kw.length ? 'キーワード(' + s.kw.slice(0, 3).join('・') + ' など)を1つ使おう。' : 'ねらいの言葉を使って書こう。' }));
+      var ta = el('textarea', { 'aria-label': 'まとめ', rows: '3' });
+      ta.value = st.m || '';
+      var msg = el('p', { class: 'c-small', 'aria-live': 'polite' });
+      ta.addEventListener('input', function () { stOf(cur.s.id).m = ta.value; T.save(); });
+      b.appendChild(ta);
+      b.appendChild(msg);
+      b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(5, '書いた', function () {
+        if (ta.value.trim().length < 5) { T.text(msg, 'まとめを1文書いてから押そう。'); ta.focus(); return false; }
+        return true;
+      })]));
+    }
+    return b;
+  }
+  function subEl(a, o, st) {
+    var k = a.j + '.' + o.i, x = o.x;
+    var cb = el('input', { type: 'checkbox' });
+    cb.checked = !!st.sub[k];
+    var li = el('li', { class: cb.checked ? 'is-done' : '' });
+    cb.addEventListener('change', function () { var t = stOf(cur.s.id); if (cb.checked) t.sub[k] = 1; else delete t.sub[k]; li.classList.toggle('is-done', cb.checked); T.save(); });
+    var tools = el('div', { class: 'c-sub-tools' });
+    var hint = null;
+    if (x.go) {
+      var gb = el('button', { type: 'button', class: 'ef-btn', text: 'この場所へ ▶' });
+      gb.addEventListener('click', function () {
+        if (!curApp || curApp.href !== a.href) loadApp(a, x.go); else post({ eduitSec: 'go', code: a.code, go: x.go });
+        if (narrow()) sheet(false);
+      });
+      tools.appendChild(gb);
+    }
+    if (x.hint) {
+      hint = el('p', { class: 'c-hint', hidden: '', text: x.hint });
+      var hb = el('button', { type: 'button', class: 'ef-btn', 'aria-expanded': 'false', text: 'ヒント' });
+      hb.addEventListener('click', function () { hint.hidden = !hint.hidden; hb.setAttribute('aria-expanded', String(!hint.hidden)); });
+      tools.appendChild(hb);
+    }
+    tools.appendChild(el('label', null, [cb, 'できた']));
+    li.appendChild(el('span', { class: 'c-sub-where', text: x.where || '' }));
+    li.appendChild(el('span', { class: 'c-sub-do', text: x.do }));
+    li.appendChild(tools);
+    if (hint) li.appendChild(hint);
+    if (RB[a.j]) T.ruby(li, RB[a.j]);
+    return li;
+  }
+  function renderGuide() {
+    var st = stOf(cur.s.id), ol = $('c-steps');
+    ol.innerHTML = '';
+    var qs = quizOf(cur.s);
+    // たしかめが全部正解なら、4 に ✓
+    if (qs.length && qs.every(function (q, i) { return st.q[i] != null && +st.q[i] === q.a; }) && !st.s[4]) { st.s[4] = 1; T.save(); }
+    var n = stepCount(cur.s.id);
+    T.text($('c-gcount'), n + ' / 5');
+    $('c-gtrack').style.width = (n / 5 * 100) + '%';
+    var on = openStep || 0;
+    T.text($('c-sheet-n'), (S.done[cur.s.id] ? '✓' : (on || 5) + ' / 5'));
+    T.text($('c-sheet-t'), S.done[cur.s.id] ? 'この節はできた' : STEP_NAMES[(on || 5) - 1]);
+    STEP_NAMES.forEach(function (name, i) {
+      var k = i + 1, isOpen = k === on;
+      var h = el('button', { type: 'button', class: 'c-step-h', 'aria-expanded': String(isOpen) }, [
+        el('span', { class: 'c-sn', text: String(k) }), el('span', { text: name }),
+        el('span', { class: 'c-small', text: k === 4 && qs.length ? qs.length + '問' : (k === 1 && cur.s.p ? 'p.' + cur.s.p : '') })]);
+      h.addEventListener('click', function () { openStep = openStep === k ? 0 : k; renderGuide(); });
+      var li = el('li', { class: 'c-step' + (st.s[k] ? ' is-done' : '') + (isOpen ? ' is-open' : '') }, [h]);
+      if (isOpen) li.appendChild(stepBody(k, st));
+      ol.appendChild(li);
+    });
+    if (S.done[cur.s.id]) {
+      var nx = neighbor(cur.s.id, 1);
+      var end = el('div', { class: 'c-end' }, [el('p', { text: 'この節はできました。' })]);
+      if (nx) {
+        var nb = el('button', { type: 'button', class: 'ef-btn ef-btn-primary', text: '次の節へ ▶ ' + nx.s.name });
+        nb.addEventListener('click', function () { openSec(nx.s.id); });
+        end.appendChild(nb);
+      }
+      ol.appendChild(el('li', null, [end]));
+    }
+    $('c-prev').disabled = !neighbor(cur.s.id, -1);
+    $('c-next').disabled = !neighbor(cur.s.id, 1);
+    $('c-cprev').disabled = $('c-prev').disabled;
+    $('c-cnext').disabled = $('c-next').disabled;
+    T.ruby($('c-guide'));
+  }
+  T.onSave.push(function () {
+    if (!cur) return;
+    var st = stOf(cur.s.id), qs = quizOf(cur.s);
+    if (qs.length && !st.s[4] && qs.every(function (q, i) { return st.q[i] != null && +st.q[i] === q.a; })) { st.s[4] = 1; openStep = firstOpen(st); setTimeout(renderGuide, 900); }
+  });
+  function narrow() { return window.matchMedia && window.matchMedia('(max-width: 860px)').matches; }
+  function sheet(up) { $('c-guide').classList.toggle('is-up', up); $('c-sheet-h').setAttribute('aria-expanded', String(up)); T.text($('c-sheet-o'), up ? '▼ とじる' : '▲ ひらく'); }
+
+  // ---- 記録の書き出し(先生の振り返り一覧 teacher-tools/furikaeri-ichiran で読める) ----
+  $('c-export').addEventListener('click', function () {
+    var safe = function (v) { return String(v || '').replace(/[\\/:*?"<>|\s]/g, ''); };
+    var who = [safe(S.who.cls), safe(S.who.no)].filter(Boolean).join('-');
+    var d = new Date(), ds = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    var name = '教科書の目次_' + (who ? who + '_' : '') + (safe(S.who.name) ? safe(S.who.name) + '_' : '') + ds + '.json';
+    var secs = {};
+    ORDER.forEach(function (x) {
+      var st = S.st[x.s.id];
+      if (!st && !S.done[x.s.id]) return;
+      secs[x.s.id] = { ref: x.s.ref, name: x.s.name, done: !!S.done[x.s.id], steps: stepCount(x.s.id), matome: st && st.m || '' };
+    });
+    var ob = { schema: 'eduit-textbook/1', app: 'T', title: '教科書の目次', version: (window.EDUIT_INFO || {}).version || '', exported: d.toISOString(),
+      student: { cls: S.who.cls, no: S.who.no, name: S.who.name }, score: { done: all.filter(function (x) { return S.done[x.s.id]; }).length, total: all.length }, data: { secs: secs } };
+    try {
+      var blob = new Blob([JSON.stringify(ob, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      T.text($('c-export-msg'), '「' + name + '」を作りました。先生の言う場所に出そう。');
+    } catch (e) { T.text($('c-export-msg'), 'ファイルを作れませんでした。先生に聞いてください。'); }
+  });
+
   T.fields();
+  paintMode();
+  route(true);
   T.ruby(T.root);
-  paint();
-  // アドレスの #hen-a・#sec-a12 などで、その場所から始める
-  var h = location.hash.slice(1);
-  if (h && $(h)) setTimeout(function () { $(h).scrollIntoView(); }, 0);
 })();
 </script>
 </body>

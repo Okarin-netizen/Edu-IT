@@ -576,9 +576,26 @@
     return [{ domain: app, app: title, student: student(st.cls, st.no, st.name), rows: R.rows }];
   }
 
+  /* ================= 教科書の目次(入り口のページ T-textbook/index.html) =================
+   * { schema: 'eduit-textbook/1', app: 'T', exported, student: { cls, no, name }, score: { done, total }, data: { secs: { 節の id: { ref, name, done, steps, matome } } } } */
+  function parseCourse(obj) {
+    var d = isObj(obj.data) ? obj.data : {}, sc = isObj(obj.score) ? obj.score : {}, st = isObj(obj.student) ? obj.student : {}, R = Rows(obj.exported);
+    if (sc.total) R.add('成績', '', 'できた節', (+sc.done || 0) + ' / ' + (+sc.total));
+    var secs = isObj(d.secs) ? d.secs : {};
+    Object.keys(secs).forEach(function (k) {
+      var x = secs[k];
+      if (!isObj(x)) return;
+      var part = str(x.ref) + ' ' + str(x.name);
+      R.add('成績', part, '進め方', x.done ? 'できた' : (+x.steps || 0) + ' / 5');
+      R.add('ふりかえり', part, 'まとめ', x.matome);
+    });
+    return [{ domain: 'T', app: '教科書の目次', student: student(st.cls, st.no, st.name), rows: R.rows }];
+  }
+
   /* ================= 形の見分け(上から順に試す) ================= */
   var ADAPTERS = [
     ['G 技術分野のガイダンス', function (o) { return o.schema === 'eduit-guidance/1' && o.app === 'G'; }, parseG],
+    ['教科書の目次', function (o) { return o.schema === 'eduit-textbook/1' && o.app === 'T'; }, parseCourse],
     ['M・F・Z 教科書順コースの教材', function (o) { return o.schema === 'eduit-textbook/1' && T_SELF.hasOwnProperty(o.app); }, parseT],
     ['情報の技術 体験教材集(記録まとめ)', function (o) { return o.kind === '記録まとめ' && Array.isArray(o.materials); }, parseKyozai],
     ['材料と加工', function (o) {

@@ -772,7 +772,7 @@
   }
   // c: 記号(なければアプリ名から)。1つのページの中でアプリを切りかえる教材集(C)は、開いたアプリの記号で呼びなおす(null でかくす)
   function jishuMount(c, appTitle) {
-    if (!jishu) return;
+    if (!jishu || inSec) return;
     Array.prototype.forEach.call(document.querySelectorAll('.ef-jishu, .ef-jishu-fab'), function (e) { e.parentNode.removeChild(e); });
     document.documentElement.classList.remove('ef-jishu-open');
     if (c === undefined) c = appCode();
@@ -1105,8 +1105,107 @@
   }
   watchPlain();  // 読みこみの途中から見はる(はじめに絵文字が一瞬出ないように)
 
-  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, prefs: prefs, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; jishuMount(c, title); }, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
+  // ---- 節の画面の中(教科書の目次から ?sec=節の id で開いたとき) ----
+  // 教科書の目次(T-textbook/index.html)が、教材をとなりの iframe に ?sec=c15 で開く。このとき教材は:
+  //   <html data-ef-sec="c15"> にして、上のバー(.ef-appbar・.t-top の見出し)と「まず考えよう」と自習ガイドを出さない(目次の側に出すので)。
+  //   目次と postMessage でやりとりする({ eduitSec: '…', … }。file:// で開いても動くように、DOM は直接さわらない):
+  //     教材 → 目次  { eduitSec: 'ready', code: 'C4' }          教材(アプリ)が開いた。iframe の中の iframe は親へ順に送る
+  //     目次 → 教材  { eduitSec: 'set', code, tabs: [go, …] }   その節で使うタブだけを出す(tabs が空なら全部)。のこりは「ほかのタブも見る」
+  //                  { eduitSec: 'go', code, go }               その場所へ(# なら location.hash、それ以外はその要素を押す)
+  //                  { eduitSec: 'prefs' }                      表示の設定を読みなおす
+  //   目次から教材の中のさらに中(A・B・D の教材集の iframe)へは、どの教材も子の iframe へそのまま送る。code が自分の記号のときだけ動く。
+  function secParam() {
+    var w = window, re = /[?&]sec=([a-z0-9]+)(?:&|$)/;
+    for (var i = 0; i < 8; i++) {
+      try { var m = re.exec(w.location.search || ''); if (m) return m[1]; } catch (e) { return null; }
+      if (w === w.parent) return null;
+      w = w.parent;
+    }
+    return null;
+  }
+  var inSec = secParam();
+  var curApp = null;  // 1つのページでアプリを切りかえる教材集(C)が jishuApp で知らせた記号
+  if (inSec) document.documentElement.setAttribute('data-ef-sec', inSec);
+  function myCode() { return curApp || appCode(); }
+  function secPost(msg) { try { if (window.parent !== window) window.parent.postMessage(msg, '*'); } catch (e) {} }
+  function secDown(msg) { for (var i = 0; i < window.frames.length; i++) try { window.frames[i].postMessage(msg, '*'); } catch (e) {} }
+  // go(セレクタか #…)から、タブの要素を見つける
+  function tabOf(go) {
+    var t = null;
+    try { t = go.charAt(0) === '#' ? document.querySelector('a[href="' + go + '"]') : document.querySelector(go); } catch (e) { return null; }
+    if (!t) return null;
+    return (t.parentElement && t.parentElement.tagName === 'LI') ? t.parentElement : t;
+  }
+  function tabLike(e) {
+    if (!e || e.nodeType !== 1) return false;
+    if (e.getAttribute('role') === 'tab' || e.classList.contains('ef-apptab')) return true;
+    return e.tagName === 'LI' && !!e.querySelector('a[href^="#"]');
+  }
+  // しぼったタブは、教材が上の帯を作りなおしても(C など)しぼったままにする(MutationObserver で、もう一度しぼる)。
+  // 「ほかのタブも見る」を押したら、その節のあいだは全部を出す
+  var secTabs = [], secAll = false, secObs = null, secT = 0;
+  function secShowAll() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ef-sec-hid]'), function (e) { e.hidden = false; e.removeAttribute('data-ef-sec-hid'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.ef-sec-more'), function (b) { b.parentNode.removeChild(b); });
+  }
+  function secApply() {
+    if (secObs) secObs.disconnect();
+    try { secApply1(); } finally { if (secObs) secObs.observe(document.body, { childList: true, subtree: true }); }
+  }
+  function secApply1() {
+    secShowAll();
+    if (secAll || !secTabs.length) return;
+    var keep = secTabs.map(tabOf).filter(tabLike);
+    if (!keep.length) return;
+    var boxes = [];
+    keep.forEach(function (k) { if (boxes.indexOf(k.parentElement) < 0) boxes.push(k.parentElement); });
+    boxes.forEach(function (box) {
+      var hid = 0;
+      Array.prototype.forEach.call(box.children, function (c) {
+        if (!tabLike(c) || keep.indexOf(c) >= 0 || c.hidden) return;
+        c.hidden = true; c.setAttribute('data-ef-sec-hid', ''); hid++;
+      });
+      if (!hid) return;
+      var more = el(box.tagName === 'UL' || box.tagName === 'OL' ? 'li' : 'span', { class: 'ef-sec-more' }, [el('button', { type: 'button', class: 'ef-btn ef-sec-more-b', text: 'ほかのタブも見る' })]);
+      more.firstChild.addEventListener('click', function () { secAll = true; secApply(); });
+      var tools = box.querySelector(':scope > .ef-apptabs-tools');
+      box.insertBefore(more, tools || null);
+    });
+  }
+  function secWatch() {
+    if (secObs || !window.MutationObserver || !document.body) return;
+    secObs = new MutationObserver(function () { clearTimeout(secT); secT = setTimeout(secApply, 30); });
+    secObs.observe(document.body, { childList: true, subtree: true });
+  }
+  function secGo(where) {
+    if (!where) return;
+    if (where.charAt(0) === '#') { location.hash = where; return; }
+    try { var t = document.querySelector(where); if (t) { if (t.hidden || (t.parentElement && t.parentElement.hidden)) { secAll = true; secApply(); } t.click(); } } catch (e) {}
+  }
+  if (inSec) {
+    window.addEventListener('message', function (e) {
+      var d = e.data;
+      if (!d || typeof d !== 'object' || typeof d.eduitSec !== 'string') return;
+      if (d.eduitSec === 'ready') { if (e.source !== window) secPost(d); return; }  // 子の教材から → 目次へ
+      secDown(d);
+      if (d.eduitSec === 'prefs') {
+        var old = prefState; prefState = prefsLoad(); prefsApply();
+        prefsNotify(Object.keys(PREF_DEFAULTS).filter(function (k) { return old[k] !== prefState[k]; }));
+        return;
+      }
+      if (!d.code || d.code !== myCode()) return;
+      if (d.eduitSec === 'set') {
+        secTabs = Array.isArray(d.tabs) ? d.tabs.filter(function (x) { return typeof x === 'string'; }) : [];
+        secAll = false;
+        secApply();
+        secWatch();  // タブがまだできていない教材・作りなおす教材もあるので、変わったらもう一度
+      } else if (d.eduitSec === 'go' && typeof d.go === 'string') secGo(d.go);
+    });
+  }
+  function secReady() { if (inSec && myCode()) secPost({ eduitSec: 'ready', code: myCode() }); }
+
+  window.EduitFrame = { AUTHOR: AUTHOR, furikaeri: furikaeri, jishu: jishu, open: open, howto: howto, footer: footer, aboutButton: aboutButton, fsButton: fsButton, mount: mount, levels: levels, card: card, code: code, menuTitle: menuTitle, sizeButton: sizeButton, prefs: prefs, jishuProgress: jishuProgress, jishuApp: function (c, title) { jishuSet = true; curApp = c || null; jishuMount(c, title); secReady(); }, sec: inSec, lets: function (id) { return LETS[id] || null; }, letsCard: letsCard };
   var jishuSet = false;  // 教材集が jishuApp で決めたときは、アプリ名から決めなおさない
-  function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); }
+  function start() { mount(); if (!jishuSet) jishuMount(); watchLets(); if (!jishuSet) secReady(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

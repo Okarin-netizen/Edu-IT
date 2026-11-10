@@ -73,8 +73,17 @@
     var RUBY = window.T_RUBY || {};
     var RUBY_RE = new RegExp(Object.keys(RUBY).sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') || '(?!)', 'g');
     var SKIP = /^(RUBY|RT|RP|SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/;
-    function ruby(node) {
-      var top = node || root;
+    // tab を渡すと、その表の読みを先に使う(分野の自習ガイドの文は、その分野の読みで)
+    function reOf(tab) {
+      if (!tab) return { R: RUBY, re: RUBY_RE };
+      if (!tab.__rb) {
+        var R = {}; Object.keys(RUBY).forEach(function (k) { R[k] = RUBY[k]; }); Object.keys(tab).forEach(function (k) { R[k] = tab[k]; });
+        Object.defineProperty(tab, '__rb', { value: { R: R, re: new RegExp(Object.keys(R).sort(function (a, b) { return b.length - a.length; }).map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') || '(?!)', 'g') } });
+      }
+      return tab.__rb;
+    }
+    function ruby(node, tab) {
+      var top = node || root, T0 = reOf(tab), RB = T0.R, RE = T0.re;
       var walker = document.createTreeWalker(top, NodeFilter.SHOW_TEXT, {
         acceptNode: function (n) {
           for (var p = n.parentNode; p && p !== root.parentNode; p = p.parentNode) if (SKIP.test(p.nodeName) || (p.hasAttribute && p.hasAttribute('data-noruby'))) return NodeFilter.FILTER_REJECT;
@@ -85,22 +94,24 @@
       while (walker.nextNode()) list.push(walker.currentNode);
       list.forEach(function (n) {
         var s = n.nodeValue, f = document.createDocumentFragment(), last = 0, m;
-        RUBY_RE.lastIndex = 0;
-        while ((m = RUBY_RE.exec(s))) {
+        RE.lastIndex = 0;
+        while ((m = RE.exec(s))) {
           if (m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
           var r = document.createElement('ruby');
           r.appendChild(document.createTextNode(m[0]));
-          var rt = document.createElement('rt'); rt.textContent = RUBY[m[0]];
+          var rt = document.createElement('rt'); rt.textContent = RB[m[0]];
           r.appendChild(rt); f.appendChild(r);
           last = m.index + m[0].length;
         }
         if (last === 0) return;
         if (last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+        // span でつつむ(親が flex・grid のボタンなどだと、つつまないと言葉ごとに間があく)
+        var w = document.createElement('span'); w.appendChild(f); f = w;
         n.parentNode.replaceChild(f, n);
       });
     }
     // 文を入れかえてからふりがなを付ける(説明・点数など、あとから変わる文に使う)
-    function text(node, s) { node.textContent = s; ruby(node); }
+    function text(node, s, tab) { node.textContent = s; ruby(node, tab); }
 
     // ---------- 表示の設定(ふりがな・文字の大きさ) ----------
     // 上のバーの data-ef-pref のボタンを EduitFrame がボタンにする(全教材で同じ設定 EduitFrame.prefs)。ふりがなは付けておき、オフのときは CSS でかくす
@@ -156,12 +167,14 @@
             b.setAttribute('aria-pressed', String(v != null && +v === j));
           });
           if (v != null) {
-            text(ex, (+v === it.a ? '正解! ' : 'ざんねん。正しくは「' + cs[it.a] + '」。 ') + (it.x || ''));
+            text(ex, (+v === it.a ? '正解! ' : 'ざんねん。正しくは「' + cs[it.a] + '」。 ') + (it.x || ''), it.rb);
             ex.hidden = false;
           } else ex.hidden = true;
         }
-        box.appendChild(el('li', { class: 't-q' }, [el('p', { class: 't-q-text', text: it.t }), el('div', { class: 't-choices' }, btns), ex]));
+        var li = el('li', { class: 't-q' }, [el('p', { class: 't-q-text', text: it.t }), el('div', { class: 't-choices' }, btns), ex]);
+        box.appendChild(li);
         paint();
+        if (it.rb) ruby(li, it.rb);  // it.rb: その問題の分野のふりがなの表
       });
       paintScore();
     }
