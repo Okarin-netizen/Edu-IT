@@ -91,6 +91,7 @@ function renderHome() {
       ),
       h("p", { class: "author-line" }, "作成：技術 岡田"),
     ),
+    ...(window.DFlowPractice ? [window.DFlowPractice.el({ page: "p.240〜241" })] : []),
     h("h2", { class: "section-title" }, "場面をえらぶ"),
     h("div", { class: "scn-grid" }, cards),
     h(
