@@ -3,7 +3,7 @@
 実行: python3 T-textbook/build.py  → T-textbook/dist/ に5つのファイル
 (クラスルーム配布/まとめる.py もこれを実行する)
 """
-import pathlib, re
+import pathlib, re, subprocess
 
 here = pathlib.Path(__file__).resolve().parent
 repo = here.parent
@@ -38,6 +38,9 @@ def inline(src):
         raise SystemExit(f"{src}: 中に入れられなかったファイルがあります")
     return html
 
+
+# 学習コースのデータと各分野の自習ガイドの節(sec)が合っているかを、先に確かめる
+subprocess.run(["node", str(here / "check-course.cjs")], check=True)
 
 dist.mkdir(exist_ok=True)
 for src, name in PAGES:
