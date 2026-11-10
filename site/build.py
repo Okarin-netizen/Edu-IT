@@ -84,7 +84,7 @@ FRAME = """<!doctype html>
 <script>
   // アドレスの #… を中の教材に渡す(あとから開いても、同じ教材のページから始まる)
   var f = document.querySelector('iframe');
-  // ?jishu=on などの設定も中の教材に渡す(ワークシートの「教材をひらく(自習モード)」が使う)
+  // ?bunya=… などの設定も中の教材に渡す
   if (location.search || location.hash) f.src = 'apps/{file}' + location.search + location.hash;
   // 全画面: このバーごと画面いっぱいにする(ブラウザのタブやアドレスバーが消える。やめるときはもう一度押すか Esc)。
   // 全画面にできないブラウザ(iPhone の Safari など)では、ボタンを出さない。
@@ -195,15 +195,15 @@ for src, dst in PAGES.items():
     (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
 
 # 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html(と g・m・f・z)に置く。
-# 教材へのリンクは、自習用の統一版から公開用の a.html?jishu=on などに、左上に「自習で使う」の入り口へもどるリンクを足す
+# 教材へのリンクは公開用の a.html などに、左上に教科書の目次へもどるリンクを足す
 (out / "ws").mkdir()
 for src, dst in WS.items():
     page = read(student / "ワークシート" / src)
     unified = next(k for k, v in PAGES.items() if v == dst)
-    n = page.count(f'href="../自習用/{unified}"') + page.count("<!--site-home-->")
+    n = page.count(f'href="../{unified}"') + page.count("<!--site-home-->")
     if n != 2:
         raise SystemExit(f"{src}: 教材へのリンクか入口へもどる印が見つかりません(worksheet/build.py を直してください)")
-    page = page.replace(f'href="../自習用/{unified}"', f'href="../{dst}?jishu=on"')
+    page = page.replace(f'href="../{unified}"', f'href="../{dst}"')
     page = page.replace("<!--site-home-->", '<a class="ef-btn ef-back" href="../">◀ 教科書の目次</a>')
     (out / "ws" / dst).write_text(page, encoding="utf-8")
 

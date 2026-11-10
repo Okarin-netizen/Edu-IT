@@ -62,7 +62,7 @@ subprocess.run([sys.executable, str(repo / "A-materials/build/build-single.py")]
 copy(repo / "A-materials/dist/材料と加工_教材アプリ.html", student / STUDENT["A"])
 copy(repo / "B-bio/dist/生物育成教材集.html", student / STUDENT["B"])
 copy(repo / "C-energy/dist/energy-apps.html", student / STUDENT["C"])
-copy(info / "dist/情報の技術_体験教材集.html", student / STUDENT["D"])  # 9つの教材(生成AI・ネット詐欺・ハッシュ化のラボも入っている)
+copy(info / "dist/情報の技術_体験教材集.html", student / STUDENT["D"])  # 10の教材(D10 ハッシュ化体験ラボは倉庫あつかいで、先生用だけに置く)
 subprocess.run([sys.executable, str(repo / "T-textbook/build.py")], check=True)  # → T-textbook/dist/
 for k in ("T", "M", "F", "Z"):
     copy(repo / "T-textbook/dist" / STUDENT[k], student / STUDENT[k])
@@ -137,6 +137,8 @@ guide(repo / "B-bio/dist/先生用ガイド.html", "B", built=True)
 guide(repo / "C-energy/docs/先生用ガイド.html", "C", built=True)
 guide(info / "docs/先生用ガイド.html", "D")
 guide(info / "docs/情報セキュリティ体験ラボ_先生用ガイド.html", "D4")
+# D10 ハッシュ化体験ラボ: 教科書の本文にないので生徒の教材集から外した(倉庫/README.md)。先生が配りたいときのために1ファイルだけ残す
+copy(info / "hash-lab/dist/hash-lab.html", teacher / "D10_ハッシュ化体験ラボ_先生が配るとき.html")
 
 # 4分野共通: 生徒が書き出した振り返りの JSON をまとめて一覧にする
 subprocess.run([sys.executable, str(repo / "teacher-tools/furikaeri-ichiran/build.py")], check=True)
@@ -155,25 +157,15 @@ for p in sorted(student.rglob("*.html")):
         continue
     add_after_head(p, nofk / p.relative_to(student), FK_TAG)
 
-# ---- 自習用(生徒に配るものと同じ中身で、自習モードを入れた版) ----
-# 先生の説明なしで進めるときに配る。<head> のすぐあとに window.EDUIT_JISHU = 'on' を入れるだけ
-# (shared/eduit-frame.js がこれを見て、各教材の右はしに「自習ガイド」(ねらい・進め方・ヒント・たしかめ問題)を出す。中身は各分野の eduit-info.js の jishu)
-jishu = student / "自習用"
-JS_TAG = "<script>window.EDUIT_JISHU = 'on';</script>"
-for p in sorted(student.rglob("*.html")):
-    if nofk in p.parents or jishu in p.parents:
-        continue
-    add_after_head(p, jishu / p.relative_to(student), JS_TAG)
-
 # ---- 自習ワークシート(教材ごとに1枚。タブレットで書きこむか印刷して使う)と、その答え(先生用) ----
-# 中身は自習ガイドと同じ eduit-info.js の jishu。振り返りなし・自習用の版は作らない(上の2つのあとで入れる)
+# 中身は各分野の eduit-info.js の jishu。振り返りなしの版は作らない(上のあとで入れる)
 subprocess.run([sys.executable, str(repo / "worksheet/build.py")], check=True)
 ws_src = repo / "worksheet/dist"
 for k in ("G_技術分野のガイダンス", "A_材料と加工", "B_生物育成", "C_エネルギー変換", "D_情報の技術", "M_身の回りの技術さがし", "F_これからの技術ラボ", "Z_学習を終えて"):
     copy(ws_src / f"{k}_ワークシート.html", student / "ワークシート" / f"{k}_ワークシート.html")
-# 教科書順コースのワークシートへのリンクは「ワークシート/…」。1つ下のフォルダ(自習用・振り返りなし)の版では「../ワークシート/…」にする
+# 教科書の目次のワークシートへのリンクは「ワークシート/…」。1つ下のフォルダ(振り返りなし)の版では「../ワークシート/…」にする
 WS_LINK = "var BASE = '', WS_BASE = 'ワークシート/';"
-for sub in (nofk, jishu):
+for sub in (nofk,):
     p = sub / STUDENT["T"]
     html = p.read_text(encoding="utf-8")
     if WS_LINK not in html:
