@@ -188,6 +188,13 @@ html,body{margin:0;height:100%;background:var(--ef-bg);}
 .e5-steplist li.cur{background:var(--ef-accent-soft);border-color:var(--ef-line)}
 .e5-steplist li.cur .k{background:var(--ef-ink);color:var(--ef-on-ink)}
 .e5-steplist li.dn .k{background:var(--ef-ok-soft);color:var(--ef-ok)}
+.e5-ord li{cursor:default}
+.e5-ord li.e5-ord-empty{color:var(--ef-muted);border:1px dashed var(--ef-line)}
+.e5-ord li.ng .k{background:var(--ef-ng-soft);color:var(--ef-ng)}
+.e5-ord-pool{display:flex;flex-direction:column;gap:6px}
+.e5-ord-pool .ef-btn{justify-content:flex-start;text-align:left;white-space:normal;height:auto;min-height:40px}
+.e5-row .ef-btn.e5-q-ok,.e5-row .ef-btn.e5-q-ok:disabled{border-color:var(--ef-ok);color:var(--ef-ok);font-weight:bold;opacity:1}
+.e5-row .ef-btn.e5-q-ng,.e5-row .ef-btn.e5-q-ng:disabled{border-color:var(--ef-ng);color:var(--ef-ng);opacity:1}
 .e5-empty{color:var(--ef-muted);font-size:.94rem;padding:20px;text-align:center;line-height:1.7}
 /* モーダル */
 .e5-ov{position:absolute;inset:0;background:var(--ef-backdrop);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
@@ -498,9 +505,9 @@ var RUBY = {
   '懐中電灯': ['かいちゅうでんとう'], '扇風機': ['せんぷうき'], '常夜灯': ['じょうやとう'], '廊下': ['ろうか'],
   '構想': ['こうそう'], '定格': ['ていかく'], '規格': ['きかく'],
   '負荷': ['ふか'], '炭素皮膜抵抗': ['たんそひまくていこう'], 'フィラメント': ['', '(光る細い金属の線)'], '実測': ['じっそく'],
-  '改善案': ['かいぜんあん'], '達成': ['たっせい'], '振り返り': ['ふりかえり']
+  '改善案': ['かいぜんあん'], '導通試験': ['どうつうしけん'], '回路計': ['かいろけい'], '実装': ['じっそう'], '換気': ['かんき'], '感電': ['かんでん'], '達成': ['たっせい'], '振り返り': ['ふりかえり']
 };
-/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)なら false。④ 評価の振り返りの欄・印刷の「8 振り返り」を出さない(書いた内容は消さない・ファイルにも入る) */
+/* 振り返りを隠す設定(先生用。EduitFrame.furikaeri === false)なら false。⑤ 評価の振り返りの欄・印刷の「8 振り返り」を出さない(書いた内容は消さない・ファイルにも入る) */
 function fkOn() { return !(window.EduitFrame && window.EduitFrame.furikaeri === false); }
 function rb(t, seen) {
   var h = esc(t); if (!seen) return h;
@@ -720,6 +727,7 @@ function loadSave() {
   s.opt = s.opt || {}; if (s.opt.res !== 'old') s.opt.res = 'jis'; if (s.opt.lbl !== 'sym') s.opt.lbl = 'ja';
   if (!s.task || !TASKS.some(function (t) { return t.id === s.task; })) s.task = 'flash';
   var w = s.who && typeof s.who === 'object' ? s.who : {};   // ほかのアプリも読むので、いつも文字列にしておく
+  s.make = cleanMake(s.make);
   s.who = { cls: String(w.cls || '').slice(0, 20), name: String(w.name || '').slice(0, 30) };
   Object.keys(s.designs).forEach(function (k) { s.designs[k] = cleanDesign(s.designs[k]); });
   return s;
@@ -1255,7 +1263,7 @@ function topHtml() {
   // 2段目の帯 = 共通のタブの帯(.ef-apptabs)。左にタブ、まん中に課題の名前、右に道具(.ef-apptabs-tools)
   function tab(k, label, extra) { return '<button class="ef-apptab" data-act="v" data-v="' + k + '"' + (v === k ? ' aria-current="page"' : '') + '>' + label + (extra || '') + '</button>'; }
   return '<div class="e5-top ef-apptabs">' + (NS.embedded ? '' : '<h1>回路設計シート</h1>') +
-    tab('brief', '① 課題・構想') + tab('edit', '② 回路図', badge) + tab('bom', '③ 部品表・手順') + tab('eval', '④ 評価') +
+    tab('brief', '① 課題・構想') + tab('edit', '② 回路図', badge) + tab('bom', '③ 部品表・手順') + tab('make', '④ 製作と安全') + tab('eval', '⑤ 評価') +
     '<div class="e5-stitle">' + esc(task().title) + '</div>' +
     '<div class="ef-apptabs-tools">' +
       '<button class="ef-btn is-s" data-act="howto">使い方</button>' +
@@ -1283,9 +1291,12 @@ function render() {
   S.el.top.outerHTML = topHtml();
   S.el.top = S.root.firstElementChild;
   efMount();
+  /* スマホでタブが横にはみ出すときは、今のタブが見えるように横にずらす */
+  var ct = S.el.top.querySelector('[aria-current]'); if (ct && S.el.top.scrollWidth > S.el.top.clientWidth + 2) S.el.top.scrollLeft = Math.max(0, ct.offsetLeft - 40);
   if (S.view === 'edit') { renderPal(); renderBar(); renderBoard(); renderSide(); renderMsg(); }
   else if (S.view === 'brief') renderBrief();
   else if (S.view === 'bom') renderBom();
+  else if (S.view === 'make') renderMake();
   else renderEval();
 }
 function renderEdit() { if (S.view !== 'edit') { render(); return; } render(); }
@@ -1479,6 +1490,86 @@ function renderBom() {
   if (keepPage) S.el.page.scrollTop = keepPage;
 }
 
+/* --- 製作と安全(教科書 p.170〜173 の製作・実装・点検、p.180 の製作の技能) --- */
+/* 正しい順に書いておき、画面では MIX の順にまぜて出す(毎回同じまぜ方にして、出す場所が変わらないように) */
+var MAKE_ORDER = {
+  flow: { ttl: '製作の流れ', lead: '回路を作る順に、下のカードをタップしよう。', mix: [3, 0, 5, 2, 4, 1], items: [
+    '部品と工具をそろえ、部品の向きを確かめる',
+    '部品を基板に差しこみ、はんだづけする',
+    'はみ出たリード線を、ニッパで切る',
+    '回路計で、つながっているかを調べる(導通試験)',
+    'ケースなどに取り付ける(実装)',
+    '電源を入れて動きを確かめ、直す(点検・調整)'
+  ], why: '電源を入れる前に、回路計でつながりを調べる。まちがいがあっても、部品をこわさずにすむ。' },
+  solder: { ttl: 'はんだづけの手順', lead: '1か所をはんだづけする順に、タップしよう。', mix: [2, 4, 0, 3, 1], items: [
+    'こて先をスポンジでふいて、きれいにする',
+    'こて先を当てて、部品の足と基板を温める',
+    'はんだを当てて、とかして流しこむ',
+    'はんだを先に離す',
+    'こて先を離す'
+  ], why: '先に温めると、はんだがよく流れる。はんだ → こて先 の順に離す。' }
+};
+var MAKE_Q = [
+  { q: '使っていないはんだごては、どこに置く?', c: ['机の上にそのまま置く', 'こて台に置く', '手に持っておく'], a: 1, e: 'こて先はとても熱い。決まった場所(こて台)に置く。' },
+  { q: 'はんだづけ中のこて先は、何℃くらい?', c: ['60℃くらい', '100℃くらい', '300℃以上'], a: 2, e: '300℃以上になる。金属の部分にはさわらない。' },
+  { q: 'はんだづけをするときの部屋は?', c: ['窓を閉めきる', '換気をよくする', '暗くする'], a: 1, e: 'はんだをとかすと煙が出る。換気をする。' },
+  { q: 'よいはんだづけは、どんな形?', c: ['山のように広がり、つやがある', '丸い玉になっている', 'となりの線とつながっている'], a: 0, e: '丸い玉やとなりとつながったものは、作り直す。' },
+  { q: '回路計のテスト棒は、どこを持つ?', c: ['先の金属の部分', '持ち手(金属でない部分)', 'どこでもよい'], a: 1, e: '感電のおそれがある。金属の部分にはさわらない。' },
+  { q: '回路計を使い終わったら?', c: ['電源スイッチを切る', 'そのままにする', 'テスト棒を回路につないでおく'], a: 0, e: '使ったあとは、電源スイッチを切っておく。' }
+];
+function cleanMake(m) {
+  m = m && typeof m === 'object' ? m : {};
+  var o = m.o && typeof m.o === 'object' ? m.o : {}, q = m.q && typeof m.q === 'object' ? m.q : {}, r = { o: {}, q: {} };
+  Object.keys(MAKE_ORDER).forEach(function (k) {
+    var n = MAKE_ORDER[k].items.length, seen = {};
+    r.o[k] = (Array.isArray(o[k]) ? o[k] : []).filter(function (i) { i = +i; if (!(i >= 0 && i < n) || seen[i]) return false; seen[i] = 1; return true; }).map(Number);
+  });
+  MAKE_Q.forEach(function (x, i) { var v = +q[i]; if (v >= 0 && v < x.c.length) r.q[i] = v; });
+  return r;
+}
+function makePick(k, i) {
+  var o = S.save.make.o[k]; if (!o || o.indexOf(i) >= 0) return;
+  o.push(i); persist(); renderMake();
+}
+function orderHtml(k, seen) {
+  var M = MAKE_ORDER[k], o = S.save.make.o[k], n = M.items.length, full = o.length === n;
+  var ok = full && o.every(function (x, i) { return x === i; });
+  var h = '<h3>' + esc(M.ttl) + '</h3><div style="font-size:.86rem">' + esc(M.lead) + '</div><ol class="e5-steplist e5-ord">';
+  for (var i = 0; i < n; i++) {
+    var x = o[i], has = x !== undefined, cls = !has ? 'e5-ord-empty' : (full ? (x === i ? 'dn' : 'ng') : '');
+    h += '<li class="' + cls + '"><span class="k">' + (full && has ? (x === i ? '○' : '×') : i + 1) + '</span><span>' + (has ? rb(M.items[x], seen) : 'ここに入る') + '</span></li>';
+  }
+  h += '</ol>';
+  if (!full) {
+    h += '<div class="e5-ord-pool">';
+    M.mix.forEach(function (j) { if (o.indexOf(j) < 0) h += '<button class="ef-btn" data-act="mpick" data-k="' + k + '" data-i="' + j + '"><span>' + rb(M.items[j], seen) + '</span></button>'; });
+    h += '</div>';
+  } else {
+    h += '<div class="e5-card ' + (ok ? 'goal' : 'tip') + '"><b>' + (ok ? 'せいかい。' : '× のところを考え直そう。') + '</b><br>' + rb(M.why, seen) + '</div>';
+  }
+  h += '<div class="e5-row"><button class="ef-btn is-s" data-act="mback" data-k="' + k + '"' + (o.length ? '' : ' disabled') + '>1つもどす</button><button class="ef-btn is-s" data-act="mreset" data-k="' + k + '"' + (o.length ? '' : ' disabled') + '>やり直す</button></div>';
+  return h;
+}
+function renderMake() {
+  var seen = {}, q = S.save.make.q, nA = 0, nOk = 0;
+  var h = '<div class="e5-col e5-fixw" style="--app-w:50%"><h2>製作の手順</h2>' +
+    '<div style="font-size:.86rem">教科書 p.170〜173 と p.180 を見ながら進めよう。</div>' +
+    orderHtml('flow', seen) + orderHtml('solder', seen) + '</div>';
+  h += '<div class="e5-col e5-grow"><h2>安全の問題</h2><div style="font-size:.86rem">はんだごてと回路計を、安全に使うための問題。</div>';
+  MAKE_Q.forEach(function (x, i) {
+    var v = q[i], done = v !== undefined;
+    if (done) { nA++; if (v === x.a) nOk++; }
+    h += '<div class="e5-card"><div class="ttl">問' + (i + 1) + ' ' + rb(x.q, seen) + '</div><div class="e5-row" style="margin-top:4px">';
+    x.c.forEach(function (c, j) {
+      var cls = done ? (j === x.a ? ' e5-q-ok' : (j === v ? ' e5-q-ng' : '')) : '';
+      h += '<button class="ef-btn is-s' + cls + '" data-act="mq" data-q="' + i + '" data-c="' + j + '"' + (done ? ' disabled' : '') + '>' + '<span>' + (done && j === x.a ? '○ ' : (done && j === v ? '× ' : '')) + rb(c, seen) + '</span></button>';
+    });
+    h += '</div>' + (done ? '<div style="margin-top:6px"><b>' + (v === x.a ? 'せいかい。' : 'ざんねん。') + '</b>' + rb(x.e, seen) + '</div>' : '') + '</div>';
+  });
+  h += '<div class="e5-row"><b style="align-self:center">' + nOk + ' / ' + MAKE_Q.length + ' 問せいかい</b>' + (nA ? '<button class="ef-btn is-s" data-act="mqreset">もう一度とく</button>' : '') + '</div></div>';
+  S.el.page.innerHTML = h;
+}
+
 /* --- 評価(設計値と実測値) --- */
 function measRows(ps, a) {
   return ps.filter(function (p) { return p.type !== 'wire' && p.type !== 'sw'; }).map(function (p) {
@@ -1636,7 +1727,8 @@ function showHowto(first, openSet) {
     '<div><b>📝 ① 課題・構想</b><br>課題をえらび、目的と条件をたしかめる。どんな回路にするか、理由といっしょに書く(' + rb('構想', seen) + ')。</div>' +
     '<div><b>✏️ ② 回路図</b><br>記号をえらんで、点と点の間をタップ。導線(〰️)は点から点へなぞる。「自動チェック」と「▶ 動かす」で確かめる。</div>' +
     '<div><b>📦 ③ 部品表・手順</b><br>部品表と製作手順が自動でできる。手順のとちゅうで、先生に配線を点検してもらう。</div>' +
-    '<div><b>📏 ④ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ' + (fkOn() ? '、' + rb('改善案', seen) + 'を書く' : 'る') + '。</div></div>' +
+    '<div><b>④ 製作と安全</b><br>製作の流れ・はんだづけの手順をならべ、安全の問題に答える。</div>' +
+    '<div><b>📏 ⑤ 評価</b><br>作った回路で実際の値をはかって(' + rb('実測', seen) + ')、設計値とくらべ' + (fkOn() ? '、' + rb('改善案', seen) + 'を書く' : 'る') + '。</div></div>' +
     '<h3>回路図記号のルール</h3>電池:長い線が+。電源装置:電池の記号を2組ならべた形。LED:三角の向きに電流が流れる(+はアノード=長い足、−はカソード=短い足)。● は導線が3本以上つながっている点。赤い○ は、つながっていない端子や、導線の切れ目。' +
     '<h3>「② 回路図」タブの数字の色</h3><span class="e5-badge">2</span> 赤:❌ まちがいがある(数) <span class="e5-badge y">1</span> 黄:⚠️ 注意がある(数) <span class="e5-badge g">✓</span> 緑:問題なし' +
     '<h3>ことば</h3><dl class="e5-gl"><dt>' + rb('定格', {}) + '</dt><dd>部品に決められた電圧・電流(豆電球 2.5V 0.3A など)</dd><dt>' + rb('規格', {}) + '</dt><dd>部品の種類や大きさの決まり</dd><dt>' + rb('負荷', {}) + '</dt><dd>電気を使う部品(豆電球・LED・モーター)</dd><dt>ショート</dt><dd>電源の+と−が、部品を通らずに導線だけでつながること。とても危険</dd></dl>' +
@@ -1789,6 +1881,11 @@ function bindInput() {
       case 'step': D().step = +t.getAttribute('data-i'); persist(); renderBom(); break;
       case 'sprev': if (D().step > 0) { D().step--; persist(); renderBom(); } break;
       case 'snext': D().step++; persist(); renderBom(); break;
+      case 'mpick': makePick(t.getAttribute('data-k'), +t.getAttribute('data-i')); break;
+      case 'mback': var mo = S.save.make.o[t.getAttribute('data-k')]; mo.pop(); persist(); renderMake(); break;
+      case 'mreset': S.save.make.o[t.getAttribute('data-k')] = []; persist(); renderMake(); break;
+      case 'mq': S.save.make.q[t.getAttribute('data-q')] = +t.getAttribute('data-c'); persist(); renderMake(); break;
+      case 'mqreset': S.save.make.q = {}; persist(); renderMake(); break;
     }
   });
   root.addEventListener('keydown', function (ev) {
@@ -1873,7 +1970,7 @@ function segMid(seg) { var e = segEnds(seg); return { x: (e[0].x + e[1].x) / 2 *
 function mount(root) {
   S.root = root; root.classList.add('e5');
   S.save = loadSave(); syncNid();
-  S.view = ['brief', 'edit', 'bom', 'eval'].indexOf(S.save.view) >= 0 ? S.save.view : 'brief';
+  S.view = ['brief', 'edit', 'bom', 'make', 'eval'].indexOf(S.save.view) >= 0 ? S.save.view : 'brief';
   /* これまでに条件をすべて満たしている課題は「クリア済み」にしておく(🎉 を何度も出さない) */
   if (!S.save.cleared) {
     S.save.cleared = {};
