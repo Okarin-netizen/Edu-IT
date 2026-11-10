@@ -3168,7 +3168,25 @@ window.EDUIT_INFO.jishu.ruby = {
     if (secObs) secObs.disconnect();
     try { secApply1(); } finally { if (secObs) secObs.observe(document.body, { childList: true, subtree: true }); }
   }
+  // いまのしぼり方のままでよいか(よければ何もしない。動く図があると何度も呼ばれるので、DOM をさわらない)
+  function secSame() {
+    if (secAll || !secTabs.length) return !document.querySelector('[data-ef-sec-hid]');
+    var keep = secTabs.map(tabOf).filter(tabLike);
+    if (!keep.length) return !document.querySelector('[data-ef-sec-hid]');
+    for (var i = 0; i < keep.length; i++) {
+      var box = keep[i].parentElement, hid = 0;
+      if (keep[i].hasAttribute('data-ef-sec-hid')) return false;
+      for (var j = 0; j < box.children.length; j++) {
+        var c = box.children[j];
+        if (!tabLike(c) || keep.indexOf(c) >= 0) continue;
+        if (!c.hasAttribute('data-ef-sec-hid')) { if (!c.hidden) return false; } else hid++;
+      }
+      if (hid && !box.querySelector(':scope > .ef-sec-more')) return false;
+    }
+    return true;
+  }
   function secApply1() {
+    if (secSame()) return;
     secShowAll();
     if (secAll || !secTabs.length) return;
     var keep = secTabs.map(tabOf).filter(tabLike);
@@ -3190,7 +3208,8 @@ window.EDUIT_INFO.jishu.ruby = {
   }
   function secWatch() {
     if (secObs || !window.MutationObserver || !document.body) return;
-    secObs = new MutationObserver(function () { clearTimeout(secT); secT = setTimeout(secApply, 30); });
+    // 動き続ける図(C3 の電圧のグラフなど)は DOM を休まず変えるので、待ちなおさない(待ちなおすと、いつまでもしぼらない)
+    secObs = new MutationObserver(function () { if (!secT) secT = setTimeout(function () { secT = 0; secApply(); }, 30); });
     secObs.observe(document.body, { childList: true, subtree: true });
   }
   function secGo(where) {
