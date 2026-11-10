@@ -6,6 +6,7 @@ const FILES = [
   "manifest.webmanifest",
   "icons/icon.svg",
   "../d-common.css",
+  "../d-flow-practice.js",
   "css/style.css",
   "../eduit-info.js",
   "../../shared/eduit-frame.css",

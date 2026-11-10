@@ -229,6 +229,84 @@
         '<rect class="f-handle" x="30" y="-3" width="50" height="9" rx="4"/><path class="f-bristle" d="' + b + '"/></g>';
     },
 
+    // 卓上ボール盤(横から見た図) {x(柱の中心), base(台の上面のy)}。下に材料を置く台(テーブル)がある
+    drillpress: function (o) {
+      var x = n(o.x, 230), b = n(o.base, 168), t = n(o.table, 118);
+      return '<g class="f-vise"><rect x="' + (x - 40) + '" y="' + b + '" width="90" height="10" rx="2"/>' +
+        '<rect x="' + (x + 22) + '" y="' + (b - 150) + '" width="12" height="150"/>' +
+        '<rect x="' + (x - 46) + '" y="' + (b - 156) + '" width="96" height="44" rx="4"/>' +
+        '<rect x="' + (x - 46) + '" y="' + t + '" width="72" height="8" rx="1"/>' +
+        '<rect x="' + (x + 18) + '" y="' + (t - 2) + '" width="20" height="12" rx="2"/></g>' +
+        '<rect class="f-metal" x="' + (x - 18) + '" y="' + (b - 112) + '" width="12" height="16"/>' +
+        '<path class="f-metal" d="M' + (x - 22) + ' ' + (b - 96) + ' h20 l-4 12 h-12 Z"/>' +
+        '<path class="f-metal" d="M' + (x - 14) + ' ' + (b - 84) + ' h4 v26 l-2 5 l-2 -5 Z"/>' +
+        '<path class="f-handle" d="M' + (x + 50) + ' ' + (b - 134) + ' l34 18" stroke-width="6" stroke-linecap="round"/>' +
+        '<circle class="f-metal" cx="' + (x + 50) + '" cy="' + (b - 134) + '" r="5"/>';
+    },
+    // 保護めがね {x, y}
+    goggles: function (o) {
+      var x = n(o.x, 60), y = n(o.y, 40);
+      return '<g class="f-metal"><rect x="' + (x - 30) + '" y="' + (y - 11) + '" width="26" height="20" rx="8"/><rect x="' + (x + 4) + '" y="' + (y - 11) + '" width="26" height="20" rx="8"/>' +
+        '<path d="M' + (x - 4) + ' ' + (y - 3) + ' h8" /></g>';
+    },
+    // 金切りばさみ {x, y, a}。(x,y)=刃の先
+    snips: function (o) {
+      return '<g transform="' + tf(o, 120, 90) + '"><path class="f-metal" d="M0 0 L48 -6 L52 4 Z"/><path class="f-metal" d="M0 2 L48 10 L52 0 Z"/>' +
+        '<circle class="f-metal" cx="52" cy="2" r="4"/>' +
+        '<path class="f-handle" d="M54 -2 Q90 -14 128 -12 L128 -4 Q92 -6 56 4 Z"/><path class="f-handle" d="M54 6 Q90 20 128 22 L128 14 Q92 10 56 0 Z"/></g>';
+    },
+    // 木づち {x, y, a}。(x,y)=頭の下の面の中央
+    mallet: function (o) {
+      return '<g transform="' + tf(o, 160, 60) + '"><rect class="f-wood-dark" x="-14" y="-40" width="28" height="40" rx="3"/>' +
+        '<rect class="f-handle" x="14" y="-24" width="90" height="9" rx="4"/></g>';
+    },
+    // Pカッター {x, y, a}。(x,y)=刃の先(かぎの形)
+    pcutter: function (o) {
+      return '<g transform="' + tf(o, 160, 100) + '"><path class="f-metal" d="M0 0 Q-2 -8 6 -10 L30 -12 L30 -4 L10 -4 Q6 -2 6 2 Z"/>' +
+        '<rect class="f-handle" x="28" y="-16" width="80" height="16" rx="6"/></g>';
+    },
+    // 金属の定規 {x, y, w}
+    ruler: function (o) {
+      var x = n(o.x, 40), y = n(o.y, 96), w = n(o.w, 240), tk = '', i;
+      for (i = 10; i < w; i += 10) tk += 'M' + (x + i) + ' ' + y + ' v' + (i % 50 ? 4 : 7) + ' ';
+      return '<rect class="f-metal" x="' + x + '" y="' + y + '" width="' + w + '" height="12"/><path class="f-tick" d="' + tk + '"/>';
+    },
+    // 曲げ用ヒーター {x, y, w}。上のみぞが熱くなる
+    heater: function (o) {
+      var x = n(o.x, 40), y = n(o.y, 120), w = n(o.w, 240);
+      return '<g class="f-vise"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="26" rx="3"/></g>' +
+        '<rect class="f-ngzone" x="' + (x + w / 2 - 50) + '" y="' + (y - 2) + '" width="100" height="8" rx="2"/>';
+    },
+    // ねじ {x, y(先), h}
+    screw: function (o) {
+      var x = n(o.x, 160), y = n(o.y, 130), h = n(o.h, 34), th = '', i;
+      for (i = 6; i < h - 4; i += 5) th += 'M' + (x - 3.5) + ' ' + (y - i) + ' l7 -2 ';
+      return '<g class="f-metal"><path d="M' + (x - 3) + ' ' + (y - h) + ' L' + (x + 3) + ' ' + (y - h) + ' L' + (x + 3) + ' ' + (y - 6) + ' L' + x + ' ' + y + ' L' + (x - 3) + ' ' + (y - 6) + ' Z"/>' +
+        '<path d="M' + (x - 9) + ' ' + (y - h) + ' Q' + x + ' ' + (y - h - 9) + ' ' + (x + 9) + ' ' + (y - h) + ' Z"/></g><path class="f-tick" d="' + th + '"/>';
+    },
+    // ドライバー {x, y(先), a}。たてに持つ(a=0)
+    driver: function (o) {
+      return '<g transform="' + tf(o, 160, 90) + '"><path class="f-metal" d="M-2 0 L2 0 L2.5 -46 L-2.5 -46 Z"/>' +
+        '<rect class="f-handle" x="-8" y="-100" width="16" height="56" rx="6"/></g>';
+    },
+    // 接着剤の容器 {x, y(底)}
+    glue: function (o) {
+      var x = n(o.x, 60), y = n(o.y, 130);
+      return '<g class="f-cap"><rect x="' + (x - 14) + '" y="' + (y - 50) + '" width="28" height="50" rx="5"/>' +
+        '<path d="M' + (x - 5) + ' ' + (y - 50) + ' L' + (x - 2) + ' ' + (y - 66) + ' L' + (x + 2) + ' ' + (y - 66) + ' L' + (x + 5) + ' ' + (y - 50) + ' Z"/></g>';
+    },
+    // 紙やすりをまいた当て木 {x, y(下面), w}
+    sandblock: function (o) {
+      var x = n(o.x, 120), y = n(o.y, 110), w = n(o.w, 70);
+      return '<rect class="f-wood-dark" x="' + x + '" y="' + (y - 22) + '" width="' + w + '" height="18" rx="2"/>' +
+        '<rect class="f-cap" x="' + (x - 3) + '" y="' + (y - 5) + '" width="' + (w + 6) + '" height="5"/>';
+    },
+    // はけ {x, y(毛先), a}
+    paintbrush: function (o) {
+      return '<g transform="' + tf(o, 160, 100) + '"><rect class="f-cap" x="-14" y="-16" width="28" height="16" rx="2"/>' +
+        '<rect class="f-metal" x="-12" y="-24" width="24" height="9"/><rect class="f-handle" x="-5" y="-80" width="10" height="57" rx="4"/></g>';
+    },
+
     /* --- 手 --- */
     // にぎる手 {x, y, a(柄の向き), ax, ay(うでの先), flip}
     grip: function (o) {

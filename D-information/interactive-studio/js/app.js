@@ -353,6 +353,7 @@ function viewWorks() {
       h("li", {}, h("strong", {}, "動かして直す"), "実行・デバッグで確かめる"),
       h("li", {}, h("strong", {}, "使ってもらう"), "感想や集計から改善する"),
     ),
+    ...(window.DFlowPractice ? [window.DFlowPractice.el({ page: "p.222〜223" })] : []),
     card(
       h("h2", {}, "いまの作品"),
       h("div", { class: "field" }, h("label", { for: "work-title" }, "作品の名前"), title),

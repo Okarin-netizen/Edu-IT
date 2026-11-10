@@ -61,9 +61,9 @@ process.stdout.write(JSON.stringify(out));
 
 
 def frame_strings():
-    """eduit-frame.js の自習ガイドの部分に書いてある決まった文"""
+    """eduit-frame.js の学習のまとめの部分に書いてある決まった文"""
     src = (repo / "shared/eduit-frame.js").read_text(encoding="utf-8")
-    a, b = src.index("// ---- 自習ガイド"), src.index("function jishuMenuBox")
+    a, b = src.index("// 学習のまとめ: 基本編"), src.index("  function jishuData(c) {")
     return re.findall(r"'([^'\n]*[一-鿿][^'\n]*)'", src[a:b])
 
 

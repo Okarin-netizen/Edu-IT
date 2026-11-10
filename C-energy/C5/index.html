@@ -655,6 +655,7 @@ function loadSave() {
   d.parts = d.parts && typeof d.parts === 'object' ? d.parts : {};
   d.parts.m = d.parts.m && typeof d.parts.m === 'object' ? d.parts.m : {};
   d.parts.mo = d.parts.mo && typeof d.parts.mo === 'object' ? d.parts.mo : {};
+  d.parts.fl = d.parts.fl && typeof d.parts.fl === 'object' ? d.parts.fl : {};
   d.refl = Object.assign({ q1: '', q2: '', q3: '' }, d.refl && typeof d.refl === 'object' ? d.refl : {});
   return d;
 }
@@ -1792,16 +1793,39 @@ var MOTIONS = [
   ['blade', '扇風機の羽根', 'rot'], ['needle', 'ミシンの針', 'rec'], ['wiper', '車のワイパー', 'swing'],
   ['wheel', '自転車の車輪', 'rot'], ['piston', 'ポンプのピストン', 'rec'], ['neck', '扇風機の首ふり', 'swing']
 ];
+// 流体や熱で動く機械(教科書 3編1章8 の終わり)。カード2枚と問い2つ。文は教材のために書いたもの
+var FLUID = [
+  { id: 'oil', name: '流体(油)の力で動く機械', ex: '例: 油圧ジャッキ、ショベルカーのうで',
+    text: 'とじこめた油を小さいピストンで押すと、つながった大きいピストンに大きな力が出る。小さな力で、重い物を持ち上げられる。',
+    svg: '<rect x="40" y="70" width="40" height="110" fill="#e8eef3" stroke="#2f6f9f" stroke-width="3"/><rect x="200" y="50" width="100" height="130" fill="#e8eef3" stroke="#2f6f9f" stroke-width="3"/>' +
+      '<rect x="80" y="160" width="120" height="20" fill="#ffd166" stroke="#b08900" stroke-width="2"/><rect x="43" y="110" width="34" height="70" fill="#ffd166"/><rect x="203" y="110" width="94" height="70" fill="#ffd166"/>' +
+      '<rect x="40" y="96" width="40" height="14" fill="#5e6b64"/><rect x="200" y="96" width="100" height="14" fill="#5e6b64"/><rect x="230" y="66" width="40" height="30" fill="#9aa6a0"/>' +
+      '<path d="M60 40 V86" stroke="#c0392b" stroke-width="4"/><path d="M52 76 L60 90 L68 76 Z" fill="#c0392b"/><path d="M250 60 V20" stroke="#2b7a4b" stroke-width="6"/><path d="M238 30 L250 12 L262 30 Z" fill="#2b7a4b"/>' +
+      '<g font-size="14" font-weight="bold" fill="#1f2a24"><text x="60" y="30" text-anchor="middle">小さな力</text><text x="290" y="34" text-anchor="middle">大きな力</text><text x="140" y="200" text-anchor="middle">油</text></g>' },
+  { id: 'heat', name: '熱の力で動く機械', ex: '例: 自動車のエンジン、蒸気機関',
+    text: '燃料を燃やした熱で気体がふくらみ、ピストンを押す。ピストンの往復運動を、クランクで回転運動に変える。',
+    svg: '<rect x="40" y="30" width="80" height="120" fill="#f4f1ea" stroke="#5e6b64" stroke-width="3"/><rect x="44" y="80" width="72" height="22" fill="#9aa6a0" stroke="#5e6b64" stroke-width="2"/>' +
+      '<path d="M80 50 q-10 12 0 22 q10 -10 0 -22 Z" fill="#e67e22" stroke="#c0392b" stroke-width="2"/>' +
+      '<path d="M80 102 L210 150" stroke="#5e6b64" stroke-width="6" stroke-linecap="round"/><circle cx="250" cy="130" r="44" fill="none" stroke="#2f6f9f" stroke-width="4"/><path d="M250 130 L210 150" stroke="#2f6f9f" stroke-width="6"/><circle cx="250" cy="130" r="6" fill="#2f6f9f"/>' +
+      '<g font-size="14" font-weight="bold" fill="#1f2a24"><text x="140" y="70">ピストン</text><text x="250" y="196" text-anchor="middle">クランク(回転)</text><text x="80" y="24" text-anchor="middle">熱でふくらむ</text></g>' }
+];
+var FLUID_Q = [
+  ['q1', '油圧ジャッキで、小さいピストンを押すと、大きいピストンはどうなる?', [['a', '大きな力で持ち上がる'], ['b', '押した力より小さい力で動く'], ['c', '動かない']], 'a',
+    'とじこめた油に加えた力は、広い面では大きな力になる。だから小さな力で重い物を持ち上げられる。'],
+  ['q2', 'エンジンで、ピストンの往復運動を回転運動に変えるしくみは?', [['a', '歯車'], ['b', 'スライダクランク機構'], ['c', 'ラックとピニオン']], 'b',
+    'ピストンの往復を、連接棒とクランクで回転に変える。「運動を変える」のスライダクランク機構と同じしくみ。']
+];
 function setPart(g, id, v) {
-  var box = g === 'mo' ? S.save.parts.mo : S.save.parts.m;
+  var box = g === 'mo' ? S.save.parts.mo : g === 'fl' ? S.save.parts.fl : S.save.parts.m;
   box[id] = v; persist();
   var ok = g === 'mo' ? MOTIONS.some(function (x) { return x[0] === id && x[2] === v; })
+    : g === 'fl' ? FLUID_Q.some(function (x) { return x[0] === id && x[3] === v; })
     : MACHINES.some(function (m) { return m.parts.some(function (p) { return m.id + '.' + p[0] === id && p[2] === v; }); });
   beep(ok ? 'add' : 'ng');
   renderParts();
 }
 function partBtns(g, id, opts, right) {
-  var cur = (g === 'mo' ? S.save.parts.mo : S.save.parts.m)[id];
+  var cur = (g === 'mo' ? S.save.parts.mo : g === 'fl' ? S.save.parts.fl : S.save.parts.m)[id];
   return opts.map(function (o) {
     var cls = cur === o[0] ? (o[0] === right ? ' right' : ' wrong') : '';
     return '<button class="ef-btn is-s' + cls + '" data-act="pt" data-g="' + g + '" data-id="' + id + '" data-v="' + o[0] + '">' + o[1] + '</button>';
@@ -1826,6 +1850,19 @@ function renderParts() {
   MOTIONS.forEach(function (x) {
     nAll++; if (P.mo[x[0]] === x[2]) nOk++;
     h += '<div class="e3-prow"><span class="nm">' + x[1] + '</span>' + partBtns('mo', x[0], MOTION_KIND, x[2]) + '</div>';
+  });
+  h += '</div>';
+  // 流体や熱で動く機械
+  h += '<h3 style="margin:16px 0 4px">流体や熱で動く機械</h3><p style="margin:0 0 8px;color:var(--ef-muted)">モーター(電気)のほかにも、油や空気(流体)、熱を動力に使う機械がある。</p><div class="e3-mgrid">';
+  FLUID.forEach(function (f) {
+    h += '<div class="e3-mcard"><h3>' + f.name + '</h3><svg viewBox="0 0 340 210" role="img" aria-label="' + f.name + 'の図">' + f.svg + '</svg>' +
+      '<p style="margin:6px 0 2px">' + f.text + '</p><p style="margin:0;color:var(--ef-muted);font-size:.9em">' + f.ex + '</p></div>';
+  });
+  h += '</div><div class="e3-mcard">';
+  FLUID_Q.forEach(function (q) {
+    nAll++; var ok = P.fl[q[0]] === q[3]; if (ok) nOk++;
+    h += '<p style="margin:8px 0 4px;font-weight:bold">' + q[1] + '</p><div class="e3-prow">' + partBtns('fl', q[0], q[2], q[3]) + '</div>' +
+      (P.fl[q[0]] ? '<div class="e3-reason ' + (ok ? 'good' : 'tip') + '">' + (ok ? '✅ ' : 'もう一度考えよう。') + (ok ? q[4] : '') + '</div>' : '');
   });
   h += '</div><p style="color:var(--ef-muted)">正解: ' + nOk + ' / ' + nAll + (nOk === nAll ? ' 🎉 次は「⚙️ 回転を伝える」で、伝える所のしくみを調べよう。' : '') +
     ' <button class="ef-btn is-s" data-act="ptreset">やり直す</button></p>' +
@@ -2006,7 +2043,7 @@ function onClick(ev) {
     case 'parts': case 'build': case 'conv': case 'quiz': case 'tasks': closeModal(); beep('tap'); openView(a); return;
     case 'howto': showHowto(); return;
     case 'pt': setPart(t.getAttribute('data-g'), t.getAttribute('data-id'), t.getAttribute('data-v')); return;
-    case 'ptreset': S.save.parts = { m: {}, mo: {} }; persist(); beep('tap'); renderParts(); return;
+    case 'ptreset': S.save.parts = { m: {}, mo: {}, fl: {} }; persist(); beep('tap'); renderParts(); return;
     case 'sound': S.save.sound = !S.save.sound; persist(); renderTop(); beep('tap'); return;
     case 'close': closeModal(); return;
     case 'export': exportModal(); return;

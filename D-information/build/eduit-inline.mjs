@@ -21,6 +21,9 @@ export function inlineEduitFrame(html, source = "index.html") {
   // D1 D2 D3 D4 D7 の5教材で同じ中身の部品（D-information/d-common.css）。読んでいる教材だけ
   const common = /<link rel="stylesheet" href="\.\.\/d-common\.css">/;
   if (common.test(html)) html = html.replace(common, () => `<style id="d-common-css">\n${read(join(here, "../d-common.css"))}\n</style>`);
+  // D6・D7 の入り口の「流れを図で表す」ミニ練習(D-information/d-flow-practice.js)。読んでいる教材だけ
+  const flow = /<script src="\.\.\/d-flow-practice\.js"><\/script>/;
+  if (flow.test(html)) html = html.replace(flow, () => `<script id="d-flow-practice">\n${safe(read(join(here, "../d-flow-practice.js")))}\n</script>`);
   for (const [re, to] of parts) {
     if (!re.test(html)) throw new Error(`${source}: 共通の枠の読み込み ${re} がありません`);
     html = html.replace(re, to);

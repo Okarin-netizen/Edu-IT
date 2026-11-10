@@ -42,6 +42,10 @@
   /* =========================================================
    * 1. 工具の手順
    * ======================================================= */
+  // 製作の工程の順と、工程の中の工具の順(教科書の製作の基礎技能の順)
+  var STAGES = ['けがき', '切断', '部品加工', '組み立て', '仕上げ'];
+  var ORDER = ['square', 'scriber', 'clamp', 'saw', 'sheetmetal', 'plastic', 'plane', 'file', 'awl', 'drill', 'hammer', 'assemble', 'finish'];
+
   var tools = (function () {
     var root = G.$('#p-tools');
     var cur = null, step = 0;
@@ -50,16 +54,22 @@
       cur = null;
       clear(root);
       root.appendChild(h('div', { 'data-ef-lets': 'a24' }));
-      root.appendChild(h('p', null, '使う工具を選ぶと、使い方の手順と注意を1つずつ確かめられます。'));
-      var grid = h('ul', { class: 'a6-toolgrid' });
-      D.tools.forEach(function (t) {
-        grid.appendChild(h('li', null, h('button', { type: 'button', class: 'a6-toolcard', onclick: function () { open(t.id); } },
-          svgNode(F.draw(t.icon, '', '0 0 320 180')),
-          h('span', { class: 'a6-toolname' }, t.name),
-          h('span', { class: 'ef-tag' }, t.kind),
-          h('span', { class: 'a6-toolsum' }, t.summary))));
+      root.appendChild(h('p', null, '製作の順(けがき → 切断 → 部品加工 → 組み立て → 仕上げ)にならんでいます。使う工具を選ぶと、手順と注意を1つずつ確かめられます。'));
+      // 教科書の製作の順。工程ごとに見出しを付けて、工具をならべる
+      STAGES.forEach(function (st, k) {
+        var list = ORDER.map(toolById).filter(function (t) { return t && t.stage === st; });
+        if (!list.length) return;
+        root.appendChild(h('h3', { class: 'a6-stage' }, (k + 1) + ' ' + st));
+        var grid = h('ul', { class: 'a6-toolgrid' });
+        list.forEach(function (t) {
+          grid.appendChild(h('li', null, h('button', { type: 'button', class: 'a6-toolcard', onclick: function () { open(t.id); } },
+            svgNode(F.draw(t.icon, '', '0 0 320 180')),
+            h('span', { class: 'a6-toolname' }, t.name),
+            h('span', { class: 'ef-tag' }, t.kind),
+            h('span', { class: 'a6-toolsum' }, t.summary))));
+        });
+        root.appendChild(grid);
       });
-      root.appendChild(grid);
     }
 
     function open(id, s) {
@@ -375,7 +385,7 @@
       var card = h('div', { class: 'ef-box' }, h('h2', null, '手順ならべかえクイズ'));
       root.appendChild(card);
       var sel = h('select', { id: 'quiz-tool', onchange: function () { start(sel.value); } },
-        D.tools.map(function (t) { return h('option', { value: t.id, selected: t.id === cur.id ? true : null }, t.name); }));
+        ORDER.map(toolById).map(function (t) { return h('option', { value: t.id, selected: t.id === cur.id ? true : null }, t.name); }));
       card.appendChild(h('div', { class: 'g-row' }, h('label', { for: 'quiz-tool' }, '工具'), sel));
       card.appendChild(h('p', null, '作業の正しい順番になるように、↑↓ボタンで入れかえよう。'));
       var ol = h('ol', { class: 'a6-order' });
@@ -445,7 +455,7 @@
         radio('rtype', 'self', '自己評価(自分の作業)', form.type === 'self', function () { form.type = 'self'; render(); }),
         radio('rtype', 'peer', '相互評価(友だちの作業)', form.type === 'peer', function () { form.type = 'peer'; render(); })));
       var sel = h('select', { id: 'r-tool', onchange: function () { form.toolId = sel.value; } },
-        D.tools.map(function (t) { return h('option', { value: t.id, selected: t.id === form.toolId ? true : null }, t.name); }));
+        ORDER.map(toolById).map(function (t) { return h('option', { value: t.id, selected: t.id === form.toolId ? true : null }, t.name); }));
       card.appendChild(h('div', { class: 'g-grid a6-fields' },
         h('div', { class: 'g-field' }, h('label', { for: 'r-tool' }, '使った工具'), sel),
         h('div', { class: 'g-field' }, h('label', { for: 'r-task' }, '作業の内容(例: 側板を切る)'),
