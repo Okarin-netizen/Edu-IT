@@ -8,7 +8,7 @@
 | `eduit-frame.css` | 共通の見た目。① 設定(色・文字・余白・線・はばの値)と ② 共通の部品(ボタン・箱・注意の箱・ラベル・入力欄・表・タブ・上のバー・メニュー・フッター・ダイアログ)。中は6つの章に分かれていて、先頭に目次がある |
 | `ef-mihon.html` | 見本帳。①の色・文字・余白と、②の部品を全部ならべたページ(分野の色・文字の大きさ・くっきりの切りかえ付き)。設定を変えたら、ブラウザで開いて全部の部品の変わり方を見る |
 | `eduit-guide.css` | 先生用ガイド(各分野の `docs/先生用ガイド.html` など)の共通の見た目。章立ては下の「先生用ガイドの形」 |
-| `eduit-frame.js`  | 自習モードの「自習ガイド」(下の「自習モード」)、フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
+| `eduit-frame.js`  | 節の画面(`?sec=`。下の「節の画面」)、フッター(作成者・版・「安全と個人情報・ライセンス・更新履歴」)と「このアプリについて」ダイアログ、メニューの「基本編」「発展編」のタブ(`EduitFrame.levels`)、メニューのカード(`EduitFrame.card`)、記号の印(`EduitFrame.code`)、メニューの上のバーの名前(`EduitFrame.menuTitle`) |
 | `style-check.py` | 見た目の点検の道具。教材の CSS に、決まりにない色の値・角丸・影・フォントの指定・`!important`・古い色の名前・px の文字の大きさがないかを、ファイル名と行番号つきで出す(下の「見た目の点検と撮影」) |
 | `tools/fig-colors.py` | 図の色をまとめる道具。教材の CSS で図(SVG・絵)の色を直に書いている所に `--fig-…` の名前を付けて、CSS のいちばん上にまとめる(下の「見た目の点検と撮影」) |
 | `tools/shots.js` | 撮影の道具。生徒に配る統一版のメニューと全教材を、PC とスマホのはばで撮る(下の「見た目の点検と撮影」) |
@@ -84,7 +84,7 @@
   A 木の茶 `#985a26` / B 緑 `#2e7d32` / C だいだい `#b45309` / D 青 `#1a5fc8` / G(技術分野のガイダンス、`G-guidance/`)青緑 `#0f766e`。
   `T-textbook/` の T(教科書の順に進む学習コース)灰青 `#475569` / M(身の回りの技術さがし)赤紫 `#9d174d` / F(これからの技術ラボ)あい色 `#4338ca` / Z(学習を終えて)こげ茶 `#7c4a03`。
 - 画面の地 `--ef-bg`、カード・ヘッダーは白、枠線 `--ef-line`、文字 `--ef-text`、フォント `--ef-font`。
-- **記号**: 4分野とも分野の文字 + 番号(A1〜A8・B1〜B6・C1〜C8・D1〜D11)。番号の順 = おすすめの順 = メニューのカードの順。分野に入らないガイダンスは番号なしの `G`(自習ガイドも `jishu.apps.G`)。分野をまたぐ `T-textbook/` の教材も番号なしの `M`・`F`・`Z`。
+- **記号**: 4分野とも分野の文字 + 番号(A1〜A8・B1〜B6・C1〜C8・D1〜D11)。番号の順 = 教科書の順 = メニューのカードの順。分野に入らないガイダンスは番号なしの `G`(手順も `jishu.apps.G`)。分野をまたぐ `T-textbook/` の教材も番号なしの `M`・`F`・`Z`。
   画面では `EduitFrame.code('A2')`(`<span class="ef-code">A2</span>`、分野の色の小さな印)で出す。
 - **メニューの上のバー** `.ef-header`: 左に `EduitFrame.menuTitle(h1)` の「[A] 材料と加工の技術 教材集」。
   右の道具は4分野とも「ふりがな → 文字 中 → 使い方 → 先生用」の4つだけで、字だけ(絵文字なし)・同じ大きさ(名前 18px・ボタンの高さ 40px、スマホは 16px・36px)。
@@ -133,27 +133,27 @@
 - 振り返りを書かないと先へ進めない・前に開いていたタブが振り返り、のように JS で決めているところは `EduitFrame.furikaeri` を見て、隠すときは振り返りをとばします。
 - `クラスルーム配布/まとめる.py` は、生徒に配るファイルの `<head>` のすぐあとに `window.EDUIT_FURIKAERI = 'off'` を入れた版を `生徒に配る/振り返りなし/` に作ります。
 
-## 自習モード(自習ガイド)
+## 節の画面(`?sec=`)と、手順のデータ(jishu)
 
-先生の説明なしで1人で進めるときのための表示です(既定は切)。決め方は振り返りと同じで、アドレスの `?jishu=on|off`(localStorage `eduit.jishu` に覚える)→ `window.EDUIT_JISHU = 'on'` → localStorage。入っているときは `<html data-ef-jishu="on">`、`EduitFrame.jishu = true` になります。
+前の版の「自習モード」(`?jishu=on`・教材の右はしの自習ガイド・`自習用/`)は、なくしました(2026-11-10)。
+ひとりで進めるときは、教科書の目次(`T-textbook/index.html`)の節の画面を使います。左に教材を iframe で開き、右に「この節の進め方」を出します。
 
-- アプリ: `eduit-frame.js` が、アプリ名(`EDUIT_INFO.app.name` の先頭の「A3」など)の記号で `EDUIT_INFO.jishu.apps[記号]` を探し、あれば右はしに「自習ガイド」のボタン(`.ef-jishu-fab`)とパネル(`.ef-jishu`。スマホは下から出る)を出す。まわりを暗くしないので、教材を操作しながら読める。はじめて開いた教材ではパネルを開いておく。
-- 1つのページの中でアプリを切りかえる教材集(C)は、開いたときに `EduitFrame.jishuApp('C4', 'C4 電気回路ラボ')`、メニューなどにもどったら `EduitFrame.jishuApp(null)` を呼ぶ。
-- メニュー: `EduitFrame.levels` に `code` を渡していれば、基本編の上に進め方の説明、カードに「自習 進め方 3/6・たしかめ 2/3」(全部できたら「✓ クリア」)を出す。
+- 教材は `?sec=節の id` 付きで開きます。`eduit-frame.js` は `<html data-ef-sec>` を付けて上のバー(`.ef-appbar`)・フッターなどをかくし(`eduit-frame.css` の末尾)、目次のページと postMessage でやりとりします: `ready`(教材 → 目次)・`set`(その節で使うタブだけを出す。かくしたタブには `data-ef-sec-hid`)・`go`(「この場所へ ▶」のタブへ移る)・`prefs`(ふりがな・文字の大きさ)。
+- タブは `[role=tab]`(D は `li > a[href^="#/"]`)をさがします。画面を作り直す教材(C など)のために、MutationObserver でしぼり直します。
+- 1つのページの中でアプリを切りかえる教材集(C)は、開いたときに `EduitFrame.jishuApp('C4')`、メニューにもどったら `EduitFrame.jishuApp(null)` を呼びます(節の画面の手順と、開いているアプリを合わせるため)。
 - データ(各分野の `eduit-info.js` の `window.EDUIT_INFO.jishu = { lead, apps: { A1: {…}, … } }`):
-  `goal`(ねらい)・`time`(時間の目安)・`steps`(`where` 画面のタブの名前 / `do` やること / `hint` ヒント / `go` 「この場所へ」の行き先: `#` で始まれば location.hash、ほかは click する CSS セレクタ / `level: 'advanced'` 発展にまとめる / `reflect: true` 振り返りを隠す設定のとき出さない)・`check`(`q`・`choices`・`answer` 0からの正解の番号・`explain`)。
+  `goal`(ねらい)・`steps`(`where` 画面のタブの名前 / `do` やること / `hint` ヒント / `go` 「この場所へ」の行き先: `#` で始まれば location.hash、ほかは click する CSS セレクタ / `sec` 節の id(2つ以上なら配列)/ `level: 'advanced'` 発展 / `reflect: true` 振り返り)・`check`(`q`・`choices`・`answer` 0からの正解の番号・`explain`・`sec`)。
+  `sec` のない手順(振り返り・記録)は節の画面に出しません。`node T-textbook/check-course.cjs` で、節のデータと `sec` を照合します。
   `where` は `levels` の `parts` と同じ番号・名前にそろえる。タブの名前やセレクタを変えたら、ここも直す。
-- できた印と答えは localStorage `eduit.jishu.v1.<記号>`(書き出すファイルには入らない)。
-- ふりがな: パネルの文には、`EDUIT_INFO.jishu.ruby`(言葉 → 読み)で長い言葉から順にふりがなを付ける(言葉の中のかなには付けない)。パネルの「ふりがな」ボタンで消せる(はじめは付いている。localStorage `eduit.jishu.ruby`)。教材のふりがなのオン・オフとは別。
-  `jishu.ruby` は `python3 shared/jishu-ruby.py` が形態素解析(Sudachi。`python3 -m pip install sudachipy sudachidict_core`)で作り、各 `eduit-info.js` のいちばん下に書きこむ。**jishu の文を直したら実行しなおす**(読みのまちがいは、そのスクリプトの `OVERRIDES`・`ACCEPT` で直す)。自習ワークシートも同じ表を使う。
-- 文の書き方: 1つの手順に文が2つ以上あると、パネルでは文ごとに行を分ける。読むのが苦手な生徒のために、1つの文は短く(50字くらいまで)、1つの文でしてほしいことは1つにする。
-- `クラスルーム配布/まとめる.py` は、`<head>` のすぐあとに `window.EDUIT_JISHU = 'on'` を入れた版を `生徒に配る/自習用/` に作る。生徒用サイトの入口ページには自習モードの切りかえボタンがある。
+- 同じデータから、節ごとのワークシート(`worksheet/build.py`)と、メニューの「学習のまとめ」のたしかめ問題も作ります。
+- ふりがな: `EDUIT_INFO.jishu.ruby`(言葉 → 読み)。`python3 shared/jishu-ruby.py` が形態素解析(Sudachi。`python3 -m pip install sudachipy sudachidict_core`)で作り、各 `eduit-info.js` のいちばん下に書きこむ。**jishu の文を直したら実行しなおす**(読みのまちがいは、そのスクリプトの `OVERRIDES`・`ACCEPT` で直す)。分野の表には文の中だけの読み(「次の→じの」など)があるので、文には、その文が来た分野の表を使う。
+- 文の書き方: 読むのが苦手な生徒のために、1つの文は短く(40字くらい)、1つの文でしてほしいことは1つにする。
 
 ## 基本編・発展編のタブ(メニュー用)
 
 `EduitFrame.levels(置き場所, { card: function (item, parts, levelKey) { return カードの要素; }, gridClass, onRender })` で、
 `EDUIT_INFO.levels`(各分野の `eduit-info.js`)の分け方どおりに「基本編」「発展編」のタブとカードの並びを作ります。
-カードは `EduitFrame.card` で作り、`parts`(「使うところ」の要素)を渡します。`code: function (item) { return 'A1'; }` を渡すと、基本編の上に「おすすめの順番: A1 → A2 → …」の1行が出ます。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
+カードは `EduitFrame.card` で作り、`parts`(「使うところ」の要素)を渡します。選んだ編は localStorage `eduit.level.<分野>` に覚えます。
 
 アプリの中のタブ・ページは「基本のタブ → 発展のタブ」の順にならべ、①②③…の続き番号にします(「はじめに」「振り返り」「記録」は番号なし、振り返り・記録はいつも最後)。`levels` の `parts` にも同じ番号で書きます。
 分け方の一覧(先生用)は `teacher-tools/kihon-hatten/` が作ります。

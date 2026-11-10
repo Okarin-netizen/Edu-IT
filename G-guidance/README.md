@@ -19,7 +19,7 @@
 ```
 G-guidance/
 ├─ index.html      教材(1ページ。タブで切りかえ)
-├─ eduit-info.js   版・更新履歴・自習ガイド(jishu.apps.G)
+├─ eduit-info.js   版・更新履歴・節の進め方の手順(jishu.apps.G。sec は g1〜g5)
 ├─ docs/先生用ガイド.html
 ├─ build.py        1ファイル版を作る → dist/技術分野のガイダンス.html・dist/先生用ガイド.html
 └─ dist/
@@ -28,11 +28,11 @@ G-guidance/
 - 保存: localStorage `eduit.g.v1`(書いたこと・答え)。ふりがな・文字の大きさは全教材で同じ `eduit.prefs`(EduitFrame.prefs)。見た目(CSS)は T と同じ `../T-textbook/common/t-core.css`。
 - 書き出し: `{ schema: 'eduit-guidance/1', app: 'G', student, score, data }`。振り返り一覧(`teacher-tools/furikaeri-ichiran/parse.js` の `parseG`)で分野 G として読める。
 - ふりがなは `index.html` の中の `RUBY`(この教材の文に出る言葉の読み)で付ける。文を足したら、その漢字の言葉も `RUBY` に足す。
-- 自習ガイドの「この場所へ」は `[data-tab="t1"]` などのタブをクリックする。タブの名前を変えたら `eduit-info.js` の `where` も直す。
+- 節の進め方の「この場所へ」は `[data-tab="t1"]` などのタブをクリックする。タブの名前を変えたら `eduit-info.js` の `where` も直す。
 
 ## 作り直す
 
 ```
 python3 G-guidance/build.py          # dist/ だけ
-python3 クラスルーム配布/まとめる.py   # 生徒に配る/G_技術分野のガイダンス.html・自習用・振り返りなし・ワークシート・先生用ガイドまで
+python3 クラスルーム配布/まとめる.py   # 生徒に配る/G_技術分野のガイダンス.html・振り返りなし・ワークシート・先生用ガイドまで
 ```
