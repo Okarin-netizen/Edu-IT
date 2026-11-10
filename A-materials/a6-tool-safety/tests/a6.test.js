@@ -90,8 +90,9 @@ test('評価: 3観点すべて選ぶまで保存できない', () => {
 });
 
 /* ---------- データ ---------- */
-test('データ: 8種の工具に手順・注意・図・クイズがある', () => {
-  assert.deepStrictEqual(D.tools.map((t) => t.id), ['saw', 'plane', 'hammer', 'awl', 'file', 'scriber', 'square', 'clamp']);
+test('データ: 13種の工具に手順・注意・図・クイズがあり、製作の工程(stage)が付いている', () => {
+  assert.deepStrictEqual(D.tools.map((t) => t.id), ['saw', 'plane', 'hammer', 'awl', 'file', 'scriber', 'square', 'clamp', 'drill', 'sheetmetal', 'plastic', 'assemble', 'finish']);
+  D.tools.forEach((t) => assert.ok(['けがき', '切断', '部品加工', '組み立て', '仕上げ'].includes(t.stage), t.id));
   D.tools.forEach((t) => {
     assert.ok(t.steps.length >= 4, t.id);
     t.steps.forEach((s) => assert.ok(s.title && s.text && s.caution && s.fig.length, t.id + ' ' + s.title));
