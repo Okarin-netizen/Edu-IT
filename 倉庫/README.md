@@ -11,8 +11,15 @@
 | `D4_情報セキュリティ体験ラボ/modules/digital.js`・`js/digitallib.js` | D4 の ① デジタル化と情報量 | D2 デジタル化ラボと同じ内容(D2 のほうがくわしい) |
 | `D4_情報セキュリティ体験ラボ/modules/network.js` | D4 の ⑤ ネットワーク通信の模擬 | D3 ネットワーク通信シミュレータの ④ のぞき見と暗号化と同じ内容 |
 | `D4_情報セキュリティ体験ラボ/modules/hash.js` | D4 の ⑪ ハッシュ体験(発展) | D10 ハッシュ化体験ラボと同じ内容(D10 のほうがくわしいので、D10 を発展編に残した) |
+| D10 ハッシュ化体験ラボ(ソースは `D-information/hash-lab/` のまま) | 情報の技術の教材集・目次の付録 | 教科書の本文にない(2026-11-10 の見直し)。1つのファイルは `クラスルーム配布/先生用/D10_ハッシュ化体験ラボ_先生が配るとき.html` に置く |
 | `D4_情報セキュリティ体験ラボ/data/quiz.json` | D4 の `data/quiz.json` | 上の3つのモジュールの理解度チェックの問題(10問) |
 | `D4_情報セキュリティ体験ラボ/catalog-の行.txt` | D4 の `js/catalog.js` | 上の3つのモジュールの import・CATALOG・EASY_STEPS の行 |
+
+## もどし方(D10)
+
+1. `D-information/kyozai-shu/data/materials.json` の materials と resetKeys に hash-lab をもどす(git の履歴にある)。
+2. `D-information/eduit-info.js` の levels(発展編)・textbook.items・jishu.apps.D10 をもどす。
+3. `T-textbook/course-data.js` の COURSE_APPS に D10、付録に xd4 をもどす。
 
 ## もどし方(D4 のモジュール)
 

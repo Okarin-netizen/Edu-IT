@@ -17,7 +17,7 @@ if proc.returncode != 0:
     raise SystemExit(f"extract.cjs でエラーになりました:\n{proc.stderr.strip()}")
 data = json.loads(proc.stdout)
 
-# 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)と、そこから見た自習用の統一版
+# 生徒に配るファイルの名前(クラスルーム配布/生徒に配る/ワークシート/)と、そこから見た統一版
 FILES = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html",
          "M": "M_身の回りの技術さがし_ワークシート.html", "F": "F_これからの技術ラボ_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"}
 UNIFIED = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html",
@@ -355,7 +355,7 @@ def area_page(d):
 {SITE_HOME}<h1 class="ef-title"><span class="ef-code">{k}</span> {e(d["domainName"])} 自習ワークシート</h1>
 <div class="ef-tools">
 <button type="button" class="ef-btn ef-toggle" id="ws-ruby" aria-pressed="true">ふりがな</button>
-<a class="ef-btn" id="ws-open" href="../自習用/{UNIFIED[k]}" target="_blank" rel="noopener">教材をひらく(自習モード)</a>
+<a class="ef-btn" id="ws-open" href="../{UNIFIED[k]}" target="_blank" rel="noopener">教材をひらく</a>
 <button type="button" class="ef-btn" id="ws-print">印刷</button>
 </div>
 </header>
