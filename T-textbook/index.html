@@ -182,6 +182,11 @@ window.courseTake = function () {
     .c-row { grid-template-columns: 26px minmax(0, 1fr) auto; }
     .c-row .c-no { display: none; }
     .c-open { min-width: 0; }
+    /* 節の帯: 付録の節は記号が長いので、はみ出す分は … にする */
+    .c-bar-ref, .c-bar-p { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .c-bar-ref { flex: 0 1 auto; }
+    .c-bar-p { flex: 0 0 auto; }
+    .c-bar-pk { display: none; }
   }
   @media print { .c-bar, .c-guide, .c-app { display: none !important; } }
 </style>
@@ -270,10 +275,16 @@ window.courseTake = function () {
   // 配るファイルの名前(T-textbook/build.py が BASE を '' にする。site/build.py が公開用の名前に書きかえる)
   var BASE = '../クラスルーム配布/生徒に配る/', WS_BASE = BASE + 'ワークシート/';
   var FILES = {"G": "G_技術分野のガイダンス.html", "A": "A_材料と加工_統一版.html", "B": "B_生物育成_統一版.html", "C": "C_エネルギー変換_統一版.html", "D": "D_情報の技術_統一版.html", "M": "M_身の回りの技術さがし.html", "F": "F_これからの技術ラボ.html", "Z": "Z_学習を終えて.html"};
-  var WS = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html", "M": "M_身の回りの技術さがし_ワークシート.html", "F": "F_これからの技術ラボ_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"};
+  var WS = {"G": "G_技術分野のガイダンス_ワークシート.html", "A": "A_材料と加工_ワークシート.html", "B": "B_生物育成_ワークシート.html", "C": "C_エネルギー変換_ワークシート.html", "D": "D_情報の技術_ワークシート.html", "Z": "Z_学習を終えて_ワークシート.html"};
   var MENU = FILES;  // 教材の一覧から開くファイル(生徒用サイトでは、上に「◀ 教科書の目次」のバーが付いたページにする)
 
   var APPS = window.COURSE_APPS, COURSE = window.COURSE, JISHU = window.COURSE_JISHU || {};
+  // 節 → ワークシートのファイル(worksheet/build.py と同じ分け方。付録の発展編は各編の、統合的な問題解決は Z のファイル)。学習のまとめの節はなし
+  var WS_OF = {};
+  COURSE.forEach(function (p) { p.chapters.forEach(function (c) { c.secs.forEach(function (s) {
+    if (s.go && s.go.length && s.go.every(function (g) { return APPS[g[0]] && APPS[g[0]].ws === false; })) return;
+    WS_OF[s.id] = p.key === 'X' ? { '1編': 'A', '2編': 'B', '3編': 'C', '4編': 'D' }[c.ch] : (p.key === 'I' || p.key === 'Z' ? 'Z' : p.key);
+  }); }); });
   // 自習ガイドの言葉のふりがなも使う(t-ruby.js にないものだけ足す)。かなのまじる言葉(「次の」など)は、
   // その分野の文の中だけの読みのことがあるので足さない。分野の手順・問題の文は、その分野の表で付ける(RB)
   var R = window.COURSE_RUBY || {}, RB = window.COURSE_RUBY_BY || {};
@@ -516,7 +527,8 @@ window.courseTake = function () {
     sv.className = 'c-secview c-hen-' + x.H.id + (mode === 'class' ? ' is-class' : '');
     T.text($('c-bar-ref'), shortRef(x.s));
     T.text($('c-bar-name'), x.s.name);
-    T.text($('c-bar-p'), x.s.p ? '教科書 p.' + x.s.p : '');
+    var bp = $('c-bar-p'); bp.textContent = '';
+    if (x.s.p) { var pk = document.createElement('span'); pk.className = 'c-bar-pk'; pk.textContent = '教科書 '; bp.appendChild(pk); bp.appendChild(document.createTextNode('p.' + x.s.p)); }
     document.title = shortRef(x.s) + ' ' + x.s.name;
     $('c-guide').classList.remove('is-up');
     $('c-sheet-h').setAttribute('aria-expanded', 'false');
@@ -641,6 +653,8 @@ window.courseTake = function () {
       ta.addEventListener('input', function () { stOf(cur.s.id).m = ta.value; T.save(); });
       b.appendChild(ta);
       b.appendChild(msg);
+      if (WS_OF[s.id] && WS[WS_OF[s.id]]) b.appendChild(el('p', { class: 'c-small' }, ['紙やタブレットに書いて残すときは ',
+        el('a', { href: WS_BASE + WS[WS_OF[s.id]] + '#' + s.id, target: '_blank', rel: 'noopener', text: 'この節のワークシート' }), ' を使おう。']));
       b.appendChild(el('div', { class: 'c-foot' }, [doneBtn(5, '書いた', function () {
         if (ta.value.trim().length < 5) { T.text(msg, 'まとめを1文書いてから押そう。'); ta.focus(); return false; }
         return true;

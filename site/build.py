@@ -134,8 +134,7 @@ TITLES = {"g.html": "技術分野のガイダンス", "a.html": "材料と加工
           "m.html": "M 身の回りの技術さがし", "f.html": "F これからの技術ラボ", "z.html": "Z 学習を終えて"}
 
 WS = {"G_技術分野のガイダンス_ワークシート.html": "g.html", "A_材料と加工_ワークシート.html": "a.html", "B_生物育成_ワークシート.html": "b.html",
-      "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html",
-      "M_身の回りの技術さがし_ワークシート.html": "m.html", "F_これからの技術ラボ_ワークシート.html": "f.html", "Z_学習を終えて_ワークシート.html": "z.html"}
+      "C_エネルギー変換_ワークシート.html": "c.html", "D_情報の技術_ワークシート.html": "d.html", "Z_学習を終えて_ワークシート.html": "z.html"}
 
 
 def course_links(page):
@@ -194,16 +193,16 @@ for src, dst in PAGES.items():
     (out / "apps" / dst).write_text(page, encoding="utf-8")
     (out / dst).write_text(FRAME.format(title=TITLES[dst], file=dst), encoding="utf-8")
 
-# 自習ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの)は ws/a.html〜ws/d.html(と g・m・f・z)に置く。
-# 教材へのリンクは公開用の a.html などに、左上に教科書の目次へもどるリンクを足す
+# ワークシート(worksheet/build.py → まとめる.py が 生徒に配る/ワークシート/ に置いたもの。節ごとに1枚)は ws/g.html・a.html〜d.html・z.html に置く。
+# 「この節をひらく」は公開用の目次(../#s=節)に、左上に教科書の目次へもどるリンクを足す
 (out / "ws").mkdir()
 for src, dst in WS.items():
     page = read(student / "ワークシート" / src)
-    unified = next(k for k, v in PAGES.items() if v == dst)
-    n = page.count(f'href="../{unified}"') + page.count("<!--site-home-->")
-    if n != 2:
-        raise SystemExit(f"{src}: 教材へのリンクか入口へもどる印が見つかりません(worksheet/build.py を直してください)")
-    page = page.replace(f'href="../{unified}"', f'href="../{dst}"')
+    course = "../教科書の順に進む_学習コース.html"
+    n = page.count(f'"{course}"') + page.count("<!--site-home-->")
+    if n != 3:
+        raise SystemExit(f"{src}: 学習コースへのリンクか入口へもどる印が見つかりません(worksheet/build.py を直してください)")
+    page = page.replace(f'"{course}"', '"../"')
     page = page.replace("<!--site-home-->", '<a class="ef-btn ef-back" href="../">◀ 教科書の目次</a>')
     (out / "ws" / dst).write_text(page, encoding="utf-8")
 
