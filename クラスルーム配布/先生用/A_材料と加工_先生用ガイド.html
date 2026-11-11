@@ -2580,6 +2580,10 @@ window.EDUIT_INFO.jishu.ruby = {
   }
   if (inSec) {
     window.addEventListener('message', function (e) {
+      // 同じサイトのページ(配るファイルとして開いたときはファイル同士。どちらも origin が 'null')からだけ受けとる。
+      // よそのサイトがこの教材を iframe に入れて { eduitSec: 'go' } を送り、ボタンを押させることができないように。
+      // window.origin を使う(srcdoc の iframe では location.origin が 'null' になるブラウザがあるため)
+      if (e.origin !== (window.origin || location.origin)) return;
       var d = e.data;
       if (!d || typeof d !== 'object' || typeof d.eduitSec !== 'string') return;
       if (d.eduitSec === 'ready') { if (e.source !== window) secPost(d); return; }  // 子の教材から → 目次へ

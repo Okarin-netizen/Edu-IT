@@ -137,6 +137,7 @@ def main(out):
   window.addEventListener('hashchange', fromHash);
   // 教科書の目次の節の画面(?sec=)から開いたとき: 目次と中のページのあいだで、節のやりとり(eduitSec)をそのまま中つぎする
   window.addEventListener('message', function (e) {
+    if (e.origin !== (window.origin || location.origin)) return;  // 同じサイト(配るファイルならファイル同士)からだけ中つぎする
     var d = e.data;
     if (!d || typeof d !== 'object' || typeof d.eduitSec !== 'string') return;
     try {
