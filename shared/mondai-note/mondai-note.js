@@ -280,7 +280,7 @@
         })),
         h('p', { class: 'mn-help' }, '▶ = このノートでとりくむ段階(構想と' + (dom.make === '育てる' ? '育成' : '製作') + 'は、ほかの教材や実習でとりくみます)'),
         h('div', { class: 'mn-steps' },
-          stepBox('①', '問題の発見', '「こうだったらいいのに」「不便だな」を付箋に書いて集め、問題と課題を分けて、自分の課題を1つ決めます。', 'find'),
+          stepBox('①', '問題の発見', '「こうだったらいいのに」「不便だな」を付箋に書いて集めます。問題と課題を分けて、自分の課題を1つ決めます。', 'find'),
           stepBox('②', '評価、改善・修正', '作った' + dom.work + 'を観点ごとに5段階で評価し、レーダーチャートにします。よかった点・改善点を書きます。', 'eval'),
           stepBox('③', '技術の最適化', '社会の製品をえらび、観点の重みを変えると「いちばんよい案」が入れかわることを試します。', 'opt'))));
       el.appendChild(card('問題と課題のちがい', null,
@@ -347,7 +347,7 @@
 
       // 問題?課題? クイズ
       quizBox = h('div', { class: 'mn-quiz', 'aria-live': 'polite' });
-      el.appendChild(card('2. これは問題? 課題? クイズ', '「問題」は不便さや「こうだったらいいのに」と思うこと、「課題」は問題を解決するために何をどうするかを決めたものです。', quizBox));
+      el.appendChild(card('2. これは問題? 課題? クイズ', '「問題」は、不便さや「こうだったらいいのに」と思うことです。「課題」は、問題を解決するために何をどうするかを決めたものです。', quizBox));
       drawQuiz();
 
       // 自分の課題を決める
@@ -566,7 +566,7 @@
         return h('label', { class: 'mn-check', for: id }, cb, h('span', null, t));
       }));
       el.appendChild(card('2. ' + (dom.make === '育てる' ? '育成' : '製作') + 'の過程をふり返ろう', 'できあがりだけでなく、計画や作業の進め方が適切だったかも評価します。できたことにチェックを入れましょう。', pr));
-      el.appendChild(card('3. よかった点と改善・修正の方法を書こう', '評価をもとに、構想したとおりにならなかったところや、よりよくしたいところを見つけて、改善・修正の方法を考えます。',
+      el.appendChild(card('3. よかった点と改善・修正の方法を書こう', '評価をもとに、構想したとおりにならなかったところや、よりよくしたいところを見つけます。そして、改善・修正の方法を考えます。',
         h('div', { class: 'mn-cols' }, good, imp),
         field('新たに見つけた問題(次の問題解決につなげる)', 'newProblem', E, { rows: 2 })));
       el.appendChild(nextBar('opt'));
@@ -728,7 +728,7 @@
       var who = h('div', { class: 'mn-row mn-who' },
         field('組', 'cls', S, { rows: 0, max: 6 }), field('番号', 'no', S, { rows: 0, max: 4 }), field('名前', 'name', S, { rows: 0, max: 20 }));
       var tools = typeof opts.recordTools === 'function' ? opts.recordTools() : opts.recordTools;
-      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは下の「…書き出す」ボタンでファイルにし、紙で出すときは「印刷する」を使います。',
+      el.appendChild(card('記録を残そう', 'ノートは自動で保存されます。先生に出すときは、下の「…書き出す」ボタンでファイルにします。紙で出すときは「印刷する」を使います。',
         who, h('div', { class: 'mn-row mn-rec-tools' }, btn('🖨 印刷する(問題解決シート)', function () { api.print(); }, 'mn-btn-primary'), tools || null),
         h('p', { class: 'mn-help' }, '印刷すると、書いていない欄は線だけのわくになります。紙に書きこんで使うこともできます。')));
       var sum = MN.summary(D, D.domain), box = card('ノートのまとめ', null);

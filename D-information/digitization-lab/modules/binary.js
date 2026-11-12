@@ -161,7 +161,7 @@ export const binaryModule = {
         h("div", { class: "field" }, h("label", { for: "char-in" }, "文字を入力"), input),
         h("div", { class: "table-wrap" }, h("table", { class: "data" }, h("thead", {}, h("tr", {}, h("th", {}, "文字"), h("th", {}, "番号（10進数）"), h("th", {}, "0と1（2進数）"), h("th", {}, "大きさ"))), table)),
         total,
-        explainCard("英数字と日本語", "英数字は1文字1バイト（8ビット）です。ひらがなや漢字は数が多いので、UTF-8 では1文字3バイトで表します（全角のＡＢＣも3バイト）。<br>シフトJIS（日本語1文字2バイト）など、決まりがちがうとバイト数も変わります。"),
+        explainCard("英数字と日本語", "英数字は1文字1バイト（8ビット）です。ひらがなや漢字は数が多いので、UTF-8 では1文字3バイトです（全角のＡＢＣも）。<br>シフトJIS（日本語1文字2バイト）など、決まりがちがうとバイト数も変わります。"),
         h("h3", {}, "やってみよう：0と1の暗号を解読しよう"),
         h("p", {}, "次の0と1は、英大文字の文字コードです。表を見て、元の言葉を当てよう。"),
         h("div", { class: "cipher-text mono" }, [...word].map((ch) => toBinary(ch.charCodeAt(0), 8)).join("  ")),

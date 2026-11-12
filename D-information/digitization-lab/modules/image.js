@@ -297,7 +297,7 @@ export const imageModule = {
         h("div", { class: "field-row digital-row" }, h("div", {}, canvas), h("div", {}, res.el, modeSel.el, h("p", { class: "hint mode-note" }, "注意：「グレー256段階」は1画素8ビット、「カラー8色」は1画素3ビットです。だから、カラー8色に進むとデータ量は減ります。データ量を決めるのは、色の種類ではなく1画素のビット数です。"), info)),
         h("div", { class: "btn-row" }, h("button", { class: "btn small secondary", type: "button", onclick: addCompare }, "＋ この設定をくらべる表に入れる")),
         h("div", { class: "table-wrap" }, h("table", { class: "data compare" }, h("thead", {}, h("tr", {}, h("th", {}, "見た目"), h("th", {}, "画素の数"), h("th", {}, "色"), h("th", {}, "データ量"))), compareBody)),
-        explainCard("わかったこと", "画素が多い（解像度が高い）ほど細かく、色の段階が多いほどなめらかになり、データ量も増えます。横と縦を2倍にすると4倍、1画素のビット数を2倍にすると2倍です。"),
+        explainCard("わかったこと", "画素が多い（解像度が高い）ほど細かく、色の段階が多いほどなめらかになります。どちらもデータ量が増えます。横と縦を2倍にすると4倍、1画素のビット数を2倍にすると2倍です。"),
         h("p", { class: "hint" }, "※自分の写真は、この画面の中で計算に使うだけです。保存も送信もせず、ほかのページに移ると消えます。人の写真を使うときは、写っている人の許可を取ろう。"),
       );
       setSrc("landscape");
