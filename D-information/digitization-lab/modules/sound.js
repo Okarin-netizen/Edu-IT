@@ -232,7 +232,7 @@ function stopMic() {
 export const soundModule = {
   id: ID,
   minutes: "20分",
-  lead: "はかる回数や段階の数を変えて、見て・聞いてくらべよう。音（空気の波）は、高さを時間ごとにはかり（標本化）、段階の数にあてはめ（量子化）、0と1にします（符号化）。",
+  lead: "はかる回数や段階の数を変えて、見て・聞いてくらべよう。音（空気の波）は、時間ごとに高さをはかり（標本化）、段階にあてはめます（量子化）。それを0と1にします（符号化）。",
   steps: STEPS,
   leave: stopMic,
   async render(root) {
